@@ -9,6 +9,7 @@ import com.elster.jupiter.pki.ClientCertificateWrapper;
 
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
+import javax.security.auth.x500.X500Principal;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,8 +43,8 @@ public class CertificateInfoFactory {
         if (certificateWrapper.getCertificate().isPresent()) {
             certificateWrapper.getAllKeyUsages().ifPresent(keyUsages -> info.type = keyUsages);
             X509Certificate x509Certificate = certificateWrapper.getCertificate().get();
-            info.issuer = x509Certificate.getIssuerDN().getName();
-            info.subject = x509Certificate.getSubjectDN().getName();
+            info.issuer = x509Certificate.getIssuerX500Principal().getName(X500Principal.RFC1779);
+            info.subject = x509Certificate.getSubjectX500Principal().getName(X500Principal.RFC1779);
             info.certificateVersion = x509Certificate.getVersion();
             info.serialNumber = x509Certificate.getSerialNumber();
             info.notBefore = x509Certificate.getNotBefore().toInstant();
