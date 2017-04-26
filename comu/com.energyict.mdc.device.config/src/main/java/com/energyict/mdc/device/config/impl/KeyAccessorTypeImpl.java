@@ -13,6 +13,7 @@ import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.device.config.DeviceKeyAccessorType;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.KeyAccessorTypeUpdater;
@@ -35,7 +36,7 @@ import static java.util.stream.Collectors.toList;
 @KeyEncryptionMethodValid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 @DurationPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 @TrustStorePresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
+public class KeyAccessorTypeImpl implements DeviceKeyAccessorType, PersistenceAware {
     private long id;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -199,6 +200,7 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
         }
     }
 
+    @Override
     public boolean currentUserIsAllowedToEditDeviceProperties() {
         Principal principal = threadPrincipalService.getPrincipal();
         if (!(principal instanceof User)) {
@@ -214,6 +216,7 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
         return false;
     }
 
+    @Override
     public boolean currentUserIsAllowedToViewDeviceProperties() {
         Principal principal = threadPrincipalService.getPrincipal();
         if (!(principal instanceof User)) {
