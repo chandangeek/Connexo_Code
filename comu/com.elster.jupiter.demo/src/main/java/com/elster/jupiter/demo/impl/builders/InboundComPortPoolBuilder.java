@@ -6,7 +6,7 @@ package com.elster.jupiter.demo.impl.builders;
 
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -39,7 +39,7 @@ public class InboundComPortPoolBuilder extends NamedBuilder<InboundComPortPool, 
 
     @Override
     public InboundComPortPool create() {
-        InboundDeviceProtocolPluggableClass protocolPluggableClass = protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName("com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover").get(0);
+        InboundDeviceProtocolPluggableClass protocolPluggableClass = protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName("com.energyict.mdc.protocol.inbound.dlms.DlmsSerialNumberDiscover").get(0);
         InboundComPortPool inboundComPortPool = engineConfigurationService.newInboundComPortPool(getName(), ComPortType.SERVLET, protocolPluggableClass, Collections.emptyMap());
         inboundComPortPool.setActive(isActive);
         inboundComPortPool.update();

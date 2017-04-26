@@ -10,7 +10,6 @@ import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPost
 import com.elster.jupiter.demo.impl.commands.ActivateDevicesCommand;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
-import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -19,7 +18,6 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
-import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -41,7 +39,7 @@ public class CreateG3SlaveCommand {
                         .setProperty("name", "Demo board AS3000")
                         .setProperty("propertyID", "E0023000520685414")
                         .setProperty("serialNumber", "E0023000520685414")
-                        .setProperty("MAC_address", "02237EFFFEFD835B")
+                        .setProperty("callHomeId", "02237EFFFEFD835B")
                         .setProperty("masterKey", "00112233445566778899AABBCCDDEEFF")
                         .setProperty("AK", "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF")
                         .setProperty("EK", "000102030405060708090A0B0C0D0E0F")
@@ -49,7 +47,7 @@ public class CreateG3SlaveCommand {
                         .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
                         .setProperty("HLSsecretASCII", "1234567890123456")
                         .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
-                        .setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
+                        .setProperty("ClientMacAddress", BigDecimal.ONE);
             }
         },
         AS220 {
@@ -59,7 +57,7 @@ public class CreateG3SlaveCommand {
                         .setProperty("name", "Demo board AS220")
                         .setProperty("propertyID", "123457S")
                         .setProperty("serialNumber", "123457S")
-                        .setProperty("MAC_address", "02237EFFFEFD82F4")
+                        .setProperty("callHomeId", "02237EFFFEFD82F4")
                         .setProperty("masterKey", "00112233445566778899AABBCCDDEEFF")
                         .setProperty("AK", "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF")
                         .setProperty("EK", "000102030405060708090A0B0C0D0E0F")
@@ -67,7 +65,7 @@ public class CreateG3SlaveCommand {
                         .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
                         .setProperty("HLSsecretASCII", "1234567890123456")
                         .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
-                        .setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
+                        .setProperty("ClientMacAddress", BigDecimal.ONE);
             }
         };
 
@@ -84,7 +82,7 @@ public class CreateG3SlaveCommand {
 
     @Inject
     public CreateG3SlaveCommand(Provider<ActivateDevicesCommand> lifecyclePostBuilder) {
-        this.lifecyclePostBuilder = lifecyclePostBuilder;;
+        this.lifecyclePostBuilder = lifecyclePostBuilder;
     }
 
     public void setName(String name) {
@@ -167,8 +165,7 @@ public class CreateG3SlaveCommand {
 
         TypedProperties getSecuritySetProperties(){
             TypedProperties securitySetProperties = TypedProperties.empty();
-            securitySetProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), props.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey()));
-            securitySetProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password((String) props.getProperty("HLSsecretASCII")));
+            securitySetProperties.setProperty("ClientMacAddress", props.getProperty("ClientMacAddress"));
             return securitySetProperties;
         }
 
@@ -207,7 +204,18 @@ public class CreateG3SlaveCommand {
 
         @Override
         public void accept(Device device) {
-            device.setSecurityProperties(meterConfig.getSecurityPropertySet(), meterConfig.getSecuritySetProperties());
+            SecurityPropertySet securityPropertySet = meterConfig.getSecurityPropertySet();
+            TypedProperties typedProperties = meterConfig.getSecuritySetProperties();
+
+            securityPropertySet
+                    .getPropertySpecs()
+                    .stream()
+                    .filter(ps -> "Password".equals(ps.getName()))
+                    .findFirst()
+                    .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("1234567890123456")));
+
+            device.setSecurityProperties(securityPropertySet, typedProperties);
+
             device.save();
         }
     }
@@ -221,7 +229,7 @@ public class CreateG3SlaveCommand {
 
         @Override
         public void accept(Device device) {
-            device.setProtocolProperty("MAC_address", meterConfig.getProperty("MAC_address"));
+            device.setProtocolProperty("callHomeId", meterConfig.getProperty("callHomeId"));
             device.setProtocolProperty("TimeZone", meterConfig.getProperty("TimeZone"));
             device.save();
         }
