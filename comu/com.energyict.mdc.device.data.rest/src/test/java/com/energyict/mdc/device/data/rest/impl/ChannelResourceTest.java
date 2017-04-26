@@ -1155,15 +1155,19 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(readingRecord.getReadingType()).thenReturn(calculatedReadingType);
         when(readingRecord.getQuantity(any(ReadingType.class))).thenReturn(quantity);
         when(readingRecord.getTimeStamp()).thenReturn(sourceRange.upperEndpoint());
-        when(channelWithCalculatedReadingType.getChannelData(any(Range.class))).thenReturn(Collections.singletonList(loadProfileReading));
-        when(loadProfileReading.getRange()).thenReturn(Range.openClosed(Instant.ofEpochMilli(1492146900000L), Instant.ofEpochMilli(1492147800000L)));
+        when(channelWithCalculatedReadingType.getChannelData(sourceRange)).thenReturn(Collections.singletonList(loadProfileReading));
+        when(loadProfileReading.getRange()).thenReturn(sourceRange);
         when(loadProfileReading.getChannelValues()).thenReturn(Collections.singletonMap(channel, readingRecord));
+        Range<Instant> referenceRange = Range.openClosed(Instant.ofEpochMilli(1492146900000L), Instant.ofEpochMilli(1492147800000L));
+        when(channelWithCalculatedReadingType.getChannelData(referenceRange)).thenReturn(Collections.singletonList(editedProfileReading));
+        when(editedProfileReading.getRange()).thenReturn(referenceRange);
+        when(editedProfileReading.getChannelValues()).thenReturn(Collections.singletonMap(channel, readingRecord));
         when(deviceService.findDeviceByName(device.getName())).thenReturn(Optional.of(device));
         JsonModel json = JsonModel.create(target("/devices/1/channels/" + CHANNEL_ID1 + "/data/copyfromreference").request().post(Entity.json(info), String.class));
 
         assertThat(json.<String>get("$.[0].value")).isEqualTo("10");
-        assertThat(json.<Long>get("$.[0].interval.start")).isEqualTo(1492146900000L);
-        assertThat(json.<Long>get("$.[0].interval.end")).isEqualTo(1492147800000L);
+        assertThat(json.<Long>get("$.[0].interval.start")).isEqualTo(sourceRange.lowerEndpoint().toEpochMilli());
+        assertThat(json.<Long>get("$.[0].interval.end")).isEqualTo(sourceRange.upperEndpoint().toEpochMilli());
     }
 
     @Test
