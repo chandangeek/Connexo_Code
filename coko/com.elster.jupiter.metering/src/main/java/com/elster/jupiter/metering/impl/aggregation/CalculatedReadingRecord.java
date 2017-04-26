@@ -267,7 +267,7 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
     }
 
     private Optional<ReadingQualityRecord> getAggregatedReadingQuality() {
-        ReadingQuality readingQualityValue = null;
+        ReadingQuality readingQualityValue = ReadingQuality.DERIVED_DETERMINISTIC;
         if (readingQuality == SUSPECT) {
             readingQualityValue = ReadingQuality.DERIVED_SUSPECT;
         } else if (readingQuality == MISSING) {
