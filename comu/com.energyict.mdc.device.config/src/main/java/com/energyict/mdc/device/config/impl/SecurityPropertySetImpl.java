@@ -13,10 +13,12 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
@@ -37,6 +39,7 @@ import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -62,6 +65,7 @@ import static java.util.stream.Collectors.toSet;
  */
 @LevelMustBeProvidedIfSupportedByDevice(groups = {Save.Create.class, Save.Update.class})
 @ValidClient(groups = {Save.Create.class, Save.Update.class})
+@ValidConfigurationSecurityProperties(groups = {Save.Create.class, Save.Update.class})
 //Do not remove the public access modifier: CXO-2786
 public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPropertySet> implements ServerSecurityPropertySet, PersistenceAware {
 
@@ -84,6 +88,8 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private ResponseSecurityLevel responseSecurityLevel;
     private Set<DeviceSecurityUserAction> userActions = EnumSet.noneOf(DeviceSecurityUserAction.class);
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
+    @Valid
+    private List<ConfigurationSecurityProperty> configurationSecurityProperties = new ArrayList<>();
     private final ThreadPrincipalService threadPrincipalService;
     @SuppressWarnings("unused")
     private String userName;
@@ -134,6 +140,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Override
     public void prepareDelete() {
         this.validateDelete();
+        this.configurationSecurityProperties.clear();
         this.userActionRecords.clear();
     }
 
@@ -379,8 +386,32 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Override
-    public DeviceConfiguration getDeviceConfiguration() {
-        return this.deviceConfiguration.get();
+    public List<ConfigurationSecurityProperty> getConfigurationSecurityProperties() {
+        return Collections.unmodifiableList(configurationSecurityProperties);
+    }
+
+    @Override
+    public void addConfigurationSecurityProperty(String name, KeyAccessorType keyAccessor) {
+        this.configurationSecurityProperties.add(new ConfigurationSecurityPropertyImpl(this, name, keyAccessor));
+    }
+
+    @Override
+    public void updateConfigurationSecurityProperty(String configurationSecurityPropertyName, KeyAccessorType keyAccessor) {
+        this.removeConfigurationSecurityProperty(configurationSecurityPropertyName);
+        if (keyAccessor != null) {
+            this.addConfigurationSecurityProperty(configurationSecurityPropertyName, keyAccessor);
+        }
+    }
+
+    @Override
+    public void removeConfigurationSecurityProperty(String configurationSecurityPropertyName) {
+        Optional<ConfigurationSecurityProperty> configurationSecurityProperty = this.configurationSecurityProperties
+                .stream()
+                .filter(property -> property.getName().equals(configurationSecurityPropertyName))
+                .findFirst();
+        if (configurationSecurityProperty.isPresent()) {
+            this.configurationSecurityProperties.remove(configurationSecurityProperty.get());
+        }
     }
 
     @Override
@@ -403,6 +434,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
                 result.put(propertySpec.getName(), propertySpec);
             }
         }
+    }
+
+    @Override
+    public DeviceConfiguration getDeviceConfiguration() {
+        return this.deviceConfiguration.get();
     }
 
     @Override
@@ -754,9 +790,9 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
                     return true;
                 } catch (InvalidValueException e) {
                     context.disableDefaultConstraintViolation();
-                                  context.buildConstraintViolationWithTemplate(MessageFormat.format(e.getDefaultPattern(), e.getArguments()))
-                                          .addPropertyNode("client").addConstraintViolation()
-                                          .disableDefaultConstraintViolation();
+                    context.buildConstraintViolationWithTemplate(MessageFormat.format(e.getDefaultPattern(), e.getArguments()))
+                            .addPropertyNode("client").addConstraintViolation()
+                            .disableDefaultConstraintViolation();
                     return false;
                 }
             }
@@ -773,6 +809,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         builder.securitySuite(securitySuiteId);
         builder.requestSecurityLevel(requestSecurityLevelId);
         builder.responseSecurityLevel(responseSecurityLevelId);
+        getConfigurationSecurityProperties().stream().forEach(each -> builder.addConfigurationSecurityProperty(each.getName(), each.getKeyAccessor()));
         return builder.build();
     }
 

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.config;
 
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
@@ -17,14 +18,16 @@ import com.energyict.mdc.protocol.api.security.SecuritySuite;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.List;
 import java.util.Set;
 
 /**
  * Models named set of security properties whose values
  * are managed against a Device.
  * The exact set of {@link PropertySpec}s
- * that are used is determined by the {@link AuthenticationDeviceAccessLevel}
- * and/or {@link EncryptionDeviceAccessLevel} select in the SecurityPropertySet.
+ * that are used is determined by the {@link AuthenticationDeviceAccessLevel} and/or
+ * {@link EncryptionDeviceAccessLevel} and/or {@link SecuritySuite},{@link RequestSecurityLevel}
+ * and/or {@link ResponseSecurityLevel} select in the SecurityPropertySet.
  * That in turn depends on the actual {@link DeviceProtocol}.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -47,16 +50,23 @@ public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpe
 
     ResponseSecurityLevel getResponseSecurityLevel();
 
-    DeviceConfiguration getDeviceConfiguration();
+    List<ConfigurationSecurityProperty> getConfigurationSecurityProperties();
+
+    void addConfigurationSecurityProperty(String name, KeyAccessorType keyAccessor);
+
+    void updateConfigurationSecurityProperty(String configurationSecurityPropertyName, KeyAccessorType keyAccessor);
+
+    void removeConfigurationSecurityProperty(String configurationSecurityPropertyName);
 
     /**
-     * Gets the Set of {@link PropertySpec}s that are the result
-     * of the selected {@link AuthenticationDeviceAccessLevel authentication}
-     * and {@link EncryptionDeviceAccessLevel encryption} levels.
+     * Gets the Set of {@link PropertySpec}s that are the result of the selected security levels.
      *
      * @return The Set of PropertySpecs
      */
     Set<PropertySpec> getPropertySpecs();
+
+
+    DeviceConfiguration getDeviceConfiguration();
 
     void setAuthenticationLevelId(int authenticationLevelId);
 

@@ -20,6 +20,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
 import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
 import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
@@ -107,32 +108,32 @@ public enum TableSpecs {
                     .varChar()
                     .notNull()
                     .map(KeyAccessorTypeImpl.Fields.NAME.fieldName())
-                    .since(Version.version(10,3))
+                    .since(Version.version(10, 3))
                     .add();
             Column deviceType = table.column("DEVICETYPEID")
                     .number()
                     .notNull()
-                    .since(Version.version(10,3))
+                    .since(Version.version(10, 3))
                     .add();
             table.column("DESCRIPTION")
                     .varChar()
                     .map(KeyAccessorTypeImpl.Fields.DESCRIPTION.fieldName())
-                    .since(Version.version(10,3))
+                    .since(Version.version(10, 3))
                     .add();
             table.column("DURATION").number()
                     .conversion(NUMBER2INT)
-                    .map(KeyAccessorTypeImpl.Fields.DURATION.fieldName()+".count")
-                    .since(Version.version(10,3))
+                    .map(KeyAccessorTypeImpl.Fields.DURATION.fieldName() + ".count")
+                    .since(Version.version(10, 3))
                     .add();
             table.column("DURATIONCODE").number()
                     .conversion(NUMBER2INT)
-                    .map(KeyAccessorTypeImpl.Fields.DURATION.fieldName()+".timeUnitCode")
-                    .since(Version.version(10,3))
+                    .map(KeyAccessorTypeImpl.Fields.DURATION.fieldName() + ".timeUnitCode")
+                    .since(Version.version(10, 3))
                     .add();
             table.column("ENCRYPTION")
                     .varChar()
                     .map(KeyAccessorTypeImpl.Fields.ENCRYPTIONMETHOD.fieldName())
-                    .since(Version.version(10,3))
+                    .since(Version.version(10, 3))
                     .add();
             Column keytypeid = table.column("KEYTYPEID")
                     .number()
@@ -477,13 +478,13 @@ public enum TableSpecs {
             table.setJournalTableName("DTC_DIALECT_CONFIG_PROPSJRNL").since(version(10, 2));
             table.addAuditColumns();
             table
-                .foreignKey("FK_DTC_DIALECTCONFPROPS_CONFIG")
-                .on(deviceConfiguration)
-                .references(DTC_DEVICECONFIG.name())
-                .map("deviceConfiguration")
-                .reverseMap("configurationPropertiesList")
-                .composition()
-                .add();
+                    .foreignKey("FK_DTC_DIALECTCONFPROPS_CONFIG")
+                    .on(deviceConfiguration)
+                    .references(DTC_DEVICECONFIG.name())
+                    .map("deviceConfiguration")
+                    .reverseMap("configurationPropertiesList")
+                    .composition()
+                    .add();
             table.primaryKey("PK_DTC_DIALECTCONFIGPROPS").on(id).add();
             table.unique("UQ_DTC_CONFIGPROPS_NAME").on(deviceConfiguration, nameColumn).add();
         }
@@ -500,13 +501,13 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.column("VALUE").varChar(4000).notNull().map("value").add();
             table
-                .foreignKey("DTC_DIALECTCONFIGPROPSATTRJRNL")
-                .on(id)
-                .references(DTC_DIALECTCONFIGPROPERTIES.name())
-                .map("properties")
-                .composition()
-                .reverseMap("propertyList")
-                .add();
+                    .foreignKey("DTC_DIALECTCONFIGPROPSATTRJRNL")
+                    .on(id)
+                    .references(DTC_DIALECTCONFIGPROPERTIES.name())
+                    .map("properties")
+                    .composition()
+                    .reverseMap("propertyList")
+                    .add();
             table.primaryKey("PK_DTC_DIALCTCFGPROPSATTR").on(id, name).add();
         }
     },
@@ -587,7 +588,7 @@ public enum TableSpecs {
                     .on(dialectConfigurationProperties)
                     .references(DTC_DIALECTCONFIGPROPERTIES.name())
                     .map(PartialConnectionTaskImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName())
-                    .since(Version.version(10,3))
+                    .since(Version.version(10, 3))
                     .add();
             table.unique("UQ_DTC_PARTIALCT_NAME").on(deviceConfiguration, nameColumn).add();
         }
@@ -706,6 +707,32 @@ public enum TableSpecs {
         }
     },
 
+    DTC_SECURITYPROPERTY {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ConfigurationSecurityProperty> table = dataModel.addTable(name(), ConfigurationSecurityProperty.class);
+            table.map(ConfigurationSecurityPropertyImpl.class);
+            table.since(version(10, 3));
+            Column securityPropertySetId = table.column("SECURITYPROPERTYSETID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            Column name = table.column("NAME").varChar().notNull().map("name").add();
+            Column keyAccessorType = table.column("KEYACCESSOR").number().notNull().add();
+            table.foreignKey("FK_DTC_SECURITYPROPERTY_SET")
+                    .on(securityPropertySetId)
+                    .references(DTC_SECURITYPROPERTYSET.name())
+                    .reverseMap("configurationSecurityProperties")
+                    .composition()
+                    .map("securityPropertySet")
+                    .add();
+            table.foreignKey("FK_DTC_SECURITYPROPERTY_VALUE")
+                    .on(keyAccessorType)
+                    .references(DTC_KEYACCESSORTYPE.name())
+                    .composition()
+                    .map("keyAccessor")
+                    .add();
+            table.primaryKey("PK_DTC_SECURITYPROPERTY").on(securityPropertySetId, name).add();
+        }
+    },
+
     DTC_COMTASKENABLEMENT {
         @Override
         public void addTo(DataModel dataModel) {
@@ -750,7 +777,7 @@ public enum TableSpecs {
                     .references(DTC_DIALECTCONFIGPROPERTIES.name())
                     .map("protocolDialectConfigurationProperties")
                     .onDelete(CASCADE)
-                    .upTo(Version.version(10,2))
+                    .upTo(Version.version(10, 2))
                     .add();
             table.unique("UK_DTC_COMTASKENABLEMENT").on(comtask, deviceCommunicationConfigation).add();
             table.primaryKey("PK_DTC_COMTASKENABLEMENT").on(id).add();
@@ -782,7 +809,13 @@ public enum TableSpecs {
 
             table.primaryKey("DTC_PK_SETCONFIGUSAGE").on(validationRuleSetIdColumn, deviceConfigurationIdColumn).add();
             table.foreignKey("DTC_FK_RULESET").references(ValidationRuleSet.class).onDelete(RESTRICT).map("validationRuleSet").on(validationRuleSetIdColumn).add();
-            table.foreignKey("DTC_FK_DEVICECONFIG").references("DTC_DEVICECONFIG").reverseMap("deviceConfValidationRuleSetUsages").composition().map("deviceConfiguration").on(deviceConfigurationIdColumn).add();
+            table.foreignKey("DTC_FK_DEVICECONFIG")
+                    .references("DTC_DEVICECONFIG")
+                    .reverseMap("deviceConfValidationRuleSetUsages")
+                    .composition()
+                    .map("deviceConfiguration")
+                    .on(deviceConfigurationIdColumn)
+                    .add();
         }
     },
 
@@ -954,32 +987,32 @@ public enum TableSpecs {
             table.map(DeviceMessageFileImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table
-                            .column("NAME")
-                            .varChar()
-                            .notNull()
-                            .map(DeviceMessageFileImpl.Fields.NAME.fieldName())
-                            .add();
+                    .column("NAME")
+                    .varChar()
+                    .notNull()
+                    .map(DeviceMessageFileImpl.Fields.NAME.fieldName())
+                    .add();
             Column deviceType = table
-                            .column("DEVICETYPE")
-                            .number()
-                            .notNull()
-                            .add();
+                    .column("DEVICETYPE")
+                    .number()
+                    .notNull()
+                    .add();
             table
-                .column("CONTENTS")
-                .blob()
-                .map(DeviceMessageFileImpl.Fields.CONTENTS.fieldName())
-                .add();
+                    .column("CONTENTS")
+                    .blob()
+                    .map(DeviceMessageFileImpl.Fields.CONTENTS.fieldName())
+                    .add();
             Column obsolete = table.column("OBSOLETE_DATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map(DeviceMessageFileImpl.Fields.COBSOLETEDATE.fieldName()).add();
             table.addAuditColumns();
             table.primaryKey("PK_DTC_DEVICEMESSAGEFILE").on(id).add();
             table
-                .foreignKey("FK_DTC_DEVMSGFILE_DEVTYPE")
-                .on(deviceType)
-                .references(DTC_DEVICETYPE.name())
-                .map(DeviceMessageFileImpl.Fields.DEVICE_TYPE.fieldName())
-                .reverseMap(DeviceTypeImpl.Fields.DEVICE_MESSAGE_FILES.fieldName())
-                .composition()
-                .add();
+                    .foreignKey("FK_DTC_DEVMSGFILE_DEVTYPE")
+                    .on(deviceType)
+                    .references(DTC_DEVICETYPE.name())
+                    .map(DeviceMessageFileImpl.Fields.DEVICE_TYPE.fieldName())
+                    .reverseMap(DeviceTypeImpl.Fields.DEVICE_MESSAGE_FILES.fieldName())
+                    .composition()
+                    .add();
             table.unique("UK_DTC_DEVICEMESSAGEFILENAME").on(deviceType, name, obsolete).add();
         }
     },
@@ -1018,7 +1051,7 @@ public enum TableSpecs {
             Column deviceTypeColumn = table.column("DEVICETYPE").number().notNull().add();
             table.column("OPTIONS").number().map(TimeOfUseOptionsImpl.Fields.OPTION_BITS.fieldName()).conversion(NUMBER2LONG).notNull().add();
             table.setJournalTableName("DTC_TOU_MANAGEMENTOPTIONSJRNL").since(version(10, 2));
-            table.addAuditColumns( );
+            table.addAuditColumns();
             table.primaryKey("DTC_PK_TIMEOFUSEOPTIONS").on(deviceTypeColumn).add();
             table.foreignKey("DTC_TOUOPTIONS_FK_DEVICETYPE")
                     .references(DTC_DEVICETYPE.name())

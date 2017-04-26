@@ -14,6 +14,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -23,10 +24,50 @@ import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceCommunicationFunction;
+import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
+import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
+import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.events.EventType;
-import com.energyict.mdc.device.config.exceptions.*;
-import com.energyict.mdc.masterdata.*;
+import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
+import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
+import com.energyict.mdc.device.config.exceptions.CannotDisableComTaskThatWasNotEnabledException;
+import com.energyict.mdc.device.config.exceptions.DataloggerSlaveException;
+import com.energyict.mdc.device.config.exceptions.DeviceConfigurationIsActiveException;
+import com.energyict.mdc.device.config.exceptions.DeviceTypeIsRequiredException;
+import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
+import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
+import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
+import com.energyict.mdc.masterdata.ChannelType;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
@@ -42,7 +83,19 @@ import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.security.Principal;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -1210,9 +1263,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public boolean removeDeviceMessageEnablement(DeviceMessageId deviceMessageId) {
         Optional<DeviceMessageEnablementImpl> enablement =
                 this.deviceMessageEnablements
-                    .stream()
-                    .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId))
-                    .findFirst();
+                        .stream()
+                        .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessageId))
+                        .findFirst();
         enablement.ifPresent(this::removeDeviceMessageEnablement);
         return enablement.isPresent();
     }
@@ -1289,9 +1342,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         Set<DeviceMessageId> fileManagementRelated = DeviceMessageId.fileManagementRelated();
         List<DeviceMessageEnablementImpl> obsoleteEnablements =
                 this.deviceMessageEnablements
-                    .stream()
-                    .filter(enablement -> fileManagementRelated.contains(enablement.getDeviceMessageId()))
-                    .collect(Collectors.toList());
+                        .stream()
+                        .filter(enablement -> fileManagementRelated.contains(enablement.getDeviceMessageId()))
+                        .collect(Collectors.toList());
         obsoleteEnablements.forEach(DeviceMessageEnablementImpl::prepareDelete);
         this.deviceMessageEnablements.removeAll(obsoleteEnablements);
     }
@@ -1543,11 +1596,21 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
 
         @Override
+        public SecurityPropertySetBuilder addConfigurationSecurityProperty(String name, KeyAccessorType keyAccessor) {
+            underConstruction.addConfigurationSecurityProperty(name, keyAccessor);
+            return this;
+        }
+
+        @Override
+        public Set<PropertySpec> getPropertySpecs() {
+            return underConstruction.getPropertySpecs();
+        }
+
+        @Override
         public SecurityPropertySet build() {
             DeviceConfigurationImpl.this.addSecurityPropertySet(underConstruction);
             if (DeviceConfigurationImpl.this.getId() > 0) {
-                DeviceConfigurationImpl.this.getEventService()
-                        .postEvent(underConstruction.createEventType().topic(), underConstruction);
+                DeviceConfigurationImpl.this.getEventService().postEvent(underConstruction.createEventType().topic(), underConstruction);
             }
             if (DeviceConfigurationImpl.this.getId() > 0) {
                 getDataModel().touch(DeviceConfigurationImpl.this);
@@ -1573,8 +1636,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         @Override
         public DeviceMessageEnablementBuilder addUserActions(DeviceMessageUserAction... deviceMessageUserActions) {
             Stream
-                .of(deviceMessageUserActions)
-                .forEach(this.underConstruction::addDeviceMessageUserAction);
+                    .of(deviceMessageUserActions)
+                    .forEach(this.underConstruction::addDeviceMessageUserAction);
             return this;
         }
 
