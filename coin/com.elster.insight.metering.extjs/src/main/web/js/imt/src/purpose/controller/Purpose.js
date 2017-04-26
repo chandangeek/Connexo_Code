@@ -10,8 +10,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.view.Outputs',
         'Imt.purpose.store.Outputs',
         'Imt.purpose.view.OutputChannelMain',
-        'Uni.store.DataIntervalAndZoomLevels',
-        'Imt.purpose.view.summary.PurposeMain'
+        'Uni.store.DataIntervalAndZoomLevels'
     ],
 
     stores: [
@@ -23,11 +22,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.store.ValidationTasks',
         'Imt.purpose.store.EstimationTasks',
         'Imt.usagepointmanagement.store.Periods',
-        'Imt.purpose.store.EstimationRules',
-        'Imt.purpose.store.PurposeSummaryData',
-        'Imt.purpose.store.FilteredOutputs',
-        'Imt.purpose.store.IntervalFilter',
-        'Imt.purpose.store.UnitFilter'
+        'Imt.purpose.store.EstimationRules'
     ],
 
     models: [
@@ -101,135 +96,63 @@ Ext.define('Imt.purpose.controller.Purpose', {
             dependenciesCounter = 4,
             defaultPeriod,
             usagePoint,
-            outputs,
             purposes;
 
-        if (!router.queryParams.purposeTab) {
-            window.location.replace(router.getRoute('usagepoints/view/purpose').buildUrl(null,{purposeTab: 'overview'}));
-        } else {
-            mainView.setLoading();
+        mainView.setLoading();
 
-            me.getStore('Imt.purpose.store.ValidationTasks').getProxy().extraParams = extraParams;
-            me.getStore('Imt.purpose.store.EstimationTasks').getProxy().extraParams = extraParams;
-            me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(onDependenciesLoad);
+        me.getStore('Imt.purpose.store.ValidationTasks').getProxy().extraParams = extraParams;
+        me.getStore('Imt.purpose.store.EstimationTasks').getProxy().extraParams = extraParams;
+        me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(onDependenciesLoad);
 
-            periodsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
-            periodsStore.load(function (records) {
-                defaultPeriod = records[0].getId();
+        periodsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
+        periodsStore.load(function (records) {
+            defaultPeriod = records[0].getId();
+            onDependenciesLoad();
+        });
+
+        me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(usagePointId, {
+            success: function (record) {
+                usagePoint = record;
+                app.fireEvent('usagePointLoaded', usagePoint);
                 onDependenciesLoad();
-            });
+            }
+        });
 
-            me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(usagePointId, {
-                success: function (record) {
-                    usagePoint = record;
-                    app.fireEvent('usagePointLoaded', usagePoint);
-                    onDependenciesLoad();
+        purposesStore.getProxy().extraParams = {usagePointId: usagePointId};
+        purposesStore.load(function (records) {
+            purposes = records;
+            app.fireEvent('purposes-loaded', purposes);
+            onDependenciesLoad();
+        });
+
+        function onDependenciesLoad() {
+            var purpose,
+                widget;
+
+            dependenciesCounter--;
+            if (!dependenciesCounter) {
+                usagePoint.set('purposes', purposes);
+                purpose = _.find(purposes, function (p) {
+                    return p.getId() == purposeId
+                });
+                widget = Ext.widget('purpose-outputs', {
+                    itemId: 'purpose-outputs',
+                    router: router,
+                    usagePoint: usagePoint,
+                    purposes: purposes,
+                    purpose: purpose,
+                    defaultPeriod: defaultPeriod
+                });
+
+                widget.down('#purpose-details-form').loadRecord(purpose);
+                app.fireEvent('changecontentevent', widget);
+                if (mainView.down('purpose-actions-menu')) {
+                    mainView.down('purpose-actions-menu').record = purpose;
                 }
-            });
-
-            purposesStore.getProxy().extraParams = {usagePointId: usagePointId};
-            purposesStore.load(function (records) {
-                purposes = records;
-                app.fireEvent('purposes-loaded', purposes);
-                onDependenciesLoad();
-            });
-
-
-
-            function onDependenciesLoad() {
-                var purpose,
-                    widget;
-
-                dependenciesCounter--;
-                if (!dependenciesCounter) {
-                    usagePoint.set('purposes', purposes);
-                    purpose = _.find(purposes, function (p) {
-                        return p.getId() == purposeId
-                    });
-
-                    var filteredOutputsStore = me.getStore('Imt.purpose.store.FilteredOutputs');
-                    filteredOutputsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
-                    filteredOutputsStore.load({
-                        callback: function () {
-                            outputs = filteredOutputsStore;
-                            widget = Ext.widget('purpose-main', {
-                                itemId: 'purpose-main',
-                                router: router,
-                                usagePoint: usagePoint,
-                                outputs: outputs,
-                                purposes: purposes,
-                                purpose: purpose,
-                                defaultPeriod: defaultPeriod,
-                                controller: me,
-                                prevNextListLink: me.makeLinkToOutputs(router),
-                                tab: router.queryParams.purposeTab
-                            });
-
-                            app.fireEvent('changecontentevent', widget);
-                            if (mainView.down('purpose-actions-menu')) {
-                                mainView.down('purpose-actions-menu').record = purpose;
-                            }
-                            mainView.setLoading(false);
-                        }
-                    });
-
-                    me.loadOutputs(usagePointId, purposeId);
-                }
+                mainView.setLoading(false);
+                me.loadOutputs(usagePointId, purposeId);
             }
         }
-    },
-
-    showOverviewTab: function(panel) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router');
-
-        if (router.arguments.purposeTab != 'overview') {
-            Uni.util.History.suspendEventsForNextCall();
-            Uni.util.History.setParsePath(false);
-            router.queryParams.purposeTab = 'overview';
-            router.getRoute('usagepoints/view/purpose').forward();
-        }
-
-        panel.down('#purpose-details-form').loadRecord(panel.purpose);
-    },
-
-    showDataViewTab: function(panel) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router');
-
-        if (router.arguments.purposeTab != 'data-view') {
-            Uni.util.History.suspendEventsForNextCall();
-            Uni.util.History.setParsePath(false);
-            router.queryParams.purposeTab = 'data-view';
-            router.getRoute('usagepoints/view/purpose').forward();
-        }
-
-        var readingsStore = me.getStore('Imt.purpose.store.PurposeSummaryData');
-        readingsStore.getProxy().extraParams = {
-            usagePointId: panel.usagePoint.get('name'),
-            purposeId: panel.purpose.getId()
-        };
-        readingsStore.load();
-
-        Ext.getStore('Imt.purpose.store.IntervalFilter');
-        //TODO: add params to proxy
-
-
-        // readingsStore.getProxy().extraParams = {
-        //     usagePointId: panel.usagePoint.get('name'),
-        //     purposeId: panel.purpose.getId(),
-        //     outputId: panel.output.getId()
-        // };
-
-
-
-        // readingsStore.getProxy().extraParams = {
-        //     usagePointId: panel.usagePoint.get('name'),
-        //     purposeId: panel.purpose.getId(),
-        //     outputId: panel.output.getId()
-        // };
-        //
-        // readingsStore.load();
     },
 
     showOutputPreview: function (selectionModel, record) {
