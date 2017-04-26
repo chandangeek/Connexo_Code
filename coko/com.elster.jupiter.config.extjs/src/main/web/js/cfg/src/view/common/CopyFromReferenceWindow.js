@@ -115,7 +115,8 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
                     ]
                 },
                 {
-                    xtype: 'estimation-comment'
+                    xtype: 'estimation-comment',
+                    keepOriginal: true
                 },
                 {
                     xtype: 'fieldcontainer',
