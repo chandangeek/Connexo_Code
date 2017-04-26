@@ -80,7 +80,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -319,22 +318,20 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public Optional<KeyAccessorTypeUpdater> getKeyAccessorTypeUpdater(KeyAccessorType keyAccessorType) {
-        if(keyAccessors.contains(keyAccessorType)) {
-            KeyAccessorTypeImpl accessorType = (KeyAccessorTypeImpl) keyAccessorType;
-            return Optional.of(accessorType.startUpdate());
-        }
-        return Optional.empty();
+        return getKeyAccessorTypes().stream()
+                .filter(kat -> kat.getId() == keyAccessorType.getId())
+                .findAny()
+                .map(kat->((KeyAccessorTypeImpl) keyAccessorType).startUpdate());
     }
 
     @Override
     public Set<DeviceSecurityUserAction> getKeyAccessorTypeUserActions(KeyAccessorType keyAccessorType) {
-        if(keyAccessors.contains(keyAccessorType)) {
-            KeyAccessorTypeImpl accessorType = (KeyAccessorTypeImpl) keyAccessorType;
-            return accessorType.getUserActions();
-        }
-        return new HashSet<>();
+        return getKeyAccessorTypes().stream()
+                .filter(kat -> kat.getId() == keyAccessorType.getId())
+                .findAny()
+                .map(kat->((KeyAccessorTypeImpl) keyAccessorType).getUserActions())
+                .orElse(Collections.emptySet());
     }
-
 
     private class KeyAccessorTypeBuilder implements KeyAccessorType.Builder {
         private final KeyAccessorTypeImpl underConstruction;
