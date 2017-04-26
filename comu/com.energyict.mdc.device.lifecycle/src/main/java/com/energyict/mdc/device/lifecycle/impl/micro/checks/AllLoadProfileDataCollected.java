@@ -71,11 +71,11 @@ public class AllLoadProfileDataCollected extends TranslatableServerMicroCheck {
     }
 
     private boolean lastReadingInLoadProfileMissing(LoadProfile loadProfile) {
-        return !loadProfile.getLastReading().isPresent();
+        return loadProfile.getLastReading() == null;
     }
 
     private boolean lastReadingOfLoadProfileIsNotFromPreviousInterval(LoadProfile loadProfile, Instant effectiveTimestamp) {
-        Instant loadProfileLastReading = loadProfile.getLastReading().get(); // the isPresent is checked in the previous check
+        Instant loadProfileLastReading = loadProfile.getLastReading().toInstant();  //The null check already happened
         if (effectiveTimestamp.isAfter(loadProfileLastReading)) {
             final Instant[] nextIntervalForLoadProfile = {loadProfileLastReading};
             findMdcAmrSystem().findMeter(String.valueOf(loadProfile.getDevice().getId())).
