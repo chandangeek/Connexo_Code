@@ -57,6 +57,7 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
                     itemId: 'meter-activations-field',
                     name: 'metrologyConfiguration.meterRoles',
                     meterRoles: true,
+                    usagePoint: me.usagePoint,
                     listeners: {
                         meterActivationsChange: function (allMetersSpecified) {
                             me.fireEvent('meterActivationsChange', allMetersSpecified);

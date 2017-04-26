@@ -50,9 +50,12 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
             callback = {
                 success: function (usagePoint) {
                     var meterRoles = usagePoint.get('metrologyConfiguration_meterRoles');
-                    if (!meterRoles) {
+                    if (!meterRoles && usagePoint.get('effectiveMetrologyConfiguration')) {
                         meterRoles = usagePoint.get('effectiveMetrologyConfiguration').meterRoles;
+                    } else if (!meterRoles && usagePoint.get('meterRoles')) {
+                        meterRoles = usagePoint.get('meterRoles');
                     }
+
                     widget = Ext.widget('usagePointActivateMeters', {
                         itemId: 'usage-point-activate-meters',
                         router: router,
@@ -79,18 +82,30 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
             usagePoint = btn.usagePoint,
             meterActivations = me.getMetersForm().getValue();
 
-            _.each(meterActivations, function (meterActivation) {
-                if (meterActivation.meter) {
-                    meterActivation.meterRole.meter = meterActivation.meter;
-                    meterActivation.meter = {
-                        name: meterActivation.meterRole.meter
-                    };
-                } else {
-                    meterActivation.meter = null;
+        meterActivations = _.filter(meterActivations, function (meterActivation) {
+            return meterActivation['isAddRow'] != true;
+        });
+
+        _.each(meterActivations, function (meterActivation) {
+            delete meterActivation['isAddRow'];
+
+            if (meterActivation.meter) {
+                if (typeof meterActivation.meterRole == 'string') {
+                    var meterRole = meterActivation.meterRole;
+                    meterActivation.meterRole = {};
+                    meterActivation.meterRole.id = meterRole;
                 }
-                meterActivation.meterRole.activationTime = meterActivation.activationTime;
-                meterActivation.activationTime = undefined;
-            });
+
+                meterActivation.meterRole.meter = meterActivation.meter;
+                meterActivation.meter = {
+                    name: meterActivation.meterRole.meter
+                };
+            } else {
+                meterActivation.meter = null;
+            }
+            meterActivation.meterRole.activationTime = meterActivation.activationTime;
+            meterActivation.activationTime = undefined;
+        });
 
         var callback = function () {
             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.setMeters.acknowledge', 'IMT', 'The list of meters saved'));

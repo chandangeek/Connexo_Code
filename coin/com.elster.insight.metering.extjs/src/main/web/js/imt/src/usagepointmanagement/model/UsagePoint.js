@@ -49,6 +49,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'techInfo', type: 'auto', defaultValue: {}},
         {name: 'metrologyConfiguration', type: 'auto', defaultValue: null},
         {name: 'effectiveMetrologyConfiguration', type: 'auto', defaultValue: null},
+        {name: 'meterRoles', type: 'auto', defaultValue: null},
         {name: 'hasEffectiveMCs', type: 'boolean', defaultValue: false},
         {name: 'meterActivations', type: 'auto', defaultValue: null},
         {name: 'lifeCycle', type: 'auto', persist: false},
