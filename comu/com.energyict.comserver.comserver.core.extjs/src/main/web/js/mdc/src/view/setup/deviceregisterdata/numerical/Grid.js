@@ -67,6 +67,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                                 + Uni.I18n.translate('general.notValidated', 'MDC', 'Not validated') + '"></span>';
                         }
                         return Uni.Number.formatNumber(data, -1) + icon;
+                    } else {
+                        return '-';
                     }
                 }
             },

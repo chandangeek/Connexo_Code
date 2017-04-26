@@ -28,6 +28,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
                     if (!Ext.isEmpty(value) && Ext.isString(value)) {
                         var val = Ext.String.htmlEncode(value);
                         return val.substr(0, 300);
+                    } else {
+                        return '-';
                     }
                 },
                 flex: 3
