@@ -219,21 +219,6 @@ Ext.define('Imt.purpose.controller.Readings', {
         }
     },
 
-    setToModel: function (model, obj) {
-        var setObj = function (param, object) {
-            var temp = model.get(param) ? Ext.merge(model.get(param), object) : object;
-            model.set(param, temp);
-        };
-
-        for (var prop in obj) {
-            if (typeof obj[prop] === "object") {
-                setObj(prop, obj[prop])
-            } else {
-                model.set(prop, obj[prop]);
-            }
-        }
-    },
-
     confirmValue: function (record, isBulk) {
         var me = this,
             grid = me.getReadingsList(),
@@ -286,18 +271,32 @@ Ext.define('Imt.purpose.controller.Readings', {
                 menu.record.get('estimatedNotSaved') === true,
             estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule,
             canClearProjected = menu.record.get('isProjected') === true,
-            canMarkProjected = menu.record.get('isProjected') === false && (menu.record.isModified('value') || menu.record.get('ruleId') !== 0 || !Ext.isEmpty(menu.record.get('modificationState')));
+            canMarkProjected = menu.record.get('isProjected') === false && (menu.record.isModified('value') || menu.record.get('ruleId') !== 0 || !Ext.isEmpty(menu.record.get('modificationState'))),
+            canEditingComment = false,
+            flagForComment = function (value) {
+                if (value === 'EDITED' ||
+                    value === 'ESTIMATED' ||
+                    value === 'REMOVED') {
+                    return true;
+                } else {
+                    return false;
+                }
+            };
 
         Ext.suspendLayouts();
         menu.down('#estimate-value').setVisible(validationResult);
         menu.down('#estimate-value-with-rule').setVisible(validationResult && estimationRulesCount);
+
+        if (menu.record.get('modificationState') && menu.record.get('modificationState').flag) {
+            canEditingComment = flagForComment(menu.record.get('modificationState').flag);
+        }
         if (menu.record.get('confirmed') || menu.record.isModified('value')) {
             menu.down('#confirm-value').hide();
         } else {
             menu.down('#confirm-value').setVisible(validationResult);
         }
         if (menu.down('#edit-estimation-comment')) {
-            menu.down('#edit-estimation-comment').setVisible(menu.record.get('commentId') || menu.record.get('commentId') === 0);
+            menu.down('#edit-estimation-comment').setVisible(canEditingComment);
         }
         if (menu.down('#reset-value')) {
             menu.down('#reset-value').setVisible(menu.record.get('estimatedByRule') || menu.record.get('modificationFlag') == "EDITED" || menu.record.get('modificationFlag') == "ADDED");
@@ -490,12 +489,27 @@ Ext.define('Imt.purpose.controller.Readings', {
             canEditingComment = false,
             button = me.getReadingsList().down('#readings-bulk-action-button'),
             menu = button.down('menu'),
-            estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule;
+            estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule,
+            flagForComment = function (value) {
+                if (value === 'EDITED' ||
+                    value === 'ESTIMATED' ||
+                    value === 'REMOVED') {
+                    return true;
+                } else {
+                    return false;
+                }
+            };
 
         Ext.Array.each(selectedRecords, function (record) {
             if (canEstimate && canConfirm && canReset) {
                 return false;
             }
+            if (!canEditingComment) {
+                if (record.get('modificationState') && record.get('modificationState').flag) {
+                    canEditingComment = flagForComment(record.get('modificationState').flag);
+                }
+            }
+
             if (!canEstimate && record.get('validationResult') == 'validationStatus.suspect') {
                 canEstimate = true;
                 if (!canConfirm && !record.get('isConfirmed') && !record.isModified('value')) {
@@ -507,9 +521,6 @@ Ext.define('Imt.purpose.controller.Readings', {
             }
             if (!canReset && (record.get('estimatedByRule') || record.get('modificationFlag') == "EDITED" || record.get('modificationFlag') == "ADDED")) {
                 canReset = true;
-            }
-            if (record.get('commentId') || record.get('commentId') === 0) {
-                canEditingComment = true;
             }
             if (record.get('isProjected')) {
                 canClearProjected = true;
@@ -589,24 +600,19 @@ Ext.define('Imt.purpose.controller.Readings', {
             readings = button.readings,
             record = {
                 modificationFlag: 'EDITED',
-                modificationState: {
-                    flag: 'EDITED',
-                    date: new Date()
-                },
+                modificationState: Uni.util.ReadingEditor.modificationState('EDITED'),
                 commentId: commentId,
                 commentValue: commentValue
             };
 
         if (!Array.isArray(readings)) {
             if (commentId !== -1) {
-                readings.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
-                me.setToModel(readings, record);
+                me.set( record);
             }
         } else {
             _.each(readings, function (reading) {
                 if (commentId !== -1) {
-                    reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
-                    me.setToModel(reading, record);
+                    reading.set(record);
                 }
             });
         }
@@ -698,7 +704,6 @@ Ext.define('Imt.purpose.controller.Readings', {
                                 record.set('mainValidationInfo', item.mainValidationInfo);
                                 record.set('modificationFlag', 'EDITED');
                                 record.get('modificationState').flag = 'EDITED';
-                                // record.get('modificationState').date = new Date();
                                 if (commentId !== -1) {
                                     record.set('commentId', commentId);
                                     record.set('commentValue', commentValue);
@@ -713,7 +718,6 @@ Ext.define('Imt.purpose.controller.Readings', {
                             window.records.set('mainValidationInfo', response[0].mainValidationInfo);
                             window.records.set('modificationFlag', 'EDITED');
                             window.records.get('modificationState').flag = 'EDITED';
-                            // window.records.get('modificationState').date = new Date();
                             if (commentId !== -1) {
                                 record.set('commentId', commentId);
                                 record.set('commentValue', commentValue);
