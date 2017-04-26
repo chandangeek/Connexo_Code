@@ -65,6 +65,7 @@ public class UpgraderV10_3 implements Upgrader {
         PLUGGABLE_CLASS_NAMES_MAPPING.put("Empty", "EmptyConnectionType");
 
         PLUGGABLE_CLASS_NAMES_MAPPING.put("General Electric KV ANSI", "General Electric KVx ANSI");
+        PLUGGABLE_CLASS_NAMES_MAPPING.put("EICT SDK DeviceProtocol", "EnergyICT SDK DeviceProtocol");
 
         PLUGGABLE_CLASS_NAMES_MAPPING.put("IFrameDiscover", "IframeDiscover");
         PLUGGABLE_CLASS_NAMES_MAPPING.put("DoubleIFrameDiscover", "DoubleIframeDiscover");
@@ -94,6 +95,7 @@ public class UpgraderV10_3 implements Upgrader {
         PLUGGABLE_CLASS_JAVA_CLASS_NAMES_MAPPING.put("com.energyict.protocols.impl.channels.inbound.EIWebConnectionType", "com.energyict.mdc.channels.inbound.EIWebConnectionType");
         PLUGGABLE_CLASS_JAVA_CLASS_NAMES_MAPPING.put("com.energyict.protocols.impl.channels.EmptyConnectionType", "com.energyict.mdc.channels.EmptyConnectionType");
 
+        PLUGGABLE_CLASS_JAVA_CLASS_NAMES_MAPPING.put("com.energyict.protocolimplv2.sdksample.SDKDeviceProtocol", "test.com.energyict.protocolimplv2.sdksample.SDKDeviceProtocol");
         PLUGGABLE_CLASS_JAVA_CLASS_NAMES_MAPPING.put("com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithAllProperties", "test.com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithAllProperties");
         PLUGGABLE_CLASS_JAVA_CLASS_NAMES_MAPPING.put("com.energyict.protocolimpl.dlms.SimpleDLMSProtocol", "test.com.energyict.protocolimpl.dlms.SimpleDLMSProtocol");
         PLUGGABLE_CLASS_JAVA_CLASS_NAMES_MAPPING.put("com.energyict.protocolimpl.sdksample.SDKSampleProtocol", "test.com.energyict.protocolimpl.sdksample.SDKSampleProtocol");
