@@ -66,19 +66,12 @@ public class SecurityAccessorInfoFactory {
     }
 
     public SecurityAccessorInfo asKeyWithLevels(KeyAccessor<?> keyAccessor, DeviceType deviceType) {
-        SecurityAccessorInfo info = from(keyAccessor);
-        List<PropertySpec> propertySpecs = keyAccessor.getPropertySpecs();
-
-        TypedProperties actualTypedProperties = getPropertiesActualValue(keyAccessor);
-        info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties);
-
-        TypedProperties tempTypedProperties = getPropertiesTempValue(keyAccessor);
-        info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties);
+        SecurityAccessorInfo info = asKey(keyAccessor);
 
         List<Group> groups = userService.getGroups();
-        Set<DeviceSecurityUserAction> keyAccessorTypeUserActions = deviceType.getKeyAccessorTypeUserActions(keyAccessor.getKeyAccessorType());
-        info.editLevels = executionLevelInfoFactory.getEditPrivileges(keyAccessorTypeUserActions, groups);
-        info.viewLevels = executionLevelInfoFactory.getViewPrivileges(keyAccessorTypeUserActions, groups);
+        Set<DeviceSecurityUserAction> userActions = deviceType.getKeyAccessorTypeUserActions(keyAccessor.getKeyAccessorType());
+        info.editLevels = executionLevelInfoFactory.getEditPrivileges(userActions, groups);
+        info.viewLevels = executionLevelInfoFactory.getViewPrivileges(userActions, groups);
 
         return info;
     }
