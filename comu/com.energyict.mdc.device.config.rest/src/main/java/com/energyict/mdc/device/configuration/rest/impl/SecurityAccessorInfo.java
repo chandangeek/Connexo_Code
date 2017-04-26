@@ -7,6 +7,8 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 
+import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfo;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.ArrayList;
