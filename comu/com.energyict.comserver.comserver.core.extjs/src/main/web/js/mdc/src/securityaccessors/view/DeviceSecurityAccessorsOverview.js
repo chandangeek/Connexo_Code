@@ -116,8 +116,8 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsOverview', {
         return  {
             xtype: 'uni-form-empty-message',
             text: keyMode
-                ? Uni.I18n.translate('general.noKeys', 'MDC', 'No keys have been defined yet.')
-                : Uni.I18n.translate('general.noCertificates', 'MDC', 'No certificates have been defined yet.')
+                ? Uni.I18n.translate('general.noKeys', 'MDC', 'This device has no keys that need to be defined.')
+                : Uni.I18n.translate('general.noCertificates', 'MDC', 'This device has no certificates that need to be defined.')
         };
     }
 

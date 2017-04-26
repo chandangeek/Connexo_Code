@@ -17,7 +17,6 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreview', {
         me.tools = [
             {
                 xtype: 'uni-button-action',
-                //privileges: Mdc.privileges.DeviceType.admin,
                 itemId: 'mdc-device-security-accessor-preview-button',
                 menu: {
                     xtype: 'device-security-accessors-action-menu',
@@ -31,6 +30,17 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreview', {
             keyMode: me.keyMode
         };
         me.callParent(arguments);
+    },
+
+    doLoadRecord: function(record) {
+        var me = this,
+            hasEditRights = Mdc.securityaccessors.view.PrivilegesHelper.hasPrivileges(record.get('editLevels'));
+
+        me.setTitle(Ext.htmlEncode(record.get('name')));
+        me.down('device-security-accessor-preview-form form').loadRecord(record);
+        me.down('#mdc-device-security-accessor-preview-button').setVisible(
+            !me.keyMode || (me.keyMode && hasEditRights)
+        );
     }
 
 });

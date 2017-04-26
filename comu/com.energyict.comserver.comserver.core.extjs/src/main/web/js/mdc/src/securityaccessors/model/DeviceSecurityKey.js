@@ -15,7 +15,11 @@ Ext.define('Mdc.securityaccessors.model.DeviceSecurityKey', {
         {name: 'expirationTime', type: 'int'},
         {name: 'modificationDate', type: 'int'},
         'status',
-        'swapped'
+        {name: 'canGeneratePassiveKey', type: 'boolean', defaultValue:false, persist:false},
+        {name: 'swapped', type: 'boolean', defaultValue:false},
+        {name: 'hasTempValue', type: 'boolean', defaultValue:false},
+        'viewLevels',
+        'editLevels'
     ],
     associations: [
         {

@@ -21,7 +21,7 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreviewForm', {
                 fieldLabel: Uni.I18n.translate('general.validUntil', 'MDC', 'Valid until'),
                 name: 'expirationTime',
                 renderer: function (value) {
-                    if (Ext.isEmpty(value)) {
+                    if (Ext.isEmpty(value) || value === 0) {
                         return '-';
                     }
                     return Uni.DateTime.formatDateShort(new Date(value));
