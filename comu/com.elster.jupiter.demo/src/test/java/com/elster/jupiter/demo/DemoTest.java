@@ -183,7 +183,6 @@ import com.energyict.protocolimpl.elster.a3.AlphaA3;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -522,8 +521,8 @@ public class DemoTest {
         assertThat(scheduledConnectionTask.getNumberOfSimultaneousConnections()).isEqualTo(1);
         assertThat(scheduledConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName()).getValue()).isEqualTo("10.0.0.135");
-            assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName()).getValue()).isEqualTo(new BigDecimal(4059));
+            assertThat(scheduledConnectionTask.getProperty("host").getValue()).isEqualTo("10.0.0.135");
+            assertThat(scheduledConnectionTask.getProperty("portNumber").getValue()).isEqualTo(new BigDecimal(4059));
             assertThat(gateway.getSecurityProperties(securityPropertySet)).hasSize(3);
             for (SecurityProperty securityProperty : gateway.getSecurityProperties(securityPropertySet)) {
                 if (SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey().equals(securityProperty.getName())) {

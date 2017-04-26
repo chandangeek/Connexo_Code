@@ -13,7 +13,6 @@ import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -37,7 +36,7 @@ public class OutboundTCPConnectionMethodsDevConfPostBuilder implements Consumer<
     }
 
     public OutboundTCPConnectionMethodsDevConfPostBuilder withHost(String host){
-        properties.put(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), host);
+        properties.put("host", host);
         return this;
     }
 
@@ -47,8 +46,8 @@ public class OutboundTCPConnectionMethodsDevConfPostBuilder implements Consumer<
     }
 
     public OutboundTCPConnectionMethodsDevConfPostBuilder withDefaultOutboundTcpProperties(){
-        this.properties.put(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), DEFAULT_PORT_NUMBER);
-        this.properties.put(ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.propertySpecName(), TimeDuration.minutes(1));
+        this.properties.put("portNumber", DEFAULT_PORT_NUMBER);
+        this.properties.put("connectionTimeout", TimeDuration.minutes(1));
         return this;
     }
 
