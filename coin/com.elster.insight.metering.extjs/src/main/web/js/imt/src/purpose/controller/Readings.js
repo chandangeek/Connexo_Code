@@ -219,6 +219,21 @@ Ext.define('Imt.purpose.controller.Readings', {
         }
     },
 
+    setToModel: function (model, obj) {
+        var setObj = function (param, object) {
+            var temp = model.get(param) ? Ext.merge(model.get(param), object) : object;
+            model.set(param, temp);
+        };
+
+        for (var prop in obj) {
+            if (typeof obj[prop] === "object") {
+                setObj(prop, obj[prop])
+            } else {
+                model.set(prop, obj[prop]);
+            }
+        }
+    },
+
     confirmValue: function (record, isBulk) {
         var me = this,
             grid = me.getReadingsList(),
@@ -281,7 +296,9 @@ Ext.define('Imt.purpose.controller.Readings', {
         } else {
             menu.down('#confirm-value').setVisible(validationResult);
         }
-
+        if (menu.down('#edit-estimation-comment')) {
+            menu.down('#edit-estimation-comment').setVisible(menu.record.get('commentId') || menu.record.get('commentId') === 0);
+        }
         if (menu.down('#reset-value')) {
             menu.down('#reset-value').setVisible(menu.record.get('estimatedByRule') || menu.record.get('modificationFlag') == "EDITED" || menu.record.get('modificationFlag') == "ADDED");
         }
@@ -419,21 +436,28 @@ Ext.define('Imt.purpose.controller.Readings', {
         var me = this,
             changedData = [],
             changedRecord = {},
-            confirmedObj;
+            confirmedObj = {};
 
         Ext.Array.each(store.getUpdatedRecords(), function (record) {
-            if (record.get('ruleId')) {
-                changedRecord = _.pick(record.getData(), 'interval', 'value', 'ruleId', 'isProjected');
+            changedRecord = {
+                interval: record.get('interval')
+            };
+            if (record.isModified('value')) {
+                Ext.merge(changedRecord, _.pick(record.getData(), 'value'));
             }
-            if (record.isModified('value') || record.isModified('isProjected')) {
-                Ext.merge(changedRecord, _.pick(record.getData(), 'interval', 'value', 'isProjected'));
+            if (record.isModified('ruleId')) {
+                Ext.merge(changedRecord, _.pick(record.getData(), 'value', 'ruleId'));
+            }
+            if (record.isModified('isProjected')) {
+                Ext.merge(changedRecord, _.pick(record.getData(), 'value', 'isProjected'));
             }
             if (record.isModified('collectedValue')) {
-                Ext.merge(changedRecord, _.pick(record.getData(), 'interval', 'collectedValue', 'isProjected'));
+                Ext.merge(changedRecord, _.pick(record.getData(), 'collectedValue', 'isProjected'));
             }
             if (record.isModified('commentId')) {
-                Ext.merge(changedRecord, _.pick(record.getData(), 'interval', 'commentId'));
+                Ext.merge(changedRecord, _.pick(record.getData(), 'value', 'commentId'));
             }
+
             if (record.get('removedNotSaved')) {
                 confirmedObj = {
                     interval: record.get('interval'),
@@ -445,10 +469,10 @@ Ext.define('Imt.purpose.controller.Readings', {
                     interval: record.get('interval'),
                     isConfirmed: record.get('confirmedNotSaved') || false
                 };
-                changedData.push(confirmedObj);
-            } else {
-                changedData.push(changedRecord);
             }
+
+            Ext.merge(confirmedObj, changedRecord);
+            changedData.push(changedRecord);
         });
 
         return changedData;
@@ -463,6 +487,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             canEstimateWithRule = false,
             canClearProjected = false,
             canMarkProjected = false,
+            canEditingComment = false,
             button = me.getReadingsList().down('#readings-bulk-action-button'),
             menu = button.down('menu'),
             estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule;
@@ -483,6 +508,9 @@ Ext.define('Imt.purpose.controller.Readings', {
             if (!canReset && (record.get('estimatedByRule') || record.get('modificationFlag') == "EDITED" || record.get('modificationFlag') == "ADDED")) {
                 canReset = true;
             }
+            if (menu.record.get('commentId') || menu.record.get('commentId') === 0) {
+                canEditingComment = true;
+            }
             if (record.get('isProjected')) {
                 canClearProjected = true;
             }
@@ -497,6 +525,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         Ext.suspendLayouts();
         menu.down('#estimate-value').setVisible(canEstimate);
         menu.down('#estimate-value-with-rule').setVisible(canEstimateWithRule);
+        menu.down('#edit-estimation-comment').setVisible(canEditingComment);
         menu.down('#confirm-value').setVisible(canConfirm);
         menu.down('#reset-value').setVisible(canReset);
         menu.down('#correct-value').setVisible(canCorrect);
@@ -557,22 +586,27 @@ Ext.define('Imt.purpose.controller.Readings', {
             commentCombo = window.down('#estimation-comment-box'),
             commentValue = commentCombo.getRawValue(),
             commentId = commentCombo.getValue(),
-            readings = button.readings;
+            readings = button.readings,
+            record = {
+                modificationFlag: 'EDITED',
+                modificationState: {
+                    flag: 'EDITED',
+                    date: new Date()
+                },
+                commentId: commentId,
+                commentValue: commentValue
+            };
 
         if (!Array.isArray(readings)) {
-            if (!commentValue) {
-                readings.set('commentId', 0);
-            } else if (commentId !== -1) {
-                readings.set('commentId', commentId);
-                readings.set('commentValue', commentValue);
+            if (commentId !== -1) {
+                readings.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+                me.setToModel(readings, record);
             }
         } else {
             _.each(readings, function (reading) {
-                if (!commentValue) {
-                    reading.set('commentId', 0);
-                } else if (commentId !== -1) {
-                    reading.set('commentId', commentId);
-                    reading.set('commentValue', commentValue);
+                if (commentId !== -1) {
+                    reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+                    me.setToModel(reading, record);
                 }
             });
         }
@@ -607,8 +641,6 @@ Ext.define('Imt.purpose.controller.Readings', {
             limit: 50,
             property: 'fullAliasName'
         };
-
-
     },
 
     copyFromReferenceUpdateGrid: function () {
@@ -664,9 +696,10 @@ Ext.define('Imt.purpose.controller.Readings', {
                                 record.set('isProjected', model.get('projectedValue'));
                                 record.set('bulkValidationInfo', item.bulkValidationInfo);
                                 record.set('mainValidationInfo', item.mainValidationInfo);
-                                if (!commentValue) {
-                                    record.set('commentId', 0);
-                                } else if (commentId !== -1) {
+                                record.set('modificationFlag', 'EDITED');
+                                record.get('modificationState').flag = 'EDITED';
+                                // record.get('modificationState').date = new Date();
+                                if (commentId !== -1) {
                                     record.set('commentId', commentId);
                                     record.set('commentValue', commentValue);
                                 }
@@ -678,9 +711,10 @@ Ext.define('Imt.purpose.controller.Readings', {
                             window.records.set('isProjected', model.get('projectedValue'));
                             window.records.set('bulkValidationInfo', response[0].bulkValidationInfo);
                             window.records.set('mainValidationInfo', response[0].mainValidationInfo);
-                            if (!commentValue) {
-                                record.set('commentId', 0);
-                            } else if (commentId !== -1) {
+                            window.records.set('modificationFlag', 'EDITED');
+                            window.records.get('modificationState').flag = 'EDITED';
+                            // window.records.get('modificationState').date = new Date();
+                            if (commentId !== -1) {
                                 record.set('commentId', commentId);
                                 record.set('commentValue', commentValue);
                             }
@@ -859,9 +893,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
-                        if (!commentValue) {
-                            readings.set('commentId', 0);
-                        } else if (commentId !== -1) {
+                        if (commentId !== -1) {
                             readings.set('commentId', commentId);
                             readings.set('commentValue', commentValue);
                         }
@@ -870,9 +902,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                         Ext.Array.each(responseText, function (estimatedReading) {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
-                                    if (!commentValue) {
-                                        readings.set('commentId', 0);
-                                    } else if (commentId !== -1) {
+                                    if (commentId !== -1) {
                                         readings.set('commentId', commentId);
                                         readings.set('commentValue', commentValue);
                                     }
@@ -1005,9 +1035,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                     Ext.Array.each(responseText, function (correctedInterval) {
                         Ext.Array.findBy(records, function (reading) {
                             if (correctedInterval.interval.start == reading.get('interval').start) {
-                                if (!commentValue) {
-                                    reading.set('commentId', 0);
-                                } else if (commentId !== -1) {
+                                if (commentId !== -1) {
                                     reading.set('commentId', commentId);
                                     reading.set('commentValue', commentValue);
                                 }
