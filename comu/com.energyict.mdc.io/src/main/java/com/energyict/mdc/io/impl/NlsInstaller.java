@@ -11,16 +11,15 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.upl.io.SerialComponentService;
-
 import org.osgi.service.component.annotations.Component;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Installs the {@link MessageSeeds} and {@link TranslationKeys} of this mdc.io bundle.
+ * Installs the {@link MessageSeeds} and TranslationKeys of this mdc.io bundle.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-11-03 (17:42)
@@ -37,11 +36,11 @@ public class NlsInstaller implements MessageSeedProvider, TranslationKeyProvider
     @Override
     public List<MessageSeed> getSeeds() {
         return
-            Stream
-                .concat(
-                    Stream.of(MessageSeeds.values()),
-                    Stream.of(ModemException.MessageSeeds.values()))
-                .collect(Collectors.toList());
+                Stream
+                        .concat(
+                                Stream.of(MessageSeeds.values()),
+                                Stream.of(ModemException.MessageSeeds.values()))
+                        .collect(Collectors.toList());
     }
 
     @Override
@@ -51,7 +50,7 @@ public class NlsInstaller implements MessageSeedProvider, TranslationKeyProvider
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
+        return Collections.emptyList();
     }
 
 }
