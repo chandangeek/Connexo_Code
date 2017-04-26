@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
@@ -40,6 +41,8 @@ public class SecurityPropertySetInfo {
     public Integer responseSecurityLevelId;
     @JsonProperty("responseSecurityLevel")
     public SecurityLevelInfo responseSecurityLevel;
+
+    public List<PropertyInfo> properties;
 
     public long version;
     public VersionInfo<Long> parent;

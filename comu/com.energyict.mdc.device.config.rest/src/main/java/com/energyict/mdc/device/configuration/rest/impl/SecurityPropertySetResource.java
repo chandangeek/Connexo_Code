@@ -5,18 +5,23 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.security.AdvancedDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -54,13 +59,15 @@ public class SecurityPropertySetResource {
     private final ResourceHelper resourceHelper;
     private final Thesaurus thesaurus;
     private final UserService userService;
+    private final MdcPropertyUtils mdcPropertyUtils;
     private final SecurityPropertySetInfoFactory securityPropertySetInfoFactory;
 
     @Inject
-    public SecurityPropertySetResource(ResourceHelper resourceHelper, Thesaurus thesaurus, UserService userService, SecurityPropertySetInfoFactory securityPropertySetInfoFactory) {
+    public SecurityPropertySetResource(ResourceHelper resourceHelper, Thesaurus thesaurus, UserService userService, MdcPropertyUtils mdcPropertyUtils, SecurityPropertySetInfoFactory securityPropertySetInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
         this.userService = userService;
+        this.mdcPropertyUtils = mdcPropertyUtils;
         this.securityPropertySetInfoFactory = securityPropertySetInfoFactory;
     }
 
@@ -126,8 +133,16 @@ public class SecurityPropertySetResource {
                 .securitySuite(info.securitySuiteId)
                 .requestSecurityLevel(info.requestSecurityLevelId)
                 .responseSecurityLevel(info.responseSecurityLevelId);
-        SecurityPropertySet securityPropertySet = builder.build();
+        if (info.properties != null && !info.properties.isEmpty()) {
+            for (PropertySpec propertySpec : builder.getPropertySpecs()) {
+                KeyAccessorType newKeyAccessor = (KeyAccessorType) mdcPropertyUtils.findPropertyValue(propertySpec, info.properties);   // Cast to KeyAccessorType should work fine
+                if (newKeyAccessor != null) {                                                                                           // unless front-end has send wrong data, but then it's ok to throw an error
+                    builder.addConfigurationSecurityProperty(propertySpec.getName(), newKeyAccessor);
+                }
+            }
+        }
 
+        SecurityPropertySet securityPropertySet = builder.build();
         List<Group> groups = this.userService.getGroups();
         return Response.status(Response.Status.CREATED).entity(securityPropertySetInfoFactory.from(securityPropertySet, groups)).build();
     }
@@ -142,6 +157,25 @@ public class SecurityPropertySetResource {
         info.id = securityPropertySetId;
         SecurityPropertySet securityPropertySet = resourceHelper.lockSecurityPropertySetOrThrowException(info);
         info.writeTo(securityPropertySet);
+
+        List<ConfigurationSecurityProperty> configurationSecurityProperties = securityPropertySet.getConfigurationSecurityProperties();
+        if (info.properties != null && !info.properties.isEmpty()) {
+            for (PropertySpec propertySpec : securityPropertySet.getPropertySpecs()) {
+                KeyAccessorType keyAccessor = (KeyAccessorType) mdcPropertyUtils.findPropertyValue(propertySpec, info.properties);  // Cast to KeyAccessorType should work fine
+                                                                                                                                    // unless front-end has send wrong data, but then it's ok to throw an error
+                Optional<ConfigurationSecurityProperty> existingSecurityProperty = configurationSecurityProperties.stream()
+                        .filter(property -> property.getName().equals(propertySpec.getName()))
+                        .findFirst();
+                if (existingSecurityProperty.isPresent()) {
+                    securityPropertySet.updateConfigurationSecurityProperty(propertySpec.getName(), keyAccessor);
+                } else if (keyAccessor != null) {
+                    securityPropertySet.addConfigurationSecurityProperty(propertySpec.getName(), keyAccessor);
+                }
+            }
+        } else {
+            // Remove all properties
+            securityPropertySet.getConfigurationSecurityProperties().forEach(property -> securityPropertySet.removeConfigurationSecurityProperty(property.getName()));
+        }
         securityPropertySet.update();
 
         List<Group> groups = this.userService.getGroups();
@@ -188,7 +222,7 @@ public class SecurityPropertySetResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getSecurityPropertySetAuthLevels(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        Optional<Long> securitySuiteIdOptional = getSecuritySuiteIdFromUriParams(uriInfo);
+        Optional<Integer> securitySuiteIdOptional = getIdParameterFromUriParams(uriInfo, "securitySuiteId");
 
         List<AuthenticationDeviceAccessLevel> deviceAccessLevels = deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> {
             DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
@@ -206,7 +240,7 @@ public class SecurityPropertySetResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getSecurityPropertySetEncLevels(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        Optional<Long> securitySuiteIdOptional = getSecuritySuiteIdFromUriParams(uriInfo);
+        Optional<Integer> securitySuiteIdOptional = getIdParameterFromUriParams(uriInfo, "securitySuiteId");
 
         List<EncryptionDeviceAccessLevel> deviceAccessLevels = deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> {
             DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
@@ -224,14 +258,14 @@ public class SecurityPropertySetResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getSecurityPropertySetRequestSecurityLevels(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        Optional<Long> securitySuiteIdOptional = getSecuritySuiteIdFromUriParams(uriInfo);
+        Optional<Integer> securitySuiteIdOptional = getIdParameterFromUriParams(uriInfo, "securitySuiteId");
 
         List<RequestSecurityLevel> deviceAccessLevels = deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> {
             DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
             return (deviceProtocol instanceof AdvancedDeviceProtocolSecurityCapabilities)
                     ? securitySuiteIdOptional.isPresent()
-                        ? findSecuritySuiteByIdOrThrowException(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol), securitySuiteIdOptional.get()).getRequestSecurityLevels()
-                        : ((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getRequestSecurityLevels()
+                    ? findSecuritySuiteByIdOrThrowException(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol), securitySuiteIdOptional.get()).getRequestSecurityLevels()
+                    : ((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getRequestSecurityLevels()
                     : Collections.<RequestSecurityLevel>emptyList();
         }).orElse(Collections.emptyList());
         return PagedInfoList.fromPagedList("data", SecurityLevelInfo.from(deviceAccessLevels), queryParameters);
@@ -244,17 +278,34 @@ public class SecurityPropertySetResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getSecurityPropertySetResponseSecurityLevels(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        Optional<Long> securitySuiteIdOptional = getSecuritySuiteIdFromUriParams(uriInfo);
+        Optional<Integer> securitySuiteIdOptional = getIdParameterFromUriParams(uriInfo, "securitySuiteId");
 
         List<ResponseSecurityLevel> deviceAccessLevels = deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> {
             DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
             return (deviceProtocol instanceof AdvancedDeviceProtocolSecurityCapabilities)
                     ? securitySuiteIdOptional.isPresent()
-                        ? findSecuritySuiteByIdOrThrowException(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol), securitySuiteIdOptional.get()).getResponseSecurityLevels()
-                        : ((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getResponseSecurityLevels()
+                    ? findSecuritySuiteByIdOrThrowException(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol), securitySuiteIdOptional.get()).getResponseSecurityLevels()
+                    : ((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getResponseSecurityLevels()
                     : Collections.<ResponseSecurityLevel>emptyList();
         }).orElse(Collections.emptyList());
         return PagedInfoList.fromPagedList("data", SecurityLevelInfo.from(deviceAccessLevels), queryParameters);
+    }
+
+    @GET
+    @Transactional
+    @Path("/confsecurityproperties")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    public PagedInfoList getSecurityPropertySetConfigurationSecurityProperties(@PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
+        SecurityPropertySetBuilder builder = deviceConfiguration
+                .createSecurityPropertySet("builder")
+                .authenticationLevel(getIdParameterFromUriParams(uriInfo, "authenticationLevelId").orElse(-1))
+                .encryptionLevel(getIdParameterFromUriParams(uriInfo, "encryptionLevelId").orElse(-1))
+                .securitySuite(getIdParameterFromUriParams(uriInfo, "securitySuiteId").orElse(-1))
+                .requestSecurityLevel(getIdParameterFromUriParams(uriInfo, "requestSecurityLevelId").orElse(-1))
+                .responseSecurityLevel(getIdParameterFromUriParams(uriInfo, "responseSecurityLevelId").orElse(-1));
+        return PagedInfoList.fromPagedList("data", mdcPropertyUtils.convertPropertySpecsToPropertyInfos(builder.getPropertySpecs(), TypedProperties.empty()), queryParameters);
     }
 
     private SecuritySuite findSecuritySuiteByIdOrThrowException(AdvancedDeviceProtocolSecurityCapabilities advancedDeviceProtocolSecurityCapabilities, long id) {
@@ -264,11 +315,11 @@ public class SecurityPropertySetResource {
                 .orElseThrow(() -> new WebApplicationException("No security suite with id " + id, Response.Status.NOT_FOUND));
     }
 
-    private Optional<Long> getSecuritySuiteIdFromUriParams(UriInfo uriInfo) {
+    private Optional<Integer> getIdParameterFromUriParams(UriInfo uriInfo, String parameter) {
         MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
-        if (uriParams.containsKey("securitySuiteId") && !uriParams.getFirst("securitySuiteId").isEmpty()) {
-            String securitySuiteIdString = uriParams.getFirst("securitySuiteId");
-            return Optional.of(Long.parseLong(securitySuiteIdString));
+        if (uriParams.containsKey(parameter) && !uriParams.getFirst(parameter).isEmpty()) {
+            String parameterString = uriParams.getFirst(parameter);
+            return Optional.of(Integer.parseInt(parameterString));
         } else {
             return Optional.empty();
         }
