@@ -185,6 +185,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         DeviceType.DeviceTypeBuilder deviceTypeBuilder = mock(DeviceType.DeviceTypeBuilder.class);
         when(deviceTypeBuilder.create()).thenReturn(deviceType);
         when(deviceConfigurationService.newDeviceTypeBuilder("newName", protocol, deviceLifeCycle)).thenReturn(deviceTypeBuilder);
@@ -207,6 +209,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         when(deviceTypeBuilder.create()).thenReturn(deviceType);
         when(deviceConfigurationService.newDataloggerSlaveDeviceTypeBuilder("newName", deviceLifeCycle)).thenReturn(deviceTypeBuilder);
 
@@ -228,6 +232,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         when(deviceTypeBuilder.create()).thenReturn(deviceType);
         when(deviceConfigurationService.newMultiElementSlaveDeviceTypeBuilder("newName", deviceLifeCycle)).thenReturn(deviceTypeBuilder);
 
@@ -316,6 +322,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
         when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
         when(deviceType.getVersion()).thenReturn(OK_VERSION);
@@ -401,6 +409,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         List logBooksList = mock(List.class);
         when(logBooksList.size()).thenReturn(NUMBER_OF_LOGBOOKS);
         DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
 
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
@@ -1587,6 +1597,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceLifeCycle targetDeviceLifeCycle = mock(DeviceLifeCycle.class);
         when(targetDeviceLifeCycle.getId()).thenReturn(2L);
         when(targetDeviceLifeCycle.getName()).thenReturn("Device life cycle 2");
+        when(targetDeviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(targetDeviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         when(deviceConfigurationService.findAndLockDeviceType(1L, 1)).thenReturn(Optional.of(deviceType));
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(2L)).thenReturn(Optional.of(targetDeviceLifeCycle));
         when(deviceType.getDeviceLifeCycle()).thenReturn(targetDeviceLifeCycle);
