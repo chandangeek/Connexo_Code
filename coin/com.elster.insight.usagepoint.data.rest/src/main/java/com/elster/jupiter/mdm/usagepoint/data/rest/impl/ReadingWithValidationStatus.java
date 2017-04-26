@@ -123,7 +123,7 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
 
     public List<? extends ReadingQuality> getReadingQualities() {
         List<ReadingQuality> readingQualities = new ArrayList<>();
-        if (this.calculatedReadingRecord != null) {
+        if (this.calculatedReadingRecord != null && this.persistedReadingRecord == null) {
             readingQualities.addAll(this.calculatedReadingRecord.getReadingQualities());
         }
         if (this.validationStatus != null) {
