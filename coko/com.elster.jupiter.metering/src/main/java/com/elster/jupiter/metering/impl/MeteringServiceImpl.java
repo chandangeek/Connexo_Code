@@ -48,6 +48,7 @@ import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -738,6 +739,12 @@ public class MeteringServiceImpl implements ServerMeteringService {
     public Optional<GasDayOptions> getGasDayOptions() {
         return this.dataModel.mapper(GasDayOptions.class).getOptional(GasDayOptionsImpl.SINGLETON_ID);
     }
+
+    @Override
+    public List<MeterRole> getMeterRoles() {
+        return dataModel.mapper(MeterRole.class).find();
+    }
+
 
     @Override
     public boolean isCalendarEffectiveForAnyUsagePoint(Calendar calendar) {
