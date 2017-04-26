@@ -138,8 +138,8 @@ Ext.define('Pkj.view.AddCSRForm', {
             },
             {
                 xtype: 'textfield',
-                fieldLabel: Uni.I18n.translate('general.csrAttribute.stateOrProvince', 'PKJ', 'State or province (S)'),
-                name: 'S',
+                fieldLabel: Uni.I18n.translate('general.csrAttribute.stateOrProvince', 'PKJ', 'State or province (ST)'),
+                name: 'ST',
                 itemId: 'pkj-csr-add-form-state',
                 listeners: {
                     change: {
@@ -221,7 +221,7 @@ Ext.define('Pkj.view.AddCSRForm', {
         }
         if (!Ext.isEmpty(sField.getValue())) {
             if (result.length>0) { result += ', '; }
-            result += 'S=' + sField.getValue();
+            result += 'ST=' + sField.getValue();
         }
         if (!Ext.isEmpty(cField.getValue())) {
             if (result.length>0) { result += ', '; }
