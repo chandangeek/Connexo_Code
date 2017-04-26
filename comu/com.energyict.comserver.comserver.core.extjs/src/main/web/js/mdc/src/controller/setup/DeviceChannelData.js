@@ -825,43 +825,45 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             commentValue = commentCombo.getRawValue(),
             commentId = commentCombo.getValue(),
             radioValue = window.down('#value-edit').getValue(),
-            readings = button.readings;
+            readings = button.readings,
+            bulk = readings.get('bulkValidationInfo'),
+            main = readings.get('mainValidationInfo'),
+            comment = {};
+
+        if (commentId !== -1) {
+            comment = {
+                commentId: commentId,
+                commentValue: commentValue
+            };
+        }
 
         if (!Array.isArray(readings)) {
-            if (!commentValue) {
-                readings.set('bulkValidationInfo', {
-                    commentId: 0
-                });
-            } else if (commentId !== -1) {
-                if (radioValue) {
-                    readings.set('bulkValidationInfo', {
-                        commentId: commentId,
-                        commentValue: commentValue
-                    });
+            if (radioValue) {
+                if (bulk) {
+                    Ext.merge(bulk, comment);
                 } else {
-                    readings.set('mainValidationInfo', {
-                        commentId: commentId,
-                        commentValue: commentValue
-                    });
+                    readings.set('bulkValidationInfo', comment);
+                }
+            } else {
+                if (main) {
+                    Ext.merge(main, comment);
+                } else {
+                    readings.set('mainValidationInfo', comment);
                 }
             }
         } else {
             _.each(readings, function (reading) {
-                if (!commentValue) {
-                    reading.set('bulkValidationInfo', {
-                        commentId: 0
-                    });
-                } else if (commentId !== -1) {
-                    if (radioValue) {
-                        reading.set('bulkValidationInfo', {
-                            commentId: commentId,
-                            commentValue: commentValue
-                        });
+                if (radioValue) {
+                    if (bulk) {
+                        Ext.merge(bulk, comment);
                     } else {
-                        reading.set('mainValidationInfo', {
-                            commentId: commentId,
-                            commentValue: commentValue
-                        });
+                        reading.set('bulkValidationInfo', comment);
+                    }
+                } else {
+                    if (main) {
+                        Ext.merge(main, comment);
+                    } else {
+                        reading.set('mainValidationInfo', comment);
                     }
                 }
             });
@@ -901,7 +903,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             router = me.getController('Uni.controller.history.Router'),
             commentCombo = window.down('#estimation-comment-box'),
             commentValue = commentCombo.getRawValue(),
-            commentId = commentCombo.getValue();
+            commentId = commentCombo.getValue(),
+            comment = {};
+
+        if (commentId !== -1) {
+            comment = {
+                commentId: commentId,
+                commentValue: commentValue
+            };
+        }
 
         window.setLoading(true);
         form.updateRecord(model);
@@ -942,28 +952,14 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             if (record.get('value') !== item.value) {
                                 record.set('value', item.value);
                                 record.set('isProjected', model.get('projectedValue'));
-                                record.set('bulkValidationInfo', item.bulkValidationInfo);
-                                record.set('mainValidationInfo', item.mainValidationInfo);
-                                if (!commentValue) {
-                                    record.set('commentId', 0);
-                                } else if (commentId !== -1) {
-                                    record.set('commentId', commentId);
-                                    record.set('commentValue', commentValue);
-                                }
+                                record.set('mainValidationInfo', Ext.merge(item.mainValidationInfo, comment));
                             }
                         });
                     } else {
                         if (window.records.get('value') !== response[0].value) {
                             window.records.set('value', response[0].value);
                             window.records.set('isProjected', model.get('projectedValue'));
-                            window.records.set('bulkValidationInfo', response[0].bulkValidationInfo);
-                            window.records.set('mainValidationInfo', response[0].mainValidationInfo);
-                            if (!commentValue) {
-                                record.set('commentId', 0);
-                            } else if (commentId !== -1) {
-                                record.set('commentId', commentId);
-                                record.set('commentValue', commentValue);
-                            }
+                            window.records.set('mainValidationInfo', Ext.merge(response[0].mainValidationInfo, comment));
                         }
                     }
                     me.showButtons();
@@ -1169,7 +1165,20 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             commentCombo = window.down('#estimation-comment-box'),
             commentValue = commentCombo ? commentCombo.getRawValue() : null,
             commentId = commentCombo ? commentCombo.getValue() : null,
-            adjustedPropertyFormErrors;
+            adjustedPropertyFormErrors,
+            comment = {};
+
+        if (commentId !== -1) {
+            comment = {
+                commentId: commentId,
+                commentValue: commentValue
+            };
+        }
+        // if (action) {
+        //
+        // } else {
+        //
+        // }
 
         record.getProxy().setParams(decodeURIComponent(router.arguments.deviceId), router.arguments.channelId);
         window.setLoading();
@@ -1183,23 +1192,21 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
-                        if (!commentValue) {
-                            readings.set('commentId', 0);
-                        } else if (commentId !== -1) {
-                            readings.set('commentId', commentId);
-                            readings.set('commentValue', commentValue);
-                        }
+                        // if (!commentValue) {
+                        //     readings.set('commentId', 0);
+                        // } else if (commentId !== -1) {
+                        //     readings.set('commentId', commentId);
+                        //     readings.set('commentValue', commentValue);
+                        // }
                         me.updateEstimatedValues(record, readings, responseText[0], ruleId, action);
                     } else {
                         Ext.Array.each(responseText, function (estimatedReading) {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
-                                    if (!commentValue) {
-                                        readings.set('commentId', 0);
-                                    } else if (commentId !== -1) {
-                                        readings.set('commentId', commentId);
-                                        readings.set('commentValue', commentValue);
-                                    }
+                                    // if (commentId !== -1) {
+                                    //     readings.set('commentId', commentId);
+                                    //     readings.set('commentValue', commentValue);
+                                    // }
                                     me.updateEstimatedValues(record, reading, estimatedReading, ruleId, action);
                                     return true;
                                 }
@@ -1715,15 +1722,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
     },
 
-    showEditValidationRuleWithAttributes: function() {
+    showEditValidationRuleWithAttributes: function () {
         this.showEditRuleWithAttributes('validation');
     },
 
-    showEditEstimationRuleWithAttributes: function() {
+    showEditEstimationRuleWithAttributes: function () {
         this.showEditRuleWithAttributes('estimation');
     },
 
-    showEditRuleWithAttributes: function(type) {
+    showEditRuleWithAttributes: function (type) {
         var me = this,
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
@@ -1740,7 +1747,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             widget;
 
         mainView.setLoading();
-        ruleWithAttributesModel.getProxy().extraParams = {deviceId: Uni.util.Common.encodeURIComponent(router.arguments.deviceId), channelId: channelId, readingType: router.queryParams.readingType};
+        ruleWithAttributesModel.getProxy().extraParams = {
+            deviceId: Uni.util.Common.encodeURIComponent(router.arguments.deviceId),
+            channelId: channelId,
+            readingType: router.queryParams.readingType
+        };
         channelModel.getProxy().setExtraParam('deviceId', deviceId);
         deviceModel.load(deviceId, {
             success: function (record) {
