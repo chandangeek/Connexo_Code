@@ -49,6 +49,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                             xtype: 'securitySettingGrid',
                             deviceTypeId: me.deviceTypeId,
                             deviceConfigId: me.deviceConfigId,
+                            deviceProtocolSupportsClient: me.deviceProtocolSupportsClient,
                             deviceProtocolSupportSecuritySuites: me.deviceProtocolSupportSecuritySuites
                         },
                         emptyComponent: {

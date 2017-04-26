@@ -18,6 +18,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
         enableTextSelection: true
     },
 
+    deviceProtocolSupportsClient: undefined,
     deviceProtocolSupportSecuritySuites: undefined,
 
     initComponent: function () {
@@ -30,6 +31,14 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
                 flex: 2
             }
         ];
+
+        if (me.deviceProtocolSupportsClient) {
+            me.columns.push({
+                header: Uni.I18n.translate('securitySetting.client', 'MDC', 'Client'),
+                dataIndex: 'client',
+                flex: 3,
+            });
+        }
 
         if (me.deviceProtocolSupportSecuritySuites) {
             me.columns.push({
@@ -57,24 +66,6 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
                 return Ext.String.htmlEncode(value.name);
             }
         });
-        if (me.deviceProtocolSupportSecuritySuites) {
-            me.columns.push({
-                header: Uni.I18n.translate('securitySetting.requestSecurityLevel', 'MDC', 'Request security level'),
-                dataIndex: 'requestSecurityLevel',
-                flex: 3,
-                renderer: function (value) {
-                    return Ext.String.htmlEncode(value.name);
-                }
-            });
-            me.columns.push({
-                header: Uni.I18n.translate('securitySetting.responseSecurityLevel', 'MDC', 'Response security level'),
-                dataIndex: 'responseSecurityLevel',
-                flex: 3,
-                renderer: function (value) {
-                    return Ext.String.htmlEncode(value.name);
-                }
-            });
-        }
         me.columns.push({
             xtype: 'uni-actioncolumn',
             width: 120,

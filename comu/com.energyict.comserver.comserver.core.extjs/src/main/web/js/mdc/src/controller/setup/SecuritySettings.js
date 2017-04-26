@@ -46,6 +46,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     secId: -1,
     currentDeviceTypeId: undefined,
     currentDeviceConfigurationId: undefined,
+    deviceProtocolSupportsClient: undefined,
     deviceProtocolSupportSecuritySuites: undefined,
 
     init: function () {
@@ -315,14 +316,15 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
+                        me.deviceProtocolSupportsClient = deviceConfig.get('deviceProtocolSupportsClient');
                         me.deviceProtocolSupportSecuritySuites = deviceConfig.get('deviceProtocolSupportSecuritySuites');
                         securitySuitesStore.getProxy().setUrl(me.currentDeviceTypeId, me.currentDeviceConfigurationId);
                         securitySuitesStore.getProxy().setExtraParam('securitySuiteId', null);
                         widget = Ext.widget('securitySettingSetup', {
                             deviceTypeId: deviceTypeId,
                             deviceConfigId: deviceConfigurationId,
-                            deviceProtocolSupportsClient: deviceConfig.get('deviceProtocolSupportsClient'),
-                            deviceProtocolSupportSecuritySuites: deviceConfig.get('deviceProtocolSupportSecuritySuites')
+                            deviceProtocolSupportsClient: me.deviceProtocolSupportsClient,
+                            deviceProtocolSupportSecuritySuites: me.deviceProtocolSupportSecuritySuites
                         });
                         widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);
@@ -352,10 +354,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         me.setDeviceTypeName(deviceType.get('name'));
                         me.setDeviceConfigName(deviceConfig.get('name'));
-
+                        me.deviceProtocolSupportsClient = deviceConfig.get('deviceProtocolSupportsClient');
                         me.deviceProtocolSupportSecuritySuites = deviceConfig.get('deviceProtocolSupportSecuritySuites');
-                        var deviceProtocolSupportsClient = deviceConfig.get('deviceProtocolSupportsClient'),
-                            deviceProtocolSupportSecuritySuites = deviceConfig.get('deviceProtocolSupportSecuritySuites'),
                             container = Ext.widget('securitySettingForm', {
                                 deviceTypeId: deviceTypeId,
                                 deviceConfigurationId: deviceConfigurationId,
@@ -365,8 +365,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                             }),
                             record = me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).create();
                         me.configureProxyOfAllSecurityStores(null);
-                        me.loadAllSecurityStores(true, deviceProtocolSupportSecuritySuites);
-                        me.hideClientFieldIfNotApplicable(deviceProtocolSupportsClient);
+                        me.loadAllSecurityStores(true, me.deviceProtocolSupportSecuritySuites);
+                        me.hideClientFieldIfNotApplicable(me.deviceProtocolSupportsClient);
                         container.down('form#myForm').loadRecord(record);
                         container.down('property-form').loadRecord(record);
                         me.getApplication().fireEvent('changecontentevent', container);
@@ -392,9 +392,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         me.setDeviceTypeName(deviceType.get('name'));
                         me.setDeviceConfigName(deviceConfig.get('name'));
+                        me.deviceProtocolSupportsClient = deviceConfig.get('deviceProtocolSupportsClient');
                         me.deviceProtocolSupportSecuritySuites = deviceConfig.get('deviceProtocolSupportSecuritySuites');
-                        var deviceProtocolSupportsClient = deviceConfig.get('deviceProtocolSupportsClient'),
-                            deviceProtocolSupportSecuritySuites = deviceConfig.get('deviceProtocolSupportSecuritySuites');
                         me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).load(securitySettingId, {
                             success: function (securitySetting) {
                                 var container = Ext.widget('securitySettingForm', {
@@ -405,8 +404,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                                     securityAction: 'save'
                                 });
                                 me.configureProxyOfAllSecurityStores(securitySetting.get('securitySuiteId'));
-                                me.loadAllSecurityStores(false, deviceProtocolSupportSecuritySuites);
-                                me.hideClientFieldIfNotApplicable(deviceProtocolSupportsClient);
+                                me.loadAllSecurityStores(false, me.deviceProtocolSupportSecuritySuites);
+                                me.hideClientFieldIfNotApplicable(me.deviceProtocolSupportsClient);
                                 container.down('form#myForm').loadRecord(securitySetting);
                                 var propertyForm = container.down('property-form');
                                 if (securitySetting.properties().count()) {
