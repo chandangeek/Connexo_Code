@@ -6,7 +6,6 @@ package com.energyict.protocols.mdc.protocoltasks;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
@@ -14,7 +13,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
-import com.energyict.protocolimplv2.common.CommonV2TranslationKeys;
 
 import java.math.BigDecimal;
 
@@ -50,27 +48,27 @@ class TcpDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
     }
 
     enum ActualFields {
-        RETRIES("retries", DlmsProtocolProperties.RETRIES, CommonV2TranslationKeys.RETRIES, "RETRIES") {
+        RETRIES("retries", DlmsProtocolProperties.RETRIES, "RETRIES") {
             @Override
             public void addTo(Table table) {
                 this.addAsBigDecimalColumnTo(table);
             }
         },
-        TIMEOUT_PROPERTY("timeoutMillis", DlmsProtocolProperties.TIMEOUT, CommonV2TranslationKeys.TIMEOUT, "TIMEOUTMILLIS") {
+        TIMEOUT_PROPERTY("timeoutMillis", DlmsProtocolProperties.TIMEOUT, "TIMEOUTMILLIS") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
             }
         },
         //Legacy column, removed in 10.3
-        DELAY_AFTER_ERROR("delayAfterError", DlmsProtocolProperties.DELAY_AFTER_ERROR, CommonV2TranslationKeys.DELAY_AFTER_ERROR, "DELAY_AFTER_ERROR") {
+        DELAY_AFTER_ERROR("delayAfterError", DlmsProtocolProperties.DELAY_AFTER_ERROR, "DELAY_AFTER_ERROR") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnToWithVersionUpTo(table, Version.version(10, 3));
             }
         },
         //New column, added in 10.3
-        ROUND_TRIP_CORRECTION("roundTripCorrection", DlmsProtocolProperties.ROUND_TRIP_CORRECTION, CommonV2TranslationKeys.ROUNDTRIP_CORRECTION, "ROUND_TRIP_CORRECTION") {
+        ROUND_TRIP_CORRECTION("roundTripCorrection", DlmsProtocolProperties.ROUND_TRIP_CORRECTION, "ROUND_TRIP_CORRECTION") {
             @Override
             public void addTo(Table table) {
                 this.addAsBigDecimalColumnToWithVersionSince(table, Version.version(10, 3));
@@ -79,13 +77,11 @@ class TcpDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
 
         private final String javaName;
         private final String propertySpecName;
-        private final TranslationKey translationKey;
         private final String databaseName;
 
-        ActualFields(String javaName, String propertySpecName, TranslationKey translationKey, String databaseName) {
+        ActualFields(String javaName, String propertySpecName, String databaseName) {
             this.javaName = javaName;
             this.propertySpecName = propertySpecName;
-            this.translationKey = translationKey;
             this.databaseName = databaseName;
         }
 

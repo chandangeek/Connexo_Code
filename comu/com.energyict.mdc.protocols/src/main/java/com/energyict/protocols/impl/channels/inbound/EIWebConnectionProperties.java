@@ -12,7 +12,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.channels.inbound.EIWebPlusConnectionType;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.validation.constraints.Size;
 
@@ -76,7 +75,7 @@ public class EIWebConnectionProperties extends AbstractVersionedPersistentDomain
         IP_ADDRESS {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.EIWEB_IP_ADDRESS.propertySpecName();
+                return EIWebConnectionType.IP_ADDRESS_PROPERTY_NAME;
             }
 
             @Override
@@ -87,7 +86,7 @@ public class EIWebConnectionProperties extends AbstractVersionedPersistentDomain
         MAC_ADDRESS {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.EIWEB_MAC_ADDRESS.propertySpecName();
+                return EIWebConnectionType.MAC_ADDRESS_PROPERTY_NAME;
             }
 
             @Override

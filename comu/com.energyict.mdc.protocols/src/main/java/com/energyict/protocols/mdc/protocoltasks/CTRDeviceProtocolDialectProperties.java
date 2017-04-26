@@ -6,7 +6,6 @@ package com.energyict.protocols.mdc.protocoltasks;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.time.TimeDuration;
@@ -60,43 +59,43 @@ class CTRDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
     }
 
     enum ActualFields {
-        RETRIES("retries", DlmsProtocolProperties.RETRIES, CTRTranslationKeys.RETRIES, "RETRIES") {
+        RETRIES("retries", DlmsProtocolProperties.RETRIES, "RETRIES") {
             @Override
             public void addTo(Table table) {
                 this.addAsBigDecimalColumnTo(table);
             }
         },
-        TIMEOUT_PROPERTY("timeoutMillis", DlmsProtocolProperties.TIMEOUT, CTRTranslationKeys.TIMEOUT, "TIMEOUTMILLIS") {
+        TIMEOUT_PROPERTY("timeoutMillis", DlmsProtocolProperties.TIMEOUT, "TIMEOUTMILLIS") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
             }
         },
-        FORCED_DELAY("forcedDelay", DlmsProtocolProperties.FORCED_DELAY, CTRTranslationKeys.FORCED_DELAY, "FORCED_DELAY") {
+        FORCED_DELAY("forcedDelay", DlmsProtocolProperties.FORCED_DELAY, "FORCED_DELAY") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
             }
         },
-        DELAY_AFTER_ERROR("delayAfterError", DlmsProtocolProperties.DELAY_AFTER_ERROR, CTRTranslationKeys.DELAY_AFTER_ERROR, "DELAY_AFTER_ERROR") {
+        DELAY_AFTER_ERROR("delayAfterError", DlmsProtocolProperties.DELAY_AFTER_ERROR, "DELAY_AFTER_ERROR") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
             }
         },
-        ADDRESS("address", com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), CTRTranslationKeys.ADDRESS, "ADDRESS") {
+        ADDRESS("address", com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "ADDRESS") {
             @Override
             public void addTo(Table table) {
                 this.addAsBigDecimalColumnTo(table);
             }
         },
-        SEND_END_OF_SESSION("sendEndOfSession", "SendEndOfSession", CTRTranslationKeys.SEND_END_OF_SESSION, "SEND_END_OF_SESSION") {
+        SEND_END_OF_SESSION("sendEndOfSession", "SendEndOfSession", "SEND_END_OF_SESSION") {
             @Override
             public void addTo(Table table) {
                 this.addAsBooleanColumnTo(table);
             }
         },
-        MAX_ALLOWED_INVALID_PROFILE_RESP("maxAllowedInvalidProfileResponses", "MaxAllowedInvalidProfileResponses", CTRTranslationKeys.MAX_ALLOWED_INVALID_PROFILE_RESPONSES, "MAX_ALLOWED_INVALID_RESP") {
+        MAX_ALLOWED_INVALID_PROFILE_RESP("maxAllowedInvalidProfileResponses", "MaxAllowedInvalidProfileResponses", "MAX_ALLOWED_INVALID_RESP") {
             @Override
             public void addTo(Table table) {
                 this.addAsBigDecimalColumnTo(table);
@@ -105,22 +104,16 @@ class CTRDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectProp
 
         private final String javaName;
         private final String propertySpecName;
-        private final TranslationKey translationKey;
         private final String databaseName;
 
-        ActualFields(String javaName, String propertySpecName, TranslationKey translationKey, String databaseName) {
+        ActualFields(String javaName, String propertySpecName, String databaseName) {
             this.javaName = javaName;
             this.propertySpecName = propertySpecName;
-            this.translationKey = translationKey;
             this.databaseName = databaseName;
         }
 
         public String javaName() {
             return this.javaName;
-        }
-
-        public TranslationKey nameTranslationKey() {
-            return translationKey;
         }
 
         public String propertySpecName() {

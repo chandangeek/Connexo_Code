@@ -12,8 +12,9 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
+import com.energyict.mdc.channels.ip.socket.TcpIpPostDialConnectionType;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Size;
@@ -48,7 +49,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         HOST {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName();
+                return OutboundIpConnectionType.HOST_PROPERTY_NAME;
             }
 
             @Override
@@ -59,7 +60,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         PORT_NUMBER {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName();
+                return OutboundIpConnectionType.PORT_PROPERTY_NAME;
             }
 
             @Override
@@ -70,7 +71,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         CONNECTION_TIMEOUT {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.propertySpecName();
+                return OutboundIpConnectionType.CONNECTION_TIMEOUT_PROPERTY_NAME;
             }
 
             @Override
@@ -81,7 +82,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         BUFFER_SIZE {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_IP_BUFFER_SIZE.propertySpecName();
+                return "bufferSize";
             }
 
             @Override
@@ -95,7 +96,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         POST_DIAL_DELAY_MILLIS {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_IP_POST_DIAL_DELAY_MILLIS.propertySpecName();
+                return TcpIpPostDialConnectionType.POST_DIAL_DELAY;
             }
 
             @Override
@@ -111,7 +112,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         POST_DIAL_COMMAND_ATTEMPTS {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_IP_POST_DIAL_COMMAND_ATTEMPTS.propertySpecName();
+                return TcpIpPostDialConnectionType.POST_DIAL_TRIES;
             }
 
             @Override
@@ -125,7 +126,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         POST_DIAL_COMMAND {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_IP_POST_DIAL_COMMAND.propertySpecName();
+                return TcpIpPostDialConnectionType.POST_DIAL_COMMAND;
             }
 
             @Override

@@ -6,7 +6,6 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 
@@ -43,17 +42,15 @@ class SDKTopologyTaskDialectProperties extends CommonDeviceProtocolDialectProper
     }
 
     enum ActualFields {
-        SLAVE_ONE_SERIAL_NUMBER("slaveOneSerialNumber", SDKTranslationKeys.SLAVE_ONE_SERIAL_NUMBER, "SlaveOneSerialNumber", "SLAVE_ONE_SERIAL_NUMBER"),
-        SLAVE_TWO_SERIAL_NUMBER("slaveTwoSerialNumber", SDKTranslationKeys.SLAVE_TWO_SERIAL_NUMBER, "SlaveTwoSerialNumber", "SLAVE_TWO_SERIAL_NUMBER");
+        SLAVE_ONE_SERIAL_NUMBER("slaveOneSerialNumber", "SlaveOneSerialNumber", "SLAVE_ONE_SERIAL_NUMBER"),
+        SLAVE_TWO_SERIAL_NUMBER("slaveTwoSerialNumber", "SlaveTwoSerialNumber", "SLAVE_TWO_SERIAL_NUMBER");
 
         private final String javaName;
-        private final TranslationKey nameTranslationKey;
         private final String propertySpecName;
         private final String databaseName;
 
-        ActualFields(String javaName, TranslationKey nameTranslationKey, String propertySpecName, String databaseName) {
+        ActualFields(String javaName, String propertySpecName, String databaseName) {
             this.javaName = javaName;
-            this.nameTranslationKey = nameTranslationKey;
             this.propertySpecName = propertySpecName;
             this.databaseName = databaseName;
         }

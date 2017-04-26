@@ -6,7 +6,6 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import test.com.energyict.protocolimplv2.sdksample.SDKCalendarTaskProtocolDialectProperties;
@@ -44,17 +43,15 @@ class SDKCalendarDialectProperties extends CommonDeviceProtocolDialectProperties
     }
 
     enum ActualFields {
-        ACTIVE_CALENDAR_NAME("activeCalendarName", SDKTranslationKeys.ACTIVE_CALENDAR_NAME, "ActiveCalendar", "ACTIVE_CALENDAR"),
-        PASSIVE_CALENDAR_NAME("passiveCalendarName", SDKTranslationKeys.ACTIVE_CALENDAR_NAME, "PassiveCalendar", "PASSIVE_CALENDAR");
+        ACTIVE_CALENDAR_NAME("activeCalendarName", "ActiveCalendar", "ACTIVE_CALENDAR"),
+        PASSIVE_CALENDAR_NAME("passiveCalendarName", "PassiveCalendar", "PASSIVE_CALENDAR");
 
         private final String javaName;
-        private final TranslationKey nameTranslationKey;
         private final String propertySpecName;
         private final String databaseName;
 
-        ActualFields(String javaName, TranslationKey nameTranslationKey, String propertySpecName, String databaseName) {
+        ActualFields(String javaName, String propertySpecName, String databaseName) {
             this.javaName = javaName;
-            this.nameTranslationKey = nameTranslationKey;
             this.propertySpecName = propertySpecName;
             this.databaseName = databaseName;
         }

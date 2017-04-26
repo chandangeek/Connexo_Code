@@ -6,7 +6,6 @@ package com.energyict.protocols.mdc.protocoltasks;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.tasks.EiWebPlusDialect;
@@ -43,31 +42,6 @@ public class EiWebPlusDialectProperties extends CommonDeviceProtocolDialectPrope
     @Override
     public void validateDelete() {
         // Nothing to validate
-    }
-
-    public enum TranslationKeys implements TranslationKey {
-        SERVER_LOG_LEVEL(SERVER_LOG_LEVEL_KEY, "Server log level"),
-        SERVER_LOG_LEVEL_DESCRIPTION(SERVER_LOG_LEVEL_KEY + ".description", "Server log level"),
-        PORT_LOG_LEVEL(PORT_LOG_LEVEL_KEY, "Port log level"),
-        PORT_LOG_LEVEL_DESCRIPTION(PORT_LOG_LEVEL_KEY + ".description", "Port log level");
-
-        private final String key;
-        private final String defaultFormat;
-
-        TranslationKeys(String key, String defaultFormat) {
-            this.key = key;
-            this.defaultFormat = defaultFormat;
-        }
-
-        @Override
-        public String getKey() {
-            return "eiwebplus.dialect." + this.key;
-        }
-
-        @Override
-        public String getDefaultFormat() {
-            return this.defaultFormat;
-        }
     }
 
     enum ActualFields {
