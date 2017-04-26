@@ -37,6 +37,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -73,12 +74,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -118,17 +122,21 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     @Captor
     private ArgumentCaptor<List<IntervalReadingImpl>> intervalReadingsCaptor;
 
+    MetrologyPurpose billing;
+    MetrologyPurpose information;
+
     @Before
     public void before() {
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         when(meteringService.findUsagePointByName(anyString())).thenReturn(Optional.empty());
         when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findReadingQualityComment(anyLong())).thenReturn(Optional.empty());
 
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC1));
         when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(effectiveMC1, effectiveMC2, effectiveMC3, effectiveMC4));
-        MetrologyPurpose billing = mockMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
-        MetrologyPurpose information = mockMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
+        billing = mockMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
+        information = mockMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
         UsagePointMetrologyConfiguration metrologyConfiguration1 = mockMetrologyConfigurationWithContract(1, "mc1", billing, information);
         when(effectiveMC1.getMetrologyConfiguration()).thenReturn(metrologyConfiguration1);
         when(effectiveMC1.getUsagePoint()).thenReturn(usagePoint);
@@ -418,6 +426,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         info.intervals = Collections.singletonList(IntervalInfo.from(INTERVAL_3));
         info.estimatorImpl = "com.elster.jupiter.estimators.impl.ValueFillEstimator";
         info.properties = new ArrayList<>();
+        info.commentId = 0L;
 
         // Business method
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/estimate")
@@ -664,6 +673,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(estimationRuleSet.getId()).thenReturn(id);
         when(estimationRule.getId()).thenReturn(ruleId);
         when(estimationRule.getName()).thenReturn(ruleName);
+        when(estimationRule.getComment()).thenReturn(Optional.empty());
         return estimationRuleSet;
     }
 
@@ -757,6 +767,36 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         assertThat(model.<String>get("$.[0].value")).isEqualTo("100");
     }
+
+    @Test
+    public void testCopyFromReferenceChannel(){
+        ReadingType readingType = effectiveMC1.getMetrologyConfiguration().getContracts().get(0).getDeliverables().get(0).getReadingType();
+        ReferenceChannelDataInfo info = new ReferenceChannelDataInfo();
+        info.referenceUsagePoint = "testUP";
+        info.readingType = readingType.getMRID();
+        List<IntervalInfo> intervalInfos = new ArrayList<>();
+        Range<Instant> sourceRange = Range.openClosed(Instant.ofEpochMilli(1492150500000L), Instant.ofEpochMilli(1492151400000L));
+        intervalInfos.add(IntervalInfo.from(sourceRange));
+        info.intervals = intervalInfos;
+        info.referencePurpose = 1L;
+        info.allowSuspectData = true;
+        info.completePeriod = true;
+        info.startDate = Instant.ofEpochMilli(1492147800000L);
+        when(meteringService.findUsagePointByName(info.referenceUsagePoint)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.getReadingType(readingType.getMRID())).thenReturn(Optional.of(readingType));
+        when(metrologyConfigurationService.findMetrologyPurpose(1L)).thenReturn(Optional.of(billing));
+        when(channel1.getMainReadingType()).thenReturn(readingType);
+        Range<Instant> referenceRange = Range.openClosed(Instant.ofEpochMilli(1492146900000L), Instant.ofEpochMilli(1492147800000L));
+        IntervalReadingRecord readingRecord = mockIntervalReadingRecord(referenceRange, BigDecimal.ONE );
+        when(channel1.getCalculatedIntervalReadings(referenceRange)).thenReturn(Collections.singletonList(readingRecord));
+
+        JsonModel json = JsonModel.create(target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/copyfromreference").request().post(Entity.json(info), String.class));
+
+        assertThat(json.<String>get("$.[0].value")).isEqualTo("1");
+        assertThat(json.<Long>get("$.[0].interval.start")).isEqualTo(sourceRange.lowerEndpoint().toEpochMilli());
+        assertThat(json.<Long>get("$.[0].interval.end")).isEqualTo(sourceRange.upperEndpoint().toEpochMilli());
+    }
+
 
     private ValidationRule mockValidationRule(long id, String name) {
         ValidationRule validationRule = mock(ValidationRule.class);
