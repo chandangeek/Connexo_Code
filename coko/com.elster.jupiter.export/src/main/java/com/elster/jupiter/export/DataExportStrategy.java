@@ -20,7 +20,7 @@ public interface DataExportStrategy {
 
     boolean isExportContinuousData();
 
-    boolean isExportCompleteData();
+    MissingDataOption getMissingDataOption();
 
     ValidatedDataOption getValidatedDataOption();
 

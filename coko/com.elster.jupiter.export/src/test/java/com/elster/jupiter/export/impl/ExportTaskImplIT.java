@@ -19,6 +19,7 @@ import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.FtpsDestination;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
@@ -347,7 +348,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
                 .fromUsagePointGroup(usagePointGroup)
                 .fromExportPeriod(lastYear)
                 .continuousData(true)
-                .exportComplete(true)
+                .exportComplete(MissingDataOption.EXCLUDE_ITEM)
                 .withValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL)
                 .fromReadingType(readingType)
                 .endSelection()
@@ -376,7 +377,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
         assertThat(selectorConfig.getStrategy().getValidatedDataOption()).isEqualTo(ValidatedDataOption.EXCLUDE_INTERVAL);
         assertThat(selectorConfig.getStrategy().isExportContinuousData()).isTrue();
         assertThat(selectorConfig.getStrategy().isExportUpdate()).isFalse();
-        assertThat(selectorConfig.getStrategy().isExportCompleteData()).isTrue();
+        assertThat(selectorConfig.getStrategy().getMissingDataOption()).isEqualTo(MissingDataOption.EXCLUDE_ITEM);
         assertThat(selectorConfig.getReadingTypes()).containsExactly(readingType);
     }
 

@@ -51,7 +51,8 @@ public enum MessageSeeds implements MessageSeed {
 
     DEFAULT_MESSAGE_EXPORT_FAILED(1035, "dataexport.exportFailed", "Failed to export, due to {0}", Level.SEVERE),
     SOME_USAGEPOINTS_HAVE_NONE_OF_THE_SELECTED_READINGTYPES(1036, "dataexport.usagepoint.mismatch", "Some usage points of usage point group {0} don''t contain the selected reading type(s) that have to be exported.", Level.WARNING),
-    VETO_USAGEPOINTGROUP_DELETION(1037, "usagePointGroupXstillInUseByTask", "Usage point group {0} is still in use by an export task"),;
+    VETO_USAGEPOINTGROUP_DELETION(1037, "usagePointGroupXstillInUseByTask", "Usage point group {0} is still in use by an export task"),
+    USAGE_POINT_MISSING_WINDOW(1038, "dataexport.usagepoint.missingwindow", "The export window starting from {0} till {1} with missing data is not exported for usage point {2}", Level.INFO),;
 
     private final int number;
     private final String key;

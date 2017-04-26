@@ -71,7 +71,7 @@ public interface DataExportTaskBuilder {
 
         MeterReadingSelectorBuilder withUpdateWindow(RelativePeriod updateWindow);
 
-        MeterReadingSelectorBuilder exportComplete(boolean exportComplete);
+        MeterReadingSelectorBuilder exportComplete(MissingDataOption exportComplete);
 
         DataExportTaskBuilder endSelection();
     }
@@ -100,7 +100,7 @@ public interface DataExportTaskBuilder {
 
         UsagePointReadingSelectorBuilder continuousData(boolean exportContinuousData);
 
-        UsagePointReadingSelectorBuilder exportComplete(boolean exportComplete);
+        UsagePointReadingSelectorBuilder exportComplete(MissingDataOption exportComplete);
 
         DataExportTaskBuilder endSelection();
 

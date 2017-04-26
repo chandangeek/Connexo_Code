@@ -23,7 +23,7 @@ public interface UsagePointReadingSelectorConfig extends ReadingDataSelectorConf
         Updater setValidatedDataOption(ValidatedDataOption option);
 
         @Override
-        Updater setExportOnlyIfComplete(boolean exportOnlyIfComplete);
+        Updater setExportOnlyIfComplete(MissingDataOption missingDataOption);
 
         @Override
         Updater setExportContinuousData(boolean exportContinuousData);

@@ -11,6 +11,7 @@ import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.MeterReadingValidationData;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StructureMarker;
@@ -113,12 +114,17 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
 
         handleValidatedDataOption(item, strategy, readings, exportInterval, itemDescription);
 
-        if (strategy.isExportCompleteData() && !isComplete(item, exportInterval, readings)) {
-            logExportWindow(MessageSeeds.MISSING_WINDOW, exportInterval, itemDescription);
+        if (isExportCompleteData(strategy) && !isComplete(item, exportInterval, readings)) {
+            if(strategy.getMissingDataOption().equals(MissingDataOption.EXCLUDE_ITEM)) {
+                logExportWindow(MessageSeeds.MISSING_WINDOW, exportInterval, itemDescription);
+            }
+            if(strategy.getMissingDataOption().equals(MissingDataOption.EXCLUDE_ITEM)) {
+                logExportWindow(MessageSeeds.USAGE_POINT_MISSING_WINDOW, exportInterval, item.getDomainObject().getDescription());
+            }
             return Optional.empty();
         }
 
-        if (!strategy.isExportCompleteData()) {
+        if (!isExportCompleteData(strategy)) {
             logMissings(item, exportInterval, readings, itemDescription);
         }
 
@@ -251,6 +257,13 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
                 .map(instant -> ZonedDateTime.ofInstant(instant, item.getReadingContainer().getZoneId()))
                 .collect(Collectors.toList());
         logIntervals(zonedDateTimes, intervalLength, MessageSeeds.SUSPECT_INTERVAL, itemDescription);
+    }
+
+    private boolean isExportCompleteData(DataExportStrategy strategy){
+        if(strategy.getMissingDataOption().equals(MissingDataOption.EXCLUDE_INTERVAL)){
+            return false;
+        }
+        return true;
     }
 
     private void logMissings(IReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings, String itemDescription) {

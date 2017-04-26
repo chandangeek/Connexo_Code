@@ -9,6 +9,7 @@ import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ReadingType;
@@ -50,7 +51,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     private ValidatedDataOption validatedDataOption;
     private boolean exportUpdate;
     private boolean exportContinuousData;
-    private boolean exportComplete;
+    private MissingDataOption exportComplete;
     private String application;
     private int logLevel;
 
@@ -236,7 +237,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         }
 
         @Override
-        public MeterReadingSelectorBuilderImpl exportComplete(boolean complete) {
+        public MeterReadingSelectorBuilderImpl exportComplete(MissingDataOption complete) {
             exportComplete = complete;
             return this;
         }
@@ -279,7 +280,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         }
 
         @Override
-        public UsagePointReadingSelectorBuilderImpl exportComplete(boolean complete) {
+        public UsagePointReadingSelectorBuilderImpl exportComplete(MissingDataOption complete) {
             exportComplete = complete;
             return this;
         }

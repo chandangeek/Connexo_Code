@@ -8,6 +8,7 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.EventDataExportStrategy;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.time.RelativePeriod;
@@ -21,13 +22,13 @@ import static com.elster.jupiter.util.Ranges.copy;
 class DataExportStrategyImpl implements DataExportStrategy, EventDataExportStrategy {
 
     private final boolean exportUpdate;
-    private final boolean exportOnlyIfComplete;
+    private final MissingDataOption exportOnlyIfComplete;
     private final PeriodBehaviour periodBehaviour;
     private final ValidatedDataOption validatedDataOption;
     private final RelativePeriod updatePeriod;
     private final RelativePeriod updateWindow;
 
-    DataExportStrategyImpl(boolean exportUpdate, boolean exportContinuousData, boolean exportOnlyIfComplete, ValidatedDataOption validatedDataOption, RelativePeriod updatePeriod, RelativePeriod updateWindow) {
+    DataExportStrategyImpl(boolean exportUpdate, boolean exportContinuousData, MissingDataOption exportOnlyIfComplete, ValidatedDataOption validatedDataOption, RelativePeriod updatePeriod, RelativePeriod updateWindow) {
         this.exportUpdate = exportUpdate;
         this.exportOnlyIfComplete = exportOnlyIfComplete;
         this.updatePeriod = updatePeriod;
@@ -67,7 +68,7 @@ class DataExportStrategyImpl implements DataExportStrategy, EventDataExportStrat
     }
 
     @Override
-    public boolean isExportCompleteData() {
+    public MissingDataOption getMissingDataOption() {
         return exportOnlyIfComplete;
     }
 

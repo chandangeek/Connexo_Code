@@ -37,7 +37,7 @@ public interface MeterReadingSelectorConfig extends ReadingDataSelectorConfig {
         Updater setExportContinuousData(boolean exportContinuousData);
 
         @Override
-        Updater setExportOnlyIfComplete(boolean exportOnlyIfComplete);
+        Updater setExportOnlyIfComplete(MissingDataOption missingDataOption);
 
         @Override
         Updater setExportPeriod(RelativePeriod relativePeriod);

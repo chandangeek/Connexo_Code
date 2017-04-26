@@ -22,7 +22,7 @@ public interface ReadingDataSelectorConfig extends DataSelectorConfig {
 
     ValidatedDataOption getValidatedDataOption();
 
-    boolean isExportOnlyIfComplete();
+    MissingDataOption isExportOnlyIfComplete();
 
     Updater startUpdate();
 
@@ -36,7 +36,7 @@ public interface ReadingDataSelectorConfig extends DataSelectorConfig {
 
         Updater setExportContinuousData(boolean exportContinuousData);
 
-        Updater setExportOnlyIfComplete(boolean exportOnlyIfComplete);
+        Updater setExportOnlyIfComplete(MissingDataOption missingDataOption);
 
     }
 }

@@ -10,6 +10,7 @@ import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.MeterReadingValidationData;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StructureMarker;
@@ -76,7 +77,7 @@ class MeterReadingItemDataSelector extends AbstractItemDataSelector {
             readings = rangeSet.asRanges().stream()
                     .flatMap(range -> {
                         List<? extends BaseReadingRecord> found = getReadings(item, range);
-                        if (getExportStrategy(occurrence).get().isExportCompleteData()) {
+                        if (getExportStrategy(occurrence).get().getMissingDataOption().equals(MissingDataOption.EXCLUDE_ITEM)) {
                             handleValidatedDataOption(item, item.getSelector().getStrategy(), found, range, itemDescription);
                             if (!isComplete(item, range, found)) {
                                 return Stream.empty();

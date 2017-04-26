@@ -7,6 +7,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataSelectorConfig;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ReadingContainer;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 
 abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigImpl implements ReadingDataSelectorConfig {
 
-    private boolean exportOnlyIfComplete;
+    private MissingDataOption exportOnlyIfComplete;
     private ValidatedDataOption validatedDataOption;
 
     @Valid
@@ -77,7 +78,7 @@ abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigI
     }
 
     @Override
-    public boolean isExportOnlyIfComplete() {
+    public MissingDataOption isExportOnlyIfComplete() {
         return exportOnlyIfComplete;
     }
 
@@ -120,7 +121,7 @@ abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigI
         }
 
         @Override
-        public ReadingDataSelectorConfig.Updater setExportOnlyIfComplete(boolean exportOnlyIfCompleteFlag) {
+        public ReadingDataSelectorConfig.Updater setExportOnlyIfComplete(MissingDataOption exportOnlyIfCompleteFlag) {
             exportOnlyIfComplete = exportOnlyIfCompleteFlag;
             return this;
         }
