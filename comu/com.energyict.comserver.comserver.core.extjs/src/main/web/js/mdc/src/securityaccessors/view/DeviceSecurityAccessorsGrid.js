@@ -10,7 +10,8 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsGrid', {
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Mdc.securityaccessors.view.SecurityAccessorsActionMenu',
-        'Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu'
+        'Mdc.securityaccessors.view.DeviceSecurityAccessorsActionMenu',
+        'Mdc.securityaccessors.view.PrivilegesHelper'
     ],
     forceFit: true,
 
@@ -35,7 +36,7 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsGrid', {
                 flex: 1,
                 dataIndex: 'expirationTime',
                 renderer: function(value){
-                    if (Ext.isEmpty(value)) {
+                    if (Ext.isEmpty(value) || value === 0) {
                         return '-';
                     }
                     return Uni.DateTime.formatDateShort(new Date(value));
@@ -48,10 +49,17 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                width: 120,
                 menu: {
                     xtype: 'device-security-accessors-action-menu',
                     keyMode: me.keyMode,
                     itemId: 'mdc-device-security-accessors-grid-action-menu'
+                },
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    if (me.keyMode) {
+                        return !Mdc.securityaccessors.view.PrivilegesHelper.hasPrivileges(record.get('editLevels'));
+                    }
+                    return false;
                 }
             }
         ];
@@ -83,4 +91,5 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorsGrid', {
         ];
         me.callParent(arguments);
     }
+
 });

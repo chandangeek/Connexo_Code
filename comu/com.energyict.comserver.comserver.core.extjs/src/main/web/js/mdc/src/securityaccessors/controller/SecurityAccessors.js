@@ -48,6 +48,8 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
     fromEditForm: false,
     deviceTypeId: null,
     deviceType: null,
+    selectedRecord: undefined,
+
     init: function () {
         var me = this;
 
@@ -116,18 +118,35 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 break;
             case 'changePrivileges':
                 Ext.widget('security-accessors-privileges-edit-window', {
-                    securityAccessorRecord: menu.record
+                    securityAccessorRecord: me.selectedRecord
                 }).show();
                 break;
         }
     },
 
-    recordSelected: function (grid, record) {
-        var me = this;
-        me.getPreviewForm().doLoadRecord(record);
-        me.getPreview().setTitle(Ext.htmlEncode(record.get('name')));
-        if (me.getPreview().down('security-accessors-action-menu')) {
-            me.getPreview().down('security-accessors-action-menu').record = record;
+    recordSelected: function (grid, recordParam) {
+        var me = this,
+            processRecord = function(record) {
+                me.selectedRecord = record;
+                me.getPreviewForm().doLoadRecord(record);
+                me.getPreview().setTitle(Ext.htmlEncode(record.get('name')));
+                if (me.getPreview().down('security-accessors-action-menu')) {
+                    me.getPreview().down('security-accessors-action-menu').record = record;
+                }
+                me.getPreview().setLoading(false);
+            };
+
+        me.getPreview().setLoading();
+        if (recordParam.get('isKey')) {
+            var model = Ext.ModelManager.getModel('Mdc.securityaccessors.model.SecurityAccessor');
+            model.getProxy().setUrl(me.deviceTypeId);
+            model.load(recordParam.get('id'), {
+                success: function (keyRecord) {
+                    processRecord(keyRecord);
+                }
+            });
+        } else {
+            processRecord(recordParam);
         }
     },
 

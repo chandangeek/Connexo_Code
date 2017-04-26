@@ -17,14 +17,11 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
     views: [
         'Mdc.securityaccessors.view.DeviceSecurityAccessorsOverview',
         'Mdc.securityaccessors.view.EditDeviceKeyAttributes',
-        'Mdc.securityaccessors.view.EditDeviceCertificateAttributes'
+        'Mdc.securityaccessors.view.EditDeviceCertificateAttributes',
+        'Mdc.securityaccessors.view.PrivilegesHelper'
     ],
 
     refs: [
-        {
-            ref: 'keyPreviewForm',
-            selector: '#mdc-device-accessors-key-preview device-security-accessor-preview-form form'
-        },
         {
             ref: 'keyPreview',
             selector: '#mdc-device-accessors-key-preview'
@@ -80,6 +77,10 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
         {
             ref: 'editDeviceCertificatePanel',
             selector: 'device-certificate-attributes-edit'
+        },
+        {
+            ref: 'keysGrid',
+            selector: '#mdc-device-accessors-keys-grid'
         }
     ],
 
@@ -173,10 +174,16 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
 
     onKeyRecordSelected: function (grid, record) {
         var me = this,
-            actionsMenu = me.getKeyPreview().down('device-security-accessors-action-menu');
+            actionsMenu = me.getKeyPreview().down('device-security-accessors-action-menu'),
+            hasViewRights = Mdc.securityaccessors.view.PrivilegesHelper.hasPrivileges(record.get('viewLevels')),
+            hasEditRights = Mdc.securityaccessors.view.PrivilegesHelper.hasPrivileges(record.get('editLevels')),
+            tempPropertiesAvailable = record.get('hasTempValue'),
+            attributesVisible = hasViewRights || hasEditRights,
+            activeKeysForm = me.getActiveKeyAttributesContainer().down('property-form'),
+            passiveKeysForm = me.getPassiveKeyAttributesContainer().down('property-form');
 
-        me.getKeyPreviewForm().loadRecord(record);
-        me.getKeyPreview().setTitle(Ext.htmlEncode(record.get('name')));
+        Ext.suspendLayouts();
+        me.getKeyPreview().doLoadRecord(record);
         if (actionsMenu) {
             actionsMenu.record = record;
         }
@@ -196,13 +203,25 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             );
             me.getKeyPreview().down('#mdc-device-security-accessor-preview-passive-info').clearInfo();
         }
-        me.getActiveKeyAttributesContainer().setVisible(record.currentPropertiesStore.data.items.length > 0);
-        me.getActiveKeyAttributesContainer().down('property-form').initProperties(record.currentProperties());
-        var tempPropertiesAvailable = record.tempPropertiesStore.data.items.length > 0;
+        me.getActiveKeyAttributesContainer().setVisible(attributesVisible);
+        if (attributesVisible) {
+            activeKeysForm.initProperties(record.currentProperties());
+        }
+
         me.getPassiveKeyAttributesContainer().setVisible(tempPropertiesAvailable);
         if (tempPropertiesAvailable) {
-            me.getPassiveKeyAttributesContainer().down('property-form').initProperties(record.tempProperties());
+            passiveKeysForm.initProperties(record.tempProperties());
         }
+        if (attributesVisible || tempPropertiesAvailable) {
+            var task = new Ext.util.DelayedTask(function(){
+                Ext.resumeLayouts(true);
+                me.hideKeyValues();
+            });
+            task.delay(20);
+        } else {
+            Ext.resumeLayouts(true);
+        }
+
     },
 
     onCertificateRecordSelected: function (grid, record) {
@@ -255,6 +274,18 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                 break;
             case 'clearPassiveCertificate':
                 me.clearPassive(menu.record, false);
+                break;
+            case 'generatePassiveKey':
+                me.generatePassiveKey(menu.record);
+                break;
+            case 'activatePassiveKey':
+                me.activatePassiveKey(menu.record);
+                break;
+            case 'showKeyValues':
+                me.showKeyValues(menu.record);
+                break;
+            case 'hideKeyValues':
+                me.hideKeyValues(menu.record);
                 break;
         }
     },
@@ -402,10 +433,6 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
         });
         me.deviceKeyRecord.endEdit();
 
-        if (Ext.isEmpty(me.deviceKeyRecord.get('expirationTime'))) { // Don't know why this is not filled (for keys) in when I get it from the BE
-            // but when you send it back without an expirationTime field, the BE complains
-            me.deviceKeyRecord.set('expirationTime', new Date().getTime());
-        }
         me.deviceKeyRecord.save({
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.key.saved', 'MDC', 'Key saved'));
@@ -520,10 +547,6 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             clearedMessage;
 
         if (keyMode) {
-            if (Ext.isEmpty(keyOrCertificateRecord.get('expirationTime'))) { // Don't know why this is not filled (for keys) in when I get it from the BE
-                // but when you send it back without an expirationTime field, the BE complains
-                keyOrCertificateRecord.set('expirationTime', new Date().getTime());
-            }
             title = Uni.I18n.translate('general.clearPassiveKey.title', 'MDC', "Clear passive key of '{0}'?", keyOrCertificateRecord.get('name'));
             confirmMessage = Uni.I18n.translate('general.clearPassiveKey.msg', 'MDC', 'The passive key will no longer be available.');
             clearedMessage = Uni.I18n.translate('general.passiveKey.cleared', 'MDC', 'Passive key cleared');
@@ -554,6 +577,76 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                 }
             }
         });
+    },
+
+    generatePassiveKey: function(keyRecord) {
+        var me = this,
+            url = '/api/ddr/devices/{deviceId}/securityaccessors/keys/{keyId}/temp';
+
+        url = url.replace('{deviceId}', me.deviceId).replace('{keyId}', keyRecord.get('id'));
+
+        Ext.Ajax.request({
+            url: url,
+            method: 'POST',
+            jsonData: Ext.encode(keyRecord.getData()),
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.passiveKey.generated', 'MDC', 'Passive key generated'));
+                var router = me.getController('Uni.controller.history.Router'),
+                    splittedPath = router.currentRoute.split('/');
+                splittedPath.pop();
+                router.getRoute(splittedPath.join('/') + '/' + 'keys').forward(router.arguments);
+            }
+        });
+    },
+
+    activatePassiveKey: function(keyRecord) {
+        var me = this,
+            url = '/api/ddr/devices/{deviceId}/securityaccessors/keys/{keyId}/swap';
+
+        url = url.replace('{deviceId}', me.deviceId).replace('{keyId}', keyRecord.get('id'));
+
+        Ext.Ajax.request({
+            url: url,
+            method: 'PUT',
+            jsonData: Ext.encode(keyRecord.getData()),
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.passiveKey.activated', 'MDC', 'Passive key activated'));
+                var router = me.getController('Uni.controller.history.Router'),
+                    splittedPath = router.currentRoute.split('/');
+                splittedPath.pop();
+                router.getRoute(splittedPath.join('/') + '/' + 'keys').forward(router.arguments);
+            }
+        });
+    },
+
+    showKeyValues: function() {
+        var me = this;
+
+        me.getKeyPreview().down('device-security-accessor-preview-form #mdc-device-security-accessor-preview-active-attributes-container property-form').showValues();
+        me.getKeyPreview().down('device-security-accessor-preview-form #mdc-device-security-accessor-preview-passive-attributes-container property-form').showValues();
+
+        var previewActionsMenu = me.getKeyPreview().down('device-security-accessors-action-menu');
+        previewActionsMenu.down('#mdc-device-security-accessors-action-menu-item-show-hide').action = 'hideKeyValues';
+        previewActionsMenu.down('#mdc-device-security-accessors-action-menu-item-show-hide').setText(Uni.I18n.translate('general.hideValues', 'MDC', 'Hide values'));
+
+        var gridActionsMenu = me.getKeysGrid().down('uni-actioncolumn').menu;
+        gridActionsMenu.down('#mdc-device-security-accessors-action-menu-item-show-hide').action = 'hideKeyValues';
+        gridActionsMenu.down('#mdc-device-security-accessors-action-menu-item-show-hide').setText(Uni.I18n.translate('general.hideValues', 'MDC', 'Hide values'));
+    },
+
+    hideKeyValues: function() {
+        var me = this;
+
+        me.getKeyPreview().down('device-security-accessor-preview-form #mdc-device-security-accessor-preview-active-attributes-container property-form').hideValues();
+        me.getKeyPreview().down('device-security-accessor-preview-form #mdc-device-security-accessor-preview-passive-attributes-container property-form').hideValues();
+
+        var previewActionsMenu = me.getKeyPreview().down('device-security-accessors-action-menu');
+        previewActionsMenu.down('#mdc-device-security-accessors-action-menu-item-show-hide').action = 'showKeyValues';
+        previewActionsMenu.down('#mdc-device-security-accessors-action-menu-item-show-hide').setText(Uni.I18n.translate('general.showValues', 'MDC', 'Show values'));
+
+        var gridActionsMenu = me.getKeysGrid().down('uni-actioncolumn').menu;
+        gridActionsMenu.down('#mdc-device-security-accessors-action-menu-item-show-hide').action = 'showKeyValues';
+        gridActionsMenu.down('#mdc-device-security-accessors-action-menu-item-show-hide').setText(Uni.I18n.translate('general.showValues', 'MDC', 'Show values'));
     }
 
 });
