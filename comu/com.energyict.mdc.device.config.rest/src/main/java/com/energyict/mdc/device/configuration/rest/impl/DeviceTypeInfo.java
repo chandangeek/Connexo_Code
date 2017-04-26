@@ -43,6 +43,7 @@ public class DeviceTypeInfo {
     public List<RegisterTypeInfo> registerTypes;
     public Long deviceLifeCycleId;
     public String deviceLifeCycleName;
+    @JsonProperty(required=false)
     public PeriodInfo deviceLifeCycleEffectiveTimeShiftPeriod;
     public long version;
     public String deviceTypePurpose;
