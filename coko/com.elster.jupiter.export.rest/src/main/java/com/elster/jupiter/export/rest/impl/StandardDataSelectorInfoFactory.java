@@ -54,7 +54,7 @@ public class StandardDataSelectorInfoFactory {
 
     private void populateFromExportStrategy(DataExportStrategy strategy, StandardDataSelectorInfo info) {
         info.exportContinuousData = strategy.isExportContinuousData();
-        info.exportComplete = strategy.isExportCompleteData();
+        info.exportComplete = strategy.getMissingDataOption();
         info.exportUpdate = strategy.isExportUpdate();
         strategy.getUpdatePeriod()
                 .ifPresent(relativePeriod -> info.updatePeriod = RelativePeriodInfo.withCategories(relativePeriod));

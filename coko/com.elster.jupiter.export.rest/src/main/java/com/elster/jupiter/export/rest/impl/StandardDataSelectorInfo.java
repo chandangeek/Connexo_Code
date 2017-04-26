@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.export.rest.impl;
 
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -20,7 +21,7 @@ public class StandardDataSelectorInfo {
     public RelativePeriodInfo exportPeriod;
     public boolean exportContinuousData;
     public boolean exportUpdate; // only used from FE to BE
-    public boolean exportComplete;
+    public MissingDataOption exportComplete;
     public boolean exportAdjacentData;
     public RelativePeriodInfo updatePeriod;
     public RelativePeriodInfo updateWindow;
