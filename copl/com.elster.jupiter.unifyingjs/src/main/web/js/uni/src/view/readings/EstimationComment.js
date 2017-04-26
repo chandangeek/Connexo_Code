@@ -8,6 +8,7 @@ Ext.define('Uni.view.readings.EstimationComment', {
     requires: [
         'Uni.store.EstimationComment'
     ],
+    keepOriginal: false,
 
     fieldLabel: Uni.I18n.translate('copyFromReference.estimationComment', 'UNI', 'Estimation comment'),
     layout: 'hbox',
@@ -29,10 +30,17 @@ Ext.define('Uni.view.readings.EstimationComment', {
                     var keepComment = {
                         comment: Uni.I18n.translate('estimationComment.keepComment', 'UNI', 'Keep original comment'),
                         id: -1
-                    };
+                    },
+                        nullComment = {
+                            comment: null,
+                            id: 0
+                        };
                     this.resetButton = this.nextSibling('#estimation-comment-default-button');
-                    this.getStore().add(keepComment);
-                    this.setValue(-1);
+                    if (this.up('estimation-comment').keepOriginal) {
+                        this.getStore().add(keepComment);
+                        this.setValue(-1);
+                    }
+                    this.getStore().add(nullComment);
 
                 },
                 change: function (combobox) {
