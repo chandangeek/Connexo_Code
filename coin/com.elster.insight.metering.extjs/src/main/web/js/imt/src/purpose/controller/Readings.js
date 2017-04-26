@@ -508,7 +508,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             if (!canReset && (record.get('estimatedByRule') || record.get('modificationFlag') == "EDITED" || record.get('modificationFlag') == "ADDED")) {
                 canReset = true;
             }
-            if (menu.record.get('commentId') || menu.record.get('commentId') === 0) {
+            if (record.get('commentId') || record.get('commentId') === 0) {
                 canEditingComment = true;
             }
             if (record.get('isProjected')) {
