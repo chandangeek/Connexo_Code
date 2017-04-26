@@ -9,6 +9,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.DeviceKeyAccessorType;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
@@ -22,6 +23,11 @@ import com.energyict.mdc.pluggable.rest.PropertyValuesResourceProvider;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
+
+import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITHOUT_PRIVILEGES;
+import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITH_PRIVILEGES;
+import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.HIDE_VALUES;
+import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.SHOW_VALUES;
 
 public class SecurityAccessorInfoFactory {
 
@@ -58,10 +64,15 @@ public class SecurityAccessorInfoFactory {
         List<PropertySpec> propertySpecs = keyAccessor.getPropertySpecs();
 
         TypedProperties actualTypedProperties = getPropertiesActualValue(keyAccessor);
-        info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties);
+        boolean userHasViewPrivilege = ((DeviceKeyAccessorType) keyAccessor.getKeyAccessorType()).currentUserIsAllowedToViewDeviceProperties();
+        boolean userHasEditPrivilege = ((DeviceKeyAccessorType) keyAccessor.getKeyAccessorType()).currentUserIsAllowedToEditDeviceProperties();
+
+        MdcPropertyUtils.ValueVisibility valueVisibility = userHasViewPrivilege && userHasEditPrivilege? SHOW_VALUES: HIDE_VALUES;
+        MdcPropertyUtils.PrivilegePresence withoutPrivileges = userHasViewPrivilege ? WITH_PRIVILEGES : WITHOUT_PRIVILEGES;
+        info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties, valueVisibility, withoutPrivileges);
 
         TypedProperties tempTypedProperties = getPropertiesTempValue(keyAccessor);
-        info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties);
+        info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties, valueVisibility, withoutPrivileges);
         return info;
     }
 
