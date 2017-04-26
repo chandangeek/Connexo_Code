@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.JournaledRegisterReadingRecord;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -265,7 +266,8 @@ public class DeviceDataInfoFactory {
     private void setCommonReadingInfo(Reading reading, ReadingInfo readingInfo, Register<?, ?> register) {
         readingInfo.id = "" + reading.getTimeStamp().toEpochMilli() + register.getRegisterSpecId();
         readingInfo.timeStamp = reading.getTimeStamp();
-        readingInfo.userName = reading.getUserName();
+        readingInfo.userName = (reading.getActualReading() instanceof JournaledRegisterReadingRecord) && ((JournaledRegisterReadingRecord) reading.getActualReading()).getUserName() != null ?
+                ((JournaledRegisterReadingRecord) reading.getActualReading()).getUserName() : "";
         readingInfo.reportedDateTime = reading.getReportedDateTime();
         readingInfo.readingQualities = createReadingQualitiesInfo(reading);
         Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading);
@@ -296,7 +298,7 @@ public class DeviceDataInfoFactory {
         setMultiplier(register, numericalReadingInfo, reading);
         setInterval(reading, numericalReadingInfo);
         setCollectedValue(reading, register, numericalReadingInfo, numberOfFractionDigits);
-        setDeltaValue(reading,register, numericalReadingInfo);
+        setDeltaValue(reading, register, numericalReadingInfo);
         setCalculatedValueIfApplicable(reading, register, numericalReadingInfo, numberOfFractionDigits);
         addValidationInfo(reading, numericalReadingInfo, isValidationStatusActive);
         setSlaveInformation(register, dataLoggerSlave, numericalReadingInfo);
@@ -305,7 +307,7 @@ public class DeviceDataInfoFactory {
     }
 
     private void setDeltaValue(NumericalReading reading, Register<?, ?> register, NumericalReadingInfo numericalReadingInfo) {
-        if(register.getReadingType().isCumulative()) {
+        if (register.getReadingType().isCumulative()) {
             reading.getDelta().ifPresent(deltaValue -> numericalReadingInfo.deltaValue = deltaValue);
         }
     }
@@ -379,8 +381,8 @@ public class DeviceDataInfoFactory {
             return info;
         } else if (register instanceof TextRegister) {
             return createTextRegisterInfo((TextRegister) register, topologyService);
-        } else if (register instanceof FlagsRegister){
-            RegisterInfo info = createFlagsRegisterInfo((FlagsRegister) register,topologyService);
+        } else if (register instanceof FlagsRegister) {
+            RegisterInfo info = createFlagsRegisterInfo((FlagsRegister) register, topologyService);
             info.detailedValidationInfo = registerValidationInfo;
             return info;
         }
