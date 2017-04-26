@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceCapabilityAdapterMappingImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceCapabilityMapping;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMapping;
@@ -33,7 +34,8 @@ public enum TableSpecs {
             table.cache();
             Column deviceProtocolClassNameColumn = table.column("deviceprotocoljavaclassname").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("deviceProtocolJavaClassName").add();
             Column securitySupportClassNameColumn = table.column("securitysupportclassname").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("securitySupportJavaClassName").add();
-            table.primaryKey("PK_PPC_SECSUPPORTADAPTRMAPPING").on(deviceProtocolClassNameColumn, securitySupportClassNameColumn).add();
+            table.primaryKey("PK_PPC_SECSUPPORTADAPTRMAPPING").on(deviceProtocolClassNameColumn, securitySupportClassNameColumn).upTo(Version.version(10, 3)).add();
+            table.primaryKey("PK_PPC_SECSUPPORTADAPTRMAPPING").on(deviceProtocolClassNameColumn).since(Version.version(10, 3)).add();
         }
     },
 
@@ -45,7 +47,8 @@ public enum TableSpecs {
             table.cache();
             Column deviceProtocolClassNameColumn = table.column("deviceprotocoljavaclassname").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("deviceProtocolJavaClassName").add();
             Column securitySupportClassNameColumn = table.column("messageadapterjavaclassname").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("messageAdapterJavaClassName").add();
-            table.primaryKey("PK_PPC_MSGADAPTERMAPPING").on(deviceProtocolClassNameColumn, securitySupportClassNameColumn).add();
+            table.primaryKey("PK_PPC_MSGADAPTERMAPPING").on(deviceProtocolClassNameColumn, securitySupportClassNameColumn).upTo(Version.version(10, 3)).add();
+            table.primaryKey("PK_PPC_MSGADAPTERMAPPING").on(deviceProtocolClassNameColumn).since(Version.version(10, 3)).add();
         }
     },
 
@@ -57,7 +60,8 @@ public enum TableSpecs {
             table.cache();
             Column deviceProtocolClassNameColumn = table.column("deviceprotocoljavaclassname").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("deviceProtocolJavaClassName").add();
             Column capabilitiesColumn = table.column("deviceprotocolcapabilities").number().notNull().map("deviceProtocolCapabilities").conversion(ColumnConversion.NUMBER2INT).add();
-            table.primaryKey("PK_PPC_CAPADAPTERMAPPING").on(deviceProtocolClassNameColumn, capabilitiesColumn).add();
+            table.primaryKey("PK_PPC_CAPADAPTERMAPPING").on(deviceProtocolClassNameColumn, capabilitiesColumn).upTo(Version.version(10, 3)).add();
+            table.primaryKey("PK_PPC_CAPADAPTERMAPPING").on(deviceProtocolClassNameColumn).since(Version.version(10, 3)).add();
         }
     };
 
