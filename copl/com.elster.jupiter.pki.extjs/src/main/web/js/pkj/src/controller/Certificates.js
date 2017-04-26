@@ -320,7 +320,7 @@ Ext.define('Pkj.controller.Certificates', {
                 if (widget.down('certificate-action-menu')) {
                     widget.down('certificate-action-menu').record = certificateRecord;
                 }
-                widget.down('#pkj-certificate-details-panel').setTitle(certificateRecord.get('alias'));
+                widget.down('#pkj-certificate-details-panel').setTitle(Ext.String.htmlEncode(certificateRecord.get('alias')));
                 me.getApplication().fireEvent('certificateLoaded', certificateRecord.get('alias'));
             }
         });
