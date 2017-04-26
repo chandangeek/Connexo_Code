@@ -101,6 +101,34 @@ public enum ProtocolKeyTypes {
                     .curve("secp384r1")
                     .add();
         }
+    },
+    TLS_SUITE_1 {
+        @Override
+        public String getName() {
+            return "DLMS TLS suite 1";
+        }
+
+        @Override
+        public KeyType createKeyType(PkiService pkiService) {
+            return pkiService
+                    .newCertificateType(getName())
+                    .description("DLMS TLS SUITE 1")
+                    .add();
+        }
+    },
+    TLS_SUITE_2 {
+        @Override
+        public String getName() {
+            return "DLMS TLS suite 2";
+        }
+
+        @Override
+        public KeyType createKeyType(PkiService pkiService) {
+            return pkiService
+                    .newCertificateType(getName())
+                    .description("DLMS TLS SUITE 2")
+                    .add();
+        }
     }
     ;
 
