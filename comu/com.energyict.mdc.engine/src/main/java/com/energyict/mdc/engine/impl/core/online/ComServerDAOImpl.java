@@ -915,56 +915,54 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<Pair<OfflineLoadProfile, Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile offlineLoadProfile, String readingTypeMRID, Range<Instant> dataPeriod) {
-        final Device dataLogger = (Device) offlineLoadProfile.getDeviceIdentifier().findDevice();
-        if (dataLogger != null) {
-            if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()) {
-                Optional<Channel> dataLoggerChannel = dataLogger.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
-                if (dataLoggerChannel.isPresent()) {
-                    List<DataLoggerChannelUsage> dataLoggerChannelUsages = this.serviceProvider.topologyService().findDataLoggerChannelUsagesForChannels(dataLoggerChannel.get(), dataPeriod);
-                    List<Pair<OfflineLoadProfile, Range<Instant>>> linkedOffLineLoadProfiles = new ArrayList<>();
-                    // 'linked' periods
-                    if (!dataLoggerChannelUsages.isEmpty()) {
-                        dataLoggerChannelUsages.forEach(usage -> {
-                            Device slave = usage.getPhysicalGatewayReference().getOrigin();
-                            List<? extends ReadingType> slaveChannelReadingTypes = usage.getSlaveChannel().getReadingTypes();
-                            Optional<Channel> slaveChannel = slave.getChannels().stream().filter((c) -> slaveChannelReadingTypes.contains(c.getReadingType())).findFirst();
-                            if (slaveChannel.isPresent()) {
-                                OfflineLoadProfile dataLoggerSlaveOfflineLoadProfile = new OfflineLoadProfileImpl(slaveChannel.get()
-                                        .getLoadProfile(), this.serviceProvider.topologyService(), this.serviceProvider.identificationService()) {
-                                    protected void goOffline() {
-                                        super.goOffline();
-                                        // To avoid to have to retrieve the involved slave channels again
-                                        setAllLoadProfileChannels(convertToOfflineChannels(Collections.singletonList(slaveChannel.get())));
-                                    }
+        final Device masterDevice = (Device) offlineLoadProfile.getDeviceIdentifier().findDevice();
+        if (masterDevice != null && storageOnSlaveDevice(masterDevice)) {
+            Optional<Channel> masterDeviceChannel = masterDevice.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
+            if (masterDeviceChannel.isPresent()) {
+                List<DataLoggerChannelUsage> dataLoggerChannelUsages = this.serviceProvider.topologyService().findDataLoggerChannelUsagesForChannels(masterDeviceChannel.get(), dataPeriod);
+                List<Pair<OfflineLoadProfile, Range<Instant>>> linkedOffLineLoadProfiles = new ArrayList<>();
+                // 'linked' periods
+                if (!dataLoggerChannelUsages.isEmpty()) {
+                    dataLoggerChannelUsages.forEach(usage -> {
+                        Device slave = usage.getPhysicalGatewayReference().getOrigin();
+                        List<? extends ReadingType> slaveChannelReadingTypes = usage.getSlaveChannel().getReadingTypes();
+                        Optional<Channel> slaveChannel = slave.getChannels().stream().filter((c) -> slaveChannelReadingTypes.contains(c.getReadingType())).findFirst();
+                        if (slaveChannel.isPresent()) {
+                            OfflineLoadProfile dataLoggerSlaveOfflineLoadProfile = new OfflineLoadProfileImpl(slaveChannel.get()
+                                    .getLoadProfile(), this.serviceProvider.topologyService(), this.serviceProvider.identificationService()) {
+                                protected void goOffline() {
+                                    super.goOffline();
+                                    // To avoid to have to retrieve the involved slave channels again
+                                    setAllLoadProfileChannels(convertToOfflineChannels(Collections.singletonList(slaveChannel.get())));
+                                }
 
-                                    @Override
-                                    public boolean isDataLoggerSlaveLoadProfile() {
-                                        return true;
-                                    }
-                                };
+                                @Override
+                                public boolean isDataLoggerSlaveLoadProfile() {
+                                    return true;
+                                }
+                            };
 
-                                linkedOffLineLoadProfiles.add(Pair.of(dataLoggerSlaveOfflineLoadProfile, usage.getRange().intersection(dataPeriod)));
-                            }
-                        });
-                    }
-                    //'unlinked periods'
-                    if (linkedOffLineLoadProfiles.isEmpty()) {
-                        linkedOffLineLoadProfiles.add(Pair.of(offlineLoadProfile, dataPeriod));   //All data is stored on the data logger channel
-                    } else {
-                        RangeSet<Instant> unlinkedPeriods = TreeRangeSet.create();
-                        unlinkedPeriods.add(dataPeriod);
-                        linkedOffLineLoadProfiles
-                                .stream()
-                                .map(Pair::getLast)
-                                .forEach(unlinkedPeriods::remove);
-                        unlinkedPeriods
-                                .asRanges()
-                                .stream()
-                                .map(unlinkedRange -> Pair.of(offlineLoadProfile, unlinkedRange))
-                                .forEach(linkedOffLineLoadProfiles::add);
-                    }
-                    return linkedOffLineLoadProfiles;
+                            linkedOffLineLoadProfiles.add(Pair.of(dataLoggerSlaveOfflineLoadProfile, usage.getRange().intersection(dataPeriod)));
+                        }
+                    });
                 }
+                //'unlinked periods'
+                if (linkedOffLineLoadProfiles.isEmpty()) {
+                    linkedOffLineLoadProfiles.add(Pair.of(offlineLoadProfile, dataPeriod));   //All data is stored on the data logger channel
+                } else {
+                    RangeSet<Instant> unlinkedPeriods = TreeRangeSet.create();
+                    unlinkedPeriods.add(dataPeriod);
+                    linkedOffLineLoadProfiles
+                            .stream()
+                            .map(Pair::getLast)
+                            .forEach(unlinkedPeriods::remove);
+                    unlinkedPeriods
+                            .asRanges()
+                            .stream()
+                            .map(unlinkedRange -> Pair.of(offlineLoadProfile, unlinkedRange))
+                            .forEach(linkedOffLineLoadProfiles::add);
+                }
+                return linkedOffLineLoadProfiles;
             }
         }
         return Collections.singletonList(Pair.of(offlineLoadProfile, dataPeriod));
@@ -976,16 +974,18 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private Register getStorageRegister(Register register, Instant readingDate) {
-        final Device dataLogger = register.getDevice();
-        if (dataLogger != null) {
-            if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()) {
-                Optional<Register> slaveRegister = this.serviceProvider.topologyService().getSlaveRegister(register, readingDate);
-                if (slaveRegister.isPresent()) {
-                    return slaveRegister.get();
-                }
+        final Device masterDevice = register.getDevice();
+        if (masterDevice != null && storageOnSlaveDevice(masterDevice)) {
+            Optional<Register> slaveRegister = this.serviceProvider.topologyService().getSlaveRegister(register, readingDate);
+            if (slaveRegister.isPresent()) {
+                return slaveRegister.get();
             }
         }
         return register;
+    }
+
+    private boolean storageOnSlaveDevice(Device masterDevice){
+        return (masterDevice.getDeviceConfiguration().isDataloggerEnabled() || masterDevice.getDeviceConfiguration().isMultiElementEnabled());
     }
 
     private Instant now() {

@@ -21,8 +21,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -45,12 +43,9 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
 
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
 
-    private final DeviceBuilderForTesting COMPLETE = (DeviceBuilderForTesting) Proxy.newProxyInstance(DeviceBuilderForTesting.class.getClassLoader(), new Class<?>[]{DeviceBuilderForTesting.class}, new InvocationHandler() {
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            throw new IllegalStateException("The builder is finished, you cannot change anything anymore ...");
-        }
-    });
+    private final DeviceBuilderForTesting COMPLETE = (DeviceBuilderForTesting) Proxy.newProxyInstance(DeviceBuilderForTesting.class.getClassLoader(),
+                                                                                                      new Class<?>[]{DeviceBuilderForTesting.class},
+                                                                                                      (proxy, method, args) -> {throw new IllegalStateException("The builder is finished, you cannot change anything anymore ...");});
 
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceService deviceService;
@@ -115,6 +110,16 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
     }
 
     @Override
+    public DeviceBuilderForTesting multiElementEnabled(boolean enabled) {
+        return state.dataLoggerEnabled(enabled);
+    }
+
+    @Override
+    public DeviceBuilderForTesting multiElementSlaveDevice() {
+        return state.multiElementSlaveDevice();
+    }
+
+    @Override
     public DeviceBuilderForTesting dataLoggerSlaveDevice() {
         return state.dataLoggerSlaveDevice();
     }
@@ -143,6 +148,7 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
         private DeviceType deviceType;
         private DeviceConfiguration deviceConfiguration;
         private boolean dataLoggerEnabled;
+        private boolean multiElementEnabled;
         private DeviceTypePurpose deviceTypePurpose =  DeviceTypePurpose.REGULAR;
 
         @Override
@@ -194,6 +200,18 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
         }
 
         @Override
+        public DeviceBuilderForTesting multiElementEnabled(boolean enabled) {
+            this.multiElementEnabled = enabled;
+            return DeviceCreator.this;
+        }
+
+        @Override
+        public DeviceBuilderForTesting multiElementSlaveDevice() {
+            this.deviceTypePurpose = DeviceTypePurpose.MULTI_ELEMENT_SLAVE;
+            return DeviceCreator.this;
+        }
+
+        @Override
         public DeviceBuilderForTesting dataLoggerSlaveDevice() {
             this.deviceTypePurpose = DeviceTypePurpose.DATALOGGER_SLAVE;
             return DeviceCreator.this;
@@ -221,7 +239,7 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
                     this.deviceType = type.get();
                 }else {
                     this.deviceType = deviceConfigurationService.newDeviceType(deviceTypeName, deviceProtocolPluggableClass);
-                    if (this.deviceTypePurpose == DeviceTypePurpose.DATALOGGER_SLAVE) {
+                    if (this.deviceTypePurpose == DeviceTypePurpose.DATALOGGER_SLAVE || this.deviceTypePurpose == DeviceTypePurpose.MULTI_ELEMENT_SLAVE ) {
                         deviceType.setDeviceTypePurpose(this.deviceTypePurpose);
                     }
                     for (LoadProfileType loadProfileType : loadProfileTypes) {
@@ -256,6 +274,9 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
             }
             if (this.dataLoggerEnabled){
                 deviceConfigurationBuilder.dataloggerEnabled(true);
+            }
+            if (this.multiElementEnabled){
+                deviceConfigurationBuilder.multiElementEnabled(true);
             }
             return deviceConfigurationBuilder;
         }
