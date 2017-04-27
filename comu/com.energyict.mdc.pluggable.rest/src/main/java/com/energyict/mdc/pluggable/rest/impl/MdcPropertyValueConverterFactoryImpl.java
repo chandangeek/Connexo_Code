@@ -1,10 +1,11 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.data.Register;
+import com.elster.jupiter.properties.rest.impl.TimeDurationPropertyValueConverter;
+import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyValueConverterFactory;
 import com.energyict.mdc.pluggable.rest.impl.properties.CalendarPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.ClockPropertyValueConverter;
@@ -21,14 +22,12 @@ import com.energyict.mdc.pluggable.rest.impl.properties.ObisCodePropertyValueCon
 import com.energyict.mdc.pluggable.rest.impl.properties.PasswordPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.ReadingTypePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.RegisterPropertyValueConverter;
-import com.energyict.mdc.pluggable.rest.impl.properties.TimeDurationPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.TimeOfDayPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.TimeZoneInUsePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.UsagePointPropertyValueConverter;
 
 import org.osgi.service.component.annotations.Component;
-
-import javax.ws.rs.core.Application;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Copyrights EnergyICT
@@ -37,6 +36,13 @@ import javax.ws.rs.core.Application;
  */
 @Component(name = "com.energyict.mdc.pluggable.rest.propertyValueConvertorFactory", service = {MdcPropertyValueConverterFactory.class}, immediate = true)
 public class MdcPropertyValueConverterFactoryImpl implements MdcPropertyValueConverterFactory {
+    private Thesaurus thesaurus;
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
     @Override
     public PropertyValueConverter getConverterFor(Class clazz) {
         switch (clazz.getSimpleName()){
@@ -55,7 +61,7 @@ public class MdcPropertyValueConverterFactoryImpl implements MdcPropertyValueCon
             case "Password": return new PasswordPropertyValueConverter();
             case "ReadingType": return new ReadingTypePropertyValueConverter();
             case "Register": return new RegisterPropertyValueConverter();
-            case "TimeDuration": return new TimeDurationPropertyValueConverter();
+            case "TimeDuration": return new TimeDurationPropertyValueConverter(this.thesaurus);
             case "TimeOfDay": return new TimeOfDayPropertyValueConverter();
             case "TimeZoneInUse": return new TimeZoneInUsePropertyValueConverter();
             case "UsagePoint": return new UsagePointPropertyValueConverter();
