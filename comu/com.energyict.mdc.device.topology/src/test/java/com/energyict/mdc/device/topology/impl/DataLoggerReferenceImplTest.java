@@ -21,8 +21,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -33,8 +32,11 @@ import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
-
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
+import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -47,6 +49,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -159,7 +162,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         dataLoggerConfiguration.createNumericalRegisterSpec(registerTypeForChannel5).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
         dataLoggerConfiguration.createNumericalRegisterSpec(registerTypeForChannel6).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
 
-        deviceMessageIds.stream().forEach(dataLoggerConfiguration::createDeviceMessageEnablement);
+        deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(dataLoggerConfiguration::createDeviceMessageEnablement);
         dataLoggerConfiguration.activate();
     }
 
@@ -198,7 +201,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         configurationForSlaveWithLoadProfiles.createChannelSpec(lpt.findChannelType(registerTypeForChannel2).get(), lpSpec).overflow(new BigDecimal(1000000L)).add();
         configurationForSlaveWithLoadProfiles.createChannelSpec(lpt.findChannelType(registerTypeForChannel3).get(), lpSpec).overflow(new BigDecimal(1000000L)).add();
 
-        deviceMessageIds.stream().forEach(configurationForSlaveWithLoadProfiles::createDeviceMessageEnablement);
+        deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(configurationForSlaveWithLoadProfiles::createDeviceMessageEnablement);
         configurationForSlaveWithLoadProfiles.activate();
 
     }
@@ -231,7 +234,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         configurationForSlaveWithRegisters.createNumericalRegisterSpec(registerTypeForChannel2).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
         configurationForSlaveWithRegisters.createNumericalRegisterSpec(registerTypeForChannel3).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
 
-        deviceMessageIds.stream().forEach(configurationForSlaveWithRegisters::createDeviceMessageEnablement);
+        deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(configurationForSlaveWithRegisters::createDeviceMessageEnablement);
         configurationForSlaveWithRegisters.activate();
 
     }
@@ -717,9 +720,9 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
         Device slave = createSlaveWithRegisters("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
-        Register dataLoggerR1 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"));
-        Register dataLoggerR2 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255"));
-        Register dataLoggerR3 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255"));
+        Register dataLoggerR1 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255")).get();
+        Register dataLoggerR2 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255")).get();
+        Register dataLoggerR3 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255")).get();
 
 
         MeterReadingImpl meterReading = addRegisterDataToDevice(dataLogger, start, firstOfJune);
@@ -820,9 +823,9 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
         Device slave = createSlaveWithRegisters("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
-        Register dataLoggerR1 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"));
-        Register dataLoggerR2 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255"));
-        Register dataLoggerR3 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255"));
+        Register dataLoggerR1 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255")).get();
+        Register dataLoggerR2 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255")).get();
+        Register dataLoggerR3 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255")).get();
 
 
         MeterReadingImpl meterReading = addRegisterDataToDevice(dataLogger, start, firstOfJune);
@@ -847,12 +850,12 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(dataLoggerR2.getReadings(Interval.of(Range.openClosed(start, firstOfJune)))).hasSize(readingsDataLoggerR2.size());
         assertThat(dataLoggerR3.getReadings(Interval.of(Range.openClosed(start, firstOfJune)))).hasSize(readingsDataLoggerR3.size());
 
-        HashMap<Channel, Channel> channelMapping = new HashMap<>();
-        HashMap<Register, Register> registerMapping = new HashMap<>();
-        Register slaveRegister1 = slave.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"));
-        Register slaveRegister2 = slave.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255"));
+        Map<Channel, Channel> channelMapping = new HashMap<>();
+        Map<Register, Register> registerMapping = new HashMap<>();
+        Register slaveRegister1 = slave.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255")).get();
+        Register slaveRegister2 = slave.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255")).get();
         registerMapping.put(slaveRegister1, dataLoggerR1);
-        Register slaveRegister3 = slave.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255"));
+        Register slaveRegister3 = slave.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255")).get();
         registerMapping.put(slaveRegister2, dataLoggerR2);
         registerMapping.put(slaveRegister3, dataLoggerR3);
 
@@ -1040,9 +1043,9 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
         Device slave = createSlaveWithRegisters("slave1", start);
         Device dataLogger = createDataLoggerDevice("dataLogger", start);
-        Register dataLoggerR1 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255"));
-        Register dataLoggerR2 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255"));
-        Register dataLoggerR3 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255"));
+        Register dataLoggerR1 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.0.255")).get();
+        Register dataLoggerR2 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.1.255")).get();
+        Register dataLoggerR3 = dataLogger.getRegisterWithDeviceObisCode(ObisCode.fromString("1.0.1.8.2.255")).get();
 
         MeterReadingImpl meterReading = addRegisterDataToDevice(dataLogger, start, firstOfJune);
         //Making sure the data is available

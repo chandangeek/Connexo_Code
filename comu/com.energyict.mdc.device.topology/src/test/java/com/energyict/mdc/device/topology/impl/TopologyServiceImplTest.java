@@ -22,9 +22,10 @@ import com.energyict.mdc.device.topology.PhaseInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-
 import com.google.common.collect.Range;
+import org.assertj.core.api.Condition;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -37,10 +38,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.assertj.core.api.Condition;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -206,7 +203,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
             @Override
             public boolean matches(List<? extends Device> value) {
                 boolean bothMatch = true;
-                for (BaseDevice baseDevice : value) {
+                for (Device baseDevice : value) {
                     bothMatch &= ((baseDevice.getId() == device1.getId()) || (baseDevice.getId() == device2.getId()));
                 }
                 return bothMatch;
@@ -1270,7 +1267,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         List<DataLoggerReferenceImpl> gatewayReferences = ((ServerTopologyService) this.getTopologyService()).dataModel().query(DataLoggerReferenceImpl.class).select(com.elster.jupiter.util.conditions.Condition.TRUE);
         assertThat(gatewayReferences).hasSize(1);
         assertThat(gatewayReferences.get(0)).isInstanceOf(DataLoggerReferenceImpl.class);
-        DataLoggerReferenceImpl dataLoggerReference = (DataLoggerReferenceImpl) gatewayReferences.get(0);
+        DataLoggerReferenceImpl dataLoggerReference = gatewayReferences.get(0);
         assertThat(dataLoggerReference.getOrigin().getId()).isEqualTo(slave.getId());
         assertThat(dataLoggerReference.getGateway().getId()).isEqualTo(dataLogger.getId());
         assertThat(dataLoggerReference.getRange().lowerEndpoint()).isEqualTo(now);
@@ -1350,7 +1347,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
             @Override
             public boolean matches(List<? extends Device> value) {
                 boolean bothMatch = true;
-                for (BaseDevice baseDevice : value) {
+                for (Device baseDevice : value) {
                     bothMatch &= ((baseDevice.getId() == slave1.getId()) || (baseDevice.getId() == slave2.getId()));
                 }
                 return bothMatch;
