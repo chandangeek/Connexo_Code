@@ -54,8 +54,8 @@ Ext.define('Imt.usagepointhistory.view.lifecycleandstate.LifeCycleAndStateGrid',
                 tooltip: Uni.I18n.translate('general.abort', 'IMT', 'Abort'),
                 itemId: 'abort-transition',
                 privileges: Imt.privileges.MetrologyConfig.adminValidation,
-                showCondition: function (record) {
-                    return record.get('userCanManageRequest');
+                isDisabled: function (view, rowIndex, colIndex, item, record) {
+                    return !record.get('userCanManageRequest');
                 },
                 handler: function (grid, rowIndex, colIndex, item, e, record) {
                     this.fireEvent('abortTransition', record);
