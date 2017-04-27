@@ -148,11 +148,12 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         SecurityAccessorInfo response = target("/devices/BVN001/securityaccessors/certificates/222").request().get(SecurityAccessorInfo.class);
         URI uri = new URI(response.currentProperties.get(0).propertyTypeInfo.propertyValuesResource.possibleValuesURI);
         Response response1 = target(uri.getPath())
+                .queryParam("alias", "com")
                 .request()
                 .get();
         ArgumentCaptor<PkiService.AliasSearchFilter> captor = ArgumentCaptor.forClass(PkiService.AliasSearchFilter.class);
         verify(pkiService, times(1)).getAliasesByFilter(captor.capture());
-        assertThat(captor.getValue().alias).isEqualTo("*");
+        assertThat(captor.getValue().alias).isEqualTo("*com*");
         assertThat(captor.getValue().trustStore).isNull();
     }
 
