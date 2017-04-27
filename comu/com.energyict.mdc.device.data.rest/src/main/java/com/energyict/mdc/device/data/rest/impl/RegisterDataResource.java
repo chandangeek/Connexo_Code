@@ -69,8 +69,12 @@ public class RegisterDataResource {
             @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
-
-        Range<Instant> intervalReg = Range.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
+        Range<Instant> intervalReg;
+        if(filter.getInteger("intervalEnd") == 0) {
+            intervalReg = Range.atLeast(filter.getInstant("intervalStart"));
+        } else {
+            intervalReg = Range.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
+        }
 
         List<Pair<Register, Range<Instant>>> registerTimeLine = topologyService.getDataLoggerRegisterTimeLine(register, intervalReg);
 
