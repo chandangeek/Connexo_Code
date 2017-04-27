@@ -6,7 +6,6 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceTypePurpose;
@@ -14,6 +13,7 @@ import com.energyict.mdc.device.config.exceptions.DataloggerSlaveException;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.masterdata.LogBookType;
 
+import com.energyict.obis.ObisCode;
 import java.util.Collections;
 
 import org.junit.Test;
