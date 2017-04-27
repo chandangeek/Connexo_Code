@@ -699,7 +699,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                             item = _.find(response, function (rec) {
                                 return rec.interval.end === item;
                             });
-                            if (record.get('value') !== item.value) {
+                            if (item && record.get('value') !== item.value) {
                                 record.set('value', item.value);
                                 record.set('isProjected', model.get('projectedValue'));
                                 record.set('bulkValidationInfo', item.bulkValidationInfo);
@@ -712,7 +712,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                             }
                         });
                     } else {
-                        if (window.records.get('value') !== response[0].value) {
+                        if (response[0] && window.records.get('value') !== response[0].value) {
                             window.records.set('value', response[0].value);
                             window.records.set('isProjected', model.get('projectedValue'));
                             window.records.set('bulkValidationInfo', response[0].bulkValidationInfo);
