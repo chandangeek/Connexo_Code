@@ -117,6 +117,10 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private static final long endTimeNew = 1499561597000L;
     private static final long INTERVAL_START = 1410774630000L;
     private static final long INTERVAL_END = 1410828630000L;
+    private static final long SOURCE_INTERVAL_START = 1492150500000L;
+    private static final long SOURCE_INTERVAL_END = 1492151400000L;
+    private static final long REFERENCE_INTERVAL_START = 1492146900000L;
+    private static final long REFERENCE_INTERVAL_END = 1492147800000L;
 
     @Mock
     private Device device;
@@ -1144,12 +1148,12 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.referenceDevice = device.getName();
         info.readingType = calculatedReadingType.getMRID();
         List<IntervalInfo> intervalInfos = new ArrayList<>();
-        Range<Instant> sourceRange = Range.openClosed(Instant.ofEpochMilli(1492150500000L), Instant.ofEpochMilli(1492151400000L));
+        Range<Instant> sourceRange = Range.openClosed(Instant.ofEpochMilli(SOURCE_INTERVAL_START), Instant.ofEpochMilli(SOURCE_INTERVAL_END));
         intervalInfos.add(IntervalInfo.from(sourceRange));
         info.intervals = intervalInfos;
         info.allowSuspectData = true;
         info.completePeriod = true;
-        info.startDate = Instant.ofEpochMilli(1492147800000L);
+        info.startDate = Instant.ofEpochMilli(REFERENCE_INTERVAL_END);
         when(meteringService.getReadingType(calculatedReadingType.getMRID())).thenReturn(Optional.of(calculatedReadingType));
         Quantity quantity = Quantity.create(new BigDecimal(10), 1, com.elster.jupiter.util.units.Unit.WATT_HOUR.getSymbol());
         when(readingRecord.getReadingType()).thenReturn(calculatedReadingType);
@@ -1158,7 +1162,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channelWithCalculatedReadingType.getChannelData(sourceRange)).thenReturn(Collections.singletonList(loadProfileReading));
         when(loadProfileReading.getRange()).thenReturn(sourceRange);
         when(loadProfileReading.getChannelValues()).thenReturn(Collections.singletonMap(channel, readingRecord));
-        Range<Instant> referenceRange = Range.openClosed(Instant.ofEpochMilli(1492146900000L), Instant.ofEpochMilli(1492147800000L));
+        Range<Instant> referenceRange = Range.openClosed(Instant.ofEpochMilli(REFERENCE_INTERVAL_START), Instant.ofEpochMilli(REFERENCE_INTERVAL_END));
         when(channelWithCalculatedReadingType.getChannelData(referenceRange)).thenReturn(Collections.singletonList(editedProfileReading));
         when(editedProfileReading.getRange()).thenReturn(referenceRange);
         when(editedProfileReading.getChannelValues()).thenReturn(Collections.singletonMap(channel, readingRecord));
@@ -1166,8 +1170,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         JsonModel json = JsonModel.create(target("/devices/1/channels/" + CHANNEL_ID1 + "/data/copyfromreference").request().post(Entity.json(info), String.class));
 
         assertThat(json.<String>get("$.[0].value")).isEqualTo("10");
-        assertThat(json.<Long>get("$.[0].interval.start")).isEqualTo(sourceRange.lowerEndpoint().toEpochMilli());
-        assertThat(json.<Long>get("$.[0].interval.end")).isEqualTo(sourceRange.upperEndpoint().toEpochMilli());
+        assertThat(json.<Long>get("$.[0].interval.start")).isEqualTo(SOURCE_INTERVAL_START);
+        assertThat(json.<Long>get("$.[0].interval.end")).isEqualTo(SOURCE_INTERVAL_END);
     }
 
     @Test
@@ -1179,12 +1183,12 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         info.referenceDevice = device.getName();
         info.readingType = calculatedReadingType.getMRID();
         List<IntervalInfo> intervalInfos = new ArrayList<>();
-        Range<Instant> sourceRange = Range.openClosed(Instant.ofEpochMilli(1492150500000L), Instant.ofEpochMilli(1492151400000L));
+        Range<Instant> sourceRange = Range.openClosed(Instant.ofEpochMilli(SOURCE_INTERVAL_START), Instant.ofEpochMilli(SOURCE_INTERVAL_END));
         intervalInfos.add(IntervalInfo.from(sourceRange));
         info.intervals = intervalInfos;
         info.allowSuspectData = false;
         info.completePeriod = true;
-        info.startDate = Instant.ofEpochMilli(1492147800000L);
+        info.startDate = Instant.ofEpochMilli(REFERENCE_INTERVAL_END);
         when(meteringService.getReadingType(calculatedReadingType.getMRID())).thenReturn(Optional.of(calculatedReadingType));
         Quantity quantity = Quantity.create(new BigDecimal(10), 1, com.elster.jupiter.util.units.Unit.WATT_HOUR.getSymbol());
         when(readingRecord.getReadingType()).thenReturn(calculatedReadingType);
@@ -1193,7 +1197,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(readingQualityRecord.isSuspect()).thenReturn(true);
         when(readingRecord.getTimeStamp()).thenReturn(sourceRange.upperEndpoint());
         when(channelWithCalculatedReadingType.getChannelData(any(Range.class))).thenReturn(Collections.singletonList(loadProfileReading));
-        when(loadProfileReading.getRange()).thenReturn(Range.openClosed(Instant.ofEpochMilli(1492146900000L), Instant.ofEpochMilli(1492147800000L)));
+        when(loadProfileReading.getRange()).thenReturn(Range.openClosed(Instant.ofEpochMilli(REFERENCE_INTERVAL_START), Instant.ofEpochMilli(REFERENCE_INTERVAL_END)));
         when(loadProfileReading.getChannelValues()).thenReturn(Collections.singletonMap(channel, readingRecord));
         Map<Channel, List<ReadingQualityRecord>> readingQualityRecordMap = new HashMap<>();
         readingQualityRecordMap.put(channelWithCalculatedReadingType, Collections.singletonList(readingQualityRecord));
