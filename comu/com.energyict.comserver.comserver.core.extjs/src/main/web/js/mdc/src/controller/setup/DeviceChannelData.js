@@ -954,14 +954,14 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             item = _.find(response, function (rec) {
                                 return rec.interval.end === item;
                             });
-                            if (record.get('value') !== item.value) {
+                            if (item && record.get('value') !== item.value) {
                                 record.set('value', item.value);
                                 record.set('isProjected', model.get('projectedValue'));
                                 record.set('mainValidationInfo', Ext.merge(item.mainValidationInfo, comment));
                             }
                         });
                     } else {
-                        if (window.records.get('value') !== response[0].value) {
+                        if (response[0] && window.records.get('value') !== response[0].value) {
                             window.records.set('value', response[0].value);
                             window.records.set('isProjected', model.get('projectedValue'));
                             window.records.set('mainValidationInfo', Ext.merge(response[0].mainValidationInfo, comment));
