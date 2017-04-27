@@ -214,9 +214,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             if(activation.getUsagePoint() != null){
                 this.metrologyConfigurationService.getDataModel()
                         .mapper(MeterActivationImpl.class)
-                        .find("usagePoint", activation.getUsagePoint()).stream().forEach(s -> {
-                            s.detachUsagePoint();
-                        });
+                        .find("usagePoint", activation.getUsagePoint()).stream().forEach(MeterActivationImpl::detachUsagePoint);
             }
         });
 
