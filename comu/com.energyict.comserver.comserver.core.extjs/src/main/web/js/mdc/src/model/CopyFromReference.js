@@ -9,7 +9,7 @@ Ext.define('Mdc.model.CopyFromReference', {
         'referenceDevice',
         'readingType',
         'startDate',
-        'allowSuspectData',
+        'allowSuspectDate',
         'completePeriod',
         'intervals'
     ],

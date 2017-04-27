@@ -1432,8 +1432,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
         menu.down('#estimate-value').setVisible(suspects.length);
         menu.down('#estimate-value-with-rule').setVisible(suspects.length && estimationRulesCount);
-        menu.down('#estimate-value').setVisible(true);
-        menu.down('#estimate-value-with-rule').setVisible(true);
+        // menu.down('#estimate-value').setVisible(true);
+        // menu.down('#estimate-value-with-rule').setVisible(true);
 
         var confirms = suspects.filter(function (record) {
             return !record.get('confirmed') && !record.isModified('value') && !record.isModified('collectedValue')
@@ -1447,7 +1447,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         canEditingComment = flagForComment(record.get('mainModificationState').flag);
                         if (!canEditingComment) {
                             canEditingComment = flagForComment(record.get('bulkModificationState').flag);
-                            canEditingComment = true;
+                            // canEditingComment = true;
                         }
                     }
                     return canEditingComment;
