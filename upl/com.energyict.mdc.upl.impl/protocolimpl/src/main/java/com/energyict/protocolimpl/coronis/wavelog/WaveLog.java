@@ -139,7 +139,7 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "40000").trim()));
-        correctTime = Integer.parseInt(properties.getTypedProperty(CORRECTTIME.getName(), "0"));
+        correctTime = properties.getTypedProperty(CORRECTTIME.getName(), 0);
     }
 
     @Override

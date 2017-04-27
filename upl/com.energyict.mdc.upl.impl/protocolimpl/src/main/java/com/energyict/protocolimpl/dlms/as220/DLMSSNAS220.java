@@ -1,5 +1,16 @@
 package com.energyict.protocolimpl.dlms.as220;
 
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.cache.CachingProtocol;
+import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -27,16 +38,6 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.cache.CachingProtocol;
-import com.energyict.mdc.upl.nls.TranslationKey;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
@@ -480,18 +481,16 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         try {
             nodeId = properties.getTypedProperty(Property.NODEID.getName(), "");
             serialNumber = properties.getTypedProperty(Property.SERIALNUMBER.getName(), "");
-            extendedLogging = Integer.parseInt(properties.getTypedProperty(PR_EXTENDED_LOGGING, "0"));
-            addressingMode = Integer.parseInt(properties.getTypedProperty(PR_ADDRESSING_MODE, "-1"));
-            connectionMode = Integer.parseInt(properties.getTypedProperty(PR_CONNECTION, "0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection 3=LLCConnection
-
+            extendedLogging = properties.getTypedProperty(PR_EXTENDED_LOGGING, 0);
+            addressingMode = properties.getTypedProperty(PR_ADDRESSING_MODE, -1);
+            connectionMode = properties.getTypedProperty(PR_CONNECTION, 0); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection 3=LLCConnection
             strID = properties.getTypedProperty(Property.ADDRESS.getName());
-
             strPassword = properties.getTypedProperty(Property.PASSWORD.getName(), "00000000");
-            iTimeoutProperty = Integer.parseInt(properties.getTypedProperty(PR_TIMEOUT, "10000").trim());
-            iForcedDelay = Integer.parseInt(properties.getTypedProperty(PR_FORCED_DELAY, "10").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(PR_RETRIES, "5").trim());
-            iRequestTimeZone = Integer.parseInt(properties.getTypedProperty(PR_REQUEST_TIME_ZONE, "0").trim());
-            setRoundtripCorrection(Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim()));
+            iTimeoutProperty = properties.getTypedProperty(PR_TIMEOUT, 10000);
+            iForcedDelay = properties.getTypedProperty(PR_FORCED_DELAY, 10);
+            iProtocolRetriesProperty = properties.getTypedProperty(PR_RETRIES, 5);
+            iRequestTimeZone = properties.getTypedProperty(PR_REQUEST_TIME_ZONE, 0);
+            setRoundtripCorrection(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0));
 
             String[] securityLevel = properties.getTypedProperty(PR_SECURITY_LEVEL, "0:" + SecurityPolicy.SECURITYPOLICY_NONE).split(":");
             this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
@@ -503,21 +502,21 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
                 throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getTypedProperty(PR_SECURITY_LEVEL, "0"));
             }
 
-            iClientMacAddress = Integer.parseInt(properties.getTypedProperty(PR_CLIENT_MAC_ADDRESS, "32").trim());
-            iServerUpperMacAddress = Integer.parseInt(properties.getTypedProperty(PR_SRV_UP_MACADDR, "1").trim());
-            iServerLowerMacAddress = Integer.parseInt(properties.getTypedProperty(PR_SRV_LOW_MACADDR, "0").trim());
-            transparentConnectTime = Integer.parseInt(properties.getTypedProperty(PR_TRANSP_CONNECT_TIME, "10"));
-            transparentBaudrate = Integer.parseInt(properties.getTypedProperty(PR_TRANSP_BAUDRATE, "9600"));
-            transparentDatabits = Integer.parseInt(properties.getTypedProperty(PR_TRANSP_DATABITS, "8"));
-            transparentStopbits = Integer.parseInt(properties.getTypedProperty(PR_TRANSP_STOPBITS, "1"));
-            transparentParity = Integer.parseInt(properties.getTypedProperty(PR_TRANSP_PARITY, "0"));
-            profileType = Integer.parseInt(properties.getTypedProperty(PR_PROFILE_TYPE, "3"));
+            iClientMacAddress = properties.getTypedProperty(PR_CLIENT_MAC_ADDRESS, 32);
+            iServerUpperMacAddress = properties.getTypedProperty(PR_SRV_UP_MACADDR, 1);
+            iServerLowerMacAddress = properties.getTypedProperty(PR_SRV_LOW_MACADDR, 0);
+            transparentConnectTime = properties.getTypedProperty(PR_TRANSP_CONNECT_TIME, 10);
+            transparentBaudrate = properties.getTypedProperty(PR_TRANSP_BAUDRATE, 9600);
+            transparentDatabits = properties.getTypedProperty(PR_TRANSP_DATABITS, 8);
+            transparentStopbits = properties.getTypedProperty(PR_TRANSP_STOPBITS, 1);
+            transparentParity = properties.getTypedProperty(PR_TRANSP_PARITY, 0);
+            profileType = properties.getTypedProperty(PR_PROFILE_TYPE, 3);
 
-            opticalBaudrate = Integer.parseInt(properties.getTypedProperty(PR_OPTICAL_BAUDRATE, "-1"));
+            opticalBaudrate = properties.getTypedProperty(PR_OPTICAL_BAUDRATE, -1);
 
-            this.cipheringType = Integer.parseInt(properties.getTypedProperty("CipheringType", Integer.toString(CipheringType.DEDICATED.getType())));
+            this.cipheringType = properties.getTypedProperty("CipheringType", CipheringType.DEDICATED.getType());
 
-            this.limitMaxNrOfDays = Integer.parseInt(properties.getTypedProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
+            this.limitMaxNrOfDays = properties.getTypedProperty(PR_LIMIT_MAX_NR_OF_DAYS, 0);
             this.readPlcLogbook = ProtocolTools.getBooleanFromString(properties.getTypedProperty(PR_READ_PLC_LOG, "0"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");

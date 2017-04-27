@@ -129,8 +129,8 @@ public class WaveTherm extends AbstractProtocol implements MessageProtocol, Prot
         try {
             setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "40000").trim()));
             setLoadProfileObisCode(ObisCode.fromString(properties.getTypedProperty("LoadProfileObisCode", "0.0.99.1.0.255")));
-            correctTime = Integer.parseInt(properties.getTypedProperty(CORRECTTIME.getName(), "0"));
-            verifyProfileInterval = Integer.parseInt(properties.getTypedProperty("verifyProfileInterval", "1")) == 1;
+            correctTime = properties.getTypedProperty(CORRECTTIME.getName(), 0);
+            verifyProfileInterval = properties.getTypedProperty("verifyProfileInterval", 1) == 1;
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

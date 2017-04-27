@@ -1,8 +1,6 @@
 package com.energyict.protocolimpl.base;
 
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 /**
  * Copyrights EnergyICT
@@ -10,7 +8,4 @@ import com.energyict.mdc.upl.properties.TypedProperties;
  * Time: 15:59:31
  */
 public interface ProtocolProperties extends HasDynamicProperties {
-
-    void setUPLProperties(TypedProperties properties) throws PropertyValidationException;
-
 }

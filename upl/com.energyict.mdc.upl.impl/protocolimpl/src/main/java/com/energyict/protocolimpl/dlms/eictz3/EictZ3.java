@@ -1,5 +1,29 @@
 package com.energyict.protocolimpl.dlms.eictz3;
 
+import com.energyict.mdc.upl.MeterProtocol;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -54,29 +78,6 @@ import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdc.upl.MeterProtocol;
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.messages.legacy.Message;
-import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
-import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
-import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
-import com.energyict.mdc.upl.messages.legacy.MessageElement;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.MessageSpec;
-import com.energyict.mdc.upl.messages.legacy.MessageTag;
-import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
-import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.nls.TranslationKey;
-import com.energyict.mdc.upl.properties.HasDynamicProperties;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
@@ -1345,33 +1346,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         }
     }
 
-    @Override
-    public List<PropertySpec> getUPLPropertySpecs() {
-        return Arrays.asList(
-                this.stringSpecOfMaxLength(ADDRESS.getName(), PropertyTranslationKeys.DLMS_ADDRESS, 16),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.DLMS_PASSWORD),
-                this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.DLMS_TIMEOUT),
-                this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.DLMS_RETRIES),
-                this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION),
-                this.stringSpec(PROPNAME_SECURITY_LEVEL, PropertyTranslationKeys.DLMS_SECURITYLEVEL),
-                this.integerSpec(PROPNAME_REQUEST_TIME_ZONE, PropertyTranslationKeys.DLMS_REQUEST_TIME_ZONE),
-                this.integerSpec(PROPNAME_CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
-                this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
-                this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
-                this.stringSpec(NODEID.getName(), PropertyTranslationKeys.DLMS_NODEID),
-                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.DLMS_SERIALNUMBER),
-                this.integerSpec(PROPNAME_ADDRESSING_MODE, PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
-                this.integerSpec(PROPNAME_CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION),
-                new ObisCodePropertySpec(PROPNAME_LOAD_PROFILE_OBIS_CODE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOAD_PROFILE_OBIS_CODE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOAD_PROFILE_OBIS_CODE_DESCRIPTION).format()),
-                this.integerSpec(PROPNAME_INFORMATION_FIELD_SIZE, PropertyTranslationKeys.DLMS_INFORMATION_FIELD_SIZE),
-                this.integerSpec(PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES, PropertyTranslationKeys.DLMS_MAXIMUM_NUMBER_OF_MBUS_DEVICES),
-                this.stringSpec(PROPNAME_MAX_APDU_SIZE, PropertyTranslationKeys.DLMS_MAX_APDU_SIZE),
-                this.stringSpec(PROPNAME_FORCE_DELAY, PropertyTranslationKeys.DLMS_FORCE_DELAY),
-                this.stringSpec(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, PropertyTranslationKeys.DLMS_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD),
-                this.stringSpec(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, PropertyTranslationKeys.DLMS_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES),
-                this.integerSpec("CipheringType", PropertyTranslationKeys.DLMS_CIPHERING_TYPE, CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()));
-    }
-
     private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
         return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
@@ -1397,40 +1371,63 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     }
 
     @Override
+    public List<PropertySpec> getUPLPropertySpecs() {
+        return Arrays.asList(
+                this.stringSpecOfMaxLength(ADDRESS.getName(), PropertyTranslationKeys.DLMS_ADDRESS, 16),
+                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.DLMS_PASSWORD),
+                this.integerSpec(PROPNAME_TIMEOUT, PropertyTranslationKeys.DLMS_TIMEOUT),
+                this.integerSpec(PROPNAME_RETRIES, PropertyTranslationKeys.DLMS_RETRIES),
+                this.integerSpec(PROPNAME_ROUNDTRIP_CORRECTION, PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION),
+                this.stringSpec(PROPNAME_SECURITY_LEVEL, PropertyTranslationKeys.DLMS_SECURITYLEVEL),
+                this.integerSpec(PROPNAME_REQUEST_TIME_ZONE, PropertyTranslationKeys.DLMS_REQUEST_TIME_ZONE),
+                this.integerSpec(PROPNAME_CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
+                this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
+                this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
+                this.stringSpec(NODEID.getName(), PropertyTranslationKeys.DLMS_NODEID),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.DLMS_SERIALNUMBER),
+                this.integerSpec(PROPNAME_ADDRESSING_MODE, PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
+                this.integerSpec(PROPNAME_CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION),
+                new ObisCodePropertySpec(PROPNAME_LOAD_PROFILE_OBIS_CODE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOAD_PROFILE_OBIS_CODE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOAD_PROFILE_OBIS_CODE_DESCRIPTION).format()),
+                this.integerSpec(PROPNAME_INFORMATION_FIELD_SIZE, PropertyTranslationKeys.DLMS_INFORMATION_FIELD_SIZE),
+                this.integerSpec(PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES, PropertyTranslationKeys.DLMS_MAXIMUM_NUMBER_OF_MBUS_DEVICES),
+                this.stringSpec(PROPNAME_MAX_APDU_SIZE, PropertyTranslationKeys.DLMS_MAX_APDU_SIZE),
+                this.stringSpec(PROPNAME_FORCE_DELAY, PropertyTranslationKeys.DLMS_FORCE_DELAY),
+                this.stringSpec(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, PropertyTranslationKeys.DLMS_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD),
+                this.stringSpec(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, PropertyTranslationKeys.DLMS_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES),
+                this.integerSpec("CipheringType", PropertyTranslationKeys.DLMS_CIPHERING_TYPE, CipheringType.GLOBAL.getType(), CipheringType.DEDICATED.getType()));
+    }
+
+    @Override
     public final void setUPLProperties(final TypedProperties properties) throws InvalidPropertyException {
-        try {
-            this.deviceId = properties.getTypedProperty(ADDRESS.getName());
-            this.password = properties.getTypedProperty(PASSWORD.getName());
-            this.hdlcTimeout = Integer.parseInt(properties.getTypedProperty(PROPNAME_TIMEOUT, "10000").trim());
-            this.protocolRetries = Integer.parseInt(properties.getTypedProperty(PROPNAME_RETRIES, "5").trim());
+        this.deviceId = properties.getTypedProperty(ADDRESS.getName());
+        this.password = properties.getTypedProperty(PASSWORD.getName());
+        this.hdlcTimeout = properties.getTypedProperty(PROPNAME_TIMEOUT, 10000);
+        this.protocolRetries = properties.getTypedProperty(PROPNAME_RETRIES, 5);
 
             /* the format of the securityLevel is changed, now authenticationSecurityLevel and dataTransportSecurityLevel are in one */
-            String securityLevel = properties.getTypedProperty(PROPNAME_SECURITY_LEVEL, "1").trim();
-            if (securityLevel.contains(":")) {
-                this.authenticationLevel = AuthenticationLevel.getByPropertyValue(Integer.parseInt(securityLevel.substring(0, securityLevel.indexOf(":"))));
-                this.encryptionLevel = EncryptionLevel.getByPropertyValue(Integer.parseInt(securityLevel.substring(securityLevel.indexOf(":") + 1)));
-            } else {
-                this.authenticationLevel = AuthenticationLevel.getByPropertyValue(Integer.parseInt(securityLevel));
-                this.encryptionLevel = EncryptionLevel.getByPropertyValue(0);
-            }
-
-            this.requestTimeZone = Integer.parseInt(properties.getTypedProperty(PROPNAME_REQUEST_TIME_ZONE, "0").trim()) != 0;
-            this.roundtripCorrection = Integer.parseInt(properties.getTypedProperty(PROPNAME_ROUNDTRIP_CORRECTION, "0").trim());
-            this.clientMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, "1").trim());
-            this.serverUpperMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "17").trim());
-            this.serverLowerMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "17").trim());
-            this.nodeAddress = properties.getTypedProperty(NODEID.getName(), "");
-            this.serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
-            this.addressingMode = ClientAddressingMode.getByPropertyValue(Integer.parseInt(properties.getTypedProperty(PROPNAME_ADDRESSING_MODE, "-1")));
-            this.connectionMode = DLMSConnectionMode.getByPropertyValue(Integer.parseInt(properties.getTypedProperty(PROPNAME_CONNECTION, "0")));
-            this.loadProfileObisCode = properties.hasValueFor(PROPNAME_LOAD_PROFILE_OBIS_CODE) ? ObisCode.fromString(properties.getTypedProperty(PROPNAME_LOAD_PROFILE_OBIS_CODE)) : null;
-            this.informationFieldSize = Integer.parseInt(properties.getTypedProperty(PROPNAME_INFORMATION_FIELD_SIZE, "-1"));
-            this.maximumNumberOfMBusDevices = Integer.parseInt(properties.getTypedProperty(PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES, "4"));
-            // the NTA meters normally use the global keys to encrypt
-            this.cipheringType = Integer.parseInt(properties.getTypedProperty("CipheringType", Integer.toString(CipheringType.GLOBAL.getType())));
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        String securityLevel = properties.getTypedProperty(PROPNAME_SECURITY_LEVEL, "1").trim();
+        if (securityLevel.contains(":")) {
+            this.authenticationLevel = AuthenticationLevel.getByPropertyValue(Integer.parseInt(securityLevel.substring(0, securityLevel.indexOf(":"))));
+            this.encryptionLevel = EncryptionLevel.getByPropertyValue(Integer.parseInt(securityLevel.substring(securityLevel.indexOf(":") + 1)));
+        } else {
+            this.authenticationLevel = AuthenticationLevel.getByPropertyValue(Integer.parseInt(securityLevel));
+            this.encryptionLevel = EncryptionLevel.getByPropertyValue(0);
         }
+
+        this.requestTimeZone = properties.getTypedProperty(PROPNAME_REQUEST_TIME_ZONE, 0) != 0;
+        this.roundtripCorrection = properties.getTypedProperty(PROPNAME_ROUNDTRIP_CORRECTION, 0);
+        this.clientMacAddress = properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, 1);
+        this.serverUpperMacAddress = properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, 17);
+        this.serverLowerMacAddress = properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, 17);
+        this.nodeAddress = properties.getTypedProperty(NODEID.getName(), "");
+        this.serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+        this.addressingMode = ClientAddressingMode.getByPropertyValue(properties.getTypedProperty(PROPNAME_ADDRESSING_MODE, -1));
+        this.connectionMode = DLMSConnectionMode.getByPropertyValue(properties.getTypedProperty(PROPNAME_CONNECTION, 0));
+        this.loadProfileObisCode = properties.hasValueFor(PROPNAME_LOAD_PROFILE_OBIS_CODE) ? ObisCode.fromString(properties.getTypedProperty(PROPNAME_LOAD_PROFILE_OBIS_CODE)) : null;
+        this.informationFieldSize = properties.getTypedProperty(PROPNAME_INFORMATION_FIELD_SIZE, -1);
+        this.maximumNumberOfMBusDevices = properties.getTypedProperty(PROPNAME_MAXIMUM_NUMBER_OF_MBUS_DEVICES, 4);
+        // the NTA meters normally use the global keys to encrypt
+        this.cipheringType = properties.getTypedProperty("CipheringType", CipheringType.GLOBAL.getType());
 
         try {
             this.maximumAPDUSize = Integer.parseInt(properties.getTypedProperty(PROPNAME_MAX_APDU_SIZE, "-1"));

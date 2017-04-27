@@ -16,6 +16,18 @@
 
 package com.energyict.protocolimpl.dlms;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -50,17 +62,6 @@ import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.nls.TranslationKey;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HHUEnabler;
@@ -109,7 +110,7 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
     private static final int CONNECTION_MODE_COSEMPDU = 2;
     private static final int PROPOSED_QOS = -1;
     private static final int PROPOSED_DLMS_VERSION = 6;
-    private static final String MAX_PDU_SIZE = "-1";
+    private static final int MAX_PDU_SIZE = -1;
     private static final String PROPNAME_EXTENDED_LOGGING = "ExtendedLogging";
     private static final String PROPNAME_IIAP_INVOKE_ID = "IIAPInvokeId";
     private static final String PROPNAME_IIAP_PRIORITY = "IIAPPriority";
@@ -769,22 +770,18 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
         nodeId = properties.getTypedProperty(NODEID.getName(), "");
         strID = properties.getTypedProperty(ADDRESS.getName());
         strPassword = properties.getTypedProperty(PASSWORD.getName());
-        iHDLCTimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000").trim());
-        iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
-        iDelayAfterFailProperty = Integer.parseInt(properties.getTypedProperty(PROPNAME_DELAY_AFTERFAIL, "3000").trim());
-        iRequestTimeZone = Integer.parseInt(properties.getTypedProperty(PROPNAME_REQUEST_TIME_ZONE, "0").trim());
-        iRequestClockObject = Integer.parseInt(properties.getTypedProperty(PROPNAME_REQUEST_CLOCK_OBJECT, "0").trim());
-        iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+        iHDLCTimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 10000);
+        iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 5);
+        iDelayAfterFailProperty = properties.getTypedProperty(PROPNAME_DELAY_AFTERFAIL, 3000);
+        iRequestTimeZone = properties.getTypedProperty(PROPNAME_REQUEST_TIME_ZONE, 0);
+        iRequestClockObject = properties.getTypedProperty(PROPNAME_REQUEST_CLOCK_OBJECT, 0);
+        iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
         // KV 19012004 get the serialNumber
         configuredSerialNumber = properties.getTypedProperty(SERIALNUMBER.getName(), "");
-        extendedLogging = Integer.parseInt(properties.getTypedProperty(PROPNAME_EXTENDED_LOGGING, "0"));
-        addressingMode = Integer.parseInt(properties.getTypedProperty(PROPNAME_ADDRESSING_MODE, "-1"));
-        connectionMode = Integer.parseInt(properties.getTypedProperty(PROPNAME_CONNECTION, "0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection
-        if ("".equalsIgnoreCase(properties.getTypedProperty(PROPNAME_CHANNEL_MAP, ""))) {
-            channelMap = null;
-        } else {
-            channelMap = new ProtocolChannelMap(((String) properties.getTypedProperty(PROPNAME_CHANNEL_MAP)));
-        }
+        extendedLogging = properties.getTypedProperty(PROPNAME_EXTENDED_LOGGING, 0);
+        addressingMode = properties.getTypedProperty(PROPNAME_ADDRESSING_MODE, -1);
+        connectionMode = properties.getTypedProperty(PROPNAME_CONNECTION, 0); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection
+        channelMap = properties.getTypedProperty(PROPNAME_CHANNEL_MAP);
         String[] securityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), "1").split(":");
         this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
         if (securityLevel.length == 2) {
@@ -794,12 +791,12 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
         } else {
             throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getTypedProperty("SecurityLevel", "1"));
         }
-        iiapInvokeId = Integer.parseInt(properties.getTypedProperty(PROPNAME_IIAP_INVOKE_ID, "0"));
-        iiapPriority = Integer.parseInt(properties.getTypedProperty(PROPNAME_IIAP_PRIORITY, "1"));
-        iiapServiceClass = Integer.parseInt(properties.getTypedProperty(PROPNAME_IIAP_SERVICE_CLASS, "1"));
-        cipheringType = Integer.parseInt(properties.getTypedProperty(PROPNAME_CIPHERING_TYPE, Integer.toString(CipheringType.GLOBAL.getType())));
-        maxPduSize = Integer.parseInt(properties.getTypedProperty(PROPNAME_MAX_PDU_SIZE, MAX_PDU_SIZE));
-        iForceDelay = Integer.parseInt(properties.getTypedProperty(PROPNAME_IFORCEDELAY_BEFORE_SEND, "100"));
+        iiapInvokeId = properties.getTypedProperty(PROPNAME_IIAP_INVOKE_ID, 0);
+        iiapPriority = properties.getTypedProperty(PROPNAME_IIAP_PRIORITY, 1);
+        iiapServiceClass = properties.getTypedProperty(PROPNAME_IIAP_SERVICE_CLASS, 1);
+        cipheringType = properties.getTypedProperty(PROPNAME_CIPHERING_TYPE, CipheringType.GLOBAL.getType());
+        maxPduSize = properties.getTypedProperty(PROPNAME_MAX_PDU_SIZE, MAX_PDU_SIZE);
+        iForceDelay = properties.getTypedProperty(PROPNAME_IFORCEDELAY_BEFORE_SEND, 100);
     }
 
     @Override

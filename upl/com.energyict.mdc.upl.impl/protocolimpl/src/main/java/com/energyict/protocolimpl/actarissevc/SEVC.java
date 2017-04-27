@@ -325,12 +325,12 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
         try {
             strID = properties.getTypedProperty(ADDRESS.getName());
             strPassword = properties.getTypedProperty(PASSWORD.getName());
-            iIEC1107TimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "3").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            iIEC1107TimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 10000);
+            iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 3);
+            iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
             nodeId = properties.getTypedProperty(NODEID.getName(), ""); // KV 13082003
             serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
-            setForcedDelay(Integer.parseInt(properties.getTypedProperty("ForcedDelay", "0"))); // KV 27022006
+            setForcedDelay(properties.getTypedProperty("ForcedDelay", 0)); // KV 27022006
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

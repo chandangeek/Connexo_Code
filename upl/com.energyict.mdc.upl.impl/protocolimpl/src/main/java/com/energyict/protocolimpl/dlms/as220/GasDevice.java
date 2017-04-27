@@ -149,7 +149,6 @@ public class GasDevice extends AS220 implements MessageProtocol, SerialNumberSup
     private void validateProperties(TypedProperties properties) {
         this.gmeterSerialnumber = properties.getTypedProperty(SERIALNUMBER.getName(), "");
         this.emeterSerialnumber = properties.getTypedProperty(NODEID.getName(), "");
-
     }
 
     @Override

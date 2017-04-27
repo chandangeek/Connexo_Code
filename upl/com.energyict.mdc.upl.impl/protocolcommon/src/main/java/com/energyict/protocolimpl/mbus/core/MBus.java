@@ -104,10 +104,10 @@ public abstract class MBus extends AbstractProtocol {
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "3000").trim()));
-        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getTypedProperty(PROP_RETRIES, "2").trim()));
-        setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "0").trim()));
-        setSecondaryAddressing(Integer.parseInt(properties.getTypedProperty("SecondaryAddressing","0")));
-        setUseZeroBased(Integer.parseInt(properties.getTypedProperty("DataQuantitiesAreZeroBased", "0")) == 1);
+        setInfoTypeProtocolRetriesProperty(properties.getTypedProperty(PROP_RETRIES, 2));
+        setForcedDelay(properties.getTypedProperty(PROP_FORCED_DELAY, 0));
+        setSecondaryAddressing(properties.getTypedProperty("SecondaryAddressing", 0));
+        setUseZeroBased(properties.getTypedProperty("DataQuantitiesAreZeroBased", 0) == 1);
 
         String manufCode = properties.getTypedProperty("HeaderManufacturerCode");
         if (manufCode == null) {
@@ -121,8 +121,8 @@ public abstract class MBus extends AbstractProtocol {
         		setHeaderManufacturerCode(CIField72h.getManufacturerCode(manufCode));
         	}
         }
-        setHeaderMedium(Integer.parseInt(properties.getTypedProperty("HeaderMedium","FF"),16));
-        setHeaderVersion(Integer.parseInt(properties.getTypedProperty("HeaderVersion","FF"),16));
+        setHeaderMedium(properties.getTypedProperty("HeaderMedium", 15));
+        setHeaderVersion(properties.getTypedProperty("HeaderVersion", 15));
     }
 
     @Override

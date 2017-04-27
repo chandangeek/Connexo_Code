@@ -6,12 +6,6 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connections.IEC1107HHUConnection;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -22,6 +16,13 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.IEC1107HHUConnection;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.HalfDuplexEnabler;
@@ -302,24 +303,24 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
             strID = properties.getTypedProperty(ADDRESS.getName());
             strPassword = properties.getTypedProperty(PASSWORD.getName());
             setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "10000").trim()));
-            setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getTypedProperty(PROP_RETRIES, "5").trim()));
-            roundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            securityLevel = Integer.parseInt(properties.getTypedProperty(PROP_SECURITY_LEVEL, "1").trim());
+            setInfoTypeProtocolRetriesProperty(properties.getTypedProperty(PROP_RETRIES, 5));
+            roundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
+            securityLevel = properties.getTypedProperty(PROP_SECURITY_LEVEL, 1);
             nodeId = properties.getTypedProperty(NODEID.getName(), "");
-            echoCancelling = Integer.parseInt(properties.getTypedProperty(PROP_ECHO_CANCELING, "0").trim());
-            protocolCompatible = Integer.parseInt(properties.getTypedProperty(PROP_PROTOCOL_COMPATIBLE, "1").trim());
-            extendedLogging = Integer.parseInt(properties.getTypedProperty(PROP_EXTENDED_LOGGING, "0").trim());
+            echoCancelling = properties.getTypedProperty(PROP_ECHO_CANCELING, 0);
+            protocolCompatible = properties.getTypedProperty(PROP_PROTOCOL_COMPATIBLE, 1);
+            extendedLogging = properties.getTypedProperty(PROP_EXTENDED_LOGGING, 0);
             serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
             channelMap = properties.getTypedProperty(PROP_CHANNEL_MAP);
             if (channelMap != null) {
                 protocolChannelMap = new ProtocolChannelMap(channelMap);
             }
-            profileInterval = Integer.parseInt(properties.getTypedProperty(PROFILEINTERVAL.getName(), "900").trim());
-            requestHeader = Integer.parseInt(properties.getTypedProperty(PROP_REQUEST_HEADER, "0").trim());
-            scaler = Integer.parseInt(properties.getTypedProperty(PROP_SCALER, "0").trim());
-            setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, defaultForcedDelayPropertyValue()).trim()));
-            halfDuplex = Integer.parseInt(properties.getTypedProperty(PROP_HALF_DUPLEX, "0").trim());
-            setDtrBehaviour(Integer.parseInt(properties.getTypedProperty(PROP_DTR_BEHAVIOUR, "2").trim()));
+            profileInterval = properties.getTypedProperty(PROFILEINTERVAL.getName(), 900);
+            requestHeader = properties.getTypedProperty(PROP_REQUEST_HEADER, 0);
+            scaler = properties.getTypedProperty(PROP_SCALER, 0);
+            setForcedDelay(properties.getTypedProperty(PROP_FORCED_DELAY, defaultForcedDelayPropertyValue()));
+            halfDuplex = properties.getTypedProperty(PROP_HALF_DUPLEX, 0);
+            setDtrBehaviour(properties.getTypedProperty(PROP_DTR_BEHAVIOUR, 2));
 
             adjustChannelMultiplier = new BigDecimal(properties.getTypedProperty(PROP_ADJUST_CHANNEL_MULTIPLIER, "1").trim());
             adjustRegisterMultiplier = new BigDecimal(properties.getTypedProperty(PROP_ADJUST_REGISTER_MULTIPLIER, "1").trim());
@@ -328,8 +329,8 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         }
     }
 
-    protected String defaultForcedDelayPropertyValue() {
-        return "300";
+    protected int defaultForcedDelayPropertyValue() {
+        return 300;
     }
 
     @Override

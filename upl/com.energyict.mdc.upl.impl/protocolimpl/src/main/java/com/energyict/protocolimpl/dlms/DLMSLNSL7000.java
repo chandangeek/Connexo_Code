@@ -1315,21 +1315,13 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
-    private PropertySpec integerSpec(String name, TranslationKey translationKey, Integer... validValues) {
-        return UPLPropertySpecFactory
-                .specBuilder(name, false, translationKey, this.propertySpecService::integerSpec)
-                .addValues(validValues)
-                .markExhaustive()
-                .finish();
-    }
-
     @Override
     public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
         try {
             strID = properties.getTypedProperty(ADDRESS.getName());
             strPassword = properties.getTypedProperty(PASSWORD.getName());
-            iHDLCTimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
+            iHDLCTimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 10000);
+            iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 5);
             final String securityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), "1").trim();
             try {
                 iSecurityLevelProperty = Integer.parseInt(securityLevel);
@@ -1338,19 +1330,19 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
                 iSecurityLevelProperty = Integer.parseInt(securityLevel.substring(0, 1));
             }
             iRequestTimeZone = 0;
-            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
 
-            iClientMacAddress = Integer.parseInt(properties.getTypedProperty("ClientMacAddress", "1").trim());
-            iServerUpperMacAddress = Integer.parseInt(properties.getTypedProperty("ServerUpperMacAddress", "17").trim());
-            iServerLowerMacAddress = Integer.parseInt(properties.getTypedProperty("ServerLowerMacAddress", "17").trim());
+            iClientMacAddress = properties.getTypedProperty("ClientMacAddress", 1);
+            iServerUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 17);
+            iServerLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 17);
             firmwareVersion = properties.getTypedProperty("FirmwareVersion", "ANY");
             nodeId = properties.getTypedProperty(NODEID.getName(), "");
             // KV 19012004 get the serialNumber
             serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
-            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0"));
-            addressingMode = Integer.parseInt(properties.getTypedProperty("AddressingMode", "-1"));
-            connectionMode = Integer.parseInt(properties.getTypedProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
-            useLegacyHDLCConnection = Integer.parseInt(properties.getTypedProperty(USE_LEGACY_HDLC_CONNECTION, "0")) == 1;   //By default, do not use the old HDLC connection layer. So use the new HDLC connection layer.
+            extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+            addressingMode = properties.getTypedProperty("AddressingMode", -1);
+            connectionMode = properties.getTypedProperty("Connection", 0); // 0=HDLC, 1= TCP/IP
+            useLegacyHDLCConnection = properties.getTypedProperty(USE_LEGACY_HDLC_CONNECTION, 0) == 1;   //By default, do not use the old HDLC connection layer. So use the new HDLC connection layer.
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

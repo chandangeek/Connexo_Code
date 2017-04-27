@@ -218,7 +218,7 @@ public abstract class WaveFlow100mW extends AbstractProtocol implements MessageP
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "40000").trim()));
         setLoadProfileObisCode(ObisCode.fromString(properties.getTypedProperty(LOAD_PROFILE_OBIS_CODE_PROPERTY, "0.0.99.1.0.255")));
         readLoadProfile = "1".equals(properties.getTypedProperty(READ_LOAD_PROFILE_PROPERTY, "1"));
-        correctTime = Integer.parseInt(properties.getTypedProperty(CORRECTTIME.getName(), "0"));
+        correctTime = properties.getTypedProperty(CORRECTTIME.getName(), 0);
         verifyProfileInterval = Boolean.parseBoolean(properties.getTypedProperty(VERIFY_PROFILE_INTERVAL_PROPERTY, "false"));
         serialNumberA = properties.getTypedProperty(SERIAL_NUMBER_A);
         serialNumberB = properties.getTypedProperty(SERIAL_NUMBER_B);

@@ -105,6 +105,6 @@ public class EIWebConnectionType implements ConnectionType {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         this.properties = properties;
-
     }
+
 }

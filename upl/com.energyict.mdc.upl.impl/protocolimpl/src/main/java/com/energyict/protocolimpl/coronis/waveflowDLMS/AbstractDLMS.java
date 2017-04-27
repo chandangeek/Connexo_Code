@@ -1,9 +1,5 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -15,6 +11,11 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.EventMapper;
 import com.energyict.protocol.MessageProtocol;
@@ -328,13 +329,13 @@ public abstract class AbstractDLMS extends AbstractProtocol implements ProtocolL
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "40000").trim()));
-        correctTime = Integer.parseInt(properties.getTypedProperty(CORRECTTIME.getName(), "0"));
-        correctWaveflowTime = Integer.parseInt(properties.getTypedProperty("correctWaveflowTime", "0"));
+        correctTime = properties.getTypedProperty(CORRECTTIME.getName(), 0);
+        correctWaveflowTime = properties.getTypedProperty("correctWaveflowTime", 0);
         verifyProfileInterval = Boolean.parseBoolean(properties.getTypedProperty("verifyProfileInterval", "false"));
         isOldFirmware = "1".equalsIgnoreCase(properties.getTypedProperty("isOldFirmware", "0"));
         optimizeChangeContactorStatus = "1".equalsIgnoreCase(properties.getTypedProperty("optimizeChangeContactorStatus", "0"));
         serialNumberA = properties.getTypedProperty("SerialNumberA", "");
-        maxNumberOfIntervals = Integer.parseInt(properties.getTypedProperty("MaxNumberOfIntervals", "0"));
+        maxNumberOfIntervals = properties.getTypedProperty("MaxNumberOfIntervals", 0);
 
         String temp = properties.getTypedProperty("WavenisEncryptionKey");
         if (temp != null) {

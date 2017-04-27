@@ -6,11 +6,6 @@
 
 package com.energyict.protocolimpl.iec1107;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connections.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -21,6 +16,12 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MeterExceptionInfo;
@@ -34,8 +35,8 @@ import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
@@ -213,23 +214,23 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
         try {
             strID = properties.getTypedProperty(ADDRESS.getName());
             strPassword = properties.getTypedProperty(PASSWORD.getName());
-            iec1107TimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000").trim());
-            protocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
-            roundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            securityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "1").trim());
+            iec1107TimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 10000);
+            protocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 5);
+            roundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
+            securityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), 1);
             nodeId = properties.getTypedProperty(NODEID.getName(), "");
-            echoCancelling = Integer.parseInt(properties.getTypedProperty("EchoCancelling", "0").trim());
-            iec1107Compatible = Integer.parseInt(properties.getTypedProperty("IEC1107Compatible", "1").trim());
-            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0").trim());
+            echoCancelling = properties.getTypedProperty("EchoCancelling", 0);
+            iec1107Compatible = properties.getTypedProperty("IEC1107Compatible", 1);
+            extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
             serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
             if (properties.getTypedProperty("ChannelMap") != null) {
                 channelMap = new ChannelMap(((String) properties.getTypedProperty("ChannelMap")));
                 protocolChannelMap = new ProtocolChannelMap(((String) properties.getTypedProperty("ChannelMap")));
             }
-            profileInterval = Integer.parseInt(properties.getTypedProperty(PROFILEINTERVAL.getName(), "900").trim());
-            requestHeader = Integer.parseInt(properties.getTypedProperty("RequestHeader", "0").trim());
-            scaler = Integer.parseInt(properties.getTypedProperty("Scaler", "0").trim());
-            forcedDelay = Integer.parseInt(properties.getTypedProperty("ForcedDelay", "300").trim());
+            profileInterval = properties.getTypedProperty(PROFILEINTERVAL.getName(), 900);
+            requestHeader = properties.getTypedProperty("RequestHeader", 0);
+            scaler = properties.getTypedProperty("Scaler", 0);
+            forcedDelay = properties.getTypedProperty("ForcedDelay", 300);
             software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");

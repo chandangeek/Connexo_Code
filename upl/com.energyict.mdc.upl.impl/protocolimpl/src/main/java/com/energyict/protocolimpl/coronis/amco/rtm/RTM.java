@@ -200,9 +200,9 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty("Timeout", "40000").trim()));
-        correctTime = Integer.parseInt(properties.getTypedProperty(CORRECTTIME.getName(), "0"));
-        verifyProfileInterval = Integer.parseInt(properties.getTypedProperty("verifyProfileInterval", "1")) == 1;
-        multiFrame = Integer.parseInt(properties.getTypedProperty("EnableMultiFrameMode", "0")) == 1;
+        correctTime = properties.getTypedProperty(CORRECTTIME.getName(), 0);
+        verifyProfileInterval = properties.getTypedProperty("verifyProfileInterval", 1) == 1;
+        multiFrame = properties.getTypedProperty("EnableMultiFrameMode", 0) == 1;
 
         // e.g. USED,4,28740,28800,1,0e514a401f25
         String[] wavenisBubbleUpInfo = properties.getTypedProperty("WavenisBubbleUpInfo", "USED,1,-1,-1,1,000000000000").split(",");
@@ -210,8 +210,8 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
 
         // e.g. USED,4,28740,28800,1,0e514a401f25
         bubbleUpEndHour = Integer.parseInt(wavenisBubbleUpInfo[3]);
-        initialRFCommand = Integer.parseInt(properties.getTypedProperty("InitialRFCommand", "0").trim());
-        roundDownToNearestInterval = Integer.parseInt(properties.getTypedProperty("RoundDownToNearestInterval", "0").trim()) == 1;
+        initialRFCommand = properties.getTypedProperty("InitialRFCommand", 0);
+        roundDownToNearestInterval = properties.getTypedProperty("RoundDownToNearestInterval", 0) == 1;
     }
 
     @Override

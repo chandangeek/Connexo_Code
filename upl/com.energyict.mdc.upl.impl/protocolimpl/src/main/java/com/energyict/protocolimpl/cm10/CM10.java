@@ -109,8 +109,8 @@ public class CM10 extends AbstractProtocol {
         this.outstationID = Integer.parseInt(properties.getTypedProperty("SerialNumber"));
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "5000").trim()));
         setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getTypedProperty(PROP_RETRIES, "3").trim()));
-        this.delayAfterConnect = Integer.parseInt(properties.getTypedProperty("DelayAfterConnect", "1000"));
-        this.isCM10Meter = !"0".equals(properties.getTypedProperty(IS_C10_METER));
+        this.delayAfterConnect = properties.getTypedProperty("DelayAfterConnect", 1000);
+        this.isCM10Meter = !new Integer(0).equals(properties.getTypedProperty(IS_C10_METER));
     }
 
 	PowerFailDetailsTable getPowerFailDetailsTable() throws IOException {

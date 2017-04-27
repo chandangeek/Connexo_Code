@@ -11,6 +11,30 @@
 
 package com.energyict.protocolimpl.dlms.actarisace6000;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.nls.TranslationKey;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.DeviceSecuritySupport;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -40,29 +64,6 @@ import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Message;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.MessageTag;
-import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.nls.TranslationKey;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.upl.security.DeviceSecuritySupport;
-import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HHUEnabler;
@@ -1407,10 +1408,10 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
                 this.stringSpec("FirmwareVersion", PropertyTranslationKeys.DLMS_FIRMWARE_VERSION),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.DLMS_NODEID),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.DLMS_SERIALNUMBER),
-                this.stringSpec(PK_EXTENDED_LOGGING, PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
-                this.stringSpec("AddressingMode", PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
-                this.stringSpec("Connection", PropertyTranslationKeys.DLMS_CONNECTION),
-                this.stringSpec("StatusFlagChannel", PropertyTranslationKeys.DLMS_STATUS_FLAG_CHANNEL));
+                this.integerSpec(PK_EXTENDED_LOGGING, PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
+                this.integerSpec("AddressingMode", PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
+                this.integerSpec("Connection", PropertyTranslationKeys.DLMS_CONNECTION),
+                this.integerSpec("StatusFlagChannel", PropertyTranslationKeys.DLMS_STATUS_FLAG_CHANNEL));
     }
 
     private <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
@@ -1434,23 +1435,23 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
         try {
             strID = properties.getTypedProperty(ADDRESS.getName());
             strPassword = properties.getTypedProperty(PASSWORD.getName());
-            iHDLCTimeoutProperty = Integer.parseInt(properties.getTypedProperty(PK_TIMEOUT, "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(PK_RETRIES, "5").trim());
-            iSecurityLevelProperty = Integer.parseInt(properties.getTypedProperty(PK_SECURITYLEVEL, "1").trim());
-            iRequestTimeZone = Integer.parseInt(properties.getTypedProperty("RequestTimeZone", "0").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+            iHDLCTimeoutProperty = properties.getTypedProperty(PK_TIMEOUT, 10000);
+            iProtocolRetriesProperty = properties.getTypedProperty(PK_RETRIES, 5);
+            iSecurityLevelProperty = properties.getTypedProperty(PK_SECURITYLEVEL, 1);
+            iRequestTimeZone = properties.getTypedProperty("RequestTimeZone", 0);
+            iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
 
-            iClientMacAddress = Integer.parseInt(properties.getTypedProperty("ClientMacAddress", "1").trim());
-            iServerUpperMacAddress = Integer.parseInt(properties.getTypedProperty("ServerUpperMacAddress", "17").trim());
-            iServerLowerMacAddress = Integer.parseInt(properties.getTypedProperty("ServerLowerMacAddress", "17").trim());
+            iClientMacAddress = properties.getTypedProperty("ClientMacAddress", 1);
+            iServerUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 17);
+            iServerLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 17);
             firmwareVersion = properties.getTypedProperty("FirmwareVersion", "ANY");
             nodeId = properties.getTypedProperty(NODEID.getName(), "");
             // KV 19012004 get the serialNumber
             serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
-            extendedLogging = Integer.parseInt(properties.getTypedProperty(PK_EXTENDED_LOGGING, "0"));
-            addressingMode = Integer.parseInt(properties.getTypedProperty("AddressingMode", "-1"));
-            connectionMode = Integer.parseInt(properties.getTypedProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
-            alarmStatusFlagChannel = Integer.parseInt(properties.getTypedProperty("StatusFlagChannel", "0"));
+            extendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING, 0);
+            addressingMode = properties.getTypedProperty("AddressingMode", -1);
+            connectionMode = properties.getTypedProperty("Connection", 0); // 0=HDLC, 1= TCP/IP
+            alarmStatusFlagChannel = properties.getTypedProperty("StatusFlagChannel", 0);
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

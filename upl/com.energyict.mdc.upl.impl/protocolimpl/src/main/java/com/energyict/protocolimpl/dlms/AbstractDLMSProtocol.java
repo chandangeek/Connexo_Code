@@ -1,5 +1,13 @@
 package com.energyict.protocolimpl.dlms;
 
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.CosemPDUConnection;
@@ -22,13 +30,6 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdc.upl.io.NestedIOException;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
@@ -92,7 +93,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     private static final String PROPNAME_FORCE_DELAY = PROP_FORCED_DELAY;
     private static final String PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES = "MaximumNumberOfClockSetTries";
     private static final String PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD = "ClockSetRoundtripCorrectionTreshold";
-    private static final String ISKRA_WRAPPER_DEFAULT = "1";
+    private static final int ISKRA_WRAPPER_DEFAULT = 1;
     private static final String INCREMENT_FRAMECOUNTER_FOR_RETRIES_DEFAULT = "1";
     protected ApplicationServiceObject aso;
     protected DLMSCache dlmsCache;
@@ -360,8 +361,8 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     }
 
     @Override
-    protected String defaultForcedDelayPropertyValue() {
-        return "1";
+    protected int defaultForcedDelayPropertyValue() {
+        return 1;
     }
 
     @Override
@@ -382,36 +383,25 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         nodeId = properties.getTypedProperty(NODEID.getName(), "");
         deviceId = properties.getTypedProperty(ADDRESS.getName(), "");
         serialNumber = properties.getTypedProperty(SERIALNUMBER.getName(), "");
-        connectionMode = Integer.parseInt(properties.getTypedProperty(PROPNAME_CONNECTION, "1"));
-        clientMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, "32"));
-        serverLowerMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "1"));
-        serverUpperMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "17"));
+        connectionMode = properties.getTypedProperty(PROPNAME_CONNECTION, 1);
+        clientMacAddress = properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, 32);
+        serverLowerMacAddress = properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, 1);
+        serverUpperMacAddress = properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, 17);
         timeOut = Integer.parseInt(properties.getTypedProperty(PROPNAME_TIMEOUT, (this.connectionMode == 0) ? "5000" : "60000"));    // set the HDLC timeout to 5000 for the WebRTU KP
-        forceDelay = Integer.parseInt(properties.getTypedProperty(PROPNAME_FORCE_DELAY, "1"));
+        forceDelay = properties.getTypedProperty(PROPNAME_FORCE_DELAY, 1);
         retries = Integer.parseInt(properties.getTypedProperty(PROPNAME_RETRIES, "3"));
-        addressingMode = Integer.parseInt(properties.getTypedProperty(PROPNAME_ADDRESSING_MODE, "2"));
+        addressingMode = properties.getTypedProperty(PROPNAME_ADDRESSING_MODE, 2);
         manufacturer = properties.getTypedProperty(PROPNAME_MANUFACTURER, "EIT");
-        informationFieldSize = Integer.parseInt(properties.getTypedProperty(PROPNAME_INFORMATION_FIELD_SIZE, "-1"));
-        iiapInvokeId = Integer.parseInt(properties.getTypedProperty(PROPNAME_IIAP_INVOKE_ID, "0"));
-        iiapPriority = Integer.parseInt(properties.getTypedProperty(PROPNAME_IIAP_PRIORITY, "1"));
-        iiapServiceClass = Integer.parseInt(properties.getTypedProperty(PROPNAME_IIAP_SERVICE_CLASS, "1"));
-        cipheringType = Integer.parseInt(properties.getTypedProperty(PROPNAME_CIPHERING_TYPE, Integer.toString(CipheringType.GLOBAL.getType())));
+        informationFieldSize = properties.getTypedProperty(PROPNAME_INFORMATION_FIELD_SIZE, -1);
+        iiapInvokeId = properties.getTypedProperty(PROPNAME_IIAP_INVOKE_ID,-0);
+        iiapPriority = properties.getTypedProperty(PROPNAME_IIAP_PRIORITY,-1);
+        iiapServiceClass = properties.getTypedProperty(PROPNAME_IIAP_SERVICE_CLASS,-1);
+        cipheringType = properties.getTypedProperty(PROPNAME_CIPHERING_TYPE, CipheringType.GLOBAL.getType());
 
-        try {
-            this.numberOfClocksetTries = Integer.parseInt(properties.getTypedProperty(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, String.valueOf(DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES)));
-        } catch (final NumberFormatException e) {
-            logger.log(Level.SEVERE, "Cannot parse the number of clockset tries to a numeric value, setting to default value of [" + DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES + "]", e);
-            this.numberOfClocksetTries = DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES;
-        }
-        try {
-            this.clockSetRoundtripTreshold = 0;
-            clockSetRoundtripTreshold = Integer.parseInt(properties.getTypedProperty(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, String.valueOf(DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD)));
-        } catch (final NumberFormatException e) {
-            logger.log(Level.SEVERE, "Cannot parse the number of roundtrip correction probes to be done, setting to default value of [" + DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD + "]", e);
-            this.clockSetRoundtripTreshold = DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD;
-        }
-        this.maxRecPduSize = Integer.parseInt(properties.getTypedProperty(MAX_REC_PDU_SIZE, Integer.toString(MAX_PDU_SIZE)));
-        this.iskraWrapper = Integer.parseInt(properties.getTypedProperty(ISKRA_WRAPPER, ISKRA_WRAPPER_DEFAULT));
+        this.numberOfClocksetTries = properties.getTypedProperty(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES);
+        this.clockSetRoundtripTreshold = properties.getTypedProperty(PROPNAME_CLOCKSET_ROUNDTRIP_CORRECTION_THRESHOLD, DEFAULT_CLOCKSET_ROUNDTRIP_CORRECTION_TRESHOLD);
+        this.maxRecPduSize = properties.getTypedProperty(MAX_REC_PDU_SIZE, MAX_PDU_SIZE);
+        this.iskraWrapper = properties.getTypedProperty(ISKRA_WRAPPER, ISKRA_WRAPPER_DEFAULT);
         this.incrementFrameCounterForRetries = Boolean.parseBoolean(properties.getTypedProperty(INCREMENT_FRAMECOUNTER_FOR_RETRIES, INCREMENT_FRAMECOUNTER_FOR_RETRIES_DEFAULT));
     }
 

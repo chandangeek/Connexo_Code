@@ -104,7 +104,7 @@ public abstract class AbstractWaveTalk extends AbstractProtocol implements Proto
 	public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
 		super.setUPLProperties(properties);
 		setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "20000").trim()));
-		correctTime = Integer.parseInt(properties.getTypedProperty(CORRECTTIME.getName(), "0"));
+		correctTime = properties.getTypedProperty(CORRECTTIME.getName(), 0);
 	}
 
 	@Override
