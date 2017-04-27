@@ -25,6 +25,13 @@ Ext.define('Est.estimationrules.view.EditForm', {
 
         me.items = [
             {
+                xtype: 'uni-form-info-message',
+                itemId: 'not-all-meters-specified-message',
+                text: Uni.I18n.translate('estimationrules.info', 'EST', "Mandatory attributes can be required on the reading type level"),
+                margin: '0 0 10 0',
+                width: 600
+            },
+            {
                 xtype: 'uni-form-error-message',
                 itemId: 'form-errors',
                 name: 'form-errors',
