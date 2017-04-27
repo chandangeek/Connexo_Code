@@ -728,17 +728,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             } else if (record.isModified('collectedValue')) {
                 confirmedObj = _.pick(record.getData(), 'interval', 'collectedValue');
             }
-            confirmedObj.mainValidationInfo = {};
-            confirmedObj.bulkValidationInfo = {};
             if (record.get('mainValidationInfo') && record.get('mainValidationInfo').commentId) {
+                confirmedObj.mainValidationInfo = {};
                 confirmedObj.mainValidationInfo.commentId = record.get('mainValidationInfo').commentId;
-            } else {
-                confirmedObj.mainValidationInfo.commentId = null;
+                confirmedObj.mainValidationInfo.isConfirmed = record.get('mainValidationInfo').confirmedNotSaved || false;
             }
             if (record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentId) {
+                confirmedObj.bulkValidationInfo = {};
                 confirmedObj.bulkValidationInfo.commentId = record.get('bulkValidationInfo').commentId;
-            } else {
-                confirmedObj.bulkValidationInfo.commentId = null;
+                confirmedObj.bulkValidationInfo.isConfirmed = record.get('bulkValidationInfo').confirmedNotSaved || false;
             }
             changedData.push(confirmedObj);
         });
