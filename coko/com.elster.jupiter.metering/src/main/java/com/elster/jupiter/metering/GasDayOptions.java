@@ -10,6 +10,7 @@ import com.elster.jupiter.util.time.DayMonthTime;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -68,5 +69,9 @@ public interface GasDayOptions {
      * @return The List of RelativePeriod
      */
     List<RelativePeriod> getRelativePeriods();
+
+    Instant addTo(Instant timestamp);
+
+    Instant subtractFrom(Instant timestamp);
 
 }

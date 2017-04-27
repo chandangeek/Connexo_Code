@@ -15,7 +15,6 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -24,6 +23,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
+import com.elster.jupiter.metering.aggregation.CalculatedReadingRecord;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
@@ -198,11 +198,12 @@ public class MetrologyContractChannelsContainerImplTestIT {
                 .select(where("metrologyConfiguration").isEqualTo(metrologyConfiguration).and(where("usagePoint").isEqualTo(usagePoint)))
                 .get(0);
 
-        BaseReadingRecord baseReading = mock(BaseReadingRecord.class);
+        CalculatedReadingRecord baseReading = mock(CalculatedReadingRecord.class);
         CalculatedMetrologyContractData calculatedMetrologyContractData = mock(CalculatedMetrologyContractData.class);
         doReturn(Collections.singletonList(baseReading)).when(calculatedMetrologyContractData).getCalculatedDataFor(readingTypeDeliverable);
         when(baseReading.getTimeStamp()).thenReturn(installationTime.plus(Duration.ofMinutes(15)));
-        when(baseReading.getValue()).thenReturn(BigDecimal.valueOf(123L));
+        BigDecimal calculatedValue = BigDecimal.valueOf(123L);
+        when(baseReading.getValue()).thenReturn(calculatedValue);
         Range<Instant> requestedInterval = Range.openClosed(installationTime, installationTime.plus(Duration.ofMinutes(15)));
 
         when(dataAggregationService.calculate(usagePoint, metrologyContract, requestedInterval)).thenReturn(calculatedMetrologyContractData);
@@ -212,31 +213,28 @@ public class MetrologyContractChannelsContainerImplTestIT {
         List<BaseReadingRecord> readings = channel.getReadings(requestedInterval);
         assertThat(readings).hasSize(1);
 
-        //test AggreagatedChannel
+        //test AggregatedChannel
         assertThat(channel).isInstanceOf(AggregatedChannel.class);
 
         AggregatedChannel aggregatedChannel = (AggregatedChannel) channel;
-        List<IntervalReadingRecord> calculatedIntervalReadings = aggregatedChannel.getCalculatedIntervalReadings(requestedInterval);
+        List<AggregatedChannel.AggregatedIntervalReadingRecord> calculatedIntervalReadings = aggregatedChannel.getAggregatedIntervalReadings(requestedInterval);
         assertThat(calculatedIntervalReadings).hasSize(1);
-        assertThat(calculatedIntervalReadings.get(0).getValue()).isEqualTo(readings.get(0).getValue());
-        assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(123L));
+        assertThat(calculatedIntervalReadings.get(0).getValue()).isEqualTo(calculatedValue);
+        assertThat(readings.get(0).getValue()).isEqualTo(calculatedValue);
 
         //add or edit reading
-        BaseReading editedReading = IntervalReadingImpl.of(calculatedIntervalReadings.get(0).getTimeStamp(), BigDecimal.valueOf(345L), Collections.emptyList());
+        BigDecimal editedValue = BigDecimal.valueOf(345L);
+        BaseReading editedReading = IntervalReadingImpl.of(calculatedIntervalReadings.get(0).getTimeStamp(), editedValue, Collections.emptyList());
         channel.editReadings(QualityCodeSystem.OTHER, Collections.singletonList(editedReading));
-        List<IntervalReadingRecord> persistedReadings = aggregatedChannel.getPersistedIntervalReadings(Range.all());
-        assertThat(persistedReadings).hasSize(1);
-        readings = channel.getReadings(requestedInterval);
-        assertThat(readings).hasSize(1);
-        assertThat(persistedReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(345L));
+        List<AggregatedChannel.AggregatedIntervalReadingRecord> persistedReadings = aggregatedChannel.getAggregatedIntervalReadings(requestedInterval);
+        assertThat(persistedReadings).hasSize(1);   // The persisted one should overrule the calculated one
+        assertThat(persistedReadings.get(0).getValue()).isEqualTo(editedValue);
 
         //remove reading
         channel.removeReadings(QualityCodeSystem.OTHER, Collections.singletonList(persistedReadings.get(0)));
-        persistedReadings = aggregatedChannel.getPersistedIntervalReadings(Range.all());
-        assertThat(persistedReadings).hasSize(0);
-        readings = channel.getReadings(requestedInterval);
-        assertThat(readings).hasSize(1);
-        assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(123L));
+        List<AggregatedChannel.AggregatedIntervalReadingRecord> readingsAfterRemoveOfEditedValue = aggregatedChannel.getAggregatedIntervalReadings(requestedInterval);
+        assertThat(readingsAfterRemoveOfEditedValue).hasSize(1);    // Still one value because the calculated value should now be returned again
+        assertThat(readingsAfterRemoveOfEditedValue.get(0).getValue()).isEqualTo(calculatedValue);
     }
 
     @Test
@@ -263,7 +261,7 @@ public class MetrologyContractChannelsContainerImplTestIT {
                 .select(where("metrologyConfiguration").isEqualTo(metrologyConfiguration).and(where("usagePoint").isEqualTo(usagePoint)))
                 .get(0);
 
-        BaseReadingRecord baseReading = mock(BaseReadingRecord.class);
+        CalculatedReadingRecord baseReading = mock(CalculatedReadingRecord.class);
         CalculatedMetrologyContractData calculatedMetrologyContractData = mock(CalculatedMetrologyContractData.class);
         doReturn(Collections.singletonList(baseReading)).when(calculatedMetrologyContractData).getCalculatedDataFor(readingTypeDeliverable);
         when(baseReading.getTimeStamp()).thenReturn(Instant.EPOCH.plus(1, ChronoUnit.DAYS));

@@ -32,7 +32,6 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointManagementException;
-import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
@@ -512,7 +511,7 @@ public class MeterActivationImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "meter.role.default", messageId = "MTR7003S This meter does not provide reading types matching a [15-minute] Secondary Delta 0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0 (kWh).", strict = true)
+    @ExpectedConstraintViolation(property = "meter.role.default", messageId = "MTR7003S This meter does not provide reading types matching [15-minute] Secondary Delta 0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0 (kWh).", strict = true)
     public void testMeterDoesNotSatisfyMetrologyRequirements() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
@@ -720,7 +719,7 @@ public class MeterActivationImplIT {
         ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = metrologyConfigurationService
                 .newUsagePointMetrologyConfiguration("testConfiguration", meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get())
-                .withGapAllowed(false)
+                .withGapsAllowed(false)
                 .create();
         usagePointMetrologyConfiguration.addMeterRole(metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT));
         ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
@@ -740,7 +739,7 @@ public class MeterActivationImplIT {
     @Test
     @Transactional
     public void testActivationTimeBeforeUsagePointInstallationDate() {
-        expectedException.expect(UsagePointMeterActivationException.ActivationTimeBeforeUsagePointInstallationDate.class);
+        expectedException.expect(com.elster.jupiter.metering.impl.UsagePointMeterActivationException.ActivationTimeBeforeUsagePointInstallationDate.class);
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter meter = system.newMeter("meterForActivation", "testMeter")

@@ -30,6 +30,10 @@ class DataAggregationAnalysisLogger {
         return "Start: introspection of calculation of aggregated data for usagePoint(name=" + usagePoint.getName() + "), contract(id=" + contract.getId() + ") and period " + period;
     }
 
+    String calendarIntrospectionStarted(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+        return "Start: calendar introspection of calculation of aggregated data for usagePoint(name=" + usagePoint.getName() + "), contract(id=" + contract.getId() + ") and period " + period;
+    }
+
     String calculationStarted(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
         return "Start: calculate aggregated data for usagePoint(name=" + usagePoint.getName() + "), contract(id=" + contract.getId() + ") and period " + period;
     }

@@ -8,7 +8,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -19,6 +18,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 
 import java.time.Instant;
 import java.util.List;
@@ -81,7 +81,7 @@ public class MetrologyConfigurationCrudTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     public void testCreateMetrologyConfigurationWithoutName() {
         getMetrologyConfigurationService().newMetrologyConfiguration(null, getServiceCategory())
                 .withDescription("No name")
@@ -89,7 +89,7 @@ public class MetrologyConfigurationCrudTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(property = "serviceCategory", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @ExpectedConstraintViolation(property = "serviceCategory", messageId = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     public void testCreateMetrologyConfigurationWithoutServiceCategory() {
         getMetrologyConfigurationService().newMetrologyConfiguration("Name", null)
                 .withDescription("No service category")
@@ -97,7 +97,7 @@ public class MetrologyConfigurationCrudTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     public void testCreateMetrologyConfigurationWithEmptyName() {
         getMetrologyConfigurationService().newMetrologyConfiguration("", getServiceCategory())
                 .withDescription("Empty name")
@@ -105,7 +105,7 @@ public class MetrologyConfigurationCrudTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     public void testCreateMetrologyConfigurationWithTooLongName() {
         getMetrologyConfigurationService().newMetrologyConfiguration("naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaame", getServiceCategory())
                 .withDescription("Long description")
@@ -114,7 +114,7 @@ public class MetrologyConfigurationCrudTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
     public void testCreateMetrologyConfigurationWithNotUniqueName() {
         getMetrologyConfigurationService().newMetrologyConfiguration("dup1", getServiceCategory()).create();
         getMetrologyConfigurationService().newMetrologyConfiguration("dup1", getServiceCategory()).create();
@@ -214,7 +214,7 @@ public class MetrologyConfigurationCrudTest {
     /**
      * This test verifies that {@link MetrologyConfiguration} created by using
      * {@link com.elster.jupiter.metering.config.UsagePointMetrologyConfigurationBuilder}
-     * will return <code>true</code> on {@link MetrologyConfiguration#isGapAllowed()}<br>
+     * will return <code>true</code> on {@link MetrologyConfiguration#areGapsAllowed()}<br>
      * This builder is used during OOTB configuration installation
      */
     @Test
@@ -224,6 +224,6 @@ public class MetrologyConfigurationCrudTest {
                 .withDescription("Description")
                 .create();
 
-        assertThat(metrologyConfiguration.isGapAllowed()).isEqualTo(true);
+        assertThat(metrologyConfiguration.areGapsAllowed()).isEqualTo(true);
     }
 }

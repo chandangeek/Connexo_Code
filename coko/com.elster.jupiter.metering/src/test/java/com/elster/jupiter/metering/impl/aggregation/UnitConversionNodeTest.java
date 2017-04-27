@@ -124,15 +124,16 @@ public class UnitConversionNodeTest {
     }
 
     @Test
-    public void fifteenAndThirtyMinutesToMonthlyShouldSetHourlyAsSourceIntervalLength() {
+    public void fifteenAndTwentyMinutesToMonthlyShouldSetHourlyAsSourceIntervalLength() {
+        ReadingType twentyMins_kWh = this.mockReadingType(TimeAttribute.MINUTE20);
         VirtualReadingType fifteenMin_kWhVirtualReadingType = VirtualReadingType.from(this.fifteenMins_kWh);
-        VirtualReadingType thirtyMin_kWhVirtualReadingType = VirtualReadingType.from(this.thirtyMins_kWh);
+        VirtualReadingType twentyMin_kWhVirtualReadingType = VirtualReadingType.from(this.thirtyMins_kWh);
         when(this.requirement1.getReadingType()).thenReturn(this.fifteenMins_kWh);
         when(this.channel1.getMainReadingType()).thenReturn(this.fifteenMins_kWh);
-        when(this.requirement2.getReadingType()).thenReturn(this.thirtyMins_kWh);
-        when(this.channel2.getMainReadingType()).thenReturn(this.thirtyMins_kWh);
+        when(this.requirement2.getReadingType()).thenReturn(twentyMins_kWh);
+        when(this.channel2.getMainReadingType()).thenReturn(twentyMins_kWh);
         when(this.virtualReadingTypeRequirement1.getSourceReadingType()).thenReturn(fifteenMin_kWhVirtualReadingType);
-        when(this.virtualReadingTypeRequirement2.getSourceReadingType()).thenReturn(thirtyMin_kWhVirtualReadingType);
+        when(this.virtualReadingTypeRequirement2.getSourceReadingType()).thenReturn(twentyMin_kWhVirtualReadingType);
         OperationNode operationNode =
                 Operator.PLUS.node(
                         this.requirementNode(this.requirement1),
@@ -163,12 +164,12 @@ public class UnitConversionNodeTest {
     }
 
     @Test
-    public void threeMinuresAnd15MinutesToHourlyShouldSetMonthlyAsSourceIntervalLength() {
-        ReadingType threeMinutes = this.mockReadingType(TimeAttribute.MINUTE3);
+    public void twelveMinutesAnd15MinutesToHourlyShouldSetHourlyAsIntervalLength() {
+        ReadingType twelveMinutes = this.mockReadingType(TimeAttribute.MINUTE12);
         VirtualReadingType fifteenMin_kWhVirtualReadingType = VirtualReadingType.from(this.fifteenMins_kWh);
-        VirtualReadingType threeMin_kWhVirtualReadingType = VirtualReadingType.from(threeMinutes);
-        when(this.requirement1.getReadingType()).thenReturn(threeMinutes);
-        when(this.channel1.getMainReadingType()).thenReturn(threeMinutes);
+        VirtualReadingType threeMin_kWhVirtualReadingType = VirtualReadingType.from(twelveMinutes);
+        when(this.requirement1.getReadingType()).thenReturn(twelveMinutes);
+        when(this.channel1.getMainReadingType()).thenReturn(twelveMinutes);
         when(this.requirement2.getReadingType()).thenReturn(this.fifteenMins_kWh);
         when(this.channel2.getMainReadingType()).thenReturn(this.fifteenMins_kWh);
         when(this.virtualReadingTypeRequirement1.getSourceReadingType()).thenReturn(threeMin_kWhVirtualReadingType);
@@ -205,6 +206,10 @@ public class UnitConversionNodeTest {
 
     private ReadingType mock30minReadingType() {
         return this.mockReadingType(TimeAttribute.MINUTE30);
+    }
+
+    private ReadingType mock20minReadingType() {
+        return this.mockReadingType(TimeAttribute.MINUTE20);
     }
 
     private ReadingType mockMonthlyReadingType() {

@@ -4,10 +4,10 @@
 
 package com.elster.jupiter.metering.aggregation;
 
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 
@@ -26,6 +26,6 @@ import java.time.Instant;
  */
 public class TimeOfUseBucketInconsitencyException extends LocalizedException {
     public TimeOfUseBucketInconsitencyException(Thesaurus thesaurus, int requestedBucket, int providedBucket, ReadingTypeDeliverable deliverable, UsagePoint usagePoint, Range<Instant> period) {
-        super(thesaurus, MessageSeeds.TIME_OF_USE_BUCKET_INCONSISTENCY, requestedBucket, providedBucket, deliverable.getName(), usagePoint.getMRID(), period.toString());
+        super(thesaurus, PrivateMessageSeeds.TIME_OF_USE_BUCKET_INCONSISTENCY, requestedBucket, providedBucket, deliverable.getName(), usagePoint.getMRID(), period.toString());
     }
 }

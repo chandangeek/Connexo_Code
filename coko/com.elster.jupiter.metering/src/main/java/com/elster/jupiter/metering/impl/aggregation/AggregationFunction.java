@@ -9,6 +9,8 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,6 +69,25 @@ enum AggregationFunction {
         @Override
         BigDecimal applyTo(BigDecimal... values) {
             throw new UnsupportedOperationException("LocalDate is not compatible with BigDecimal");
+        }
+    },
+    /**
+     * Truncates utc stamps using floor and division when aggregation level < HOUR
+     */
+    FLOOR {
+        @Override
+        BigDecimal applyTo(BigDecimal... values) {
+            if (values.length == 0) {
+                return null;
+            } else if (values.length == 1) {
+                if (values[0] == null) {
+                    return null;
+                } else {
+                    return values[0].setScale(0, RoundingMode.FLOOR);
+                }
+            } else {
+                throw new IllegalArgumentException("Floor cannot handle more than one value");
+            }
         }
     },
 

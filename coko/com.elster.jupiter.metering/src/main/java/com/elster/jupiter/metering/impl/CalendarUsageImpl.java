@@ -6,7 +6,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -21,6 +20,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Instant;
 
+@SupportsTimeOfUseEventsFromEffectiveMetrologyConfigurations(message = PrivateMessageSeeds.Constants.UNSATISFIED_TOU, groups = {Save.Create.class, Save.Update.class})
 public class CalendarUsageImpl implements ServerCalendarUsage {
 
     enum Fields {
@@ -45,7 +45,7 @@ public class CalendarUsageImpl implements ServerCalendarUsage {
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private Reference<ServerUsagePoint> usagePoint = ValueReference.absent();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<Calendar> calendar = ValueReference.absent();
     private Interval interval;
 
@@ -85,6 +85,12 @@ public class CalendarUsageImpl implements ServerCalendarUsage {
     }
 
     @Override
+    public boolean startsOnOrAfter(Instant when) {
+        Instant start = this.interval.getStart();
+        return start.equals(when) || start.isAfter(when);
+    }
+
+    @Override
     public Calendar getCalendar() {
         return calendar.get();
     }
@@ -98,11 +104,13 @@ public class CalendarUsageImpl implements ServerCalendarUsage {
     }
 
     @Override
+    public boolean notEnded() {
+        return this.interval.getEnd() == null;
+    }
+
+    @Override
     public void end(Instant endAt) {
         Range<Instant> currentRange = getRange();
-        if (currentRange.hasUpperBound()) {
-            throw new IllegalArgumentException();
-        }
         interval = Interval.of(Ranges.copy(currentRange).withOpenUpperBound(endAt));
         update();
     }

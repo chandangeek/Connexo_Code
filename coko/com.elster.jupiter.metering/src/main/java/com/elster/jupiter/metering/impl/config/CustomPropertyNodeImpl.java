@@ -6,8 +6,8 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.CustomPropertyNode;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -28,10 +28,10 @@ import java.util.List;
 public class CustomPropertyNodeImpl extends AbstractNode implements CustomPropertyNode {
     static final String TYPE_IDENTIFIER = "CPS";
 
-    @Size(min = 0, max = Table.NAME_LENGTH, message = MessageSeeds.Constants.REQUIRED)
+    @Size(min = 0, max = Table.NAME_LENGTH, message = PrivateMessageSeeds.Constants.REQUIRED)
     private String propertySpecName;
     private PropertySpec propertySpec;
-    @IsPresent(message = MessageSeeds.Constants.REQUIRED)
+    @IsPresent(message = PrivateMessageSeeds.Constants.REQUIRED)
     private Reference<RegisteredCustomPropertySet> customPropertySet = ValueReference.absent();
 
     // For ORM layer
