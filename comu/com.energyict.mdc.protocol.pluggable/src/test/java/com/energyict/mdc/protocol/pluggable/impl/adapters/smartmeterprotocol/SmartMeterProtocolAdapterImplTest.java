@@ -22,8 +22,8 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -165,8 +165,8 @@ public class SmartMeterProtocolAdapterImplTest {
     private void mockPropertySpecs() {
         this.propertySpecMockSupport.mockStringPropertySpec(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), inMemoryPersistence.getPropertySpecService());
         this.propertySpecMockSupport.mockStringPropertySpec(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), inMemoryPersistence.getPropertySpecService());
-        this.propertySpecMockSupport.mockStringPropertySpec(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), inMemoryPersistence.getPropertySpecService());
-        this.propertySpecMockSupport.mockStringPropertySpec(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName(), inMemoryPersistence.getPropertySpecService());
+        this.propertySpecMockSupport.mockStringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, inMemoryPersistence.getPropertySpecService());
+        this.propertySpecMockSupport.mockStringPropertySpec(LegacyProtocolProperties.DEVICE_TIMEZONE_PROPERTY_NAME, inMemoryPersistence.getPropertySpecService());
     }
 
     @After

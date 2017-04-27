@@ -14,9 +14,9 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
-import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.TranslationKeys;
@@ -161,8 +161,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
         Integer mapping = this.capabilityAdapterMappingFactory.getCapabilitiesMappingForDeviceProtocol(getProtocolClass().getCanonicalName());
         if (mapping != null) {
             return getCapabilitesListFromFlags(mapping);
-        }
-        else {
+        } else {
             return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SESSION);  //Default, if there's no mapping available
         }
     }
@@ -195,7 +194,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
         TimeZone[] timeZones = Arrays.asList(TimeZone.getAvailableIDs()).stream().map(TimeZone::getTimeZone).toArray(TimeZone[]::new);
         PropertySpecBuilder<TimeZone> builder = this.propertySpecService
                 .timezoneSpec()
-                .named(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName(), TranslationKeys.DEVICE_TIME_ZONE)
+                .named(LegacyProtocolProperties.DEVICE_TIMEZONE_PROPERTY_NAME, TranslationKeys.DEVICE_TIME_ZONE)
                 .fromThesaurus(this.thesaurus)
                 .addValues(timeZones)
                 .setDefaultValue(TimeZone.getTimeZone(DEFAULT_TIMEZONE))
@@ -231,7 +230,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     private PropertySpec callHomeIdPropertySpec(boolean required) {
         PropertySpecBuilder<String> builder = this.propertySpecService
                 .stringSpec()
-                .named(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), TranslationKeys.CALL_HOME_ID)
+                .named(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, TranslationKeys.CALL_HOME_ID)
                 .fromThesaurus(thesaurus);
         if (required) {
             builder.markRequired();
