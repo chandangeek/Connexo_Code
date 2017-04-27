@@ -162,16 +162,15 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                     }
                                     else {
                                         var store = me.grid.getStore(),
-                                            count = store.getCount()
-                                        hasValues = false;
+                                            count = store.getCount();
 
                                         for (var i = 0; i < count; i++) {
                                             if (store.getAt(i).get('value')) {
-                                                hasValues = true;
+                                                noItemFoundClass.prototype.updateOnChange.apply(me, arguments);
                                                 return;
                                             }
                                         }
-                                        arguments[0] = !hasValues;
+                                        arguments[0] = true;
                                         noItemFoundClass.prototype.updateOnChange.apply(me, arguments);
                                         me.down('#add-device-load-profile-btn') && me.down('#add-device-load-profile-btn').setVisible(true);
                                         me.down('#no-items-found-panel-steps-label') && me.down('#no-items-found-panel-steps-label').setVisible(true);
