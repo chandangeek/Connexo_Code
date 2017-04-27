@@ -51,8 +51,8 @@ public class CreateMultiElementDeviceCommand {
     //   private static final String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
 
     private final static String MULTI_ELEMENT_DEVICE_NAME = "Demo Multi Element Device";
-    private final static String MULTI_ELEMENT_SERIAL = "660-05A043-1428";
-    private final static String CONNECTION_TASK_PLUGGABLE_CLASS_NAME = "OutboundTcpIp";
+    private final static String MULTI_ELEMENT_SERIAL = "660-05A043-1428b";
+    private final static String CONNECTION_TASK_PLUGGABLE_CLASS_NAME = "OutboundTcpIpConnectionType";
 
     private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
