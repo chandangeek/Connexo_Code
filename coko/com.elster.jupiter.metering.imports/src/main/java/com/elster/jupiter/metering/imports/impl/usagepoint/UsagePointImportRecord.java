@@ -57,13 +57,19 @@ public class UsagePointImportRecord extends FileImportRecord {
     private Quantity nominalVoltage;
     private boolean allowUpdate;
 
-    public String metrologyConfiguration;
+    public String metrologyConfigurationName;
     public Instant metrologyConfigurationApplyTime;
-    private Map<String, CustomPropertySetRecord> customPropertySets;
+    public String touCalendarName;
+    public Instant touCalendarUsageStartTime;
+    public String workForceCalendarName;
+    public Instant workForceCalendarUsageStartTime;
+    public String commandsCalendarName;
+    public Instant commandsCalendarUsageStartTime;
     private List<MeterRoleWithMeterAndActivationDate> meterRoles;
     private String transition;
     private Instant transitionDate;
     private Map<String, String> transitionAttributes;
+    private Map<String, CustomPropertySetRecord> customPropertySets;
 
     public UsagePointImportRecord() {
     }
@@ -320,12 +326,12 @@ public class UsagePointImportRecord extends FileImportRecord {
         return isVirtual;
     }
 
-    public Optional<String> getMetrologyConfiguration() {
-        return Optional.ofNullable(metrologyConfiguration);
+    public Optional<String> getMetrologyConfigurationName() {
+        return Optional.ofNullable(metrologyConfigurationName);
     }
 
-    public void setMetrologyConfiguration(String metrologyConfiguration) {
-        this.metrologyConfiguration = metrologyConfiguration;
+    public void setMetrologyConfigurationName(String metrologyConfigurationName) {
+        this.metrologyConfigurationName = metrologyConfigurationName;
     }
 
     public Optional<Instant> getMetrologyConfigurationApplyTime() {
@@ -334,6 +340,54 @@ public class UsagePointImportRecord extends FileImportRecord {
 
     public void setMetrologyConfigurationApplyTime(Instant metrologyConfigurationApplyTime) {
         this.metrologyConfigurationApplyTime = metrologyConfigurationApplyTime;
+    }
+
+    public Optional<String> getTouCalendarName() {
+        return Optional.ofNullable(touCalendarName);
+    }
+
+    public void setTouCalendarName(String touCalendarName) {
+        this.touCalendarName = touCalendarName;
+    }
+
+    public Optional<Instant> getTouCalendarUsageStartTime() {
+        return Optional.ofNullable(touCalendarUsageStartTime);
+    }
+
+    public void setTouCalendarUsageStartTime(Instant touCalendarUsageStartTime) {
+        this.touCalendarUsageStartTime = touCalendarUsageStartTime;
+    }
+
+    public Optional<String> getWorkForceCalendarName() {
+        return Optional.ofNullable(workForceCalendarName);
+    }
+
+    public void setWorkForceCalendarName(String workForceCalendarName) {
+        this.workForceCalendarName = workForceCalendarName;
+    }
+
+    public Optional<Instant> getWorkForceCalendarUsageStartTime() {
+        return Optional.ofNullable(workForceCalendarUsageStartTime);
+    }
+
+    public void setWorkForceCalendarUsageStartTime(Instant workForceCalendarUsageStartTime) {
+        this.workForceCalendarUsageStartTime = workForceCalendarUsageStartTime;
+    }
+
+    public Optional<String> getCommandsCalendarName() {
+        return Optional.ofNullable(commandsCalendarName);
+    }
+
+    public void setCommandsCalendarName(String commandsCalendarName) {
+        this.commandsCalendarName = commandsCalendarName;
+    }
+
+    public Optional<Instant> getCommandsCalendarUsageStartTime() {
+        return Optional.ofNullable(commandsCalendarUsageStartTime);
+    }
+
+    public void setCommandsCalendarUsageStartTime(Instant commandsCalendarUsageStartTime) {
+        this.commandsCalendarUsageStartTime = commandsCalendarUsageStartTime;
     }
 
     public Map<String, CustomPropertySetRecord> getRegisteredCustomPropertySets() {

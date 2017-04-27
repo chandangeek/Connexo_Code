@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.imports.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
@@ -34,6 +35,7 @@ public class MeteringDataImporterContext {
     private volatile LicenseService licenseService;
     private volatile Clock clock;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile CalendarService calendarService;
     private volatile UsagePointLifeCycleService usagePointLifeCycleService;
     private volatile PropertyValueInfoService propertyValueInfoService;
 
@@ -50,9 +52,9 @@ public class MeteringDataImporterContext {
                                        LicenseService licenseService,
                                        Clock clock,
                                        MetrologyConfigurationService metrologyConfigurationService,
+                                       CalendarService calendarService,
                                        UsagePointLifeCycleService usagePointLifeCycleService,
-                                       PropertyValueInfoService propertyValueInfoService
-    ) {
+                                       PropertyValueInfoService propertyValueInfoService) {
         setPropertySpecService(propertySpecService);
         setNlsService(nlsService);
         setMeteringService(meteringService);
@@ -62,6 +64,7 @@ public class MeteringDataImporterContext {
         setClock(clock);
         setLicenseService(licenseService);
         setMetrologyConfigurationService(metrologyConfigurationService);
+        setCalendarService(calendarService);
         setUsagePointLifeCycleService(usagePointLifeCycleService);
         setPropertyValueInfoService(propertyValueInfoService);
     }
@@ -77,6 +80,10 @@ public class MeteringDataImporterContext {
 
     public Thesaurus getThesaurus() {
         return thesaurus;
+    }
+
+    void setThesaurus(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
     }
 
     @Reference
@@ -163,6 +170,15 @@ public class MeteringDataImporterContext {
 
     public MetrologyConfigurationService getMetrologyConfigurationService() {
         return metrologyConfigurationService;
+    }
+
+    public CalendarService getCalendarService() {
+        return calendarService;
+    }
+
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     public boolean insightInstalled() {
