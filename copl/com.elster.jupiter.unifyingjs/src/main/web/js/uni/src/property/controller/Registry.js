@@ -61,6 +61,7 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.MaximumAbsoluteDifference',
         'Uni.property.view.property.NoneOrBigDecimal',
         'Uni.property.view.property.IrregularReadingType',
+        'Uni.property.view.property.RegularReadingType',
         'Uni.property.view.property.NoneOrTimeDuration'
     ],
 
@@ -87,6 +88,7 @@ Ext.define('Uni.property.controller.Registry', {
         HEXSTRING: 'Uni.property.view.property.Hexstring',
         IDWITHNAME: 'Uni.property.view.property.Reference',
         IRREGULAR_READINGTYPE: 'Uni.property.view.property.IrregularReadingType',
+        REGULAR_READINGTYPE: 'Uni.property.view.property.RegularReadingType',
         LIFECYCLESTATUSINDEVICETYPE: 'Uni.property.view.property.LifeCycleStatusInDeviceType',
         LISTREADINGQUALITY: 'Uni.property.view.property.ReadingQualities',
         LISTVALUE: 'Uni.property.view.property.Multiselect',
