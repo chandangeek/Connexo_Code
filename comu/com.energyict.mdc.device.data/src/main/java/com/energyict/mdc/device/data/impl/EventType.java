@@ -82,7 +82,8 @@ public enum EventType {
             // handler is defined in the topology bundle
             return "com/energyict/mdc/device/topology/deviceconfiguration/VALIDATE_CHANGE";
         }
-    }
+    },
+    DEVICE_CONFIGURATION_CHANGED("deviceconfiguration/CHANGED")
     ;
 
     private static final String NAMESPACE = "com/energyict/mdc/device/data/";

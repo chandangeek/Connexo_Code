@@ -34,14 +34,13 @@ import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPrio
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -233,7 +232,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             } else {
                 priority = earliestNextExecutionTimestampAndPriority.priority;
             }
-            if(!calledByComtaskExecution) {
+            if (!calledByComtaskExecution) {
                 this.synchronizeScheduledComTaskExecution(this.getNextExecutionTimestamp(), priority);
             }
         }
@@ -261,7 +260,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     public void scheduledComTaskRescheduled(ComTaskExecution comTask) {
-        if(this.connectionStrategy.equals(ConnectionStrategy.MINIMIZE_CONNECTIONS)) {
+        if (this.connectionStrategy.equals(ConnectionStrategy.MINIMIZE_CONNECTIONS)) {
             calledByComtaskExecution = true;
             if(comTask.getNextExecutionTimestamp() == null) {
                 updateNextExecutionTimeStampBasedOnComTask();
@@ -537,11 +536,11 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             when = null;
         } else {
             highestPriority = earliestNextExecutionTimeStampAndPriority.priority;
-            if(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp != null && when.isBefore(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp))  {
+            if (earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp != null && when.isBefore(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp)) {
                 when = earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp;
             }
             when = this.applyComWindowIfAny(when);
-            if(!calledByComtaskExecution) {
+            if (!calledByComtaskExecution) {
                 this.synchronizeScheduledComTaskExecution(when, highestPriority);
             }
         }
@@ -649,7 +648,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
         @Override
         public String getName() {
-            return SerialConnectionPropertyNames.COMPORT_NAME_PROPERTY_NAME.propertyName();
+            return com.energyict.mdc.upl.io.ConnectionType.Property.COMP_PORT_NAME.getName();
         }
 
         @Override

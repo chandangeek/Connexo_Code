@@ -86,4 +86,9 @@ public class DeviceConfigChangeHandlerFactory implements MessageHandlerFactory {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
 }

@@ -108,6 +108,8 @@ public class DeviceConfigChangeHandlerTest {
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    @Mock
+    private EventService eventService;
     @Mock(extraInterfaces = HasId.class)
     private DeviceType deviceType;
     @Mock(extraInterfaces = HasId.class)

@@ -33,7 +33,6 @@ public final class DeviceConfigChangeExecutor {
     }
 
     public Device execute(ServerDeviceForConfigChange device, DeviceConfiguration destinationDeviceConfiguration) {
-
         Instant configChangeTimeStamp = clock.instant();
         final DeviceConfiguration originDeviceConfiguration = device.getDeviceConfiguration();
         prepareForChangeDeviceConfig(device, destinationDeviceConfiguration, configChangeTimeStamp);
@@ -47,6 +46,7 @@ public final class DeviceConfigChangeExecutor {
                 ProtocolDialectPropertyChangeItem.getInstance())
                 .forEach(performDataSourceChanges(device, destinationDeviceConfiguration, originDeviceConfiguration));
         device.save();
+        this.eventService.postEvent(EventType.DEVICE_CONFIGURATION_CHANGED.topic(), device);
         return device;
     }
 
