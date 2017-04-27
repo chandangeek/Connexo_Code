@@ -16,7 +16,7 @@ Ext.define('Uni.property.view.property.RegularReadingType', {
             width: me.width,
             readOnly: me.isReadOnly,
             blankText: me.blankText,
-            emptyText: Uni.I18n.translate('property.readingType.emptyText', 'UNI', 'Start typing to select a reading type'),
+            emptyText: Uni.I18n.translate('property.regularReadingType.emptyText', 'UNI', 'Select a reading type'),
             displayField: 'fullAliasName',
             valueField: 'mRID',
             anyMatch: true,
