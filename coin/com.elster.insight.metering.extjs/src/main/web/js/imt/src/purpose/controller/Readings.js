@@ -486,6 +486,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             canClearProjected = false,
             canMarkProjected = false,
             canEditingComment = false,
+            canCopyFromReference = false,
             button = me.getReadingsList().down('#readings-bulk-action-button'),
             menu = button.down('menu'),
             estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule,
@@ -530,12 +531,14 @@ Ext.define('Imt.purpose.controller.Readings', {
             if (!canCorrect && !Ext.isEmpty(record.get('value'))) {
                 canCorrect = true;
             }
+            canCopyFromReference = true;
         });
 
         Ext.suspendLayouts();
         menu.down('#estimate-value').setVisible(canEstimate);
         menu.down('#estimate-value-with-rule').setVisible(canEstimateWithRule);
         menu.down('#edit-estimation-comment').setVisible(canEditingComment);
+        menu.down('#copy-form-value').setVisible(canCopyFromReference);
         menu.down('#confirm-value').setVisible(canConfirm);
         menu.down('#reset-value').setVisible(canReset);
         menu.down('#correct-value').setVisible(canCorrect);
@@ -701,8 +704,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                                 record.set('isProjected', model.get('projectedValue'));
                                 record.set('bulkValidationInfo', item.bulkValidationInfo);
                                 record.set('mainValidationInfo', item.mainValidationInfo);
-                                record.set('modificationFlag', 'EDITED');
-                                record.get('modificationState').flag = 'EDITED';
+                                record.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
                                 if (commentId !== -1) {
                                     record.set('commentId', commentId);
                                     record.set('commentValue', commentValue);
@@ -715,8 +717,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                             window.records.set('isProjected', model.get('projectedValue'));
                             window.records.set('bulkValidationInfo', response[0].bulkValidationInfo);
                             window.records.set('mainValidationInfo', response[0].mainValidationInfo);
-                            window.records.set('modificationFlag', 'EDITED');
-                            window.records.get('modificationState').flag = 'EDITED';
+                            window.records.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
                             if (commentId !== -1) {
                                 record.set('commentId', commentId);
                                 record.set('commentValue', commentValue);
