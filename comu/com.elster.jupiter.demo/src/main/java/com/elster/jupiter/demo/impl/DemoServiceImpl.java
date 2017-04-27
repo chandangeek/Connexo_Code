@@ -37,6 +37,7 @@ import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateSPEDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
+import com.elster.jupiter.demo.impl.commands.tou.CreateBelgianMarketTimeOfUseDataCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddIntervalChannelReadingsCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddNoneIntervalChannelReadingsCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddRegisterReadingsCommand;
@@ -102,6 +103,7 @@ import java.time.Clock;
         "osgi.command.function=createUserManagement",
         "osgi.command.function=createApplicationServer",
         "osgi.command.function=createA3Device",
+        "osgi.command.function=createBelgianMarketTimeOfUseData",
         "osgi.command.function=createNtaConfig",
         "osgi.command.function=createMockedDataDevice",
         "osgi.command.function=createValidationDevice",
@@ -713,6 +715,14 @@ public class DemoServiceImpl {
             command.setMeter(name);
             command.setStartDate(startDate);
             command.setSource(path);
+            command.run();
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public void createBelgianMarketTimeOfUseData() {
+        executeTransaction(() -> {
+            CreateBelgianMarketTimeOfUseDataCommand command = injector.getInstance(CreateBelgianMarketTimeOfUseDataCommand.class);
             command.run();
         });
     }
