@@ -325,5 +325,10 @@
             <artifactId>mdc.issue.datacollection</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.pluggable.rest</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
