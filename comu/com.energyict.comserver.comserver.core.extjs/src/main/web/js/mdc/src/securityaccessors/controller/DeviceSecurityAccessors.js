@@ -6,12 +6,14 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
 
     stores: [
         'Mdc.securityaccessors.store.DeviceSecurityKeys',
-        'Mdc.securityaccessors.store.DeviceSecurityCertificates'
+        'Mdc.securityaccessors.store.DeviceSecurityCertificates',
+        'Mdc.securityaccessors.store.CertificateAliases'
     ],
 
     models: [
         'Mdc.securityaccessors.model.DeviceSecurityKey',
-        'Mdc.securityaccessors.model.DeviceSecurityCertificate'
+        'Mdc.securityaccessors.model.DeviceSecurityCertificate',
+        'Mdc.securityaccessors.model.CertificateAlias'
     ],
 
     views: [
@@ -180,7 +182,9 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             tempPropertiesAvailable = record.get('hasTempValue'),
             attributesVisible = hasViewRights || hasEditRights,
             activeKeysForm = me.getActiveKeyAttributesContainer().down('property-form'),
-            passiveKeysForm = me.getPassiveKeyAttributesContainer().down('property-form');
+            passiveKeysForm = me.getPassiveKeyAttributesContainer().down('property-form'),
+            activeInfo = me.getKeyPreview().down('#mdc-device-security-accessor-preview-active-info'),
+            passiveInfo = me.getKeyPreview().down('#mdc-device-security-accessor-preview-passive-info');
 
         Ext.suspendLayouts();
         me.getKeyPreview().doLoadRecord(record);
@@ -188,20 +192,21 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             actionsMenu.record = record;
         }
 
-        var expDate = Ext.isEmpty(record.get('expirationTime')) ? '-' : Uni.DateTime.formatDateShort( new Date(record.get('expirationTime')));
+        var expDate = Ext.isEmpty(record.get('expirationTime')) || record.get('expirationTime')===0 ? '-' : Uni.DateTime.formatDateShort( new Date(record.get('expirationTime')));
         if (record.get('swapped')) {
             var swapDate = Ext.isEmpty(record.get('modificationDate')) ? '-' : Uni.DateTime.formatDateShort( new Date(record.get('modificationDate')));
-            me.getKeyPreview().down('#mdc-device-security-accessor-preview-active-info').setInfo(
-                Uni.I18n.translate('general.activeFromxUntily', 'MDC', "Active from {0} until {1}", [swapDate, expDate])
-            );
-            me.getKeyPreview().down('#mdc-device-security-accessor-preview-passive-info').setInfo(
-                Uni.I18n.translate('general.activeUntilx', 'MDC', "Active until {0}", swapDate)
-            );
+            activeInfo.setInfo( Uni.I18n.translate('general.activeFromxUntily', 'MDC', "Active from {0} until {1}", [swapDate, expDate]) );
+            passiveInfo.setInfo( Uni.I18n.translate('general.activeUntilx', 'MDC', "Active until {0}", swapDate) );
+            activeInfo.show();
+            passiveInfo.show();
         } else {
-            me.getKeyPreview().down('#mdc-device-security-accessor-preview-active-info').setInfo(
-                Uni.I18n.translate('general.activeUntilx', 'MDC', "Active until {0}", expDate)
-            );
-            me.getKeyPreview().down('#mdc-device-security-accessor-preview-passive-info').clearInfo();
+            if (expDate === '-') {
+                activeInfo.hide();
+            } else {
+                activeInfo.setInfo( Uni.I18n.translate('general.activeUntilx', 'MDC', "Active until {0}", expDate) );
+                activeInfo.show();
+            }
+            passiveInfo.hide();
         }
         me.getActiveKeyAttributesContainer().setVisible(attributesVisible);
         if (attributesVisible) {
@@ -229,27 +234,30 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             actionsMenu = me.getCertificatePreview().down('device-security-accessors-action-menu'),
             tempPropertiesAvailable = record.get('hasTempValue'),
             activeCertificatesForm = me.getActiveCertificateAttributesContainer().down('property-form'),
-            passiveCertificatesForm = me.getPassiveCertificateAttributesContainer().down('property-form');
+            passiveCertificatesForm = me.getPassiveCertificateAttributesContainer().down('property-form'),
+            activeInfo = me.getCertificatePreview().down('#mdc-device-security-accessor-preview-active-info'),
+            passiveInfo = me.getCertificatePreview().down('#mdc-device-security-accessor-preview-passive-info');
 
         me.getCertificatePreview().doLoadRecord(record);
         if (actionsMenu) {
             actionsMenu.record = record;
         }
 
-        var expDate = Ext.isEmpty(record.get('expirationTime')) ? '-' : Uni.DateTime.formatDateShort( new Date(record.get('expirationTime')));
+        var expDate = Ext.isEmpty(record.get('expirationTime')) || record.get('expirationTime')===0 ? '-' : Uni.DateTime.formatDateShort( new Date(record.get('expirationTime')));
         if (record.get('swapped')) {
             var swapDate = Ext.isEmpty(record.get('modificationDate')) ? '-' : Uni.DateTime.formatDateShort( new Date(record.get('modificationDate')));
-            me.getCertificatePreview().down('#mdc-device-security-accessor-preview-active-info').setInfo(
-                Uni.I18n.translate('general.activeFromxUntily', 'MDC', "Active from {0} until {1}", [swapDate, expDate])
-            );
-            me.getCertificatePreview().down('#mdc-device-security-accessor-preview-passive-info').setInfo(
-                Uni.I18n.translate('general.activeUntilx', 'MDC', "Active until {0}", swapDate)
-            );
+            activeInfo.setInfo( Uni.I18n.translate('general.activeFromxUntily', 'MDC', "Active from {0} until {1}", [swapDate, expDate]) );
+            passiveInfo.setInfo( Uni.I18n.translate('general.activeUntilx', 'MDC', "Active until {0}", swapDate) );
+            activeInfo.show();
+            passiveInfo.show();
         } else {
-            me.getCertificatePreview().down('#mdc-device-security-accessor-preview-active-info').setInfo(
-                Uni.I18n.translate('general.activeUntilx', 'MDC', "Active until {0}", expDate)
-            );
-            me.getCertificatePreview().down('#mdc-device-security-accessor-preview-passive-info').clearInfo();
+            if (expDate === '-') {
+                activeInfo.hide();
+            } else {
+                activeInfo.setInfo( Uni.I18n.translate('general.activeUntilx', 'MDC', "Active until {0}", expDate) );
+                activeInfo.show();
+            }
+            passiveInfo.hide();
         }
 
         activeCertificatesForm.initProperties(record.currentProperties());
@@ -387,31 +395,97 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                 me.getApplication().fireEvent('deviceCertificateLoaded', me.deviceCertificateRecord);
                 me.getApplication().fireEvent('loadDevice', device);
 
-                //var propStore = me.deviceCertificateRecord.currentProperties(),
-                //    attrCount = propStore.getCount(),
-                //    propRecord = undefined;
-                //if (attrCount>0) {
-                //    for (var i=0; i<attrCount; i++) {
-                //        propRecord = propStore.getAt(i);
-                //        if (propRecord.raw.key === 'alias') {
-                //            me.getEditActiveCertificateAttributesContainer().add({
-                //                xtype: 'combobox',
-                //                fieldLabel: propRecord.raw.name,
-                //                store:
-                //            });
-                //        } else if (propRecord.raw.key === 'trustStore') {
-                //
-                //        }
-                //    }
-                //}
+                var propStore = me.deviceCertificateRecord.currentProperties(),
+                    attrCount = propStore.getCount(),
+                    propRecord = undefined,
+                    activeAliasCombo = undefined;
+                if (attrCount>0) {
+                    for (var i=0; i<attrCount; i++) {
+                        propRecord = propStore.getAt(i);
+                        if (propRecord.raw.key === 'alias') {
+                            var aliasesStore = Ext.getStore('Mdc.securityaccessors.store.CertificateAliases') || Ext.create('Mdc.securityaccessors.store.CertificateAliases');
+                            aliasesStore.getProxy().setUrl(propRecord.raw.propertyTypeInfo.propertyValuesResource.possibleValuesURI);
 
-                me.getEditActiveCertificateAttributesContainer().setVisible(me.deviceCertificateRecord.currentPropertiesStore.data.items.length > 0);
-                me.getEditActiveCertificateAttributesContainer().down('property-form').initProperties(me.deviceCertificateRecord.currentProperties());
-                var tempPropertiesAvailable = me.deviceCertificateRecord.tempPropertiesStore.data.items.length > 0;
-                me.getEditPassiveCertificateAttributesContainer().setVisible(tempPropertiesAvailable);
-                if (tempPropertiesAvailable) {
-                    me.getEditPassiveCertificateAttributesContainer().down('property-form').initProperties(me.deviceCertificateRecord.tempProperties());
+                            activeAliasCombo = {
+                                xtype: 'combobox',
+                                fieldLabel: propRecord.raw.name,
+                                labelWidth: 200,
+                                width: 456,
+                                itemId: 'mdc-active-alias-combo',
+                                dataIndex: 'alias',
+                                emptyText: Uni.I18n.translate('general.startTypingToSelect', 'MDC', 'Start typing to select...'),
+                                listConfig: {
+                                    emptyText: Uni.I18n.translate('general.startTypingToSelect', 'MDC', 'Start typing to select...')
+                                },
+                                displayField: 'alias',
+                                value: propRecord.raw.propertyValueInfo.value,
+                                valueField: 'alias',
+                                store: aliasesStore,
+                                queryMode: 'remote',
+                                queryParam: 'alias',
+                                queryDelay: 500,
+                                queryCaching: false,
+                                minChars: 0,
+                                loadStore: false,
+                                forceSelection: false,
+                                listeners: {
+                                    expand: {
+                                        fn: me.comboLimitNotification
+                                    }
+                                }
+                            };
+                            me.getEditActiveCertificateAttributesContainer().add(activeAliasCombo);
+
+                        } else if (propRecord.raw.key === 'trustStore') {
+
+                        }
+                    }
                 }
+
+                propStore = me.deviceCertificateRecord.tempProperties();
+                attrCount = propStore.getCount();
+                propRecord = undefined;
+                if (attrCount>0) {
+                    for (var i=0; i<attrCount; i++) {
+                        propRecord = propStore.getAt(i);
+                        if (propRecord.raw.key === 'alias') {
+                            var aliasesStore = Ext.getStore('Mdc.securityaccessors.store.CertificateAliases') || Ext.create('Mdc.securityaccessors.store.CertificateAliases');
+                            aliasesStore.getProxy().setUrl(propRecord.raw.propertyTypeInfo.propertyValuesResource.possibleValuesURI);
+
+                            me.getEditPassiveCertificateAttributesContainer().add({
+                                xtype: 'combobox',
+                                fieldLabel: propRecord.raw.name,
+                                labelWidth: 200,
+                                width: 456,
+                                itemId: 'mdc-passive-alias-combo',
+                                dataIndex: 'alias',
+                                emptyText: Uni.I18n.translate('general.startTypingToSelect', 'MDC', 'Start typing to select...'),
+                                listConfig: {
+                                    emptyText: Uni.I18n.translate('general.startTypingToSelect', 'MDC', 'Start typing to select...')
+                                },
+                                displayField: 'alias',
+                                valueField: 'alias',
+                                value: propRecord.raw.propertyValueInfo.value,
+                                store: aliasesStore,
+                                queryMode: 'remote',
+                                queryParam: 'alias',
+                                queryDelay: 500,
+                                queryCaching: false,
+                                minChars: 0,
+                                loadStore: false,
+                                forceSelection: false,
+                                listeners: {
+                                    expand: {
+                                        fn: me.comboLimitNotification
+                                    }
+                                }
+                            });
+                        } else if (propRecord.raw.key === 'trustStore') {
+
+                        }
+                    }
+                }
+
                 viewport.setLoading(false);
             }
         });
@@ -492,33 +566,29 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
     saveCertificateAttributes: function() {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            activePropsForm = me.getEditActiveCertificateAttributesContainer().down('#mdc-device-certificate-attributes-edit-active-attributes-property-form'),
-            passivePropsForm = me.getEditPassiveCertificateAttributesContainer().down('#mdc-device-certificate-attributes-edit-passive-attributes-property-form'),
+            activeAliasCombo = me.getEditActiveCertificateAttributesContainer().down('#mdc-active-alias-combo'),
+            passiveAliasCombo = me.getEditPassiveCertificateAttributesContainer().down('#mdc-passive-alias-combo'),
             errorMsgPnl = me.getEditDeviceCertificatePanel().down('uni-form-error-message'),
             key,
-            field,
-            raw;
+            value;
 
         viewport.setLoading();
         errorMsgPnl.hide();
         me.deviceCertificateRecord.beginEdit();
-        raw = activePropsForm.getFieldValues();
+
         me.deviceCertificateRecord.currentProperties().each(function (property) {
             key = property.get('key');
-            field = activePropsForm.getPropertyField(key);
-            if (field !== undefined) {
-                var value = field.getValue(raw);
+            if (key === 'alias') {
+                value = activeAliasCombo.getValue();
                 propertyValue = property.getPropertyValue();
                 propertyValue.set('value', value);
                 propertyValue.set('propertyHasValue', !Ext.isEmpty(value));
             }
         });
-        raw = passivePropsForm.getFieldValues();
         me.deviceCertificateRecord.tempProperties().each(function (property) {
             key = property.get('key');
-            field = passivePropsForm.getPropertyField(key);
-            if (field !== undefined) {
-                var value = field.getValue(raw);
+            if (key === 'alias') {
+                value = passiveAliasCombo.getValue();
                 propertyValue = property.getPropertyValue();
                 propertyValue.set('value', value);
                 propertyValue.set('propertyHasValue', !Ext.isEmpty(value));
@@ -688,6 +758,26 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
         var gridActionsMenu = me.getKeysGrid().down('uni-actioncolumn').menu;
         gridActionsMenu.down('#mdc-device-security-accessors-action-menu-item-show-hide').action = 'showKeyValues';
         gridActionsMenu.down('#mdc-device-security-accessors-action-menu-item-show-hide').setText(Uni.I18n.translate('general.showValues', 'MDC', 'Show values'));
+    },
+
+    comboLimitNotification: function (combo) {
+        var picker = combo.getPicker(),
+            fn = function (view) {
+                var store = view.getStore(),
+                    el = view.getEl().down('.' + Ext.baseCSSPrefix + 'list-plain');
+                if (store.getTotalCount() > store.getCount()) {
+                    el.appendChild({
+                        tag: 'li',
+                        html: Uni.I18n.translate('issues.limitNotification', 'DSH', 'Keep typing to narrow down'),
+                        cls: Ext.baseCSSPrefix + 'boundlist-item combo-limit-notification'
+                    });
+                }
+            };
+
+        picker.on('refresh', fn);
+        picker.on('beforehide', function () {
+            picker.un('refresh', fn);
+        }, combo, {single: true});
     }
 
 });

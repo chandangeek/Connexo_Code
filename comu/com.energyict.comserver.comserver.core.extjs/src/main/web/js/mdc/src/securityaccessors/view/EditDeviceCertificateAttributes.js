@@ -46,16 +46,6 @@ Ext.define('Mdc.securityaccessors.view.EditDeviceCertificateAttributes', {
                                     fieldLabel: Uni.I18n.translate('general.activeCertificate', 'MDC', 'Active certificate')
                                 }
                             ]
-                        },
-                        {
-                            xtype: 'property-form',
-                            itemId: 'mdc-device-certificate-attributes-edit-active-attributes-property-form',
-                            isEdit: true,
-                            defaults: {
-                                layout: 'form',
-                                resetButtonHidden: true,
-                                labelWidth: 200
-                            }
                         }
                     ]
                 },
@@ -77,16 +67,6 @@ Ext.define('Mdc.securityaccessors.view.EditDeviceCertificateAttributes', {
                                     fieldLabel: Uni.I18n.translate('general.passiveCertificate', 'MDC', 'Passive certificate')
                                 }
                             ]
-                        },
-                        {
-                            xtype: 'property-form',
-                            itemId: 'mdc-device-certificate-attributes-edit-passive-attributes-property-form',
-                            isEdit: true,
-                            defaults: {
-                                layout: 'form',
-                                resetButtonHidden: true,
-                                labelWidth: 200
-                            }
                         }
                     ]
                 },

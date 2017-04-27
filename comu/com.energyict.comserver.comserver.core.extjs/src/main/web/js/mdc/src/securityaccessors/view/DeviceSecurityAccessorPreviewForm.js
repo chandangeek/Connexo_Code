@@ -106,12 +106,10 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreviewForm', {
                         {
                             xtype: 'property-form',
                             isEdit: false,
-                            layout: 'column',
                             defaults: {
                                 layout: 'form',
                                 resetButtonHidden: true,
-                                labelWidth: 200,
-                                columnWidth: 0.5
+                                labelWidth: 200
                             }
                         }
                     ]
@@ -154,12 +152,10 @@ Ext.define('Mdc.securityaccessors.view.DeviceSecurityAccessorPreviewForm', {
                         {
                             xtype: 'property-form',
                             isEdit: false,
-                            layout: 'column',
                             defaults: {
                                 layout: 'form',
                                 resetButtonHidden: true,
-                                labelWidth: 200,
-                                columnWidth: 0.5
+                                labelWidth: 200
                             }
                         }
                     ]
