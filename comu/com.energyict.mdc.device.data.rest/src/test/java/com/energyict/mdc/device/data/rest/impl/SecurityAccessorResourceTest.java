@@ -157,7 +157,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     }
 
     @Test
-    public void testAliasPropertyTypeAheadFilteringWithFilter() throws Exception {
+    public void testAliasPropertyTypeAheadFilteringWithWildCard() throws Exception {
         SecurityAccessorInfo response = target("/devices/BVN001/securityaccessors/certificates/222").request().get(SecurityAccessorInfo.class);
         URI uri = new URI(response.currentProperties.get(0).propertyTypeInfo.propertyValuesResource.possibleValuesURI);
         Response response1 = target(uri.getPath())
