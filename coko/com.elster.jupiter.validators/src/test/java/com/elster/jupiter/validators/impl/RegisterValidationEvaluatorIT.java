@@ -53,6 +53,7 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationContext;
+import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -61,6 +62,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -223,24 +225,25 @@ public class RegisterValidationEvaluatorIT {
         ValidationEvaluator evaluator = validationService.getEvaluator(meter);
         Channel channel = meter.getMeterActivations().get(0).getChannelsContainer().getChannels().get(0);
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900 * 3));
-        List<DataValidationStatus> validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
-                channel, channel.getReadings(Range.all()));
+
+        List<DataValidationStatus> validationStates = evaluator.getValidationStatus(
+                Collections.singleton(QualityCodeSystem.MDC), channel, channel.getReadings(Range.all()));
         assertThat(validationStates).hasSize(3);
-        List<ValidationResult> validationResults = validationStates.stream()
-                .map(DataValidationStatus::getValidationResult)
-                .collect(Collectors.toList());
+        List<ValidationResult> validationResults = validationStates.stream().map(DataValidationStatus::getValidationResult).collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, VALID));
+
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.editReadings(QualityCodeSystem.MDC, ImmutableList.of(ReadingImpl.of(readingType, BigDecimal.valueOf(10L), date1.plusSeconds(900 * 3))));
+            validationService.validate(
+                    new ValidationContextImpl(ImmutableSet.of(QualityCodeSystem.MDC), channel.getChannelsContainer()),
+                    date1.plusSeconds(900 * 2)
+            );
             return null;
         });
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900 * 3));
-        validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
-                channel, channel.getReadings(Range.all()));
+        validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC), channel, channel.getReadings(Range.all()));
         assertThat(validationStates).hasSize(3);
-        validationResults = validationStates.stream()
-                .map(DataValidationStatus::getValidationResult)
-                .collect(Collectors.toList());
+        validationResults = validationStates.stream().map(DataValidationStatus::getValidationResult).collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT));
     }
 

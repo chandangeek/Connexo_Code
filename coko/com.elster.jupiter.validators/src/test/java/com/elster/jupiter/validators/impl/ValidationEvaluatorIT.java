@@ -55,6 +55,7 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationContext;
+import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -113,6 +114,8 @@ public class ValidationEvaluatorIT {
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
+
+    private ValidationService validationService;
 
     @Mock
     private BundleContext bundleContext;
@@ -192,8 +195,8 @@ public class ValidationEvaluatorIT {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
             meter = amrSystem.newMeter("2331", "myName").create();
             meter.activate(date1);
-            //meterActivation.createChannel(readingType1);
-            ValidationService validationService = injector.getInstance(ValidationService.class);
+
+            validationService = injector.getInstance(ValidationService.class);
             validationService.addValidatorFactory(injector.getInstance(DefaultValidatorFactory.class));
             final ValidationRuleSet mdcValidationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, QualityCodeSystem.MDC);
             final ValidationRuleSet mdmValidationRuleSet = validationService.createValidationRuleSet(MDM_RULE_SET, QualityCodeSystem.MDM);
@@ -283,6 +286,7 @@ public class ValidationEvaluatorIT {
                 .collect(Collectors.toList())).isEqualTo(validationResults);
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.removeReadings(QualityCodeSystem.MDC, ImmutableList.of(channel.getReadings(Range.all()).get(2)));
+            revalidate(channel, date1);
             return null;
         });
         validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
@@ -336,6 +340,7 @@ public class ValidationEvaluatorIT {
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT, NOT_VALIDATED));
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.removeReadings(QualityCodeSystem.MDC, ImmutableList.of(channel.getReadings(Range.all()).get(1)));
+            validationService.moveLastCheckedBefore(channel, date1.plusSeconds(900));
             return null;
         });
         validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
@@ -370,6 +375,7 @@ public class ValidationEvaluatorIT {
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT));
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.removeReadings(QualityCodeSystem.MDC, ImmutableList.of(channel.getReadings(Range.all()).get(1)));
+            revalidate(channel, date1);
             return null;
         });
         validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
@@ -411,6 +417,7 @@ public class ValidationEvaluatorIT {
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT, NOT_VALIDATED));
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.editReadings(QualityCodeSystem.MDM, ImmutableList.of(ReadingImpl.of(readingType, BigDecimal.valueOf(70L), date1.plusSeconds(900))));
+            validationService.moveLastCheckedBefore(channel, date1.plusSeconds(900));
             return null;
         });
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900).minusMillis(1));
@@ -446,6 +453,7 @@ public class ValidationEvaluatorIT {
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT));
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.editReadings(QualityCodeSystem.MDM, ImmutableList.of(ReadingImpl.of(readingType, BigDecimal.valueOf(70L), date1.plusSeconds(900))));
+            revalidate(channel, date1);
             return null;
         });
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900 * 2));
@@ -460,7 +468,6 @@ public class ValidationEvaluatorIT {
 
     @Test
     public void testDataOverruleValidation() {
-        ValidationService validationService = injector.getInstance(ValidationService.class);
         injector.getInstance(TransactionService.class).execute(() -> {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(102L), date1));
@@ -494,5 +501,9 @@ public class ValidationEvaluatorIT {
                 .map(DataValidationStatus::getValidationResult)
                 .collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, SUSPECT, VALID));
+    }
+
+    private void revalidate(Channel channel, Instant from) {
+        validationService.validate(new ValidationContextImpl(ImmutableSet.of(QualityCodeSystem.MDC), channel.getChannelsContainer()), from);
     }
 }
