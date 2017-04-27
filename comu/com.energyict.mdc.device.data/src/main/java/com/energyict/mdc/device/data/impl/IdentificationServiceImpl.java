@@ -19,8 +19,8 @@ import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierByDeviceA
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
 import com.energyict.mdc.device.data.impl.identifiers.RegisterIdentifierByAlreadyKnownRegister;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
@@ -31,7 +31,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 
@@ -63,7 +62,7 @@ public class IdentificationServiceImpl implements IdentificationService {
 
     @Override
     public DeviceIdentifier createDeviceIdentifierByCallHomeId(String callHomeId) {
-        return new DeviceIdentifierByPropertyValue(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), callHomeId);
+        return new DeviceIdentifierByPropertyValue(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, callHomeId);
     }
 
     @Override
