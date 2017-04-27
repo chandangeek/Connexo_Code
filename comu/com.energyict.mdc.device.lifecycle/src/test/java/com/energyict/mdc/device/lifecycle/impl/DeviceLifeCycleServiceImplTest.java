@@ -21,6 +21,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.Privilege;
@@ -46,6 +47,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
+import com.energyict.mdc.pluggable.rest.MdcPropertyValueConverterFactory;
 
 import com.google.common.collect.Range;
 
@@ -138,6 +140,10 @@ public class DeviceLifeCycleServiceImplTest {
     private State state;
     @Mock
     private StateTransitionTriggerEvent event;
+    @Mock
+    private PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    private MdcPropertyValueConverterFactory mdcPropertyValueConverterFactory;
 
     @Before
     public void initializeMocks() {
@@ -857,7 +863,7 @@ public class DeviceLifeCycleServiceImplTest {
     }
 
     private DeviceLifeCycleServiceImpl getTestInstance() {
-        return new DeviceLifeCycleServiceImpl(this.nlsService, this.threadPrincipleService, this.propertySpecService, this.microCheckFactory, this.microActionFactory, this.deviceLifeCycleConfigurationService, this.userService, Clock
+        return new DeviceLifeCycleServiceImpl(this.nlsService, this.threadPrincipleService, this.propertySpecService, this.propertyValueInfoService, this.mdcPropertyValueConverterFactory, this.microCheckFactory, this.microActionFactory, this.deviceLifeCycleConfigurationService, this.userService, Clock
                 .systemDefaultZone());
     }
 
