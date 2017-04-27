@@ -296,7 +296,6 @@ public class UsagePointOutputResource {
                                     .ifPresent(readingWithValidationStatus::setReadingRecord);
                         }
 
-
                         // add validation statuses to pre filled channel data map
                         List<DataValidationStatus> dataValidationStatuses =
                                 evaluator.getValidationStatus(
