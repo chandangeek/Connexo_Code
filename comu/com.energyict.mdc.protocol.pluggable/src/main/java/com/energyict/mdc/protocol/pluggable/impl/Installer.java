@@ -39,12 +39,17 @@ class Installer implements FullInstaller {
 
     private final DataModel dataModel;
     private final EventService eventService;
+    private boolean installEventTypes = true;
 
     @Inject
     Installer(DataModel dataModel, EventService eventService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
+    }
+
+    public void setInstallEventTypes(boolean installEventTypes) {
+        this.installEventTypes = installEventTypes;
     }
 
     @Override
@@ -65,11 +70,13 @@ class Installer implements FullInstaller {
                 this::createCapabilityMappings,
                 logger
         );
-        doTry(
-                "Create event types for PPC",
-                this::createEventTypes,
-                logger
-        );
+        if (installEventTypes) {
+            doTry(
+                    "Create event types for PPC",
+                    this::createEventTypes,
+                    logger
+            );
+        }
     }
 
     private void createCapabilityMappings() {
