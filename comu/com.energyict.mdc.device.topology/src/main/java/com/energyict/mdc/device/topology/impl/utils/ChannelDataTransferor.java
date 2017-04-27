@@ -122,7 +122,7 @@ public class ChannelDataTransferor {
 
     private void updateLastReadingIfApplicable(DataLoggerChannelUsage channelUsage, Channel channel) {
         LoadProfile toUpdate = getChannel(channelUsage.getPhysicalGatewayReference().getOrigin(), channel).map(com.energyict.mdc.device.data.Channel::getLoadProfile).get();
-        if (!toUpdate.getLastReading().isPresent() || toUpdate.getLastReading().get().isBefore(channel.getLastDateTime())) {
+        if (toUpdate.getLastReading() == null || Instant.ofEpochSecond(toUpdate.getLastReading().getTime()).isBefore(channel.getLastDateTime())) {
             channelUsage.getPhysicalGatewayReference().getOrigin().getLoadProfileUpdaterFor(toUpdate).setLastReading(channel.getLastDateTime()).update();
         }
     }
