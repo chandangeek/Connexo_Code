@@ -205,6 +205,32 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     }
 
     @Override
+    public void completeRemoveOrAdd() {
+        if (this.activationChanges.isEmpty() && this.deactivationChanges.isEmpty()) {
+            return;
+        }
+        startValidation();
+        this.deactivationChanges.forEach(activation -> {
+            if(activation.getUsagePoint() != null){
+                this.metrologyConfigurationService.getDataModel()
+                        .mapper(MeterActivationImpl.class)
+                        .find("usagePoint", activation.getUsagePoint()).stream().forEach(s -> {
+                            s.detachUsagePoint();
+                        });
+            }
+        });
+
+        this.activationChanges.stream().forEach(s -> {
+            if(s.getMeter() != null && s.getMeterRole() != null && s.getUsagePoint() != null && s.getRange() != null) {
+                MeterActivationImpl meterActivation = this.metrologyConfigurationService.getDataModel()
+                        .getInstance(MeterActivationImpl.class)
+                        .init(s.getMeter(), s.getMeterRole(), s.getUsagePoint(), s.getRange());
+                meterActivation.save();
+            }
+        });
+    }
+
+    @Override
     public void complete() {
         if (this.activationChanges.isEmpty() && this.deactivationChanges.isEmpty()) {
             return;
@@ -283,11 +309,13 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         Stage usagePointStage = this.usagePoint.getState().getStage().get();
         // prepare time lines and virtualize all meter activations, so our changes will not have permanent effect
         Map<Meter, TimeLine<Activation, Instant>> validationTimeLines = new HashMap<>();
-        this.meterTimeLines.entrySet().forEach(entry -> {
-            TimeLine<Activation, Instant> timeLine = new TimeLine<>(Activation::getRange, RangeComparatorFactory.INSTANT_DEFAULT);
-            timeLine.addAll(entry.getValue().getElements(VirtualActivation::new));
-            validationTimeLines.put(entry.getKey(), timeLine);
-        });
+        if(this.meterTimeLines != null) {
+            this.meterTimeLines.entrySet().forEach(entry -> {
+                TimeLine<Activation, Instant> timeLine = new TimeLine<>(Activation::getRange, RangeComparatorFactory.INSTANT_DEFAULT);
+                timeLine.addAll(entry.getValue().getElements(VirtualActivation::new));
+                validationTimeLines.put(entry.getKey(), timeLine);
+            });
+        }
         validateActivationGaps(validationReport);
         // check resulting meter activations for affected meters
         ValidateActivationsForSingleMeterVisitor meterActivationVisitor = new ValidateActivationsForSingleMeterVisitor(validationReport);
