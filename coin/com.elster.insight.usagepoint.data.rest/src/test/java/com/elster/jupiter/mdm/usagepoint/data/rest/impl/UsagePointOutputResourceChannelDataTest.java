@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityComment;
+import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
@@ -78,6 +79,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -99,6 +101,11 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     private static final Range<Instant> INTERVAL_2 = Range.openClosed(TIMESTAMP.plus(15, ChronoUnit.MINUTES), TIMESTAMP.plus(30, ChronoUnit.MINUTES));
     private static final Range<Instant> INTERVAL_3 = Range.openClosed(TIMESTAMP.plus(30, ChronoUnit.MINUTES), TIMESTAMP.plus(45, ChronoUnit.MINUTES));
     private static final Range<Instant> INTERVAL_4 = Range.openClosed(TIMESTAMP.plus(45, ChronoUnit.MINUTES), TIMESTAMP.plus(1, ChronoUnit.HOURS));
+
+    private static final long SOURCE_INTERVAL_START = 1492150500000L;
+    private static final long SOURCE_INTERVAL_END = 1492151400000L;
+    private static final long REFERENCE_INTERVAL_START = 1492146900000L;
+    private static final long REFERENCE_INTERVAL_END = 1492147800000L;
 
     @Mock
     private UsagePoint usagePoint;
@@ -775,26 +782,34 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         info.referenceUsagePoint = "testUP";
         info.readingType = readingType.getMRID();
         List<IntervalInfo> intervalInfos = new ArrayList<>();
-        Range<Instant> sourceRange = Range.openClosed(Instant.ofEpochMilli(1492150500000L), Instant.ofEpochMilli(1492151400000L));
+        Range<Instant> sourceRange = Range.openClosed(Instant.ofEpochMilli(SOURCE_INTERVAL_START), Instant.ofEpochMilli(SOURCE_INTERVAL_END));
         intervalInfos.add(IntervalInfo.from(sourceRange));
         info.intervals = intervalInfos;
         info.referencePurpose = 1L;
         info.allowSuspectData = true;
         info.completePeriod = true;
-        info.startDate = Instant.ofEpochMilli(1492147800000L);
+        info.startDate = Instant.ofEpochMilli(REFERENCE_INTERVAL_END);
         when(meteringService.findUsagePointByName(info.referenceUsagePoint)).thenReturn(Optional.of(usagePoint));
         when(meteringService.getReadingType(readingType.getMRID())).thenReturn(Optional.of(readingType));
         when(metrologyConfigurationService.findMetrologyPurpose(1L)).thenReturn(Optional.of(billing));
         when(channel1.getMainReadingType()).thenReturn(readingType);
-        Range<Instant> referenceRange = Range.openClosed(Instant.ofEpochMilli(1492146900000L), Instant.ofEpochMilli(1492147800000L));
+        Range<Instant> referenceRange = Range.openClosed(Instant.ofEpochMilli(REFERENCE_INTERVAL_START), Instant.ofEpochMilli(REFERENCE_INTERVAL_END));
         IntervalReadingRecord readingRecord = mockIntervalReadingRecord(referenceRange, BigDecimal.ONE );
-        when(channel1.getCalculatedIntervalReadings(referenceRange)).thenReturn(Collections.singletonList(readingRecord));
+        when(channel1.getIntervalReadings(any())).thenReturn(Collections.singletonList(readingRecord));
+        when(usagePoint.getEffectiveMetrologyConfigurations(any())).thenReturn(Collections.singletonList(effectiveMC1));
+        when(effectiveMC1.getRange()).thenReturn(Range.all());
+        when(effectiveMC1.overlaps(any())).thenReturn(true);
+        when(effectiveMC1.isEffectiveAt(Instant.ofEpochMilli(REFERENCE_INTERVAL_END))).thenReturn(true);
+        ReadingQualityFetcher readingQualityFetcher = mock(ReadingQualityFetcher.class);
+        when(channel1.findReadingQualities()).thenReturn(readingQualityFetcher);
+        when(readingQualityFetcher.inTimeInterval(any())).thenReturn(readingQualityFetcher);
+        when(readingQualityFetcher.stream()).thenReturn(Stream.empty());
 
         JsonModel json = JsonModel.create(target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/copyfromreference").request().post(Entity.json(info), String.class));
 
         assertThat(json.<String>get("$.[0].value")).isEqualTo("1");
-        assertThat(json.<Long>get("$.[0].interval.start")).isEqualTo(sourceRange.lowerEndpoint().toEpochMilli());
-        assertThat(json.<Long>get("$.[0].interval.end")).isEqualTo(sourceRange.upperEndpoint().toEpochMilli());
+        assertThat(json.<Long>get("$.[0].interval.start")).isEqualTo(SOURCE_INTERVAL_START);
+        assertThat(json.<Long>get("$.[0].interval.end")).isEqualTo(SOURCE_INTERVAL_END);
     }
 
 
