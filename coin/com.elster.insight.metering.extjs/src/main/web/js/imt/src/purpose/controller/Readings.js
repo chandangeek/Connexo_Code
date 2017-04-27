@@ -692,7 +692,6 @@ Ext.define('Imt.purpose.controller.Readings', {
             success: function (record, operation) {
                 var item = null,
                     response = JSON.parse(operation.response.responseText);
-                debugger;
                 if (response[0]) {
                     Ext.suspendLayouts();
                     if (Array.isArray(window.records)) {
