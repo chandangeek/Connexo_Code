@@ -614,21 +614,20 @@ public class ChannelResource {
 
     private void processInfo(ChannelDataInfo channelDataInfo, Channel channel, List<Instant> removeCandidates, List<BaseReading> estimatedReadings, List<BaseReading> editedReadings,
                              List<BaseReading> estimatedBulkReadings, List<BaseReading> editedBulkReadings, List<BaseReading> confirmedReadings) {
-        Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.commentId);
-
         validateLinkedToSlave(channel, Range.closedOpen(Instant.ofEpochMilli(channelDataInfo.interval.start), Instant.ofEpochMilli(channelDataInfo.interval.end)));
         if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
             removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
         } else {
-            processCalculatedInfo(channelDataInfo, readingQualityComment, estimatedReadings, editedReadings);
-            processBulkInfo(channelDataInfo, readingQualityComment, estimatedBulkReadings, editedBulkReadings);
+            processCalculatedInfo(channelDataInfo, estimatedReadings, editedReadings);
+            processBulkInfo(channelDataInfo, estimatedBulkReadings, editedBulkReadings);
             processConfirmedInfo(channelDataInfo, confirmedReadings);
         }
     }
 
-    private void processCalculatedInfo(ChannelDataInfo channelDataInfo, Optional<ReadingQualityComment> readingQualityComment, List<BaseReading> estimatedReadings, List<BaseReading> editedReadings) {
+    private void processCalculatedInfo(ChannelDataInfo channelDataInfo, List<BaseReading> estimatedReadings, List<BaseReading> editedReadings) {
         if (channelDataInfo.value != null) {
             BaseReading baseReading = channelDataInfo.createNew();
+            Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.mainValidationInfo.commentId);
             if (channelDataInfo.mainValidationInfo != null && channelDataInfo.mainValidationInfo.ruleId != 0) {
                 ((BaseReadingImpl) baseReading).addQuality("2.8." + channelDataInfo.mainValidationInfo.ruleId, this.extractComment(readingQualityComment));
                 estimatedReadings.add(baseReading);
@@ -639,9 +638,10 @@ public class ChannelResource {
         }
     }
 
-    private void processBulkInfo(ChannelDataInfo channelDataInfo, Optional<ReadingQualityComment> readingQualityComment, List<BaseReading> estimatedBulkReadings, List<BaseReading> editedBulkReadings) {
+    private void processBulkInfo(ChannelDataInfo channelDataInfo, List<BaseReading> estimatedBulkReadings, List<BaseReading> editedBulkReadings) {
         if (channelDataInfo.collectedValue != null) {
             BaseReading baseReading = channelDataInfo.createNewBulk();
+            Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.bulkValidationInfo.commentId);
             if (channelDataInfo.bulkValidationInfo != null && channelDataInfo.bulkValidationInfo.ruleId != 0) {
                 ((BaseReadingImpl) baseReading).addQuality("2.8." + channelDataInfo.bulkValidationInfo.ruleId, this.extractComment(readingQualityComment));
                 estimatedBulkReadings.add(baseReading);
