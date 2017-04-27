@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
@@ -19,6 +18,7 @@ import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -36,24 +36,25 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
 public class SecurityPropertySetResource {
 
     private final ResourceHelper resourceHelper;
-    private final Thesaurus thesaurus;
     private final UserService userService;
     private final SecurityPropertySetInfoFactory securityPropertySetInfoFactory;
     private final Provider<ExecutionLevelResource> executionLevelResourceProvider;
+    private final ProtocolPluggableService protocolPluggableService;
 
     @Inject
-    public SecurityPropertySetResource(ResourceHelper resourceHelper, Thesaurus thesaurus, UserService userService, SecurityPropertySetInfoFactory securityPropertySetInfoFactory, Provider<ExecutionLevelResource> executionLevelResourceProvider) {
+    public SecurityPropertySetResource(ResourceHelper resourceHelper, UserService userService, SecurityPropertySetInfoFactory securityPropertySetInfoFactory, Provider<ExecutionLevelResource> executionLevelResourceProvider, ProtocolPluggableService protocolPluggableService) {
         this.resourceHelper = resourceHelper;
-        this.thesaurus = thesaurus;
         this.userService = userService;
         this.securityPropertySetInfoFactory = securityPropertySetInfoFactory;
         this.executionLevelResourceProvider = executionLevelResourceProvider;
+        this.protocolPluggableService = protocolPluggableService;
     }
 
     @GET
@@ -156,8 +157,14 @@ public class SecurityPropertySetResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getSecurityPropertySetAuthLevels(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        List<SecurityLevelInfo> securityLevelInfos = deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass ->
-                SecurityLevelInfo.from(deviceProtocolPluggableClass.getDeviceProtocol().getAuthenticationAccessLevels())).orElse(Collections.emptyList());
+        List<SecurityLevelInfo> securityLevelInfos = deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> {
+            List<com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel> authenticationAccessLevels = deviceProtocolPluggableClass.getDeviceProtocol()
+                    .getAuthenticationAccessLevels()
+                    .stream()
+                    .map(this.protocolPluggableService::adapt)
+                    .collect(Collectors.toList());
+            return SecurityLevelInfo.from(authenticationAccessLevels);
+        }).orElse(Collections.emptyList());
         return PagedInfoList.fromPagedList("data", securityLevelInfos, queryParameters);
     }
 
@@ -168,8 +175,14 @@ public class SecurityPropertySetResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getSecurityPropertySetEncLevels(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        List<SecurityLevelInfo> securityLevelInfos = deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass ->
-                SecurityLevelInfo.from(deviceProtocolPluggableClass.getDeviceProtocol().getEncryptionAccessLevels())).orElse(Collections.emptyList());
+        List<SecurityLevelInfo> securityLevelInfos = deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> {
+            List<com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel> encryptionAccessLevels = deviceProtocolPluggableClass.getDeviceProtocol()
+                    .getEncryptionAccessLevels()
+                    .stream()
+                    .map(this.protocolPluggableService::adapt)
+                    .collect(Collectors.toList());
+            return SecurityLevelInfo.from(encryptionAccessLevels);
+        }).orElse(Collections.emptyList());
         return PagedInfoList.fromPagedList("data", securityLevelInfos, queryParameters);
     }
 
@@ -177,5 +190,4 @@ public class SecurityPropertySetResource {
     public ExecutionLevelResource getExecutionLevelResource() {
         return executionLevelResourceProvider.get();
     }
-
 }

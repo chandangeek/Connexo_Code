@@ -6,6 +6,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.rest.util.VersionInfo;
+import com.energyict.mdc.common.interval.Temporals;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MeasurementType;
@@ -38,7 +39,7 @@ public class LoadProfileTypeOnDeviceTypeInfoFactory {
         info.id = loadProfileType.getId();
         info.name = loadProfileType.getName();
         info.obisCode = loadProfileType.getObisCode();
-        info.timeDuration = loadProfileType.getInterval();
+        info.timeDuration = Temporals.toTimeDuration(loadProfileType.interval());
         info.registerTypes = new ArrayList<>(loadProfileType.getChannelTypes().size());
         for (MeasurementType measurementType : loadProfileType.getChannelTypes()) {
             info.registerTypes.add(registerTypeInfoFactory.asInfo(measurementType, false, true));

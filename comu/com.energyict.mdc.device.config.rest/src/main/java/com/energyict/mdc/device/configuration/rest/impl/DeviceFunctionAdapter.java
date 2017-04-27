@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
-import com.energyict.mdc.protocol.api.DeviceFunction;
+import com.energyict.mdc.upl.DeviceFunction;
 
 public class DeviceFunctionAdapter extends MapBasedXmlAdapter<DeviceFunction> {
 
