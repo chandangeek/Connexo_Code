@@ -660,8 +660,10 @@ public class ChannelResource {
                                                           @QueryParam("isBulk") boolean isBulk, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-        ReadingType readingType = isBulk ? channel.getReadingType() : channel.getReadingType().getCalculatedReadingType()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CALCULATED_READINGTYPE_ON_CHANNEL, channel.getId()));
+        ReadingType readingType = isBulk ? channel.getReadingType() :
+                // TODO: This should be changed in scope of CXO-6664
+                channel.getReadingType().getCalculatedReadingType().orElse(channel.getReadingType());
+                // .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CALCULATED_READINGTYPE_ON_CHANNEL, channel.getId()));
         List<EstimationRuleInfo> infos = device.getDeviceConfiguration().getEstimationRuleSets()
                 .stream()
                 .map(estimationRuleSet -> estimationRuleSet.getRules(Collections.singleton(readingType)))
