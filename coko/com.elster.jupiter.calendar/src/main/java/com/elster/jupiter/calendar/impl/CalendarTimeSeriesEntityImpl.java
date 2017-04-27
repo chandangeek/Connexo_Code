@@ -172,7 +172,7 @@ class CalendarTimeSeriesEntityImpl implements CalendarTimeSeriesEntity, Persiste
         ServerCalendar.ZonedView zonedView = calendar.forZone(this.zoneId, calendar.getStartYear(), calendar.getEndYear().get());
         timeSeries
                 .toList(this.yearRange(calendar.getStartYear(), calendar.getEndYear().get()))
-                .forEach(instant -> storer.add(timeSeries, instant, zonedView.eventFor(instant).getCode()));
+                .forEach(instant -> storer.add(timeSeries, instant.plus(timeSeries.interval()), zonedView.eventFor(instant).getCode()));
         LOGGER.log(Level.INFO, () -> "Regenerated timeseries for calendar(id=" + this.calendar().getId() + ", name=" + this.calendar().getName() + ")");
         this.log(storer.execute());
     }
