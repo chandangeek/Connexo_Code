@@ -108,14 +108,16 @@ public class Installer implements FullInstaller {
         }
     }
 
-    private void createLifeCycle() {
-        this.usagePointLifeCycleConfigurationService.newUsagePointLifeCycle(this.thesaurus.getFormat(TranslationKeys.LIFE_CYCLE_NAME).format())
-                .markAsDefault();
-    }
-
     private void setInitialStateForInstalledUsagePoints() {
         meteringService.getUsagePointQuery()
                 .select(Condition.TRUE).stream()
                 .forEach(UsagePoint::setInitialState);
+    }
+
+
+
+    private void createLifeCycle() {
+        this.usagePointLifeCycleConfigurationService.newUsagePointLifeCycle(UsagePointLifeCycleConfigurationService.LIFE_CYCLE_KEY)
+                .markAsDefault();
     }
 }
