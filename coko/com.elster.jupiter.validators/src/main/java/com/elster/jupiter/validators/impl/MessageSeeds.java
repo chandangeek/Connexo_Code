@@ -27,6 +27,7 @@ public enum MessageSeeds implements MessageSeed {
 
     // Consecutive zeros messages
     MAX_PERIOD_SHORTER_THEN_MIN_PERIOD(1012, "maximum.period.less.minimum", "Maximum period less than minimum"),
+    NOT_DELTA_READING_TYPE(1013, "not.delta.reading.type", "{0} is not a delta reading type", Level.INFO),
 
     // Meter advance messages
     // {0} - from time, {1} - to time, {2} - validator display name, {3} - reading type name, {4} - validate object name

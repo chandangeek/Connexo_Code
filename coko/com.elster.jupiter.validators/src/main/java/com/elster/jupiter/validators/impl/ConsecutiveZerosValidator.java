@@ -28,6 +28,8 @@ import com.google.common.collect.TreeRangeSet;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -36,15 +38,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.validation.ValidationResult.SUSPECT;
 import static com.elster.jupiter.validation.ValidationResult.VALID;
 import static com.elster.jupiter.validators.impl.MessageSeeds.MAX_PERIOD_SHORTER_THEN_MIN_PERIOD;
+import static com.elster.jupiter.validators.impl.MessageSeeds.NOT_DELTA_READING_TYPE;
 
-public class ConsecutiveValidator extends AbstractValidator{
+public class ConsecutiveZerosValidator extends AbstractValidator {
 
     static final String MINIMUM_PERIOD = "minimumPeriod";
     static final String MAXIMUM_PERIOD = "maximumPeriod";
@@ -52,13 +54,13 @@ public class ConsecutiveValidator extends AbstractValidator{
     static final String CHECK_RETROACTIVELY = "checkRetroactively";
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
 
-    private final Logger logger = Logger.getLogger(ConsecutiveValidator.class.getName());
+    private final Logger logger = Logger.getLogger(ConsecutiveZerosValidator.class.getName());
 
     private enum TranslationKeys implements TranslationKey {
-        CHECK_RETROACTIVELY(ConsecutiveValidator.CHECK_RETROACTIVELY, "Check retroactively"),
-        MIN_PERIOD(ConsecutiveValidator.MINIMUM_PERIOD, "Minimum period"),
-        MAX_PERIOD(ConsecutiveValidator.MAXIMUM_PERIOD, "Maximum period"),
-        MIN_THRESHOLD(ConsecutiveValidator.MINIMUM_THRESHOLD, "Minimum threshold");
+        CHECK_RETROACTIVELY(ConsecutiveZerosValidator.CHECK_RETROACTIVELY, "Check retroactively"),
+        MIN_PERIOD(ConsecutiveZerosValidator.MINIMUM_PERIOD, "Minimum period"),
+        MAX_PERIOD(ConsecutiveZerosValidator.MAXIMUM_PERIOD, "Maximum period"),
+        MIN_THRESHOLD(ConsecutiveZerosValidator.MINIMUM_THRESHOLD, "Minimum threshold");
 
         private final String key;
         private final String defaultFormat;
@@ -70,7 +72,7 @@ public class ConsecutiveValidator extends AbstractValidator{
 
         @Override
         public String getKey() {
-            return ConsecutiveValidator.class.getName() + "." + key;
+            return ConsecutiveZerosValidator.class.getName() + "." + key;
         }
 
         @Override
@@ -88,11 +90,11 @@ public class ConsecutiveValidator extends AbstractValidator{
     private Instant lastCheck;
     private List<IntervalReadingRecord> retroactivelyRecords;
 
-    ConsecutiveValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    ConsecutiveZerosValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super(thesaurus, propertySpecService);
     }
 
-    ConsecutiveValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
+    ConsecutiveZerosValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
         checkRequiredProperties();
     }
@@ -137,23 +139,23 @@ public class ConsecutiveValidator extends AbstractValidator{
 
     @Override
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
-            this.readingType = readingType;
-            this.checkRetroactively = getRequiredShift(properties, CHECK_RETROACTIVELY);
-            this.minPeriod = getRequiredPeriod(properties, MINIMUM_PERIOD);
-            this.maxPeriod = getRequiredPeriod(properties, MAXIMUM_PERIOD);
-            this.minThreshold = getRequiredThreshold(properties, MINIMUM_THRESHOLD);
-            this.zeroIntervals = getZeroIntervalsFromValidationInterval(channel, getValidationInterval(interval));
-            this.lastCheck = interval.lowerEndpoint();
-            this.retroactivelyRecords = getRetroactivelyRecodrs(channel, lastCheck);
+        this.readingType = readingType;
+        this.checkRetroactively = getRequiredShift(properties, CHECK_RETROACTIVELY);
+        this.minPeriod = getRequiredPeriod(properties, MINIMUM_PERIOD);
+        this.maxPeriod = getRequiredPeriod(properties, MAXIMUM_PERIOD);
+        this.minThreshold = getRequiredThreshold(properties, MINIMUM_THRESHOLD);
+        this.zeroIntervals = getZeroIntervalsFromValidationInterval(channel, getValidationInterval(interval));
+        this.lastCheck = interval.lowerEndpoint();
+        this.retroactivelyRecords = getRetroactivelyRecords(channel, lastCheck);
     }
 
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
-        if(readingType.getAccumulation().equals(Accumulation.DELTADELTA)) {
-            return zeroIntervals.contains(intervalReadingRecord.getTimeStamp()) ? SUSPECT : VALID;
+        if (!readingType.getAccumulation().equals(Accumulation.DELTADELTA)) {
+            logger.log(NOT_DELTA_READING_TYPE.getLevel(), NOT_DELTA_READING_TYPE.getDefaultFormat(), intervalReadingRecord.getReadingType().getMRID());
+            return VALID;
         }
-        logger.log(Level.INFO, "{0} is not a delta reading type", intervalReadingRecord.getReadingType().getMRID());
-        return VALID;
+        return zeroIntervals.contains(intervalReadingRecord.getTimeStamp()) ? SUSPECT : VALID;
     }
 
     @Override
@@ -174,8 +176,7 @@ public class ConsecutiveValidator extends AbstractValidator{
 
     @Override
     public List<PropertySpec> getPropertySpecs(ValidationPropertyDefinitionLevel level) {
-        switch (level)
-        {
+        switch (level) {
             case VALIDATION_RULE:
                 return getPropertySpecs();
             case TARGET_OBJECT:
@@ -196,27 +197,28 @@ public class ConsecutiveValidator extends AbstractValidator{
 
     @Override
     public Map<Instant, ValidationResult> finish() {
-        if(checkRetroactively){
+        if (checkRetroactively) {
             Optional<Range<Instant>> retroactivelyZeroInterval = zeroIntervals.asRanges()
                     .stream()
                     .filter(interval -> interval.contains(lastCheck))
                     .findFirst();
-            if(retroactivelyZeroInterval.isPresent()) {
-                return retroactivelyRecords.stream()
+            if (retroactivelyZeroInterval.isPresent()) {
+                Map<Instant, ValidationResult> result = retroactivelyRecords.stream()
                         .filter(record -> record.getTimeStamp().compareTo(lastCheck) <= 0 && retroactivelyZeroInterval.get().contains(record.getTimeStamp()))
                         .map(IntervalReadingRecord::getTimeStamp)
                         .collect(Collectors.toMap(Function.identity(), instant -> ValidationResult.SUSPECT));
+                return result;
             }
 
         }
         return super.finish();
     }
 
-    private boolean getRequiredShift(Map<String, Object> properties, String key){
+    private boolean getRequiredShift(Map<String, Object> properties, String key) {
         return (boolean) properties.get(key);
     }
 
-    private TimeDuration getRequiredPeriod(Map<String, Object> properties, String key){
+    private TimeDuration getRequiredPeriod(Map<String, Object> properties, String key) {
         TimeDuration period = (TimeDuration) properties.get(key);
         if (period == null) {
             throw new MissingRequiredProperty(getThesaurus(), key);
@@ -224,7 +226,7 @@ public class ConsecutiveValidator extends AbstractValidator{
         return period;
     }
 
-    private BigDecimal getRequiredThreshold(Map<String, Object> properties, String key){
+    private BigDecimal getRequiredThreshold(Map<String, Object> properties, String key) {
         BigDecimal threshold = (BigDecimal) properties.get(key);
         if (threshold == null) {
             throw new MissingRequiredProperty(getThesaurus(), key);
@@ -232,48 +234,52 @@ public class ConsecutiveValidator extends AbstractValidator{
         return threshold;
     }
 
-    private Range<Instant> getValidationInterval(Range<Instant> interval){
-        if(checkRetroactively) {
+    private Range<Instant> getValidationInterval(Range<Instant> interval) {
+        if (checkRetroactively) {
             return Range.openClosed(interval.lowerEndpoint().minusMillis(maxPeriod.getMilliSeconds()), interval.upperEndpoint());
         }
         return interval;
     }
 
     private RangeSet<Instant> getZeroIntervalsFromValidationInterval(Channel channel, Range<Instant> validationInterval) {
-        TreeMap<Instant, IntervalReadingRecord> intervalReadingRecords = new TreeMap<>();
-        List<Instant> timestampsFromInterval = channel.toList(validationInterval);
-        timestampsFromInterval.forEach(instant -> intervalReadingRecords.putIfAbsent(instant, null));
+        Map<Instant, IntervalReadingRecord> intervalReadingRecords = new TreeMap<>();
+        List<Instant> timeStampsFromInterval = channel.toList(validationInterval);
+        timeStampsFromInterval.forEach(instant -> intervalReadingRecords.putIfAbsent(instant, null));
         channel.getIntervalReadings(validationInterval).forEach(record -> intervalReadingRecords.putIfAbsent(record.getTimeStamp(), record));
         RangeSet<Instant> zeroIntervals = TreeRangeSet.create();
         Instant startZeroInterval = validationInterval.lowerEndpoint();
         Instant endZeroInterval = startZeroInterval;
         boolean intervalStarted = false;
-        for (Instant timeStamp:
-                timestampsFromInterval) {
+        for (Instant timeStamp :
+                timeStampsFromInterval) {
             IntervalReadingRecord record = intervalReadingRecords.get(timeStamp);
-            if(record != null && record.getValue() != null && record.getValue().compareTo(this.minThreshold) <= 0) {
+            if (record != null && record.getValue() != null && record.getValue().compareTo(this.minThreshold) <= 0) {
                 if (!intervalStarted) {
-                        startZeroInterval = timeStamp;
-                        intervalStarted = true;
+                    startZeroInterval = ZonedDateTime.ofInstant(timeStamp, ZoneId.systemDefault()).minus(channel.getIntervalLength().get()).toInstant();
+                    intervalStarted = true;
                 } else {
                     endZeroInterval = timeStamp;
                 }
-            } else {
-                if (intervalStarted) {
-                    long periodLength = endZeroInterval.getEpochSecond() - startZeroInterval.getEpochSecond();
-                    if (periodLength > minPeriod.getSeconds() && periodLength < maxPeriod.getSeconds()) {
-                        zeroIntervals.add(Range.closedOpen(startZeroInterval, timeStamp));
-                    }
-                    intervalStarted = false;
+            } else if (intervalStarted) {
+                long periodLength = endZeroInterval.toEpochMilli() - startZeroInterval.toEpochMilli();
+                if (periodLength > minPeriod.getMilliSeconds() && periodLength < maxPeriod.getMilliSeconds()) {
+                    zeroIntervals.add(Range.openClosed(startZeroInterval, endZeroInterval));
                 }
+                intervalStarted = false;
             }
         }
         return zeroIntervals;
     }
 
-    private List<IntervalReadingRecord> getRetroactivelyRecodrs(Channel channel, Instant lastCheck){
-        if(checkRetroactively){
-            return channel.getIntervalReadings(Range.openClosed(lastCheck.minus(maxPeriod.asTemporalAmount()), lastCheck));
+    private List<IntervalReadingRecord> getRetroactivelyRecords(Channel channel, Instant lastCheck) {
+        if (checkRetroactively) {
+            return channel
+                    .getIntervalReadings(Range.openClosed(lastCheck.minus(maxPeriod.asTemporalAmount()), lastCheck))
+                    .stream()
+                    .filter(intervalReadingRecord -> intervalReadingRecord.getReadingQualities().stream()
+                            .filter(readingQuality -> readingQuality.getReadingType().equals(readingType))
+                            .anyMatch(readingQuality -> !readingQuality.isSuspect()))
+                    .collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
