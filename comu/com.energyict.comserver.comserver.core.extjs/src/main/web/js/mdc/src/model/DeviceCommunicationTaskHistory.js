@@ -22,6 +22,8 @@ Ext.define('Mdc.model.DeviceCommunicationTaskHistory', {
         {name: 'finishTime', dateFormat: 'time', type: 'date'},
         {name: 'durationInSeconds', type: 'int'},
         {name: 'alwaysExecuteOnInbound', type: 'string'},
+        {name: 'errors'},
+        {name: 'warnings'},
         'comSession'
     ],
     associations: [
