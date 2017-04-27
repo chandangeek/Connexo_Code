@@ -846,16 +846,14 @@ public enum IntervalLength {
     }
 
     /**
-     * Adds the amount of time represented by this IntervalLength
-     * from the specified Instant.
-     * In other words, is equivalent to calling Instant.plus(toTemporalAmount());
+     * Adds the amount of time represented by this IntervalLength to the specified Instant.
      *
      * @param instant The Instant from which time will be subtracted
      * @param zone The ZoneId
      * @return The result of subtraction
      */
     Instant addTo(Instant instant, ZoneId zone) {
-        return instant.plus(this.toTemporalAmount());
+        return instant.atZone(zone).plus(this.toTemporalAmount()).toInstant();
     }
 
     /**

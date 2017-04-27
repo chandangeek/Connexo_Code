@@ -102,7 +102,7 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
             merged.readingQuality = Math.max(r1.readingQuality, r2.readingQuality);
             merged.count = r1.count + r2.count;
             merged.sourceChannelSet = sourceChannelSetFactory.merge(r1.sourceChannelSet, r2.sourceChannelSet);
-            merged.timeOfUseEvent = mergeEvent(r1.timeOfUseEvent, r2.timeOfUseEvent);
+            merged.timeOfUseEvent = mergeEvent(r1, r2);
             return merged;
         } else {
             return merge(r2, r1, mergedTimestamp, truncaterFactory, sourceChannelSetFactory);
@@ -128,6 +128,28 @@ class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
             return v2;
         } else {
             return v1;
+        }
+    }
+
+    private static Optional<Event> mergeEvent(CalculatedReadingRecord r1, CalculatedReadingRecord r2) {
+        if (r1.getTimeStamp().equals(r2.getTimeStamp())) {
+            if (r1.isPartOfTimeOfUseGap() && !r2.isPartOfTimeOfUseGap()) {
+                /* r2 is the original record whose TimeStamp was set during post-processing
+                 * and r1 is record that was added during post-processing because we thought r2 was missing.
+                 * see CalculatedMetrologyContractDataImpl.merge(CalculatedReadingRecordImpl, InstantTruncater, IntervalLength, Map<Instant, CalculatedReadingRecordImpl>)
+                 * and usages of CalculatedReadingRecordImpl.setTimestamp(Instant) */
+                return r2.getTimeOfUseEvent();
+            } else if (!r1.isPartOfTimeOfUseGap() && r2.isPartOfTimeOfUseGap()) {
+                /* r1 is the original record whose TimeStamp was set during post-processing
+                 * and r2 is record that was added during post-processing because we thought r1 was missing.
+                 * see CalculatedMetrologyContractDataImpl.merge(CalculatedReadingRecordImpl, InstantTruncater, IntervalLength, Map<Instant, CalculatedReadingRecordImpl>)
+                 * and usages of CalculatedReadingRecordImpl.setTimestamp(Instant) */
+                return r1.getTimeOfUseEvent();
+            } else {
+                return mergeEvent(r1.getTimeOfUseEvent(), r2.getTimeOfUseEvent());
+            }
+        } else {
+            return mergeEvent(r1.getTimeOfUseEvent(), r2.getTimeOfUseEvent());
         }
     }
 

@@ -481,6 +481,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                                             calendarUsage,
                                             readingTypeAndRecords.getKey(),
                                             timestamp,
+                                            zoneId,
                                             withMissings)));
         return withMissings;
     }
@@ -505,9 +506,10 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         return calendarUsages.stream().filter(each -> each.contains(timestamp)).findAny();
     }
 
-    private void addMissingIfDifferentTimeOfUse(ZonedCalendarUsage calendarUsage, ReadingType readingType, Instant timestamp, List<CalculatedReadingRecordImpl> readingRecords) {
+    private void addMissingIfDifferentTimeOfUse(ZonedCalendarUsage calendarUsage, ReadingType readingType, Instant timestamp, ZoneId zoneId, List<CalculatedReadingRecordImpl> readingRecords) {
+        Instant calendarTimestamp = IntervalLength.from(readingType).subtractFrom(timestamp, zoneId);
         int tou = readingType.getTou();
-        Event event = calendarUsage.eventFor(timestamp);
+        Event event = calendarUsage.eventFor(calendarTimestamp);
         if (event.getCode() != tou) {
             readingRecords.add(
                     this.addMissing(

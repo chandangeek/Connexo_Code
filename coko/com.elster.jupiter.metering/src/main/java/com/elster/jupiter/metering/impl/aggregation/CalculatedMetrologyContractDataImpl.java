@@ -101,9 +101,11 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
 
     private void merge(CalculatedReadingRecordImpl record, InstantTruncater truncater, IntervalLength intervalLength, Map<Instant, CalculatedReadingRecordImpl> merged) {
         ZoneId zone = this.getUsagePoint()
-                .getMeterActivation(record.getTimeStamp())
+                .getMeterActivations(record.getTimeStamp())
+                .stream()
                 .map(MeterActivation::getChannelsContainer)
                 .map(ChannelsContainer::getZoneId)
+                .findAny()  // All meters that are linked to the same UsagePoint should all have the same ZoneId
                 .orElseGet(this.usagePoint::getZoneId);
         final Instant endOfInterval;
         Instant endOfIntervalCandidate = truncater.truncate(record.getTimeStamp(), intervalLength, zone);
