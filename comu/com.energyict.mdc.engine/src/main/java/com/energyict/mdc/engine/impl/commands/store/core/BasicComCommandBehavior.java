@@ -9,6 +9,7 @@ import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
@@ -22,8 +23,8 @@ import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.logging.ComCommandLoggingEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedData;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -42,6 +43,7 @@ public class BasicComCommandBehavior implements CanProvideDescriptionTitle {
     private final ComCommand comCommand;
     private final String descriptionTitle;
     private final Clock clock;
+    private final DeviceMessageService deviceMessageService;
     private final com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl.ServiceProvider serviceProvider;
     private CompletionCode completionCode = CompletionCode.Ok;
 
@@ -50,10 +52,11 @@ public class BasicComCommandBehavior implements CanProvideDescriptionTitle {
      */
     private BasicComCommandBehavior.ExecutionState executionState = BasicComCommandBehavior.ExecutionState.NOT_EXECUTED;
 
-    BasicComCommandBehavior(ComCommand comCommand, String descriptionTitle, Clock clock) {
+    BasicComCommandBehavior(ComCommand comCommand, String descriptionTitle, Clock clock, DeviceMessageService deviceMessageService) {
         this.comCommand = comCommand;
         this.descriptionTitle = descriptionTitle;
         this.clock = clock;
+        this.deviceMessageService = deviceMessageService;
         this.serviceProvider = new ServiceProvider();
     }
 
@@ -277,6 +280,10 @@ public class BasicComCommandBehavior implements CanProvideDescriptionTitle {
         public Clock clock() {
             return clock;
         }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return deviceMessageService;
+        }
     }
 }
-

@@ -9,6 +9,10 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 
 import java.io.File;
 
@@ -16,22 +20,31 @@ public class OfflineDeviceMessageAttributeImpl implements OfflineDeviceMessageAt
 
     private final DeviceMessageAttribute deviceMessageAttribute;
     private final DeviceProtocol deviceProtocol;
+    private final OfflineDeviceMessage offlineDeviceMessage;
+    private final OfflineDevice offlineDevice;
+    private ProtocolPluggableService protocolPluggableService;
     private String name;
-    private String deviceMessageAttributeValue;
+    private String value;
     private PropertySpec propertySpec;
-
+    private long deviceMessageId;
 
     /**
      * Constructor only to be used by JSON (de)marshalling
      */
     public OfflineDeviceMessageAttributeImpl() {
-        this.deviceMessageAttribute = null;
-        this.deviceProtocol = null;
+        this(null, null, null, null);
     }
 
-    public OfflineDeviceMessageAttributeImpl(DeviceMessageAttribute deviceMessageAttribute, DeviceProtocol deviceProtocol) {
+    private OfflineDeviceMessageAttributeImpl(DeviceMessageAttribute deviceMessageAttribute, OfflineDeviceMessage offlineDeviceMessage, OfflineDevice offlineDevice, DeviceProtocol deviceProtocol) {
         this.deviceMessageAttribute = deviceMessageAttribute;
         this.deviceProtocol = deviceProtocol;
+        this.offlineDeviceMessage = offlineDeviceMessage;
+        this.offlineDevice = offlineDevice;
+    }
+
+    public OfflineDeviceMessageAttributeImpl(DeviceMessageAttribute deviceMessageAttribute, OfflineDeviceMessage offlineDeviceMessage, OfflineDevice offlineDevice, DeviceProtocol deviceProtocol, ProtocolPluggableService protocolPluggableService) {
+        this(deviceMessageAttribute, offlineDeviceMessage, offlineDevice, deviceProtocol);
+        this.protocolPluggableService = protocolPluggableService;
         goOffline();
     }
 
@@ -49,8 +62,17 @@ public class OfflineDeviceMessageAttributeImpl implements OfflineDeviceMessageAt
             value = tempFile.getAbsolutePath();
         }
 
-        this.deviceMessageAttributeValue = deviceProtocol.format(this.deviceMessageAttribute.getSpecification(), value);
+        value = TypedPropertiesValueAdapter.adaptToUPLValue(value);
+
+        this.value = deviceProtocol.format(
+                offlineDevice,
+                offlineDeviceMessage,
+                this.protocolPluggableService.adapt(deviceMessageAttribute.getSpecification()),
+                value
+        );
         this.propertySpec = this.deviceMessageAttribute.getSpecification();
+
+        this.deviceMessageId = deviceMessageAttribute.getDeviceMessage().getMessageId();
     }
 
     @Override
@@ -64,8 +86,12 @@ public class OfflineDeviceMessageAttributeImpl implements OfflineDeviceMessageAt
     }
 
     @Override
-    public String getDeviceMessageAttributeValue() {
-        return deviceMessageAttributeValue;
+    public String getValue() {
+        return value;
     }
 
+    @Override
+    public long getDeviceMessageId() {
+        return deviceMessageId;
+    }
 }

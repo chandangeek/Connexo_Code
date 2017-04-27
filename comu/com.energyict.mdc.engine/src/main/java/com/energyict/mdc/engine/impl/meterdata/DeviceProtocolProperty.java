@@ -5,16 +5,15 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceProtocolProperty;
-import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 /**
  * Provides an implementation for the {@link CollectedDeviceInfo} interface
@@ -26,13 +25,13 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 public class DeviceProtocolProperty extends CollectedDeviceData implements CollectedDeviceInfo {
 
     private DeviceIdentifier deviceIdentifier;
-    private PropertySpec propertySpec;
+    private String propertyName;
     private Object propertyValue;
     private ComTaskExecution comTaskExecution;
 
-    public DeviceProtocolProperty(DeviceIdentifier deviceIdentifier, PropertySpec propertySpec, Object propertyValue) {
+    public DeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
         this.deviceIdentifier = deviceIdentifier;
-        this.propertySpec = propertySpec;
+        this.propertyName = propertyName;
         this.propertyValue = propertyValue;
     }
 
@@ -41,13 +40,8 @@ public class DeviceProtocolProperty extends CollectedDeviceData implements Colle
         return deviceIdentifier;
     }
 
-    @Override
-    public void setDataCollectionConfiguration(DataCollectionConfiguration configuration) {
-        this.comTaskExecution = (ComTaskExecution) configuration;
-    }
-
-    public PropertySpec getPropertySpec() {
-        return propertySpec;
+    public String getPropertyName() {
+        return propertyName;
     }
 
     public Object getPropertyValue() {
@@ -68,7 +62,7 @@ public class DeviceProtocolProperty extends CollectedDeviceData implements Colle
     public String toString() {
         DescriptionBuilder builder = new DescriptionBuilderImpl(() -> "DeviceProtocolProperty");
         builder.addProperty("deviceIdentifier").append(this.deviceIdentifier);
-        builder.addProperty("property").append(propertySpec.getName());
+        builder.addProperty("property").append(propertyName);
         builder.addProperty("value").append(propertyValue.toString());
         return builder.toString();
     }

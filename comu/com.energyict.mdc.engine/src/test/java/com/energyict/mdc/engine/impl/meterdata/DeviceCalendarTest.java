@@ -4,8 +4,7 @@
 
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

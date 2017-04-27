@@ -9,9 +9,9 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.singleton;
 
@@ -40,10 +40,7 @@ class ComTaskExecutionRequest extends IdBusinessObjectRequest {
     }
 
     private void validateComTaskExecutionIds() {
-        this.comTaskExecutions = new ArrayList<>(this.getBusinessObjectIds().size());
-        for (Long comTaskExecutionId : this.getBusinessObjectIds()) {
-            this.comTaskExecutions.add(this.findComTaskExecution(comTaskExecutionId));
-        }
+        this.comTaskExecutions = this.getBusinessObjectIds().stream().map(this::findComTaskExecution).collect(Collectors.toList());
     }
 
     private ComTaskExecution findComTaskExecution(long comTaskExecutionId) {

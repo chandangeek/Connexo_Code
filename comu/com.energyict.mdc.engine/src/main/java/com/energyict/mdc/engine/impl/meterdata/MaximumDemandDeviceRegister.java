@@ -4,13 +4,12 @@
 
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.cbo.Quantity;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 /**
  * Implementation of a Maximum Demand Register, collected from a Device.
- * <p/>
+ * <p>
  * If data is collected, then a proper collected data with corresponding timeStamps:
  * <ul>
  * <li>{@link #readTime} </li>
@@ -20,9 +19,9 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier
  * </ul>
  * ... should be set by {@link #setCollectedData(Quantity, String)} and
  * {@link #setCollectedTimeStamps}
- * <p/>
- * If no data could be collected, the a proper {@link com.energyict.mdc.issues.Issue} and {@link com.energyict.mdc.protocol.api.device.data.ResultType}
- * should be returned by calling the {@link #setFailureInformation(com.energyict.mdc.protocol.api.device.data.ResultType, com.energyict.mdc.issues.Issue)}.
+ * <p>
+ * If no data could be collected, the a proper {@link com.energyict.mdc.upl.issue.Issue} and {@link com.energyict.mdc.upl.meterdata.ResultType}
+ * should be returned by calling the {@link #setFailureInformation(com.energyict.mdc.upl.meterdata.ResultType, com.energyict.mdc.upl.issue.Issue)}.
  *
  * @author gna
  * @since 4/04/12 - 13:08
@@ -34,8 +33,7 @@ public class MaximumDemandDeviceRegister extends DeviceQuantityRegister {
      *
      * @param registerIdentifier the register identifier linked the to readOut data
      */
-    public MaximumDemandDeviceRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
-        super(registerIdentifier, readingType);
+    public MaximumDemandDeviceRegister(RegisterIdentifier registerIdentifier) {
+        super(registerIdentifier);
     }
-
 }

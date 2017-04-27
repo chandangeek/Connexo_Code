@@ -8,14 +8,14 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.ResultType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Abstract class containing standard functionality for a {@link com.energyict.mdc.protocol.api.device.data.CollectedData} object.
+ * Abstract class containing standard functionality for a {@link com.energyict.mdc.upl.meterdata.CollectedData} object.
  *
  * @author gna
  * @since 4/04/12 - 14:41

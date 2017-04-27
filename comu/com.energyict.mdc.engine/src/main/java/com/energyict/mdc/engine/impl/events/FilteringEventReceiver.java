@@ -36,7 +36,7 @@ public interface FilteringEventReceiver extends EventReceiver {
      * @param eventReceiver The EventReceiver;
      * @return <code>true</code> iff this FilteringEventReceiver delegates non-filtered ComServerEvents to the specified EventReceiver
      */
-    public boolean delegatesTo (EventReceiver eventReceiver);
+    boolean delegatesTo(EventReceiver eventReceiver);
 
     /**
      * Adds a filter such that only {@link com.energyict.mdc.engine.events.ComServerEvent}s
@@ -45,22 +45,22 @@ public interface FilteringEventReceiver extends EventReceiver {
      *
      * @param wantedCategories The set of {@link Category wantedCategories} that need to be delegated
      */
-    public void narrowTo (EnumSet<Category> wantedCategories);
+    void narrowTo(EnumSet<Category> wantedCategories);
 
     /**
      * Adds a filter such that only {@link com.energyict.mdc.engine.events.ComServerEvent}s
-     * that relate to the specified {@link com.energyict.mdc.protocol.api.device.BaseDevice device}s are delegated
+     * that relate to the specified {@link com.energyict.mdc.upl.meterdata.Device device}s are delegated
      * to the actual {@link EventReceiver}.
      *
      * @param devices The devices to which ComServerEvent should relate
      */
-    public void narrowToDevices (List<Device> devices);
+    void narrowToDevices(List<Device> devices);
 
     /**
      * Removes the filter for {@link com.energyict.mdc.engine.events.ComServerEvent}s
-     * that relate to any specific {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
+     * that relate to any specific {@link com.energyict.mdc.upl.meterdata.Device device}.
      */
-    public void widenToAllDevices ();
+    void widenToAllDevices();
 
     /**
      * Adds a filter such that only {@link com.energyict.mdc.engine.events.ComServerEvent}s
@@ -69,13 +69,13 @@ public interface FilteringEventReceiver extends EventReceiver {
      *
      * @param connectionTasks The ConnectionTasks to which ComServerEvents should relate
      */
-    public void narrowToConnectionTasks (List<ConnectionTask> connectionTasks);
+    void narrowToConnectionTasks(List<ConnectionTask> connectionTasks);
 
     /**
      * Removes the filter for {@link com.energyict.mdc.engine.events.ComServerEvent}s
      * that relate to any specific {@link ConnectionTask}.
      */
-    public void widenToAllConnectionTasks ();
+    void widenToAllConnectionTasks();
 
     /**
      * Adds a filter such that only {@link com.energyict.mdc.engine.events.ComServerEvent}s
@@ -84,13 +84,13 @@ public interface FilteringEventReceiver extends EventReceiver {
      *
      * @param comTaskExecutions The ComTaskExecution to which ComServerEvents should relate
      */
-    public void narrowToComTaskExecutions (List<ComTaskExecution> comTaskExecutions);
+    void narrowToComTaskExecutions(List<ComTaskExecution> comTaskExecutions);
 
     /**
      * Removes the filter for {@link com.energyict.mdc.engine.events.ComServerEvent}s
      * that relate to any specific {@link com.energyict.mdc.tasks.ComTask}.
      */
-    public void widenToAllComTasks ();
+    void widenToAllComTasks();
 
     /**
      * Adds a filter such that only {@link com.energyict.mdc.engine.events.ComServerEvent}s
@@ -99,13 +99,13 @@ public interface FilteringEventReceiver extends EventReceiver {
      *
      * @param comPorts The ComPorts to which ComServerEvents should relate
      */
-    public void narrowToComPorts (List<ComPort> comPorts);
+    void narrowToComPorts(List<ComPort> comPorts);
 
     /**
      * Removes the filter for {@link com.energyict.mdc.engine.events.ComServerEvent}s
      * that relate to any specific {@link ComPort}.
      */
-    public void widenToAllComPorts ();
+    void widenToAllComPorts();
 
     /**
      * Adds a filter such that only {@link com.energyict.mdc.engine.events.ComServerEvent}s
@@ -114,13 +114,13 @@ public interface FilteringEventReceiver extends EventReceiver {
      *
      * @param comPortPools The ComPortPools to which ComServerEvents should relate
      */
-    public void narrowToComPortPools (List<ComPortPool> comPortPools);
+    void narrowToComPortPools(List<ComPortPool> comPortPools);
 
     /**
      * Removes the filter for {@link com.energyict.mdc.engine.events.ComServerEvent}s
      * that relate to any specific ComPortPool.
      */
-    public void widenToAllComPortPools ();
+    void widenToAllComPortPools();
 
     /**
      * Adds a filter such that only {@link com.energyict.mdc.engine.events.LoggingEvent}s
@@ -129,11 +129,11 @@ public interface FilteringEventReceiver extends EventReceiver {
      *
      * @param logLevel The LogLevel
      */
-    public void narrowToLogLevel (LogLevel logLevel);
+    void narrowToLogLevel(LogLevel logLevel);
 
     /**
      * Removes the filter for {@link com.energyict.mdc.engine.events.LoggingEvent}s.
      */
-    public void widenToAllLogLevels ();
+    void widenToAllLogLevels();
 
 }

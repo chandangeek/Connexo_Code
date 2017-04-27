@@ -8,7 +8,7 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.NoopCollectedDataEvent;
-import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 import java.util.Optional;
 

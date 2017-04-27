@@ -19,12 +19,12 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessage;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.ResultType;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -56,7 +56,7 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "comTaskExecution", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
 
-        if(getOfflineDevice().getMacException().isPresent()) {
+        if (getOfflineDevice().getMacException().isPresent()) {
             throw getOfflineDevice().getMacException().get();
         }
 
@@ -231,11 +231,11 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
     }
 
     private CollectedMessageList executeInvalidPendingMessages() {
-        DeviceProtocolMessageList messageList = new DeviceProtocolMessageList(this.pendingInvalidMessages);
+        DeviceProtocolMessageList messageList = new DeviceProtocolMessageList(this.pendingInvalidMessages, getGroupedDeviceCommand().getCommandRoot().getServiceProvider().deviceMessageService());
         this.pendingInvalidMessages
                 .stream()
                 .map(this::toCollectedMessage)
-                .forEach(messageList::addCollectedMessages);
+                .forEach(messageList::addCollectedMessage);
         return messageList;
     }
 
@@ -243,7 +243,8 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
         DeviceProtocolMessage message = new DeviceProtocolMessage(offlineMessage.getIdentifier());
         message.setFailureInformation(
                 ResultType.ConfigurationMisMatch,
-                getCommandRoot().getServiceProvider().issueService().newProblem(
+                getIssueService()
+                    .newProblem(
                         this.getGroupedDeviceCommand().getOfflineDevice(),
                         MESSAGE_NO_LONGER_VALID));
         message.setDeviceProtocolInformation(offlineMessage.getProtocolInfo());

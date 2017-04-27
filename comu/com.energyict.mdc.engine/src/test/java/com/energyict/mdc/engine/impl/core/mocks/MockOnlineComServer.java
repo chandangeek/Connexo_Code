@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl.core.mocks;
 
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
@@ -14,8 +15,7 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
-import com.energyict.mdc.io.SerialPortConfiguration;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -461,11 +461,8 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
 
         MockOnlineComServer that = (MockOnlineComServer) o;
 
-        if (id != that.id) {
-            return false;
-        }
+        return id == that.id;
 
-        return true;
     }
 
     @Override

@@ -9,10 +9,10 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link Request} interface
@@ -39,10 +39,7 @@ class ComPortPoolRequest extends IdBusinessObjectRequest {
     }
 
     private void validateComPortPoolIds () {
-        this.comPortPools = new ArrayList<>(this.getBusinessObjectIds().size());
-        for (Long comPortPoolId : this.getBusinessObjectIds()) {
-            this.comPortPools.add(this.findComPortPool(comPortPoolId));
-        }
+        this.comPortPools = this.getBusinessObjectIds().stream().map(this::findComPortPool).collect(Collectors.toList());
     }
 
     private ComPortPool findComPortPool (long comPortPoolId) {

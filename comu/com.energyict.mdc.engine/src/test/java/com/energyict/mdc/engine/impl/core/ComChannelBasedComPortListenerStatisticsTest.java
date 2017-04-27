@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -22,9 +23,15 @@ import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.protocol.exceptions.ConnectionException;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,13 +40,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -70,7 +70,6 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     private static final int SECOND_SERIES_OF_BYTES_OFFSET = 3;
     private static final int SECOND_SERIES_OF_BYTES_LENGTH = SECOND_SERIES_OF_BYTES.length - SECOND_SERIES_OF_BYTES_OFFSET;
     private static final long COMPORT_POOL_ID = 1;
-
     @Mock
     private EventPublisherImpl eventPublisher;
     @Mock
@@ -85,6 +84,8 @@ public class ComChannelBasedComPortListenerStatisticsTest {
     private ComSessionBuilder comSessionBuilder;
     @Mock
     private JobExecution.ServiceProvider serviceProvider;
+    @Mock
+    private DeviceMessageService deviceMessageService;
 
     private Clock clock = Clock.fixed(Instant.ofEpochMilli(514851820000L), ZoneId.systemDefault()); // what happened in GMT+3 ?
     private HexService hexService;
@@ -389,7 +390,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         comChannel.whenRead(singleByte);
         comChannel.whenReadFromBuffer(FIRST_SERIES_OF_BYTES);
         comChannel.whenReadFromBufferWithOffset(SECOND_SERIES_OF_BYTES, SECOND_SERIES_OF_BYTES_OFFSET, SECOND_SERIES_OF_BYTES_LENGTH);
-        ComPortRelatedComChannel comPortRelatedComChannel = new ComPortRelatedComChannelImpl(comChannel, comPort, clock, this.hexService, eventPublisher);
+        ComPortRelatedComChannel comPortRelatedComChannel = new ComPortRelatedComChannelImpl(comChannel, comPort, clock, deviceMessageService, this.hexService, eventPublisher);
         this.jobExecution = new MockJobExecution(comPort, comPortRelatedComChannel, serviceProvider);
         this.jobExecution.getExecutionContext().connect();   // Should initialize the communication statistics
         return comPortRelatedComChannel;
@@ -421,7 +422,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         when(comServer.getCommunicationLogLevel()).thenReturn(comServerLogLevel);
         ComPort comPort = mock(ComPort.class);
         when(comPort.getComServer()).thenReturn(comServer);
-        ComPortRelatedComChannel comChannel = new ComPortRelatedComChannelImpl(new SystemOutComChannel(), comPort, this.clock, this.hexService, this.eventPublisher);
+        ComPortRelatedComChannel comChannel = new ComPortRelatedComChannelImpl(new SystemOutComChannel(), comPort, this.clock, deviceMessageService, this.hexService, this.eventPublisher);
         this.jobExecution = new MockJobExecution(comPort, comChannel, this.serviceProvider);
         this.jobExecution.getExecutionContext().connect();
         comChannel.setComPort(this.comPort);
@@ -481,6 +482,11 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         @Override
         public EngineService engineService() {
             return serviceProvider.engineService();
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return serviceProvider.deviceMessageService();
         }
     }
 

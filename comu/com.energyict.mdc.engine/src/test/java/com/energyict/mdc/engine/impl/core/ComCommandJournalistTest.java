@@ -7,9 +7,15 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.issues.Problem;
-import com.energyict.mdc.issues.Warning;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.Problem;
+import com.energyict.mdc.upl.issue.Warning;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -17,13 +23,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;

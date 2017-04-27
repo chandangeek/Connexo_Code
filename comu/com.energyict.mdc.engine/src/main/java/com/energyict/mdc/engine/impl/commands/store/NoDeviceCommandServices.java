@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.issues.IssueService;
@@ -14,12 +15,12 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import java.time.Clock;
 
 /**
-* Provides an implementation for the {@link DeviceCommand.ServiceProvider} interface
-* for classes that actually do not need any services.
-*
-* @author Rudi Vankeirsbilck (rudi)
-* @since 2015-01-13 (16:23)
-*/
+ * Provides an implementation for the {@link DeviceCommand.ServiceProvider} interface
+ * for classes that actually do not need any services.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2015-01-13 (16:23)
+ */
 public class NoDeviceCommandServices implements DeviceCommand.ServiceProvider {
     @Override
     public IssueService issueService() {
@@ -53,6 +54,11 @@ public class NoDeviceCommandServices implements DeviceCommand.ServiceProvider {
 
     @Override
     public EventPublisher eventPublisher() {
+        return null;
+    }
+
+    @Override
+    public DeviceMessageService deviceMessageService() {
         return null;
     }
 }

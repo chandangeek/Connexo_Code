@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
+import com.energyict.protocol.ProtocolReadingQualities;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
@@ -21,8 +21,8 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.engine.impl.tools.TimeDurations;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.protocol.IntervalData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +64,7 @@ public class MarkIntervalsAsBadTimeCommandImpl extends SimpleComCommand implemen
                 if (collectedData instanceof DeviceLoadProfile) {
                     DeviceLoadProfile deviceLoadProfile = (DeviceLoadProfile) collectedData;
                     for (IntervalData intervalData : deviceLoadProfile.getCollectedIntervalData()) {
-                        intervalData.addReadingQualityType(ProtocolReadingQualities.BADTIME.getReadingQualityType());
+                        intervalData.addReadingQualityType(ProtocolReadingQualities.BADTIME.getCimCode());
                     }
                     this.badTimeLoadProfiles.add(deviceLoadProfile);
                 }

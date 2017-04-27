@@ -66,11 +66,8 @@ import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifySerialNu
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.VerifyTimeDifferenceCommandImpl;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.FirmwareManagementTask;
@@ -79,6 +76,9 @@ import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.upl.issue.Problem;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -151,7 +151,7 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
                 if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.NotExecuted)) {
                     comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.NOT_EXECUTED);
                     successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;
-                } else if (comTaskExecutionComCommand.getProblems().size() > 0) {
+                } else if (!comTaskExecutionComCommand.getProblems().isEmpty()) {
                     comTaskExecutionComCommand.setExecutionState(BasicComCommandBehavior.ExecutionState.FAILED);
                     executionContext.comTaskExecutionFailed(comTaskExecutionComCommand.getComTaskExecution());
                     successIndicator = ComTaskExecutionSession.SuccessIndicator.Failure;
@@ -531,6 +531,7 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
 
     public MessagesCommand createMessagesCommand(MessagesTask messagesTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
         MessagesCommand messagesCommand = new MessagesCommandImpl(this, messagesTask, comTaskExecution);
+
         groupedDeviceCommand.addCommand(messagesCommand, comTaskExecution);
         return messagesCommand;
     }

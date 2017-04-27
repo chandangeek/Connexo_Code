@@ -29,31 +29,33 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
+import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
 import com.energyict.mdc.engine.impl.core.ServerProcess;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
-import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
-import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
+import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.OfflineDeviceContext;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLogBook;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.security.CertificateAlias;
 import com.google.common.collect.Range;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
@@ -233,12 +235,47 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
+    public DeviceIdentifier getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
         return null;
     }
 
     @Override
-    public DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
+    public DeviceIdentifier getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
+        return null;
+    }
+
+    @Override
+    public PropertyValueType getDeviceProtocolPropertyValueType(DeviceIdentifier deviceIdentifier, String propertyName) {
+        return null;
+    }
+
+    @Override
+    public void updateDeviceDialectProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+
+    }
+
+    @Override
+    public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+
+    }
+
+    @Override
+    public void addCACertificate(CertificateAlias certificateAlias) {
+
+    }
+
+    @Override
+    public long addEndDeviceCertificate(CollectedCertificateWrapper collectedCertificateWrapper) {
+        return 0;
+    }
+
+    @Override
+    public Optional<Device> getDeviceFor(DeviceIdentifier deviceIdentifier) {
+        return null;
+    }
+
+    @Override
+    public List<Device> getAllDevicesFor(DeviceIdentifier deviceIdentifier) {
         return null;
     }
 
@@ -285,6 +322,11 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     @Override
     public void updateCalendars(CollectedCalendar collectedCalendar) {
 
+    }
+
+    @Override
+    public Boolean getInboundComTaskOnHold(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
+        return null;
     }
 
     @Override
@@ -374,7 +416,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier, OfflineDeviceContext offlineDeviceContext) {
         return Optional.empty();
     }
 
@@ -436,6 +478,11 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceDialectProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        return null;
+    }
+
+    @Override
     public TypedProperties getDeviceConnectionTypeProperties (DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
         /* Todo: do not forget to take into account that DeviceIdentifier implementation classes
          * throw a NotFoundException when the device does not exist. */
@@ -451,6 +498,21 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     public TypedProperties getDeviceProtocolProperties (DeviceIdentifier deviceIdentifier) {
         /* Todo: do not forget to take into account that DeviceIdentifier implementation classes
          * throw a NotFoundException when the device does not exist. */
+        return null;
+    }
+
+    @Override
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceLocalProtocolProperties(DeviceIdentifier deviceIdentifier) {
+        return null;
+    }
+
+    @Override
+    public com.energyict.mdc.upl.offline.OfflineDevice getOfflineDevice(DeviceIdentifier deviceIdentifier, OfflineDeviceContext context) {
+        return null;
+    }
+
+    @Override
+    public String getDeviceProtocolClassName(DeviceIdentifier identifier) {
         return null;
     }
 

@@ -9,10 +9,10 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.singleton;
 
@@ -40,10 +40,7 @@ class ConnectionTaskRequest extends IdBusinessObjectRequest {
     }
 
     private void validateConnectionTaskIds() {
-        this.connectionTasks = new ArrayList<>(this.getBusinessObjectIds().size());
-        for (Long connectionTaskId : this.getBusinessObjectIds()) {
-            this.connectionTasks.add(this.findConnectionTask(connectionTaskId));
-        }
+        this.connectionTasks = this.getBusinessObjectIds().stream().map(this::findConnectionTask).collect(Collectors.toList());
     }
 
     private ConnectionTask findConnectionTask(long connectionTaskId) {

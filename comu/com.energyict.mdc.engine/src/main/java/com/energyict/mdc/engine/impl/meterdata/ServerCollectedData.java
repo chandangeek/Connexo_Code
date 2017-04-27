@@ -8,8 +8,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-
+import com.energyict.mdc.upl.meterdata.CollectedData;
 import org.json.JSONException;
 import org.json.JSONWriter;
 

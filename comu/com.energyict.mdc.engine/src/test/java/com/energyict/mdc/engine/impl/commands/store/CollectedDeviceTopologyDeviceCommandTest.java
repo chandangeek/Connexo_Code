@@ -13,23 +13,21 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
 import com.energyict.mdc.engine.impl.events.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceTopology;
-import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.LastSeenDateInfo;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
-import com.energyict.mdc.protocol.api.tasks.TopologyAction;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.OfflineDeviceContext;
+import com.energyict.mdc.upl.tasks.TopologyAction;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +41,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -66,7 +65,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
     @Mock
     public IssueService issueService;
     @Mock
-    private BaseDevice device;
+    private Device device;
     @Mock
     private DeviceIdentifier deviceIdentifier;
     @Mock
@@ -84,14 +83,11 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
     @Before
     public void setUp() {
-        when(slave1Identifier.getIdentifier()).thenReturn(SLAVE_1_SERIAL_NUMBER);
-        when(slave2Identifier.getIdentifier()).thenReturn(SLAVE_2_SERIAL_NUMBER);
         when(serviceProvider.issueService()).thenReturn(issueService);
         when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.empty());
         when(comServerDAO.findOfflineDevice(eq(deviceIdentifier), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
         when(comServerDAO.findOfflineDevice(deviceIdentifier)).thenReturn(Optional.of(offlineDevice));
-        when(deviceIdentifier.findDevice()).thenReturn(device);
         when(comServerDAO.findOfflineDevice(eq(slave1Identifier), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineSlave_1));
         when(comServerDAO.findOfflineDevice(eq(slave2Identifier), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineSlave_2));
 
@@ -123,7 +119,9 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         when(offlineDevice.getAllSlaveDevices()).thenReturn(new ArrayList<>());
 
-        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = createSlaveIdentifiers(slave1Identifier, slave2Identifier);
+        Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
+        slaveDeviceIdentifiers.put(slave1Identifier, mock(CollectedTopology.ObservationTimestampProperty.class));
+        slaveDeviceIdentifiers.put(slave2Identifier, mock(CollectedTopology.ObservationTimestampProperty.class));
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.UPDATE);
@@ -138,13 +136,6 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         verify(comServerDAO, times(1)).updateGateway(slave1Identifier, deviceIdentifier);
         verify(comServerDAO, times(1)).signalEvent(eq(EventType.UNKNOWN_SLAVE_DEVICE.topic()), any());
         verify(mockedExecutionLogger).addIssue(eq(CompletionCode.ConfigurationWarning), any(Issue.class), eq(comTaskExecution));
-    }
-
-    private Map<DeviceIdentifier, LastSeenDateInfo> createSlaveIdentifiers(DeviceIdentifier... identifier) {
-        LastSeenDateInfo lastSeenDateInfo = new LastSeenDateInfo("LastSeenDate", Instant.now());
-        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = new HashMap<>();
-        Stream.of(identifier).forEach(deviceIdentifier1 -> slaveDeviceIdentifiers.put(deviceIdentifier1, lastSeenDateInfo));
-        return slaveDeviceIdentifiers;
     }
 
     /**
@@ -171,7 +162,9 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         when(offlineDevice.getAllSlaveDevices()).thenReturn(new ArrayList<>());
 
-        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = createSlaveIdentifiers(slave1Identifier, slave2Identifier);
+        Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
+        slaveDeviceIdentifiers.put(slave1Identifier, mock(CollectedTopology.ObservationTimestampProperty.class));
+        slaveDeviceIdentifiers.put(slave2Identifier, mock(CollectedTopology.ObservationTimestampProperty.class));
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
@@ -214,7 +207,9 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         when(offlineDevice.getAllSlaveDevices()).thenReturn(new ArrayList<>());
 
-        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = createSlaveIdentifiers(slave1Identifier, slave2Identifier);
+        Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
+        slaveDeviceIdentifiers.put(slave1Identifier, mock(CollectedTopology.ObservationTimestampProperty.class));
+        slaveDeviceIdentifiers.put(slave2Identifier, mock(CollectedTopology.ObservationTimestampProperty.class));
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
@@ -250,9 +245,10 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         List<OfflineDevice> slaveDevices = new ArrayList<>();
         slaveDevices.add(offlineSlave_1);
         slaveDevices.add(offlineSlave_2);
-        when(offlineDevice.getAllSlaveDevices()).thenReturn(slaveDevices);
+        doReturn(slaveDevices).when(offlineDevice).getAllSlaveDevices();
 
-        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = createSlaveIdentifiers(slave2Identifier);
+        Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
+        slaveDeviceIdentifiers.put(slave2Identifier, mock(CollectedTopology.ObservationTimestampProperty.class));
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.UPDATE);
@@ -287,9 +283,10 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         List<OfflineDevice> slaveDevices = new ArrayList<>();
         slaveDevices.add(offlineSlave_1);
         slaveDevices.add(offlineSlave_2);
-        when(offlineDevice.getAllSlaveDevices()).thenReturn(slaveDevices);
+        doReturn(slaveDevices).when(offlineDevice).getAllSlaveDevices();
 
-        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = createSlaveIdentifiers(slave2Identifier);
+        Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
+        slaveDeviceIdentifiers.put(slave2Identifier, mock(CollectedTopology.ObservationTimestampProperty.class));
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
@@ -309,9 +306,10 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         List<OfflineDevice> slaveDevices = new ArrayList<>();
         slaveDevices.add(this.offlineSlave_1);
         slaveDevices.add(this.offlineSlave_2);
-        when(this.offlineDevice.getAllSlaveDevices()).thenReturn(slaveDevices);
+        doReturn(slaveDevices).when(this.offlineDevice).getAllSlaveDevices();
 
-        Map<DeviceIdentifier, LastSeenDateInfo> slaveDeviceIdentifiers = createSlaveIdentifiers(slave2Identifier);
+        Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
+        slaveDeviceIdentifiers.put(slave2Identifier, mock(CollectedTopology.ObservationTimestampProperty.class));
 
         DeviceTopology deviceTopology = new DeviceTopology(this.deviceIdentifier, slaveDeviceIdentifiers);
         TopologyAction topologyAction = TopologyAction.VERIFY;

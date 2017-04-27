@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
@@ -18,14 +17,17 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.exceptions.ObisCodeParseException;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.Problem;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.LoadProfileReader;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -165,7 +167,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
         LoadProfileIdentifier loadProfileIdentifier = this.getCommandRoot()
                 .getServiceProvider()
                 .identificationService()
-                .createLoadProfileIdentifierByDatabaseId(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode());
+                .createLoadProfileIdentifierByDatabaseId(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode(), getOfflineDevice().getDeviceIdentifier());
         DeviceLoadProfile collectedLoadProfile = new DeviceLoadProfile(loadProfileIdentifier);
         collectedLoadProfile.setFailureInformation(resultType, issues);
         return collectedLoadProfile;
@@ -221,8 +223,12 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
     }
 
     private boolean match(ChannelInfo localChannelInfo, ChannelInfo meterChannelInfo) {
-        return meterChannelInfo.getChannelObisCode().equalsIgnoreBChannel(localChannelInfo.getChannelObisCode())
-                && meterChannelInfo.getMeterIdentifier().equalsIgnoreCase(localChannelInfo.getMeterIdentifier());
+        try {
+            return meterChannelInfo.getChannelObisCode().equalsIgnoreBChannel(localChannelInfo.getChannelObisCode())
+                    && meterChannelInfo.getMeterIdentifier().equalsIgnoreCase(localChannelInfo.getMeterIdentifier());
+        } catch (IllegalArgumentException e) {
+            throw new ObisCodeParseException(e);
+        }
     }
 
     private boolean unitMismatch(ChannelInfo localChannelInfo, ChannelInfo meterChannelInfo) {
@@ -330,7 +336,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
     protected LoadProfileReader getLoadProfileReaderForGivenLoadProfileConfiguration(final CollectedLoadProfileConfiguration loadProfileConfiguration) {
         for (LoadProfileReader loadProfileReader : loadProfileCommand.getLoadProfileReaders()) {
             if (loadProfileReader.getProfileObisCode().equalsIgnoreBChannel(loadProfileConfiguration.getObisCode()) &&
-                    loadProfileReader.getDeviceIdentifier().getIdentifier().equals(loadProfileConfiguration.getDeviceIdentifier().getIdentifier())) {
+                    loadProfileReader.getMeterSerialNumber().equals(loadProfileConfiguration.getMeterSerialNumber())) {
                 return loadProfileReader;
             }
         }

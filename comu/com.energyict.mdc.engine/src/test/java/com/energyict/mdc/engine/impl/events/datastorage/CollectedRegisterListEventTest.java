@@ -4,17 +4,21 @@
 
 package com.energyict.mdc.engine.impl.events.datastorage;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.obis.ObisCode;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -65,17 +69,17 @@ public class CollectedRegisterListEventTest {
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
 
         RegisterIdentifier firstIdentifier = mock(RegisterIdentifier.class);
-        when(firstIdentifier.getDeviceRegisterObisCode()).thenReturn(new ObisCode(1,2,3,4,5,6));
+        when(firstIdentifier.getRegisterObisCode()).thenReturn(new ObisCode(1,2,3,4,5,6));
         when(firstIdentifier.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         RegisterIdentifier secondIdentifier = mock(RegisterIdentifier.class);
-        when(secondIdentifier.getDeviceRegisterObisCode()).thenReturn(new ObisCode(9,8,7,6,5,4));
+        when(secondIdentifier.getRegisterObisCode()).thenReturn(new ObisCode(9,8,7,6,5,4));
         when(secondIdentifier.getDeviceIdentifier()).thenReturn(deviceIdentifier);
 
         CollectedRegister firstRegister = mock(CollectedRegister.class);
         when(firstRegister.getRegisterIdentifier()).thenReturn(firstIdentifier);
-        when(firstRegister.getCollectedQuantity()).thenReturn(new Quantity(new BigDecimal(265), Unit.get("kWh")));
-        when(firstRegister.getReadTime()).thenReturn(readTime);
-        when(firstRegister.getToTime()).thenReturn(toTime);
+        when(firstRegister.getCollectedQuantity()).thenReturn(new com.energyict.cbo.Quantity(new BigDecimal(265), com.energyict.cbo.Unit.get("kWh")));
+        when(firstRegister.getReadTime()).thenReturn(Date.from(readTime));
+        when(firstRegister.getToTime()).thenReturn(Date.from(toTime));
 
         CollectedRegisterList registerList = mock(CollectedRegisterList.class);
         when(registerList.getDeviceIdentifier()).thenReturn(deviceIdentifier);

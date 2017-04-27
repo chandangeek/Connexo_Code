@@ -7,12 +7,13 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.engine.impl.commands.store.CreateNoLogBooksForDeviceEvent;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.NoLogBooksCollectedData;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+import com.energyict.protocol.MeterProtocolEvent;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,7 +56,21 @@ public class NoLogBooksForDevice extends CollectedDeviceData implements NoLogBoo
     }
 
     @Override
-    public void setMeterEvents(List<MeterProtocolEvent> meterEvents) {
+    public void setCollectedMeterEvents(List<MeterProtocolEvent> meterEvents) {
         // nothing to do
+    }
+
+    @Override
+    public void addCollectedMeterEvents(List<MeterProtocolEvent> meterEvents) {
+        // nothing to do
+    }
+
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return this.getClass().getSimpleName();
+    }
+
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
     }
 }

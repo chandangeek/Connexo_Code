@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
@@ -17,11 +16,12 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.engine.impl.meterdata.DeviceTextRegister;
-import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.obis.ObisCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,22 +102,22 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
     private Function<CollectedRegister, Stream<CollectedRegister>> toCollectedRegister(List<OfflineRegister> offlineRegisters) {
         return collectedRegister ->
                 offlineRegisters.stream().
-                        filter(offlineRegister -> offlineRegister.getReadingType().equals(collectedRegister.getReadingType())).
+                        filter(offlineRegister -> offlineRegister.getObisCode().equals(collectedRegister.getRegisterIdentifier().getRegisterObisCode())).
                         map(offlineRegister -> this.toCollectedRegister(offlineRegister, collectedRegister));
     }
 
     private CollectedRegister toCollectedRegister(OfflineRegister offlineRegister, CollectedRegister collectedRegister) {
         CollectedRegister register;
         if (!offlineRegister.isText()) {
-            register = new DefaultDeviceRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadingType());
+            register = new DefaultDeviceRegister(collectedRegister.getRegisterIdentifier());
             register.setCollectedTimeStamps(collectedRegister.getReadTime(), collectedRegister.getFromTime(), collectedRegister.getToTime(), collectedRegister.getEventTime());
             register.setCollectedData(collectedRegister.getCollectedQuantity());
         } else if (collectedRegister.getCollectedQuantity() != null) {
-            register = new DeviceTextRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadingType());
+            register = new DeviceTextRegister(collectedRegister.getRegisterIdentifier());
             register.setCollectedTimeStamps(collectedRegister.getReadTime(), collectedRegister.getFromTime(), collectedRegister.getToTime());
             register.setCollectedData(collectedRegister.getCollectedQuantity().toString());
         } else {
-            register = new DeviceTextRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadingType());
+            register = new DeviceTextRegister(collectedRegister.getRegisterIdentifier());
             register.setCollectedTimeStamps(collectedRegister.getReadTime(), collectedRegister.getFromTime(), collectedRegister.getToTime());
             register.setCollectedData(collectedRegister.getText());
         }
@@ -171,7 +171,7 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
 
     private CollectedRegister getCollectedRegisterForRegister(OfflineRegister register) {
         for (CollectedRegister collectedRegister : collectedRegisters) {
-            ObisCode registerObisCode = collectedRegister.getRegisterIdentifier().getDeviceRegisterObisCode();
+            ObisCode registerObisCode = collectedRegister.getRegisterIdentifier().getRegisterObisCode();
             if (registerObisCode != null && registerObisCode.equals(register.getObisCode())) {
                 return collectedRegister;
             }

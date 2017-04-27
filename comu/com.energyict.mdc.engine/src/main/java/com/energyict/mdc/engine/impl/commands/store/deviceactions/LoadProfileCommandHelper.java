@@ -8,12 +8,13 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
+
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.LoadProfileReader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,15 +60,12 @@ public class LoadProfileCommandHelper {
         List<ChannelInfo> channelInfos = createChannelInfos(loadProfile, comTaskExecution);
         if (!channelInfos.isEmpty()) {
             LoadProfileReader loadProfileReader = new LoadProfileReader(
-                    serviceProvider.clock(),
                     loadProfile.getObisCode(),
-                    loadProfile.getLastReading().orElse(null),
+                    loadProfile.getLastReading(),
                     null,
-                    loadProfile.getLoadProfileId(),
-                    loadProfile.getDeviceIdentifier(),
-                    channelInfos,
+                    (int) loadProfile.getLoadProfileId(),
                     loadProfile.getMasterSerialNumber(),
-                    loadProfile.getLoadProfileIdentifier());
+                    channelInfos);
             if (!loadProfileReaderMap.containsValue(loadProfile)) {
                 loadProfileReaderMap.put(loadProfileReader, loadProfile);
             }
@@ -83,14 +81,14 @@ public class LoadProfileCommandHelper {
     protected static List<ChannelInfo> createChannelInfos(final OfflineLoadProfile offlineLoadProfile, ComTaskExecution comTaskExecution) {
         List<ChannelInfo> channelInfos = new ArrayList<>();
         //Only the channels of the actual device. This is relevant for master/slave setup with 'combined' load profiles
-        offlineLoadProfile.getChannels().stream().filter(lpChannel -> lpChannel.isStoreData() && comTaskExecution.getDevice().getId() == lpChannel.getRtuId()).forEach(lpChannel -> {
+        offlineLoadProfile.getOfflineChannels().stream().filter(lpChannel -> lpChannel.isStoreData() && comTaskExecution.getDevice().getId() == lpChannel.getDeviceId()).forEach(lpChannel -> {
             //Only the channels of the actual device. This is relevant for master/slave setup with 'combined' load profiles
             channelInfos.add(new ChannelInfo(
                     channelInfos.size(),
                     lpChannel.getObisCode().toString(),
                     lpChannel.getUnit(),
                     getMasterDeviceIdentifier(lpChannel, offlineLoadProfile),
-                    lpChannel.getReadingType()
+                    lpChannel.getReadingTypeMRID()
             ));
         });
         return channelInfos;
@@ -104,6 +102,10 @@ public class LoadProfileCommandHelper {
      * @return the masterIdentifier
      */
     private static String getMasterDeviceIdentifier(OfflineLoadProfileChannel lpChannel, OfflineLoadProfile offlineLoadProfile) {
-        return lpChannel.getMasterSerialNumber() == null || lpChannel.getMasterSerialNumber().isEmpty() ? offlineLoadProfile.getDeviceIdentifier().getIdentifier() : lpChannel.getMasterSerialNumber();
+        if (lpChannel.getMasterSerialNumber() == null || lpChannel.getMasterSerialNumber().isEmpty()) {
+            return offlineLoadProfile.getDeviceIdentifier().toString();
+        } else {
+            return lpChannel.getMasterSerialNumber();
+        }
     }
 }
