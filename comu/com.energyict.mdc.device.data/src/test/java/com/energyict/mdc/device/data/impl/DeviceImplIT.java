@@ -85,18 +85,10 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.tasks.TopologyAction;
+
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
-import org.assertj.core.api.Condition;
 import org.joda.time.DateTimeConstants;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TestRule;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -111,10 +103,21 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.assertj.core.api.Condition;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
@@ -305,12 +308,13 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.setManufacturer(manufacturer+"2");
+        reloadedDevice.setManufacturer(manufacturer + "2");
         reloadedDevice.save();
 
         Device reloadedDevice2 = getReloadedDevice(device);
-        assertThat(reloadedDevice2.getManufacturer()).isEqualTo(manufacturer+"2");
+        assertThat(reloadedDevice2.getManufacturer()).isEqualTo(manufacturer + "2");
     }
+
     @Test
     @Transactional
     public void createWithModelNumberTest() {
@@ -335,11 +339,11 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.setModelNumber(modelNbr+"2");
+        reloadedDevice.setModelNumber(modelNbr + "2");
         reloadedDevice.save();
 
         Device reloadedDevice2 = getReloadedDevice(device);
-        assertThat(reloadedDevice2.getModelNumber()).isEqualTo(modelNbr+"2");
+        assertThat(reloadedDevice2.getModelNumber()).isEqualTo(modelNbr + "2");
     }
 
     @Test
@@ -366,11 +370,11 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.setModelVersion(modelVersion+"2");
+        reloadedDevice.setModelVersion(modelVersion + "2");
         reloadedDevice.save();
 
         Device reloadedDevice2 = getReloadedDevice(device);
-        assertThat(reloadedDevice2.getModelVersion()).isEqualTo(modelVersion+"2");
+        assertThat(reloadedDevice2.getModelVersion()).isEqualTo(modelVersion + "2");
     }
 
     @Test
@@ -776,15 +780,20 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(code);
-        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 15, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 15, 0)
+                .toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
-        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 30, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 30, 0)
+                .toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock3 = IntervalBlockImpl.of(code);
-        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 45, 0)
+                .toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock4 = IntervalBlockImpl.of(code);
-        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 1, 0, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 1, 0, 0)
+                .toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlockX = IntervalBlockImpl.of(code);
-        intervalBlockX.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 23, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlockX.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 23, 45, 0)
+                .toInstant(ZoneOffset.UTC), readingValue));
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addIntervalBlock(intervalBlock1);
         meterReading.addIntervalBlock(intervalBlock2);
@@ -813,15 +822,20 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(code);
-        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 15, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 15, 0)
+                .toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
-        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 30, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 30, 0)
+                .toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock3 = IntervalBlockImpl.of(code);
-        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 45, 0)
+                .toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock4 = IntervalBlockImpl.of(code);
-        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 1, 0, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 1, 0, 0)
+                .toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlockX = IntervalBlockImpl.of(code);
-        intervalBlockX.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 23, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlockX.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 23, 45, 0)
+                .toInstant(ZoneOffset.UTC), readingValue));
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addIntervalBlock(intervalBlock1);
         meterReading.addIntervalBlock(intervalBlock2);
@@ -850,15 +864,20 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .period(TimeAttribute.MINUTE15)
                 .code();
         IntervalBlockImpl intervalBlock1 = IntervalBlockImpl.of(code);
-        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 15, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock1.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 15, 0)
+                .toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock2 = IntervalBlockImpl.of(code);
-        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 30, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock2.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 30, 0)
+                .toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock3 = IntervalBlockImpl.of(code);
-        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock3.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 0, 45, 0)
+                .toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlock4 = IntervalBlockImpl.of(code);
-        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 1, 0, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlock4.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 1, 0, 0)
+                .toInstant(ZoneOffset.UTC), readingValue));
         IntervalBlockImpl intervalBlockX = IntervalBlockImpl.of(code);
-        intervalBlockX.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 23, 45, 0).toInstant(ZoneOffset.UTC), readingValue));
+        intervalBlockX.addIntervalReading(IntervalReadingImpl.of(LocalDateTime.of(localDateTime.getYear(), localDateTime.getMonth().getValue(), localDateTime.getDayOfMonth(), 23, 45, 0)
+                .toInstant(ZoneOffset.UTC), readingValue));
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addIntervalBlock(intervalBlock1);
         meterReading.addIntervalBlock(intervalBlock2);
@@ -931,12 +950,14 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         meterReading.addIntervalBlock(intervalBlock);
         meterReading.addIntervalBlock(intervalBlock2);
         device.store(meterReading);
+        Instant lastNonNullReading = localDateTime.withHour(21).withMinute(0).withSecond(0).toInstant(ZoneOffset.UTC);
         Instant lastReading = localDateTime.plusDays(1).withHour(0).withMinute(0).withSecond(0).toInstant(ZoneOffset.UTC);
-        device.getLoadProfileUpdaterFor(device.getLoadProfiles().get(0)).setLastReading(lastReading).update();
+        device.getLoadProfileUpdaterFor(device.getLoadProfiles().get(0)).setLastReading(lastNonNullReading).update();
 
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(requestIntervalStart, requestIntervalEnd));
-        assertThat(readings).describedAs("There should be no data(holders) for the interval 21:00->00:00").hasSize(96); // 3 times 4 intervals/hour missing
+        assertThat(readings).describedAs("all of them includding the padding").hasSize(96);
+        assertThat(readings.stream().filter(r -> r.getReadingTime() != null).findFirst().get().getRange().upperEndpoint()).isEqualTo(lastNonNullReading);
         assertThat(readings.get(0).getRange().upperEndpoint()).isEqualTo(lastReading);
         assertThat(readings.get(readings.size() - 1).getRange().lowerEndpoint()).isEqualTo(requestIntervalStart);
         for (LoadProfileReading reading : readings) { // Only 1 channel will contain a value for a single interval
@@ -1020,8 +1041,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         Device reloadedDevice = getReloadedDevice(device);
         assertThat(device.getLoadProfiles().get(0).getLastReading().toString()).isEqualTo(Date.from(lastReading).toString());
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(requestIntervalStart, requestIntervalEnd));
-        assertThat(readings.size()).isEqualTo(14);
-        assertThat(readings.get(12).getRange().upperEndpoint()).isEqualTo(Instant.ofEpochMilli(1385852400000L)); // Sat, 31 Dec 2014 23:00:00 GMT
+        assertThat(readings.size()).describedAs("all including the padding").isEqualTo(14);
+        assertThat(readings.stream().map(r -> r.getReadingTime()).filter(Objects::nonNull).count()).isEqualTo(13);
+        assertThat(readings.get(13).getRange().upperEndpoint()).isEqualTo(Instant.ofEpochMilli(1385852400000L)); // Sat, 31 Dec 2014 23:00:00 GMT
     }
 
     @Test
@@ -1052,8 +1074,10 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(requestIntervalStart, requestIntervalEnd));
-        assertThat(readings).describedAs("There should be only 2 intervals between activation and last reading").hasSize(53);
-        assertThat(readings.get(0).getRange().upperEndpoint()).isEqualTo(lastReading);
+        assertThat(readings).describedAs("all including the padding").hasSize(53);
+        assertThat(readings.stream().map(r -> r.getReadingTime()).filter(Objects::nonNull).count()).describedAs("There should be only 2 intervals between activation and last reading")
+                .isEqualTo(2);
+        assertThat(readings.stream().filter(r -> r.getReadingTime() != null).findFirst().get().getRange().upperEndpoint()).isEqualTo(lastReading);
         assertThat(readings.get(readings.size() - 1).getRange().lowerEndpoint()).isEqualTo(Instant.ofEpochMilli(1420800300000L));// 9/1/2015 10:45
     }
 
@@ -1083,9 +1107,10 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(dayStart, dayEnd));
+        assertThat(readings.stream().map(LoadProfileReading::getReadingTime).filter(Objects::nonNull).count()).isEqualTo(1);
         assertThat(readings).hasSize(96);
 
-        LoadProfileReading reading = readings.get(0);
+        LoadProfileReading reading = readings.stream().filter(r -> r.getReadingTime() != null).findFirst().get();
         assertThat(reading.getRange().upperEndpoint()).isEqualTo(readingTimeStamp);
         assertThat(reading.getRange().lowerEndpoint()).isEqualTo(dayStart);
         if (reading.getRange().upperEndpoint().equals(readingTimeStamp)) {
@@ -1122,8 +1147,12 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(dayStart, dayEnd));
-        assertThat(readings).hasSize(24);  // only readings from 01:15:00 to 05:00:00, shouldn't have readings for period 05:00:00 - 08:00:00
+        assertThat(readings.stream()
+                .map(r -> r.getReadingTime()).filter(Objects::nonNull).count())
+                .isEqualTo(2);  // only readings from 01:15:00 to 05:00:00, shouldn't have readings for period 05:00:00 - 08:00:00
+        assertThat(readings).describedAs("all including padding").hasSize(24);
     }
+
 
     @Test
     @Transactional
@@ -1151,9 +1180,10 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         Device reloadedDevice = getReloadedDevice(device);
         List<LoadProfileReading> readings = reloadedDevice.getLoadProfiles().get(0).getChannelData(Ranges.openClosed(dayStart, dayEnd));
-        assertThat(readings).hasSize(1);
+        assertThat(readings.stream().map(LoadProfileReading::getReadingTime).filter(Objects::nonNull).count()).isEqualTo(1);
+        assertThat(readings).hasSize(96);
 
-        LoadProfileReading reading = readings.get(0);
+        LoadProfileReading reading = readings.stream().filter(r -> r.getReadingTime() != null).findFirst().get();
         assertThat(reading.getRange().upperEndpoint()).isEqualTo(readingTimeStamp);
         assertThat(reading.getRange().lowerEndpoint()).isEqualTo(dayStart);
         assertThat(reading.getChannelValidationStates()).hasSize(1);
@@ -1561,7 +1591,10 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.setMultiplier(BigDecimal.TEN);
         device.save();
 
-        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeterById(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
+        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService()
+                .findMeterById(device.getId())
+                .get()
+                .getConfiguration(inMemoryPersistence.getClock().instant());
         assertThat(meterConfigurationOptional).isPresent();
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(2);
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
@@ -1633,7 +1666,10 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultiplierOnRegister2", Instant.now());
 
-        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeterById(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
+        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService()
+                .findMeterById(device.getId())
+                .get()
+                .getConfiguration(inMemoryPersistence.getClock().instant());
         assertThat(meterConfigurationOptional).isPresent();
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(2);
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
@@ -1669,7 +1705,10 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.setMultiplier(BigDecimal.TEN);
         device.save();
 
-        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeterById(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
+        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService()
+                .findMeterById(device.getId())
+                .get()
+                .getConfiguration(inMemoryPersistence.getClock().instant());
         assertThat(meterConfigurationOptional).isPresent();
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(2);
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
@@ -1710,14 +1749,20 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultiplierOnRegister", Instant.now());
 
-        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeterById(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
+        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService()
+                .findMeterById(device.getId())
+                .get()
+                .getConfiguration(inMemoryPersistence.getClock().instant());
         assertThat(meterConfigurationOptional).isPresent();
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(2);
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(forwardBulkSecondaryEnergyReadingType.getMRID()) &&
-                        value.getCalculated().isPresent() && value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getMRID()); // we always use the calculated readingtype when the user defined to use it on config level
+                        value.getCalculated().isPresent() && value.getCalculated()
+                        .get()
+                        .getMRID()
+                        .equals(forwardBulkPrimaryEnergyReadingType.getMRID()); // we always use the calculated readingtype when the user defined to use it on config level
             }
         });
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
@@ -1767,7 +1812,10 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.setMultiplier(BigDecimal.TEN);
         device.save();
 
-        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeterById(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
+        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService()
+                .findMeterById(device.getId())
+                .get()
+                .getConfiguration(inMemoryPersistence.getClock().instant());
         assertThat(meterConfigurationOptional).isPresent();
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(3);
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
@@ -1830,7 +1878,10 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", Instant.now());
 
-        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService().findMeterById(device.getId()).get().getConfiguration(inMemoryPersistence.getClock().instant());
+        Optional<MeterConfiguration> meterConfigurationOptional = inMemoryPersistence.getMeteringService()
+                .findMeterById(device.getId())
+                .get()
+                .getConfiguration(inMemoryPersistence.getClock().instant());
         assertThat(meterConfigurationOptional).isPresent();
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).hasSize(3);
         assertThat(meterConfigurationOptional.get().getReadingTypeConfigs()).haveExactly(1, new Condition<MeterReadingTypeConfiguration>() {
@@ -1847,7 +1898,11 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
             @Override
             public boolean matches(MeterReadingTypeConfiguration value) {
                 return value.getMeasured().getMRID().equals(getForwardBulkSecondaryEnergyReadingTypeCodeBuilder().period(MacroPeriod.MONTHLY).code()) &&
-                        value.getCalculated().isPresent() && value.getCalculated().get().getMRID().equals(getForwardBulkPrimaryEnergyReadingType().period(MacroPeriod.MONTHLY).code()) && // we always use the calculated readingtype when the user defined to use it on config level
+                        value.getCalculated().isPresent() && value.getCalculated()
+                        .get()
+                        .getMRID()
+                        .equals(getForwardBulkPrimaryEnergyReadingType().period(MacroPeriod.MONTHLY)
+                                .code()) && // we always use the calculated readingtype when the user defined to use it on config level
                         (value.getOverflowValue().isPresent() && value.getOverflowValue().get().compareTo(overflow) == 0) &&
                         value.getNumberOfFractionDigits().getAsInt() == nbrOfFractionDigits;
             }
