@@ -1035,7 +1035,7 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-//    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.INVALID_VALUE+"}", property="key")
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.INVALID_KEY_SIZE+"}", property="key")
     public void testUpdatePropertiesSymmetricKeyWithImproperSecretKey() throws Exception {
         KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128-props-sk", "AES", 128).add();
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);

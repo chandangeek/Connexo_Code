@@ -206,7 +206,8 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     /**
      * Intermediate class: properties are gotten and set by this class, allowing intermediate validation
      */
-    class PropertySetter  {
+    @KeySize(groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Keys.INVALID_KEY_SIZE+"}")
+    public class PropertySetter  {
         @Base64EncodedKey(groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Keys.INVALID_VALUE+"}")
         private String key; // field name must match property name
 
@@ -220,6 +221,14 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
             PlaintextSymmetricKeyImpl.this.encryptedKey = dataVaultService.encrypt(decode);
 
             PlaintextSymmetricKeyImpl.this.save();
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public int getKeySize() {
+            return getKeyType().getKeySize();
         }
     }
 
