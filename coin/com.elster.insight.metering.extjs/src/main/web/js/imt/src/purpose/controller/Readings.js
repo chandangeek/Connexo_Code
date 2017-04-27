@@ -438,9 +438,11 @@ Ext.define('Imt.purpose.controller.Readings', {
             confirmedObj = {};
 
         Ext.Array.each(store.getUpdatedRecords(), function (record) {
+            confirmedObj = {};
             changedRecord = {
                 interval: record.get('interval')
             };
+
             if (record.isModified('value')) {
                 Ext.merge(changedRecord, _.pick(record.getData(), 'value'));
             }
@@ -466,9 +468,9 @@ Ext.define('Imt.purpose.controller.Readings', {
                 };
             }
 
-            confirmedObj = Ext.merge(confirmedObj, changedRecord);
-            confirmedObj.commentId = record.get('commentId');
-            changedData.push(confirmedObj);
+            changedRecord = Ext.merge(confirmedObj, changedRecord);
+            changedRecord.commentId = record.get('commentId') ? record.get('commentId') : undefined;
+            changedData.push(changedRecord);
         });
 
         return changedData;
