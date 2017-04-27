@@ -1,6 +1,7 @@
 -classpath: target/classes 
 -dsannotations: *
 
-Export-Package: com.elster.jupiter.metering.rest
+Export-Package: com.elster.jupiter.metering.rest,\
+    com.elster.jupiter.metering.properties
 Private-Package: com.elster.jupiter.metering.rest.impl
 
