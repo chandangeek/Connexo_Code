@@ -104,7 +104,7 @@ public class IntervalReadingRecordImplTest {
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(deltaCode, "delta");
 
         channel = new ChannelImpl(dataModel, idsService, meteringService, clock, eventService)
-                .init(channelsContainer, Arrays.asList(readingType1, readingType2));
+                .init(channelsContainer, Arrays.asList(readingType1, readingType2), Optional.empty());
     }
 
     @Test

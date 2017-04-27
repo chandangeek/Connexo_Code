@@ -4,10 +4,10 @@
 
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -37,11 +37,11 @@ public class ReadingTypeRequirementMeterRoleUsage implements SelfObjectValidator
     }
 
     // we need this field to create a reverse map reference, it possible to receive metrology configuration from reading type requirement
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<UsagePointMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<MeterRole> meterRole = ValueReference.absent();
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingTypeRequirement> readingTypeRequirement = ValueReference.absent();
     private final Thesaurus thesaurus;
 
@@ -86,11 +86,11 @@ public class ReadingTypeRequirementMeterRoleUsage implements SelfObjectValidator
         UsagePointMetrologyConfiguration metrologyConfiguration = (UsagePointMetrologyConfiguration) getReadingTypeRequirement().getMetrologyConfiguration();
         if (!containsMyMeterRole(metrologyConfiguration)) {
             context.disableDefaultConstraintViolation();
-            String formattedTemplate = this.thesaurus.getFormat(MessageSeeds.ROLE_IS_NOT_ALLOWED_ON_CONFIGURATION).format(this.getMeterRole().getDisplayName(), metrologyConfiguration.getName());
+            String formattedTemplate = this.thesaurus.getFormat(PrivateMessageSeeds.ROLE_IS_NOT_ALLOWED_ON_CONFIGURATION).format(this.getMeterRole().getDisplayName(), metrologyConfiguration.getName());
             context
-                    .buildConstraintViolationWithTemplate(formattedTemplate)
-                    .addPropertyNode(Fields.METER_ROLE.fieldName())
-                    .addConstraintViolation();
+                .buildConstraintViolationWithTemplate(formattedTemplate)
+                .addPropertyNode(Fields.METER_ROLE.fieldName())
+                .addConstraintViolation();
             return false;
         }
         return true;

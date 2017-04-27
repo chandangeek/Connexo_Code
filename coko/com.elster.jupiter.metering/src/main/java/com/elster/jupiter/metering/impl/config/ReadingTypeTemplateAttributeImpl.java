@@ -5,11 +5,11 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -50,9 +50,9 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
     private final DataModel dataModel;
 
     private long id;
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingTypeTemplate> template = ValueReference.absent();
-    @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @NotNull(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private ReadingTypeTemplateAttributeName name;
     private Integer code;
     private List<ReadingTypeTemplateAttributeValueImpl> values = new ArrayList<>();
@@ -108,7 +108,7 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
     private boolean validateCodeIsNotEmpty(ConstraintValidatorContext context, ReadingTypeTemplateAttributeName.ReadingTypeAttribute<?> definition) {
         if (this.code == null && !canHaveNullCode()) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.REQUIRED + "}")
+            context.buildConstraintViolationWithTemplate("{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
                     .addPropertyNode(Fields.CODE.fieldName())
                     .addConstraintViolation();
             return false;
@@ -119,7 +119,7 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
     private boolean validateCodeIsInAllowedCodes(ConstraintValidatorContext context, List<Integer> allowedCodes) {
         if (this.code != null && !allowedCodes.isEmpty() && !allowedCodes.contains(this.code)) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}")
+            context.buildConstraintViolationWithTemplate("{" + PrivateMessageSeeds.Constants.READING_TYPE_ATTRIBUTE_CODE_IS_NOT_WITHIN_LIMITS + "}")
                     .addPropertyNode(Fields.CODE.fieldName())
                     .addConstraintViolation();
             return false;
@@ -136,7 +136,7 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
                 .map(rtUnit -> rtUnit.getUnit().getDimension())
                 .distinct().count() != 1) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.READING_TYPE_TEMPLATE_UNITS_SHOULD_HAVE_THE_SAME_DIMENSION + "}")
+            context.buildConstraintViolationWithTemplate("{" + PrivateMessageSeeds.Constants.READING_TYPE_TEMPLATE_UNITS_SHOULD_HAVE_THE_SAME_DIMENSION + "}")
                     .addPropertyNode(Fields.POSSIBLE_VALUES.fieldName())
                     .addConstraintViolation();
             return false;

@@ -6,7 +6,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
@@ -24,8 +23,8 @@ final class MultiplierTypeImpl implements MultiplierType {
 
     @SuppressWarnings("unused")
     private long id;
-    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
+    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
     private boolean nameIsKey;
 

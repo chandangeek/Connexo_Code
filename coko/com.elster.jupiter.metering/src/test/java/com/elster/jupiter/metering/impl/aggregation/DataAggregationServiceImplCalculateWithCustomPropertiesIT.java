@@ -74,6 +74,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -97,6 +98,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -235,6 +237,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
+                    new TaskModule(),
                     new BasicPropertiesModule(),
                     new CalendarModule(),
                     new CustomPropertySetsModule(),
@@ -278,9 +281,10 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     private static DataAggregationService getDataAggregationService() {
         ServerMeteringService meteringService = getMeteringService();
         return new DataAggregationServiceImpl(
+                        injector.getInstance(Clock.class),
+                        meteringService,
                         getCalendarService(),
                         getCustomPropertySetService(),
-                        meteringService,
                         new InstantTruncaterFactory(meteringService),
                         DataAggregationServiceImplCalculateWithCustomPropertiesIT::getSqlBuilderFactory,
                         () -> new VirtualFactoryImpl(dataModelService),

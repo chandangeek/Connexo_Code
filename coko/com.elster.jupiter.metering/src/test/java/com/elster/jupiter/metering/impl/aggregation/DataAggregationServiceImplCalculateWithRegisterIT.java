@@ -60,6 +60,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -81,6 +82,7 @@ import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -203,6 +205,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
+                    new TaskModule(),
                     new CalendarModule(),
                     new CustomPropertySetsModule(),
                     new UsagePointLifeCycleConfigurationModule()
@@ -237,9 +240,10 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
     private static DataAggregationService getDataAggregationService() {
         ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
         return new DataAggregationServiceImpl(
+                injector.getInstance(Clock.class),
+                meteringService,
                 injector.getInstance(CalendarService.class),
                 injector.getInstance(CustomPropertySetService.class),
-                meteringService,
                 new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateWithRegisterIT::getSqlBuilderFactory,
                 () -> new VirtualFactoryImpl(dataModelService),
@@ -378,10 +382,10 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
                             anyVararg());
             // Assert that the requirement is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder.getText())
-                    .matches("SELECT -1, rid" + this.consumptionRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.timestamp,.*");
+                    .matches("SELECT -1 as id, rid" + this.consumptionRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.timestamp as timestamp,.*");
             // Assert that the requirements' value is used in the select clause
             assertThat(this.netConsumptionWithClauseBuilder.getText())
-                    .matches("SELECT.*rid" + this.consumptionRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.value.*");
+                    .matches("SELECT.*rid" + this.consumptionRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.value as value.*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");

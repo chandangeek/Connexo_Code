@@ -152,8 +152,8 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
 
     public void createEffectiveMetrologyContracts(Set<MetrologyContract> optionalContractsToCreate) {
         getMetrologyConfiguration().getContracts().stream()
-                .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
                 .filter(metrologyContract -> metrologyContract.isMandatory() || optionalContractsToCreate.contains(metrologyContract))
+                .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
                 .map(metrologyContract -> dataModel.getInstance(EffectiveMetrologyContractOnUsagePointImpl.class).init(this, metrologyContract))
                 .forEach(this.effectiveContracts::add);
     }

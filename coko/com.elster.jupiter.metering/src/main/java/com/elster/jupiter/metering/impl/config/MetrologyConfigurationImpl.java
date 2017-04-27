@@ -4,17 +4,14 @@
 
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -25,6 +22,7 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.impl.TableSpecs;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.InvalidateCacheRequest;
@@ -56,7 +54,8 @@ import static com.elster.jupiter.domain.util.Save.CREATE;
 import static com.elster.jupiter.domain.util.Save.UPDATE;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+@DeliverableTimeOfUseBucketsBackedByEventSet(groups = MetrologyConfigurationImpl.Activation.class)
 public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration, HasUniqueName {
     public static final String TYPE_IDENTIFIER = "B";
 
@@ -64,10 +63,13 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
             MetrologyConfigurationImpl.TYPE_IDENTIFIER, MetrologyConfigurationImpl.class,
             UsagePointMetrologyConfigurationImpl.TYPE_IDENTIFIER, UsagePointMetrologyConfigurationImpl.class);
 
+    // Marker interface for javax.validation group
+    public interface Activation {}
+
     public enum Fields {
         NAME("name"),
         DESCRIPTION("description"),
-        ALLOW_GAP("gapAllowed"),
+        ALLOW_GAPS("gapsAllowed"),
         STATUS("status"),
         SERVICECATEGORY("serviceCategory"),
         CUSTOM_PROPERTY_SETS("customPropertySets"),
@@ -93,26 +95,26 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     private final DataModel dataModel;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
     private final EventService eventService;
-    private final CustomPropertySetService customPropertySetService;
     private final Clock clock;
     private final Publisher publisher;
 
     @SuppressWarnings("unused")
     private long id;
-    @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @NotEmpty(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String description;
-    private boolean gapAllowed;
+    private boolean gapsAllowed;
     @NotNull
     private MetrologyConfigurationStatus status = MetrologyConfigurationStatus.INACTIVE;
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<ServiceCategory> serviceCategory = ValueReference.absent();
     @Valid
     private List<MetrologyConfigurationCustomPropertySetUsage> customPropertySets = new ArrayList<>();
     private List<ReadingTypeRequirement> readingTypeRequirements = new ArrayList<>();
-    private List<MetrologyContractImpl> metrologyContracts = new ArrayList<>();
+    private List<ServerMetrologyContract> metrologyContracts = new ArrayList<>();
+    private List<EventSetOnMetrologyConfiguration> eventSets = new ArrayList<>();
     @Deprecated // up to version 10.3
     private List<ReadingTypeDeliverable> deliverables;
 
@@ -127,11 +129,10 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     private String userName;
 
     @Inject
-    MetrologyConfigurationImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService, Clock clock, Publisher publisher) {
+    MetrologyConfigurationImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, Clock clock, Publisher publisher) {
         this.dataModel = dataModel;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.eventService = eventService;
-        this.customPropertySetService = customPropertySetService;
         this.clock = clock;
         this.publisher = publisher;
     }
@@ -184,12 +185,12 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     @Override
-    public boolean isGapAllowed() {
-        return gapAllowed;
+    public boolean areGapsAllowed() {
+        return gapsAllowed;
     }
 
-    public void setGapAllowed(boolean gapAllowed){
-        this.gapAllowed = gapAllowed;
+    public void setGapsAllowed(boolean gapAllowed){
+        this.gapsAllowed = gapAllowed;
     }
 
     @Override
@@ -216,6 +217,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     public void activate() {
         if (MetrologyConfigurationStatus.INACTIVE == status) {
             this.status = MetrologyConfigurationStatus.ACTIVE;
+            Save.UPDATE.validate(this.dataModel, this, Activation.class);
             this.update();
         }
     }
@@ -264,14 +266,15 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     public void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
         checkCanManageCps();
         if (this.customPropertySets.stream()
-                .noneMatch(cpsUsage -> cpsUsage.getRegisteredCustomPropertySet()
-                        .getId() == registeredCustomPropertySet.getId())) {
+                .noneMatch(cpsUsage -> cpsUsage.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())) {
             MetrologyConfigurationCustomPropertySetUsageImpl newCpsUsage =
                     this.metrologyConfigurationService.getDataModel()
                             .getInstance(MetrologyConfigurationCustomPropertySetUsageImpl.class)
                             .init(this, registeredCustomPropertySet);
             customPropertySets.add(newCpsUsage);
-            touch();
+            if (this.id > 0) {
+                touch();
+            }
         }
     }
 
@@ -290,7 +293,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public List<MetrologyContract> getContracts() {
-        return Collections.unmodifiableList(new ArrayList<>(this.metrologyContracts));
+        return Collections.unmodifiableList(this.metrologyContracts);
     }
 
     @Override
@@ -317,14 +320,18 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
                 .init(this, metrologyPurpose);
         metrologyContract.setMandatory(mandatory);
         Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), metrologyContract);
-        this.metrologyContracts.add(metrologyContract);
+        this.doAddMetrologyContract(metrologyContract);
         touch();
         return metrologyContract;
     }
 
+    void doAddMetrologyContract(ServerMetrologyContract contract) {
+        this.metrologyContracts.add(contract);
+    }
+
     @Override
     public void removeMetrologyContract(MetrologyContract metrologyContract) {
-        ((MetrologyContractImpl) metrologyContract).prepareDelete();
+        ((ServerMetrologyContract) metrologyContract).delete();
         this.eventService.postEvent(EventType.METROLOGY_CONTRACT_DELETED.topic(), metrologyContract);
         if (this.metrologyContracts.remove(metrologyContract)) {
             touch();
@@ -346,44 +353,6 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         if (this.readingTypeRequirements.remove(readingTypeRequirement)) {
             touch();
         }
-    }
-
-    @Override
-    public ReadingTypeDeliverableBuilderImpl newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode) {
-        return new ReadingTypeDeliverableBuilderImpl(
-                this.metrologyContracts.stream().findFirst().get(),
-                name,
-                DeliverableType.NUMERICAL,
-                readingType,
-                mode,
-                this.customPropertySetService,
-                this.metrologyConfigurationService.getDataModel(),
-                this.metrologyConfigurationService.getThesaurus());
-    }
-
-    @Override
-    public ReadingTypeDeliverableBuilderImpl newReadingTypeDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula.Mode mode) {
-        return new ReadingTypeDeliverableBuilderImpl(
-                this.metrologyContracts.stream().findFirst().get(),
-                name,
-                deliverableType,
-                readingType,
-                mode,
-                this.customPropertySetService,
-                this.metrologyConfigurationService.getDataModel(),
-                this.metrologyConfigurationService.getThesaurus());
-    }
-
-    @Override
-    public void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable) {
-        metrologyContracts.stream()
-                .filter(contract -> contract.getDeliverables().contains(deliverable))
-                .forEach(contract -> contract.removeDeliverable(deliverable));
-    }
-
-    @Override
-    public List<ReadingTypeDeliverable> getDeliverables() {
-        return getContracts().stream().map(MetrologyContract::getDeliverables).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     void create() {
@@ -413,8 +382,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public void delete() {
-        getContracts().forEach(contract -> contract.getDeliverables().forEach(contract::removeDeliverable));
-        getContracts().forEach(this::removeMetrologyContract);
+        this.metrologyContracts.forEach(ServerMetrologyContract::delete);
         readingTypeRequirements.clear();
         customPropertySets.clear();
         this.metrologyConfigurationService.getDataModel().remove(this);
@@ -482,4 +450,31 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     public void invalidateCache() {
         this.publisher.publish(new InvalidateCacheRequest(MeteringService.COMPONENTNAME, TableSpecs.MTR_METROLOGYCONFIG.name()));
     }
+
+    @Override
+    public List<EventSet> getEventSets() {
+        return this.eventSets
+                .stream()
+                .map(EventSetOnMetrologyConfiguration::getEventSet)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void addEventSet(EventSet eventSet) {
+        this.doAddEventSet(EventSetOnMetrologyConfigurationImpl.from(this.dataModel, this, eventSet));
+    }
+
+    void doAddEventSet(EventSetOnMetrologyConfiguration eventSet) {
+        this.eventSets.add(eventSet);
+    }
+
+    @Override
+    public void removeEventSet(EventSet eventSet) {
+        this.eventSets
+                .stream()
+                .filter(each -> each.getEventSet().equals(eventSet))
+                .findAny()
+                .ifPresent(this.eventSets::remove);
+    }
+
 }
