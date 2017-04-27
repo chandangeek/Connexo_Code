@@ -226,10 +226,12 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
 
     onCertificateRecordSelected: function (grid, record) {
         var me = this,
-            actionsMenu = me.getCertificatePreview().down('device-security-accessors-action-menu');
+            actionsMenu = me.getCertificatePreview().down('device-security-accessors-action-menu'),
+            tempPropertiesAvailable = record.get('hasTempValue'),
+            activeCertificatesForm = me.getActiveCertificateAttributesContainer().down('property-form'),
+            passiveCertificatesForm = me.getPassiveCertificateAttributesContainer().down('property-form');
 
-        me.getCertificatePreviewForm().loadRecord(record);
-        me.getCertificatePreview().setTitle(Ext.htmlEncode(record.get('name')));
+        me.getCertificatePreview().doLoadRecord(record);
         if (actionsMenu) {
             actionsMenu.record = record;
         }
@@ -250,12 +252,10 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             me.getCertificatePreview().down('#mdc-device-security-accessor-preview-passive-info').clearInfo();
         }
 
-        me.getActiveCertificateAttributesContainer().setVisible(record.currentPropertiesStore.data.items.length > 0);
-        me.getActiveCertificateAttributesContainer().down('property-form').initProperties(record.currentProperties());
-        var tempPropertiesAvailable = record.tempPropertiesStore.data.items.length > 0;
+        activeCertificatesForm.initProperties(record.currentProperties());
         me.getPassiveCertificateAttributesContainer().setVisible(tempPropertiesAvailable);
         if (tempPropertiesAvailable) {
-            me.getPassiveCertificateAttributesContainer().down('property-form').initProperties(record.tempProperties());
+            passiveCertificatesForm.initProperties(record.tempProperties());
         }
     },
 
@@ -280,6 +280,9 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                 break;
             case 'activatePassiveKey':
                 me.activatePassiveKey(menu.record);
+                break;
+            case 'activatePassiveCertificate':
+                me.activatePassiveCertificate(menu.record);
                 break;
             case 'showKeyValues':
                 me.showKeyValues(menu.record);
@@ -377,12 +380,30 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             success: function (device) {
                 var widget = Ext.create('Mdc.securityaccessors.view.EditDeviceCertificateAttributes', {
                     device: device,
-                    certificateRecord: me.certificateKeyRecord
+                    certificateRecord: me.deviceCertificateRecord
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
                 widget.down('form').setTitle( Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", me.deviceCertificateRecord.get('name')) );
                 me.getApplication().fireEvent('deviceCertificateLoaded', me.deviceCertificateRecord);
                 me.getApplication().fireEvent('loadDevice', device);
+
+                //var propStore = me.deviceCertificateRecord.currentProperties(),
+                //    attrCount = propStore.getCount(),
+                //    propRecord = undefined;
+                //if (attrCount>0) {
+                //    for (var i=0; i<attrCount; i++) {
+                //        propRecord = propStore.getAt(i);
+                //        if (propRecord.raw.key === 'alias') {
+                //            me.getEditActiveCertificateAttributesContainer().add({
+                //                xtype: 'combobox',
+                //                fieldLabel: propRecord.raw.name,
+                //                store:
+                //            });
+                //        } else if (propRecord.raw.key === 'trustStore') {
+                //
+                //        }
+                //    }
+                //}
 
                 me.getEditActiveCertificateAttributesContainer().setVisible(me.deviceCertificateRecord.currentPropertiesStore.data.items.length > 0);
                 me.getEditActiveCertificateAttributesContainer().down('property-form').initProperties(me.deviceCertificateRecord.currentProperties());
@@ -615,6 +636,26 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                     splittedPath = router.currentRoute.split('/');
                 splittedPath.pop();
                 router.getRoute(splittedPath.join('/') + '/' + 'keys').forward(router.arguments);
+            }
+        });
+    },
+
+    activatePassiveCertificate: function(certificateRecord) {
+        var me = this,
+            url = '/api/ddr/devices/{deviceId}/securityaccessors/certificates/{certificateId}/swap';
+
+        url = url.replace('{deviceId}', me.deviceId).replace('{certificateId}', certificateRecord.get('id'));
+
+        Ext.Ajax.request({
+            url: url,
+            method: 'PUT',
+            jsonData: Ext.encode(certificateRecord.getData()),
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.passiveCertificate.activated', 'MDC', 'Passive certificate activated'));
+                var router = me.getController('Uni.controller.history.Router'),
+                    splittedPath = router.currentRoute.split('/');
+                splittedPath.pop();
+                router.getRoute(splittedPath.join('/') + '/' + 'certificates').forward(router.arguments);
             }
         });
     },
