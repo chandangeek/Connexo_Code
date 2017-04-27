@@ -24,10 +24,10 @@ import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -167,7 +167,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         FirmwareManagementDeviceStatus currentStatus = getStatus();
         if (currentStatus == null || NON_FINAL_STATUSES.contains(currentStatus.key())) {
             FirmwareManagementDeviceUtils helper = firmwareService.getFirmwareManagementDeviceUtilsFor(comTaskExecution.getDevice());
-            Optional<DeviceMessage<Device>> firmwareMessage = helper.getFirmwareMessages()
+            Optional<DeviceMessage> firmwareMessage = helper.getFirmwareMessages()
                     .stream()
                     .filter(candidate -> candidate.getId() == firmwareMessageId)
                     .findFirst();
@@ -251,7 +251,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
         for (Map.Entry<String, Object> property : getFirmwareCampaign().getProperties().entrySet()) {
             deviceMessageBuilder.addProperty(property.getKey(), property.getValue());
         }
-        DeviceMessage<Device> firmwareMessage = deviceMessageBuilder.add();
+        DeviceMessage firmwareMessage = deviceMessageBuilder.add();
         this.firmwareMessageId = firmwareMessage.getId();
     }
 

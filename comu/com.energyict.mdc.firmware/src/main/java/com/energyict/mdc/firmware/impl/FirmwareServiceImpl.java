@@ -55,12 +55,12 @@ import com.energyict.mdc.firmware.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -164,11 +164,15 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Override
     public Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType) {
-        return deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream().
-                map(this.deviceMessageSpecificationService::getProtocolSupportedFirmwareOptionFor)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet())).orElse(Collections.emptySet());
+        return deviceType.getDeviceProtocolPluggableClass()
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
+                        .map(DeviceMessageSpec::getId)
+                        .map(DeviceMessageId::havingId)
+                        .map(this.deviceMessageSpecificationService::getProtocolSupportedFirmwareOptionFor)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .collect(Collectors.toSet()))
+                .orElse(Collections.emptySet());
     }
 
     @Override
@@ -450,7 +454,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return dataModel.getInstance(FirmwareManagementDeviceUtilsImpl.class).initFor(device);
     }
 
-    private boolean isItAFirmwareRelatedMessage(DeviceMessage<Device> deviceDeviceMessage) {
+    private boolean isItAFirmwareRelatedMessage(DeviceMessage deviceDeviceMessage) {
         return Stream.of(
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER,
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE,
