@@ -5,7 +5,9 @@
 package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
+import com.elster.jupiter.estimators.MissingRequiredProperty;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeValueFactory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -32,6 +34,9 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
 
     private MeteringService meteringService;
 
+    private UsagePoint referenceUsagePoint;
+    private ReadingType referenceReadinType;
+
     ReferenceSubstitutionEstimator(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, PropertySpecService propertySpecService, MeteringService meteringService) {
         super(thesaurus, metrologyConfigurationService, validationService, propertySpecService);
         this.meteringService = meteringService;
@@ -40,6 +45,26 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
     ReferenceSubstitutionEstimator(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, PropertySpecService propertySpecService, MeteringService meteringService, Map<String, Object> properties) {
         super(thesaurus, metrologyConfigurationService, validationService, propertySpecService, properties);
         this.meteringService = meteringService;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+
+        referenceUsagePoint = getCheckUsagePointProperty();
+        referenceReadinType = getReferenceReadingTypeProperty().getReadingType();
+    }
+
+    UsagePoint getCheckUsagePointProperty() {
+        UsagePoint value = (UsagePoint) getProperty(CHECK_USAGE_POINT);
+        if (value == null) {
+            throw new MissingRequiredProperty(getThesaurus(), CHECK_USAGE_POINT);
+        }
+        return value;
+    }
+
+    ReadingTypeValueFactory.ReadingTypeReference getReferenceReadingTypeProperty() {
+        return (ReadingTypeValueFactory.ReadingTypeReference) getProperty(CHECK_READING_TYPE);
     }
 
     @Override
@@ -61,7 +86,11 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(buildCheckPurposePropertySpec(),buildReferenceUsagePointPropertySpec(),buildReferenceReadingTypePropertySpec());
+        return Arrays.asList(
+                buildCheckPurposePropertySpec(),
+                buildReferenceUsagePointPropertySpec(),
+                buildReferenceReadingTypePropertySpec()
+        );
     }
 
     private PropertySpec buildReferenceUsagePointPropertySpec() {
