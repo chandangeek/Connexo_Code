@@ -171,7 +171,8 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('metrologyConfigurationDetails.meterRolesCount', 'IMT', '{0} meter role(s)'),
                 isFullTotalCount: true,
-                noBottomPaging: true
+                noBottomPaging: true,
+                exportButton: false
             }
         ];
         me.callParent(arguments);
