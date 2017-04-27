@@ -81,7 +81,7 @@ public class ResetValidationResultsActionTest {
 
     @Test
     public void testMandatory() {
-        assertThat(action.isMandatoryForTransition(state, state)).isFalse();
+        assertThat(action.isMandatoryForTransition(state, state)).isTrue();
     }
 
     @Test
