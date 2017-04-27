@@ -4,23 +4,23 @@
 
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This is a DeviceIdentifier that uniquely identifies a Device which you have given in the Constructor.
- * The {@link #getIdentifier()} method will return the <b>MRId</b> of the device!
- *
+ * <p>
  * <b>You are encouraged to only use this identifier within the ComServer engine. If we provide this
- * identifier to a protocol, then the returned MRId from {@link #getIdentifier()} is in most cases unknown to the device.
- * It is better to use the DeviceIdentifierForAlreadyKnownDeviceBySerialNumber for that.</b>
+ * identifier to a protocol, then the returned MRId by the Introspector is in most cases unknown to the device.
+ * It is better to use the DeviceIdentifierForAlreadyKnownDeviceBySerialNumber in that case.</b>
  */
 @XmlRootElement
-public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements DeviceIdentifier<Device> {
+public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements DeviceIdentifier {
 
     private Device device;
 
@@ -31,38 +31,22 @@ public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements Device
     }
 
     public DeviceIdentifierForAlreadyKnownDeviceByMrID(Device device) {
+        this();
         this.device = device;
     }
 
     @Override
-    public String getIdentifier() {
-        return this.device.getmRID();
-    }
-
-    @Override
-    public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.ActualDevice;
-    }
-
-    @Override
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    @Override
-    public void setXmlType(String ignore) {
-
-    }
-
-    @Override
-    public Device findDevice() {
-        return this.device;
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
     public String toString() {
-        return "device having MRID " + getIdentifier();
+        return "device having MRID " + getmRID();
+    }
+
+    private String getmRID() {
+        return ((com.energyict.mdc.device.data.Device) device).getmRID();
     }
 
     @Override
@@ -76,12 +60,39 @@ public final class DeviceIdentifierForAlreadyKnownDeviceByMrID implements Device
 
         DeviceIdentifierForAlreadyKnownDeviceByMrID that = (DeviceIdentifierForAlreadyKnownDeviceByMrID) o;
 
-        return device.getId() == that.device.getId();
+        return ((com.energyict.mdc.device.data.Device) this.device).getId() == ((com.energyict.mdc.device.data.Device) that.device).getId();
 
     }
 
     @Override
     public int hashCode() {
         return device.hashCode();
+    }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "Actual";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList("actual", "mRID"));
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "actual": {
+                    return device;
+                }
+                case "mRID": {
+                    return getmRID();
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
+        }
     }
 }

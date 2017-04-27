@@ -22,12 +22,18 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageCategories;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.nls.NlsMessageFormat;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.HexString;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -38,11 +44,6 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import static com.energyict.mdc.device.data.impl.DeviceMessageServiceImplTest.Progress.OnHold;
 import static com.energyict.mdc.device.data.impl.DeviceMessageServiceImplTest.Progress.Planned;
@@ -58,11 +59,6 @@ import static org.mockito.Mockito.when;
  * Created by bvn on 10/31/14.
  */
 public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
-    private Device device;
-    private DeviceConfiguration deviceConfiguration;
-    private DeviceMessageCategory wrongCategory = new DeviceMessageCategoryImpl(DeviceMessageCategories.ACTIVITY_CALENDAR);
-    private DeviceMessageCategory deviceMessageCategory = new DeviceMessageCategoryImpl(DeviceMessageCategories.DEVICE_ACTIONS);
-
     @Mock
     DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
@@ -72,28 +68,34 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
     @Mock
     PropertySpecService propertySpecService;
     @Mock
+    com.energyict.mdc.upl.properties.PropertySpecService uplPropertySpecService;
+    @Mock
     ThreadPrincipalService threadPrincipalService;
     @Mock
     Clock clock;
 
     DeviceMessageService deviceMessageService = new DeviceMessageServiceImpl(new DeviceDataModelServiceImpl(), threadPrincipalService);
-
-    DeviceMessage<Device> command1;
+    DeviceMessage command1;
+    private Device device;
+    private DeviceConfiguration deviceConfiguration;
+    private DeviceMessageCategory wrongCategory;
+    private DeviceMessageCategory deviceMessageCategory;
 
     @Before
     public void setUp() throws Exception {
+        NlsService uplNlsService = new UPLNlsService();
+        Converter converter = UPLHexString::new;
+
         Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
         device = mock(Device.class);
         when(deviceService.findDeviceByMrid("ZABF010000080004")).thenReturn(Optional.of(device));
 
-        when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class)
-                .stream()
-                .map(deviceMessageCategory -> new DeviceMessageCategoryImpl(deviceMessageCategory))
-                .collect(Collectors.toList()));
-        when(deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class)
-                .stream()
-                .map(deviceMessageCategory -> new DeviceMessageCategoryImpl(deviceMessageCategory))
-                .collect(Collectors.toList()));
+        List<DeviceMessageCategory> allCategories = Arrays.asList(DeviceMessageTestCategories.values());
+
+        when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(allCategories);
+        when(deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition()).thenReturn(allCategories);
+        deviceMessageCategory = DeviceMessageTestCategories.FIRST_TEST_CATEGORY;
+
         command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", created, created.plusSeconds(10), null, deviceMessageCategory);
         when(device.getMessages()).thenReturn(Arrays.asList(command1));
         EnumSet<DeviceMessageId> userAuthorizedDeviceMessages = EnumSet.of(DeviceMessageId.CONTACTOR_OPEN, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_ARM);
@@ -113,12 +115,31 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
         DeviceType deviceType = mock(DeviceType.class);
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
+
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT.dbValue());
+        deviceMessageIds.add(deviceMessageSpec1);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec2 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec2.getId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT.dbValue());
+        deviceMessageIds.add(deviceMessageSpec2);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec3 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec3.getId()).thenReturn(DeviceMessageId.CONTACTOR_ARM.dbValue());
+        deviceMessageIds.add(deviceMessageSpec3);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec4 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec4.getId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
+        deviceMessageIds.add(deviceMessageSpec4);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec5 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec5.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
+        deviceMessageIds.add(deviceMessageSpec5);
+
+        when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
 
+        wrongCategory = DeviceMessageTestCategories.SECOND_TEST_CATEGORY;
     }
 
     @Test
@@ -641,7 +662,7 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
         return mock;
     }
 
-    private DeviceMessage<Device> mockCommand(Device device, Long id, DeviceMessageId deviceMessageId, String messageSpecName, String errorMessage, DeviceMessageStatus status, String trackingId, String userName, Instant creationDate, Instant releaseDate, Instant sentDate, DeviceMessageCategory deviceMessageCategory) {
+    private DeviceMessage mockCommand(Device device, Long id, DeviceMessageId deviceMessageId, String messageSpecName, String errorMessage, DeviceMessageStatus status, String trackingId, String userName, Instant creationDate, Instant releaseDate, Instant sentDate, DeviceMessageCategory deviceMessageCategory) {
         DeviceMessage mock = mock(DeviceMessage.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getSentDate()).thenReturn(Optional.ofNullable(sentDate));
@@ -723,57 +744,41 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
         }
     }
 
-    private class DeviceMessageCategoryImpl implements DeviceMessageCategory {
-        private final DeviceMessageCategories category;
-        private final int deviceMessageCategoryId;
+    private class UPLHexString implements HexString {
+        private final String value;
 
-        private DeviceMessageCategoryImpl(DeviceMessageCategories category) {
-            super();
-            this.category = category;
-            deviceMessageCategoryId = this.category.ordinal();
+        public UPLHexString(String value) {
+            this.value = value;
         }
 
         @Override
-        public String getName() {
-            return thesaurus.getString(this.category.getNameResourceKey(), this.category.getDefaultFormat());
+        public String getContent() {
+            return value;
         }
 
         @Override
-        public String getDescription() {
-            return thesaurus.getString(this.category.getDescriptionResourceKey(), this.category.getDescriptionResourceKey());
-        }
-
-        @Override
-        public int getId() {
-            return deviceMessageCategoryId;
-        }
-
-        @Override
-        public List<DeviceMessageSpec> getMessageSpecifications() {
-            return this.category.getMessageSpecifications(this, propertySpecService, thesaurus);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof DeviceMessageCategoryImpl)) {
-                return false;
-            }
-
-            DeviceMessageCategoryImpl that = (DeviceMessageCategoryImpl) o;
-
-            return deviceMessageCategoryId == that.deviceMessageCategoryId;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = category.hashCode();
-            result = 31 * result + deviceMessageCategoryId;
-            return result;
+        public int length() {
+            return value.length();
         }
     }
 
+    private class UPLNlsService implements NlsService {
+        @Override
+        public com.energyict.mdc.upl.nls.Thesaurus getThesaurus(String id) {
+            return key -> {
+                com.elster.jupiter.nls.NlsMessageFormat format = thesaurus.getFormat(new com.elster.jupiter.nls.TranslationKey() {
+                    @Override
+                    public String getKey() {
+                        return key.getKey();
+                    }
 
+                    @Override
+                    public String getDefaultFormat() {
+                        return key.getDefaultFormat();
+                    }
+                });
+                return (NlsMessageFormat) format::format;
+            };
+        }
+    }
 }

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -72,6 +73,8 @@ public interface DeviceDataModelService {
     BatchService batchService();
 
     MessageService messageService();
+
+    EventService eventService();
 
     DeviceMessageSpecificationService deviceMessageSpecificationService();
 
