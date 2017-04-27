@@ -47,7 +47,7 @@ Ext.define('Mdc.util.LinkPurpose', {
             noItemsFoundReasons: [Uni.I18n.translate('dataLoggerSlavesGrid.empty.reason1', 'MDC', 'No data logger slaves have been linked yet.')],
             menuWizardStep1: Uni.I18n.translate('general.selectDataLoggerSlave', 'MDC', 'Select data logger slave'),
             titleWizardStep1: Uni.I18n.translate('linkwizard.step1.title', 'MDC', 'Step 1: Select data logger slave'),
-            newSlaveOption: Uni.I18n.translate('linkwizard.step1.option.new.datalogger', 'MDC', 'New datalogger slave device'),
+            newSlaveOption: Uni.I18n.translate('linkwizard.step1.option.new.datalogger', 'MDC', 'New data logger slave device'),
             noChannelsMessage: Uni.I18n.translate('general.dataLoggerSlave.noChannels', 'MDC', 'There are no channels on the data logger slave.'),
             noRegistersMessage: Uni.I18n.translate('general.dataLoggerSlave.noRegisters', 'MDC', 'There are no registers on the data logger slave.'),
             slaveLinkedMessage: Uni.I18n.translate('general.slaveXLinkedToDataLoggerY.success', 'MDC', "Slave '{0}' has been linked to data logger '{1}'."),
