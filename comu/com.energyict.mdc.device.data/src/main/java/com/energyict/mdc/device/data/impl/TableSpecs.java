@@ -1005,6 +1005,8 @@ public enum TableSpecs {
                     .add();
             table.addRefAnyColumns("ACTUALSYMKEY", false, SymmetricKeyAccessorImpl.Fields.SYMM_KEY_WRAPPER_ACTUAL.fieldName());
             table.addRefAnyColumns("TEMPSYMKEY", false, SymmetricKeyAccessorImpl.Fields.SYMM_KEY_WRAPPER_TEMP.fieldName());
+            table.addRefAnyColumns("ACTUALPASSPHRASE", false, SymmetricKeyAccessorImpl.Fields.PASSPHRASE_WRAPPER_ACTUAL.fieldName());
+            table.addRefAnyColumns("TEMPPASSPHRASE", false, SymmetricKeyAccessorImpl.Fields.PASSPHRASE_WRAPPER_TEMP.fieldName());
         }
     }
     ;

@@ -69,7 +69,7 @@ public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricK
 
     private void doRenewValue() {
         SymmetricKeyWrapper symmetricKeyWrapper = pkiService.newSymmetricKeyWrapper(getKeyAccessorType());
-        symmetricKeyWrapper.generateValue(getKeyAccessorType());
+        symmetricKeyWrapper.generateValue();
         tempSymmetricKeyWrapperReference = dataModel.asRefAny(symmetricKeyWrapper);
         this.save();
     }
