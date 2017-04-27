@@ -32,7 +32,7 @@ public class ResetValidationResultsAction extends TranslatableAction {
 
     @Override
     public boolean isMandatoryForTransition(State fromState, State toState) {
-        return false;
+        return true;
     }
 
     @Override
