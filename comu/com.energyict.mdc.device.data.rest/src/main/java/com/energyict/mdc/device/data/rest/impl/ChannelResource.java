@@ -702,7 +702,7 @@ public class ChannelResource {
                                                                      ReferenceChannelDataInfo referenceChannelDataInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-        return previewCopyFromReference(channel, referenceChannelDataInfo);
+        return new ChannelReferenceDataCopier(meteringService, resourceHelper, deviceDataInfoFactory, channel).get(referenceChannelDataInfo);
     }
 
     @GET
@@ -750,88 +750,6 @@ public class ChannelResource {
             results.add(estimationHelper.previewEstimate(system, device, readingType, block, estimator));
         }
         return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results, readingQualityComment);
-    }
-
-    private List<ChannelDataInfo> previewCopyFromReference(Channel channel, ReferenceChannelDataInfo copyFromReferenceChannelDataInfo) {
-
-        DeviceValidation deviceValidation = channel.getDevice().forValidation();
-        boolean isValidationActive = deviceValidation.isValidationActive();
-
-        Device referenceDevice = resourceHelper.findDeviceByName(copyFromReferenceChannelDataInfo.referenceDevice)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_DEVICE, "referenceDevice", copyFromReferenceChannelDataInfo.referenceDevice));
-        ReadingType readingType = meteringService.getReadingType(copyFromReferenceChannelDataInfo.readingType)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_READINGTYPE, "readingType", copyFromReferenceChannelDataInfo.readingType));
-        Channel referenceChannel = referenceDevice.getChannels().stream()
-                .filter(ch -> ch.getCalculatedReadingType(copyFromReferenceChannelDataInfo.startDate).filter(refernceReadingType -> refernceReadingType.equals(readingType)).isPresent())
-                .findFirst()
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_DEVICE, "readingType"));
-        if (!matchReadingTypes(referenceChannel.getReadingType(), channel.getReadingType())) {
-            throw new LocalizedFieldValidationException(MessageSeeds.READINGTYPES_DONT_MATCH, "readingType");
-        }
-
-        List<ChannelDataInfo> resultReadings = new ArrayList<>();
-
-        for (Map.Entry<Range<Instant>, Range<Instant>> range : getCorrectedTimeStampsForReference(copyFromReferenceChannelDataInfo.startDate, copyFromReferenceChannelDataInfo.intervals)
-                .entrySet()) {
-            List<LoadProfileReading> referenceRecords = referenceChannel.getChannelData(range.getValue());
-
-            channel.getChannelData(range.getKey()).stream().forEach(record -> {
-                referenceRecords.stream()
-                        .filter(referenceReading -> !referenceReading.getChannelValues().isEmpty())
-                        .findFirst()
-                        .ifPresent(referenceReading -> {
-                            ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, record, isValidationActive, deviceValidation, null);
-                            ChannelDataInfo referenceChannelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, referenceReading, isValidationActive, deviceValidation, null);
-                            channelDataInfo.value = referenceChannelDataInfo.value
-                                    .scaleByPowerOfTen(referenceChannel.getReadingType().getMultiplier().getMultiplier()
-                                            - channel.getReadingType().getMultiplier().getMultiplier());
-                            channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
-                            channelDataInfo.commentId = copyFromReferenceChannelDataInfo.commentId;
-                            channelDataInfo.commentValue = copyFromReferenceChannelDataInfo.commentValue;
-                            if (copyFromReferenceChannelDataInfo.allowSuspectData || referenceReading.getReadingQualities()
-                                    .values()
-                                    .stream()
-                                    .noneMatch(e -> e.stream().anyMatch(ReadingQualityRecord::isSuspect))) {
-                                resultReadings.add(channelDataInfo);
-                            }
-                        });
-            });
-        }
-        if (!copyFromReferenceChannelDataInfo.completePeriod || resultReadings.size() == copyFromReferenceChannelDataInfo.intervals.size()) {
-            return resultReadings;
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    private Map<Range<Instant>, Range<Instant>> getCorrectedTimeStampsForReference(Instant referenceStartDate, List<IntervalInfo> intervals) {
-        Instant startDate = intervals.stream().map(date -> Instant.ofEpochMilli(date.end)).min(Instant::compareTo).get();
-        TemporalAmount offset = Duration.between(referenceStartDate, Instant.ofEpochMilli(intervals.get(0).end));
-        if (referenceStartDate.isAfter(startDate)) {
-            return intervals.stream().map(interval -> Range.openClosed(Instant.ofEpochMilli(interval.start), Instant.ofEpochMilli(interval.end)))
-                    .collect(Collectors.toMap(Function.identity(), interval -> Range.openClosed(interval.lowerEndpoint().plus(offset), interval.upperEndpoint().plus(offset))));
-        } else {
-            return intervals.stream().map(interval -> Range.openClosed(Instant.ofEpochMilli(interval.start), Instant.ofEpochMilli(interval.end)))
-                    .collect(Collectors.toMap(Function.identity(), interval -> Range.openClosed(interval.lowerEndpoint().minus(offset), interval.upperEndpoint().minus(offset))));
-        }
-    }
-
-    private boolean matchReadingTypes(ReadingType first, ReadingType second) {
-        return first.equals(second)
-                || (first.getMacroPeriod().equals(second.getMacroPeriod())
-                && first.getAggregate().equals(second.getAggregate())
-                && first.getMeasuringPeriod().equals(second.getMeasuringPeriod())
-                && first.getAccumulation().equals(second.getAccumulation())
-                && first.getFlowDirection().equals(second.getFlowDirection())
-                && first.getCommodity().equals(second.getCommodity())
-                && first.getMeasurementKind().equals(second.getMeasurementKind())
-                && first.getInterharmonic().equals(second.getInterharmonic())
-                && first.getArgument().equals(second.getArgument())
-                && first.getTou() == second.getTou()
-                && first.getCpp() == second.getCpp()
-                && first.getPhases().equals(second.getPhases())
-                && first.getUnit().equals(second.getUnit())
-                && first.getCurrency().equals(second.getCurrency()));
     }
 
     private Instant getCalculatedReadingTypeTimeStampForEstimationPreview(EstimateChannelDataInfo estimateChannelDataInfo) {
