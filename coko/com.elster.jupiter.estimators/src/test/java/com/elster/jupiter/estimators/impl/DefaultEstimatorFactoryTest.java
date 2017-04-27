@@ -60,7 +60,8 @@ public class DefaultEstimatorFactoryTest {
                 DefaultEstimatorFactory.LINEAR_INTERPOLATION_ESTIMATOR,
                 DefaultEstimatorFactory.VALUE_FILL_ESTIMATOR,
                 DefaultEstimatorFactory.NEAREST_AVERAGE_VALUE_DAY_ESTIMATOR,
-                DefaultEstimatorFactory.MAIN_CHECK_ESTIMATOR);
+                DefaultEstimatorFactory.MAIN_CHECK_ESTIMATOR,
+                DefaultEstimatorFactory.REFERENCE_SUBSTITUTION_ESTIMATOR);
 
         assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.POWER_GAP_FILL_ESTIMATOR)).isInstanceOf(PowerGapFill.class);
         assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.AVG_WITH_SAMPLES_ESTIMATOR)).isInstanceOf(AverageWithSamplesEstimator.class);
@@ -69,5 +70,6 @@ public class DefaultEstimatorFactoryTest {
         assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.VALUE_FILL_ESTIMATOR)).isInstanceOf(ValueFillEstimator.class);
         assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.NEAREST_AVERAGE_VALUE_DAY_ESTIMATOR)).isInstanceOf(NearestAvgValueDayEstimator.class);
         assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.MAIN_CHECK_ESTIMATOR)).isInstanceOf(MainCheckEstimator.class);
+        assertThat(defaultEstimatorFactory.createTemplate(DefaultEstimatorFactory.REFERENCE_SUBSTITUTION_ESTIMATOR)).isInstanceOf(ReferenceSubstitutionEstimator.class);
     }
 }

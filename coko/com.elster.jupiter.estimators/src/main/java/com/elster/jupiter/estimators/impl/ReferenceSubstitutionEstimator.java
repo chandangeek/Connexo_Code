@@ -4,7 +4,10 @@
 
 package com.elster.jupiter.estimators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
+import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimators.MissingRequiredProperty;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -16,6 +19,8 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.logging.LoggingContext;
+import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationService;
 
 import java.util.Arrays;
@@ -34,8 +39,10 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
 
     private MeteringService meteringService;
 
+    private boolean initFailed;
+
     private UsagePoint referenceUsagePoint;
-    private ReadingType referenceReadinType;
+    private ReadingTypeValueFactory.ReadingTypeReference referenceReadingTypeProperty;
 
     ReferenceSubstitutionEstimator(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, PropertySpecService propertySpecService, MeteringService meteringService) {
         super(thesaurus, metrologyConfigurationService, validationService, propertySpecService);
@@ -50,21 +57,33 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
     @Override
     protected void init() {
         super.init();
-
-        referenceUsagePoint = getCheckUsagePointProperty();
-        referenceReadinType = getReferenceReadingTypeProperty().getReadingType();
+        initOverridenProperties();
     }
 
     UsagePoint getCheckUsagePointProperty() {
-        UsagePoint value = (UsagePoint) getProperty(CHECK_USAGE_POINT);
-        if (value == null) {
-            throw new MissingRequiredProperty(getThesaurus(), CHECK_USAGE_POINT);
-        }
-        return value;
+        return (UsagePoint) getProperty(CHECK_USAGE_POINT);
     }
 
     ReadingTypeValueFactory.ReadingTypeReference getReferenceReadingTypeProperty() {
         return (ReadingTypeValueFactory.ReadingTypeReference) getProperty(CHECK_READING_TYPE);
+    }
+
+    private void initOverridenProperties() {
+        referenceUsagePoint = getCheckUsagePointProperty();
+        referenceReadingTypeProperty = getReferenceReadingTypeProperty();
+        if (checkPurpose == null || referenceUsagePoint == null || referenceReadingTypeProperty == null) {
+            LoggingContext.get()
+                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_ESTIMATOR_NOT_CONFIGURED)
+                            .format(getDisplayName()));
+            initFailed = true;
+        }
+    }
+
+    @Override
+    public EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system) {
+        // override validatingUsagePoint
+        validatingUsagePoint = referenceUsagePoint;
+        return initFailed ? SimpleEstimationResult.of(estimationBlocks, Collections.emptyList()) : super.estimate(estimationBlocks, system);
     }
 
     @Override
@@ -91,6 +110,11 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
                 buildReferenceUsagePointPropertySpec(),
                 buildReferenceReadingTypePropertySpec()
         );
+    }
+
+    @Override
+    String getMessage(ReferenceReadingQuality referenceReadingQuality, EstimationBlock estimationBlock) {
+        return "";
     }
 
     private PropertySpec buildReferenceUsagePointPropertySpec() {

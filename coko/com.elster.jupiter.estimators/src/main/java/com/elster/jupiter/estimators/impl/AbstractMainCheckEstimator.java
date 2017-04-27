@@ -110,7 +110,7 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
     }
 
 
-    PropertySpec buildCheckPurposePropertySpec(){
+    PropertySpec buildCheckPurposePropertySpec() {
         List<MetrologyPurpose> metrologyPurposes = metrologyConfigurationService.getMetrologyPurposes();
         return getPropertySpecService()
                 .referenceSpec(MetrologyPurpose.class)
@@ -124,7 +124,7 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
                 .finish();
     }
 
-    private String blockToString(EstimationBlock block) {
+    protected String blockToString(EstimationBlock block) {
         return DATE_TIME_FORMATTER.format(block.estimatables()
                 .get(0)
                 .getTimestamp()) + " until " + DATE_TIME_FORMATTER.format(block
@@ -149,7 +149,8 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
             // no usage point found
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_NO_UP)
-                            .format(getThesaurus().getFormat(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME).format()));
+                            .format(getThesaurus().getFormat(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME)
+                                    .format()));
             return SimpleEstimationResult.of(estimationBlocks, Collections.emptyList());
         } else {
             this.validatingUsagePoint = usagePoint.get();
@@ -168,6 +169,8 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
         return SimpleEstimationResult.of(remain, estimated);
     }
 
+    abstract String getMessage(ReferenceReadingQuality referenceReadingQuality, EstimationBlock estimationBlock);
+
     private boolean estimate(EstimationBlock estimationBlock) {
         // find reference values for each estimatable in block
         Map<Estimatable, ReferenceReading> referenceReadingMap = estimateBlock(estimationBlock);
@@ -175,40 +178,17 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
         if (referenceReadingMap.values().stream().filter(Predicates.not(ReferenceReading::isOk)).count() != 0) {
             // there are 'not ok' reference values
             // lets capture reason and log appropriate failure message
-            String message;
-            if (referenceReadingMap.values()
-                    .stream()
-                    .map(ReferenceReading::getQuality)
-                    .anyMatch(e -> e.equals(NO_MC))) {
-                message = getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_EFFECTIVE_MC_NOT_FOUND)
-                        .format(blockToString(estimationBlock), getThesaurus().getFormat(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME)
-                                .format(), estimationBlock.getReadingType()
-                                .getFullAliasName(), validatingUsagePoint.getName());
-            } else if (referenceReadingMap.values()
-                    .stream()
-                    .map(ReferenceReading::getQuality)
-                    .anyMatch(e -> e.equals(NO_PURPOSE_ON_UP))) {
-                message = getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_PURPOSE_DOES_NOT_EXIST_ON_UP)
-                        .format(blockToString(estimationBlock), getThesaurus().getFormat(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME)
-                                .format(), estimationBlock.getReadingType()
-                                .getFullAliasName(), validatingUsagePoint.getName());
-            } else if (referenceReadingMap.values()
-                    .stream()
-                    .map(ReferenceReading::getQuality)
-                    .anyMatch(e -> e.equals(NO_CHECK_CHANNEL))) {
-                message = getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_NO_OUTPUTS_ON_PURPOSE_WITH_READING_TYPE)
-                        .format(blockToString(estimationBlock), getThesaurus().getFormat(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME)
-                                .format(), estimationBlock.getReadingType()
-                                .getFullAliasName(), validatingUsagePoint.getName());
-            } else if (referenceReadingMap.values()
-                    .stream()
-                    .map(ReferenceReading::getQuality)
-                    .anyMatch(e -> e.equals(REFERENCE_DATA_MISSING) || e.equals(REFERENCE_DATA_SUSPECT))) {
-                message = getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_DATA_SUSPECT_OR_MISSING)
-                        .format(blockToString(estimationBlock), getThesaurus().getFormat(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME)
-                                .format(), validatingUsagePoint.getName(), checkPurpose.getName(), estimationBlock.getReadingType()
-                                .getFullAliasName());
-            } else {
+            String message = null;
+            for (ReferenceReadingQuality readingQuality : ReferenceReadingQuality.values()) {
+                if (referenceReadingMap.values()
+                        .stream()
+                        .map(ReferenceReading::getQuality)
+                        .anyMatch(e -> e.equals(readingQuality))) {
+                    message = getMessage(readingQuality, estimationBlock);
+                    break;
+                }
+            }
+            if (message == null) {
                 // should not happens
                 message = getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_INTERNAL_ERROR)
                         .format(blockToString(estimationBlock), getThesaurus().getFormat(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME)
