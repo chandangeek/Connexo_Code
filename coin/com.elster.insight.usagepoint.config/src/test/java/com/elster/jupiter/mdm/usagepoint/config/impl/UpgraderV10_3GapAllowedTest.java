@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -29,6 +31,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -52,8 +56,11 @@ public class UpgraderV10_3GapAllowedTest {
     private MetrologyConfigurationsInstaller metrologyConfigurationsInstaller;
     @Mock
     private DataModelUpgrader dataModelUpgrader;
+    @Mock
+    private CalendarService calendarService;
     @InjectMocks
     private UpgraderV10_3 upgrader;
+
     private UsagePointMetrologyConfiguration notOotbConfiguration;
 
     @Before
@@ -67,6 +74,11 @@ public class UpgraderV10_3GapAllowedTest {
                 .thenReturn(Optional.of(mock
                         (MetrologyConfiguration.class)))
                 .thenReturn(Optional.empty());
+        CalendarService.EventSetBuilder eventSetBuilder = mock(CalendarService.EventSetBuilder.class, RETURNS_DEEP_STUBS);
+        EventSet eventSet = mock(EventSet.class);
+        when(eventSetBuilder.add()).thenReturn(eventSet);
+        when(this.calendarService.newEventSet(anyString())).thenReturn(eventSetBuilder);
+        when(this.calendarService.findEventSetByName(anyString())).thenReturn(Optional.of(eventSet));
         notOotbConfiguration = mockMetrologyConfiguration("Not OOTB", false);
     }
 
@@ -81,7 +93,7 @@ public class UpgraderV10_3GapAllowedTest {
         correctOotbMetrologyConfigurations.addAll(Arrays.stream(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration
                 .values()).map
                 (ootbMetrologyConfiguration -> mockMetrologyConfiguration(ootbMetrologyConfiguration.getName(),
-                        ootbMetrologyConfiguration.isGapAllowed())).collect(Collectors.toList()));
+                        ootbMetrologyConfiguration.areGapsAllowed())).collect(Collectors.toList()));
 
         when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn
                 (Stream.concat(correctOotbMetrologyConfigurations.stream(), Stream.of(notOotbConfiguration))
@@ -107,7 +119,7 @@ public class UpgraderV10_3GapAllowedTest {
         incorrectOotbMetrologyConfigurations.addAll(Arrays.stream(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration
                 .values())
                 .map(ootbMetrologyConfiguration -> mockMetrologyConfiguration(ootbMetrologyConfiguration.getName(),
-                        !ootbMetrologyConfiguration.isGapAllowed()))
+                        !ootbMetrologyConfiguration.areGapsAllowed()))
                 .collect(Collectors.toList()));
 
         when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn
@@ -126,7 +138,7 @@ public class UpgraderV10_3GapAllowedTest {
         UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
 
         when(metrologyConfiguration.getName()).thenReturn(name);
-        when(metrologyConfiguration.isGapAllowed()).thenReturn(isGapAllowed);
+        when(metrologyConfiguration.areGapsAllowed()).thenReturn(isGapAllowed);
 
         MetrologyConfigurationUpdater updater = mock(MetrologyConfigurationUpdater.class);
         when(updater.setGapAllowed(anyBoolean())).thenReturn(updater);
