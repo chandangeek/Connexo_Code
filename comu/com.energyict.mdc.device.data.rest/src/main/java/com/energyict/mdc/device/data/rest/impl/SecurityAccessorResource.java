@@ -22,6 +22,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.rest.AliasInfo;
 import com.energyict.mdc.device.data.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -39,8 +40,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -319,16 +323,25 @@ public class SecurityAccessorResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
             com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
             com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
-    public List<String> aliasSource(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter) {
-        PkiService.AliasSearchFilter aliasSearchFilter = new PkiService.AliasSearchFilter();
-        String alias = jsonQueryFilter.getString("alias");
+    public PagedInfoList aliasSource(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
 
-        Long trustStoreId = jsonQueryFilter.getLong("trustStore");
+        PkiService.AliasSearchFilter aliasSearchFilter = new PkiService.AliasSearchFilter();
+        String alias = null;
+        Long trustStoreId = null;
+
+        MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
+        if (uriParams.containsKey("alias")) {
+            alias = params.getFirst("alias");
+        }
+        if (uriParams.containsKey("trustStore")) {
+            trustStoreId = Long.valueOf(params.getFirst("trustStore"));
+        }
+
         if (trustStoreId!=null) {
             aliasSearchFilter.trustStore = pkiService.findTrustStore(trustStoreId)
                     .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_TRUST_STORE, "trustStore"));
         }
-        if (!jsonQueryFilter.hasFilters() || alias ==null || alias.isEmpty() ) {
+        if (alias ==null || alias.isEmpty() ) {
             aliasSearchFilter.alias="*";
         }
         if (alias!=null && !alias.isEmpty()) {
@@ -338,7 +351,8 @@ public class SecurityAccessorResource {
                 aliasSearchFilter.alias=alias;
             }
         }
-        return pkiService.getAliasesByFilter(aliasSearchFilter);
+        List<AliasInfo> aliasInfos = AliasInfo.fromAliases(pkiService.getAliasesByFilter(aliasSearchFilter));
+        return PagedInfoList.fromPagedList("aliases", aliasInfos, queryParameters);
     }
 
     private KeyAccessorType findKeyAccessorTypeOrThrowException(@PathParam("id") long keyAccessorTypeId, Device device) {

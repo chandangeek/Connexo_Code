@@ -148,12 +148,11 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         SecurityAccessorInfo response = target("/devices/BVN001/securityaccessors/certificates/222").request().get(SecurityAccessorInfo.class);
         URI uri = new URI(response.currentProperties.get(0).propertyTypeInfo.propertyValuesResource.possibleValuesURI);
         Response response1 = target(uri.getPath())
-                .queryParam("filter", ExtjsFilter.filter("alias", "com"))
                 .request()
                 .get();
         ArgumentCaptor<PkiService.AliasSearchFilter> captor = ArgumentCaptor.forClass(PkiService.AliasSearchFilter.class);
         verify(pkiService, times(1)).getAliasesByFilter(captor.capture());
-        assertThat(captor.getValue().alias).isEqualTo("*com*");
+        assertThat(captor.getValue().alias).isEqualTo("*");
         assertThat(captor.getValue().trustStore).isNull();
     }
 
@@ -162,7 +161,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         SecurityAccessorInfo response = target("/devices/BVN001/securityaccessors/certificates/222").request().get(SecurityAccessorInfo.class);
         URI uri = new URI(response.currentProperties.get(0).propertyTypeInfo.propertyValuesResource.possibleValuesURI);
         Response response1 = target(uri.getPath())
-                .queryParam("filter", ExtjsFilter.filter("alias", "com*"))
+                .queryParam("alias", "com*")
                 .request()
                 .get();
         ArgumentCaptor<PkiService.AliasSearchFilter> captor = ArgumentCaptor.forClass(PkiService.AliasSearchFilter.class);
@@ -178,7 +177,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         TrustStore trustStore = mock(TrustStore.class);
         when(pkiService.findTrustStore(14L)).thenReturn(Optional.ofNullable(trustStore));
         Response response1 = target(uri.getPath())
-                .queryParam("filter", ExtjsFilter.filter().property("alias", "com*").property("trustStore", 14L).create())
+                .queryParam("alias", "com*")
+                .queryParam("trustStore", 14L)
                 .request()
                 .get();
         ArgumentCaptor<PkiService.AliasSearchFilter> captor = ArgumentCaptor.forClass(PkiService.AliasSearchFilter.class);
@@ -195,7 +195,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         when(pkiService.findTrustStore(16L)).thenReturn(Optional.ofNullable(trustStore));
 
         Response response1 = target(uri.getPath())
-                .queryParam("filter", ExtjsFilter.filter().property("alias", "").property("trustStore", 16L).create())
+                .queryParam("alias", "")
+                .queryParam("trustStore", 16L)
                 .request()
                 .get();
         ArgumentCaptor<PkiService.AliasSearchFilter> captor = ArgumentCaptor.forClass(PkiService.AliasSearchFilter.class);
