@@ -1456,6 +1456,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             return record.get('value') || record.get('collectedValue')
         }));
 
+        menu.down('#copy-form-value').setVisible(selectedRecords);
         menu.down('#correct-value').setVisible(_.find(selectedRecords, function (record) {
             return record.get('value')
         }));
