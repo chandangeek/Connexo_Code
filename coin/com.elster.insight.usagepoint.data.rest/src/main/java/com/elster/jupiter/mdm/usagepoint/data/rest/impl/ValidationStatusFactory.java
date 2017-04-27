@@ -4,19 +4,17 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -26,7 +24,6 @@ import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
 
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -42,7 +39,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -62,46 +58,65 @@ public class ValidationStatusFactory {
     }
 
     public UsagePointValidationStatusInfo getValidationStatusInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract,
-                                                                  List<Channel> channels, Range<Instant> interval) {
+                                                                  Channel channel, Range<Instant> interval) {
         UsagePointValidationStatusInfo info = new UsagePointValidationStatusInfo();
-        Optional<ChannelsContainer> channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract);
-        if (channelsContainer.isPresent()) {
+        if (metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()) {
             ValidationEvaluator validationEvaluator = validationService.getEvaluator();
-            List<DataValidationStatus> validationStatuses = getDataValidationStatuses(validationEvaluator, channels, interval);
-            if (metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()) {
-                info.validationActive = isValidationActive(metrologyContract, channels);
-                info.lastChecked = getLastCheckedForChannels(validationEvaluator, channelsContainer.get(), channels);
-                if (interval != null) {
-                    setReasonInfo(validationStatuses, info);
-                }
-                info.allDataValidated = allDataValidated(validationEvaluator, channels);
-                info.hasSuspects = hasSuspects(channels, interval != null ? interval : channelsContainer.get().getRange());
+            info.validationActive = validationEvaluator.isValidationEnabled(channel);
+            info.lastChecked = validationEvaluator.getLastChecked(channel.getChannelsContainer(), channel.getMainReadingType()).orElse(null);
+            if (interval != null) {
+                setReasonInfo(validationEvaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM), channel, Collections.emptyList(), interval != null ? interval : lastMonth()), info);
             }
+            info.allDataValidated = validationEvaluator.isAllDataValidated(Collections.singletonList(channel));
+            info.hasSuspects = validationEvaluator.areSuspectsPresent(EnumSet.of(QualityCodeSystem.MDM), channel, interval != null ? interval : lastMonth());
         }
         return info;
+
     }
 
-    private List<DataValidationStatus> getDataValidationStatuses(ValidationEvaluator validationEvaluator, List<Channel> channels, Range<Instant> interval) {
-        List<CimChannel> allOutputsAsCimChannels = channels.stream()
-                .map(channel -> channel.getCimChannel(channel.getMainReadingType())) // All channels for usage point have only main reading type, see AggregatedChannelImpl#getBulkQuantityReadingType()
-                .flatMap(Functions.asStream())
-                .collect(Collectors.toList());
-        return validationEvaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM), allOutputsAsCimChannels, Collections.emptyList(), interval != null ? interval : lastMonth());
+    public Map<ReadingTypeDeliverable, UsagePointValidationStatusInfo> getValidationStatusInfoForDeliverables(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
+                                                                                                              MetrologyContract metrologyContract, Range<Instant> interval) {
+        if (metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()) {
+            ChannelsContainer container = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
+            ValidationEvaluator validationEvaluator = validationService.getEvaluator(container);
+            Map<ReadingTypeDeliverable, UsagePointValidationStatusInfo> result = new HashMap<>();
+
+            for (ReadingTypeDeliverable readingTypeDeliverable : metrologyContract.getDeliverables()) {
+                UsagePointValidationStatusInfo info = new UsagePointValidationStatusInfo();
+                container.getChannel(readingTypeDeliverable.getReadingType()).ifPresent(channel -> {
+                    info.validationActive = validationEvaluator.isValidationEnabled(channel);
+                    info.lastChecked = validationEvaluator.getLastChecked(container, readingTypeDeliverable.getReadingType()).orElse(null);
+                    info.allDataValidated = validationEvaluator.isAllDataValidated(Collections.singletonList(channel));
+                    info.hasSuspects = validationEvaluator.areSuspectsPresent(EnumSet.of(QualityCodeSystem.MDM), channel, interval != null ? interval : lastMonth());
+                    if (interval != null) {
+                        setReasonInfo(validationEvaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM), channel, Collections.emptyList(), interval != null ? interval : lastMonth()), info);
+                    }
+                });
+                result.put(readingTypeDeliverable, info);
+            }
+            return result;
+        } else {
+            return Collections.emptyMap();
+        }
+    }
+
+    public UsagePointValidationStatusInfo getValidationStatusInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract, ChannelsContainer channelsContainer) {
+        UsagePointValidationStatusInfo info = new UsagePointValidationStatusInfo();
+        if (metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()) {
+            ValidationEvaluator validationEvaluator = validationService.getEvaluator();
+            info.validationActive = validationService.isValidationActive(channelsContainer);
+            info.lastChecked = validationService.getLastChecked(channelsContainer).orElse(null);
+            info.allDataValidated = validationEvaluator.isAllDataValidated(channelsContainer);
+            info.hasSuspects = validationEvaluator.areSuspectsPresent(EnumSet.of(QualityCodeSystem.MDM), channelsContainer);
+
+        }
+        return info;
     }
 
     private Range<Instant> lastMonth() {
         ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
         ZonedDateTime start = end.minusMonths(1);
         return Range.openClosed(start.toInstant(), end.toInstant());
-    }
-
-    public Instant getLastCheckedForChannels(ValidationEvaluator validationEvaluator, ChannelsContainer channelsContainer, List<Channel> channels) {
-        return channels.stream()
-                .map(channel -> validationEvaluator.getLastChecked(channelsContainer, channel.getMainReadingType()))
-                .filter(Objects::nonNull)
-                .flatMap(Functions.asStream())
-                .min(Ordering.natural())
-                .orElse(null);
     }
 
     private void setReasonInfo(List<DataValidationStatus> validationStatuses, UsagePointValidationStatusInfo info) {
@@ -188,26 +203,4 @@ public class ValidationStatusFactory {
         return info;
     }
 
-    private boolean allDataValidated(ValidationEvaluator validationEvaluator, List<Channel> channels) {
-        return validationEvaluator.isAllDataValidated(channels);
-    }
-
-    public boolean isValidationActive(MetrologyContract metrologyContract, List<Channel> channels) {
-        return channels.stream()
-                .map(Channel::getMainReadingType)
-                .anyMatch(readingType -> usagePointConfigurationService.getValidationRuleSets(metrologyContract).stream()
-                        .flatMap(validationRuleSet -> validationRuleSet.getRules().stream())
-                        .anyMatch(rule -> rule.isActive() && rule.appliesTo(readingType)));
-    }
-
-    public boolean hasSuspects(List<Channel> channels, Range<Instant> range) {
-        return channels.stream()
-                .anyMatch(channel -> channel.findReadingQualities()
-                        .ofQualitySystems(EnumSet.of(QualityCodeSystem.MDM))
-                        .ofQualityIndex(QualityCodeIndex.SUSPECT)
-                        .inTimeInterval(range)
-                        .actual()
-                        .findFirst()
-                        .isPresent());
-    }
 }
