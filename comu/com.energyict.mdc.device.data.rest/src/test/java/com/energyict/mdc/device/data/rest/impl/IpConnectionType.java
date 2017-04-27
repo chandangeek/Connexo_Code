@@ -8,18 +8,21 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.inject.Inject;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Models a {@link ConnectionType} for TCP/IP that does not support
@@ -41,17 +44,32 @@ public abstract class IpConnectionType implements ConnectionType {
     }
 
     @Override
-    public boolean allowsSimultaneousConnections () {
+    public ComChannel connect() throws ConnectionException {
+        return null;
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
+    }
+
+    @Override
+    public boolean allowsSimultaneousConnections() {
         return true;
     }
 
     @Override
-    public boolean supportsComWindow () {
+    public boolean supportsComWindow() {
         return false;
     }
 
     @Override
-    public Set<ComPortType> getSupportedComPortTypes () {
+    public Set<ComPortType> getSupportedComPortTypes() {
         return EnumSet.of(ComPortType.TCP, ComPortType.UDP);
     }
 
@@ -61,7 +79,7 @@ public abstract class IpConnectionType implements ConnectionType {
     }
 
     @Override
-    public String getVersion () {
+    public String getVersion() {
         return "For Unit Testing purposes only";
     }
 
@@ -80,12 +98,12 @@ public abstract class IpConnectionType implements ConnectionType {
     }
 
     @Override
-    public int hashCode () {
+    public int hashCode() {
         return HASH_CODE;
     }
 
     @Override
-    public boolean equals (Object obj) {
+    public boolean equals(Object obj) {
         return obj instanceof IpConnectionType || super.equals(obj);
     }
 
