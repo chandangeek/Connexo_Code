@@ -36,5 +36,15 @@ Ext.define('Uni.property.view.property.UsagePoint', {
                 }
             }
         };
+    },
+
+    getField: function () {
+        return this.down('combobox');
+    },
+
+    setValue: function (value) {
+        var me = this,
+            combo = me.getField();
+        combo.setValue(value);
     }
 });
