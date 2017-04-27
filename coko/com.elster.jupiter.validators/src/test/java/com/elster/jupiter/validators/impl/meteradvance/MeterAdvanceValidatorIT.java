@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ReadingTypeValueFactory;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
@@ -28,7 +29,6 @@ import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.Validator;
-import com.elster.jupiter.validators.impl.properties.ReadingTypeReference;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -736,7 +736,7 @@ public class MeterAdvanceValidatorIT {
 
     private Validator createValidatorWithDefaultProperties() {
         Map<String, Object> properties = ImmutableMap.of(
-                MeterAdvanceValidator.REFERENCE_READING_TYPE, new ReadingTypeReference(getReadingType(BULK_A_PLUS_MWH)),
+                MeterAdvanceValidator.REFERENCE_READING_TYPE, new ReadingTypeValueFactory.ReadingTypeReference(getReadingType(BULK_A_PLUS_MWH)),
                 MeterAdvanceValidator.MAX_ABSOLUTE_DIFFERENCE, new TwoValuesDifference(TwoValuesDifference.Type.ABSOLUTE, new BigDecimal(0.001)),
                 MeterAdvanceValidator.REFERENCE_PERIOD, NoneOrTimeDurationValue.of(new TimeDuration(7, TimeDuration.TimeUnit.DAYS)),
                 MeterAdvanceValidator.MIN_THRESHOLD, NoneOrBigDecimal.of(new BigDecimal(0.001))

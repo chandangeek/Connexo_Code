@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeComparator;
+import com.elster.jupiter.metering.ReadingTypeValueFactory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
@@ -37,8 +38,6 @@ import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.impl.AbstractValidator;
 import com.elster.jupiter.validators.impl.MessageSeeds;
-import com.elster.jupiter.validators.impl.properties.ReadingTypeReference;
-import com.elster.jupiter.validators.impl.properties.ReadingTypeValueFactory;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -167,8 +166,8 @@ public class MeterAdvanceValidator extends AbstractValidator {
                         .orElseThrow(() -> new IllegalArgumentException("Channels container must refer either to meter or usage point")));
     }
 
-    private ReadingTypeReference getReferenceReadingTypeProperty() {
-        return (ReadingTypeReference) super.properties.get(REFERENCE_READING_TYPE);
+    private ReadingTypeValueFactory.ReadingTypeReference getReferenceReadingTypeProperty() {
+        return (ReadingTypeValueFactory.ReadingTypeReference) super.properties.get(REFERENCE_READING_TYPE);
     }
 
     private TwoValuesDifference getMaximumDifferenceProperty() {

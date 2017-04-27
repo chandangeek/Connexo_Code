@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeComparator;
+import com.elster.jupiter.metering.ReadingTypeValueFactory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -21,8 +22,6 @@ import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validators.MissingRequiredProperty;
-import com.elster.jupiter.validators.impl.properties.ReadingTypeReference;
-import com.elster.jupiter.validators.impl.properties.ReadingTypeValueFactory;
 
 import com.google.common.collect.Range;
 
@@ -130,8 +129,8 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
                 .finish();
     }
 
-    private ReadingTypeReference getReferenceReadingTypeProperty() {
-        return (ReadingTypeReference) super.properties.get(CHECK_READING_TYPE);
+    private ReadingTypeValueFactory.ReadingTypeReference getReferenceReadingTypeProperty() {
+        return (ReadingTypeValueFactory.ReadingTypeReference) super.properties.get(CHECK_READING_TYPE);
     }
 
     @Override

@@ -22,6 +22,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ReadingTypeValueFactory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -37,8 +38,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validators.impl.MessageSeeds;
-import com.elster.jupiter.validators.impl.properties.ReadingTypeReference;
-import com.elster.jupiter.validators.impl.properties.ReadingTypeValueFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -131,7 +130,7 @@ public class MeterAdvanceValidatorTest {
         when(channelsContainer.getChannel(referenceReadingType)).thenReturn(Optional.of(register));
 
         Map<String, Object> properties = ImmutableMap.of(
-                MeterAdvanceValidator.REFERENCE_READING_TYPE, new ReadingTypeReference(this.readingType),
+                MeterAdvanceValidator.REFERENCE_READING_TYPE, new ReadingTypeValueFactory.ReadingTypeReference(this.readingType),
                 MeterAdvanceValidator.MAX_ABSOLUTE_DIFFERENCE, new TwoValuesDifference(TwoValuesDifference.Type.ABSOLUTE, MAX_DIFFERENCE),
                 MeterAdvanceValidator.REFERENCE_PERIOD, new TimeDuration(10, TimeDuration.TimeUnit.DAYS),
                 MeterAdvanceValidator.MIN_THRESHOLD, NoneOrBigDecimal.of(MIN_THRESHOLD)

@@ -20,11 +20,8 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validators.impl.meteradvance.MeterAdvanceValidator;
-import com.elster.jupiter.validators.impl.properties.ReadingTypeValueConverter;
 
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -70,19 +67,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
         setValidationService(validationService);
         setPropertyValueInfoService(propertyValueInfoService);
         setMeteringService(meteringService);
-        activate();
     }
-
-    @Activate
-    public void activate() {
-        propertyValueInfoService.addPropertyValueInfoConverter(ReadingTypeValueConverter.INSTANCE);
-    }
-
-    @Deactivate
-    public void deactivate() {
-        propertyValueInfoService.removePropertyValueInfoConverter(ReadingTypeValueConverter.INSTANCE);
-    }
-
 
     @Reference
     public void setMeteringService(MeteringService meteringService) {
