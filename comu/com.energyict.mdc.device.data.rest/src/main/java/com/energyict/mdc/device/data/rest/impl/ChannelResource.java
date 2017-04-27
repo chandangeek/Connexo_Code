@@ -627,7 +627,8 @@ public class ChannelResource {
     private void processCalculatedInfo(ChannelDataInfo channelDataInfo, List<BaseReading> estimatedReadings, List<BaseReading> editedReadings) {
         if (channelDataInfo.value != null) {
             BaseReading baseReading = channelDataInfo.createNew();
-            Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.mainValidationInfo.commentId);
+            Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.mainValidationInfo == null ? 0
+                    : channelDataInfo.mainValidationInfo.commentId);
             if (channelDataInfo.mainValidationInfo != null && channelDataInfo.mainValidationInfo.ruleId != 0) {
                 ((BaseReadingImpl) baseReading).addQuality("2.8." + channelDataInfo.mainValidationInfo.ruleId, this.extractComment(readingQualityComment));
                 estimatedReadings.add(baseReading);
@@ -641,7 +642,8 @@ public class ChannelResource {
     private void processBulkInfo(ChannelDataInfo channelDataInfo, List<BaseReading> estimatedBulkReadings, List<BaseReading> editedBulkReadings) {
         if (channelDataInfo.collectedValue != null) {
             BaseReading baseReading = channelDataInfo.createNewBulk();
-            Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.bulkValidationInfo.commentId);
+            Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.bulkValidationInfo == null ? 0
+                    : channelDataInfo.bulkValidationInfo.commentId);
             if (channelDataInfo.bulkValidationInfo != null && channelDataInfo.bulkValidationInfo.ruleId != 0) {
                 ((BaseReadingImpl) baseReading).addQuality("2.8." + channelDataInfo.bulkValidationInfo.ruleId, this.extractComment(readingQualityComment));
                 estimatedBulkReadings.add(baseReading);
