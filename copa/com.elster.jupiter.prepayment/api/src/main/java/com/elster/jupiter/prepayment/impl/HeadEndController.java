@@ -16,7 +16,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.units.Quantity;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 
 import javax.inject.Inject;
 import java.time.Instant;
