@@ -16,7 +16,9 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                 itemId: 'pkj-download-certificate-menu-item',
                 privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 action: 'downloadCertificate',
-                hidden: Ext.isEmpty(me.record) || !me.record.get('hasCertificate'),
+                visible: function(record) {
+                    return !Ext.isEmpty(record) && record.get('hasCertificate');
+                },
                 section: this.SECTION_ACTION
             },
             {
@@ -24,7 +26,9 @@ Ext.define('Pkj.view.CertificateActionMenu', {
                 itemId: 'pkj-download-csr-menu-item',
                 privileges: Pkj.privileges.CertificateManagement.adminCertificates,
                 action: 'downloadCSR',
-                hidden: Ext.isEmpty(me.record) || !me.record.get('hasCSR'),
+                visible: function(record) {
+                    return !Ext.isEmpty(record) && record.get('hasCSR');
+                },
                 section: this.SECTION_ACTION
             },
             {
@@ -46,9 +50,18 @@ Ext.define('Pkj.view.CertificateActionMenu', {
     },
 
     listeners: {
-        show: {
+        beforeshow: {
             fn: function (menu) {
-                menu.down('[action=downloadCertificate]').setVisible( !Ext.isEmpty(menu.record) && menu.record.get('hasCertificate') )
+                var me = this,
+                    visible = true;
+
+                me.items.each(function(item) {
+                    visible = true;
+                    if (Ext.isDefined(item.visible)) {
+                        visible = visible && item.visible.call(me, menu.record);
+                    }
+                    item.setVisible(visible);
+                });
             }
         }
     }
