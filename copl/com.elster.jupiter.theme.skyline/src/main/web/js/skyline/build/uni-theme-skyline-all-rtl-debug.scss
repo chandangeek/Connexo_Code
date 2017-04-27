@@ -1,8 +1,4 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
-$image-search-path: 'D:/projects/jupiter/copl/com.elster.jupiter.theme.skyline/src/main/web/js/skyline/build/resources' !default;
+$image-search-path: '/home/tvn/connexo/jupiter/copl/com.elster.jupiter.theme.skyline/src/main/web/js/skyline/build/resources' !default;
 $theme-name:  'uni-theme-skyline' !default;
 $include-ext-abstractcomponent: true;
 $include-ext-abstractmanager: true;
@@ -548,7 +544,6 @@ $include-extthemeneptune-toolbar-toolbar: true;
 @import '../sass/var/window/Window';
 @import '../sass/var/form/Labelable';
 @import '../sass/var/form/field/Base';
-@import '../sass/var/form/field/CheckBox';
 @import '../sass/var/picker/Date';
 @import '../sass/var/panel/Table';
 @import '../sass/var/grid/header/Container';
@@ -810,10 +805,10 @@ $relative-image-path-for-uis: $uni-theme-skyline-resource-path;
 @import '../sass/src/form/field/Trigger';
 @import '../sass/src/toolbar/Paging';
 @import '../sass/src/view/BoundList';
-@import '../sass/src/form/field/Combobox';
 @import '../sass/src/picker/Date';
 @import '../sass/src/panel/Table';
 @import '../sass/src/grid/header/Container';
 @import '../sass/src/menu/Menu';
+@import '../sass/src/panel/Tool';
 @import '../sass/src/tab/Tab';
 @import '../sass/src/tab/Bar';
