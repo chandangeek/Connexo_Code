@@ -89,9 +89,10 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow', {
                                         var estimator = implementationCombo.getStore().getById(newValue),
                                             errorLabel = implementationCombo.up('reading-estimation-with-rule-window').down('#error-label'),
                                             hasEmptyRequiredProperties;
-
+                                        Ext.suspendLayouts();
                                         if (estimator) {
                                             me.down('property-form').loadRecord(estimator);
+                                            me.down('#estimation-comment').show();
                                             hasEmptyRequiredProperties = estimator.properties().getRange().find(function(property) {
                                                 return property.get('required') && Ext.isEmpty(property.get('value'));
                                             });
@@ -106,6 +107,7 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow', {
                                         me.updateLayout();
                                         me.center();
                                         me.down('#estimate-reading-button').setDisabled(!!hasEmptyRequiredProperties);
+                                        Ext.resumeLayouts(true);
                                     }
                                 }
                             }
@@ -129,6 +131,16 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow', {
                     isReadOnly: true,
                     defaults: {
                         labelWidth: 200
+                    }
+                },
+                {
+                    xtype: 'displayfield',
+                    itemId: 'estimation-comment',
+                    fieldLabel: Uni.I18n.translate('general.estimationComment', 'MDC', 'Estimation comment'),
+                    name: 'commentValue',
+                    hidden: true,
+                    renderer: function (value) {
+                        return value ? value : '-';
                     }
                 },
                 {

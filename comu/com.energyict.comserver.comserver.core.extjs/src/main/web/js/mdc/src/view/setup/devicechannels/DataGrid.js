@@ -90,7 +90,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
-                    return me.formatColumn(v, metaData, record, record.get('mainValidationInfo'));
+                    return me.formatColumn(v, metaData, record, 'mainValidationInfo');
                 },
                 editor: {
                     xtype: 'textfield',
@@ -109,7 +109,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
-                    return me.formatColumn(v, metaData, record, record.get('mainValidationInfo'));
+                    return me.formatColumn(v, metaData, record, 'mainValidationInfo');
                 },
                 hidden: Mdc.dynamicprivileges.DeviceState.canEditData(),
                 width: 200
@@ -128,7 +128,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 align: 'right',
                 hidden: Ext.isEmpty(calculatedReadingType),
                 renderer: function (v, metaData, record) {
-                    return me.formatColumn(v, metaData, record, record.get('bulkValidationInfo'));
+                    return me.formatColumn(v, metaData, record, 'bulkValidationInfo');
                 }
             },
             {
@@ -214,12 +214,19 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             date,
             tooltipText,
             formattedDate,
+            validationFlag = validationInfo === 'mainValidationInfo' ? 'mainValidationInfo' : validationInfo ==='bulkValidationInfo' ? 'bulkValidationInfo' : null,
+            validationInfo = validationFlag ? record.get(validationInfo) : validationInfo,
+            estimationComment = null,
             value = Ext.isEmpty(v)
                 ? '-'
                 : Uni.Number.formatNumber(
                     v.toString(),
                     me.channelRecord && !Ext.isEmpty(me.channelRecord.get('overruledNbrOfFractionDigits')) ? me.channelRecord.get('overruledNbrOfFractionDigits') : -1
                 );
+
+        if (validationFlag && validationInfo && validationInfo.commentValue) {
+            estimationComment = validationInfo.commentValue;
+        }
 
         if (status === 'notValidated') {
             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
@@ -237,8 +244,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 [Uni.DateTime.formatDateLong(date), Uni.DateTime.formatTimeLong(date)]
             );
             tooltipText = Uni.I18n.translate('general.estimatedOnX', 'MDC', 'Estimated on {0}', formattedDate);
-            if (record.get('commitValue')) {
-                tooltipText += Uni.I18n.translate('general.estimationCommentWithComment', 'MDC', 'Estimated comment: {0}', record.get('commitValue'));
+            if (estimationComment) {
+                tooltipText += Uni.I18n.translate('general.estimationCommentWithComment', 'MDC', 'Estimated comment: {0}', estimationComment);
             }
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
                 + tooltipText + '"></span>';
