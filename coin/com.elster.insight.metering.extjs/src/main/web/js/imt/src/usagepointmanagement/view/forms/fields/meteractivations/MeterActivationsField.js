@@ -18,6 +18,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
             xtype: me.hasMetrologyConfiguration() ? 'meter-activations-grid' : 'meter-activations-no-metrology-grid',
             itemId: 'meter-activations-grid',
             meterRoles: me.meterRoles,
+            usagePoint: me.usagePoint,
             maxHeight: 500,
             listeners: {
                 edit: Ext.bind(me.onMeterActivationEdit, me)
