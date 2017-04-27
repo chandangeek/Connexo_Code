@@ -538,8 +538,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         Ext.suspendLayouts();
         menu.down('#estimate-value').setVisible(canEstimate);
         menu.down('#estimate-value-with-rule').setVisible(canEstimateWithRule);
-        // menu.down('#edit-estimation-comment').setVisible(canEditingComment);
-        menu.down('#edit-estimation-comment').setVisible(true);
+        menu.down('#edit-estimation-comment').setVisible(canEditingComment);
+        // menu.down('#edit-estimation-comment').setVisible(true);
         menu.down('#copy-form-value').setVisible(canCopyFromReference);
         menu.down('#confirm-value').setVisible(canConfirm);
         menu.down('#reset-value').setVisible(canReset);
