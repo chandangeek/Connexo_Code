@@ -88,6 +88,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
 
         _.each(meterActivations, function (meterActivation) {
             delete meterActivation['isAddRow'];
+            delete meterActivation['meterRoleId'];
 
             if (meterActivation.meter) {
                 if (typeof meterActivation.meterRole == 'string') {
