@@ -1,6 +1,25 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
+import com.energyict.cim.EndDeviceEventTypeMapping;
+import com.energyict.mdc.channels.EmptyConnectionType;
+import com.energyict.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.mdc.channels.inbound.EIWebPlusConnectionType;
+import com.energyict.mdc.channels.ip.CTRInboundDialHomeIdConnectionType;
+import com.energyict.mdc.channels.ip.InboundIpConnectionType;
+import com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.ip.socket.TcpIpPostDialConnectionType;
+import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
+import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
+import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
+import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
+import com.energyict.mdc.channels.serial.modem.serialio.SioCaseModemConnectionType;
+import com.energyict.mdc.channels.serial.modem.serialio.SioPEMPModemConnectionType;
+import com.energyict.mdc.channels.serial.modem.serialio.SioPaknetModemConnectionType;
+import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
+import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
+import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocol;
@@ -35,8 +54,6 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
-import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -60,10 +77,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -477,7 +492,27 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.asList(new OutboundTcpIpConnectionType(propertySpecService));
+        return Arrays.asList(
+                new EmptyConnectionType(),
+                new OutboundProximusSmsConnectionType(propertySpecService),
+                new CTRInboundDialHomeIdConnectionType(propertySpecService),
+                new SioSerialConnectionType(propertySpecService),
+                new SioOpticalConnectionType(propertySpecService),
+                new SioAtModemConnectionType(propertySpecService),
+                new SioCaseModemConnectionType(propertySpecService),
+                new SioPaknetModemConnectionType(propertySpecService),
+                new SioPEMPModemConnectionType(propertySpecService),
+                new RxTxSerialConnectionType(propertySpecService),
+                new RxTxAtModemConnectionType(propertySpecService),
+                new RxTxOpticalConnectionType(propertySpecService),
+                new InboundProximusSmsConnectionType(propertySpecService),
+                new InboundIpConnectionType(),
+                new OutboundUdpConnectionType(propertySpecService),
+                new OutboundTcpIpConnectionType(propertySpecService),
+                new TcpIpPostDialConnectionType(propertySpecService),
+                new EIWebConnectionType(propertySpecService),
+                new EIWebPlusConnectionType(propertySpecService)
+        );
     }
 
     @Override
