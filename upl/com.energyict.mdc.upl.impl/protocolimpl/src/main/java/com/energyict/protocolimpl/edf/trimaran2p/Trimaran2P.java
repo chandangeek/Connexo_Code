@@ -138,21 +138,22 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink, Serial
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-		setT1Timeout(Integer.parseInt(properties.getTypedProperty("T1Timeout", "5000").trim()));
-		setSourceTransportAddress(Integer.parseInt(properties.getTypedProperty("STSAP", "0").trim()));
-		setDestinationTransportAddress(Integer.parseInt(properties.getTypedProperty("DTSAP", "2").trim()));
+		setT1Timeout(properties.getTypedProperty("T1Timeout", 5000));
+		setSourceTransportAddress(properties.getTypedProperty("STSAP", 0));
+		setDestinationTransportAddress(properties.getTypedProperty("DTSAP", 2));
 
 		setAPSEParameters(new APSEParameters());
-		getAPSEParameters().setClientType(Integer.parseInt(properties.getTypedProperty("ClientType", "40967").trim()));
+		getAPSEParameters().setClientType(properties.getTypedProperty("ClientType", 40967));
 		getAPSEParameters().setCallingPhysicalAddress(properties.getTypedProperty("CallingPhysicalAddress","30"));
-		getAPSEParameters().setProposedAppCtxName(Integer.parseInt(properties.getTypedProperty("ProposedAppCtxName","0").trim()));
+		getAPSEParameters().setProposedAppCtxName(properties.getTypedProperty("ProposedAppCtxName", 0));
 
 		setInfoTypePassword(properties.getTypedProperty(PASSWORD.getName(), "0000000000000000"));
 
-        if(Integer.parseInt(properties.getTypedProperty("DelayAfterConnect", "0")) == 1) {
-			delayAfterConnect = 6000;
+	    Integer delayAfterConnectValue = properties.getTypedProperty("DelayAfterConnect", -1);
+	    if (delayAfterConnectValue == 1) {
+			this.delayAfterConnect = 6000;
 		} else {
-			delayAfterConnect = Integer.parseInt(properties.getTypedProperty("DelayAfterConnect", "0").trim());
+			this.delayAfterConnect = delayAfterConnectValue == -1 ? 0 : delayAfterConnectValue;
 		}
 
         try {

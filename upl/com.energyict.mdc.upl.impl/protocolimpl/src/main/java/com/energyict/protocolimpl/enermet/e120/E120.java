@@ -169,18 +169,23 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
         super.setUPLProperties(properties);
         pUserId = properties.getTypedProperty(PK_USER_ID);
         pPassword = properties.getTypedProperty(PK_PASSWORD);
-        pChannelMap = new ProtocolChannelMap(((String) properties.getTypedProperty(PK_CHANNEL_MAP)));
+        pChannelMap = properties.getTypedProperty(PK_CHANNEL_MAP);
         if (propertyExists(properties, PK_RETRIES)) {
-            pRetries = Integer.parseInt(properties.getTypedProperty(PK_RETRIES));
+            pRetries = properties.getTypedProperty(PK_RETRIES);
         }
         if (propertyExists(properties, PK_EXTENDED_LOGGING)) {
-            pExtendedLogging = Integer.parseInt(properties.getTypedProperty(PK_EXTENDED_LOGGING));
+            pExtendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
         }
     }
 
     private boolean propertyExists(TypedProperties p, String key) {
-        String aProperty = p.getTypedProperty(key);
-        return (aProperty != null) && !"".equals(aProperty);
+        Object aProperty = p.getTypedProperty(key);
+        if (aProperty instanceof String) {
+            String string = (String) aProperty;
+            return (string != null) && !string.isEmpty();
+        } else {
+            return (aProperty != null);
+        }
     }
 
     int getRetries() {

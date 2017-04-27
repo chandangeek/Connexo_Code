@@ -1098,7 +1098,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                 this.integerSpec("ClientMacAddress", PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
                 this.integerSpec("ServerUpperMacAddress", PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
                 this.integerSpec("ServerLowerMacAddress", PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
-                this.integerSpec("FirmwareVersion", PropertyTranslationKeys.DLMS_FIRMWARE_VERSION),
+                this.stringSpec("FirmwareVersion", PropertyTranslationKeys.DLMS_FIRMWARE_VERSION),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.DLMS_NODEID),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.DLMS_SERIALNUMBER),
                 this.integerSpec("ExtendedLogging", PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
@@ -1134,42 +1134,45 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
-        try {
-            strID = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            iHDLCTimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "10").trim());
-            iSecurityLevelProperty = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "1").trim());
-            iRequestTimeZone = Integer.parseInt(properties.getTypedProperty("RequestTimeZone", "0").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
+        strID = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
+        strPassword = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
+        iHDLCTimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 10000);
+        iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 10);
+        iSecurityLevelProperty = properties.getTypedProperty(SECURITYLEVEL.getName(), 1);
+        iRequestTimeZone = properties.getTypedProperty("RequestTimeZone", 0);
+        iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
+        iClientMacAddress = properties.getTypedProperty("ClientMacAddress", 100);
+        iServerUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 1);
+        iServerLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 17);
+        firmwareVersion = properties.getTypedProperty("FirmwareVersion", "ANY");
+        nodeId = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+        // KV 19012004 get the serialNumber
+        serialNumber = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
+        extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
 
-            iClientMacAddress = Integer.parseInt(properties.getTypedProperty("ClientMacAddress", "100").trim());
-            iServerUpperMacAddress = Integer.parseInt(properties.getTypedProperty("ServerUpperMacAddress", "1").trim());
-            iServerLowerMacAddress = Integer.parseInt(properties.getTypedProperty("ServerLowerMacAddress", "17").trim());
-            firmwareVersion = properties.getTypedProperty("FirmwareVersion", "ANY");
-            nodeId = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
-            // KV 19012004 get the serialNumber
-            serialNumber = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0"));
-
-            if (Integer.parseInt(properties.getTypedProperty("LoadProfileId", "1")) == 1) {
+        int loadProfileId = properties.getTypedProperty("LoadProfileId", 1);
+        switch (loadProfileId) {
+            case 1: {
                 loadProfileObisCode = loadProfileObisCode1;
-            } else if (Integer.parseInt(properties.getTypedProperty("LoadProfileId", "1")) == 2) {
-                loadProfileObisCode = loadProfileObisCode2;
-            } else if (Integer.parseInt(properties.getTypedProperty("LoadProfileId", "1")) == 97) {
-                loadProfileObisCode = loadProfileObisCode97;
-            } else {
-                throw new InvalidPropertyException("IskraME37X, validateProperties, invalid LoadProfileId, " + Integer.parseInt(properties.getTypedProperty("LoadProfileId", "1")));
+                break;
             }
-
-            addressingMode = Integer.parseInt(properties.getTypedProperty("AddressingMode", "2"));
-            connectionMode = Integer.parseInt(properties.getTypedProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
-
-            rtuType = properties.getTypedProperty("DeviceType", "");
-
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+            case 2: {
+                loadProfileObisCode = loadProfileObisCode2;
+                break;
+            }
+            case 97: {
+                loadProfileObisCode = loadProfileObisCode97;
+                break;
+            }
+            default: {
+                throw new InvalidPropertyException("IskraME37X, validateProperties, invalid LoadProfileId, " + loadProfileId);
+            }
         }
+
+        addressingMode = properties.getTypedProperty("AddressingMode", 2);
+        connectionMode = properties.getTypedProperty("Connection", 0); // 0=HDLC, 1= TCP/IP
+
+        rtuType = properties.getTypedProperty("DeviceType", "");
     }
 
     @Override

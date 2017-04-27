@@ -10,9 +10,6 @@
 
 package com.energyict.protocolimpl.elster.a3;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
@@ -20,6 +17,10 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -191,20 +192,20 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
         propertySpecs.add(this.stringSpec(CALLED_AP_TITLE, PropertyTranslationKeys.ELSTER_CALLED_AP_TITLE, false));
         propertySpecs.add(this.stringSpec(SECURITY_KEY, PropertyTranslationKeys.ELSTER_SECURITY_KEY, false));
         propertySpecs.add(this.stringSpec(SECURITY_MODE, PropertyTranslationKeys.ELSTER_SECURITY_MODE, false));
-        propertySpecs.add(this.stringSpec("FrameControlToggleBitMode", PropertyTranslationKeys.ELSTER_FRAME_CONTROL_TOGGLE_BIT_MODE, false));
-        propertySpecs.add(this.stringSpec(PACKET_SIZE, PropertyTranslationKeys.ELSTER_PACKET_SIZE, false));
+        propertySpecs.add(this.integerSpec("FrameControlToggleBitMode", PropertyTranslationKeys.ELSTER_FRAME_CONTROL_TOGGLE_BIT_MODE, false));
+        propertySpecs.add(this.integerSpec(PACKET_SIZE, PropertyTranslationKeys.ELSTER_PACKET_SIZE, false));
         return propertySpecs;
     }
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getTypedProperty("ForcedDelay", "10").trim()));
+        setForcedDelay(properties.getTypedProperty("ForcedDelay", 10));
         setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "0"));
         c12User = properties.getTypedProperty("C12User", "");
-        c12UserId = Integer.parseInt(properties.getTypedProperty("C12UserId", "0").trim());
-        passwordBinary = Integer.parseInt(properties.getTypedProperty("PasswordBinary", "0").trim());
-        setRetrieveExtraIntervals(Integer.parseInt(properties.getTypedProperty("RetrieveExtraIntervals", "0").trim()));
+        c12UserId = properties.getTypedProperty("C12UserId", 0);
+        passwordBinary = properties.getTypedProperty("PasswordBinary", 0);
+        setRetrieveExtraIntervals(properties.getTypedProperty("RetrieveExtraIntervals", 0));
         calledAPTitle = properties.getTypedProperty(CALLED_AP_TITLE, "");
     	securityKey = properties.getTypedProperty(SECURITY_KEY, "");
     	securityMode = properties.getTypedProperty(SECURITY_MODE, "");
@@ -216,8 +217,8 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
                 throw new InvalidPropertyException("Length of password cannot be higher than 40 binary values. Please correct first.");
             }
         }
-        this.controlToggleBitMode = Integer.parseInt(properties.getTypedProperty("FrameControlToggleBitMode", "1"));
-        this.packetSize = Integer.parseInt(properties.getTypedProperty(PACKET_SIZE, "80"));
+        this.controlToggleBitMode = properties.getTypedProperty("FrameControlToggleBitMode", 1);
+        this.packetSize = properties.getTypedProperty(PACKET_SIZE, 80);
     }
 
     protected C1222Buffer checkForC1222() throws IOException {

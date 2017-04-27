@@ -122,9 +122,9 @@ public class AlphaBasic extends AbstractProtocol implements Alpha, SerialNumberS
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "0").trim()));
-        whoAreYouTimeout = Integer.parseInt(properties.getTypedProperty("WhoAreYouTimeout","300").trim());
-        totalRegisterRate = Integer.parseInt(properties.getTypedProperty("TotalRegisterRate","1").trim());
+        setForcedDelay(properties.getTypedProperty(PROP_FORCED_DELAY, 0));
+        whoAreYouTimeout = properties.getTypedProperty("WhoAreYouTimeout", 300);
+        totalRegisterRate = properties.getTypedProperty("TotalRegisterRate", 1);
     }
 
     @Override

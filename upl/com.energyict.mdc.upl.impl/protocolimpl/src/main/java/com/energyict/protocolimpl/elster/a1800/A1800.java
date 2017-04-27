@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.elster.a1800;
 
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
@@ -17,6 +16,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
@@ -80,7 +81,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
         manufacturerTableFactory = new ManufacturerTableFactory(this);
         standardProcedureFactory = new StandardProcedureFactory(this);
         manufacturerProcedureFactory = new ManufacturerProcedureFactory(this);
-        a1800LoadProfile = new 	A1800LoadProfile(this);
+        a1800LoadProfile = new A1800LoadProfile(this);
         return c12Layer2;
     }
 
@@ -94,14 +95,14 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getTypedProperty("ForcedDelay", "10").trim()));
+        setForcedDelay(properties.getTypedProperty("ForcedDelay", 10));
         setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "0"));
         c12User = properties.getTypedProperty("C12User", "");
-        c12UserId = Integer.parseInt(properties.getTypedProperty("C12UserId", "0").trim());
-        passwordBinary = Integer.parseInt(properties.getTypedProperty("PasswordBinary", "0").trim());
-        setRetrieveExtraIntervals(Integer.parseInt(properties.getTypedProperty("RetrieveExtraIntervals", "0").trim()));
+        c12UserId = properties.getTypedProperty("C12UserId", 0);
+        passwordBinary = properties.getTypedProperty("PasswordBinary", 0);
+        setRetrieveExtraIntervals(properties.getTypedProperty("RetrieveExtraIntervals", 0));
 
-		this.rs485RtuPlusServer = Integer.parseInt(properties.getTypedProperty("RS485RtuPlusServer", "0").trim());
+		this.rs485RtuPlusServer = properties.getTypedProperty("RS485RtuPlusServer", 0);
 		this.controlToggleBitMode = Integer.parseInt(properties.getTypedProperty("FrameControlToggleBitMode", "0"));
 	}
 

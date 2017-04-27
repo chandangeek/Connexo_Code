@@ -62,12 +62,12 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     public static final String CALLING_AP_TITLE_DEFAULT = "0000000000000000";
 
     private static final ObisCode FIRMWARE_VERSION = ObisCode.fromString("1.0.0.2.0.255");
-    private static final String READ_CACHE_DEFAULT_VALUE = "0";
+    private static final int READ_CACHE_DEFAULT_VALUE = 0;
     private static final String READCACHE_PROPERTY = "ReadCache";
     private static final String LIMITMAXNROFDAYS_PROPERTY = "LimitMaxNrOfDays";
     private static final String LOAD_PROFILE_OBIS_CODE_PROPERTY = "LoadProfileObisCode";
     private static final String OBISCODE_LOAD_PROFILE1 = "1.0.99.1.0.255";   //Quarterly
-    private static final String MAX_NR_OF_DAYS_DEFAULT = "0";
+    private static final int MAX_NR_OF_DAYS_DEFAULT = 0;
     public static final String VALIDATE_INVOKE_ID = "ValidateInvokeId";
     public static final String DEFAULT_VALIDATE_INVOKE_ID = "1";
     private static final String TIMEOUT = "timeout";
@@ -269,8 +269,8 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        readCache = Integer.parseInt(properties.getTypedProperty(READCACHE_PROPERTY, READ_CACHE_DEFAULT_VALUE).trim()) == 1;
-        limitMaxNrOfDays = Integer.parseInt(properties.getTypedProperty(LIMITMAXNROFDAYS_PROPERTY, MAX_NR_OF_DAYS_DEFAULT).trim());
+        readCache = properties.getTypedProperty(READCACHE_PROPERTY, READ_CACHE_DEFAULT_VALUE) == 1;
+        limitMaxNrOfDays = properties.getTypedProperty(LIMITMAXNROFDAYS_PROPERTY, MAX_NR_OF_DAYS_DEFAULT);
         String callingAPTitle = properties.getTypedProperty(CALLING_AP_TITLE, CALLING_AP_TITLE_DEFAULT).trim();
         setCallingAPTitle(callingAPTitle);
         loadProfileObisCode = ObisCode.fromString(properties.getTypedProperty(LOAD_PROFILE_OBIS_CODE_PROPERTY, OBISCODE_LOAD_PROFILE1).trim());

@@ -38,6 +38,8 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.logging.Logger;
 
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+
 /**
  *
  * @author  Koen
@@ -127,7 +129,7 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
         if ((getInfoTypePassword() != null) && ("".compareTo(getInfoTypePassword())!=0) && (getInfoTypePassword().length() != 16)) {
             throw new InvalidPropertyException("EZ7, doValidateProperties, password length error! Password must have a length of 16 characters!");
         }
-        setInfoTypeNodeAddress(properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "1A"));
+        setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "1A"));
     }
 
     @Override

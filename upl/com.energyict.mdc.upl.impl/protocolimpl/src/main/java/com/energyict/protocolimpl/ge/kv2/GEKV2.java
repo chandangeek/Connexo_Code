@@ -10,15 +10,16 @@
 
 package com.energyict.protocolimpl.ge.kv2;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -157,8 +158,8 @@ public class GEKV2 extends AbstractProtocol implements C12ProtocolLink, SerialNu
         setForcedDelay(Integer.parseInt(properties.getTypedProperty("ForcedDelay", "10").trim()));
         setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "64"));
         c12User = properties.getTypedProperty("C12User", "");
-        c12UserId = Integer.parseInt(properties.getTypedProperty("C12UserId", "0").trim());
-        setUseSnapshotProcedure(Integer.parseInt(properties.getTypedProperty("UseSnapshotProcedure", "1").trim()));
+        c12UserId = properties.getTypedProperty("C12UserId", 0);
+        setUseSnapshotProcedure(properties.getTypedProperty("UseSnapshotProcedure", 1));
         this.controlToggleBitMode = properties.getTypedProperty("FrameControlToggleBitMode", 2);
     }
 

@@ -989,7 +989,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                 this.integerSpec("ClientMacAddress", PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
                 this.integerSpec("ServerUpperMacAddress", PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
                 this.integerSpec("ServerLowerMacAddress", PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
-                this.integerSpec("FirmwareVersion", PropertyTranslationKeys.DLMS_FIRMWARE_VERSION),
+                this.stringSpec("FirmwareVersion", PropertyTranslationKeys.DLMS_FIRMWARE_VERSION),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.DLMS_NODEID),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.DLMS_SERIALNUMBER),
                 this.integerSpec("ExtendedLogging", PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
@@ -1027,22 +1027,22 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
         try {
             strID = properties.getTypedProperty(ADDRESS.getName());
             strPassword = properties.getTypedProperty(PASSWORD.getName());
-            iHDLCTimeoutProperty = Integer.parseInt(properties.getTypedProperty("Timeout", "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty("Retries", "10").trim());
-            iSecurityLevelProperty = Integer.parseInt(properties.getTypedProperty("SecurityLevel", "0").trim());
-            iRequestTimeZone = Integer.parseInt(properties.getTypedProperty("RequestTimeZone", "0").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty("RoundtripCorrection", "0").trim());
+            iHDLCTimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 10000);
+            iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 10);
+            iSecurityLevelProperty = properties.getTypedProperty(SECURITYLEVEL.getName(), 0);
+            iRequestTimeZone = properties.getTypedProperty("RequestTimeZone", 0);
+            iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
 
-            iClientMacAddress = Integer.parseInt(properties.getTypedProperty("ClientMacAddress", "16").trim());
-            iServerUpperMacAddress = Integer.parseInt(properties.getTypedProperty("ServerUpperMacAddress", "1").trim());
-            iServerLowerMacAddress = Integer.parseInt(properties.getTypedProperty("ServerLowerMacAddress", "0").trim());
+            iClientMacAddress = properties.getTypedProperty("ClientMacAddress", 16);
+            iServerUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 1);
+            iServerLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 0);
             firmwareVersion = properties.getTypedProperty("FirmwareVersion", "ANY");
             nodeId = properties.getTypedProperty(NODEID.getName(), "");
             // KV 19012004 get the serialNumber
             serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
-            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0"));
+            extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
 
-            int loadProfileIdPropertyValue = Integer.parseInt(properties.getTypedProperty("LoadProfileId", "1"));
+            int loadProfileIdPropertyValue = properties.getTypedProperty("LoadProfileId", 1);
             if (loadProfileIdPropertyValue == 1) {
                 loadProfileObisCode = loadProfileObisCode1;
             } else if (loadProfileIdPropertyValue == 2) {
@@ -1051,8 +1051,8 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
                 loadProfileObisCode = loadProfileObisCode97;
             }
 
-            addressingMode = Integer.parseInt(properties.getTypedProperty("AddressingMode", "-1"));
-            connectionMode = Integer.parseInt(properties.getTypedProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
+            addressingMode = properties.getTypedProperty("AddressingMode", -1);
+            connectionMode = properties.getTypedProperty("Connection", 0); // 0=HDLC, 1= TCP/IP
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, "Flex: validation of properties failed before");
         }

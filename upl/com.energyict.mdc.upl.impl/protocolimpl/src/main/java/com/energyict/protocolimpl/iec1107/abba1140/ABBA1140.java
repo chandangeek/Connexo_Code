@@ -249,78 +249,68 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
 
     @Override
     public void setUPLProperties(TypedProperties p) throws MissingPropertyException, InvalidPropertyException {
-        try {
-            if (p.getTypedProperty(ADDRESS.getName()) != null) {
-                pAddress = p.getTypedProperty(ADDRESS.getName());
-            }
-
-            if (p.getTypedProperty(NODEID.getName()) != null) {
-                pNodeId = p.getTypedProperty(NODEID.getName());
-            }
-
-            if (p.getTypedProperty(SERIALNUMBER.getName()) != null) {
-                pSerialNumber = p.getTypedProperty(SERIALNUMBER.getName());
-            }
-
-            if (p.getTypedProperty(PASSWORD.getName()) != null) {
-                pPassword = p.getTypedProperty(PASSWORD.getName());
-            }
-
-            if (p.getTypedProperty(PK_TIMEOUT) != null) {
-                pTimeout = Integer.parseInt(p.getTypedProperty(PK_TIMEOUT));
-            }
-
-            if (p.getTypedProperty(PK_RETRIES) != null) {
-                pRetries = Integer.parseInt(p.getTypedProperty(PK_RETRIES));
-            }
-
-            if (p.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
-                pRoundTripCorrection = Integer.parseInt(p.getTypedProperty(ROUNDTRIPCORRECTION.getName()));
-            }
-
-            if (p.getTypedProperty(CORRECTTIME.getName()) != null) {
-                pCorrectTime = Integer.parseInt(p.getTypedProperty(CORRECTTIME.getName()));
-            }
-
-            if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
-                pExtendedLogging = Integer.parseInt(p.getTypedProperty(PK_EXTENDED_LOGGING));
-            }
-
-            if (p.getTypedProperty(PK_DELAY_BEFORE_CONNECT) != null) {
-                pDelayBeforeConnect = Integer.parseInt(p.getTypedProperty(PK_DELAY_BEFORE_CONNECT));
-            }
-
-            pSecurityLevel = Integer.parseInt(p.getTypedProperty(PK_SECURITY_LEVEL, "2").trim());
-            if (pSecurityLevel != 0) {
-                if (pPassword == null || pPassword.isEmpty()) {
-                    throw InvalidPropertyException.forNameAndValue(PASSWORD.getName(), null);
-                }
-                if (pPassword.length() != 8) {
-                    throw new InvalidPropertyException("Password must have a length of 8 characters!, correct first!");
-                }
-            }
-
-            if (p.getTypedProperty(PK_ECHO_CANCELING) != null) {
-                pEchoCancelling = Integer.parseInt(p.getTypedProperty(PK_ECHO_CANCELING));
-            }
-
-            if (p.getTypedProperty(PK_IEC1107_COMPATIBLE) != null) {
-                pIEC1107Compatible = Integer.parseInt(p.getTypedProperty(PK_IEC1107_COMPATIBLE));
-            }
-
-            this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
-
-            this.dontSendBreakCommand = !"0".equalsIgnoreCase(p.getTypedProperty("DisableLogOffCommand", "0"));
-            this.sendBreakBeforeDisconnect = !this.dontSendBreakCommand;
-
-            this.extendedProfileStatus = !"0".equalsIgnoreCase(p.getTypedProperty("ExtendedProfileStatus", "0"));
-
-            this.useSelectiveAccessByFromAndToDate = "1".equals(p.getTypedProperty("UseSelectiveAccessByFromAndToDate", "1"));
-
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, "ABBA1140: validation of properties failed before");
+        if (p.getTypedProperty(ADDRESS.getName()) != null) {
+            pAddress = p.getTypedProperty(ADDRESS.getName());
         }
 
+        if (p.getTypedProperty(NODEID.getName()) != null) {
+            pNodeId = p.getTypedProperty(NODEID.getName());
+        }
+
+        if (p.getTypedProperty(SERIALNUMBER.getName()) != null) {
+            pSerialNumber = p.getTypedProperty(SERIALNUMBER.getName());
+        }
+
+        if (p.getTypedProperty(PASSWORD.getName()) != null) {
+            pPassword = p.getTypedProperty(PASSWORD.getName());
+        }
+
+        if (p.getTypedProperty(PK_TIMEOUT) != null) {
+            pTimeout = p.getTypedProperty(PK_TIMEOUT);
+        }
+
+        if (p.getTypedProperty(PK_RETRIES) != null) {
+            pRetries = p.getTypedProperty(PK_RETRIES);
+        }
+
+        if (p.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
+            pRoundTripCorrection = p.getTypedProperty(ROUNDTRIPCORRECTION.getName());
+        }
+
+        if (p.getTypedProperty(CORRECTTIME.getName()) != null) {
+            pCorrectTime = p.getTypedProperty(CORRECTTIME.getName());
+        }
+
+        if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
+            pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
+        }
+
+        if (p.getTypedProperty(PK_DELAY_BEFORE_CONNECT) != null) {
+            pDelayBeforeConnect = p.getTypedProperty(PK_DELAY_BEFORE_CONNECT);
+        }
+
+        pSecurityLevel = p.getTypedProperty(PK_SECURITY_LEVEL, 2);
+        if (pSecurityLevel != 0) {
+            if (pPassword == null || pPassword.isEmpty()) {
+                throw InvalidPropertyException.forNameAndValue(PASSWORD.getName(), null);
+            }
+            if (pPassword.length() != 8) {
+                throw new InvalidPropertyException("Password must have a length of 8 characters!, correct first!");
+            }
+        }
+
+        pEchoCancelling = p.getTypedProperty(PK_ECHO_CANCELING);
+
+        pIEC1107Compatible = p.getTypedProperty(PK_IEC1107_COMPATIBLE);
+
+        this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
+
+        this.dontSendBreakCommand = !"0".equalsIgnoreCase(p.getTypedProperty("DisableLogOffCommand", "0"));
+        this.sendBreakBeforeDisconnect = !this.dontSendBreakCommand;
+
+        this.extendedProfileStatus = !"0".equalsIgnoreCase(p.getTypedProperty("ExtendedProfileStatus", "0"));
+
+        this.useSelectiveAccessByFromAndToDate = "1".equals(p.getTypedProperty("UseSelectiveAccessByFromAndToDate", "1"));
     }
 
     boolean isUseSelectiveAccessByFromAndToDate() {

@@ -189,20 +189,20 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
             this.nodeId = properties.getTypedProperty(NODEID.getName(), "");
             // KV 19012004 get the serialNumber
             this.serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
-            this.extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0"));
-            this.addressingMode = Integer.parseInt(properties.getTypedProperty("AddressingMode", "-1"));
-            this.connectionMode = Integer.parseInt(properties.getTypedProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
+            this.extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+            this.addressingMode = properties.getTypedProperty("AddressingMode", -1);
+            this.connectionMode = properties.getTypedProperty("Connection", 0); // 0=HDLC, 1= TCP/IP
             this.strPassword = properties.getTypedProperty(PASSWORD.getName(), "");
-            this.iHDLCTimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000").trim());
-            this.iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
-            this.iDelayAfterFailProperty = Integer.parseInt(properties.getTypedProperty("DelayAfterfail", "3000").trim());
-            this.iRequestTimeZone = Integer.parseInt(properties.getTypedProperty("RequestTimeZone", "0").trim());
-            this.iRequestClockObject = Integer.parseInt(properties.getTypedProperty("RequestClockObject", "0").trim());
-            this.iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty("RoundtripCorrection", "0").trim());
-            this.iSecurityLevelProperty = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "0").trim());
-            this.iClientMacAddress = Integer.parseInt(properties.getTypedProperty("ClientMacAddress", "16").trim());
-            this.iServerUpperMacAddress = Integer.parseInt(properties.getTypedProperty("ServerUpperMacAddress", "1").trim());
-            this.iServerLowerMacAddress = Integer.parseInt(properties.getTypedProperty("ServerLowerMacAddress", "0").trim());
+            this.iHDLCTimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 10000);
+            this.iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 5);
+            this.iDelayAfterFailProperty = properties.getTypedProperty("DelayAfterfail", 3000);
+            this.iRequestTimeZone = properties.getTypedProperty("RequestTimeZone", 0);
+            this.iRequestClockObject = properties.getTypedProperty("RequestClockObject", 0);
+            this.iRoundtripCorrection = properties.getTypedProperty("RoundtripCorrection", 0);
+            this.iSecurityLevelProperty = properties.getTypedProperty(SECURITYLEVEL.getName(), 0);
+            this.iClientMacAddress = properties.getTypedProperty("ClientMacAddress", 16);
+            this.iServerUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 1);
+            this.iServerLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 0);
             if (DEBUG >= 1) {
                 System.out.println();
                 properties.toStringProperties().list(System.out);

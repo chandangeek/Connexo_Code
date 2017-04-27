@@ -10,9 +10,6 @@
 
 package com.energyict.protocolimpl.ge.kv;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -20,6 +17,10 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -111,7 +112,7 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink, SerialNum
         return kv;
     }
 
-    // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters. 
+    // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
     SerialCommunicationChannel commChannel;
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
@@ -119,7 +120,7 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink, SerialNum
     }
 
     protected void doConnect() throws IOException {
-        // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters. 
+        // KV_TO_DO extend framework to implement different hhu optical handshake mechanisms for US meters.
         setTimeStampAtLogon(System.currentTimeMillis());
         if (commChannel != null) {
 
@@ -154,7 +155,7 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink, SerialNum
         setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "10").trim()));
         setInfoTypeNodeAddress(properties.getTypedProperty(MeterProtocol.Property.NODEID.getName(), "64"));
         c12User = properties.getTypedProperty("C12User", "");
-        c12UserId = Integer.parseInt(properties.getTypedProperty("C12UserId", "0").trim());
+        c12UserId = properties.getTypedProperty("C12UserId", 0);
         controlToggleBitMode = properties.getTypedProperty("FrameControlToggleBitMode", 2);
     }
 
@@ -227,14 +228,14 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink, SerialNum
     }
 
     /*
-     * Override this method if the subclass wants to set a specific register 
+     * Override this method if the subclass wants to set a specific register
      */
     public void setRegister(String name, String value) throws IOException {
 
     }
 
     /*
-     * Override this method if the subclass wants to get a specific register 
+     * Override this method if the subclass wants to get a specific register
      */
     public String getRegister(String name) throws IOException {
         throw new UnsupportedException();

@@ -100,16 +100,16 @@ public class Trimaran extends AbstractProtocol {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getTypedProperty("ForcedDelay","300").trim())); // TE
-        setInfoTypeHalfDuplex(Integer.parseInt(properties.getTypedProperty("HalfDuplex","50").trim())); // TC
+        setForcedDelay(properties.getTypedProperty("ForcedDelay", 300)); // TE
+        setInfoTypeHalfDuplex(properties.getTypedProperty("HalfDuplex", 50)); // TC
 
         // KV_DEBUG
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(),"22000").trim())); // TSE (session layer)
-        setAckTimeout(Integer.parseInt(properties.getTypedProperty("ACKTimeoutTL","5000").trim())); // TL (datalink layer)
-        setInterKarTimeout(Integer.parseInt(properties.getTypedProperty("InterCharTimeout","400").trim())); //
+        setAckTimeout(properties.getTypedProperty("ACKTimeoutTL", 5000)); // TL (datalink layer)
+        setInterKarTimeout(properties.getTypedProperty("InterCharTimeout", 400));
 
-        setCommandTimeout(Integer.parseInt(properties.getTypedProperty("CommandTimeout","3000").trim())); // Command retry timeout
-        setFlushTimeout(Integer.parseInt(properties.getTypedProperty("FlushTimeout","500").trim())); // Timeout to wait befor sending a new command for receiving duplicate frames send by meter
+        setCommandTimeout(properties.getTypedProperty("CommandTimeout", 3000)); // Command retry timeout
+        setFlushTimeout(properties.getTypedProperty("FlushTimeout", 500)); // Timeout to wait befor sending a new command for receiving duplicate frames send by meter
     }
 
     @Override

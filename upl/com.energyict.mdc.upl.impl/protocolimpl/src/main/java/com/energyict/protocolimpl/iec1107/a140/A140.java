@@ -175,52 +175,46 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     @Override
     public void setUPLProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
-        try {
-            if (p.getTypedProperty(Property.ADDRESS.getName()) != null) {
-                pAddress = p.getTypedProperty(Property.ADDRESS.getName());
-            }
-
-            if (p.getTypedProperty(Property.NODEID.getName()) != null) {
-                pNodeId = p.getTypedProperty(Property.NODEID.getName());
-            }
-
-            if (p.getTypedProperty(Property.SERIALNUMBER.getName()) != null) {
-                pSerialNumber = p.getTypedProperty(Property.SERIALNUMBER.getName());
-            }
-
-            if (p.getTypedProperty(Property.PASSWORD.getName()) != null) {
-                pPassword = p.getTypedProperty(Property.PASSWORD.getName());
-            }
-
-            if (p.getTypedProperty(PK_TIMEOUT) != null) {
-                pTimeout = Integer.parseInt(p.getTypedProperty(PK_TIMEOUT));
-            }
-
-            if (p.getTypedProperty(PK_RETRIES) != null) {
-                pRetries = Integer.parseInt(p.getTypedProperty(PK_RETRIES));
-            }
-
-            if (p.getTypedProperty(Property.ROUNDTRIPCORRECTION.getName()) != null) {
-                pRountTripCorrection = Integer.parseInt(p.getTypedProperty(Property.ROUNDTRIPCORRECTION.getName()));
-            }
-
-            if (p.getTypedProperty(Property.CORRECTTIME.getName()) != null) {
-                pCorrectTime = Integer.parseInt(p.getTypedProperty(Property.CORRECTTIME.getName()));
-            }
-
-            if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
-                pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
-            }
-            this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        if (p.getTypedProperty(Property.ADDRESS.getName()) != null) {
+            pAddress = p.getTypedProperty(Property.ADDRESS.getName());
         }
 
+        if (p.getTypedProperty(Property.NODEID.getName()) != null) {
+            pNodeId = p.getTypedProperty(Property.NODEID.getName());
+        }
+
+        if (p.getTypedProperty(Property.SERIALNUMBER.getName()) != null) {
+            pSerialNumber = p.getTypedProperty(Property.SERIALNUMBER.getName());
+        }
+
+        if (p.getTypedProperty(Property.PASSWORD.getName()) != null) {
+            pPassword = p.getTypedProperty(Property.PASSWORD.getName());
+        }
+
+        if (p.getTypedProperty(PK_TIMEOUT) != null) {
+            pTimeout = p.getTypedProperty(PK_TIMEOUT);
+        }
+
+        if (p.getTypedProperty(PK_RETRIES) != null) {
+            pRetries = p.getTypedProperty(PK_RETRIES);
+        }
+
+        if (p.getTypedProperty(Property.ROUNDTRIPCORRECTION.getName()) != null) {
+            pRountTripCorrection = p.getTypedProperty(Property.ROUNDTRIPCORRECTION.getName());
+        }
+
+        if (p.getTypedProperty(Property.CORRECTTIME.getName()) != null) {
+            pCorrectTime = p.getTypedProperty(Property.CORRECTTIME.getName());
+        }
+
+        if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
+            pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
+        }
+        this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
     }
 
     @Override
-    public void init(InputStream inputStream, OutputStream outputStream,
-                     TimeZone timeZone, Logger logger) throws IOException {
+    public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
         this.timeZone = timeZone;
         this.logger = logger;
         if (logger.isLoggable(Level.INFO)) {

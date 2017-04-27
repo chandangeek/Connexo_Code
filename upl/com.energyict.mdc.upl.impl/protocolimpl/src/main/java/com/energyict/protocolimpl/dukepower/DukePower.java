@@ -777,10 +777,6 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         return UPLPropertySpecFactory.specBuilder(name, false, translationKey, optionsSupplier).finish();
     }
 
-    private PropertySpec stringSpec(String name, TranslationKey translationKey) {
-        return this.spec(name, translationKey, this.propertySpecService::stringSpec);
-    }
-
     private PropertySpec stringSpecOfExactLength(String name, int length, TranslationKey translationKey) {
         return this.spec(name, translationKey, () -> this.propertySpecService.stringSpecOfExactLength(length));
     }
@@ -789,26 +785,14 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
-    private PropertySpec integerSpec(String name, TranslationKey translationKey, Integer... validValues) {
-        return UPLPropertySpecFactory
-                .specBuilder(name, false, translationKey, this.propertySpecService::integerSpec)
-                .addValues(validValues)
-                .markExhaustive()
-                .finish();
-    }
-
     @Override
     public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
-        try {
-            strID = properties.getTypedProperty(ADDRESS.getName());
-            strPassword = properties.getTypedProperty(PASSWORD.getName());
-            iProtocolTimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "1").trim());
-            iDelayAfterFailProperty = Integer.parseInt(properties.getTypedProperty("DelayAfterFail", "3000").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
-        }
+        strID = properties.getTypedProperty(ADDRESS.getName());
+        strPassword = properties.getTypedProperty(PASSWORD.getName());
+        iProtocolTimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 10000);
+        iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 1);
+        iDelayAfterFailProperty = properties.getTypedProperty("DelayAfterFail", 3000);
+        iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
     }
 
     @Override

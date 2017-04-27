@@ -51,7 +51,6 @@ public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
     private List<LinePoint> chnlpMap = new ArrayList<>();
     private long start;
     private ScaledEnergySettingFactory sesf;
-    private String channelMapping;
     private String password;
     private int intervalLength;
     private boolean isDeltaWired = false;
@@ -107,10 +106,7 @@ public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        channelMapping = properties.getTypedProperty("NexusChannelMapping", "");
-        if (channelMapping != null && !channelMapping.isEmpty()) {
-            chnlpMap = ChannelMappingPropertySpec.parse(channelMapping);
-        }
+        chnlpMap = properties.getTypedProperty("NexusChannelMapping", null);
 
         if ("1".equals(properties.getTypedProperty("Delta Wired", "0"))) {
             isDeltaWired = true;
@@ -211,7 +207,7 @@ public class Nexus1272 extends AbstractProtocol implements SerialNumberSupport {
 
     @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
-        if ("".equals(channelMapping)) {
+        if (this.chnlpMap == null) {
             throw new IOException("NexusChannelMapping custom property must be set to read profile data");
         }
 

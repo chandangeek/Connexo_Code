@@ -10,14 +10,15 @@
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -135,10 +136,10 @@ public class AlphaPlus extends AbstractProtocol implements Alpha, SerialNumberSu
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "0").trim()));
-        whoAreYouTimeout = Integer.parseInt(properties.getTypedProperty("WhoAreYouTimeout", "300").trim());
-        totalRegisterRate = Integer.parseInt(properties.getTypedProperty("TotalRegisterRate", "1").trim());
-        opticalHandshakeOverModemport =  Integer.parseInt(properties.getTypedProperty("OpticalHandshakeOverModemport", "0").trim());
+        setForcedDelay(properties.getTypedProperty(PROP_FORCED_DELAY, 0));
+        whoAreYouTimeout = properties.getTypedProperty("WhoAreYouTimeout", 300);
+        totalRegisterRate = properties.getTypedProperty("TotalRegisterRate", 1);
+        opticalHandshakeOverModemport = properties.getTypedProperty("OpticalHandshakeOverModemport", 0);
     }
 
     @Override

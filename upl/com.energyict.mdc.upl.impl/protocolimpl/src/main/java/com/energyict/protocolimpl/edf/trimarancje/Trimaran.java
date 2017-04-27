@@ -42,10 +42,10 @@ import java.util.List;
 import java.util.logging.Level;
 
 /**
- *@beginchanges
+ * beginchanges
 	KV|04012007|Bugfix to correct the year transition behaviour in the load profile data
 	GN|20052008|Made a copy of the CVE(trimaran) class to make the CJE protocol
- *@endchanges
+ * endchanges
  */
 public class Trimaran extends AbstractProtocol {
 
@@ -112,18 +112,16 @@ public class Trimaran extends AbstractProtocol {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "300").trim())); // TE
-        setInfoTypeHalfDuplex(Integer.parseInt(properties.getTypedProperty(PROP_HALF_DUPLEX, "50").trim())); // TC
+        setForcedDelay(properties.getTypedProperty(PROP_FORCED_DELAY, 300)); // TE
+        setInfoTypeHalfDuplex(properties.getTypedProperty(PROP_HALF_DUPLEX, 50)); // TC
 
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "22000").trim())); // TSE (session layer)
-        setAckTimeout(Integer.parseInt(properties.getTypedProperty("ACKTimeoutTL", "5000").trim())); // TL (datalink layer)
-        setInterKarTimeout(Integer.parseInt(properties.getTypedProperty("InterCharTimeout", "400").trim())); //
-
-        setCommandTimeout(Integer.parseInt(properties.getTypedProperty("CommandTimeout", "3000").trim())); // Command retry timeout
-        setFlushTimeout(Integer.parseInt(properties.getTypedProperty("FlushTimeout", "500").trim())); // Timeout to wait before sending a new command for receiving duplicate frames send by meter
+        setAckTimeout(properties.getTypedProperty("ACKTimeoutTL", 5000)); // TL (datalink layer)
+        setInterKarTimeout(properties.getTypedProperty("InterCharTimeout", 400)); //
+        setCommandTimeout(properties.getTypedProperty("CommandTimeout", 3000)); // Command retry timeout
+        setFlushTimeout(properties.getTypedProperty("FlushTimeout", 500)); // Timeout to wait before sending a new command for receiving duplicate frames send by meter
 
         setMeterVersion(properties.getTypedProperty("MeterVersion", "V1")); // Select the meterVersion, V2 is NOT TESTED YET!
-
     }
 
     @Override
@@ -132,7 +130,7 @@ public class Trimaran extends AbstractProtocol {
     }
 
     @Override
-    protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
+    protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         setSPDUFactory(new SPDUFactory(this));
         setDataFactory(new DataFactory(this));
         trimaranProfile=new TrimaranProfile(this);

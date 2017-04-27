@@ -118,22 +118,23 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink, Seri
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        setT1Timeout(Integer.parseInt(properties.getTypedProperty("T1Timeout", "5000").trim())); // T1 (datalink layer)
-        setSourceTransportAddress(Integer.parseInt(properties.getTypedProperty("STSAP", "0").trim()));
-        setDestinationTransportAddress(Integer.parseInt(properties.getTypedProperty("DTSAP", "2").trim()));
+        setT1Timeout(properties.getTypedProperty("T1Timeout", 5000)); // T1 (datalink layer)
+        setSourceTransportAddress(properties.getTypedProperty("STSAP", 0));
+        setDestinationTransportAddress(properties.getTypedProperty("DTSAP", 2));
 
         setAPSEParameters(new APSEParameters());
-        getAPSEParameters().setClientType(Integer.parseInt(properties.getTypedProperty("ClientType", "40967").trim())); // 0xA007
+        getAPSEParameters().setClientType(properties.getTypedProperty("ClientType", 40967)); // 0xA007
         getAPSEParameters().setCallingPhysicalAddress(properties.getTypedProperty("CallingPhysicalAddress", "30")); // APSE calling physical address, enter as string of even length, containing HEX karakters, default 0x30
-        getAPSEParameters().setProposedAppCtxName(Integer.parseInt(properties.getTypedProperty("ProposedAppCtxName", "0").trim())); // APSE proposed App context name, default 0
+        getAPSEParameters().setProposedAppCtxName(properties.getTypedProperty("ProposedAppCtxName", 0)); // APSE proposed App context name, default 0
         setInfoTypePassword(properties.getTypedProperty(PASSWORD.getName(), "0000000000000000"));
 
-        this.safetyTimeout = Integer.parseInt(properties.getTypedProperty("SafetyTimeOut", "300000")); // Safety timeout in the transport layer
+        this.safetyTimeout = properties.getTypedProperty("SafetyTimeOut", 300000); // Safety timeout in the transport layer
 
-        if (Integer.parseInt(properties.getTypedProperty("DelayAfterConnect", "0")) == 1) {
+        int delayAfterConnectValue = properties.getTypedProperty("DelayAfterConnect", 0);
+        if (delayAfterConnectValue == 1) {
 			delayAfterConnect = 6000;
 		} else {
-			delayAfterConnect = Integer.parseInt(properties.getTypedProperty("DelayAfterConnect", "0").trim());
+			delayAfterConnect = delayAfterConnectValue;
 		}
 
         try {
