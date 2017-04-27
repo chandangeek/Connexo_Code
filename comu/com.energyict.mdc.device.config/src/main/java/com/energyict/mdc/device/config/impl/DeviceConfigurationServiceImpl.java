@@ -59,6 +59,7 @@ import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeExceptio
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -90,6 +91,8 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
+
+import com.github.oxo42.stateless4j.delegates.Func;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multiset;
@@ -853,10 +856,19 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 .flatMap(List::stream)
                 .map(this::getReadingTypes)
                 .flatMap(List::stream);
-        Stream<ReadingType> registerReadingTypes = configuration.getRegisterSpecs()
+        List<ReadingType> registerReadingTypes = configuration.getRegisterSpecs()
                 .stream()
-                .map(RegisterSpec::getReadingType);
-        return Stream.of(loadProfileReadingTypes, registerReadingTypes)
+                .map(RegisterSpec::getReadingType)
+                .collect(Collectors.toList());
+        configuration.getRegisterSpecs()
+                .stream()
+                .filter(registerSpec -> NumericalRegisterSpec.class.isAssignableFrom(registerSpec.getClass()))
+                .map(registerSpec -> ((NumericalRegisterSpec) registerSpec))
+                .filter(NumericalRegisterSpec::isUseMultiplier)
+                .map(NumericalRegisterSpec::getCalculatedReadingType)
+                .flatMap(Functions.asStream())
+                .forEach(registerReadingTypes::add);
+        return Stream.of(loadProfileReadingTypes, registerReadingTypes.stream())
                 .flatMap(Function.identity())
                 .distinct()
                 .collect(Collectors.toList());
