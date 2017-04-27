@@ -6,8 +6,8 @@ package com.energyict.mdc.masterdata;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.cbo.Unit;
 
 import aQute.bnd.annotation.ProviderType;
 

@@ -10,7 +10,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 

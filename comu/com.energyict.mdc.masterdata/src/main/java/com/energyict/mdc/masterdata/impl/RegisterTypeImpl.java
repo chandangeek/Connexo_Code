@@ -9,12 +9,12 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.masterdata.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -58,4 +58,15 @@ public class RegisterTypeImpl extends MeasurementTypeImpl implements RegisterTyp
         this.registerGroups = ImmutableList.copyOf(groups.values());
     }
 
+    @Override
+    protected void validateDelete() {
+        this.validateNotUsedByGroup();
+        super.validateDelete();
+    }
+
+    private void validateNotUsedByGroup() {
+        if(this.getRegisterGroups().size()!=0){
+            throw CannotDeleteBecauseStillInUseException.registerTypeIsStillInUseByRegisterGroup(this.getThesaurus(), this, this.getRegisterGroups());
+        }
+    }
 }

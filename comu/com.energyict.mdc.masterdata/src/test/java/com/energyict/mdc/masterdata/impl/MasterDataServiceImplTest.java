@@ -10,7 +10,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;

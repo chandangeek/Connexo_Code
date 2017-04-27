@@ -5,7 +5,7 @@
 package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;

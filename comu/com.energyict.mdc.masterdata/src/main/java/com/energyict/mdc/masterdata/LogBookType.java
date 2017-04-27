@@ -4,28 +4,27 @@
 
 package com.energyict.mdc.masterdata;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.ObisCode;
-
-import aQute.bnd.annotation.ProviderType;
+import com.energyict.obis.ObisCode;
 
 @ProviderType
 public interface LogBookType extends HasId, HasName {
 
-    public void setName (String newName);
+    void setName(String newName);
 
-    public String getDescription();
+    String getDescription();
 
-    public void setDescription(String newDescription);
+    void setDescription(String newDescription);
 
-    public ObisCode getObisCode();
+    ObisCode getObisCode();
 
-    public void setObisCode(ObisCode obisCode);
+    void setObisCode(ObisCode obisCode);
 
-    public void save ();
+    void save();
 
-    public void delete ();
+    void delete();
 
     long getVersion();
 
