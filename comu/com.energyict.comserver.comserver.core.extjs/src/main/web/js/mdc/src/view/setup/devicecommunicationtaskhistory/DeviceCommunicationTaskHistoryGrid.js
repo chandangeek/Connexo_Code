@@ -68,9 +68,9 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('devicecommunicationtaskhistory.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} communications'),
-                displayMoreMsg: Uni.I18n.translate('devicecommunicationtaskhistory.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} communications'),
-                emptyMsg: Uni.I18n.translate('devicecommunicationtaskhistory.pagingtoolbartop.emptyMsg', 'MDC', 'There are no communications to display')
+                displayMsg: Uni.I18n.translate('devicecommunicationtaskhistory.pagingtoolbartop.displayMsgComTasks', 'MDC', '{0} - {1} of {2} communication tasks'),
+                displayMoreMsg: Uni.I18n.translate('devicecommunicationtaskhistory.pagingtoolbartop.displayMoreMsgComTasks', 'MDC', '{0} - {1} of more than {2} communication tasks'),
+                emptyMsg: Uni.I18n.translate('devicecommunicationtaskhistory.pagingtoolbartop.emptyMsgComTasks', 'MDC', 'There are no communication tasks to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
@@ -79,7 +79,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                     {deviceId: me.deviceId},
                     {comTaskId:me.comTaskId}
                 ],
-                itemsPerPageMsg: Uni.I18n.translate('devicecommunicationtaskhistory.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Communications per page'),
+                itemsPerPageMsg: Uni.I18n.translate('devicecommunicationtaskhistory.pagingtoolbarbottom.itemsPerPageComTasks', 'MDC', 'Communication tasks per page'),
                 dock: 'bottom'
             }
         ];

@@ -43,7 +43,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
         {ref: 'comTaskConnectionDetails', selector: '#deviceConnectionHistoryPreviewForm'},
         {ref: 'comTaskCommunicationDetails', selector: '#deviceCommunicationTaskHistoryPreviewForm'},
         {ref: 'comTaskConnectionSummary', selector: '#com-task-connection-summary'},
-        {ref: 'comTaskCommunicationSummary', selector: '#com-task-communication-summary'}
+        {ref: 'comTaskCommunicationSummary', selector: '#com-task-communication-summary'},
+        {ref: 'deviceCommunicationTaskHistoryPreviewPanel', selector: '#deviceCommunicationTaskHistoryPreviewPanel'}
     ],
 
     init: function () {
@@ -104,13 +105,15 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
             comTaskCommunicationSummary = me.getComTaskCommunicationSummary(),
             errorListConnection = [],
             errorListCommunication = [],
-            communicationTaskHistory = me.getDeviceCommunicationTaskHistoryGrid().getSelectionModel().getSelection()[0];
+            communicationTaskHistory = me.getDeviceCommunicationTaskHistoryGrid().getSelectionModel().getSelection()[0],
+            comTaskPreview = me.getDeviceCommunicationTaskHistoryPreviewPanel();
 
         Ext.suspendLayouts();
         me.getDeviceCommunicationTaskHistoryPreviewForm().loadRecord(communicationTaskHistory);
         me.getComPortField().setValue(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), communicationTaskHistory.get('comSession').comPort, '<a href="#/administration/comservers/' + communicationTaskHistory.get('comSession').comServer.id + '">' + communicationTaskHistory.get('comSession').comServer.name + '</a>'));
         me.getDeviceConnectionHistoryPreviewForm().loadRecord(communicationTaskHistory.getComSession());
         connectionPreview.setTitle(Uni.I18n.translate('devicecommunicationtaskhistory.connectionPreviewTitle', 'MDC', '{0} on {1}', [communicationTaskHistory.getComSession().get('connectionMethod').name, communicationTaskHistory.getComSession().get('device').name]));
+        comTaskPreview.setTitle(Ext.String.format(Uni.DateTime.formatDateTimeLong(communicationTaskHistory.get('startedOn'))));
 
         if (communicationTaskHistory.get('comSession').errors && communicationTaskHistory.get('comSession').errors.length > 0) {
             errorListConnection.push((Uni.I18n.translate('deviceconnectionhistory.errorsTitle', 'MDC', 'Errors:')));
@@ -169,7 +172,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
 
         router.getRoute('devices/device/communicationtasks/history/viewlog').forward(
             Ext.merge({historyId: menuItem.up().record.getId()}, router.arguments),
-            {logLevels: ['Error', 'Warning', 'Information']}
+            {logLevels: ['Debug']}
         );
     },
 
@@ -180,7 +183,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
 
         router.getRoute('devices/device/connectionmethods/history/viewlog').forward(
             Ext.merge({connectionMethodId: comSession.get('connectionMethod').id, historyId: comSession.getId()}, router.arguments),
-            {logLevels: ['Error', 'Warning', 'Information'], logTypes: ['Connections', 'Communications']}
+            {logLevels: ['Debug'], logTypes: ['Connections', 'Communications']}
         );
     },
 

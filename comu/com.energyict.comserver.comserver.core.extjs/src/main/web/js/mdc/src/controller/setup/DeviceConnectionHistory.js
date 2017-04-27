@@ -155,12 +155,12 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         me.getStatusLink().setValue('<a href="#/devices/' + this.deviceId
             + '/connectionmethods/'
             + me.connectionMethodId + '/history/' + me.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0].get('id') + '/viewlog'
-            + '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications">'
+            + '?logLevels=Debug&logTypes=Connections&logTypes=Communications">'
             + connectionHistory.get('status') + '</a>');
 
         me.getComPortField().setValue(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), connectionHistory.get('comPort'), '<a href="#/administration/comservers/' + connectionHistory.get('comServer').id + '">' + connectionHistory.get('comServer').name + '</a>'));
-        me.getDeviceConnectionHistoryPreview().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), connectionHistory.get('connectionMethod').name, me.device.get('name')));
-        me.getTitlePanel().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.comtasksTitle', 'MDC', 'Communications of {0} connection on {1}'), connectionHistory.get('connectionMethod').name, this.device.get('name')));
+        me.getDeviceConnectionHistoryPreview().setTitle(Ext.String.format(Uni.DateTime.formatDateTimeLong(connectionHistory.get('startedOn'))));
+        me.getTitlePanel().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.communicationTasksTitle', 'MDC', 'Communication tasks')));
 
         Ext.suspendLayouts();
 
@@ -216,7 +216,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
 
     showConnectionLog: function () {
         location.href = '#/devices/' + this.deviceId + '/connectionmethods/' + this.connectionMethodId + '/history/' + this.getDeviceConnectionHistoryGrid().getSelectionModel().getSelection()[0].get('id') + '/viewlog' +
-        '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications'
+        '?logLevels=Debug&logTypes=Connections&logTypes=Communications'
     },
 
     showDeviceConnectionMethodHistoryLog: function (deviceId, deviceConnectionMethodId, deviceConnectionHistoryId) {
@@ -266,7 +266,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
             + '/communicationtasks/' + record.get('comTasks')[0].id
             + '/history/' + record.get('id')
             + '/viewlog'
-            + '?logLevels=Error&logLevels=Warning&logLevels=Information';
+            + '?logLevels=Debug';
     },
 
     showConnectionDetails: function (){

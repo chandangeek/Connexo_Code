@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogFilter', {
                     value: 'Connections'
                 },
                 {
-                    display: Uni.I18n.translate('deviceconnectionhistory.communicationTask', 'MDC', 'Communications'),
+                    display: Uni.I18n.translate('deviceconnectionhistory.communicationTasks', 'MDC', 'Communication tasks'),
                     value: 'Communications'
                 }
             ]

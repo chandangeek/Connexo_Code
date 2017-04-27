@@ -22,6 +22,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
             xtype: 'panel',
             title: Uni.I18n.translate('devicecommunicationtaskhistory.communicationTask', 'MDC', 'Communication task'),
             frame: true,
+            itemId: 'deviceCommunicationTaskHistoryPreviewPanel',
             layout: {
                 type: 'vbox'
             },
