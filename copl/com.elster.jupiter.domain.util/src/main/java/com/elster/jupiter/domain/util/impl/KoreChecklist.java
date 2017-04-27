@@ -12,6 +12,8 @@ import org.osgi.service.component.annotations.Component;
 
 import java.util.Set;
 
+import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
+
 @Component(name = "com.elster.jupiter.kore.checklist", service = {UpgradeCheckList.class}, property = {"com.elster.jupiter.checklist=Pulse"})
 public class KoreChecklist implements UpgradeCheckList {
     @Override
@@ -23,37 +25,37 @@ public class KoreChecklist implements UpgradeCheckList {
     public Set<InstallIdentifier> componentsToInstall() {
         return ImmutableSet.<InstallIdentifier>builder()
                 .add(
-                        InstallIdentifier.identifier(application(), "DVA"),
-                        InstallIdentifier.identifier(application(), "NLS"),
-                        InstallIdentifier.identifier(application(), "EVT"),
-                        InstallIdentifier.identifier(application(), "IDS"),
-                        InstallIdentifier.identifier(application(), "MSG"),
-                        InstallIdentifier.identifier(application(), "TME"),
-                        InstallIdentifier.identifier(application(), "USR"),
-                        InstallIdentifier.identifier(application(), "YFA"),
-                        InstallIdentifier.identifier(application(), "TSK"),
-                        InstallIdentifier.identifier(application(), "LIC"),
-                        InstallIdentifier.identifier(application(), "SBS"),
-                        InstallIdentifier.identifier(application(), "FIS"),
-                        InstallIdentifier.identifier(application(), "HTP"),
-                        InstallIdentifier.identifier(application(), "PRT"),
-                        InstallIdentifier.identifier(application(), "KPI"),
-                        InstallIdentifier.identifier(application(), "BPM"),
-                        InstallIdentifier.identifier(application(), "CAL"),
-                        InstallIdentifier.identifier(application(), "FSM"),
-                        InstallIdentifier.identifier(application(), "CPS"),
-                        InstallIdentifier.identifier(application(), "SCS"),
-                        InstallIdentifier.identifier(application(), "MTR"),
-                        InstallIdentifier.identifier(application(), "MTI"),
-                        InstallIdentifier.identifier(application(), "MTG"),
-                        InstallIdentifier.identifier(application(), "YFG"),
-                        InstallIdentifier.identifier(application(), "VAL"),
-                        InstallIdentifier.identifier(application(), "ISU"),
-                        InstallIdentifier.identifier(application(), "EST"),
-                        InstallIdentifier.identifier(application(), "LFC"),
-                        InstallIdentifier.identifier(application(), "APS"),
-                        InstallIdentifier.identifier(application(), "DES"),
-                        InstallIdentifier.identifier(application(), "SSA")
+                    identifier(application(), "DVA"),
+                    identifier(application(), "NLS"),
+                    identifier(application(), "EVT"),
+                    identifier(application(), "IDS"),
+                    identifier(application(), "MSG"),
+                    identifier(application(), "TME"),
+                    identifier(application(), "USR"),
+                    identifier(application(), "YFA"),
+                    identifier(application(), "TSK"),
+                    identifier(application(), "LIC"),
+                    identifier(application(), "SBS"),
+                    identifier(application(), "FIS"),
+                    identifier(application(), "HTP"),
+                    identifier(application(), "PRT"),
+                    identifier(application(), "KPI"),
+                    identifier(application(), "BPM"),
+                    identifier(application(), "CAL"),
+                    identifier(application(), "FSM"),
+                    identifier(application(), "CPS"),
+                    identifier(application(), "SCS"),
+                    identifier(application(), "MTR"),
+                    identifier(application(), "MTI"),
+                    identifier(application(), "MTG"),
+                    identifier(application(), "YFG"),
+                    identifier(application(), "VAL"),
+                    identifier(application(), "ISU"),
+                    identifier(application(), "EST"),
+                    identifier(application(), "LFC"),
+                    identifier(application(), "APS"),
+                    identifier(application(), "DES"),
+                    identifier(application(), "SSA")
                 ).build();
     }
 
