@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -24,18 +24,13 @@ public class DeviceProtocolCacheAdapter implements DeviceProtocolCache {
     }
 
     @Override
-    public void markClean() {
-        // Ignore, dirty aspect is driven by the wrapped json String
-    }
-
-    @Override
-    public void markDirty() {
-        // Ignore, dirty aspect is driven by the wrapped json String
-    }
-
-    @Override
-    public boolean isDirty() {
+    public boolean contentChanged() {
         return !this.jsonCache.contains(legacyDlmsCacheCheck);
+    }
+
+    @Override
+    public void setContentChanged(boolean changed) {
+        // Ignore, dirty aspect is driven by the wrapped json String
     }
 
     public String getLegacyJsonCache() {
@@ -45,5 +40,4 @@ public class DeviceProtocolCacheAdapter implements DeviceProtocolCache {
     public void setLegacyJsonCache(String legacyJsonCache) {
         this.jsonCache = legacyJsonCache;
     }
-
 }

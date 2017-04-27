@@ -8,23 +8,22 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -101,7 +100,7 @@ public class InboundDeviceProtocolPluggableClassRegistrarTest {
     private class TestInboundDeviceProtocol implements InboundDeviceProtocol {
 
         @Override
-        public void initializeDiscoveryContext(InboundDiscoveryContext context) {
+        public void initializeDiscoveryContext(com.energyict.mdc.upl.InboundDiscoveryContext context) {
 
         }
 
@@ -111,12 +110,12 @@ public class InboundDeviceProtocolPluggableClassRegistrarTest {
         }
 
         @Override
-        public DiscoverResultType doDiscovery() {
+        public com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType doDiscovery() {
             return null;
         }
 
         @Override
-        public void provideResponse(DiscoverResponseType responseType) {
+        public void provideResponse(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType responseType) {
 
         }
 
@@ -126,8 +125,18 @@ public class InboundDeviceProtocolPluggableClassRegistrarTest {
         }
 
         @Override
-        public List<CollectedData> getCollectedData(OfflineDevice device) {
+        public String getAdditionalInformation() {
             return null;
+        }
+
+        @Override
+        public List<CollectedData> getCollectedData() {
+            return null;
+        }
+
+        @Override
+        public boolean hasSupportForRequestsOnInbound() {
+            return false;
         }
 
         @Override
@@ -145,6 +154,16 @@ public class InboundDeviceProtocolPluggableClassRegistrarTest {
             return Collections.emptyList();
         }
 
+
+        @Override
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
+        }
     }
 
 }

@@ -14,22 +14,22 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.CachingProtocol;
-import com.energyict.mdc.protocol.api.legacy.DeviceCachingSupport;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.TranslationKeys;
+import com.energyict.mdc.upl.DeviceCachingSupport;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import java.sql.SQLException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -100,7 +100,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     @Override
     public void setCache(Object cacheObject) {
         if (cacheObject != null && cacheObject instanceof DeviceProtocolCache) {
-            ((DeviceProtocolCache) cacheObject).markClean();
+            ((DeviceProtocolCache) cacheObject).setContentChanged(false);
         }
         getCachingProtocol().setCache(cacheObject);
     }
@@ -108,26 +108,6 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     @Override
     public Object getCache() {
         return getCachingProtocol().getCache();
-    }
-
-    @Override
-    public Object fetchCache(int deviceId) throws SQLException {
-
-        /*
-       This method will never get called. All cached objects will be fetched during initialization of the task
-        */
-
-        return getCachingProtocol().fetchCache(deviceId);
-    }
-
-    @Override
-    public void updateCache(int deviceId, Object cacheObject) throws SQLException {
-
-        /*
-       This method will never get called. All cached objects will be fetched during initialization of the task
-        */
-
-        getCachingProtocol().updateCache(deviceId, cacheObject);
     }
 
     @Override
@@ -263,7 +243,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     protected abstract AbstractDeviceProtocolSecuritySupportAdapter getSecuritySupportAdapter();
 
     @Override
-    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
         return this.getSecuritySupportAdapter().getCustomPropertySet();
     }
 

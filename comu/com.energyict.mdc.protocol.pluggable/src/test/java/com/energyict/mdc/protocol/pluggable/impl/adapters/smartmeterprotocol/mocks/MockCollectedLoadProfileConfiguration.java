@@ -4,14 +4,14 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.TestSerialNumberDeviceIdentifier;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ChannelInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,9 +48,13 @@ public class MockCollectedLoadProfileConfiguration implements CollectedLoadProfi
         return obisCode;
     }
 
-    @Override
-    public DeviceIdentifier<?> getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return new TestSerialNumberDeviceIdentifier(meterSerialNumber);
+    }
+
+    @Override
+    public String getMeterSerialNumber() {
+        return meterSerialNumber;
     }
 
     @Override
@@ -59,8 +63,8 @@ public class MockCollectedLoadProfileConfiguration implements CollectedLoadProfi
     }
 
     @Override
-    public void setSupportedByMeter(boolean b) {
-        this.supported = b;
+    public void setSupportedByMeter(boolean supportedByMeter) {
+        this.supported = supportedByMeter;
     }
 
     @Override
@@ -91,6 +95,12 @@ public class MockCollectedLoadProfileConfiguration implements CollectedLoadProfi
     public void setFailureInformation(ResultType resultType, Issue issue) {
         this.setResultType(resultType);
         this.issues.add(issue);
+    }
+
+    @Override
+    public void setFailureInformation(ResultType resultType, List<Issue> issues) {
+        this.setResultType(resultType);
+        this.issues.addAll(issues);
     }
 
     @Override

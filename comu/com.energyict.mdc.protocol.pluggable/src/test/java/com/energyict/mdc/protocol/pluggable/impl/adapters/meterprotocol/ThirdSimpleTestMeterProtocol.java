@@ -5,19 +5,20 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -30,18 +31,28 @@ import java.util.logging.Logger;
  */
 public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecurityPropertyConverter {
 
-    @Override
-    public String getProtocolDescription() {
-        return this.getClass().getName();
-    }
-
     public ThirdSimpleTestMeterProtocol() {
         super();
     }
 
     @Override
+    public String getProtocolDescription() {
+        return this.getClass().getName();
+    }
+
+    @Override
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
         // nothing to set
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
     }
 
     @Override
@@ -135,22 +146,12 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
     }
 
     @Override
-    public void setCache(Object cacheObject) {
-        // nothing to set
-    }
-
-    @Override
     public Object getCache() {
         return null;
     }
 
     @Override
-    public Object fetchCache(int rtuId) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public void updateCache(int rtuId, Object cacheObject) throws SQLException {
+    public void setCache(Object cacheObject) {
         // nothing to set
     }
 
@@ -181,7 +182,7 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
     }
 
     @Override
-    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
         return new DeviceProtocolSecurityPropertySet() {
             @Override
             public int getAuthenticationDeviceAccessLevel() {

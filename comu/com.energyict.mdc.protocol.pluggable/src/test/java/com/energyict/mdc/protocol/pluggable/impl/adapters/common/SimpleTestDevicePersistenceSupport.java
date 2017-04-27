@@ -7,10 +7,9 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-
+import com.energyict.mdc.upl.meterdata.Device;
 import com.google.inject.Module;
 
 import java.util.Collections;
@@ -24,7 +23,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-20 (10:56)
  */
-public class SimpleTestDevicePersistenceSupport implements PersistenceSupport<BaseDevice, SimpleTestDeviceSecurityProperties> {
+public class SimpleTestDevicePersistenceSupport implements PersistenceSupport<Device, SimpleTestDeviceSecurityProperties> {
     @Override
     public String application() {
         return "Example";
