@@ -117,7 +117,6 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
 
         initValidatingPurpose();
 
-        checkChannelPurpose = getCheckPurposeProperty();
         maxAbsoluteDifference = getMaxAbsoluteDiffProperty();
         minThreshold = getMinThresholdProperty();
         passIfNoRefData = getPassIfNoRefDataProperty();
@@ -402,9 +401,9 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
                 .finish();
     }
 
-    MetrologyPurpose getCheckPurposeProperty() {
+    MetrologyPurpose getCheckPurposeProperty(boolean required) {
         MetrologyPurpose value = (MetrologyPurpose) properties.get(CHECK_PURPOSE);
-        if (value == null) {
+        if (value == null && required) {
             throw new MissingRequiredProperty(getThesaurus(), CHECK_PURPOSE);
         }
         return value;

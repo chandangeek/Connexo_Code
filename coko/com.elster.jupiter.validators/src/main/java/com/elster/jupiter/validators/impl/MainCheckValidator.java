@@ -77,7 +77,7 @@ public class MainCheckValidator extends MainCheckAbstractValidator {
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
         super.init(channel, readingType, interval);
 
-        // find 'check' channel and save readings + prepare mapping with readings from 'main' channel
+        checkChannelPurpose = getCheckPurposeProperty(true);
 
         // 2. find 'check' channel
         try {

@@ -45,7 +45,7 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
     private MeteringService meteringService;
 
     private UsagePoint referenceUsagePoint;
-    private ReadingType referenceReadinType;
+    private ReadingTypeValueFactory.ReadingTypeReference referenceReadingTypeProperty;
 
     public ReferenceComparisonValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, MeteringService meteringService) {
         super(thesaurus, propertySpecService, metrologyConfigurationService, validationService);
@@ -113,11 +113,7 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
     }
 
     UsagePoint getCheckUsagePointProperty() {
-        UsagePoint value = (UsagePoint) properties.get(CHECK_USAGE_POINT);
-        if (value == null) {
-            throw new MissingRequiredProperty(getThesaurus(), CHECK_USAGE_POINT);
-        }
-        return value;
+        return (UsagePoint) properties.get(CHECK_USAGE_POINT);
     }
 
     private PropertySpec buildReferenceReadingTypePropertySpec() {
@@ -137,17 +133,28 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
         super.init(channel,readingType,interval);
 
-        referenceUsagePoint = getCheckUsagePointProperty();
-        referenceReadinType = getReferenceReadingTypeProperty().getReadingType();
-
         try {
-            validateReferenceReadingType(readingType,referenceReadinType);
+            initOverridenProperties();
+            ReadingType referenceReadingType = referenceReadingTypeProperty.getReadingType();
+            validateReferenceReadingType(readingType,referenceReadingType);
             validateReferenceUsagePoint();
             initValidatingPurpose();
             initUsagePointName(channel);
-            initCheckData(referenceUsagePoint, referenceReadinType);
+            initCheckData(referenceUsagePoint, referenceReadingType);
         }catch (InitCancelException e){
             preparedValidationResult = e.getValidationResult();
+        }
+    }
+
+    private void initOverridenProperties() throws InitCancelException {
+        checkChannelPurpose = getCheckPurposeProperty(false);
+        referenceUsagePoint = getCheckUsagePointProperty();
+        referenceReadingTypeProperty = getReferenceReadingTypeProperty();
+        if (checkChannelPurpose ==null || referenceUsagePoint==null || referenceReadingTypeProperty == null){
+            LoggingContext.get()
+                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_CONFIGURATION_NOT_COMPLETE)
+                            .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType, validatingPurpose.getName(),validatingUsagePointName));
+            throw new InitCancelException(ValidationResult.NOT_VALIDATED);
         }
     }
 

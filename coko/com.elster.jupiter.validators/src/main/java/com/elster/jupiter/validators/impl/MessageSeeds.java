@@ -37,13 +37,14 @@ public enum MessageSeeds implements MessageSeed {
 
     // FIXME: verify messages
     //Referece comparison validator messages
-    // {0} - period,{1] - validator display name,{2} - validating usage point name,{3} - validating,{4} -,{5}
+    // {0} - period,{1] - validator display name,{2} - validating usage point name,{3} - validating,{4} -,{5}-
     REFERENCE_MISC_NO_REFERENCE_USAGE_POINT(3001, "reference.validator.misc.no.reference.usagepoint", "Failed to validate period {0} using method \"{1}\" on {2}/{3}/{4} since the specified purpose/reading type doesn''t exist on the {5}"),
     REFERENCE_MISC_NO_PURPOSE(3002, "reference.validator.misc.no.purpose", "Failed to validate period {0} using method \"{1}\" on {2} since the specified purpose doesn''t exist on the {3}"),
     REFERENCE_MISC_PURPOSE_NEVER_ACTIVATED(3003, "reference.validator.misc.purpose.never.activated", "Failed to validate period {0} using method \"{1}\" on {2} since the specified purpose is never activated on effective metrology configuration on the {4}"),
     REFERENCE_MISC_NO_CHECK_OUTPUT(3004, "reference.validator.misc.no.check.output", "Failed to validate period {0} using method \"{1}\" on {2} since 'check' output with matching reading type on the specified purpose doesn''t exist on {3}"),
     REFERENCE_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID(3005, "reference.validator.misc.check.output.missing.or.not.valid", "Failed to validate period {0} using method \"{1}\" on {2}/{3} since data from 'check' output is missing or not validated"),
     REFERENCE_MISC_REFERENCE_READING_TYPE_NOT_SUTABLE(3006, "reference.validator.misc.check.readingtype.not.sutable", "not sutable FIXME" ),
+    REFERENCE_MISC_CONFIGURATION_NOT_COMPLETE(3007, "reference.validator.misc.not.complete","Failed to validate period {0} using method \"{1}\" on {2}/{3}/{4} since validation rule is not fully configured on {5}"),
 
     // Meter advance messages
     // {0} - from time, {1} - to time, {2} - validator display name, {3} - reading type name, {4} - validate object name
