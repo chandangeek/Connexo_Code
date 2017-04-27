@@ -7,6 +7,7 @@ Ext.define('Uni.property.store.UsagePoint', {
 
     fields: [
         'id',
+        'mRID',
         'name'
     ],
 
