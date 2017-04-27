@@ -237,7 +237,7 @@ public abstract class AbstractCimChannel implements CimChannel {
 
     private void processReadingQualities(BaseReading reading, List<ReadingQualityRecord> currentQualityRecords) {
         if (currentQualityRecords.isEmpty()) {
-            reading.getReadingQualities().forEach(readingQuality -> createReadingQuality(readingQuality.getType(), reading, readingQuality.getComment()));
+            reading.getReadingQualities().stream().distinct().forEach(readingQuality -> createReadingQuality(readingQuality.getType(), reading, readingQuality.getComment()));
         } else {
             reading.getReadingQualities().stream()
                     .filter(readingQuality -> currentQualityRecords.stream()
