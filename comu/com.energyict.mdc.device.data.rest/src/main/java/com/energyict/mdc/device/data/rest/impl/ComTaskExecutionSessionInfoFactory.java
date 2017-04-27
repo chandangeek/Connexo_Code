@@ -70,12 +70,10 @@ public class ComTaskExecutionSessionInfoFactory {
         info.alwaysExecuteOnInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
         info.errors = comTaskExecutionSession.getComTaskExecutionJournalEntries().stream()
                 .filter(journalEntry -> journalEntry.getLogLevel().equals(ComServer.LogLevel.ERROR))
-                .limit(5)
                 .map(journalEntryInfoFactory::asInfo)
                 .collect(Collectors.toList());
         info.warnings = comTaskExecutionSession.getComTaskExecutionJournalEntries().stream()
                 .filter(journalEntry -> journalEntry.getLogLevel().equals(ComServer.LogLevel.WARN))
-                .limit(5 - info.errors.size())
                 .map(journalEntryInfoFactory::asInfo)
                 .collect(Collectors.toList());
         return info;

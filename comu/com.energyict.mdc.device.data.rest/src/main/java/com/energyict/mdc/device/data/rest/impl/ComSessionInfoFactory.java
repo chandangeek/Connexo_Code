@@ -66,9 +66,9 @@ public class ComSessionInfoFactory {
         info.comTaskCount.numberOfSuccessfulTasks = comSession.getNumberOfSuccessFulTasks();
         info.comTaskCount.numberOfFailedTasks = comSession.getNumberOfFailedTasks();
         info.comTaskCount.numberOfIncompleteTasks = comSession.getNumberOfPlannedButNotExecutedTasks();
-        info.errors = comSession.getAllLogs(EnumSet.of(ComServer.LogLevel.ERROR), 0, Integer.MAX_VALUE).stream().limit(5).map(journalEntryInfoFactory::asInfo).collect(Collectors
+        info.errors = comSession.getAllLogs(EnumSet.of(ComServer.LogLevel.ERROR), 0, Integer.MAX_VALUE).stream().map(journalEntryInfoFactory::asInfo).collect(Collectors
                 .toList());
-        info.warnings = comSession.getAllLogs(EnumSet.of(ComServer.LogLevel.WARN), 0, Integer.MAX_VALUE).stream().limit(5 - info.errors.size()).map(journalEntryInfoFactory::asInfo).collect(Collectors
+        info.warnings = comSession.getAllLogs(EnumSet.of(ComServer.LogLevel.WARN), 0, Integer.MAX_VALUE).stream().map(journalEntryInfoFactory::asInfo).collect(Collectors
                 .toList());
         return info;
     }
