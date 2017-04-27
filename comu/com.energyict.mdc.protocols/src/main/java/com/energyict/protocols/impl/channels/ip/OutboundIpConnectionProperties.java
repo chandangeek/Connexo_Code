@@ -152,11 +152,11 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
     private String host;
     private BigDecimal portNumber;
     private TimeDuration connectionTimeout;
-    private BigDecimal bufferSize;
+    private BigDecimal udpdatagrambuffersize;
     @DecimalMin(message = IpMessageSeeds.Keys.MUST_BE_POSITIVE, value = "0", inclusive = true, groups = {Save.Create.class, Save.Update.class})
-    private BigDecimal postDialDelayMillis;
+    private BigDecimal postDialDelay;
     @DecimalMin(message = IpMessageSeeds.Keys.MUST_BE_POSITIVE, value = "0", inclusive = true, groups = {Save.Create.class, Save.Update.class})
-    private BigDecimal postDialCommandAttempts;
+    private BigDecimal postDialTries;
     @Size(max = Table.MAX_STRING_LENGTH)
     private String postDialCommand;
 
@@ -193,12 +193,12 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
     }
 
     protected void copyBufferSize(CustomPropertySetValues propertyValues) {
-        this.bufferSize = (BigDecimal) propertyValues.getProperty(Fields.BUFFER_SIZE.propertySpecName());
+        this.udpdatagrambuffersize = (BigDecimal) propertyValues.getProperty(Fields.BUFFER_SIZE.propertySpecName());
     }
 
     protected void copyPostDialProperties(CustomPropertySetValues propertyValues) {
-        this.postDialDelayMillis = (BigDecimal) propertyValues.getProperty(Fields.POST_DIAL_DELAY_MILLIS.propertySpecName());
-        this.postDialCommandAttempts = (BigDecimal) propertyValues.getProperty(Fields.POST_DIAL_COMMAND_ATTEMPTS.propertySpecName());
+        this.postDialDelay = (BigDecimal) propertyValues.getProperty(Fields.POST_DIAL_DELAY_MILLIS.propertySpecName());
+        this.postDialTries = (BigDecimal) propertyValues.getProperty(Fields.POST_DIAL_COMMAND_ATTEMPTS.propertySpecName());
         this.postDialCommand = (String) propertyValues.getProperty(Fields.POST_DIAL_COMMAND.propertySpecName());
     }
 
@@ -207,7 +207,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         this.copyNullablePropertyTo(propertySetValues, Fields.HOST, this.host);
         this.copyNullablePropertyTo(propertySetValues, Fields.PORT_NUMBER, this.portNumber);
         this.copyNullablePropertyTo(propertySetValues, Fields.CONNECTION_TIMEOUT, this.connectionTimeout);
-        this.copyNullablePropertyTo(propertySetValues, Fields.BUFFER_SIZE, this.bufferSize);
+        this.copyNullablePropertyTo(propertySetValues, Fields.BUFFER_SIZE, this.udpdatagrambuffersize);
         this.copyPostDialPropertiesTo(propertySetValues);
     }
 
@@ -218,8 +218,8 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
     }
 
     private void copyPostDialPropertiesTo(CustomPropertySetValues propertySetValues) {
-        this.copyNullablePropertyTo(propertySetValues, Fields.POST_DIAL_DELAY_MILLIS, this.postDialDelayMillis);
-        this.copyNullablePropertyTo(propertySetValues, Fields.POST_DIAL_COMMAND_ATTEMPTS, this.postDialCommandAttempts);
+        this.copyNullablePropertyTo(propertySetValues, Fields.POST_DIAL_DELAY_MILLIS, this.postDialDelay);
+        this.copyNullablePropertyTo(propertySetValues, Fields.POST_DIAL_COMMAND_ATTEMPTS, this.postDialTries);
         this.copyNullablePropertyTo(propertySetValues, Fields.POST_DIAL_COMMAND, this.postDialCommand);
     }
 

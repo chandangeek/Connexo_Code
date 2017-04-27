@@ -11,7 +11,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
-import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 
 import javax.validation.constraints.Size;
 
@@ -27,33 +26,33 @@ public class OutboundProximusConnectionProperties extends AbstractVersionedPersi
     @SuppressWarnings("unused")
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String phoneNumber;
+    private String SMS_phoneNumber;
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String connectionUrl;
+    private String API_connectionURL;
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String source;
+    private String API_source;
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String authentication;
+    private String API_authentication;
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String serviceCode;
+    private String API_serviceCode;
 
     @Override
     public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.connectionProvider.set(connectionProvider);
-        this.phoneNumber = (String) propertyValues.getProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName());
-        this.connectionUrl = (String) propertyValues.getProperty(Fields.CONNECTION_URL.propertySpecName());
-        this.source = (String) propertyValues.getProperty(Fields.SOURCE.propertySpecName());
-        this.authentication = (String) propertyValues.getProperty(Fields.AUTHENTICATION.propertySpecName());
-        this.serviceCode = (String) propertyValues.getProperty(Fields.SERVICE_CODE.propertySpecName());
+        this.SMS_phoneNumber = (String) propertyValues.getProperty(Fields.PHONE_NUMBER.propertySpecName());
+        this.API_connectionURL = (String) propertyValues.getProperty(Fields.CONNECTION_URL.propertySpecName());
+        this.API_source = (String) propertyValues.getProperty(Fields.SOURCE.propertySpecName());
+        this.API_authentication = (String) propertyValues.getProperty(Fields.AUTHENTICATION.propertySpecName());
+        this.API_serviceCode = (String) propertyValues.getProperty(Fields.SERVICE_CODE.propertySpecName());
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName(), this.phoneNumber);
-        propertySetValues.setProperty(Fields.CONNECTION_URL.propertySpecName(), this.connectionUrl);
-        propertySetValues.setProperty(Fields.SOURCE.propertySpecName(), this.source);
-        propertySetValues.setProperty(Fields.AUTHENTICATION.propertySpecName(), this.authentication);
-        propertySetValues.setProperty(Fields.SERVICE_CODE.propertySpecName(), this.serviceCode);
+        propertySetValues.setProperty(Fields.PHONE_NUMBER.propertySpecName(), this.SMS_phoneNumber);
+        propertySetValues.setProperty(Fields.CONNECTION_URL.propertySpecName(), this.API_connectionURL);
+        propertySetValues.setProperty(Fields.SOURCE.propertySpecName(), this.API_source);
+        propertySetValues.setProperty(Fields.AUTHENTICATION.propertySpecName(), this.API_authentication);
+        propertySetValues.setProperty(Fields.SERVICE_CODE.propertySpecName(), this.API_serviceCode);
     }
 
     @Override

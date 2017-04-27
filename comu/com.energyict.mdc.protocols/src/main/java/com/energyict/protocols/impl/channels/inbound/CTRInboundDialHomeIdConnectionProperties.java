@@ -27,7 +27,7 @@ public class CTRInboundDialHomeIdConnectionProperties extends AbstractVersionedP
     @SuppressWarnings("unused")
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String dialHomeId;
+    private String callHomeId;
 
     @Override
     public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
@@ -36,12 +36,12 @@ public class CTRInboundDialHomeIdConnectionProperties extends AbstractVersionedP
     }
 
     private void copyDialHomeId(CustomPropertySetValues propertyValues) {
-        this.dialHomeId = (String) propertyValues.getProperty(Fields.DIAL_HOME_ID.propertySpecName());
+        this.callHomeId = (String) propertyValues.getProperty(Fields.DIAL_HOME_ID.propertySpecName());
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(Fields.DIAL_HOME_ID.propertySpecName(), this.dialHomeId);
+        propertySetValues.setProperty(Fields.DIAL_HOME_ID.propertySpecName(), this.callHomeId);
     }
 
     @Override
