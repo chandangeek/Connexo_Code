@@ -26,7 +26,7 @@ public interface NextExecutionSpecs extends NextExecutionCalculator {
      *
      * @return The unique identifier
      */
-    public long getId ();
+    long getId();
 
     /**
      * Gets the {@link com.elster.jupiter.time.TemporalExpression} that specifies
@@ -34,12 +34,12 @@ public interface NextExecutionSpecs extends NextExecutionCalculator {
      *
      * @return The recurring time
      */
-    public TemporalExpression getTemporalExpression();
+    TemporalExpression getTemporalExpression();
 
-    public void setTemporalExpression(TemporalExpression temporalExpression);
+    void setTemporalExpression(TemporalExpression temporalExpression);
 
-    public void update();
+    void update();
 
-    public void delete();
+    void delete();
 
 }
