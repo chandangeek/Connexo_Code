@@ -2,6 +2,6 @@
 -dsannotations: *
 
 Export-Package: com.elster.jupiter.metering.rest,\
-    com.elster.jupiter.metering.properties
+    com.elster.jupiter.metering.rest.properties
 Private-Package: com.elster.jupiter.metering.rest.impl
 
