@@ -469,6 +469,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             }
 
             changedRecord = Ext.merge(confirmedObj, changedRecord);
+            changedRecord.value = !record.get('collectedValue') ? record.get('value') : undefined;
             changedRecord.commentId = record.get('commentId') ? record.get('commentId') : undefined;
             changedData.push(changedRecord);
         });
@@ -537,7 +538,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         Ext.suspendLayouts();
         menu.down('#estimate-value').setVisible(canEstimate);
         menu.down('#estimate-value-with-rule').setVisible(canEstimateWithRule);
-        menu.down('#edit-estimation-comment').setVisible(canEditingComment);
+        // menu.down('#edit-estimation-comment').setVisible(canEditingComment);
+        menu.down('#edit-estimation-comment').setVisible(true);
         menu.down('#copy-form-value').setVisible(canCopyFromReference);
         menu.down('#confirm-value').setVisible(canConfirm);
         menu.down('#reset-value').setVisible(canReset);
@@ -690,7 +692,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             success: function (record, operation) {
                 var item = null,
                     response = JSON.parse(operation.response.responseText);
-
+                debugger;
                 if (response[0]) {
                     Ext.suspendLayouts();
                     if (Array.isArray(window.records)) {
@@ -719,8 +721,8 @@ Ext.define('Imt.purpose.controller.Readings', {
                             window.records.set('mainValidationInfo', response[0].mainValidationInfo);
                             window.records.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
                             if (commentId !== -1) {
-                                record.set('commentId', commentId);
-                                record.set('commentValue', commentValue);
+                                window.records.set('commentId', commentId);
+                                window.records.set('commentValue', commentValue);
                             }
                         }
                     }
@@ -813,7 +815,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
         !window.down('#error-label').isHidden() && window.down('#error-label').hide();
 
-        commentId = window.down('#estimation-comment').getValue();
+        commentId = window.down('#estimation-comment-box').getValue();
         markAsProjected = window.down('#markProjected').getValue();
         propertyForm.clearInvalid();
 
@@ -837,7 +839,6 @@ Ext.define('Imt.purpose.controller.Readings', {
         }
         model.set('intervals', intervalsArray);
         model.set('markAsProjected', markAsProjected);
-        model.set('commentId', commentId);
         me.saveChannelDataEstimateModel(model, record, window, null, 'editWithEstimator');
     },
 

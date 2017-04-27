@@ -12,7 +12,8 @@ Ext.define('Imt.purpose.view.ReadingEstimationWindow', {
 
     requires: [
         'Uni.util.FormErrorMessage',
-        'Uni.property.form.Property'
+        'Uni.property.form.Property',
+        'Uni.view.readings.EstimationComment'
     ],
 
     initComponent: function () {
@@ -77,6 +78,10 @@ Ext.define('Imt.purpose.view.ReadingEstimationWindow', {
                     itemId: 'markProjected',
                     checked: false,
                     labelWidth: 200
+                },
+                {
+                    xtype: 'estimation-comment',
+                    keepOriginal: true
                 },
                 {
                     xtype: 'fieldcontainer',

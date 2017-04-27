@@ -124,6 +124,14 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
                             renderer: function (value) {
                                 return value ? Uni.I18n.translate('general.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.no', 'IMT', 'No');
                             }
+                        },
+                        {
+                            xtype: 'displayfield',
+                            fieldLabel: Uni.I18n.translate('general.estimationComment', 'IMT', 'Estimation comment'),
+                            name: 'commentValue',
+                            renderer: function (value) {
+                                return value ? value : '-';
+                            }
                         }
                     ]
                 },
