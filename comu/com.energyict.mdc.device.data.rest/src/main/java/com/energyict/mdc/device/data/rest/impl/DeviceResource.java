@@ -359,6 +359,8 @@ public class DeviceResource {
                 updateDataLoggerChannels(info, device);
                 device.save();
                 context.commit();
+            }catch(Exception e){
+                throw exceptionFactory.newExceptionSupplier(Response.Status.NOT_ACCEPTABLE, MessageSeeds.UPDATE_OF_DEVICE_FAILED).get();
             }
         }
         return Response.ok().entity(deviceInfoFactory.from(device, getSlaveDevicesForDevice(device))).build();
