@@ -183,7 +183,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
 
 
         if (valueColumn) {
-            valueColumn.setText(Uni.I18n.translate('general.collected', 'MDC', 'Collected') + ' (' + collectedUnit + ')');
+            valueColumn.setText(Uni.I18n.translate('general.collected', 'MDC', 'Collected') + (!Ext.isEmpty(collectedUnit) ? ' (' + collectedUnit + ')' : ''));
         }
         if (calculatedValueColumn) {
             if (hasCalculatedValue) {
