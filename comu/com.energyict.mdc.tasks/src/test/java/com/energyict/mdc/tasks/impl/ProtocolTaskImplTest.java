@@ -10,13 +10,11 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
@@ -28,6 +26,10 @@ import com.energyict.mdc.tasks.PersistenceTest;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.upl.tasks.TopologyAction;
+import com.energyict.obis.ObisCode;
+import org.assertj.core.api.Condition;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
