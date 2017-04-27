@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
+import com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType;
 import com.energyict.mdc.channels.ip.socket.TcpIpPostDialConnectionType;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 
@@ -82,7 +83,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         BUFFER_SIZE {
             @Override
             public String propertySpecName() {
-                return "bufferSize";
+                return OutboundUdpConnectionType.BUFFER_SIZE_NAME;
             }
 
             @Override
@@ -204,7 +205,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         this.copyNullablePropertyTo(propertySetValues, Fields.HOST, this.host);
-        this.copyNullablePropertyTo(propertySetValues, Fields.PORT_NUMBER, this.portNumber );
+        this.copyNullablePropertyTo(propertySetValues, Fields.PORT_NUMBER, this.portNumber);
         this.copyNullablePropertyTo(propertySetValues, Fields.CONNECTION_TIMEOUT, this.connectionTimeout);
         this.copyNullablePropertyTo(propertySetValues, Fields.BUFFER_SIZE, this.bufferSize);
         this.copyPostDialPropertiesTo(propertySetValues);
