@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.StopWatch;
@@ -32,25 +31,26 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.ClockCommandImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.issues.Problem;
-import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
-
-import org.joda.time.DateTime;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
+import com.energyict.mdc.upl.issue.Problem;
+import com.energyict.mdc.upl.issue.Warning;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.Calendar;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -87,7 +87,7 @@ public abstract class AbstractRescheduleBehaviorTest {
     protected ConnectionTaskService connectionTaskService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     protected ComSessionBuilder comSessionBuilder;
-    protected Clock clock = Clock.fixed(new DateTime(2014, 5, 20, 16, 16, 17, 222).toDate().toInstant(), ZoneId.systemDefault());
+    protected Clock clock = Clock.fixed(LocalDateTime.of(2014, 5, 20, 16, 16, 17, 222).atZone(ZoneOffset.systemDefault()).toInstant(), ZoneId.systemDefault());
     @Mock
     protected EventPublisher eventPublisher;
     @Mock
@@ -190,8 +190,9 @@ public abstract class AbstractRescheduleBehaviorTest {
         ClockTask clockTask = mock(ClockTask.class);
         when(clockTask.getClockTaskType()).thenReturn(ClockTaskType.SETCLOCK);
         ClockCommandImpl clockCommand = spy(new ClockCommandImpl(groupedDeviceCommand, clockTask, comTaskExecution));
-        doThrow(new ConnectionCommunicationException(1)).when(clockCommand)
-                .doExecute(any(DeviceProtocol.class), any(ExecutionContext.class));
+        doThrow(ConnectionCommunicationException.unexpectedIOException(new IOException("For testing purposes only")))
+            .when(clockCommand)
+            .doExecute(any(DeviceProtocol.class), any(ExecutionContext.class));
         groupedDeviceCommand.addCommand(clockCommand, comTaskExecution);
     }
 
@@ -224,8 +225,7 @@ public abstract class AbstractRescheduleBehaviorTest {
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         DeviceCommandExecutor deviceCommandExecutor = mock(DeviceCommandExecutor.class);
-        ScheduledComTaskExecutionGroup comTaskExecutionGroup = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, deviceCommandExecutor, ((ScheduledConnectionTask) connectionTask), jobExecServiceProvider);
-        ;
+        ScheduledComTaskExecutionGroup comTaskExecutionGroup = new ScheduledComTaskExecutionGroup(comPort, comServerDAO, deviceCommandExecutor, connectionTask, jobExecServiceProvider);
         comTaskExecutionGroup.createExecutionContext();
         ExecutionContext executionContext = comTaskExecutionGroup.getExecutionContext();
         executionContext.setLogger(logger);
@@ -233,9 +233,16 @@ public abstract class AbstractRescheduleBehaviorTest {
     }
 
     protected ComTaskExecution mockNewComTaskExecution() {
+        NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
+        when(nextExecutionSpecs.getNextTimestamp(any(Calendar.class)))
+            .thenAnswer(invocation -> {
+                Calendar calendar = (Calendar) invocation.getArguments()[0];
+                calendar.add(Calendar.MINUTE, 5);
+                return calendar.getTime();
+            });
         ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         when(comTaskExecution1.getDevice()).thenReturn(device);
-        when(comTaskExecution1.getNextExecutionSpecs()).thenReturn(Optional.empty());
+        when(comTaskExecution1.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
         ComTask comTask = mock(ComTask.class);
         when(comTaskExecution1.getComTask()).thenReturn(comTask);
         return comTaskExecution1;

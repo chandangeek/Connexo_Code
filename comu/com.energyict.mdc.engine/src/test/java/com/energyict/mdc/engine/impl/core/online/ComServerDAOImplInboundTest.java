@@ -9,11 +9,11 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -22,18 +22,18 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -46,14 +46,13 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
  * Tests the methods of the {@link ComServerDAOImpl}
- * that relate to the {@link InboundDAO} interface.
+ * that relate to the {@link com.energyict.mdc.upl.InboundDAO} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-17 (10:32)
@@ -61,6 +60,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ComServerDAOImplInboundTest {
 
+    @Mock
+    private DeviceService deviceService;
     @Mock
     private Device device;
     @Mock
@@ -79,7 +80,8 @@ public class ComServerDAOImplInboundTest {
         TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
         when(this.serviceProvider.transactionService()).thenReturn(transactionService);
         when(this.serviceProvider.communicationTaskService()).thenReturn(this.communicationTaskService);
-        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+        when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
         this.comServerDAO = new ComServerDAOImpl(this.serviceProvider, comServerUser);
     }
 
@@ -89,7 +91,7 @@ public class ComServerDAOImplInboundTest {
     @Ignore // Enable when messages are being implemented
     @Test(expected = DataAccessException.class)
     public void testConfirmSentMessagesAndGetPendingForNonExistingDevice() {
-        doThrow(CanNotFindForIdentifier.class).when(this.deviceIdentifier).findDevice();
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.empty());
         comServerDAO.confirmSentMessagesAndGetPending(this.deviceIdentifier, 10);
     }
 
@@ -113,7 +115,7 @@ public class ComServerDAOImplInboundTest {
     @Test(expected = CanNotFindForIdentifier.class)
     public void testGetDeviceProtocolSecurityPropertiesWhenDeviceDoesNotExist() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        doThrow(CanNotFindForIdentifier.class).when(deviceIdentifier).findDevice();
+        when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.empty());
 
         // Business method
         this.comServerDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, mock(InboundComPort.class));
@@ -126,7 +128,7 @@ public class ComServerDAOImplInboundTest {
         Device device = mock(Device.class);
         when(device.getInboundConnectionTasks()).thenReturn(new ArrayList<>(0));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(device));
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getComPortPool()).thenReturn(mock(InboundComPortPool.class));
 
@@ -144,9 +146,9 @@ public class ComServerDAOImplInboundTest {
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         InboundComPortPool otherComPortPool = mock(InboundComPortPool.class);
         Device device = mock(Device.class);
-        when(device.getInboundConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(device.getInboundConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(device));
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getComPortPool()).thenReturn(otherComPortPool);
 
@@ -163,9 +165,9 @@ public class ComServerDAOImplInboundTest {
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         Device device = mock(Device.class);
-        when(device.getInboundConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(device.getInboundConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(device));
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getComPortPool()).thenReturn(comPortPool);
         Finder<ComTaskExecution> comTaskExecutionFinder = mockFinder(Collections.emptyList());
@@ -191,18 +193,18 @@ public class ComServerDAOImplInboundTest {
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
         when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
         SecurityProperty expectedSecurityProperty = mock(SecurityProperty.class);
-        List<SecurityProperty> expectedSecurityProperties = Arrays.asList(expectedSecurityProperty);
+        List<SecurityProperty> expectedSecurityProperties = Collections.singletonList(expectedSecurityProperty);
         Device device = mock(Device.class);
-        when(device.getInboundConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(device.getInboundConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getSecurityProperties(securityPropertySet)).thenReturn(expectedSecurityProperties);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(device));
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getComPortPool()).thenReturn(comPortPool);
-        Finder<ComTaskExecution> comTaskExecutionFinder = mockFinder(Arrays.asList(comTaskExecution));
+        Finder<ComTaskExecution> comTaskExecutionFinder = mockFinder(Collections.singletonList(comTaskExecution));
         when(this.communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutionFinder);
 
         // Business method
@@ -215,7 +217,7 @@ public class ComServerDAOImplInboundTest {
     @Test(expected = CanNotFindForIdentifier.class)
     public void testGetDeviceConnectionTypePropertiesWhenDeviceDoesNotExist() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        doThrow(CanNotFindForIdentifier.class).when(deviceIdentifier).findDevice();
+        when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.empty());
 
         // Business method
         this.comServerDAO.getDeviceConnectionTypeProperties(deviceIdentifier, mock(InboundComPort.class));
@@ -228,7 +230,7 @@ public class ComServerDAOImplInboundTest {
         Device device = mock(Device.class);
         when(device.getInboundConnectionTasks()).thenReturn(new ArrayList<>(0));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(device));
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getComPortPool()).thenReturn(mock(InboundComPortPool.class));
 
@@ -246,9 +248,9 @@ public class ComServerDAOImplInboundTest {
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         InboundComPortPool otherComPortPool = mock(InboundComPortPool.class);
         Device device = mock(Device.class);
-        when(device.getInboundConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(device.getInboundConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(device));
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getComPortPool()).thenReturn(otherComPortPool);
 
@@ -262,12 +264,13 @@ public class ComServerDAOImplInboundTest {
     @Test
     public void testGetDeviceConnectionTypeProperties() {
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
+        when(connectionTask.getTypedProperties()).thenReturn(com.energyict.mdc.common.TypedProperties.empty());
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         Device device = mock(Device.class);
-        when(device.getInboundConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(device.getInboundConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(device));
         InboundComPort comPort = mock(InboundComPort.class);
         when(comPort.getComPortPool()).thenReturn(comPortPool);
 
@@ -281,7 +284,7 @@ public class ComServerDAOImplInboundTest {
     @Test
     public void testGetDeviceProtocolPropertiesForDeviceIdentifierThatReturnsNullWhenDeviceDoesNotExist() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(null);
+        when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.empty());
 
         // Business method
         TypedProperties protocolProperties = this.comServerDAO.getDeviceProtocolProperties(deviceIdentifier);
@@ -293,7 +296,7 @@ public class ComServerDAOImplInboundTest {
     @Test
     public void testGetDeviceProtocolPropertiesForDeviceIdentifierThatThrowsNotFoundExceptionWhenDeviceDoesNotExist() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        doThrow(CanNotFindForIdentifier.class).when(deviceIdentifier).findDevice();
+        when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.empty());
 
         // Business method
         TypedProperties protocolProperties = this.comServerDAO.getDeviceProtocolProperties(deviceIdentifier);
@@ -306,7 +309,7 @@ public class ComServerDAOImplInboundTest {
     public void testGetDeviceProtocolProperties() {
         Device device = mock(Device.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
+        when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(device));
 
         // Business method
         this.comServerDAO.getDeviceProtocolProperties(deviceIdentifier);

@@ -7,6 +7,7 @@ package com.energyict.mdc.engine.impl.commands.offline;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -15,9 +16,9 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -30,9 +31,7 @@ import com.energyict.mdc.device.data.DeviceMessageFactory;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceBySerialNumber;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -40,18 +39,11 @@ import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.impl.device.messages.ActivityCalendarDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageAttributes;
@@ -59,6 +51,17 @@ import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecific
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConverterImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLNlsServiceImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLPropertySpecServiceImpl;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.obis.ObisCode;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -81,8 +84,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
@@ -118,6 +122,8 @@ public class OfflineDeviceImplTest {
     private static final String CALENDAR_NAME = "Whatever";
 
     @Mock
+    DataModel dataModel;
+    @Mock
     private DeviceService deviceService;
     @Mock
     private DeviceMessageFactory deviceMessageFactory;
@@ -138,14 +144,30 @@ public class OfflineDeviceImplTest {
     @Mock
     private OrmService ormService;
     @Mock
-    DataModel dataModel;
-    @Mock
     private FirmwareService firmwareService;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private EventService eventService;
+    @Mock
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
+    @Mock
+    private ProtocolPluggableService protocolPluggableService;
+
+    private static LoadProfile getNewMockedLoadProfile(final ObisCode obisCode, Device device) {
+        LoadProfileType loadProfileType = mock(LoadProfileType.class);
+        when(loadProfileType.getObisCode()).thenReturn(obisCode);
+        LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
+        when(loadProfileSpec.getLoadProfileType()).thenReturn(loadProfileType);
+        when(loadProfileSpec.getInterval()).thenReturn(TimeDuration.minutes(15));
+        LoadProfile loadProfile = mock(LoadProfile.class);
+        when(loadProfile.getLastReading()).thenReturn(null);
+        when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
+        when(loadProfile.getLoadProfileTypeObisCode()).thenReturn(obisCode);
+        when(loadProfile.getDevice()).thenReturn(device);
+        when(loadProfile.getDeviceObisCode()).thenReturn(obisCode);
+        return loadProfile;
+    }
 
     private TypedProperties getDeviceProtocolProperties() {
         TypedProperties properties = TypedProperties.empty();
@@ -176,11 +198,15 @@ public class OfflineDeviceImplTest {
         return properties;
     }
 
-    private Device createMockDevice(final long deviceId, final String meterSerialNumber) {
-        return createMockDevice(deviceId, meterSerialNumber, mock(DeviceProtocol.class));
+    private Device createMockedDevice(long deviceId, String meterSerialNumber) {
+        return createMockedDevice(deviceId, meterSerialNumber, meterSerialNumber, mock(DeviceProtocol.class));
     }
 
-    private Device createMockDevice(final long deviceId, final String meterSerialNumber, final DeviceProtocol deviceProtocol) {
+    private Device createMockedDevice(long deviceId, String meterSerialNumber, final DeviceProtocol deviceProtocol) {
+        return createMockedDevice(deviceId, meterSerialNumber, meterSerialNumber, deviceProtocol);
+    }
+
+    private Device createMockedDevice(long deviceId, String mRID, String meterSerialNumber, final DeviceProtocol deviceProtocol) {
         DeviceType deviceType = mock(DeviceType.class);
         Device device = mock(Device.class);
         when(device.getDeviceType()).thenReturn(deviceType);
@@ -189,12 +215,16 @@ public class OfflineDeviceImplTest {
         when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(device.getId()).thenReturn(deviceId);
+        when(device.getmRID()).thenReturn(mRID);
         when(device.getSerialNumber()).thenReturn(meterSerialNumber);
+        when(device.getLocation()).thenReturn(Optional.empty());
+        when(device.getUsagePoint()).thenReturn(Optional.empty());
+        when(deviceProtocol.prepareMessageContext(eq(device), any(OfflineDevice.class), any(DeviceMessage.class))).thenReturn(Optional.empty());
         return device;
     }
 
-    private Device createMockDevice() {
-        return createMockDevice(DEVICE_ID, meterSerialNumber);
+    private Device createMockedDevice() {
+        return createMockedDevice(DEVICE_ID, meterSerialNumber);
     }
 
     @Before
@@ -206,6 +236,7 @@ public class OfflineDeviceImplTest {
         when(this.offlineDeviceServiceProvider.firmwareService()).thenReturn(this.firmwareService);
         when(this.offlineDeviceServiceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
         when(this.offlineDeviceServiceProvider.eventService()).thenReturn(eventService);
+        when(this.offlineDeviceServiceProvider.protocolPluggableService()).thenReturn(this.protocolPluggableService);
         when(this.topologyService.getPhysicalGateway(any(Device.class))).thenReturn(Optional.empty());
         when(this.topologyService.getPhysicalGateway(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(this.topologyService.findPhysicalConnectedDevices(any(Device.class))).thenReturn(Collections.<Device>emptyList());
@@ -226,13 +257,19 @@ public class OfflineDeviceImplTest {
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
-        PropertySpecService propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(), dataVaultService, ormService);
-        this.deviceMessageSpecificationService = new DeviceMessageSpecificationServiceImpl(propertySpecService, this.nlsService);
+        PropertySpecService propertySpecService =
+                new UPLPropertySpecServiceImpl(
+                        new PropertySpecServiceImpl(
+                                new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(),
+                                mock(DataVaultService.class),
+                                this.ormService),
+                        this.nlsService);
+        this.deviceMessageSpecificationService = new DeviceMessageSpecificationServiceImpl(new ConverterImpl(), new UPLNlsServiceImpl(this.nlsService), propertySpecService);
     }
 
     @Test
     public void goOfflineTest() {
-        Device device = createMockDevice();
+        Device device = createMockedDevice();
         OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         assertEquals("The SerialNumber should match", meterSerialNumber, offlineRtu.getSerialNumber());
         assertEquals("The ID should match", DEVICE_ID, offlineRtu.getId());
@@ -241,7 +278,7 @@ public class OfflineDeviceImplTest {
 
     @Test
     public void propertiesTest() {
-        OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(createMockDevice(), DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
+        OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(createMockedDevice(), DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         offlineRtu.addProperties(getDeviceProperties());
         offlineRtu.addProperties(getDeviceProtocolProperties());
         assertEquals("Size should be equal to seven", getTotalSizeOfProperties(), offlineRtu.getAllProperties().localSize());
@@ -260,15 +297,15 @@ public class OfflineDeviceImplTest {
         DeviceType slaveRtuType = mock(DeviceType.class);
         when(slaveRtuType.isLogicalSlave()).thenReturn(true);
 
-        Device rtu = createMockDevice();
+        Device rtu = createMockedDevice();
 
-        Device slave1 = createMockDevice(123, "slave1");
+        Device slave1 = createMockedDevice(123, "slave1");
         when(slave1.getDeviceType()).thenReturn(slaveRtuType);
-        Device slaveFromSlave1 = createMockDevice(789, "slaveFromSlave1");
+        Device slaveFromSlave1 = createMockedDevice(789, "slaveFromSlave1");
         when(slaveFromSlave1.getDeviceType()).thenReturn(slaveRtuType);
-        when(this.topologyService.findPhysicalConnectedDevices(slave1)).thenReturn(Arrays.asList(slaveFromSlave1));
+        when(this.topologyService.findPhysicalConnectedDevices(slave1)).thenReturn(Collections.singletonList(slaveFromSlave1));
 
-        Device slave2 = createMockDevice(456, "slave2");
+        Device slave2 = createMockedDevice(456, "slave2");
         when(slave2.getDeviceType()).thenReturn(slaveRtuType);
         when(this.topologyService.findPhysicalConnectedDevices(rtu)).thenReturn(Arrays.asList(slave1, slave2));
 
@@ -285,17 +322,17 @@ public class OfflineDeviceImplTest {
         DeviceType slaveRtuType = mock(DeviceType.class);
         when(slaveRtuType.isLogicalSlave()).thenReturn(true);
 
-        Device device = createMockDevice();
+        Device device = createMockedDevice();
 
-        Device slave1 = createMockDevice(123, "slave1");
+        Device slave1 = createMockedDevice(123, "slave1");
         when(slave1.getDeviceType()).thenReturn(slaveRtuType);
-        Device slaveFromSlave1 = createMockDevice(789, "slaveFromSlave1");
+        Device slaveFromSlave1 = createMockedDevice(789, "slaveFromSlave1");
         when(slaveFromSlave1.getDeviceType()).thenReturn(slaveRtuType);
         OfflineDevice offlineSlaveFromSlave1 = new OfflineDeviceImpl(slaveFromSlave1, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         OfflineDevice offlineSlave1 = new OfflineDeviceImpl(slave1, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
-        when(this.topologyService.findPhysicalConnectedDevices(slave1)).thenReturn(Arrays.asList(slaveFromSlave1));
+        when(this.topologyService.findPhysicalConnectedDevices(slave1)).thenReturn(Collections.singletonList(slaveFromSlave1));
 
-        Device slave2 = createMockDevice(456, "slave2");
+        Device slave2 = createMockedDevice(456, "slave2");
         when(slave2.getDeviceType()).thenReturn(slaveRtuType);
         OfflineDevice offlineSlave2 = new OfflineDeviceImpl(slave2, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
         when(this.topologyService.findPhysicalConnectedDevices(device)).thenReturn(Arrays.asList(slave1, slave2));
@@ -328,8 +365,11 @@ public class OfflineDeviceImplTest {
 
     @Test
     public void getAllRegistersTest() {
-        Device device = createMockDevice();
+        Device device = createMockedDevice();
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn("getAllRegistersTest");
         RegisterType registerType = mock(RegisterType.class);
+        when(registerType.getReadingType()).thenReturn(readingType);
         Register register1 = createMockedRegister(createMockedRegisterSpec(registerType), device);
         Register register2 = createMockedRegister(createMockedRegisterSpec(registerType), device);
         when(device.getRegisters()).thenReturn(Arrays.asList(register1, register2));
@@ -337,39 +377,39 @@ public class OfflineDeviceImplTest {
         OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
         // asserts
-        assertNotNull(offlineRtu.getAllRegisters());
-        assertEquals("Should have gotten 2 registers", 2, offlineRtu.getAllRegisters().size());
+        assertNotNull(offlineRtu.getAllOfflineRegisters());
+        assertEquals("Should have gotten 2 registers", 2, offlineRtu.getAllOfflineRegisters().size());
     }
 
     @Test
     public void getAllRegistersIncludingSlavesTest() {
-
-        OfflineDevice mockOfflineDevice = mock(OfflineDevice.class);
-
-        Device device = createMockDevice();
+        Device device = createMockedDevice();
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn("getAllRegistersIncludingSlavesTest");
         RegisterType registerType = mock(RegisterType.class);
+        when(registerType.getReadingType()).thenReturn(readingType);
         Register register1 = createMockedRegister(createMockedRegisterSpec(registerType), device);
         Register register2 = createMockedRegister(createMockedRegisterSpec(registerType), device);
         when(device.getRegisters()).thenReturn(Arrays.asList(register1, register2));
 
         DeviceType slaveRtuType = mock(DeviceType.class);
         when(slaveRtuType.isLogicalSlave()).thenReturn(true);
-        Device slaveWithNeedProxy = createMockDevice(132, "654654");
+        Device slaveWithNeedProxy = createMockedDevice(132, "654654");
         when(slaveWithNeedProxy.getDeviceType()).thenReturn(slaveRtuType);
         Register registerSlave1 = createMockedRegister(createMockedRegisterSpec(registerType), device);
-        when(slaveWithNeedProxy.getRegisters()).thenReturn(Arrays.asList(registerSlave1));
-        Device slaveWithoutNeedProxy = createMockDevice(133, "65465415");
+        when(slaveWithNeedProxy.getRegisters()).thenReturn(Collections.singletonList(registerSlave1));
+        Device slaveWithoutNeedProxy = createMockedDevice(133, "65465415");
         DeviceType notASlaveRtuType = mock(DeviceType.class);
         Register registerSlave2 = createMockedRegister(createMockedRegisterSpec(registerType), device);
         when(slaveWithoutNeedProxy.getDeviceType()).thenReturn(notASlaveRtuType);
-        when(slaveWithoutNeedProxy.getRegisters()).thenReturn(Arrays.asList(registerSlave2));
+        when(slaveWithoutNeedProxy.getRegisters()).thenReturn(Collections.singletonList(registerSlave2));
         when(this.topologyService.findPhysicalConnectedDevices(device)).thenReturn(Arrays.asList(slaveWithNeedProxy, slaveWithoutNeedProxy));
 
         OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
         // asserts
-        assertNotNull(offlineRtu.getAllRegisters());
-        assertEquals("Should have gotten 3 registers", 3, offlineRtu.getAllRegisters().size());
+        assertNotNull(offlineRtu.getAllOfflineRegisters());
+        assertEquals("Should have gotten 3 registers", 3, offlineRtu.getAllOfflineRegisters().size());
     }
 
     @Test
@@ -377,26 +417,36 @@ public class OfflineDeviceImplTest {
         final long rtuRegisterGroupId = 135143654;
         RegisterGroup rtuRegisterGroup = mock(RegisterGroup.class);
         when(rtuRegisterGroup.getId()).thenReturn(rtuRegisterGroupId);
-        Device device = createMockDevice();
-        RegisterType registerType = mock(RegisterType.class);
-        when(registerType.getRegisterGroups()).thenReturn(Arrays.asList(rtuRegisterGroup));
-        RegisterSpec registerSpec = createMockedRegisterSpec(registerType);
-        Register register1 = createMockedRegister(registerSpec, device);
-        when(register1.getRegisterSpec().getRegisterType().getRegisterGroups()).thenReturn(Arrays.asList(rtuRegisterGroup));
+        Device device = createMockedDevice(DEVICE_ID, "getRegistersForRegisterGroup", meterSerialNumber, mock(DeviceProtocol.class));
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn(OfflineDeviceImplTest.class.getSimpleName());
+        RegisterType registerType1 = mock(RegisterType.class);
+        when(registerType1.getReadingType()).thenReturn(readingType);
+        when(registerType1.getRegisterGroups()).thenReturn(Collections.singletonList(rtuRegisterGroup));
+        RegisterSpec registerSpec1 = createMockedRegisterSpec(registerType1);
+        Register register1 = createMockedRegister(registerSpec1, device);
+        when(register1.getRegisterSpec().getRegisterType().getRegisterGroups()).thenReturn(Collections.singletonList(rtuRegisterGroup));
         OfflineRegister offlineRegister1 = mock(OfflineRegister.class);
         when(offlineRegister1.inGroup(rtuRegisterGroupId)).thenReturn(true);
-        when(offlineRegister1.inAtLeastOneGroup(Arrays.asList(rtuRegisterGroupId))).thenReturn(true);
+        when(offlineRegister1.inAtLeastOneGroup(Collections.singletonList(rtuRegisterGroupId))).thenReturn(true);
         when(offlineRegister1.getDeviceMRID()).thenReturn("getRegistersForRegisterGroup");
-        Register register2 = createMockedRegister(registerSpec, device);
+
+        RegisterType registerType2 = mock(RegisterType.class);
+        when(registerType2.getReadingType()).thenReturn(readingType);
+        when(registerType2.getRegisterGroups()).thenReturn(Collections.emptyList());
+        RegisterSpec registerSpec2 = createMockedRegisterSpec(registerType2);
+        Register register2 = createMockedRegister(registerSpec2, device);
         when(device.getRegisters()).thenReturn(Arrays.asList(register1, register2));
         OfflineRegister offlineRegister2 = mock(OfflineRegister.class);
         when(offlineRegister2.getDeviceMRID()).thenReturn("getRegistersForRegisterGroup");
+        when(offlineRegister2.inGroup(rtuRegisterGroupId)).thenReturn(false);
+        when(offlineRegister2.inAtLeastOneGroup(Collections.singletonList(rtuRegisterGroupId))).thenReturn(false);
 
-        OfflineDeviceImpl offlineRtu = spy(new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider));
-        when(offlineRtu.getAllRegisters()).thenReturn(Arrays.asList(offlineRegister1, offlineRegister2));
+        OfflineDeviceImpl offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
+        when(offlineDevice.getAllOfflineRegisters()).thenReturn(Arrays.asList(offlineRegister1, offlineRegister2));
 
         // asserts
-        assertEquals("Should have gotten 1 registers", 1, offlineRtu.getRegistersForRegisterGroupAndMRID(Arrays.asList(rtuRegisterGroupId), "getRegistersForRegisterGroup").size());
+        assertThat(offlineDevice.getRegistersForRegisterGroupAndMRID(Collections.singletonList(rtuRegisterGroupId), "getRegistersForRegisterGroup")).hasSize(1);
     }
 
     private RegisterSpec createMockedRegisterSpec(RegisterType registerType) {
@@ -415,7 +465,7 @@ public class OfflineDeviceImplTest {
 
     @Test
     public void pendingDeviceMessagesTest() {
-        Device device = createMockDevice();
+        Device device = createMockedDevice();
         Calendar calendar = mock(Calendar.class);
         AllowedCalendar allowedCalendar = mock(AllowedCalendar.class);
         when(allowedCalendar.getCalendar()).thenReturn(Optional.of(calendar));
@@ -444,9 +494,9 @@ public class OfflineDeviceImplTest {
     public void pendingInvalidDeviceMessagesTest() {
         Calendar calendar = mock(Calendar.class);
         when(calendar.getName()).thenReturn(CALENDAR_NAME);
-        Device device = createMockDevice();
+        Device device = createMockedDevice();
         when(device.getDeviceType().getAllowedCalendars()).thenReturn(Collections.emptyList());
-        DeviceMessageSpec sendCalendarSpec = this.getDeviceMessageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND.getId());
+        DeviceMessageSpec sendCalendarSpec = this.getDeviceMessageSpec(DeviceMessageId.ACTIVITY_CALENDER_SEND.dbValue());
         List<PropertySpec> propertySpecs = sendCalendarSpec.getPropertySpecs();
         DeviceMessage sendCalendar = mock(DeviceMessage.class);
         when(sendCalendar.getDeviceMessageId()).thenReturn(DeviceMessageId.ACTIVITY_CALENDER_SEND);
@@ -454,15 +504,17 @@ public class OfflineDeviceImplTest {
 
         DeviceMessageAttribute calendarNameAttribute = mock(DeviceMessageAttribute.class);
         when(calendarNameAttribute.getDeviceMessage()).thenReturn(sendCalendar);
-        when(calendarNameAttribute.getName()).thenReturn(DeviceMessageAttributes.activityCalendarNameAttributeName.getDefaultFormat());
+        String defaultFormat = DeviceMessageAttributes.activityCalendarNameAttributeName.getDefaultFormat();
+        when(calendarNameAttribute.getName()).thenReturn(defaultFormat);
         when(calendarNameAttribute.getValue()).thenReturn("pendingInvalidDeviceMessagesTest");
-        when(calendarNameAttribute.getSpecification()).thenReturn(propertySpecs.get(0));
+        PropertySpec firstPropertySpec = propertySpecs.get(0);
+        when(calendarNameAttribute.getSpecification()).thenReturn(firstPropertySpec);
         DeviceMessageAttribute calendarAttribute = mock(DeviceMessageAttribute.class);
         when(calendarAttribute.getDeviceMessage()).thenReturn(sendCalendar);
         when(calendarAttribute.getName()).thenReturn(DeviceMessageAttributes.activityCalendarAttributeName.getDefaultFormat());
         when(calendarAttribute.getValue()).thenReturn(calendar);
         when(calendarAttribute.getSpecification()).thenReturn(propertySpecs.get(1));
-        when(sendCalendar.getAttributes()).thenReturn(Arrays.asList(calendarNameAttribute, calendarAttribute));
+        doReturn(Arrays.asList(calendarNameAttribute, calendarAttribute)).when(sendCalendar).getAttributes();
         when(sendCalendar.getDevice()).thenReturn(device);
         when(device.getMessagesByState(DeviceMessageStatus.PENDING)).thenReturn(Collections.singletonList(sendCalendar));
 
@@ -477,7 +529,7 @@ public class OfflineDeviceImplTest {
 
     @Test
     public void getAllPendingDeviceMessagesIncludingDownStreamsTest() {
-        Device device = createMockDevice();
+        Device device = createMockedDevice();
         DeviceMessage deviceMessage1 = mock(DeviceMessage.class);
         DeviceMessageSpec mockedDeviceMessageSpec1 = this.getDeviceMessageSpec(ClockDeviceMessage.SET_TIME.getId());
         when(deviceMessage1.getSpecification()).thenReturn(mockedDeviceMessageSpec1);
@@ -491,7 +543,7 @@ public class OfflineDeviceImplTest {
         DeviceType slaveRtuType = mock(DeviceType.class);
         when(slaveRtuType.isLogicalSlave()).thenReturn(true);
         DeviceProtocol slaveDeviceProtocol = mock(DeviceProtocol.class);
-        Device slaveWithNeedProxy = createMockDevice(132, "654654", slaveDeviceProtocol);
+        Device slaveWithNeedProxy = createMockedDevice(132, "654654", slaveDeviceProtocol);
         when(slaveWithNeedProxy.getDeviceType()).thenReturn(slaveRtuType);
         DeviceMessage slaveDeviceMessage1 = mock(DeviceMessage.class);
         DeviceMessageSpec mockedSlaveDeviceMessageSpec1 = this.getDeviceMessageSpec(ContactorDeviceMessage.CONTACTOR_CLOSE.getId());
@@ -500,7 +552,7 @@ public class OfflineDeviceImplTest {
         when(slaveWithNeedProxy.getMessagesByState(DeviceMessageStatus.PENDING)).thenReturn(Collections.singletonList(slaveDeviceMessage1));
 
         DeviceType notASlaveRtuType = mock(DeviceType.class);
-        Device slaveWithoutNeedProxy = createMockDevice(133, "65465415", slaveDeviceProtocol);
+        Device slaveWithoutNeedProxy = createMockedDevice(133, "65465415", slaveDeviceProtocol);
         when(slaveWithoutNeedProxy.getDeviceType()).thenReturn(notASlaveRtuType);
         DeviceMessage slaveDeviceMessage2 = mock(DeviceMessage.class);
         DeviceMessageSpec mockedSlaveDeviceMessageSpec2 = this.getDeviceMessageSpec(ContactorDeviceMessage.CONTACTOR_OPEN.getId());
@@ -527,7 +579,7 @@ public class OfflineDeviceImplTest {
 
     @Test
     public void sentDeviceMessagesTest() {
-        Device device = createMockDevice();
+        Device device = createMockedDevice();
         DeviceMessage deviceMessage2 = mock(DeviceMessage.class);
         DeviceMessageSpec mockedDeviceMessageSpec2 = this.getDeviceMessageSpec(DeviceMessageId.CLOCK_SET_TIME);
         when(deviceMessage2.getSpecification()).thenReturn(mockedDeviceMessageSpec2);
@@ -547,7 +599,7 @@ public class OfflineDeviceImplTest {
 
     @Test
     public void getAllSentDeviceMessagesIncludingDownStreamsTest() {
-        Device device = createMockDevice();
+        Device device = createMockedDevice();
         DeviceMessage deviceMessage1 = mock(DeviceMessage.class);
         DeviceMessageSpec mockedDeviceMessageSpec1 = this.getDeviceMessageSpec(ClockDeviceMessage.SET_TIME.getId());
         when(deviceMessage1.getSpecification()).thenReturn(mockedDeviceMessageSpec1);
@@ -561,7 +613,7 @@ public class OfflineDeviceImplTest {
         DeviceType slaveRtuType = mock(DeviceType.class);
         when(slaveRtuType.isLogicalSlave()).thenReturn(true);
         DeviceProtocol slaveDeviceProtocol = mock(DeviceProtocol.class);
-        Device slaveWithNeedProxy = createMockDevice(132, "654654", slaveDeviceProtocol);
+        Device slaveWithNeedProxy = createMockedDevice(132, "654654", slaveDeviceProtocol);
         when(slaveWithNeedProxy.getDeviceType()).thenReturn(slaveRtuType);
         DeviceMessage slaveDeviceMessage1 = mock(DeviceMessage.class);
         DeviceMessageSpec mockedSlaveDeviceMessageSpec1 = this.getDeviceMessageSpec(ContactorDeviceMessage.CONTACTOR_CLOSE.getId());
@@ -570,7 +622,7 @@ public class OfflineDeviceImplTest {
         when(slaveWithNeedProxy.getMessagesByState(DeviceMessageStatus.SENT)).thenReturn(Collections.singletonList(slaveDeviceMessage1));
 
         DeviceType notASlaveRtuType = mock(DeviceType.class);
-        Device slaveWithoutNeedProxy = createMockDevice(133, "65465415", slaveDeviceProtocol);
+        Device slaveWithoutNeedProxy = createMockedDevice(133, "65465415", slaveDeviceProtocol);
         when(slaveWithoutNeedProxy.getDeviceType()).thenReturn(notASlaveRtuType);
         DeviceMessage slaveDeviceMessage2 = mock(DeviceMessage.class);
         DeviceMessageSpec mockedSlaveDeviceMessageSpec2 = this.getDeviceMessageSpec(ContactorDeviceMessage.CONTACTOR_OPEN.getId());
@@ -598,7 +650,7 @@ public class OfflineDeviceImplTest {
     @Test
     public void deviceProtocolPluggableClassNullTest() {
         Device
-                device = createMockDevice();
+                device = createMockedDevice();
         when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         OfflineDevice offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 
@@ -609,14 +661,16 @@ public class OfflineDeviceImplTest {
     @Test
     public void getAllSlaveDevicesWithoutSlaveCapabilitiesTest() {
         long slaveId = 664513;
-        Device master = createMockDevice();
+        Device master = createMockedDevice();
         Device slaveWithoutCapability = mock(Device.class);
         when(slaveWithoutCapability.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         when(slaveWithoutCapability.getId()).thenReturn(slaveId);
+        when(slaveWithoutCapability.getLocation()).thenReturn(Optional.empty());
+        when(slaveWithoutCapability.getUsagePoint()).thenReturn(Optional.empty());
         DeviceType deviceTypeSlave = mock(DeviceType.class);
         when(slaveWithoutCapability.getDeviceType()).thenReturn(deviceTypeSlave);
         when(slaveWithoutCapability.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
-        when(this.topologyService.findPhysicalConnectedDevices(master)).thenReturn(Arrays.asList(slaveWithoutCapability));
+        when(this.topologyService.findPhysicalConnectedDevices(master)).thenReturn(Collections.singletonList(slaveWithoutCapability));
 
         // business method
         OfflineDevice offlineDevice = new OfflineDeviceImpl(master, new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG), this.offlineDeviceServiceProvider);
@@ -630,13 +684,13 @@ public class OfflineDeviceImplTest {
     @Test
     public void getAllSlaveDevicesWithSlaveCapabilitiesTest() {
         long slaveId = 664513;
-        Device master = createMockDevice();
+        Device master = createMockedDevice();
         DeviceType deviceTypeSlave = mock(DeviceType.class);
         when(deviceTypeSlave.isLogicalSlave()).thenReturn(true);
-        Device slaveWithCapability = createMockDevice();
+        Device slaveWithCapability = createMockedDevice();
         when(slaveWithCapability.getId()).thenReturn(slaveId);
         when(slaveWithCapability.getDeviceType()).thenReturn(deviceTypeSlave);
-        when(this.topologyService.findPhysicalConnectedDevices(master)).thenReturn(Arrays.asList(slaveWithCapability));
+        when(this.topologyService.findPhysicalConnectedDevices(master)).thenReturn(Collections.singletonList(slaveWithCapability));
 
         // business method
         OfflineDevice offlineDevice = new OfflineDeviceImpl(master, new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG), this.offlineDeviceServiceProvider);
@@ -648,40 +702,19 @@ public class OfflineDeviceImplTest {
 
     @Test
     public void propertyOfDeviceOverrulesPropertiesOfDeviceProtocolTest() {
-        Device device = createMockDevice();
+        Device device = createMockedDevice();
         OfflineDevice offlineDevice = new OfflineDeviceImpl(device, new DeviceOfflineFlags(), this.offlineDeviceServiceProvider);
 
         Object property = offlineDevice.getAllProperties().getProperty(DEVICE_TIMEZONE_PROPERTY);
         assertThat(property).isEqualTo(deviceTimeZone);
     }
 
-    private static LoadProfile getNewMockedLoadProfile(final ObisCode obisCode, Device device) {
-        LoadProfileType loadProfileType = mock(LoadProfileType.class);
-        when(loadProfileType.getObisCode()).thenReturn(obisCode);
-        LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
-        when(loadProfileSpec.getLoadProfileType()).thenReturn(loadProfileType);
-        LoadProfile loadProfile = mock(LoadProfile.class);
-        when(loadProfile.getLastReading()).thenReturn(Optional.<Instant>empty());
-        when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
-        when(loadProfile.getLoadProfileTypeObisCode()).thenReturn(obisCode);
-        when(loadProfile.getDevice()).thenReturn(device);
-        return loadProfile;
-    }
-
     private DeviceMessageSpec getDeviceMessageSpec(DeviceMessageId deviceMessageId) {
-        return this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()).orElseThrow(() -> new RuntimeException("Setup failure: could not find DeviceMessageSpec with id " + deviceMessageId));
+        return getDeviceMessageSpec(deviceMessageId.dbValue());
     }
 
-    @Test
-    public void deviceIdentifierForKnownDeviceBySerialNumberShouldBeUsedTest() {
-        Device device = createMockDevice();
-        DeviceIdentifierForAlreadyKnownDeviceBySerialNumber deviceIdentifier = new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(device);
-        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(BaseDevice.class))).thenReturn(deviceIdentifier);
-
-        OfflineDeviceImpl offlineDevice = new OfflineDeviceImpl(device, new DeviceOfflineFlags(), this.offlineDeviceServiceProvider);
-
-        assertThat(offlineDevice.getDeviceIdentifier().getDeviceIdentifierType()).isEqualTo(DeviceIdentifierType.SerialNumber);
+    private DeviceMessageSpec getDeviceMessageSpec(long id) {
+        return this.deviceMessageSpecificationService.findMessageSpecById(id).orElseThrow(() -> new RuntimeException("Setup failure: could not find DeviceMessageSpec with id " + id));
     }
-
 
 }

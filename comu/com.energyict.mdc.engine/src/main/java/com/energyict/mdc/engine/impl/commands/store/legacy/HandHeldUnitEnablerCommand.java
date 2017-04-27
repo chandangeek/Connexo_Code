@@ -15,14 +15,14 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.io.ConnectionCommunicationException;
-import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 import com.energyict.mdc.protocol.api.OpticalDriver;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.legacy.HalfDuplexEnabler;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
+import com.energyict.protocol.HalfDuplexEnabler;
 
 public class HandHeldUnitEnablerCommand extends SimpleComCommand {
 
@@ -37,7 +37,7 @@ public class HandHeldUnitEnablerCommand extends SimpleComCommand {
     @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         if (isSerialComChannel()) {
-            SerialComChannel comChannel = this.comChannelPlaceHolder.getComPortRelatedComChannel();
+            SerialPortComChannel comChannel = this.comChannelPlaceHolder.getComPortRelatedComChannel();
             SerialCommunicationChannelAdapter serialCommunicationChannel = new SerialCommunicationChannelAdapter(comChannel);
             try {
                 if (deviceProtocol instanceof MeterProtocolAdapter || deviceProtocol instanceof SmartMeterProtocolAdapter) {

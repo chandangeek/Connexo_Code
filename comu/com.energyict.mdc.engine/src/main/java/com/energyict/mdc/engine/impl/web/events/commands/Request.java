@@ -16,7 +16,7 @@ import com.energyict.mdc.engine.impl.events.EventPublisher;
  * the interests to limit the amount of events received.
  * Note also that the interest can be registered multiple
  * time so e.g. change the interest in events that
- * relate to one {@link com.energyict.mdc.protocol.api.device.BaseDevice device} to another device.
+ * relate to one {@link com.energyict.mdc.upl.meterdata.Device device} to another device.
  * <p>
  * Making the initial request is done through the
  * {@link EventRegistrationRequestInitiator}

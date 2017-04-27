@@ -10,25 +10,26 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineLogBookImpl;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.offline.OfflineLogBook;
 
+import com.energyict.cim.EndDeviceEventTypeMapping;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -63,6 +64,8 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
     DeviceCreator deviceCreator;
     @Mock
     private IdentificationService identificationService;
+    @Mock
+    private LogBookService logBookService;
 
     @Before
     public void setUp() {
@@ -96,7 +99,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         assertThat(collectedLogBook.getCollectedMeterEvents()).overridingErrorMessage("The collected data should contain {0} events to start", 2).hasSize(2);
 
         PreStoreLogBook preStoreLogBook = new PreStoreLogBook(getClock(), comServerDAO);
-        Optional<Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
+        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
 
         assertThat(localLogBook).isPresent();
         assertThat(localLogBook.get().getLast().getEndDeviceEvents()).hasSize(2);
@@ -117,7 +120,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         assertThat(collectedLogBook.getCollectedMeterEvents()).overridingErrorMessage("The collected data should contain {0} events to start", 2).hasSize(2);
 
         PreStoreLogBook preStoreLogBook = new PreStoreLogBook(getClock(), comServerDAO);
-        Optional<Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
+        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
 
         assertThat(localLogBook).isPresent();
         assertThat(localLogBook.get().getLast().getEndDeviceEvents()).hasSize(1);
@@ -138,7 +141,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         assertThat(collectedLogBook.getCollectedMeterEvents()).overridingErrorMessage("The collected data should contain {0} events to start", 4).hasSize(4);
 
         PreStoreLogBook preStoreLogBook = new PreStoreLogBook(getClock(), comServerDAO);
-        Optional<Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
+        Optional<Pair<DeviceIdentifier, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
 
         assertThat(localLogBook).isPresent();
         assertThat(localLogBook.get().getLast().getEndDeviceEvents()).hasSize(2);
@@ -149,7 +152,7 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
         when(comServerDAO.executeTransaction(any())).thenAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform());
         when(comServerDAO.findOfflineLogBook(any(LogBookIdentifier.class))).thenReturn(Optional.of(offlineLogBook));
-        DeviceIdentifier<Device> deviceIdentifier = (DeviceIdentifier<Device>) offlineLogBook.getDeviceIdentifier();
+        DeviceIdentifier deviceIdentifier = offlineLogBook.getDeviceIdentifier();
         when(comServerDAO.getDeviceIdentifierFor(any(LogBookIdentifier.class))).thenReturn(deviceIdentifier);
         doCallRealMethod().when(comServerDAO).updateLastLogBook(any(LogBookIdentifier.class), any(Instant.class));
         return comServerDAO;
@@ -160,14 +163,14 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         MeterProtocolEvent powerDownEvent = new MeterProtocolEvent(eventTime2,
                 MeterEvent.POWERDOWN,
                 UNKNOWN,
-                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN, this.getMeteringService()).orElseThrow(() -> new RuntimeException("Powerdown event type was not setup correctly in this unit test")),
+                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN),
                 "Power down",
                 UNKNOWN,
                 UNKNOWN);
         MeterProtocolEvent powerUpEvent = new MeterProtocolEvent(eventTime1,
                 MeterEvent.POWERDOWN,
                 UNKNOWN,
-                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERUP, this.getMeteringService()).orElseThrow(() -> new RuntimeException("Powerup event type was not setup correctly in this unit test")),
+                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERUP),
                 "Power up",
                 UNKNOWN,
                 UNKNOWN);
@@ -181,14 +184,14 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         MeterProtocolEvent powerDownEvent = new MeterProtocolEvent(futureIntervalEndTime1,
                 MeterEvent.POWERDOWN,
                 UNKNOWN,
-                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN, this.getMeteringService()).orElseThrow(() -> new RuntimeException("Powerdown event type was not setup correctly in this unit test")),
+                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN),
                 "Power down",
                 UNKNOWN,
                 UNKNOWN);
         MeterProtocolEvent powerUpEvent = new MeterProtocolEvent(eventTime1,
                 MeterEvent.POWERDOWN,
                 UNKNOWN,
-                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERUP, this.getMeteringService()).orElseThrow(() -> new RuntimeException("Powerup event type was not setup correctly in this unit test")),
+                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERUP),
                 "Power up",
                 UNKNOWN,
                 UNKNOWN);
@@ -202,14 +205,14 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         MeterProtocolEvent powerDownEvent = new MeterProtocolEvent(eventTime1,
                 MeterEvent.POWERDOWN,
                 UNKNOWN,
-                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN, this.getMeteringService()).orElseThrow(() -> new RuntimeException("Powerdown event type was not setup correctly in this unit test")),
+                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN),
                 "Power down",
                 UNKNOWN,
                 UNKNOWN);
         MeterProtocolEvent powerUpEvent = new MeterProtocolEvent(eventTime2,
                 MeterEvent.POWERDOWN,
                 UNKNOWN,
-                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERUP, this.getMeteringService()).orElseThrow(() -> new RuntimeException("Powerup event type was not setup correctly in this unit test")),
+                EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERUP),
                 "Power up",
                 UNKNOWN,
                 UNKNOWN);
@@ -220,7 +223,8 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
 
     CollectedLogBook enhanceCollectedLogBook(LogBook logBook, CollectedLogBook collectedLogBook) {
         LogBookIdentifier logBookIdentifier = mock(LogBookIdentifier.class);
-        when(logBookIdentifier.getLogBook()).thenReturn(logBook);
+        // Todo: figure out where the logBookService needs to be injected into
+        when(this.logBookService.findByIdentifier(logBookIdentifier)).thenReturn(Optional.of(logBook));
         when(collectedLogBook.getLogBookIdentifier()).thenReturn(logBookIdentifier);
         return collectedLogBook;
     }

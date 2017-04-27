@@ -12,17 +12,17 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedRegisterListEvent;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * Provides functionality to store {@link com.energyict.mdc.protocol.api.device.BaseRegister} data into the system.
+ * Provides functionality to store {@link com.energyict.mdc.upl.meterdata.Register} data into the system.
  *
  * @author sva
  * @since 21/01/13 - 9:16
@@ -30,7 +30,7 @@ import java.util.Optional;
 
 public class CollectedRegisterListDeviceCommand extends DeviceCommandImpl<CollectedRegisterListEvent> {
 
-    public final static String DESCRIPTION_TITLE = "Collected register data";
+    public static final String DESCRIPTION_TITLE = "Collected register data";
 
     private final CollectedRegisterList collectedRegisterList;
     private final MeterDataStoreCommand meterDataStoreCommand;

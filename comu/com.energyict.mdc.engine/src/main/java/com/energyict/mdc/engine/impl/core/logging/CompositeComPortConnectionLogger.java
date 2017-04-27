@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core.logging;
 
-import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -4,30 +4,28 @@
 
 package com.energyict.mdc.engine.impl.events.datastorage;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceProtocolProperty;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
 /**
  * {@link CollectedDataProcessingEvent} related to a {@link UpdateDeviceProtocolProperty}
  */
-public class UpdateDeviceProtocolPropertyEvent extends AbstractCollectedDataProcessingEventImpl  {
+public class UpdateDeviceProtocolPropertyEvent extends AbstractCollectedDataProcessingEventImpl {
 
     private final DeviceIdentifier deviceIdentifier;
-    private final PropertySpec propertySpec;
+    private final String propertyName;
     private final Object propertyValue;
 
     public UpdateDeviceProtocolPropertyEvent(ServiceProvider serviceProvider,
                                              DeviceIdentifier deviceIdentifier,
-                                             PropertySpec propertySpec,
+                                             String propertyName,
                                              Object propertyValue) {
         super(serviceProvider);
         this.deviceIdentifier = deviceIdentifier;
-        this.propertySpec = propertySpec;
+        this.propertyName = propertyName;
         this.propertyValue = propertyValue;
     }
 
@@ -42,8 +40,8 @@ public class UpdateDeviceProtocolPropertyEvent extends AbstractCollectedDataProc
         if (deviceIdentifier != null) {
             writer.key("deviceIdentifier").value(deviceIdentifier.toString());
         }
-        if (propertySpec != null && propertyValue != null) {
-            writer.key(propertySpec.getDisplayName()).value(propertySpec.getValueFactory().toStringValue(propertyValue));
+        if (propertyName != null && propertyValue != null) {
+            writer.key(propertyName).value(propertyValue.toString());
         }
         writer.endObject();
     }

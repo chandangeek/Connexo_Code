@@ -4,9 +4,7 @@
 
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
@@ -14,10 +12,12 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceBySerialNumber;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,8 +67,15 @@ public class OfflineRegisterImplTest {
     }
 
     public static RegisterType getMockedRegisterType(RegisterGroup registerGroup) {
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn(OfflineRegisterImplTest.class.getSimpleName());
         RegisterType registerType = mock(RegisterType.class);
-        when(registerType.getRegisterGroups()).thenReturn(registerGroup == null ? Collections.<RegisterGroup>emptyList() : Arrays.asList(registerGroup));
+        if (registerGroup == null) {
+            when(registerType.getRegisterGroups()).thenReturn(Collections.<RegisterGroup>emptyList());
+        } else {
+            when(registerType.getRegisterGroups()).thenReturn(Arrays.asList(registerGroup));
+        }
+        when(registerType.getReadingType()).thenReturn(readingType);
         return registerType;
     }
 
@@ -85,6 +92,7 @@ public class OfflineRegisterImplTest {
         RegisterGroup mockedRegisterGroup = getMockedRtuRegisterGroup();
         RegisterSpec mockedRegisterSpec = getMockedRegisterSpec(mockedRegisterGroup);
         when(register.getRegisterSpec()).thenReturn(mockedRegisterSpec);
+        when(register.getRegisterSpecId()).thenReturn(REGISTER_SPEC_ID);
         when(register.getDevice()).thenReturn(device);
         when(register.getDeviceObisCode()).thenReturn(REGISTER_MAPPING_OBISCODE);
 
@@ -97,7 +105,7 @@ public class OfflineRegisterImplTest {
         assertEquals(REGISTER_MAPPING_OBISCODE, offlineRegister.getObisCode());
         assertEquals(REGISTER_UNIT, offlineRegister.getUnit());
         assertThat(offlineRegister.inGroup(REGISTER_GROUP_ID)).isTrue();
-        assertEquals(METER_SERIAL_NUMBER, offlineRegister.getDeviceSerialNumber());
+        assertEquals(METER_SERIAL_NUMBER, offlineRegister.getSerialNumber());
     }
 
     private Device getMockedDevice() {
@@ -111,6 +119,7 @@ public class OfflineRegisterImplTest {
         Device device = getMockedDevice();
         Register register = getMockedRegister(device);
         when(register.getDeviceObisCode()).thenReturn(REGISTER_MAPPING_OBISCODE);
+        when(register.getRegisterSpecId()).thenReturn(REGISTER_SPEC_ID);
 
         //Business Methods
         OfflineRegister offlineRegister = new OfflineRegisterImpl(register, identificationService);
@@ -121,7 +130,7 @@ public class OfflineRegisterImplTest {
         assertEquals(REGISTER_MAPPING_OBISCODE, offlineRegister.getObisCode());
         assertEquals(REGISTER_UNIT, offlineRegister.getUnit());
         assertThat(offlineRegister.inGroup(REGISTER_GROUP_ID)).isFalse();
-        assertEquals(METER_SERIAL_NUMBER, offlineRegister.getDeviceSerialNumber());
+        assertEquals(METER_SERIAL_NUMBER, offlineRegister.getSerialNumber());
     }
 
     private Register getMockedRegister(Device device) {
@@ -138,11 +147,11 @@ public class OfflineRegisterImplTest {
         Register register = getMockedRegister(device);
 
         DeviceIdentifierForAlreadyKnownDeviceBySerialNumber deviceIdentifierForAlreadyKnownDevice = new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(device);
-        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(BaseDevice.class))).thenReturn(deviceIdentifierForAlreadyKnownDevice);
+        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(Device.class))).thenReturn(deviceIdentifierForAlreadyKnownDevice);
 
         OfflineRegisterImpl offlineRegister = new OfflineRegisterImpl(register, identificationService);
 
-        assertThat(offlineRegister.getDeviceIdentifier().getDeviceIdentifierType()).isEqualTo(DeviceIdentifierType.SerialNumber);
+        assertThat(offlineRegister.getDeviceIdentifier().forIntrospection().getTypeName()).isEqualTo("SerialNumber");
     }
 
 }

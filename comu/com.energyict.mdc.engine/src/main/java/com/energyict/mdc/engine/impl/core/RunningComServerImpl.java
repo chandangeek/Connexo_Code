@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.datavault.KeyStoreService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -16,6 +17,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -52,13 +54,14 @@ import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
 import com.energyict.mdc.engine.monitor.ComServerMonitor;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.io.SerialComponentService;
+import com.energyict.mdc.upl.io.SocketService;
 
 import org.joda.time.DateTimeConstants;
 
@@ -102,11 +105,10 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
     private final ServiceProvider serviceProvider;
     private final Thesaurus thesaurus;
     private final BlockingQueue<ComPort> forceRefreshQueue = new LinkedBlockingQueue<>();
+    private final ComServerDAO comServerDAO;
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
-
     private AtomicBoolean continueRunning;
     private Thread self;
-    private final ComServerDAO comServerDAO;
     private ScheduledComPortFactory scheduledComPortFactory;
     private ComPortListenerFactory comPortListenerFactory;
     private ThreadFactory threadFactory;
@@ -299,7 +301,8 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                         this.serviceProvider.clock(),
                         this.comServerDAO,
                         this.eventMechanism.getEventPublisher(),
-                        this.serviceProvider.threadPrincipalService()
+                        this.serviceProvider.threadPrincipalService(),
+                        this.serviceProvider.deviceMessageService()
                 );
     }
 
@@ -410,6 +413,7 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
             this.awaitNestedServerProcessesAreShutDown();
         }
         this.unregisterAsMBean();
+        Services.objectMapperService(null);
         this.getLogger().shutDownComplete(this.getComServer());
     }
 
@@ -1075,6 +1079,8 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
 
         FirmwareService firmwareService();
 
+        KeyStoreService keyStoreService();
+
     }
 
     private class EventMechanism {
@@ -1217,6 +1223,11 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         }
 
         @Override
+        public DeviceMessageService deviceMessageService() {
+            return serviceProvider.deviceMessageService();
+        }
+
+        @Override
         public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
             return serviceProvider.mdcReadingTypeUtilService();
         }
@@ -1278,7 +1289,9 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                     serviceProvider.socketService(),
                     serviceProvider.hexService(),
                     eventMechanism.eventPublisher,
-                    serviceProvider.clock());
+                    serviceProvider.clock(),
+                    serviceProvider.deviceMessageService()
+            );
         }
 
         @Override
@@ -1336,6 +1349,11 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         @Override
         public EngineService engineService() {
             return serviceProvider.engineService();
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return serviceProvider.deviceMessageService();
         }
 
         @Override

@@ -22,7 +22,7 @@ import java.util.Set;
  * receive all events. It can also register an interest in some
  * {@link Category event categories}.
  * These interests can later be fine tuned to receive
- * only events that relate to e.g. a single {@link com.energyict.mdc.protocol.api.device.BaseDevice device},
+ * only events that relate to e.g. a single {@link com.energyict.mdc.upl.meterdata.Device device},
  * a single {@link ConnectionTask} or a single (@link ComTask}.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -49,7 +49,7 @@ public interface EventPublisher {
 
     /**
      * Narrows the registered interest of the {@link EventReceiver}
-     * to events that relate to the specified {@link com.energyict.mdc.protocol.api.device.BaseDevice device}s.
+     * to events that relate to the specified {@link com.energyict.mdc.upl.meterdata.Device device}s.
      *
      * @param receiver The EventReceiver
      * @param devices The devices
@@ -58,7 +58,7 @@ public interface EventPublisher {
 
     /**
      * Widens the registered interest so that not only events
-     * that relate to the specified {@link com.energyict.mdc.protocol.api.device.BaseDevice} are published
+     * that relate to the specified {@link com.energyict.mdc.upl.meterdata.Device} are published
      * to the specified {@link EventReceiver}.
      *
      * @param receiver The EventReceiver
@@ -94,7 +94,7 @@ public interface EventPublisher {
      * Narrows the registered interest to events that relate
      * to the specified {@link ComTaskExecution}s.
      * Note that this can be combined narrowing your interest
-     * to a {@link com.energyict.mdc.protocol.api.device.BaseDevice device} or a {@link ConnectionTask}.
+     * to a {@link com.energyict.mdc.upl.meterdata.Device device} or a {@link ConnectionTask}.
      * You can narrow your interest to another ComTaskExecution
      * by simply calling this method again with another ComTaskExecution.
      *
@@ -115,7 +115,7 @@ public interface EventPublisher {
     /**
      * Narrows the registered interest to events that relate
      * to the specified {@link ComPort}s. Note that this can be combined
-     * narrowing your interest to a {@link com.energyict.mdc.protocol.api.device.BaseDevice device} or a {@link ConnectionTask}.
+     * narrowing your interest to a {@link com.energyict.mdc.upl.meterdata.Device device} or a {@link ConnectionTask}.
      * You can narrow your interest to another ComPort
      * by simply calling this method again with another ComPort.
      *

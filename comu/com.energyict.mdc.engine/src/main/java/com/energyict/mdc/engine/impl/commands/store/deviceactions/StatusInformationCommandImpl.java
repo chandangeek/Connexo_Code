@@ -15,14 +15,14 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 
 /**
  * Implementation for a {@link StatusInformationCommand}<br/>
- * The collected data will be predefined status {@link com.energyict.mdc.protocol.api.device.BaseRegister}s.
+ * The collected data will be predefined status {@link com.energyict.mdc.upl.meterdata.Register}s.
  * The actual reading of the registers will be performed by the {@link ReadRegistersCommand}
  *
  * @author gna

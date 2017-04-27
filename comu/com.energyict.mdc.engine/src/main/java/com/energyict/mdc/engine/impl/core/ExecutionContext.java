@@ -10,6 +10,7 @@ import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
 import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -56,8 +57,9 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceCommandFactory;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+
+import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.text.MessageFormat;
 import java.time.Clock;
@@ -164,6 +166,10 @@ public final class ExecutionContext implements JournalEntryFactory {
         return this.serviceProvider.clock();
     }
 
+    public DeviceMessageService deviceMessageService() {
+        return this.serviceProvider.deviceMessageService();
+    }
+
     public EventPublisher eventPublisher() {
         return this.serviceProvider.eventPublisher();
     }
@@ -194,7 +200,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         return false;
     }
 
-    protected Duration getElapsedTimeInMillis() {
+    Duration getElapsedTimeInMillis() {
         return Duration.ofMillis(this.connecting.getElapsed() / NANOS_IN_MILLI);
     }
 
@@ -386,6 +392,7 @@ public final class ExecutionContext implements JournalEntryFactory {
      * @param comTaskExecutionComCommand the command that is going to be executed
      */
     public void start(ComTaskExecutionComCommand comTaskExecutionComCommand) {
+        this.comTaskExecution = comTaskExecutionComCommand.getComTaskExecution();
         getComServerDAO().executionStarted(comTaskExecutionComCommand.getComTaskExecution(), getComPort(), true);
         this.publish(
                 new ComTaskExecutionStartedEvent(
@@ -394,7 +401,6 @@ public final class ExecutionContext implements JournalEntryFactory {
                         this.getComPort(),
                         this.getConnectionTask()
                 ));
-        this.comTaskExecution = comTaskExecutionComCommand.getComTaskExecution();
         connectionLogger.startingTask(Thread.currentThread().getName(), comTaskExecution.getComTask().getName());
         if (this.isConnected()) {
             executionStopWatchStart();
@@ -498,7 +504,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         }
     }
 
-    protected void completeFailure(ComSession.SuccessIndicator successIndicator) {
+    void completeFailure(ComSession.SuccessIndicator successIndicator) {
         sessionBuilder.setFailedTasks(this.jobExecution.getFailedComTaskExecutions().size());
         sessionBuilder.setSuccessFulTasks(this.jobExecution.getSuccessfulComTaskExecutions().size());
         sessionBuilder.setNotExecutedTasks(this.jobExecution.getNotExecutedComTaskExecutions().size());
@@ -506,7 +512,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.createComSessionCommand(sessionBuilder, successIndicator);
     }
 
-    protected void completeSuccessful() {
+    void completeSuccessful() {
         sessionBuilder.setFailedTasks(this.jobExecution.getFailedComTaskExecutions().size());
         sessionBuilder.setSuccessFulTasks(this.jobExecution.getSuccessfulComTaskExecutions().size());
         sessionBuilder.setNotExecutedTasks(this.jobExecution.getNotExecutedComTaskExecutions().size());
@@ -515,7 +521,7 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.createComSessionCommand(sessionBuilder, successIndicator);
     }
 
-    protected void completeOutsideComWindow() {
+    void completeOutsideComWindow() {
         ComSession.SuccessIndicator successIndicator = ComSession.SuccessIndicator.Success;
         this.createComSessionCommand(sessionBuilder, successIndicator);
     }
@@ -604,6 +610,8 @@ public final class ExecutionContext implements JournalEntryFactory {
 
         EngineService engineService();
 
+        DeviceMessageService deviceMessageService();
+
     }
 
     private class ConnectionTaskPropertyCache implements ConnectionTaskPropertyProvider {
@@ -642,6 +650,11 @@ public final class ExecutionContext implements JournalEntryFactory {
         public Clock clock() {
             return serviceProvider.clock();
         }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return serviceProvider.deviceMessageService();
+        }
     }
 
     private class DeviceCommandServiceProvider implements DeviceCommand.ServiceProvider {
@@ -677,6 +690,11 @@ public final class ExecutionContext implements JournalEntryFactory {
 
         public EventPublisher eventPublisher() {
             return serviceProvider.eventPublisher();
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return serviceProvider.deviceMessageService();
         }
 
     }

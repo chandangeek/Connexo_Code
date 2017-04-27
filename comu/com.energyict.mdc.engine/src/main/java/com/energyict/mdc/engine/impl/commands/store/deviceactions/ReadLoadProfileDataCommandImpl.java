@@ -15,10 +15,10 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.LoadProfileReader;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * Simple command that just reads the requested {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile loadProfiles} from the device
+ * Simple command that just reads the requested {@link com.energyict.mdc.upl.meterdata.LoadProfile loadProfiles} from the device
  */
 public class ReadLoadProfileDataCommandImpl extends SimpleComCommand implements ReadLoadProfileDataCommand {
 
@@ -47,7 +47,9 @@ public class ReadLoadProfileDataCommandImpl extends SimpleComCommand implements 
 
         List<CollectedData> collectedDatas = new ArrayList<>();
         collectedDatas.addAll(collectedLoadProfileList);
+
         removeUnwantedChannels(loadProfileReaders, collectedDatas);
+        addReadingTypesToChannelInfos(collectedDatas, loadProfileReaders);
 
         this.loadProfileCommand.addListOfCollectedDataItems(collectedLoadProfileList);
     }
@@ -76,8 +78,8 @@ public class ReadLoadProfileDataCommandImpl extends SimpleComCommand implements 
                         MessageFormat.format(
                                 "{0} [{1,date,yyyy-MM-dd HH:mm:ss} - {2,date,yyy-MM-dd HH:mm:ss}]",
                                 loadProfileReader.getProfileObisCode(),
-                                Date.from(loadProfileReader.getStartReadingTime()),
-                                Date.from(loadProfileReader.getEndReadingTime())));
+                                loadProfileReader.getStartReadingTime(),
+                                loadProfileReader.getEndReadingTime()));
                 loadProfilesToReadBuilder = loadProfilesToReadBuilder.next();
             }
         }

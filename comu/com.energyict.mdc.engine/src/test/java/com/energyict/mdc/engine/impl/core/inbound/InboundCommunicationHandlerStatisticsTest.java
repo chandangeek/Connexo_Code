@@ -27,24 +27,22 @@ import com.energyict.mdc.engine.impl.core.ScheduledJobImpl;
 import com.energyict.mdc.engine.impl.core.SystemOutComChannel;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
-import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
-
+import com.energyict.protocol.exceptions.ConnectionException;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-
-import java.sql.SQLException;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.sql.SQLException;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Optional;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;

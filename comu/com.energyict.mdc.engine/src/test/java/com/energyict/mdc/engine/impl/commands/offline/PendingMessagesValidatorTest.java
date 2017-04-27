@@ -19,18 +19,18 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageAttributes;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -49,7 +49,7 @@ public class PendingMessagesValidatorTest {
     @Mock
     private Device device;
     @Mock
-    private DeviceMessage<Device> deviceMessage;
+    private DeviceMessage deviceMessage;
     @Mock
     private Calendar calendar;
 
@@ -91,7 +91,7 @@ public class PendingMessagesValidatorTest {
         when(calendarAttribute.getValue()).thenReturn(this.calendar);
         PropertySpec calendarPropertySpec = this.calendarPropertySpec(DeviceMessageAttributes.activityCalendarAttributeName.getDefaultFormat());
         when(calendarAttribute.getSpecification()).thenReturn(calendarPropertySpec);
-        when(this.deviceMessage.getAttributes()).thenReturn(Arrays.asList(calendarNameAttribute, calendarAttribute));
+        doReturn(Arrays.asList(calendarNameAttribute, calendarAttribute)).when(this.deviceMessage).getAttributes();
         DeviceMessageSpec messageSpec = mock(DeviceMessageSpec.class);
         when(messageSpec.getId()).thenReturn(DeviceMessageId.ACTIVITY_CALENDER_SEND);
         when(messageSpec.getPropertySpecs()).thenReturn(Arrays.asList(calendarNamePropertySpec, calendarPropertySpec));
@@ -119,7 +119,7 @@ public class PendingMessagesValidatorTest {
         when(calendarAttribute.getValue()).thenReturn(this.calendar);
         PropertySpec calendarPropertySpec = this.calendarPropertySpec(DeviceMessageAttributes.activityCalendarAttributeName.getDefaultFormat());
         when(calendarAttribute.getSpecification()).thenReturn(calendarPropertySpec);
-        when(this.deviceMessage.getAttributes()).thenReturn(Arrays.asList(calendarNameAttribute, calendarAttribute));
+        doReturn(Arrays.asList(calendarNameAttribute, calendarAttribute)).when(this.deviceMessage).getAttributes();
         DeviceMessageSpec messageSpec = mock(DeviceMessageSpec.class);
         when(messageSpec.getId()).thenReturn(DeviceMessageId.ACTIVITY_CALENDER_SEND);
         when(messageSpec.getPropertySpecs()).thenReturn(Arrays.asList(calendarNamePropertySpec, calendarPropertySpec));
@@ -148,7 +148,7 @@ public class PendingMessagesValidatorTest {
         when(calendarAttribute.getValue()).thenReturn(this.calendar);
         PropertySpec calendarPropertySpec = this.calendarPropertySpec(DeviceMessageAttributes.activityCalendarAttributeName.getDefaultFormat());
         when(calendarAttribute.getSpecification()).thenReturn(calendarPropertySpec);
-        when(this.deviceMessage.getAttributes()).thenReturn(Arrays.asList(calendarNameAttribute, calendarAttribute));
+        doReturn(Arrays.asList(calendarNameAttribute, calendarAttribute)).when(this.deviceMessage).getAttributes();
         DeviceMessageSpec messageSpec = mock(DeviceMessageSpec.class);
         when(messageSpec.getId()).thenReturn(DeviceMessageId.ACTIVITY_CALENDER_SEND);
         when(messageSpec.getPropertySpecs()).thenReturn(Arrays.asList(calendarNamePropertySpec, calendarPropertySpec));

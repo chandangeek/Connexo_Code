@@ -14,16 +14,15 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Ranges;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.device.data.impl.identifiers.RegisterIdentifierByAlreadyKnownRegister;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.DeviceCreator;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
@@ -32,13 +31,18 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.metering.impl.ObisCodeToReadingTypeFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,6 +57,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -77,6 +82,10 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     @Mock
     private IdentificationService identificationService;
     @Mock
+    private DeviceService deviceService;
+    @Mock
+    private RegisterService registerService;
+    @Mock
     private ComServerDAOImpl.ServiceProvider serviceProvider;
     @Mock
     private User comServerUser;
@@ -86,6 +95,8 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     public void setUp() {
         when(getClock().instant()).thenReturn(justBeforeRegisterReadEventTime1);
         when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
+        when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
+        when(this.serviceProvider.registerService()).thenReturn(this.registerService);
         ReadingType readingType = getMeteringService().getReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         registerType = getMasterDataService().findRegisterTypeByReadingType(readingType).orElseGet(() -> {
             RegisterType registerType = getMasterDataService().newRegisterType(readingType, ObisCode.fromString(registerObisCode1));
@@ -105,17 +116,17 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
                 .create(justBeforeRegisterReadEventTime1);
         long deviceId = device.getId();
 
-        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(deviceId, getInjector().getInstance(DeviceService.class));
-
+        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(deviceId);
         when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(device)).thenReturn(deviceIdentifier);
+        when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(device));
 
-        Register register = createMockedRegister(ObisCode.fromString(registerObisCode1));
+        Register register = createMockedRegister(ObisCode.fromString(registerObisCode1), device);
         when(register.getDevice()).thenReturn(device);
 
         RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
-        when(registerIdentifier.findRegister()).thenReturn(register);
         when(registerIdentifier.getDeviceIdentifier()).thenReturn(deviceIdentifier);
-        when(registerIdentifier.getObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
+        when(registerIdentifier.getRegisterObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
+        when(this.registerService.find(registerIdentifier)).thenReturn(Optional.of(register));
 
         CollectedRegister collectedRegister = createCollectedRegister(registerIdentifier);
 
@@ -157,23 +168,21 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
                 .create(justBeforeRegisterReadEventTime1);
 
         long deviceId = dataLogger.getId();
-
-        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(deviceId, getInjector().getInstance(DeviceService.class));
-
+        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(deviceId);
         when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(dataLogger)).thenReturn(deviceIdentifier);
+        when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(dataLogger));
         when(serviceProvider.topologyService()).thenReturn(topologyService);
 
-
-        Register register = createMockedRegister(ObisCode.fromString(registerObisCode1));
+        Register register = createMockedRegister(ObisCode.fromString(registerObisCode1), dataLogger);
         when(register.getDevice()).thenReturn(dataLogger);
 
         // DataLogger is not linked
         when(topologyService.getSlaveRegister(register, registerEventTime1)).thenReturn(Optional.empty());
 
         RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
-        when(registerIdentifier.findRegister()).thenReturn(register);
         when(registerIdentifier.getDeviceIdentifier()).thenReturn(deviceIdentifier);
-        when(registerIdentifier.getObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
+        when(registerIdentifier.getRegisterObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
+        when(this.registerService.find(registerIdentifier)).thenReturn(Optional.of(register));
 
         CollectedRegister collectedRegister = createCollectedRegister(registerIdentifier);
 
@@ -225,12 +234,12 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
 
         long dataLoggerId = dataLogger.getId();
 
-        DeviceIdentifier dataLoggerIdentifier = new DeviceIdentifierById(dataLoggerId, getInjector().getInstance(DeviceService.class));
-
+        DeviceIdentifier dataLoggerIdentifier = new DeviceIdentifierById(dataLoggerId);
         when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(dataLogger)).thenReturn(dataLoggerIdentifier);
+        when(this.deviceService.findDeviceByIdentifier(dataLoggerIdentifier)).thenReturn(Optional.of(dataLogger));
         when(serviceProvider.topologyService()).thenReturn(topologyService);
 
-        Register dataLoggerRegister = createMockedRegister(ObisCode.fromString(registerObisCode1));
+        Register dataLoggerRegister = createMockedRegister(ObisCode.fromString(registerObisCode1), dataLogger);
         when(dataLoggerRegister.getDevice()).thenReturn(dataLogger);
 
         Device slave = slaveDeviceCreator
@@ -238,22 +247,22 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
                 .mRDI("simplePreStoreWithDataInFutureTest")
                 .registerType(registerType)
                 .create(justBeforeRegisterReadEventTime1);
-        long slaveId = dataLogger.getId();
-        DeviceIdentifier slaveIdentifier = new DeviceIdentifierById(slaveId, getInjector().getInstance(DeviceService.class));
+        long slaveId = slave.getId();
+        DeviceIdentifier slaveIdentifier = new DeviceIdentifierById(slaveId);
         when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(slave)).thenReturn(slaveIdentifier);
+        when(this.deviceService.findDeviceByIdentifier(slaveIdentifier)).thenReturn(Optional.of(slave));
 
         // Linked slave register
-        Register slaveRegister = createMockedRegister(ObisCode.fromString(registerObisCode1));
+        Register slaveRegister = createMockedRegister(ObisCode.fromString(registerObisCode1), slave);
         when(slaveRegister.getDevice()).thenReturn(slave);
 
         // DataLogger is not linked
         when(topologyService.getSlaveRegister(eq(dataLoggerRegister), any(Instant.class))).thenReturn(Optional.of(slaveRegister));
 
-
         RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
-        when(registerIdentifier.findRegister()).thenReturn(dataLoggerRegister);
         when(registerIdentifier.getDeviceIdentifier()).thenReturn(dataLoggerIdentifier);
-        when(registerIdentifier.getObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
+        when(registerIdentifier.getRegisterObisCode()).thenReturn(ObisCode.fromString(registerObisCode1));
+        when(this.registerService.find(registerIdentifier)).thenReturn(Optional.of(slaveRegister));
 
         CollectedRegister collectedRegister = createCollectedRegister(registerIdentifier);
 
@@ -314,23 +323,29 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     }
 
     private CollectedRegister createCollectedRegister(RegisterIdentifier registerIdentifier) {
-        CollectedRegister collectedRegister = new DefaultDeviceRegister(registerIdentifier, getMdcReadingTypeUtilService().getReadingTypeFrom(registerIdentifier.getObisCode(), kiloWattHours));
-        collectedRegister.setReadTime(registerEventTime1);
+        CollectedRegister collectedRegister = new DefaultDeviceRegister(registerIdentifier);
+        collectedRegister.setReadTime(Date.from(registerEventTime1));
         collectedRegister.setCollectedData(register1Quantity);
         return collectedRegister;
     }
 
-    private Register createMockedRegister(final ObisCode obisCode) {
-        final String serialNumber = "MeterSerialNumber";
+    private Register createMockedRegister(ObisCode obisCode, Device device) {
+        String mRID = ObisCodeToReadingTypeFactory.createMRIDFromObisCodeAndUnit(obisCode, this.kiloWattHours);
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn(mRID);
         RegisterSpec registerSpec = mock(RegisterSpec.class, withSettings().extraInterfaces(NumericalRegisterSpec.class));
         when(((NumericalRegisterSpec) registerSpec).getOverflowValue()).thenReturn(Optional.empty());
         RegisterGroup registerGroup = mock(RegisterGroup.class);
         when(registerGroup.getId()).thenReturn(1L);
         Register register = mock(Register.class);
+        when(register.getDevice()).thenReturn(device);
         when(register.getDeviceObisCode()).thenReturn(obisCode);
         when(register.getRegisterSpec()).thenReturn(registerSpec);
         RegisterType registerType = mock(RegisterType.class);
+        when(registerType.getReadingType()).thenReturn(readingType);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
+        RegisterIdentifierByAlreadyKnownRegister registerIdentifier = new RegisterIdentifierByAlreadyKnownRegister(register);
+        doReturn(Optional.of(device)).when(this.registerService).find(registerIdentifier);
         return register;
     }
 }

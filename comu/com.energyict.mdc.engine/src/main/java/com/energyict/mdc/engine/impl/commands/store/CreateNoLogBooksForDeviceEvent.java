@@ -12,7 +12,7 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.NoLogBooksForDeviceEvent;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedNoLogBooksForDeviceEvent;
 import com.energyict.mdc.engine.impl.meterdata.NoLogBooksForDevice;
-import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +27,7 @@ import java.util.Optional;
 
 public class CreateNoLogBooksForDeviceEvent extends DeviceCommandImpl<CollectedNoLogBooksForDeviceEvent> {
 
-    public final static String DESCRIPTION_TITLE = "No logbooks for device event";
+    public static final String DESCRIPTION_TITLE = "No logbooks for device event";
 
     private final NoLogBooksForDevice collectedDeviceData;
 

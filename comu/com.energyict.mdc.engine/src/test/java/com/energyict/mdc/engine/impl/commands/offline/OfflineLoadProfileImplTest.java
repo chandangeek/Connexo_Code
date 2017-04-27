@@ -5,7 +5,6 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -13,12 +12,14 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceBySerialNumber;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
+import com.energyict.obis.ObisCode;
+
+import java.sql.Date;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -63,8 +64,9 @@ public class OfflineLoadProfileImplTest {
         LoadProfile loadProfile = mock(LoadProfile.class);
         when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         when(loadProfile.getId()).thenReturn(id);
-        when(loadProfile.getLastReading()).thenReturn(Optional.of(LAST_READING));
+        when(loadProfile.getLastReading()).thenReturn(Date.from(LAST_READING));
         when(loadProfile.getDevice()).thenReturn(device);
+        when(loadProfile.getDeviceObisCode()).thenReturn(obisCode);
         return loadProfile;
     }
 
@@ -87,7 +89,7 @@ public class OfflineLoadProfileImplTest {
         when(device2.getChannels()).thenReturn(Arrays.asList(channel3, channel4));
         when(device2.isLogicalSlave()).thenReturn(true);
         when(newMockedLoadProfile.getDevice()).thenReturn(device1);
-        when(topologyService.findPhysicalConnectedDevices(device1)).thenReturn(Arrays.asList(device2));
+        when(topologyService.findPhysicalConnectedDevices(device1)).thenReturn(Collections.singletonList(device2));
         when(newMockedLoadProfile.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         return newMockedLoadProfile;
     }
@@ -109,9 +111,8 @@ public class OfflineLoadProfileImplTest {
         assertThat(offlineLoadProfile).isNotNull();
         assertThat(offlineLoadProfile.getObisCode()).isEqualTo(loadProfileObisCode);
         assertThat(offlineLoadProfile.getLoadProfileId()).isEqualTo(LOAD_PROFILE_ID);
-        assertThat(offlineLoadProfile.getInterval()).isEqualTo(PROFILE_INTERVAL);
-        assertThat(offlineLoadProfile.getLastReading().isPresent()).isTrue();
-        assertThat(offlineLoadProfile.getLastReading().get()).isEqualTo(LAST_READING);
+        assertThat(offlineLoadProfile.interval()).isEqualTo(PROFILE_INTERVAL.asTemporalAmount());
+        assertThat(offlineLoadProfile.getLastReading()).isEqualTo(Date.from(LAST_READING));
         assertThat(offlineLoadProfile.getDeviceId()).isEqualTo(RTU_ID);
         assertThat(offlineLoadProfile.getLoadProfileTypeId()).isEqualTo(LOAD_PROFILE_TYPE_ID);
         assertThat(offlineLoadProfile.getMasterSerialNumber()).isEqualTo(MASTER_SERIAL_NUMBER);
@@ -125,10 +126,10 @@ public class OfflineLoadProfileImplTest {
         OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile, topologyService, identificationService);
 
         // asserts
-        assertThat(offlineLoadProfile.getChannels()).isNotNull();
-        assertThat(offlineLoadProfile.getChannels().size()).isEqualTo(2);
-        assertThat(offlineLoadProfile.getAllChannels()).isNotNull();
-        assertThat(offlineLoadProfile.getAllChannels().size()).isEqualTo(4);
+        assertThat(offlineLoadProfile.getOfflineChannels()).isNotNull();
+        assertThat(offlineLoadProfile.getOfflineChannels().size()).isEqualTo(2);
+        assertThat(offlineLoadProfile.getAllOfflineChannels()).isNotNull();
+        assertThat(offlineLoadProfile.getAllOfflineChannels().size()).isEqualTo(4);
     }
 
     @Test
@@ -137,12 +138,11 @@ public class OfflineLoadProfileImplTest {
         LoadProfile loadProfile = getNewMockedLoadProfile(LOAD_PROFILE_ID, loadProfileObisCode);
         Device device = getMockedDevice();
         DeviceIdentifierForAlreadyKnownDeviceBySerialNumber deviceIdentifier = new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(device);
-        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(BaseDevice.class))).thenReturn(deviceIdentifier);
+        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(Device.class))).thenReturn(deviceIdentifier);
 
         OfflineLoadProfileImpl offlineLoadProfile = new OfflineLoadProfileImpl(loadProfile, topologyService, identificationService);
 
-        assertThat(offlineLoadProfile.getDeviceIdentifier().getDeviceIdentifierType()).isEqualTo(DeviceIdentifierType.SerialNumber);
+        assertThat(offlineLoadProfile.getDeviceIdentifier().forIntrospection().getTypeName()).isEqualTo("SerialNumber");
     }
-
 
 }

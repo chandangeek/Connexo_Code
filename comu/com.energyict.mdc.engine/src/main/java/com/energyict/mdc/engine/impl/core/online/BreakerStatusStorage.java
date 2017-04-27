@@ -8,7 +8,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import com.google.common.collect.Range;
 

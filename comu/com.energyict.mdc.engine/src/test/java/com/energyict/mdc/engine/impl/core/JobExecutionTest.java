@@ -46,16 +46,12 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
@@ -64,7 +60,11 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.OfflineDeviceContext;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.google.common.base.Strings;
 import org.joda.time.DateTime;
 
@@ -290,6 +290,7 @@ public class JobExecutionTest {
         DeviceProtocolPluggableClass severServerDeviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(severServerDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(genericDeviceProtocol);
         when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(severServerDeviceProtocolPluggableClass);
+        when(offlineDevice.getAllProperties()).thenReturn(TypedProperties.empty());
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
         doReturn(connectionTask).when(comServerDAO).executionStarted(connectionTask, comServer);
         ScheduledComTaskExecutionGroup jobExecution = spy(new ScheduledComTaskExecutionGroup(outboundComPort, comServerDAO, this.deviceCommandExecutor, connectionTask, jobExecutionServiceProvider));
@@ -312,7 +313,7 @@ public class JobExecutionTest {
         when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(severServerDeviceProtocolPluggableClass);
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
 
-        jobExecution.prepareAll(Arrays.asList(comTaskExecution));
+        jobExecution.prepareAll(Collections.singletonList(comTaskExecution));
         verify(genericDeviceProtocol, never()).organizeComCommands(any(CommandRoot.class));
     }
 
@@ -501,7 +502,7 @@ public class JobExecutionTest {
         protocolDialect = mock(DeviceProtocolDialect.class);
         propertySpec = mock(PropertySpec.class);
 
-        when(protocolDialect.getDisplayName()).thenReturn(PROTOCOL_DIALECT);
+        when(protocolDialect.getDeviceProtocolDialectDisplayName()).thenReturn(PROTOCOL_DIALECT);
         when(protocolDialect.getDeviceProtocolDialectName()).thenReturn(PROTOCOL_DIALECT);
         when(protocolDialect.getPropertySpec(MY_PROPERTY)).thenReturn(Optional.of(propertySpec));
 

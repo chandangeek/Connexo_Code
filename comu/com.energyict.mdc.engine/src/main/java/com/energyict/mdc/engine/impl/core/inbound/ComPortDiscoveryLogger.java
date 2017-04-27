@@ -8,8 +8,8 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.logging.Configuration;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 /**
  * Defines all log messages for inbound communication.
@@ -21,25 +21,25 @@ public interface ComPortDiscoveryLogger {
 
     /**
      * Logs the start of inbound discovery to find out
-     * which {@link com.energyict.mdc.protocol.api.device.BaseDevice device}
+     * which {@link com.energyict.mdc.upl.meterdata.Device device}
      * has started the communication session.
      *
      * @param discoveryProtocolClassName The class name of the {@link com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol}
      * @param comPort The {@link com.energyict.mdc.engine.config.InboundComPort} on which the communication was started
      */
     @Configuration(format = "Device identification discovery started by class ''{0}'' ...", logLevel = LogLevel.INFO)
-    public void discoveryStarted (String discoveryProtocolClassName, InboundComPort comPort);
+    void discoveryStarted(String discoveryProtocolClassName, InboundComPort comPort);
 
     /**
      * Logs the failure of inbound discovery to find out
-     * which {@link com.energyict.mdc.protocol.api.device.BaseDevice device}
+     * which {@link com.energyict.mdc.upl.meterdata.Device device}
      * has started the communication session.
      *
      * @param discoveryProtocolClassName The class name of the {@link com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol}
      * @param comPort The InboundComPort on which the communication was started
      */
     @Configuration(format = "Device identification discovery by class ''{0}'' failed", logLevel = LogLevel.ERROR)
-    public void discoveryFailed (String discoveryProtocolClassName, InboundComPort comPort);
+    void discoveryFailed(String discoveryProtocolClassName, InboundComPort comPort);
 
     /**
      * Logs that the {@link InboundDeviceProtocol}
@@ -49,7 +49,7 @@ public interface ComPortDiscoveryLogger {
      * @param comPort The {@link com.energyict.mdc.engine.config.InboundComPort} on which the communication was started
      */
     @Configuration(format = "Device identification discovered on port ''{1}'' : ''{0}''", logLevel = LogLevel.INFO)
-    public void discoveryFoundIdentifierOnly (DeviceIdentifier deviceIdentifier, InboundComPort comPort);
+    void discoveryFoundIdentifierOnly(DeviceIdentifier deviceIdentifier, InboundComPort comPort);
 
     /**
      * Logs that the {@link InboundDeviceProtocol}
@@ -59,21 +59,21 @@ public interface ComPortDiscoveryLogger {
      * @param comPort The {@link com.energyict.mdc.engine.config.InboundComPort} on which the communication was started
      */
     @Configuration(format = "Device identification and data discovered on port ''{1}'' : ''{0}''", logLevel = LogLevel.INFO)
-    public void discoveryFoundIdentifierAndData (DeviceIdentifier deviceIdentifier, InboundComPort comPort);
+    void discoveryFoundIdentifierAndData(DeviceIdentifier deviceIdentifier, InboundComPort comPort);
 
     /**
      * Logs that the {@link DeviceIdentifier identifier} discoverd by the
      * {@link InboundDeviceProtocol}
-     * does not identify an existing {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
+     * does not identify an existing {@link com.energyict.mdc.upl.meterdata.Device device}.
      *
      * @param deviceIdentifier The DeviceIdentifier discovered by the InboundDeviceProtocol
      * @param comPort The InboundComPort on which the communication was started
      */
     @Configuration(format = "Device identified by ''{0}'' that started communication on port ''{1}'' was not found", logLevel = LogLevel.ERROR)
-    public void deviceNotFound (DeviceIdentifier deviceIdentifier, InboundComPort comPort);
+    void deviceNotFound(DeviceIdentifier deviceIdentifier, InboundComPort comPort);
 
     /**
-     * Logs that the {@link com.energyict.mdc.protocol.api.device.BaseDevice device} identified
+     * Logs that the {@link com.energyict.mdc.upl.meterdata.Device device} identified
      * by the {@link DeviceIdentifier} discoverd by the
      * {@link InboundDeviceProtocol}
      * is not configured for inbound communication.
@@ -82,10 +82,10 @@ public interface ComPortDiscoveryLogger {
      * @param comPort The InboundComPort on which the communication was started
      */
     @Configuration(format = "Device identified by ''{0}'' that started communication on port ''{1}'' is not configured for inbound communication", logLevel = LogLevel.ERROR)
-    public void deviceNotConfiguredForInboundCommunication (DeviceIdentifier deviceIdentifier, InboundComPort comPort);
+    void deviceNotConfiguredForInboundCommunication(DeviceIdentifier deviceIdentifier, InboundComPort comPort);
 
     /**
-     * Logs that the {@link com.energyict.mdc.protocol.api.device.BaseDevice device} identified
+     * Logs that the {@link com.energyict.mdc.upl.meterdata.Device device} identified
      * by the {@link DeviceIdentifier identifier} discoverd by the
      * {@link InboundDeviceProtocol}
      * requires that data is encrypted.
@@ -94,11 +94,11 @@ public interface ComPortDiscoveryLogger {
      * @param comPort The InboundComPort on which the communication was started
      */
     @Configuration(format = "Device identified by ''{0}'' that started communication on port ''{1}'' is NOT sending encrypted information as expected", logLevel = LogLevel.ERROR)
-    public void deviceRequiresEncryptedData (DeviceIdentifier deviceIdentifier, InboundComPort comPort);
+    void deviceRequiresEncryptedData(DeviceIdentifier deviceIdentifier, InboundComPort comPort);
 
     /**
      * Logs that the server is temporarily too busy to handle
-     * the inbound communication from the {@link com.energyict.mdc.protocol.api.device.BaseDevice device}
+     * the inbound communication from the {@link com.energyict.mdc.upl.meterdata.Device device}
      * identified by the {@link DeviceIdentifier} discoverd by the
      * {@link InboundDeviceProtocol}.
      *
@@ -106,10 +106,10 @@ public interface ComPortDiscoveryLogger {
      * @param comPort The {@link com.energyict.mdc.engine.config.InboundComPort} on which the communication was started
      */
     @Configuration(format = "Server is temporarily too busy to handle communication started by Device (id {0}) on port ''{1}''", logLevel = LogLevel.INFO)
-    public void serverTooBusy (DeviceIdentifier deviceIdentifier, InboundComPort comPort);
+    void serverTooBusy(DeviceIdentifier deviceIdentifier, InboundComPort comPort);
 
     /**
-     * Logs that the {@link com.energyict.mdc.protocol.api.device.BaseDevice device} identified
+     * Logs that the {@link com.energyict.mdc.upl.meterdata.Device device} identified
      * by the {@link DeviceIdentifier identifier} discoverd by the
      * {@link InboundDeviceProtocol}
      * was found.
@@ -118,7 +118,7 @@ public interface ComPortDiscoveryLogger {
      * @param comPort The InboundComPort on which the communication was started
      */
     @Configuration(format = "Device identified by ''{0}'' successfully started communication on port ''{1}''", logLevel = LogLevel.INFO)
-    public void deviceIdentified (DeviceIdentifier deviceIdentifier, InboundComPort comPort);
+    void deviceIdentified(DeviceIdentifier deviceIdentifier, InboundComPort comPort);
 
     /**
      * Logs that a number of data elements that were collected by the
@@ -130,6 +130,6 @@ public interface ComPortDiscoveryLogger {
      * @param comPort The InboundComPort on which the communication was started
      */
     @Configuration(format = "The data of type ''{0}'' that was collected during discovery of device ''{1}'' on port ''{2}'' was dropped, because it is not configured on any of the inbound comtasks.", logLevel = LogLevel.WARN)
-    public void collectedDataWasFiltered(String dataType, DeviceIdentifier deviceIdentifier, ComPort comPort);
+    void collectedDataWasFiltered(String dataType, DeviceIdentifier deviceIdentifier, ComPort comPort);
 
 }

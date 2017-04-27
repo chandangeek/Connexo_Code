@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl;
 
+import com.elster.jupiter.datavault.KeyStoreService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
@@ -13,7 +14,11 @@ import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -40,6 +45,8 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.Services;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -167,6 +174,7 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
 
     private void startOnlineComServer() {
         Optional<User> user = serviceProvider.userService().findUser(EngineServiceImpl.COMSERVER_USER);
+        Services.objectMapperService(new ObjectMapperServiceImpl(new OnlineJSONTypeMapper()));
         ComServerDAO comServerDAO = new ComServerDAOImpl(new ComServerDaoServiceProvider(), user.get()); // we should always have the comserver user
         this.comServer = comServerDAO.getThisComServer();
         this.doStartOnlineComServer(comServerDAO);
@@ -226,6 +234,9 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
     }
 
     private void startRemoteComServer() {
+        /* Todo: uncomment when porting remote ComServer to Connexo
+         * Services.objectMapperService(new ObjectMapperServiceImpl(new RemoteJSONTypeMapper()));
+         */
         RemoteComServerDAOImpl comServerDAO = new RemoteComServerDAOImpl(this.remoteQueryApiUrl, new RemoteComServerDaoServiceProvider());
         comServerDAO.start();
         this.comServer = comServerDAO.getComServer(HostName.getCurrent());
@@ -267,6 +278,11 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
         }
 
         @Override
+        public ProtocolPluggableService protocolPluggableService() {
+            return serviceProvider.protocolPluggableService();
+        }
+
+        @Override
         public TopologyService topologyService() {
             return serviceProvider.topologyService();
         }
@@ -292,6 +308,26 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
         }
 
         @Override
+        public RegisterService registerService() {
+            return serviceProvider.registerService();
+        }
+
+        @Override
+        public LoadProfileService loadProfileService() {
+            return serviceProvider.loadProfileService();
+        }
+
+        @Override
+        public LogBookService logBookService() {
+            return serviceProvider.logBookService();
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return serviceProvider.deviceMessageService();
+        }
+
+        @Override
         public TransactionService transactionService() {
             return serviceProvider.transactionService();
         }
@@ -309,6 +345,11 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
         @Override
         public IdentificationService identificationService() {
             return serviceProvider.identificationService();
+        }
+
+        @Override
+        public KeyStoreService keyStoreService() {
+            return serviceProvider.keyStoreService();
         }
 
         @Override

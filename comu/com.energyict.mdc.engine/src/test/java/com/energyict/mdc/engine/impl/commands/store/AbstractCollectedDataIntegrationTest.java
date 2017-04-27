@@ -52,6 +52,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
@@ -65,8 +66,6 @@ import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.firmware.impl.FirmwareModule;
-import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -74,15 +73,24 @@ import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.device.DeviceFactory;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
+import com.energyict.mdc.upl.io.SerialComponentService;
+import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
@@ -94,17 +102,6 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -112,21 +109,16 @@ import static org.mockito.Mockito.when;
 public abstract class AbstractCollectedDataIntegrationTest {
 
     private static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
-
-    @Rule
-    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
-
+    private static final Clock clock = mock(Clock.class);
     private static Injector injector;
     private static InMemoryBootstrapModule bootstrapModule;
     private static MeteringService meteringService;
-    private static final Clock clock = mock(Clock.class);
     private static MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private static MasterDataService masterDataService;
     private static TopologyService topologyService;
-
-    @Mock
-    private DeviceFactory deviceFactory;
     private static TransactionService transactionService;
+    @Rule
+    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
 
     @BeforeClass
     public static void initializeDatabase() {
@@ -167,13 +159,11 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
                         "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
                         "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"
-
                 ),
                 new MeteringGroupsModule(),
                 new SearchModule(),
                 new OrmModule(),
                 new DataVaultModule(),
-                new MdcIOModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new IdsModule(),
@@ -184,7 +174,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
                 new EngineModule(),
-                new ProtocolApiModule(),
+                new ProtocolsModule(),
                 new PluggableModule(),
                 new KpiModule(),
                 new ValidationModule(),
@@ -238,11 +228,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
         bootstrapModule.deactivate();
     }
 
-    @Before
-    public void resetClock() {
-        initializeClock();
-    }
-
     private static void initializeClock() {
         when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
         when(clock.instant()).thenAnswer(new Answer<Instant>() {
@@ -251,12 +236,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 return Instant.now();
             }
         });
-    }
-
-    protected Date freezeClock(Date timeStamp) {
-        when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
-        when(clock.instant()).thenReturn(timeStamp.toInstant());
-        return timeStamp;
     }
 
     protected static Injector getInjector() {
@@ -269,6 +248,17 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
     static TransactionService getTransactionService() {
         return transactionService;
+    }
+
+    @Before
+    public void resetClock() {
+        initializeClock();
+    }
+
+    protected Date freezeClock(Date timeStamp) {
+        when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
+        when(clock.instant()).thenReturn(timeStamp.toInstant());
+        return timeStamp;
     }
 
     MeteringService getMeteringService() {
@@ -352,6 +342,11 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
         @Override
         public EventPublisher eventPublisher() {
+            return null;
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
             return null;
         }
     }
