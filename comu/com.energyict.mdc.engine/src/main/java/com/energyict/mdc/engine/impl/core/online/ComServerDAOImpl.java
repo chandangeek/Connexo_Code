@@ -1217,7 +1217,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<Pair<OfflineLoadProfile, Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile offlineLoadProfile, String readingTypeMRID, Range<Instant> dataPeriod) {
-        final Device masterDevice = (Device) offlineLoadProfile.getDeviceIdentifier().findDevice();
+        final Device masterDevice = this.getDeviceFor(offlineLoadProfile.getDeviceIdentifier()).get();
         if (masterDevice != null && storageOnSlaveDevice(masterDevice)) {
             Optional<Channel> masterDeviceChannel = masterDevice.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
             if (masterDeviceChannel.isPresent()) {
