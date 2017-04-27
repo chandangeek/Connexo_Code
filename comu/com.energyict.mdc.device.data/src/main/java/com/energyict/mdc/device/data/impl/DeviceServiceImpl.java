@@ -444,7 +444,6 @@ class DeviceServiceImpl implements ServerDeviceService {
         try {
             modifiedDevice = deviceDataModelService.getTransactionService()
                     .execute(() -> new DeviceConfigChangeExecutor(this, deviceDataModelService.clock(), ((DeviceImpl) lockResult.getFirst()).getEventService()).execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService.deviceConfigurationService()
-                    .execute(() -> new DeviceConfigChangeExecutor(this, deviceDataModelService.clock(), deviceDataModelService.eventService()).execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService.deviceConfigurationService()
                             .findDeviceConfiguration(destinationDeviceConfigId)
                             .get()));
         } finally {
