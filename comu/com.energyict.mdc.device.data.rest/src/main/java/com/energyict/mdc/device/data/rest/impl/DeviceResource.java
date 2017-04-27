@@ -359,7 +359,7 @@ public class DeviceResource {
                 updateDataLoggerChannels(info, device);
                 device.save();
                 context.commit();
-            }catch(Exception e){
+            }catch(IllegalArgumentException e){
                 throw exceptionFactory.newExceptionSupplier(Response.Status.NOT_ACCEPTABLE, MessageSeeds.UPDATE_OF_DEVICE_FAILED).get();
             }
         }
