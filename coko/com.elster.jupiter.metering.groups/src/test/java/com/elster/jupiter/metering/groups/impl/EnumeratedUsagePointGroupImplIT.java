@@ -34,6 +34,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -117,6 +118,7 @@ public class EnumeratedUsagePointGroupImplIT {
                     new NlsModule(),
                     new CalendarModule(),
                     new DataVaultModule(),
+                    new TaskModule(),
                     new CustomPropertySetsModule()
 
             );
