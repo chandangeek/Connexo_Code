@@ -76,6 +76,7 @@ Ext.define('Uni.view.menu.SideMenu', {
     },
 
     activeItemCls: 'item-active',
+    localStorage: 'side_menu_local_storage',
 
     /**
      * @cfg menuItems
@@ -117,10 +118,12 @@ Ext.define('Uni.view.menu.SideMenu', {
     },
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            localStorage = Ext.util.LocalStorage.get(me.localStorage);
 
-        me.expandedSubMenus = Ext.decode(Ext.util.Cookies.get(me.getMenuCookieKey())) || [];
+        me.expandedSubMenus = Ext.decode(localStorage.getItem(me.getMenuCookieKey())) || [];
 
+        localStorage.release();
         // Selects the correct item whenever the URL changes over time.
         Ext.util.History.on('change', me.updateSelection, me);
 
@@ -235,10 +238,11 @@ Ext.define('Uni.view.menu.SideMenu', {
     },
 
     updateSubMenusState: function () {
-        var me = this;
+        var me = this,
+            localStorage = Ext.util.LocalStorage.get(me.localStorage);
 
-        Ext.util.Cookies.set(me.getMenuCookieKey(), Ext.encode(me.expandedSubMenus),
-            new Date(new Date().getTime() + 365.25 * 24 * 60 * 60 * 1000)); // Expires in a year.
+        localStorage.setItem(me.getMenuCookieKey(), Ext.encode(me.expandedSubMenus));
+        localStorage.release();
     },
 
     getMenuCookieKey: function () {
