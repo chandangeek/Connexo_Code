@@ -35,7 +35,7 @@ Ext.define('Uni.form.field.EditedDisplay', {
                     tooltipText = value.date === null
                         ? Uni.I18n.translate('general.editedOnXx', 'UNI', 'Edited')
                         : Uni.I18n.translate('general.editedOnX', 'UNI', 'Edited on {0}', formattedDate);
-                    tooltipText += record.get('commentValue')
+                    tooltipText += record && record.get('commentValue')
                         ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
                         : '';
                     break;
@@ -44,7 +44,7 @@ Ext.define('Uni.form.field.EditedDisplay', {
                     tooltipText = value.date === null
                         ? Uni.I18n.translate('general.estimatedOnXx', 'UNI', 'Estimated')
                         : Uni.I18n.translate('general.estimatedOnX', 'UNI', 'Estimated on {0}', formattedDate);
-                    tooltipText += record.get('commentValue')
+                    tooltipText += record && record.get('commentValue')
                         ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
                         : '';
                     break;
@@ -53,7 +53,7 @@ Ext.define('Uni.form.field.EditedDisplay', {
                     tooltipText = value.date === null
                         ? Uni.I18n.translate('general.removedOnXx', 'UNI', 'Removed')
                         : Uni.I18n.translate('general.removedOnX', 'UNI', 'Removed on {0}', formattedDate);
-                    tooltipText += record.get('commentValue')
+                    tooltipText += record && record.get('commentValue')
                         ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
                         : '';
                     break;
