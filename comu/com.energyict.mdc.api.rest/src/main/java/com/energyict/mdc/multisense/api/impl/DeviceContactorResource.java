@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
@@ -16,7 +17,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.MessagesTask;
 
@@ -47,12 +49,14 @@ import static java.util.stream.Collectors.toList;
 @Path("/devices/{mrid}/contacter")
 public class DeviceContactorResource {
 
+    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceService deviceService;
     private final Clock clock;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceContactorResource(DeviceService deviceService, Clock clock, ExceptionFactory exceptionFactory) {
+    public DeviceContactorResource(DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, Clock clock, ExceptionFactory exceptionFactory) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.deviceService = deviceService;
         this.clock = clock;
         this.exceptionFactory = exceptionFactory;
@@ -138,8 +142,20 @@ public class DeviceContactorResource {
                     .newDeviceMessage(deviceMessageId)
                     .setReleaseDate(clock.instant())
                 ;
-        if (contactorInfo.activationDate!=null) {
-            deviceMessageBuilder.addProperty(DeviceMessageConstants.contactorActivationDateAttributeName,Date.from(contactorInfo.activationDate));
+        if (contactorInfo.activationDate != null) {
+            Optional<DeviceMessageSpec> optionalMessageSpec = deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue());
+            if (optionalMessageSpec.isPresent()) {
+                DeviceMessageSpec deviceMessageSpec = optionalMessageSpec.get();
+                Optional<PropertySpec> optionalPropertySpec = deviceMessageSpec
+                        .getPropertySpecs()
+                        .stream()
+                        .filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(Date.class))
+                        .findAny();
+
+                if (optionalPropertySpec.isPresent()) {
+                    deviceMessageBuilder.addProperty(optionalPropertySpec.get().getName(), Date.from(contactorInfo.activationDate));
+                }
+            }
         }
         DeviceMessage deviceMessage = deviceMessageBuilder.add();
         return deviceMessage.getId();
