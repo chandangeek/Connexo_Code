@@ -20,7 +20,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +27,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.Serializable;
 import java.util.Optional;
 
 import static org.junit.Assert.assertFalse;
@@ -137,7 +135,7 @@ public class DeviceCachingTest {
     public void setDeviceCacheTest() {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
         MeterProtocolAdapter meterProtocolAdapter = new MeterProtocolAdapterImpl(meterProtocol, this.propertySpecService, this.protocolPluggableService, mock(SecuritySupportAdapterMappingFactory.class), mock(CapabilityAdapterMappingFactory.class), mock(MessageAdapterMappingFactory.class), this.dataModel, issueService, collectedDataFactory, identificationService, thesaurus, deviceMessageSpecificationService);
-        Device device = mock(Device.class);
+        DeviceProtocolCache device = mock(DeviceProtocolCache.class);
         String jsonCache = "MyTestJsonCache";
         when(this.protocolPluggableService.unMarshallDeviceProtocolCache(jsonCache)).thenReturn(Optional.of(device));
         DeviceProtocolCacheAdapter deviceCacheAdapter = new DeviceProtocolCacheAdapter();
@@ -148,7 +146,7 @@ public class DeviceCachingTest {
         meterProtocolAdapter.setDeviceCache(deviceCacheAdapter);
 
         // assert that the proper meterProtocol.setCache(...) is called
-        verify(meterProtocol).setCache((Serializable) device);
+        verify(meterProtocol).setCache(device);
     }
 
     @Test

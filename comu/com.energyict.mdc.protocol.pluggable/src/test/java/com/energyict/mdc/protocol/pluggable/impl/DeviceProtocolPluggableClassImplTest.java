@@ -54,6 +54,7 @@ import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.NonExistingMessageConverter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.mocks.DeviceMessageTestSpec;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
@@ -63,12 +64,18 @@ import com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.NotADeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.SDKDeviceProtocolTestWithMandatoryProperty;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-
 import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.joda.time.DateMidnight;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -78,14 +85,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Optional;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -122,6 +121,8 @@ public class DeviceProtocolPluggableClassImplTest {
     private License license;
     @Mock
     private DeviceProtocolSecurityService deviceProtocolSecurityService;
+    @Mock
+    private DeviceProtocolMessageService deviceProtocolMessageService;
 
     private DataModel dataModel;
     private InMemoryBootstrapModule bootstrapModule;
@@ -162,15 +163,17 @@ public class DeviceProtocolPluggableClassImplTest {
             protocolPluggableService.addDeviceProtocolService(this.deviceProtocolService);
             protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             protocolPluggableService.addDeviceProtocolSecurityService(deviceProtocolSecurityService);
+            protocolPluggableService.addDeviceProtocolMessageService(deviceProtocolMessageService);
             dataModel = protocolPluggableService.getDataModel();
             propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
             this.initializeSecuritySupport();
+            this.initializeMessageSupport();
             ctx.commit();
         }
     }
 
     @Before
-    public void initializeLicenseService () {
+    public void initializeLicenseService() {
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.of(this.license));
         when(this.licensedProtocolService.isValidJavaClassName(anyString(), eq(this.license))).thenReturn(true);
     }
@@ -202,6 +205,25 @@ public class DeviceProtocolPluggableClassImplTest {
 
     private String insertSecuritySupportAdapterMappingSql() {
         return "insert into " + TableSpecs.PPC_SECSUPPORTADAPTERMAPPING.name() + " (deviceprotocoljavaclassname, securitysupportclassname) values(?, ?)";
+    }
+
+    private void initializeMessageSupport() throws SQLException {
+        try (Connection connection = this.dataModel.getConnection(true)) {
+            try (PreparedStatement statement = connection.prepareStatement(insertMessageSupportAdapterMappingSql())) {
+                statement.setString(1, "com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol");
+                statement.setString(2, NonExistingMessageConverter.class.getName());
+                statement.addBatch();
+                statement.setString(1, "com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol");
+                statement.setString(2, NonExistingMessageConverter.class.getName());
+                statement.addBatch();
+                statement.executeBatch();
+            }
+        }
+        when(deviceProtocolMessageService.createDeviceProtocolMessagesFor(NonExistingMessageConverter.class.getName())).thenReturn(new NonExistingMessageConverter());
+    }
+
+    private String insertMessageSupportAdapterMappingSql() {
+        return "insert into " + TableSpecs.PPC_MESSAGEADAPTERMAPPING.name() + " (deviceprotocoljavaclassname, messageadapterjavaclassname) values(?, ?)";
     }
 
     @After
@@ -363,7 +385,7 @@ public class DeviceProtocolPluggableClassImplTest {
         transactionService.execute(() -> {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass("SDKDeviceProtocolTestWithMandatoryProperty", SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY);
             PropertySpec deviceTimeZone = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpec("SDKObisCodeProperty").get();
-            deviceProtocolPluggableClass.setProperty(deviceTimeZone, new ObisCode(1,1,1,1,1,1));
+            deviceProtocolPluggableClass.setProperty(deviceTimeZone, new ObisCode(1, 1, 1, 1, 1, 1));
             deviceProtocolPluggableClass.save();
             return deviceProtocolPluggableClass;
         });
@@ -418,6 +440,7 @@ public class DeviceProtocolPluggableClassImplTest {
 
     }
 
-    public interface ProtocolDialectProperties {}
+    public interface ProtocolDialectProperties {
+    }
 
 }
