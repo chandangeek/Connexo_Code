@@ -182,6 +182,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         DeviceType.DeviceTypeBuilder deviceTypeBuilder = mock(DeviceType.DeviceTypeBuilder.class);
         when(deviceTypeBuilder.create()).thenReturn(deviceType);
         when(deviceConfigurationService.newDeviceTypeBuilder("newName", protocol, deviceLifeCycle)).thenReturn(deviceTypeBuilder);
@@ -204,8 +206,33 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         when(deviceTypeBuilder.create()).thenReturn(deviceType);
         when(deviceConfigurationService.newDataloggerSlaveDeviceTypeBuilder("newName", deviceLifeCycle)).thenReturn(deviceTypeBuilder);
+
+        Response response = target("/devicetypes/").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void createMultiElementSubmeterTest() {
+        DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
+        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
+        deviceTypeInfo.name = "newName";
+        deviceTypeInfo.deviceLifeCycleId = deviceLifeCycle.getId();
+        deviceTypeInfo.deviceTypePurpose = DeviceTypePurpose.MULTI_ELEMENT_SLAVE.name();
+        Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
+
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(deviceLifeCycle));
+        DeviceType.DeviceTypeBuilder deviceTypeBuilder = mock(DeviceType.DeviceTypeBuilder.class);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
+        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceTypeBuilder.create()).thenReturn(deviceType);
+        when(deviceConfigurationService.newMultiElementSlaveDeviceTypeBuilder("newName", deviceLifeCycle)).thenReturn(deviceTypeBuilder);
 
         Response response = target("/devicetypes/").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -292,6 +319,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
         when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
         when(deviceType.getVersion()).thenReturn(OK_VERSION);
@@ -358,17 +387,27 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         int NUMBER_OF_REGISTERS = 8;
         int NUMBER_OF_LOGBOOKS = 10;
 
+        DeviceConfiguration deviceConfig1 = mock(DeviceConfiguration.class);
+        when(deviceConfig1.isActive()).thenReturn(true);
+        DeviceConfiguration deviceConfig2 = mock(DeviceConfiguration.class);
+        when(deviceConfig2.isActive()).thenReturn(true);
+        DeviceConfiguration deviceConfig3 = mock(DeviceConfiguration.class);
+        when(deviceConfig3.isActive()).thenReturn(false);
+        DeviceConfiguration deviceConfig4 = mock(DeviceConfiguration.class);
+        when(deviceConfig4.isActive()).thenReturn(false);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getName()).thenReturn("unique name");
         when(deviceType.getId()).thenReturn(13L);
-        List configsList = mock(List.class);
-        when(configsList.size()).thenReturn(NUMBER_OF_CONFIGS);
+        List configsList = Arrays.asList(deviceConfig1, deviceConfig2, deviceConfig3, deviceConfig4);
+
         List loadProfileList = mock(List.class);
         when(loadProfileList.size()).thenReturn(NUMBER_OF_LOADPROFILES);
         List registerList = Arrays.asList(new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo());
         List logBooksList = mock(List.class);
         when(logBooksList.size()).thenReturn(NUMBER_OF_LOGBOOKS);
         DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
 
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
@@ -397,6 +436,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(jsonDeviceType.get("registerCount")).isEqualTo(NUMBER_OF_REGISTERS)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("deviceConfigurationCount")).isEqualTo(NUMBER_OF_CONFIGS)
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceType.get("activeDeviceConfigurationCount")).isEqualTo(2)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("loadProfileCount")).isEqualTo(NUMBER_OF_LOADPROFILES)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -455,7 +496,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat((List) map.get("deviceConfigurations")).hasSize(1)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("deviceConfigurations")).get(0);
-        assertThat(jsonDeviceConfiguration).hasSize(16);
+        assertThat(jsonDeviceConfiguration).hasSize(17);
         assertThat(jsonDeviceConfiguration.get("id")).isEqualTo(113)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon")
@@ -479,6 +520,10 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(jsonDeviceConfiguration.get("gatewayType")).isEqualTo("HAN")
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("isDirectlyAddressable")).isEqualTo(true)
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("dataloggerEnabled")).isEqualTo(false)
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("multiElementEnabled")).isEqualTo(false)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("version")).isEqualTo(((Number) OK_VERSION).intValue())
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -1550,6 +1595,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceLifeCycle targetDeviceLifeCycle = mock(DeviceLifeCycle.class);
         when(targetDeviceLifeCycle.getId()).thenReturn(2L);
         when(targetDeviceLifeCycle.getName()).thenReturn("Device life cycle 2");
+        when(targetDeviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(targetDeviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         when(deviceConfigurationService.findAndLockDeviceType(1L, 1)).thenReturn(Optional.of(deviceType));
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(2L)).thenReturn(Optional.of(targetDeviceLifeCycle));
         when(deviceType.getDeviceLifeCycle()).thenReturn(targetDeviceLifeCycle);
