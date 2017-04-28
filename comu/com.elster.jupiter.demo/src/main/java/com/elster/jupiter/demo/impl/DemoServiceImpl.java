@@ -24,6 +24,7 @@ import com.elster.jupiter.demo.impl.commands.CreateEstimationSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateG3DemoBoardCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImporterDirectoriesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
+import com.elster.jupiter.demo.impl.commands.CreateMultiElementDeviceSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
 import com.elster.jupiter.demo.impl.commands.CreatePowerUserCommand;
 import com.elster.jupiter.demo.impl.commands.CreateRegisterDeviceCommand;
@@ -35,6 +36,7 @@ import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
+import com.elster.jupiter.demo.impl.commands.devices.CreateMultiElementDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateSPEDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.tou.CreateBelgianMarketTimeOfUseDataCommand;
@@ -126,6 +128,7 @@ import java.time.Clock;
         "osgi.command.function=createImportDirectories",
         "osgi.command.function=createDemoUser",
         "osgi.command.function=createDataLogger",
+        "osgi.command.function=createMultiElementDevice",
         "osgi.command.function=importCalendar",
         "osgi.command.function=setDeviceLocations",
         "osgi.command.function=createSPEDevice",
@@ -628,6 +631,7 @@ public class DemoServiceImpl {
         });
     }
 
+    @SuppressWarnings("unused")
     public void createDataLogger(String dataLoggerMrid, String dataLoggerSerial, int numberOfSlaves) {
         executeTransaction(() -> {
             CreateDataLoggerSetupCommand command = injector.getInstance(CreateDataLoggerSetupCommand.class);
@@ -642,6 +646,21 @@ public class DemoServiceImpl {
             command.run();
         });
     }
+
+    @SuppressWarnings("unused")
+    public void createMultiElementDevice(String name, String serial) {
+        executeTransaction(() -> {
+            CreateMultiElementDeviceSetupCommand command = injector.getInstance(CreateMultiElementDeviceSetupCommand.class);
+            if (!Strings.isNullOrEmpty(name)) {
+                command.setName(name);
+            }
+            if (!Strings.isNullOrEmpty(serial)) {
+                command.setSerial(serial);
+            }
+            command.run();
+        });
+    }
+
 
     @SuppressWarnings("unused")
     public void createG3DemoBoardDevices() {
