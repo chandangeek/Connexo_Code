@@ -4,7 +4,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
-import com.elster.jupiter.properties.rest.impl.TimeDurationPropertyValueConverter;
 import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyValueConverterFactory;
 import com.energyict.mdc.pluggable.rest.impl.properties.CalendarPropertyValueConverter;
@@ -61,7 +60,6 @@ public class MdcPropertyValueConverterFactoryImpl implements MdcPropertyValueCon
             case "Password": return new PasswordPropertyValueConverter();
             case "ReadingType": return new ReadingTypePropertyValueConverter();
             case "Register": return new RegisterPropertyValueConverter();
-            case "TimeDuration": return new TimeDurationPropertyValueConverter(this.thesaurus);
             case "TimeOfDay": return new TimeOfDayPropertyValueConverter();
             case "TimeZoneInUse": return new TimeZoneInUsePropertyValueConverter();
             case "UsagePoint": return new UsagePointPropertyValueConverter();
