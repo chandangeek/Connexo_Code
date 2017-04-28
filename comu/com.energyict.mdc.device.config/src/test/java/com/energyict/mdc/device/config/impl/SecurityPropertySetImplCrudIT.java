@@ -67,7 +67,6 @@ import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurati
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -79,30 +78,22 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.fest.assertions.api.Assertions;
 import org.fest.assertions.core.Condition;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.time.Clock;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Optional;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -112,6 +103,14 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Optional;
 
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1;
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2;
@@ -152,22 +151,9 @@ public class SecurityPropertySetImplCrudIT {
     @Mock
     private DeviceProtocol deviceProtocol;
     @Mock
-    private AuthenticationDeviceAccessLevel authLevel, authLevel2;
+    private com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel authLevel, authLevel2;
     @Mock
-    private EncryptionDeviceAccessLevel encLevel;
-
-    private static class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-        }
-
-    }
+    private com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel encLevel;
 
     @BeforeClass
     public static void initializeDatabase() {
@@ -217,7 +203,6 @@ public class SecurityPropertySetImplCrudIT {
                     new SearchModule(),
                     new TaskModule(),
                     new DeviceConfigurationModule(),
-                    new MdcIOModule(),
                     new EngineModelModule(),
                     new IssuesModule(),
                     new BasicPropertiesModule(),
@@ -274,11 +259,31 @@ public class SecurityPropertySetImplCrudIT {
         bundleContext = mock(BundleContext.class);
         bootstrapModule = new InMemoryBootstrapModule();
         protocolPluggableService = mock(ProtocolPluggableService.class);
+        when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new UPLAuthenticationLevelAdapter((com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel) args[0]);
+        });
+        when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new UPLEncryptionLevelAdapter((com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel) args[0]);
+        });
     }
 
     @AfterClass
     public static void tearDown() {
         bootstrapModule.deactivate();
+    }
+
+    private static void enhanceEventServiceForConflictCalculation() {
+        doAnswer(invocationOnMock -> {
+            LocalEvent localEvent = mock(LocalEvent.class);
+            com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
+            when(eventType.getTopic()).thenReturn((String) invocationOnMock.getArguments()[0]);
+            when(localEvent.getType()).thenReturn(eventType);
+            when(localEvent.getSource()).thenReturn(invocationOnMock.getArguments()[1]);
+            injector.getInstance(DeviceConfigConflictMappingHandler.class).onEvent(localEvent);
+            return null;
+        }).when(eventService.getSpy()).postEvent(any(), any());
     }
 
     @Before
@@ -631,7 +636,7 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testAuthenticationLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideAuthenticationLevels() {
         DeviceConfiguration deviceConfiguration;
-        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.<AuthenticationDeviceAccessLevel>emptyList());
+        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel>emptyList());
         DeviceType deviceType = createDeviceType("MyType");
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
@@ -665,7 +670,7 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testEncryptionLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideEncryptionLevels() {
         DeviceConfiguration deviceConfiguration;
-        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.<EncryptionDeviceAccessLevel>emptyList());
+        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel>emptyList());
         DeviceType deviceType = createDeviceType("MyType");
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
@@ -781,22 +786,6 @@ public class SecurityPropertySetImplCrudIT {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration(name).add();
         deviceConfiguration.save();
         return deviceConfiguration;
-    }
-
-    public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
-    }
-
-
-    private static void enhanceEventServiceForConflictCalculation() {
-        doAnswer(invocationOnMock -> {
-            LocalEvent localEvent = mock(LocalEvent.class);
-            com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
-            when(eventType.getTopic()).thenReturn((String) invocationOnMock.getArguments()[0]);
-            when(localEvent.getType()).thenReturn(eventType);
-            when(localEvent.getSource()).thenReturn(invocationOnMock.getArguments()[1]);
-            injector.getInstance(DeviceConfigConflictMappingHandler.class).onEvent(localEvent);
-            return null;
-        }).when(eventService.getSpy()).postEvent(any(), any());
     }
 
     @Test
@@ -959,5 +948,26 @@ public class SecurityPropertySetImplCrudIT {
                 .encryptionLevel(encryptionLevel)
                 .addUserAction(VIEWDEVICESECURITYPROPERTIES1)
                 .build();
+    }
+
+
+    public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
+    }
+
+    private static class MockModule extends AbstractModule {
+
+        @Override
+        protected void configure() {
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+
+            bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+        }
+
     }
 }

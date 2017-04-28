@@ -56,10 +56,10 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -515,7 +515,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public AllowedCalendar addCalendar(Calendar calendar) {
-        if (!calendar.getCategory().getName().equals(OutOfTheBoxCategory.TOU.getDefaultDisplayName())) {
+        if (!calendar.getCategory().getName().equals(OutOfTheBoxCategory.TOU.name())) {
             throw new TimeOfUseCalendarOnly(this.getThesaurus());
         }
         Optional<AllowedCalendar> existingAllowedCalendar = this.allowedCalendars.stream()
@@ -1406,8 +1406,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                     .getDeviceProtocolPluggableClass()
                     .ifPresent(deviceProtocolPluggableClass -> deviceProtocolPluggableClass
                             .getDeviceProtocol().getSupportedMessages().stream().forEach(
-                                    deviceMessageId -> {
-                                        DeviceMessageEnablementBuilder deviceMessageEnablement = underConstruction.createDeviceMessageEnablement(deviceMessageId);
+                                    deviceMessageSpec -> {
+                                        DeviceMessageEnablementBuilder deviceMessageEnablement = underConstruction.createDeviceMessageEnablement(DeviceMessageId.havingId(deviceMessageSpec.getId()));
                                         deviceMessageEnablement.addUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1);
                                         deviceMessageEnablement.addUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2);
                                         deviceMessageEnablement.addUserAction(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3);

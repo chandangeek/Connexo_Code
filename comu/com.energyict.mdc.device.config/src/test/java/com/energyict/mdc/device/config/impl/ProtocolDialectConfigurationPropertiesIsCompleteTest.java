@@ -15,7 +15,13 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -24,14 +30,6 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
-
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
@@ -109,7 +107,7 @@ public class ProtocolDialectConfigurationPropertiesIsCompleteTest {
 
         protocolDialect = mock(DeviceProtocolDialect.class);
         when(protocolDialect.getDeviceProtocolDialectName()).thenReturn(PROTOCOL_DIALECT);
-        when(protocolDialect.getDisplayName()).thenReturn(PROTOCOL_DIALECT);
+        when(protocolDialect.getDeviceProtocolDialectDisplayName()).thenReturn(PROTOCOL_DIALECT);
         when(protocolDialect.getPropertySpecs()).thenReturn(Arrays.asList(spec1,spec2, spec3));
         when(protocolDialect.getPropertySpec(MY_PROPERTY1)).thenReturn(Optional.of(spec1));
         when(protocolDialect.getPropertySpec(MY_PROPERTY2)).thenReturn(Optional.of(spec2));

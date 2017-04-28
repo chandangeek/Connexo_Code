@@ -11,16 +11,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -30,6 +23,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.sql.SQLException;
+import java.util.Arrays;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,20 +33,18 @@ import static org.mockito.Mockito.when;
 public abstract class PersistenceWithRealProtocolPluggableServiceTest {
 
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
-
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
     @Rule
     public TestRule expectedErrorRule = new ExpectedExceptionRule();
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
-
-    @Mock
-    private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
     DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     DeviceProtocol deviceProtocol;
+    @Mock
+    private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
     DeviceProtocolDialect deviceProtocolDialect1, deviceProtocolDialect2;
     @Mock
@@ -80,18 +74,18 @@ public abstract class PersistenceWithRealProtocolPluggableServiceTest {
     public void initializeMocks() {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class);
         when(deviceProtocolDialect1.getDeviceProtocolDialectName()).thenReturn("DeviceProtocolDialect1");
         when(deviceProtocolDialect2.getDeviceProtocolDialectName()).thenReturn("DeviceProtocolDialect2");
-        when(deviceProtocolDialect1.getDisplayName()).thenReturn("Device Protocol dialect 1");
-        when(deviceProtocolDialect2.getDisplayName()).thenReturn("Device Protocol dialect 2");
-        AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
+        when(deviceProtocolDialect1.getDeviceProtocolDialectDisplayName()).thenReturn("Device Protocol dialect 1");
+        when(deviceProtocolDialect2.getDeviceProtocolDialectDisplayName()).thenReturn("Device Protocol dialect 2");
         when(authenticationAccessLevel.getId()).thenReturn(0);
         when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
-        EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
+        com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel encryptionAccessLevel = mock(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(0);
         when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
         when(this.deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
-        when(this.deviceProtocol.getDeviceProtocolDialects()).thenReturn(Arrays.asList(deviceProtocolDialect1,deviceProtocolDialect2));
+        when(this.deviceProtocol.getDeviceProtocolDialects()).thenReturn(Arrays.asList(deviceProtocolDialect1, deviceProtocolDialect2));
     }
 
 }
