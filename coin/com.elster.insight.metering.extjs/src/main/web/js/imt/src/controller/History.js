@@ -316,6 +316,13 @@ Ext.define('Imt.controller.History', {
                                             controller: 'Imt.purpose.controller.RegisterData',
                                             action: 'showAddEditRegisterData',
                                             privileges: Imt.privileges.UsagePoint.admin
+                                        },
+                                        history: {
+                                            title: Uni.I18n.translate('general.history', 'IMT', 'History'),
+                                            route: 'history',
+                                            controller: 'Imt.purpose.controller.Readings',
+                                            action: 'viewHistory',
+                                            privileges: Imt.privileges.UsagePoint.admin
                                         }
                                     }
                                 }

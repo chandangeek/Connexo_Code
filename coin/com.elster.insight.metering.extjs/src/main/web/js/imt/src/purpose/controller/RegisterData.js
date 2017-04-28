@@ -33,6 +33,10 @@ Ext.define('Imt.purpose.controller.RegisterData', {
         'Imt.purpose.view.ValidationStatusForm'
     ],
 
+    mixins: {
+        viewHistoryActionListener: 'Imt.purpose.util.ViewHistoryActionListener'
+    },
+
     refs: [
         {
             ref: 'readingsList',
@@ -53,6 +57,10 @@ Ext.define('Imt.purpose.controller.RegisterData', {
         {
             ref: 'addReading',
             selector: 'add-main-register-reading'
+        },
+        {
+            ref: 'outputReadingsFilterPanel',
+            selector: 'output-readings #output-readings-topfilter'
         }
     ],
 
@@ -71,6 +79,9 @@ Ext.define('Imt.purpose.controller.RegisterData', {
             'purpose-register-readings-data-action-menu': {
                 beforeshow: this.checkSuspect,
                 click: this.chooseAction
+            },
+            'register-data-grid register-readings-bulk-action-menu': {
+                click: this.chooseBulkAction
             }
         });
     },
@@ -111,6 +122,19 @@ Ext.define('Imt.purpose.controller.RegisterData', {
                 break;
             case 'confirmValue':
                 me.confirmValue(menu.record);
+                break;
+            case 'viewHistory':
+                me.moveToHistoryPage.call(me, menu.record);
+                break;
+        }
+    },
+
+    chooseBulkAction: function (menu, item) {
+        var me = this;
+
+        switch (item.action) {
+            case 'viewHistory':
+                me.moveToHistoryPage.call(me, menu.record, true);
                 break;
         }
     },

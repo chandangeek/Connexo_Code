@@ -9,7 +9,8 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Imt.purpose.view.registers.RegisterReadingActionMenu',
-        'Imt.purpose.util.TooltipRenderer'
+        'Imt.purpose.util.TooltipRenderer',
+        'Imt.purpose.view.MultipleRegisterReadingsActionMenu'
     ],
     store: 'Imt.purpose.store.RegisterReadings',
     output: null,
@@ -124,6 +125,15 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                         text: Uni.I18n.translate('general.addReading', 'IMT', 'Add reading'),
                         href: me.router.getRoute('usagepoints/view/purpose/output/addregisterdata').buildUrl(),
                         privileges: Imt.privileges.UsagePoint.admin
+                    },
+                    {
+                        xtype: 'button',
+                        itemId: 'register-readings-bulk-action-button',
+                        text: Uni.I18n.translate('general.bulkAction', 'IMT', 'Bulk action'),
+                        menu: {
+                            xtype: 'register-readings-bulk-action-menu',
+                            itemId: 'register-readings-bulk-action-menu'
+                        }
                     }
                 ]
             },
