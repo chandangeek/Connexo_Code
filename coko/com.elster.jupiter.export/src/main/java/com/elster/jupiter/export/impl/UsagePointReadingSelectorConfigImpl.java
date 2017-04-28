@@ -9,6 +9,7 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -148,8 +149,8 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
         }
 
         @Override
-        public UsagePointReadingSelectorConfig.Updater setExportOnlyIfComplete(boolean exportOnlyIfCompleteFlag) {
-            super.setExportOnlyIfComplete(exportOnlyIfCompleteFlag);
+        public UsagePointReadingSelectorConfig.Updater setExportOnlyIfComplete(MissingDataOption missingDataOption) {
+            super.setExportOnlyIfComplete(missingDataOption);
             return this;
         }
 

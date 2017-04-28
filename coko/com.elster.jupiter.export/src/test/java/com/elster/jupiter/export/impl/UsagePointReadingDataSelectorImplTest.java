@@ -295,7 +295,7 @@ public class UsagePointReadingDataSelectorImplTest {
         selectorConfig.startUpdate()
                 .setUsagePointGroup(usagePointGroup)
                 .addReadingType(readingType)
-                .setExportOnlyIfComplete(true)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_ITEM)
                 .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
                 .complete();
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
