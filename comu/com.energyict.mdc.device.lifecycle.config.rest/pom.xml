@@ -103,6 +103,14 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.pluggable.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties.rest</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -114,10 +122,6 @@
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -331,16 +335,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>properties.rest</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.pluggable.rest</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

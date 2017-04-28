@@ -6,12 +6,15 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.rest.PropertyValueConverter;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -37,10 +40,14 @@ import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateF
 import com.energyict.mdc.device.lifecycle.config.rest.info.MicroActionAndCheckInfoFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.StateTransitionEventTypeFactory;
 import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionBusinessProcessInfoFactory;
+import com.energyict.mdc.pluggable.rest.MdcPropertyValueConverterFactory;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.validation.MessageInterpolator;
@@ -71,6 +78,20 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     private volatile EventService eventService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
+    private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile MdcPropertyValueConverterFactory propertyValueConverterFactory;
+    private PropertyValueConverter usagePointConverter;
+
+    @Activate
+    public void activate(BundleContext bundleContext) {
+        this.usagePointConverter = this.propertyValueConverterFactory.getConverterFor(UsagePoint.class);
+        this.propertyValueInfoService.addPropertyValueInfoConverter(usagePointConverter, "transition.microaction.name.LINK_TO_USAGE_POINT");
+    }
+
+    @Deactivate
+    public void deactivate() {
+        this.propertyValueInfoService.removePropertyValueInfoConverter(this.usagePointConverter);
+    }
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -103,7 +124,6 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
         this.thesaurus = nlsService.getThesaurus(DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST);
     }
 
-
     @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
@@ -127,6 +147,16 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     @Reference
     public void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifeCycleService) {
         this.deviceLifeCycleService = deviceLifeCycleService;
+    }
+
+    @Reference
+    public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
+        this.propertyValueInfoService = propertyValueInfoService;
+    }
+
+    @Reference
+    public void setPropertyValueConverterFactory(MdcPropertyValueConverterFactory propertyValueConverterFactory) {
+        this.propertyValueConverterFactory = propertyValueConverterFactory;
     }
 
     @Override
