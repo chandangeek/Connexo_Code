@@ -6,6 +6,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -17,8 +18,10 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.aggregation.MeterActivationSet;
 import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.aggregation.SqlBuilderFactory;
@@ -26,8 +29,8 @@ import com.elster.jupiter.metering.impl.aggregation.SqlBuilderFactoryImpl;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactory;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactoryImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -93,8 +96,6 @@ public class MeteringModule extends AbstractModule {
         requireBinding(CustomPropertySetService.class);
         requireBinding(PropertySpecService.class);
         requireBinding(SearchService.class);
-//        requireBinding(UsagePointLifeCycleConfigurationService.class);
-
         bindConstant().annotatedWith(Names.named("requiredReadingTypes")).to(readingTypes);
         bindConstant().annotatedWith(Names.named("createReadingTypes")).to(createReadingTypes);
         bind(MeteringDataModelService.class).to(MeteringDataModelServiceImpl.class).in(Scopes.SINGLETON);
@@ -121,20 +122,6 @@ public class MeteringModule extends AbstractModule {
         @Override
         public ServerMeteringService get() {
             return this.meteringDataModelService.getMeteringService();
-        }
-    }
-
-    private static class ThesaurusProvider implements Provider<Thesaurus> {
-        private final MeteringDataModelService meteringDataModelService;
-
-        @Inject
-        private ThesaurusProvider(MeteringDataModelService meteringDataModelService) {
-            this.meteringDataModelService = meteringDataModelService;
-        }
-
-        @Override
-        public Thesaurus get() {
-            return this.meteringDataModelService.getThesaurus();
         }
     }
 
@@ -202,6 +189,21 @@ public class MeteringModule extends AbstractModule {
         }
 
         @Override
+        public Clock getClock() {
+            return null;
+        }
+
+        @Override
+        public Thesaurus getThesaurus() {
+            return null;
+        }
+
+        @Override
+        public boolean hasContract(EffectiveMetrologyConfigurationOnUsagePoint mistery, MetrologyContract contract) {
+            return false;
+        }
+
+        @Override
         public List<MeterActivationSet> getMeterActivationSets(ServerUsagePoint usagePoint, Range<Instant> period) {
             return Collections.emptyList();
         }
@@ -222,6 +224,16 @@ public class MeteringModule extends AbstractModule {
         }
 
         @Override
+        public List<DetailedCalendarUsage> introspect(ServerUsagePoint usagePoint, Instant instant) {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public MetrologyContractDataEditor edit(UsagePoint usagePoint, MetrologyContract contract, ReadingTypeDeliverable deliverable, QualityCodeSystem system) {
+            return dataAggregationService.edit(usagePoint, contract, deliverable, system);
+        }
+
+        @Override
         public Category getTimeOfUseCategory() {
             return new TimeOfUse();
         }
@@ -229,13 +241,8 @@ public class MeteringModule extends AbstractModule {
 
     private static class TimeOfUse implements Category {
         @Override
-        public void save() {
-            // No implementation required
-        }
-
-        @Override
         public String getDisplayName() {
-            return OutOfTheBoxCategory.TOU.getDefaultDisplayName();
+            return OutOfTheBoxCategory.TOU.name();
         }
 
         @Override

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -11,6 +12,7 @@ import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
+import com.elster.jupiter.metering.aggregation.CalculatedReadingRecord;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -21,6 +23,7 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.aggregation.ReadingQuality;
+import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -55,7 +58,11 @@ import java.util.stream.Collectors;
         "osgi.command.function=setMultiplierValue",
         "osgi.command.function=matchingChannels",
         "osgi.command.function=showData",
-        "osgi.command.function=introspect"
+        "osgi.command.function=introspect",
+        "osgi.command.function=updateReading",
+        "osgi.command.function=confirmReading",
+        "osgi.command.function=estimateReading",
+        "osgi.command.function=removeReading"
 }, immediate = true)
 @SuppressWarnings("unused")
 public class DataAggregationCommands {
@@ -136,7 +143,7 @@ public class DataAggregationCommands {
             Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
             CalculatedMetrologyContractData data = this.dataAggregationService.calculate(usagePoint, contract, Range.openClosed(start, Instant.now(this.clock)));
 
-            List<? extends BaseReadingRecord> dataForDeliverable = data.getCalculatedDataFor(deliverable);
+            List<CalculatedReadingRecord> dataForDeliverable = data.getCalculatedDataFor(deliverable);
             System.out.println("records found for deliverable:" + dataForDeliverable.size());
             context.commit();
         }
@@ -202,7 +209,7 @@ public class DataAggregationCommands {
 
             CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, period);
 
-            List<? extends BaseReadingRecord> dataForDeliverable = data.getCalculatedDataFor(deliverable);
+            List<CalculatedReadingRecord> dataForDeliverable = data.getCalculatedDataFor(deliverable);
             dataForDeliverable.forEach(this::showReading);
             System.out.println("records found for deliverable:" + dataForDeliverable.size());
             context.commit();
@@ -248,6 +255,138 @@ public class DataAggregationCommands {
                 .forEach(System.out::println);
     }
 
+    public void removeReading() {
+        System.out.println("Usage: removeReading <usage point name> <contract purpose> <deliverable name> <interval date> (YYY-MM-DD) <interval timestamp> (HH:MM:DD)");
+    }
+
+    public void removeReading(String usagePointName, String contractPurpose, String deliverableName, String intervalDate, String intervalTimestamp) {
+        Instant timestamp = ZonedDateTime.ofInstant(Instant.parse(intervalDate + "T" + intervalTimestamp + "Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+        this.removeReading(usagePointName, contractPurpose, deliverableName, timestamp);
+    }
+
+    private void removeReading(String usagePointName, String contractPurpose, String deliverableName, Instant intervalTimestamp) {
+        UsagePoint usagePoint = meteringService.findUsagePointByName(usagePointName)
+                .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
+        UsagePointMetrologyConfiguration configuration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
+                .orElseThrow(() -> new NoSuchElementException("No metrology configuration"));
+        MetrologyContract contract = configuration.getContracts().stream()
+                .filter(c -> c.getMetrologyPurpose().getName().equals(contractPurpose))
+                .findFirst()
+                .orElseThrow(() -> noContractForPurpose(contractPurpose, configuration));
+        ReadingTypeDeliverable deliverable = contract.getDeliverables().stream()
+                .filter(d -> d.getName().equals(deliverableName))
+                .findFirst()
+                .orElseThrow(() -> deliverableNotAvailableInContract(deliverableName, contract));
+
+        try (TransactionContext context = transactionService.getContext()) {
+            dataAggregationService
+                    .edit(usagePoint, contract, deliverable, QualityCodeSystem.MDM)
+                    .remove(intervalTimestamp)
+                    .save();
+            context.commit();
+        }
+    }
+
+    public void updateReading() {
+        System.out.println("Usage: updateReading <usage point name> <contract purpose> <deliverable name> <interval date> (YYY-MM-DD) <interval timestamp> (HH:MM:DD) <value>");
+    }
+
+    public void updateReading(String usagePointName, String contractPurpose, String deliverableName, String intervalDate, String intervalTimestamp, String value) {
+        Instant timestamp = ZonedDateTime.ofInstant(Instant.parse(intervalDate + "T" + intervalTimestamp + "Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+        this.updateReading(usagePointName, contractPurpose, deliverableName, timestamp, new BigDecimal(value));
+    }
+
+    private void updateReading(String usagePointName, String contractPurpose, String deliverableName, Instant intervalTimestamp, BigDecimal value) {
+        UsagePoint usagePoint = meteringService.findUsagePointByName(usagePointName)
+                .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
+        UsagePointMetrologyConfiguration configuration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
+                .orElseThrow(() -> new NoSuchElementException("No metrology configuration"));
+        MetrologyContract contract = configuration.getContracts().stream()
+                .filter(c -> c.getMetrologyPurpose().getName().equals(contractPurpose))
+                .findFirst()
+                .orElseThrow(() -> noContractForPurpose(contractPurpose, configuration));
+        ReadingTypeDeliverable deliverable = contract.getDeliverables().stream()
+                .filter(d -> d.getName().equals(deliverableName))
+                .findFirst()
+                .orElseThrow(() -> deliverableNotAvailableInContract(deliverableName, contract));
+
+        try (TransactionContext context = transactionService.getContext()) {
+            dataAggregationService
+                    .edit(usagePoint, contract, deliverable, QualityCodeSystem.MDM)
+                    .update(IntervalReadingImpl.of(intervalTimestamp, value))
+                    .save();
+            context.commit();
+        }
+    }
+
+    public void estimateReading() {
+        System.out.println("Usage: estimateReading <usage point name> <contract purpose> <deliverable name> <interval date> (YYY-MM-DD) <interval timestamp> (HH:MM:DD) <value>");
+    }
+
+    public void estimateReading(String usagePointName, String contractPurpose, String deliverableName, String intervalDate, String intervalTimestamp, String value) {
+        Instant timestamp = ZonedDateTime.ofInstant(Instant.parse(intervalDate + "T" + intervalTimestamp + "Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+        this.estimateReading(usagePointName, contractPurpose, deliverableName, timestamp, new BigDecimal(value));
+    }
+
+    private void estimateReading(String usagePointName, String contractPurpose, String deliverableName, Instant intervalTimestamp, BigDecimal value) {
+        UsagePoint usagePoint = meteringService.findUsagePointByName(usagePointName)
+                .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
+        UsagePointMetrologyConfiguration configuration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
+                .orElseThrow(() -> new NoSuchElementException("No metrology configuration"));
+        MetrologyContract contract = configuration.getContracts().stream()
+                .filter(c -> c.getMetrologyPurpose().getName().equals(contractPurpose))
+                .findFirst()
+                .orElseThrow(() -> noContractForPurpose(contractPurpose, configuration));
+        ReadingTypeDeliverable deliverable = contract.getDeliverables().stream()
+                .filter(d -> d.getName().equals(deliverableName))
+                .findFirst()
+                .orElseThrow(() -> deliverableNotAvailableInContract(deliverableName, contract));
+
+        try (TransactionContext context = transactionService.getContext()) {
+            dataAggregationService
+                    .edit(usagePoint, contract, deliverable, QualityCodeSystem.MDM)
+                    .estimate(IntervalReadingImpl.of(intervalTimestamp, value))
+                    .save();
+            context.commit();
+        }
+    }
+
+    public void confirmReading() {
+        System.out.println("Usage: confirmReading <usage point name> <contract purpose> <deliverable name> <interval date> (YYY-MM-DD) <interval timestamp> (HH:MM:DD)");
+    }
+
+    public void confirmReading(String usagePointName, String contractPurpose, String deliverableName, String intervalDate, String intervalTimestamp) {
+        Instant timestamp = ZonedDateTime.ofInstant(Instant.parse(intervalDate + "T" + intervalTimestamp + "Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
+        this.confirmReading(usagePointName, contractPurpose, deliverableName, timestamp);
+    }
+
+    private void confirmReading(String usagePointName, String contractPurpose, String deliverableName, Instant intervalTimestamp) {
+        UsagePoint usagePoint = meteringService.findUsagePointByName(usagePointName)
+                .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
+        UsagePointMetrologyConfiguration configuration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
+                .orElseThrow(() -> new NoSuchElementException("No metrology configuration"));
+        MetrologyContract contract = configuration.getContracts().stream()
+                .filter(c -> c.getMetrologyPurpose().getName().equals(contractPurpose))
+                .findFirst()
+                .orElseThrow(() -> noContractForPurpose(contractPurpose, configuration));
+        ReadingTypeDeliverable deliverable = contract.getDeliverables().stream()
+                .filter(d -> d.getName().equals(deliverableName))
+                .findFirst()
+                .orElseThrow(() -> deliverableNotAvailableInContract(deliverableName, contract));
+
+        try (TransactionContext context = transactionService.getContext()) {
+            dataAggregationService
+                    .edit(usagePoint, contract, deliverable, QualityCodeSystem.MDM)
+                    .confirm(IntervalReadingImpl.of(intervalTimestamp, null))
+                    .save();
+            context.commit();
+        }
+    }
+
     private NoSuchElementException noContractForPurpose(String purpose, UsagePointMetrologyConfiguration configuration) {
         String availableContracts = configuration
                 .getContracts()
@@ -269,21 +408,26 @@ public class DataAggregationCommands {
         return new NoSuchElementException("Deliverable not found on contract");
     }
 
-    private void showReading(BaseReadingRecord readingRecord) {
+    private void showReading(CalculatedReadingRecord readingRecord) {
         DateTimeFormatter formatter =
                 DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
                         .withLocale(Locale.UK)
                         .withZone(ZoneId.systemDefault());
 
-        List<? extends ReadingQualityRecord> qualities = readingRecord.getReadingQualities();
-        Range<Instant> range = readingRecord.getTimePeriod().get();
-        if (qualities.isEmpty()) {
+        if (readingRecord.isPartOfTimeOfUseGap()) {
             System.out.println(
-                    formatter.format(readingRecord.getTimeStamp()) + " in " + range + " : " + readingRecord.getValue());
+                    formatter.format(readingRecord.getTimeStamp()) + " time of use gap (event code= " + readingRecord.getTimeOfUseEvent().get().getCode() + ")");
         } else {
-            System.out.println(
-                    formatter.format(readingRecord.getTimeStamp()) + " in " + range + " : " + readingRecord.getValue()
-                    + " , " + ReadingQuality.getReadingQuality(qualities.get(0).getType().getCode()).toString());
+            List<? extends ReadingQualityRecord> qualities = readingRecord.getReadingQualities();
+            Range<Instant> range = readingRecord.getTimePeriod().get();
+            if (qualities.isEmpty()) {
+                System.out.println(
+                        formatter.format(readingRecord.getTimeStamp()) + " in " + range + " : " + readingRecord.getValue());
+            } else {
+                System.out.println(
+                        formatter.format(readingRecord.getTimeStamp()) + " in " + range + " : " + readingRecord.getValue()
+                                + " , " + ReadingQuality.getReadingQuality(qualities.get(0).getType().getCode()).toString());
+            }
         }
     }
 

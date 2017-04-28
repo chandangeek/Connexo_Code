@@ -5,8 +5,8 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.NotEmpty;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
@@ -33,8 +33,8 @@ public final class MeterRoleImpl implements MeterRole {
         }
     }
 
-    @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @NotEmpty(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String key;
 
     private final Thesaurus thesaurus;

@@ -4,8 +4,8 @@
 
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 
@@ -28,7 +28,7 @@ public class ReadingTypeTemplateAttributeValueImpl {
         }
     }
 
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingTypeTemplateAttribute> attribute = Reference.empty();
     private int code;
 

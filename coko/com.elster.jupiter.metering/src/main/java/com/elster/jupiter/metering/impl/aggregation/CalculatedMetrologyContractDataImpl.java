@@ -4,12 +4,12 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
+import com.elster.jupiter.metering.aggregation.CalculatedReadingRecord;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -44,9 +44,9 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
     private final UsagePoint usagePoint;
     private final MetrologyContract contract;
     private final Range<Instant> period;
-    private final Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords;
+    private final Map<ReadingType, List<CalculatedReadingRecordImpl>> calculatedReadingRecords;
 
-    CalculatedMetrologyContractDataImpl(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords, InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory) {
+    CalculatedMetrologyContractDataImpl(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecordImpl>> calculatedReadingRecords, InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory) {
         this.usagePoint = usagePoint;
         this.contract = contract;
         this.period = period;
@@ -56,7 +56,7 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
         this.calculatedReadingRecords = this.generateTimeSeriesIfNecessary(contract, this.mergeMeterActivations(calculatedReadingRecords));
     }
 
-    private void injectUsagePoint(Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
+    private void injectUsagePoint(Map<ReadingType, List<CalculatedReadingRecordImpl>> calculatedReadingRecords) {
         calculatedReadingRecords
                 .values()
                 .stream()
@@ -64,12 +64,12 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
                 .forEach(this::injectUsagePoint);
     }
 
-    private void injectUsagePoint(CalculatedReadingRecord calculatedReadingRecord) {
+    private void injectUsagePoint(CalculatedReadingRecordImpl calculatedReadingRecord) {
         calculatedReadingRecord.setUsagePoint(this.usagePoint);
     }
 
     /**
-     * Merges multiple {@link CalculatedReadingRecord}s that relate to different
+     * Merges multiple {@link CalculatedReadingRecordImpl}s that relate to different
      * {@link com.elster.jupiter.metering.MeterActivation}s within the same
      * aggregation period. As an example, when a different meter was activated
      * on a usage point in the middle of a month and aggregation is requested
@@ -77,33 +77,35 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
      * CalculatedReadingRecords because of the way the SQL is structured.
      * These two CalculatedReadingRecords need to be merged to one and the same.
      *
-     * @param calculatedReadingRecords The List of CalculatedReadingRecord organized by {@link ReadingType}
-     * @return The List of CalculatedReadingRecord organized by ReadingType spanning only periods that relate to the aggregation specified in the ReadingType
+     * @param calculatedReadingRecords The List of CalculatedReadingRecordImpl organized by {@link ReadingType}
+     * @return The List of CalculatedReadingRecordImpl organized by ReadingType spanning only periods that relate to the aggregation specified in the ReadingType
      */
-    private Map<ReadingType, List<CalculatedReadingRecord>> mergeMeterActivations(Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
-        Map<ReadingType, List<CalculatedReadingRecord>> merged = new HashMap<>();
+    private Map<ReadingType, List<CalculatedReadingRecordImpl>> mergeMeterActivations(Map<ReadingType, List<CalculatedReadingRecordImpl>> calculatedReadingRecords) {
+        Map<ReadingType, List<CalculatedReadingRecordImpl>> merged = new HashMap<>();
         calculatedReadingRecords
                 .entrySet()
                 .forEach(readingTypeAndRecords -> this.mergeMeterActivations(readingTypeAndRecords, merged));
         return merged;
     }
 
-    private void mergeMeterActivations(Map.Entry<ReadingType, List<CalculatedReadingRecord>> readingTypeAndRecords, Map<ReadingType, List<CalculatedReadingRecord>> merged) {
+    private void mergeMeterActivations(Map.Entry<ReadingType, List<CalculatedReadingRecordImpl>> readingTypeAndRecords, Map<ReadingType, List<CalculatedReadingRecordImpl>> merged) {
         merged.put(readingTypeAndRecords.getKey(), this.merge(readingTypeAndRecords.getKey(), readingTypeAndRecords.getValue()));
     }
 
-    private List<CalculatedReadingRecord> merge(ReadingType readingType, List<CalculatedReadingRecord> readingRecords) {
-        Map<Instant, CalculatedReadingRecord> merged = new TreeMap<>(); // Keeps the keys sorted
+    private List<CalculatedReadingRecordImpl> merge(ReadingType readingType, List<CalculatedReadingRecordImpl> readingRecords) {
+        Map<Instant, CalculatedReadingRecordImpl> merged = new TreeMap<>(); // Keeps the keys sorted
         IntervalLength intervalLength = IntervalLength.from(readingType);
         readingRecords.forEach(record -> this.merge(record, this.truncaterFactory.truncaterFor(readingType), intervalLength, merged));
         return new ArrayList<>(merged.values());
     }
 
-    private void merge(CalculatedReadingRecord record, InstantTruncater truncater, IntervalLength intervalLength, Map<Instant, CalculatedReadingRecord> merged) {
+    private void merge(CalculatedReadingRecordImpl record, InstantTruncater truncater, IntervalLength intervalLength, Map<Instant, CalculatedReadingRecordImpl> merged) {
         ZoneId zone = this.getUsagePoint()
-                .getMeterActivation(record.getTimeStamp())
+                .getMeterActivations(record.getTimeStamp())
+                .stream()
                 .map(MeterActivation::getChannelsContainer)
                 .map(ChannelsContainer::getZoneId)
+                .findAny()  // All meters that are linked to the same UsagePoint should all have the same ZoneId
                 .orElseGet(this.usagePoint::getZoneId);
         final Instant endOfInterval;
         Instant endOfIntervalCandidate = truncater.truncate(record.getTimeStamp(), intervalLength, zone);
@@ -116,10 +118,10 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
         }
         merged.compute(
                 endOfInterval,
-                (timestamp, existingRecord) -> existingRecord == null ? record : CalculatedReadingRecord.merge(existingRecord, record, endOfInterval, this.truncaterFactory, this.sourceChannelSetFactory));
+                (timestamp, existingRecord) -> existingRecord == null ? record : CalculatedReadingRecordImpl.merge(existingRecord, record, endOfInterval, this.truncaterFactory, this.sourceChannelSetFactory));
     }
 
-    private Map<ReadingType, List<CalculatedReadingRecord>> generateTimeSeriesIfNecessary(MetrologyContract contract, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
+    private Map<ReadingType, List<CalculatedReadingRecordImpl>> generateTimeSeriesIfNecessary(MetrologyContract contract, Map<ReadingType, List<CalculatedReadingRecordImpl>> calculatedReadingRecords) {
         return calculatedReadingRecords
                 .keySet()
                 .stream()
@@ -131,7 +133,7 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
                                 calculatedReadingRecords.get(readingType))));
     }
 
-    private List<CalculatedReadingRecord> generateTimeSeriesIfNecessary(MetrologyContract contract, ReadingType readingType, List<CalculatedReadingRecord> calculatedReadingRecords) {
+    private List<CalculatedReadingRecordImpl> generateTimeSeriesIfNecessary(MetrologyContract contract, ReadingType readingType, List<CalculatedReadingRecordImpl> calculatedReadingRecords) {
         ExpressionNode expressionNode =
                 contract
                     .getDeliverables()
@@ -143,7 +145,7 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
                     .get();
         if (this.containsOnlyConstants(expressionNode)) {
             if (calculatedReadingRecords.size() == 1) {
-                CalculatedReadingRecord record = calculatedReadingRecords.get(0);
+                CalculatedReadingRecordImpl record = calculatedReadingRecords.get(0);
                 return IntervalLength
                             .from(readingType)
                             .toTimeSeries(this.period, this.usagePoint.getZoneId())
@@ -154,7 +156,7 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
             }
         } else if (this.containsOnlyCustomProperties(expressionNode)) {
             // Assuming no gaps in custom property values
-            RangeMap<Instant, CalculatedReadingRecord> recordRangeMap = this.toRangeMap(calculatedReadingRecords);
+            RangeMap<Instant, CalculatedReadingRecordImpl> recordRangeMap = this.toRangeMap(calculatedReadingRecords);
             return IntervalLength
                         .from(readingType)
                         .toTimeSeries(this.period, this.usagePoint.getZoneId())
@@ -166,8 +168,8 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
         }
     }
 
-    private CalculatedReadingRecord recordAtTimeStampOrNull(RangeMap<Instant, CalculatedReadingRecord> recordRangeMap, Instant timestamp) {
-        CalculatedReadingRecord record = recordRangeMap.get(timestamp);
+    private CalculatedReadingRecordImpl recordAtTimeStampOrNull(RangeMap<Instant, CalculatedReadingRecordImpl> recordRangeMap, Instant timestamp) {
+        CalculatedReadingRecordImpl record = recordRangeMap.get(timestamp);
         if (record != null) {
             return record.atTimeStamp(timestamp);
         } else {
@@ -183,8 +185,8 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
         return expressionNode.accept(new ContainsOnlyCustomProperties());
     }
 
-    private RangeMap<Instant, CalculatedReadingRecord> toRangeMap(List<CalculatedReadingRecord> records) {
-        RangeMap<Instant, CalculatedReadingRecord> map = TreeRangeMap.create();
+    private RangeMap<Instant, CalculatedReadingRecordImpl> toRangeMap(List<CalculatedReadingRecordImpl> records) {
+        RangeMap<Instant, CalculatedReadingRecordImpl> map = TreeRangeMap.create();
         RangesBuilder rangesBuilder = new RangesBuilder(this.period.upperEndpoint());
         records.stream().sorted().forEach(record -> rangesBuilder.add(record.getTimeStamp()));
         rangesBuilder
@@ -193,7 +195,7 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
         return map;
     }
 
-    private CalculatedReadingRecord recordForRange(Range<Instant> range, List<CalculatedReadingRecord> records) {
+    private CalculatedReadingRecordImpl recordForRange(Range<Instant> range, List<CalculatedReadingRecordImpl> records) {
         return records
                     .stream()
                     .filter(record -> range.contains(record.getTimeStamp()))
@@ -217,8 +219,8 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
     }
 
     @Override
-    public List<? extends BaseReadingRecord> getCalculatedDataFor(ReadingTypeDeliverable deliverable) {
-        return this.calculatedReadingRecords.getOrDefault(deliverable.getReadingType(), Collections.emptyList());
+    public List<CalculatedReadingRecord> getCalculatedDataFor(ReadingTypeDeliverable deliverable) {
+        return Collections.unmodifiableList(this.calculatedReadingRecords.getOrDefault(deliverable.getReadingType(), Collections.emptyList()));
     }
 
     private static class RangesBuilder {

@@ -7,9 +7,9 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -57,10 +57,10 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
 
     @SuppressWarnings("unused")
     private long id;    // Managed by ORM
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
-    @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @NotEmpty(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
 
     @SuppressWarnings("unused")
@@ -100,7 +100,7 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
                 && !Checks.is(getName()).emptyOrOnlyWhiteSpace()
                 && hasRequirementsWithTheSameName()) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+            context.buildConstraintViolationWithTemplate("{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
                     .addPropertyNode(Fields.NAME.fieldName())
                     .addConstraintViolation();
             return false;

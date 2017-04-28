@@ -98,7 +98,7 @@ public class ReadingTypeLocalizedFieldsFactory implements ReadingTypeFieldsFacto
                         .collect(LinkedHashMap::new, (map, element) -> map.put(element, String.valueOf(element)), Map::putAll)),
 
         TIME_OF_USE(ReadingTypeFilter.ReadingTypeFields.TIME_OF_USE.getName(),
-                (thesaurus) -> Stream.of(0, 1, 2, 3, 4, 5, 6, 7, 8).collect(LinkedHashMap::new, (map, element) -> map.put(element, String.valueOf(element)), Map::putAll)),
+                (thesaurus) -> Stream.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11).collect(LinkedHashMap::new, (map, element) -> map.put(element, String.valueOf(element)), Map::putAll)),
 
         CPP(ReadingTypeFilter.ReadingTypeFields.CPP.getName(),
                 (thesaurus) -> Stream.of(0, 1, 2, 3, 4, 5, 6, 7)

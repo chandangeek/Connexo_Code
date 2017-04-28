@@ -4,11 +4,10 @@
 
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 
 public class CannotStartCalendarBeforeNow extends LocalizedFieldValidationException {
     public CannotStartCalendarBeforeNow() {
-        super(MessageSeeds.CANNOT_START_BEFORE_NOW, "fromTime");
+        super(PrivateMessageSeeds.CANNOT_START_BEFORE_NOW, "fromTime");
     }
 }

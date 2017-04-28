@@ -43,10 +43,10 @@ public class TruncatedTimelineSqlBuilderTest {
                 .using(sqlBuilder, this.meteringService);
 
         // Business method
-        builder.append("LOCALDATE");
+        builder.append("rodXXX");
 
         // Asserts
-        assertThat(sqlBuilder.getText()).isEqualToIgnoringCase("TRUNC(LOCALDATE, 'DDD')");
+        assertThat(sqlBuilder.getText()).isEqualToIgnoringCase("TRUNC(rodXXX.localdate, 'DDD')");
     }
 
     @Test
@@ -60,10 +60,10 @@ public class TruncatedTimelineSqlBuilderTest {
                 .using(sqlBuilder, this.meteringService);
 
         // Business method
-        builder.append("LOCALDATE");
+        builder.append("rodXXX");
 
         // Asserts
-        assertThat(sqlBuilder.getText()).isEqualToIgnoringCase("(TRUNC(LOCALDATE - INTERVAL '17' HOUR, 'DDD') + INTERVAL '17' HOUR)");
+        assertThat(sqlBuilder.getText()).isEqualToIgnoringCase("(TRUNC(rodXXX.localdate - INTERVAL '17' HOUR, 'DDD') + INTERVAL '17' HOUR)");
     }
 
     @Test
@@ -75,10 +75,10 @@ public class TruncatedTimelineSqlBuilderTest {
                 .using(sqlBuilder, this.meteringService);
 
         // Business method
-        builder.append("LOCALDATE");
+        builder.append("rodXXX");
 
         // Asserts
-        assertThat(sqlBuilder.getText()).isEqualToIgnoringCase("(TRUNC(LOCALDATE - INTERVAL '0' HOUR, 'DDD') + INTERVAL '0' HOUR)");
+        assertThat(sqlBuilder.getText()).isEqualToIgnoringCase("(TRUNC(rodXXX.localdate - INTERVAL '0' HOUR, 'DDD') + INTERVAL '0' HOUR)");
     }
 
     @Test
@@ -92,10 +92,10 @@ public class TruncatedTimelineSqlBuilderTest {
                 .using(sqlBuilder, this.meteringService);
 
         // Business method
-        builder.append("LOCALDATE");
+        builder.append("rodXXX");
 
         // Asserts
-        assertThat(sqlBuilder.getText()).isEqualToIgnoringCase("((TRUNC((LOCALDATE - INTERVAL '17' HOUR) - INTERVAL '5' MONTH, 'YEAR') + INTERVAL '17' HOUR) + INTERVAL '4' MONTH)");
+        assertThat(sqlBuilder.getText()).isEqualToIgnoringCase("((TRUNC((rodXXX.localdate - INTERVAL '17' HOUR) - INTERVAL '5' MONTH, 'YEAR') + INTERVAL '17' HOUR) + INTERVAL '4' MONTH)");
     }
 
     private static VirtualReadingType kWh15Mins() {

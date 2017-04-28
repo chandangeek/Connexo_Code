@@ -7,16 +7,15 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
 import com.elster.jupiter.nls.Thesaurus;
@@ -41,12 +40,12 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
 
     private final FormulaBuilderImpl formulaBuilder;
     private final String name;
-    private final MetrologyContractImpl metrologyContract;
+    private final ServerMetrologyContract metrologyContract;
     private final ReadingType readingType;
     private final CustomPropertySetService customPropertySetService;
     private final DeliverableType deliverableType;
 
-    ReadingTypeDeliverableBuilderImpl(MetrologyContractImpl metrologyContract, String name, DeliverableType deliverableType, ReadingType readingType, Formula.Mode mode, CustomPropertySetService customPropertySetService, DataModel dataModel, Thesaurus thesaurus) {
+    ReadingTypeDeliverableBuilderImpl(ServerMetrologyContract metrologyContract, String name, DeliverableType deliverableType, ReadingType readingType, Formula.Mode mode, CustomPropertySetService customPropertySetService, DataModel dataModel, Thesaurus thesaurus) {
         this.formulaBuilder = new FormulaBuilderImpl(mode, dataModel, thesaurus);
         this.name = name;
         this.metrologyContract = metrologyContract;
@@ -69,11 +68,11 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     @Override
     public FormulaBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable) {
         if (!readingTypeDeliverable.getMetrologyContract().equals(metrologyContract)) {
-            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONTRACT_FOR_DELIVERABLE, (int) readingTypeDeliverable.getId());
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), PrivateMessageSeeds.INVALID_METROLOGYCONTRACT_FOR_DELIVERABLE, (int) readingTypeDeliverable.getId());
         }
         if ((isAutoMode() && readingTypeDeliverable.getFormula().getMode().equals(Formula.Mode.EXPERT)) ||
                 (isExpertMode() && readingTypeDeliverable.getFormula().getMode().equals(Formula.Mode.AUTO))) {
-            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED);
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), PrivateMessageSeeds.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED);
         }
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.deliverable(readingTypeDeliverable));
     }
@@ -81,10 +80,10 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     @Override
     public FormulaBuilder requirement(ReadingTypeRequirement requirement) {
         if (!requirement.getMetrologyConfiguration().equals(metrologyContract.getMetrologyConfiguration())) {
-            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) requirement.getId());
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), PrivateMessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) requirement.getId());
         }
         if ((isAutoMode()) && (!UnitConversionSupport.isValidForAggregation(requirement.getUnits()))) {
-            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
+            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), PrivateMessageSeeds.INVALID_READINGTYPE_UNIT_IN_REQUIREMENT);
         }
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.requirement(requirement));
     }
