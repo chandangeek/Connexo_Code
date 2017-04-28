@@ -22,5 +22,4 @@ public interface HttpAuthenticationService {
 
     void logout(HttpServletRequest request, HttpServletResponse response);
 
-    String generateTokenForProcessExecution();
 }
