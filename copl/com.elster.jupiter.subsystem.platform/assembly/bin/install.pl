@@ -7,15 +7,15 @@ use File::Basename;
 use File::Path qw(rmtree);
 use File::Path qw(make_path);
 use File::Copy;
-use File::Copy::Recursive qw(dircopy);
+use IO::Uncompress::Unzip qw(unzip $UnzipError);
+use File::Spec::Functions qw(splitpath);
 use Socket;
 use Sys::Hostname;
-use Archive::Zip;
 
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20170324";
+my $INSTALL_VERSION="v20170405";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -44,7 +44,7 @@ my $UPGRADE_OLD_SERVICE_VERSION="";
 
 my $HOST_NAME, my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
 my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL;
-my $FACTS_DB_HOST, my $FACTS_DB_PORT, my $FACTS_DB_NAME, my $FACTS_DB_USE_SERVICE_NAME, my $FACTS_DBUSER, my $FACTS_DBPASSWORD, my $FACTS_LICENSE;
+my $FACTS_DB_HOST, my $FACTS_DB_PORT, my $FACTS_DB_NAME, my $FACTS_DBUSER, my $FACTS_DBPASSWORD, my $FACTS_LICENSE;
 my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
 
 my $TOMCAT_DIR="tomcat";
@@ -63,6 +63,35 @@ my $TOMCAT_ADMIN_PASSWORD="D3moAdmin";
 
 
 # Function Definitions
+sub dircopy {
+	my @dirlist=($_[0]);
+	my @dircopy=($_[1]);
+	until (scalar(@dirlist)==0) {
+		mkdir "$dircopy[0]";
+		opendir my($dh),$dirlist[0];
+		my @filelist=grep {!/^\.\.?$/} readdir $dh;
+		for my $i (0..scalar(@filelist)-1) {
+			if ( -f "$dirlist[0]/$filelist[$i]" ) {
+				fcopy("$dirlist[0]/$filelist[$i]","$dircopy[0]/$filelist[$i]");
+			}
+			if ( -d "$dirlist[0]/$filelist[$i]" ) {
+				push @dirlist,"$dirlist[0]/$filelist[$i]";
+				push @dircopy,"$dircopy[0]/$filelist[$i]";
+			}
+		}
+		closedir $dh;
+		shift @dirlist;shift @dircopy;
+	}
+}
+
+sub fcopy {
+	my ($i,$data,$cpo,$cpn);
+	open($cpo,"<",$_[0]) or die $!; binmode($cpo);
+	open($cpn,">",$_[1]) or die $!; binmode($cpn);
+	while (($i=sysread $cpo,$data,4096)!=0){print $cpn $data};
+	close($cpn);close($cpo);
+}
+
 sub check_root {
     if ( $> != 0 ) {
         print "Please run this script as administrator\n";
@@ -174,7 +203,6 @@ sub read_config {
                 if ( "$val[0]" eq "FACTS_DB_HOST" )                 {$FACTS_DB_HOST=$val[1];}
                 if ( "$val[0]" eq "FACTS_DB_PORT" )                 {$FACTS_DB_PORT=$val[1];}
                 if ( "$val[0]" eq "FACTS_DB_NAME" )                 {$FACTS_DB_NAME=$val[1];}
-                if ( "$val[0]" eq "FACTS_DB_USE_SERVICE_NAME" )     {$FACTS_DB_USE_SERVICE_NAME=$val[1];}
                 if ( "$val[0]" eq "FACTS_DBUSER" )                  {$FACTS_DBUSER=$val[1];}
                 if ( "$val[0]" eq "FACTS_DBPASSWORD" )              {$FACTS_DBPASSWORD=$val[1];}
                 if ( "$val[0]" eq "FACTS_LICENSE" )                 {$FACTS_LICENSE=$val[1];}
@@ -229,8 +257,6 @@ sub read_config {
             chomp($FACTS_DB_PORT=<STDIN>);
             print "Please enter the oracle database name for Facts: ";
             chomp($FACTS_DB_NAME=<STDIN>);
-            print "Will the connection to the oracle database use service name instead of SID? (yes/no): ";
-            chomp($FACTS_DB_USE_SERVICE_NAME=<STDIN>);
             print "Please enter the database user for Facts: ";
             chomp($FACTS_DBUSER=<STDIN>);
             print "Please enter the database password for Facts database user: ";
@@ -415,7 +441,7 @@ sub install_tomcat {
 		print "\n\nExtracting Apache Tomcat 7 ...\n";
 		print "==========================================================================\n";
 
-		$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\";-Dorg.jboss.logging.provider=slf4j;-Dorg.uberfire.nio.git.ssh.algorithm=RSA";
+		$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\"";
 
 		chdir "$TOMCAT_BASE";
 		print "Extracting $TOMCAT_ZIP.zip\n";
@@ -426,9 +452,6 @@ sub install_tomcat {
 		if (-e "$TOMCAT_BASE/connexo.filter.jar") {
             print "    $TOMCAT_BASE/connexo.filter.jar -> $TOMCAT_BASE/tomcat/lib/connexo.filter.jar\n";
 		    copy("$TOMCAT_BASE/connexo.filter.jar","$TOMCAT_BASE/tomcat/lib/connexo.filter.jar");
-        }
-        if (-e "$TOMCAT_BASE/simplelogger.properties") {
-            copy("$TOMCAT_BASE/simplelogger.properties","$TOMCAT_BASE/tomcat/lib/simplelogger.properties");
         }
 		chdir "$TOMCAT_DIR/bin";
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/server.xml","<Connector port=\"8009\" protocol=\"AJP/1.3\" redirectPort=\"8443\" />","<Connector port=\"$TOMCAT_AJP_PORT\" protocol=\"AJP/1.3\" redirectPort=\"8443\" />");
@@ -442,7 +465,7 @@ sub install_tomcat {
 		print "Installing Apache Tomcat For Connexo as service ...\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.bat") or die "Could not open $TOMCAT_DIR/bin/setenv.bat: $!";
-			print $FH "set CATALINA_OPTS=".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=\"$CATALINA_HOME\" -Dorg.uberfire.metadata.index.dir=\"$CATALINA_HOME\" -Dorg.uberfire.nio.git.ssh.cert.dir=\"$CATALINA_HOME\" -Dorg.guvnor.m2repo.dir=\"$CATALINA_HOME/repositories\" -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\" -Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\" -Dbtm.root=\"$CATALINA_HOME\" -Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\" -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false -Dorg.jboss.logging.provider=slf4j -Dorg.uberfire.nio.git.ssh.algorithm=RSA\n";
+			print $FH "set CATALINA_OPTS=".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=\"$CATALINA_HOME\" -Dorg.uberfire.metadata.index.dir=\"$CATALINA_HOME\" -Dorg.uberfire.nio.git.ssh.cert.dir=\"$CATALINA_HOME\" -Dorg.guvnor.m2repo.dir=\"$CATALINA_HOME/repositories\" -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\" -Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\" -Dbtm.root=\"$CATALINA_HOME\" -Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\" -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false\n";
 			close($FH);
 			system("service.bat install ConnexoTomcat$SERVICE_VERSION");
 		} else {
@@ -450,7 +473,7 @@ sub install_tomcat {
             (my $replaceACCOUNT = $CONNEXO_ADMIN_ACCOUNT) =~ s/ /\\ /g;
             (my $replacePASSWORD = $CONNEXO_ADMIN_PASSWORD) =~ s/ /\\ /g;
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.sh") or die "Could not open $TOMCAT_DIR/bin/setenv.sh: $!";
-			print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=$replaceHOME -Dorg.uberfire.metadata.index.dir=$replaceHOME -Dorg.uberfire.nio.git.ssh.cert.dir=$replaceHOME -Dorg.guvnor.m2repo.dir=$replaceHOME/repositories -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=$replaceACCOUNT -Dconnexo.password=$replacePASSWORD -Dbtm.root=$replaceHOME -Dbitronix.tm.configuration=$replaceHOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false -Dorg.jboss.logging.provider=slf4j -Dorg.uberfire.nio.git.ssh.algorithm=RSA\"\n";
+			print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=$replaceHOME -Dorg.uberfire.metadata.index.dir=$replaceHOME -Dorg.uberfire.nio.git.ssh.cert.dir=$replaceHOME -Dorg.guvnor.m2repo.dir=$replaceHOME/repositories -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=$replaceACCOUNT -Dconnexo.password=$replacePASSWORD -Dbtm.root=$replaceHOME -Dbitronix.tm.configuration=$replaceHOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false\"\n";
 			close($FH);
 			
 			open(my $FH,"> /etc/init.d/ConnexoTomcat$SERVICE_VERSION") or die "Could not open /etc/init.d/ConnexoTomcat$SERVICE_VERSION: $!";
@@ -506,8 +529,6 @@ sub install_facts {
 		my $INSTALLER_LICENSE="$CONNEXO_DIR/partners/facts/facts-license.lic";
 		my $FACTS_BASE_PROPERTIES="$CONNEXO_DIR/partners/facts/facts.properties";
 		my $FACTS_TEMP_PROPERTIES="$CONNEXO_DIR/custom.properties";
-		my $FACTS_BASE_POST_INSTALL="$CONNEXO_DIR/partners/facts/postinstall.xml";
-        my $FACTS_TEMP_POST_INSTALL="$CONNEXO_DIR/resources/postinstall.xml";
 		my $FACTS_BASE="$TOMCAT_BASE/$TOMCAT_DIR/webapps";
 		my $FACTS_DIR="$FACTS_BASE/facts";
 		my $FACTS_PORT=$TOMCAT_HTTP_PORT;
@@ -543,9 +564,6 @@ sub install_facts {
 		print $FH "option.db.hostname=$FACTS_DB_HOST\n";
 		print $FH "option.db.port=$FACTS_DB_PORT\n";
 		print $FH "option.db.dbname=$FACTS_DB_NAME\n";
-		if($FACTS_DB_USE_SERVICE_NAME eq "yes"){
-		    print $FH "option.db.oracleconnectionmode=service\n";
-		}
 		print $FH "option.db.username=$FACTS_DBUSER\n";
 		print $FH "option.db.userpassword=$FACTS_DBPASSWORD\n";
 		print $FH "option.db.dbausername=$FACTS_DBUSER\n";
@@ -557,19 +575,6 @@ sub install_facts {
 		chdir "$CONNEXO_DIR";
 		system("\"$JAVA_HOME/bin/jar\" -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" custom.properties") == 0 or die "$JAVA_HOME/bin/jar -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" custom.properties failed: $?";
 		unlink("$CONNEXO_DIR/custom.properties");
-
-        make_path("$CONNEXO_DIR/resources");
-		copy("$FACTS_BASE_POST_INSTALL","$FACTS_TEMP_POST_INSTALL");
-		if ("$ACTIVATE_SSO" eq "yes") {
-		    replace_in_file("$FACTS_TEMP_POST_INSTALL",'\$\{url\}',"http://$HOST_NAME/facts/");
-		} else {
-		    replace_in_file("$FACTS_TEMP_POST_INSTALL",'\$\{url\}',"http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
-		}
-
-		system("\"$JAVA_HOME/bin/jar\" -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" resources/postinstall.xml") == 0 or die "$JAVA_HOME/bin/jar -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" custom.properties failed: $?";
-        unlink("$FACTS_TEMP_POST_INSTALL");
-        rmdir "$CONNEXO_DIR/resources";
-
         system("\"$JAVA_HOME/bin/java\" -jar \"$CONNEXO_DIR/partners/facts/facts.jar\" -silent") == 0 or die "$JAVA_HOME/bin/java -jar \"$CONNEXO_DIR/partners/facts/facts.jar\" -silent failed: $?";
 		if (!-d "$FACTS_DIR") { make_path("$FACTS_DIR"); }
 		copy("$FACTS_BASE/facts.war","$FACTS_DIR/facts.war") or die "File cannot be copied: $!";
@@ -689,12 +694,11 @@ sub activate_sso {
     if ("$ACTIVATE_SSO" eq "yes") {
         if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
             #install apache 2.2 or 2.4???
-            my $PUBLIC_KEY_PROPERTIES="to be filled in";
+            my $PUBLIC_KEY="to be filled in";
             if (-e "$CONNEXO_DIR/publicKey.txt") {
-				local $/;
                 open(my $FH,"< $CONNEXO_DIR/publicKey.txt") or die "Could not open $CONNEXO_DIR/publicKey.txt: $!";
-                $PUBLIC_KEY_PROPERTIES=<$FH>;
-                chomp($PUBLIC_KEY_PROPERTIES);
+                $PUBLIC_KEY=<$FH>;
+                chomp($PUBLIC_KEY);
                 close($FH);
             }            
             #if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
@@ -765,7 +769,7 @@ sub activate_sso {
             add_to_file("$CATALINA_BASE/conf/connexo.properties","");
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.url=http://$HOST_NAME:$CONNEXO_HTTP_PORT");
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.externalurl=http://$HOST_NAME");
-            add_to_file("$CATALINA_BASE/conf/connexo.properties","$PUBLIC_KEY_PROPERTIES");
+            add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.sso.public.key=$PUBLIC_KEY");
 
             add_to_file($config_file,"$PUBLIC_KEY_PROPERTIES");
 
@@ -1029,6 +1033,49 @@ sub print_screen_file {
     print $fh "$TXT";
 }
 
+sub unzip {
+	my ($zipFilename, $destinationDir) = @_;
+	unless ($zipFilename and $destinationDir) {
+		$! = "zipFilename and destinationDir must be supplied";
+		return;
+	}
+
+	my $zipFile = IO::Uncompress::Unzip->new($zipFilename);
+	unless ($zipFile) {
+		$! = "Could not open $zipFilename as zipFile";
+		return;
+	}
+
+	# Status should always be 1 for each entry in the zip...
+	while (my $status = $zipFile->nextStream()) {
+		my $zipEntryHeader = $zipFile->getHeaderInfo();
+		my $pathAndFilename = $zipEntryHeader->{Name};
+		# Returns from splitPath are volume, path, and filename...
+		# We don't care about path (and it shouldn't be there, anyway)
+    	my (undef, $path, $filename) = splitpath($pathAndFilename);
+		# Make sure we have a filename...skip directories...
+		$filename or next;
+
+		my $fullOutputDir = $destinationDir . "/" . $path;
+		make_path($fullOutputDir);
+		my $unzippedFilename = $fullOutputDir . $filename;
+		my $outputFh;
+		unless (open($outputFh, ">", $unzippedFilename)) {
+			$! = "Could not open $unzippedFilename for writing";
+			return;
+		}
+
+		binmode($outputFh);
+
+		my $buffer;
+		while (($status = $zipFile->read($buffer))) {
+			print $outputFh $buffer;
+		}
+    	close($outputFh);
+	}
+	return 1;
+}
+
 sub perform_upgrade {
     if ("$UPGRADE_PATH" eq "") {
         print "Please enter a value for the UPGRADE_PATH (currently empty).\n";
@@ -1084,22 +1131,19 @@ sub perform_upgrade {
     print "Creating new bundles folder\n";
     make_path("$CONNEXO_DIR/bundles");
 
-    foreach my $zipfile (@ZIPfiles) {
+	foreach my $zipfile (@ZIPfiles) {
         print "Extracting $zipfile\n";
-        my $zip = Archive::Zip->new($zipfile);
-        $zip->extractTree("","$UPGRADE_PATH/temp/");
-
-        #copy content of bundles folder
-        if (! -d "$UPGRADE_PATH/temp/bundles") {
-            print "No bundles folder found in $zipfile.\n";
-        } else {
-            print "Copying upgrade bundles\n";
-            my @JARfiles = glob( $UPGRADE_PATH . '/temp/bundles/*.jar' );
-            foreach my $jarfile (@JARfiles) {
-                copy("$jarfile","$CONNEXO_DIR/bundles");
-            }
+		unzip($zipfile,"$UPGRADE_PATH/temp/");
+	}
+    #copy content of bundles folder
+    if (! -d "$UPGRADE_PATH/temp/bundles") {
+        print "No bundles folder found in $UPGRADE_PATH/temp/\n";
+    } else {
+        print "Copying upgrade bundles\n";
+        my @JARfiles = glob( $UPGRADE_PATH . '/temp/bundles/*.jar' );
+        foreach my $jarfile (@JARfiles) {
+            copy("$jarfile","$CONNEXO_DIR/bundles");
         }
-        #rmtree("$UPGRADE_PATH/temp");
     }
 
     print "Pass 1\n";
