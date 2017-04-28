@@ -794,12 +794,31 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE + "}")
+    public void createMultiElementConfigWithoutResourcesTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("createMultiElementMeterConfigWithoutResourcesTest").multiElementEnabled(true).add();
+        deviceConfiguration.activate();
+    }
+
+    @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE + "}")
     public void createDataloggerSlaveConfigWithoutResourcesTest() {
         DeviceType dataloggerSlaveDeviceType = inMemoryPersistence.getDeviceConfigurationService()
                 .newDataloggerSlaveDeviceTypeBuilder("DataloggerSlave", inMemoryPersistence.getDeviceLifeCycleConfigurationService()
                         .findDefaultDeviceLifeCycle().get()).create();
         DeviceConfiguration deviceConfiguration = dataloggerSlaveDeviceType.newConfiguration("createDataloggerSlaveConfigWithoutResourcesTest").add();
+        deviceConfiguration.activate();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MULTI_ELEMENT_SUBMETER_AT_LEAST_ONE_DATASOURCE + "}")
+    public void createSubmeterConfigWithoutResourcesTest() {
+        DeviceType dataloggerSlaveDeviceType = inMemoryPersistence.getDeviceConfigurationService()
+                .newMultiElementSlaveDeviceTypeBuilder("Submeter", inMemoryPersistence.getDeviceLifeCycleConfigurationService()
+                        .findDefaultDeviceLifeCycle().get()).create();
+        DeviceConfiguration deviceConfiguration = dataloggerSlaveDeviceType.newConfiguration("createSubmeterConfigWithoutResourcesTest").add();
         deviceConfiguration.activate();
     }
 }
