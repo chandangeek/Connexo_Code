@@ -2,6 +2,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +12,6 @@ import java.util.Map;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PurposeOutputsDataInfo {
-    public Map<Long,OutputChannelDataInfo> outputsData = new HashMap<>();
-    public Instant timeStamp;
+    public Map<Long,BigDecimal> channelData = new HashMap<>();
+    public Map<String, Long> interval = new HashMap<>();
 }

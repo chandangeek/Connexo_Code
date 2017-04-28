@@ -1,9 +1,12 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.rest.util.IntervalInfo;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,32 +23,22 @@ public class PurposeOutputsDataInfoFactory {
         this.outputChannelDataInfoFactory = outputChannelDataInfoFactory;
     }
 
-    public void addPurposeOutputsDataInfo(List<PurposeOutputsDataInfo> outputsDataInfos, Long outputId, ChannelReadingWithValidationStatus record){
-        outputsDataInfos.forEach(purposeInfo -> {
-            if(!purposeInfo.timeStamp.equals(record.getTimeStamp())){
-                outputsDataInfos.add(createPurposeOutputsDataInfo(record.getTimeStamp()));
-            }
-            outputsDataInfos.forEach(info -> {
-                if (info.timeStamp.equals(record.getTimeStamp())) {
-                    info.outputsData.put(outputId, outputChannelDataInfoFactory.createChannelDataInfo(record));
-                }
-            });
-        });
-    }
-
-    public PurposeOutputsDataInfo createPurposeOutputsDataInfo (Instant timestamp, Long channelId, OutputChannelDataInfo channelDataInfo){
+    public PurposeOutputsDataInfo createPurposeOutputsDataInfo (Long channelId, BigDecimal channelData, IntervalInfo intervalInfo){
         PurposeOutputsDataInfo info = new PurposeOutputsDataInfo();
-        info.timeStamp = timestamp;
-        info.outputsData.put(channelId, channelDataInfo);
+        info.channelData.put(channelId, channelData);
+        info.interval.put("end", intervalInfo.end);
+        info.interval.put("start", intervalInfo.start);
         return info;
     }
 
-    public PurposeOutputsDataInfo createPurposeOutputsDataInfo (Instant timestamp ){
+    public PurposeOutputsDataInfo createPurposeOutputsDataInfo (Long intervalStart, Long intervalEnd){
         PurposeOutputsDataInfo info = new PurposeOutputsDataInfo();
+        info.interval.put("end", intervalEnd);
+        info.interval.put("start", intervalStart);
         return info;
     }
 
-    public void addValues (PurposeOutputsDataInfo info, Long channelId, OutputChannelDataInfo channelDataInfo){
-        info.outputsData.put(channelId, channelDataInfo);
+    public void addValues (PurposeOutputsDataInfo info, Long channelId, BigDecimal channelData){
+        info.channelData.put(channelId, channelData);
     }
 }
