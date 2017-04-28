@@ -27,6 +27,9 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -55,6 +58,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -124,6 +128,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
     private EndDeviceGroup endDeviceGroup;
     private EnumeratedEndDeviceGroup anotherEndDeviceGroup;
     private UsagePointGroup usagePointGroup;
+    private MetrologyPurpose metrologyPurpose;
 
     private DataExportServiceImpl dataExportService;
 
@@ -143,6 +148,8 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
         oneYearBeforeLastYear = getTimeService().createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, getTimeService().getRelativePeriodCategories());
         endDeviceGroup = getMeteringGroupsService().createEnumeratedEndDeviceGroup().setName("none").create();
         usagePointGroup = getMeteringGroupsService().createEnumeratedUsagePointGroup().setName("up-group").create();
+        metrologyPurpose = getMetrologyConfigurationService().findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
+                .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
         anotherEndDeviceGroup = getMeteringGroupsService().createEnumeratedEndDeviceGroup().setName("also none").create();
     }
 
@@ -156,6 +163,10 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
 
     private MeteringGroupsService getMeteringGroupsService() {
         return inMemoryPersistence.getMeteringGroupsService();
+    }
+
+    private MetrologyConfigurationService getMetrologyConfigurationService(){
+        return inMemoryPersistence.getMetrologyConfigurationService();
     }
 
     private TimeService getTimeService() {
@@ -346,6 +357,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
                 .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
                 .selectingUsagePointReadings()
                 .fromUsagePointGroup(usagePointGroup)
+                .fromMetrologyPurpose(metrologyPurpose)
                 .fromExportPeriod(lastYear)
                 .continuousData(true)
                 .exportComplete(MissingDataOption.EXCLUDE_ITEM)
@@ -371,6 +383,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
         UsagePointReadingSelectorConfig selectorConfig = task.getStandardDataSelectorConfig().map(UsagePointReadingSelectorConfig.class::cast).get();
 
         assertThat(selectorConfig.getUsagePointGroup().getId()).isEqualTo(usagePointGroup.getId());
+        assertThat(selectorConfig.getMetrologyPurpose().get().getId()).isEqualTo(metrologyPurpose.getId());
         assertThat(selectorConfig.getExportPeriod().getId()).isEqualTo(lastYear.getId());
         assertThat(selectorConfig.getStrategy().getUpdatePeriod()).isEmpty();
         assertThat(selectorConfig.getStrategy()).isNotNull();

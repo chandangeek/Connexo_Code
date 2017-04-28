@@ -45,6 +45,7 @@ import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -77,6 +78,12 @@ public class UsagePointReadingDataSelectorImplTest {
     private static final ZonedDateTime START = ZonedDateTime.of(2014, 6, 19, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime END = ZonedDateTime.of(2014, 7, 19, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final Range<Instant> EXPORT_INTERVAL = Range.openClosed(START.toInstant(), END.toInstant());
+
+    private static final ZonedDateTime START2 = ZonedDateTime.of(2014, 7, 1, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+    private static final ZonedDateTime END2 = ZonedDateTime.of(2014, 7, 10, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+    private static final Range<Instant> CHANNEL_CONTAINER_INTERVAL1 = Range.openClosed(START.toInstant(), END2.toInstant());
+    private static final Range<Instant> CHANNEL_CONTAINER_INTERVAL2 = Range.openClosed(START2.toInstant(), END.toInstant());
+
     public static final String USAGE_POINT_GROUP_NAME = "Group";
 
     private Clock clock = Clock.systemDefaultZone();
@@ -247,6 +254,69 @@ public class UsagePointReadingDataSelectorImplTest {
         assertThat(exportDataItem.getValidationData().getValidationStatus(START.toInstant())).isNull();
         assertThat(exportDataItem.getValidationData().getValidationStatus(END.toInstant())).isNull();
         assertThat(exportDataItem.getMeterReading().getReadings()).hasSize(1);
+    }
+
+    /*CXO-5049*/
+    @Test
+    public void testSelectOnlyIfCompleteWithGap() {
+        List<Membership<UsagePoint>> memberships = Arrays.asList(mockUsagePointMember(usagePoint1));
+        when(usagePointGroup.getMembers(EXPORT_INTERVAL)).thenReturn(memberships);
+        ChannelsContainer channelContainer1 = mock(ChannelsContainer.class);
+        ChannelsContainer channelContainer2 = mock(ChannelsContainer.class);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint1 = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint2 = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(effectiveMetrologyConfigurationOnUsagePoint1.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(effectiveMetrologyConfigurationOnUsagePoint1.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelContainer1));
+        when(effectiveMetrologyConfigurationOnUsagePoint2.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(effectiveMetrologyConfigurationOnUsagePoint2.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelContainer2));
+        when(usagePoint1.getEffectiveMetrologyConfigurations(EXPORT_INTERVAL)).thenReturn(Arrays.asList(effectiveMetrologyConfigurationOnUsagePoint1, effectiveMetrologyConfigurationOnUsagePoint2));
+        when(channelContainer1.getUsagePoint()).thenReturn(Optional.of(usagePoint1));
+        when(channelContainer1.getChannelsContainers()).thenReturn(Collections.singletonList(channelContainer1));
+        when(channelContainer1.overlaps(any())).thenReturn(true);
+        when(channelContainer1.getRange()).thenReturn(CHANNEL_CONTAINER_INTERVAL1);
+        when(channelContainer1.toList(eq(readingType), any())).thenReturn(Collections.singletonList(START.toInstant()));
+        when(channelContainer1.getChannel(readingType)).thenReturn(Optional.of(channel1));
+        when(channelContainer1.getReadingTypes(EXPORT_INTERVAL)).thenReturn(ImmutableSet.of(readingType));
+        when(channel1.getChannelsContainer()).thenReturn(channelContainer1);
+        when(channelContainer2.getUsagePoint()).thenReturn(Optional.of(usagePoint1));
+        when(channelContainer2.getChannelsContainers()).thenReturn(Collections.singletonList(channelContainer2));
+        when(channelContainer2.overlaps(any())).thenReturn(true);
+        when(channelContainer2.getRange()).thenReturn(CHANNEL_CONTAINER_INTERVAL2);
+        when(channelContainer2.toList(eq(readingType), any())).thenReturn(Collections.singletonList(END.toInstant()));
+        when(channelContainer2.getChannel(readingType)).thenReturn(Optional.of(channel2));
+        when(channelContainer2.getReadingTypes(EXPORT_INTERVAL)).thenReturn(ImmutableSet.of(readingType));
+        when(channel2.getChannelsContainer()).thenReturn(channelContainer2);
+        doReturn(Collections.singletonList(readingRecord1)).when(channelContainer1).getReadings(CHANNEL_CONTAINER_INTERVAL1, readingType);
+        when(validationEvaluator.isValidationEnabled(channelContainer1, readingType)).thenReturn(false);
+        doReturn(Collections.singletonList(readingRecord2)).when(channelContainer2).getReadings(CHANNEL_CONTAINER_INTERVAL2, readingType);
+        when(validationEvaluator.isValidationEnabled(channelContainer2, readingType)).thenReturn(false);
+
+        UsagePointReadingSelectorConfigImpl selectorConfig = UsagePointReadingSelectorConfigImpl.from(dataModel, task, exportPeriod);
+        selectorConfig.startUpdate()
+                .setUsagePointGroup(usagePointGroup)
+                .addReadingType(readingType)
+                .setExportOnlyIfComplete(true)
+                .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .complete();
+        when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
+
+        // Business method
+        List<ExportData> exportData = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
+
+        // Asserts
+        assertThat(exportData).hasSize(2);
+        MeterReadingData exportDataItem1 = (MeterReadingData) exportData.get(0);
+        assertThat(exportDataItem1.getItem().getDomainObject()).isEqualTo(usagePoint1);
+        assertThat(exportDataItem1.getItem().getReadingType()).isEqualTo(readingType);
+        assertThat(exportDataItem1.getValidationData().getValidationStatus(START.toInstant())).isNull();
+        assertThat(exportDataItem1.getValidationData().getValidationStatus(END.toInstant())).isNull();
+        assertThat(exportDataItem1.getMeterReading().getReadings()).hasSize(1);
+        MeterReadingData exportDataItem2 = (MeterReadingData) exportData.get(1);
+        assertThat(exportDataItem2.getItem().getDomainObject()).isEqualTo(usagePoint1);
+        assertThat(exportDataItem2.getItem().getReadingType()).isEqualTo(readingType);
+        assertThat(exportDataItem2.getValidationData().getValidationStatus(START.toInstant())).isNull();
+        assertThat(exportDataItem2.getValidationData().getValidationStatus(END.toInstant())).isNull();
+        assertThat(exportDataItem2.getMeterReading().getReadings()).hasSize(1);
     }
 
     @Test

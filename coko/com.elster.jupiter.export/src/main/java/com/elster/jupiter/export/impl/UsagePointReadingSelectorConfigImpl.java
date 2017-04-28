@@ -9,11 +9,11 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
-import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.DataModel;
@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -44,6 +45,7 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<UsagePointGroup> usagePointGroup = ValueReference.absent();
+    private Reference<MetrologyPurpose> metrologyPurpose = ValueReference.absent();
 
     @Inject
     public UsagePointReadingSelectorConfigImpl(DataModel dataModel) {
@@ -59,6 +61,11 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
     @Override
     public UsagePointGroup getUsagePointGroup() {
         return usagePointGroup.get();
+    }
+
+    @Override
+    public Optional<MetrologyPurpose> getMetrologyPurpose() {
+        return metrologyPurpose.getOptional();
     }
 
     @Override
@@ -87,6 +94,7 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
                 .flatMap(usagePoint -> usagePoint.getEffectiveMetrologyConfigurations(exportInterval).stream())
                 .flatMap(effectiveMetrologyConfiguration ->
                         effectiveMetrologyConfiguration.getMetrologyConfiguration().getContracts().stream()
+                                .filter(contract -> getMetrologyPurpose().map(purpose -> purpose.equals(contract.getMetrologyPurpose())).orElse(true))
                                 .map(effectiveMetrologyConfiguration::getChannelsContainer)
                                 .flatMap(Functions.asStream())
                 )
@@ -96,12 +104,11 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
 
     private Stream<IReadingTypeDataExportItem> readingTypeDataExportItems(ChannelsContainer channelsContainer, Range<Instant> exportInterval) {
         return getFilteredReadingTypes(channelsContainer, exportInterval)
-                .map(r -> getExportItems().stream()
+                .map(readingType -> getExportItems().stream()
                         .map(IReadingTypeDataExportItem.class::cast)
-                        .filter(item -> r.equals(item.getReadingType()))
-                        .filter(i -> i.getDomainObject().equals(channelsContainer.getUsagePoint().get()))
+                        .filter(item -> readingType.equals(item.getReadingType()) && item.getReadingContainer().equals(channelsContainer))
                         .findAny()
-                        .orElseGet(() -> addExportItem(channelsContainer, r))
+                        .orElseGet(() -> addExportItem(channelsContainer, readingType))
                 );
     }
 
@@ -135,8 +142,14 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
         }
 
         @Override
-        public UsagePointReadingSelectorConfig.Updater setExportOnlyIfComplete(MissingDataOption exportOnlyIfComplete) {
-            super.setExportOnlyIfComplete(exportOnlyIfComplete);
+        public UsagePointReadingSelectorConfig.Updater setMetrologyPurpose(MetrologyPurpose purpose) {
+            metrologyPurpose.set(purpose);
+            return this;
+        }
+
+        @Override
+        public UsagePointReadingSelectorConfig.Updater setExportOnlyIfComplete(boolean exportOnlyIfCompleteFlag) {
+            super.setExportOnlyIfComplete(exportOnlyIfCompleteFlag);
             return this;
         }
 
