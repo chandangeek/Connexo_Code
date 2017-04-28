@@ -10,7 +10,7 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
         'Uni.view.toolbar.PagingBottom',
         'Imt.purpose.view.registers.RegisterReadingActionMenu',
         'Imt.purpose.util.TooltipRenderer',
-        'Imt.purpose.view.MultipleRegisterReadingsActionMenu'
+        'Imt.purpose.view.registers.MultipleRegisterReadingsActionMenu'
     ],
     store: 'Imt.purpose.store.RegisterReadings',
     output: null,

@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Imt.purpose.view.MultipleRegisterReadingsActionMenu', {
+Ext.define('Imt.purpose.view.registers.MultipleRegisterReadingsActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.register-readings-bulk-action-menu',
     initComponent: function() {
