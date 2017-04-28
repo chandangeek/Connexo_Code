@@ -4,8 +4,8 @@
 
 package com.elster.jupiter.usagepoint.lifecycle;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
 import aQute.bnd.annotation.ProviderType;
@@ -27,5 +27,5 @@ public interface UsagePointLifeCycleService {
 
     Optional<UsagePointStateChangeRequest> getLastUsagePointStateChangeRequest(UsagePoint usagePoint);
 
-    List<UsagePointTransition> getAvailableTransitions(UsagePointState state, String application);
+    List<UsagePointTransition> getAvailableTransitions(UsagePoint usagePoint, String application);
 }

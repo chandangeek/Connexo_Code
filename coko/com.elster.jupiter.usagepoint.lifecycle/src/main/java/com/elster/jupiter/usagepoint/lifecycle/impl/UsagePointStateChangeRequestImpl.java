@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.impl;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -17,7 +18,6 @@ import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeException;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeFail;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.users.User;
 
@@ -159,7 +159,7 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
             this.originator.set(user);
             return;
         }
-        throw new UsagePointStateChangeException(this.thesaurus.getFormat(MessageSeeds.USER_CAN_NOT_PERFORM_TRANSITION).format());
+        throw new UsagePointStateChangeException(this.thesaurus.getSimpleFormat(MessageSeeds.USER_CAN_NOT_PERFORM_TRANSITION).format());
     }
 
     private boolean userHasPrivilegeToPerformTransition(User user, UsagePointTransition transition, String application) {
@@ -274,11 +274,11 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
                     this.lifeCycleService.performTransition(this.usagePoint.get(), this.transition, this.transitionTime);
                     this.status = Status.COMPLETED;
                 } catch (ExecutableMicroCheckException cex) {
-                    this.generalFailReason = this.thesaurus.getFormat(MessageSeeds.MICRO_CHECKS_FAILED_NO_PARAM).format();
+                    this.generalFailReason = this.thesaurus.getSimpleFormat(MessageSeeds.MICRO_CHECKS_FAILED_NO_PARAM).format();
                     cex.getViolations().forEach(violation -> this.fails.add(this.dataModel.getInstance(UsagePointStateChangeFailImpl.class)
                             .checkFail(this, violation.getMicroCheck().getKey(), violation.getMicroCheck().getName(), violation.getLocalizedMessage())));
                 } catch (ExecutableMicroActionException aex) {
-                    this.generalFailReason = this.thesaurus.getFormat(MessageSeeds.MICRO_ACTION_FAILED_NO_PARAM).format();
+                    this.generalFailReason = this.thesaurus.getSimpleFormat(MessageSeeds.MICRO_ACTION_FAILED_NO_PARAM).format();
                     this.fails.add(this.dataModel.getInstance(UsagePointStateChangeFailImpl.class)
                             .actionFail(this, aex.getMicroAction().getKey(), aex.getMicroAction().getName(), aex.getLocalizedMessage()));
                 } catch (Exception ex) {
@@ -303,7 +303,7 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
     }
 
     private boolean transitionIsActualForUsagePoint() {
-        UsagePointState currentUsagePointState = this.usagePoint.get().getState(this.transitionTime);
+        State currentUsagePointState = this.usagePoint.get().getState(this.transitionTime);
         if (currentUsagePointState.getId() != this.transition.getFrom().getId()) {
             this.generalFailReason = this.thesaurus.getFormat(MessageSeeds.USAGE_POINT_STATE_DOES_NOT_SUPPORT_TRANSITION).format(currentUsagePointState.getName(), this.toStateName);
             return false;
