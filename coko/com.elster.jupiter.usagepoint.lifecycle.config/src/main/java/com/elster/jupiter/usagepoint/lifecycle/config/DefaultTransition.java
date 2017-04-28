@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.config;
 
+import com.elster.jupiter.fsm.State;
+
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -36,18 +38,25 @@ public enum DefaultTransition {
             return Optional.empty();
         }
         return Stream.of(values())
-                .filter(candidate -> transition.getFrom().isDefault(candidate.getFromState())
-                        && transition.getTo().isDefault(candidate.getToState())
+                .filter(candidate -> isDefaultState(candidate.getFromState(), transition.getFrom())
+                        && isDefaultState(candidate.getToState(), transition.getTo())
                         && !transition.getTriggeredBy().isPresent())
                 .findFirst();
     }
 
-    public static Optional<DefaultTransition> getDefaultTransition(UsagePointState fromState, UsagePointState toState) {
+    public static Optional<DefaultTransition> getDefaultTransition(State fromState, State toState) {
         if (fromState == null || toState == null) {
             return Optional.empty();
         }
         return Stream.of(values())
-                .filter(candidate -> fromState.isDefault(candidate.getFromState()) && toState.isDefault(candidate.getToState()))
+                .filter(candidate -> isDefaultState(candidate.getFromState(), fromState) && isDefaultState(candidate.getToState(), toState))
                 .findFirst();
+    }
+
+    private static boolean isDefaultState(DefaultState defaultState, State state) {
+        if (state == null || state.isCustom()) {
+            return false;
+        }
+        return state.getName().equals(defaultState.getKey());
     }
 }

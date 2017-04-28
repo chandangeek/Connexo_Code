@@ -13,7 +13,6 @@ import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
 import javax.inject.Inject;
@@ -29,8 +28,8 @@ public class UsagePointTransitionUpdaterImpl implements UsagePointTransition.Usa
     private UsagePointTransitionImpl transition;
 
     private String name;
-    private UsagePointState fromState;
-    private UsagePointState toState;
+    private State fromState;
+    private State toState;
     private StandardStateTransitionEventType eventType;
     private Set<UsagePointTransition.Level> levels;
     private Set<String> microCheckKeys;
@@ -83,13 +82,13 @@ public class UsagePointTransitionUpdaterImpl implements UsagePointTransition.Usa
     }
 
     @Override
-    public UsagePointTransition.UsagePointTransitionUpdater from(UsagePointState state) {
+    public UsagePointTransition.UsagePointTransitionUpdater from(State state) {
         this.fromState = Objects.requireNonNull(state, "Source state can't be null");
         return this;
     }
 
     @Override
-    public UsagePointTransition.UsagePointTransitionUpdater to(UsagePointState state) {
+    public UsagePointTransition.UsagePointTransitionUpdater to(State state) {
         this.toState = Objects.requireNonNull(state, "Target state can't be null");
         return this;
     }

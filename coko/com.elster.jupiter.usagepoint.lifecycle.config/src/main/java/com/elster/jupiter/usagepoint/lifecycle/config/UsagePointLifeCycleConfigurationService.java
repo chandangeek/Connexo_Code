@@ -5,15 +5,22 @@
 package com.elster.jupiter.usagepoint.lifecycle.config;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.StageSet;
+import com.elster.jupiter.fsm.State;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 @ProviderType
 public interface UsagePointLifeCycleConfigurationService {
     String COMPONENT_NAME = "UPL";
+    String USAGE_POINT_STAGE_SET_NAME = "USAGE_POINT_STAGE_SET";
+    String FSM_NAME_PREFIX = UsagePointLifeCycleConfigurationService.COMPONENT_NAME + "_";
+    String LIFE_CYCLE_KEY = "usage.point.life.cycle.standard.name";
 
     Finder<UsagePointLifeCycle> getUsagePointLifeCycles();
 
@@ -29,11 +36,13 @@ public interface UsagePointLifeCycleConfigurationService {
 
     UsagePointLifeCycle getDefaultLifeCycle();
 
-    Finder<UsagePointState> getUsagePointStates();
+    StageSet getDefaultStageSet();
 
-    Optional<UsagePointState> findUsagePointState(long id);
+    List<State> getUsagePointStates();
 
-    Optional<UsagePointState> findAndLockUsagePointStateByIdAndVersion(long id, long version);
+    Optional<State> findUsagePointState(long id);
+
+    Optional<State> findAndLockUsagePointStateByIdAndVersion(long id, long version);
 
     Optional<UsagePointTransition> findUsagePointTransition(long id);
 
@@ -59,5 +68,5 @@ public interface UsagePointLifeCycleConfigurationService {
 
     void removeUsagePointLifeCycleBuilder(UsagePointLifeCycleBuilder builder);
 
-    Set<UsagePointStage> getStages();
+    List<Stage> getStages();
 }

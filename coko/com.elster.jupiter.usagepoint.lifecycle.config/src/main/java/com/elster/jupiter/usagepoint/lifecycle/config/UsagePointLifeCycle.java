@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.config;
 
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
@@ -30,15 +32,17 @@ public interface UsagePointLifeCycle extends HasId, HasName {
 
     List<UsagePointTransition> getTransitions();
 
-    List<UsagePointState> getStates();
+    List<State> getStates();
 
-    UsagePointState.UsagePointStateCreator newState(String name);
+    FiniteStateMachineUpdater getUpdater();
 
-    UsagePointTransition.UsagePointTransitionCreator newTransition(String name, UsagePointState from, UsagePointState to);
+    UsagePointTransition.UsagePointTransitionCreator newTransition(String name, State from, State to);
 
     boolean isDefault();
 
     void markAsDefault();
 
     long getVersion();
+
+    void removeState(State state);
 }

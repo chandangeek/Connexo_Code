@@ -6,23 +6,26 @@ package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.StageSet;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.usagepoint.lifecycle.config.DefaultState;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -71,10 +74,15 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
     @Test
     @Transactional
     public void testCanCreateNewState() {
+        StageSet defaultStageSet = get(UsagePointLifeCycleConfigurationService.class).getDefaultStageSet();
+        Stage stage = defaultStageSet.getStageByName(UsagePointStage.OPERATIONAL.getKey()).get();
         UsagePointLifeCycle lifeCycle = get(UsagePointLifeCycleConfigurationService.class).newUsagePointLifeCycle("Test");
         String stateName = "StateTest";
-        lifeCycle.newState(stateName).setStage(UsagePointStage.Key.OPERATIONAL).complete();
-        UsagePointState usagePointState = get(UsagePointLifeCycleConfigurationService.class).findUsagePointLifeCycle(lifeCycle.getId()).get()
+
+        FiniteStateMachineUpdater updater = lifeCycle.getUpdater();
+        updater.newCustomState(stateName, stage).complete();
+        updater.complete();
+        State usagePointState = get(UsagePointLifeCycleConfigurationService.class).findUsagePointLifeCycle(lifeCycle.getId()).get()
                 .getStates()
                 .stream()
                 .filter(state -> state.getName().equals(stateName))
@@ -83,7 +91,6 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
 
         assertThat(usagePointState.getName()).isEqualTo(stateName);
         assertThat(usagePointState.isInitial()).isFalse();
-        assertThat(usagePointState.getDefaultState()).isEmpty();
         assertThat(usagePointState.getOnEntryProcesses()).isEmpty();
         assertThat(usagePointState.getOnExitProcesses()).isEmpty();
     }
@@ -112,8 +119,12 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
     public void testCanCreateTransition() {
         UsagePointLifeCycleConfigurationService service = get(UsagePointLifeCycleConfigurationService.class);
         UsagePointLifeCycle lifeCycle = service.newUsagePointLifeCycle("Test");
-        UsagePointState from = lifeCycle.newState("From").setStage(UsagePointStage.Key.OPERATIONAL).complete();
-        UsagePointState to = lifeCycle.newState("To").setStage(UsagePointStage.Key.OPERATIONAL).complete();
+        StageSet defaultStageSet = get(UsagePointLifeCycleConfigurationService.class).getDefaultStageSet();
+        Stage stage = defaultStageSet.getStageByName(UsagePointStage.OPERATIONAL.getKey()).get();
+        FiniteStateMachineUpdater updater = lifeCycle.getUpdater();
+        State from = updater.newCustomState("From", stage).complete();
+        State to = updater.newCustomState("To", stage).complete();
+        updater.complete();
 
         UsagePointTransition transition = lifeCycle.newTransition("tr1", from, to)
                 .withLevels(EnumSet.of(UsagePointTransition.Level.ONE, UsagePointTransition.Level.TWO))
@@ -140,8 +151,12 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
     public void testCanCloneLifeCycle() {
         UsagePointLifeCycleConfigurationService service = get(UsagePointLifeCycleConfigurationService.class);
         UsagePointLifeCycleImpl source = (UsagePointLifeCycleImpl) service.newUsagePointLifeCycle("Test");
-        UsagePointState state1 = source.newState("State 1").setStage(UsagePointStage.Key.OPERATIONAL).setInitial().complete();
-        UsagePointState state2 = source.newState("State 2").setStage(UsagePointStage.Key.OPERATIONAL).complete();
+        StageSet defaultStageSet = service.getDefaultStageSet();
+        Stage stage = defaultStageSet.getStageByName(UsagePointStage.OPERATIONAL.getKey()).get();
+        FiniteStateMachineUpdater updater = source.getUpdater();
+        State state1 = updater.newCustomState("State 1", stage).complete();
+        State state2 = updater.newCustomState("State 2", stage).complete();
+        updater.complete(state1);
         source.newTransition("tr1", state1, state2).complete();
 
         UsagePointLifeCycleImpl clone = (UsagePointLifeCycleImpl) service.cloneUsagePointLifeCycle("Clone", source);
@@ -203,9 +218,9 @@ public class UsagePointLifeCycleIT extends BaseTestIT {
         UsagePointLifeCycleConfigurationService service = get(UsagePointLifeCycleConfigurationService.class);
         UsagePointLifeCycle lifeCycle = service.newUsagePointLifeCycle("Test");
         assertThat(
-        lifeCycle.getStates()
-                .stream()
-                .filter(usagePointState -> usagePointState.getStage().getDisplayName().equals("SUSPENDED"))
-                .map(UsagePointState::getName).findFirst().get()).isEqualTo("Inactive");
+                lifeCycle.getStates()
+                        .stream()
+                        .filter(usagePointState -> usagePointState.getStage().get().getName().equals(UsagePointStage.SUSPENDED.getKey()))
+                        .map(State::getName).findFirst().get()).isEqualTo(DefaultState.INACTIVE.getKey());
     }
 }

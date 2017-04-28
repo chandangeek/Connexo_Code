@@ -6,11 +6,11 @@ package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
 import javax.inject.Inject;
@@ -23,8 +23,8 @@ public class UsagePointTransitionCreatorImpl implements UsagePointTransition.Usa
 
     private UsagePointLifeCycleImpl lifeCycle;
     private String name;
-    private UsagePointState fromState;
-    private UsagePointState toState;
+    private State fromState;
+    private State toState;
     private StandardStateTransitionEventType eventType;
     private Set<UsagePointTransition.Level> levels;
     private Set<String> microCheckKeys;
@@ -36,7 +36,7 @@ public class UsagePointTransitionCreatorImpl implements UsagePointTransition.Usa
         this.stateMachineService = stateMachineService;
     }
 
-    UsagePointTransitionCreatorImpl init(UsagePointLifeCycleImpl lifeCycle, String name, UsagePointState from, UsagePointState to) {
+    UsagePointTransitionCreatorImpl init(UsagePointLifeCycleImpl lifeCycle, String name, State from, State to) {
         this.lifeCycle = lifeCycle;
         this.name = name != null ? name.trim() : null;
         this.fromState = from;

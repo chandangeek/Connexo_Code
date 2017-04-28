@@ -5,14 +5,12 @@
 package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
 public enum TableSpecs {
@@ -34,33 +32,6 @@ public enum TableSpecs {
                     .on(stateMachine)
                     .references(FiniteStateMachine.class)
                     .map(UsagePointLifeCycleImpl.Fields.STATE_MACHINE.fieldName())
-                    .add();
-        }
-    },
-    UPL_STATE {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<UsagePointState> table = dataModel.addTable(this.name(), UsagePointState.class);
-            table.map(UsagePointStateImpl.class);
-
-            Column idColumn = table.column("ID").map("id").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            Column stateColumn = table.column("STATE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            Column lifeCycleColumn = table.column("LIFE_CYCLE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            table.column("STAGE").map(UsagePointStateImpl.Fields.STAGE.fieldName()).varChar(Table.NAME_LENGTH).conversion(ColumnConversion.CHAR2ENUM).notNull().add();
-            table.addAuditColumns();
-
-            table.primaryKey("PK_UPL_STATE").on(idColumn).add();
-            table.foreignKey("FK_UPL_STATE_2_LIFE_CYCLE")
-                    .on(lifeCycleColumn)
-                    .references(UPL_LIFE_CYCLE.name())
-                    .map(UsagePointStateImpl.Fields.LIFE_CYCLE.fieldName())
-                    .reverseMap(UsagePointLifeCycleImpl.Fields.STATES.fieldName())
-                    .composition()
-                    .add();
-            table.foreignKey("FK_UPL_2_FSM_STATE")
-                    .on(stateColumn)
-                    .references(State.class)
-                    .map(UsagePointStateImpl.Fields.STATE.fieldName())
                     .add();
         }
     },

@@ -5,12 +5,15 @@
 package com.elster.jupiter.usagepoint.lifecycle.config.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.StageSetBuilder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.usagepoint.lifecycle.config.Privileges;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -19,17 +22,22 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 public class Installer implements FullInstaller, PrivilegesProvider {
     private final DataModel dataModel;
     private final UserService userService;
     private final EventService eventService;
+    private final FiniteStateMachineService stateMachineService;
+    private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
     @Inject
-    public Installer(DataModel dataModel, UserService userService, EventService eventService) {
+    public Installer(DataModel dataModel, UserService userService, EventService eventService, FiniteStateMachineService stateMachineService, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         this.dataModel = dataModel;
         this.userService = userService;
         this.eventService = eventService;
+        this.stateMachineService = stateMachineService;
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
     }
 
     @Override
@@ -39,6 +47,11 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         doTry(
                 "Create event types for " + getModuleName(),
                 this::createEventTypes,
+                logger
+        );
+        doTry(
+                "Create stage set for " + getModuleName(),
+                this::installUsagePointStageSet,
                 logger
         );
     }
@@ -64,5 +77,12 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         for (EventType eventType : EventType.values()) {
             eventType.install(this.eventService);
         }
+    }
+
+    private void installUsagePointStageSet() {
+        StageSetBuilder stageSetBuilder = stateMachineService.newStageSet(UsagePointLifeCycleConfigurationService.USAGE_POINT_STAGE_SET_NAME);
+        Stream.of(UsagePointStage.values())
+                .forEach(usagePointStage -> stageSetBuilder.stage(usagePointStage.getKey()));
+        stageSetBuilder.add();
     }
 }

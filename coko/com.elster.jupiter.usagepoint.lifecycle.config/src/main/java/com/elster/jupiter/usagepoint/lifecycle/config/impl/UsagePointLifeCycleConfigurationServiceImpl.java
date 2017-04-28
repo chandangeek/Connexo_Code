@@ -11,6 +11,8 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -32,13 +34,11 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -54,11 +54,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -69,7 +71,7 @@ import static com.elster.jupiter.util.streams.Predicates.not;
         service = {UsagePointLifeCycleConfigurationService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true)
 public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLifeCycleConfigurationService, MessageSeedProvider, TranslationKeyProvider {
-    private static final String FSM_NAME_PREFIX = UsagePointLifeCycleConfigurationService.COMPONENT_NAME + "_";
+
 
     private DataModel dataModel;
     private Thesaurus thesaurus;
@@ -168,10 +170,8 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
     }
 
     @Override
-    public Set<UsagePointStage> getStages() {
-        return Stream.of(UsagePointStage.Key.values())
-                .map(stage -> new UsagePointStageImpl(stage, this.thesaurus))
-                .collect(Collectors.toSet());
+    public List<Stage> getStages() {
+        return this.getDefaultStageSet().getStages();
     }
 
     @Activate
@@ -245,26 +245,27 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
     @Override
     public UsagePointLifeCycle newUsagePointLifeCycle(String name) {
         UsagePointLifeCycleImpl lifeCycle = this.dataModel.getInstance(UsagePointLifeCycleImpl.class);
-        FiniteStateMachineBuilder stateMachineBuilder = this.stateMachineService.newFiniteStateMachine(FSM_NAME_PREFIX + name);
-        State fsmStateUnderConstruction = stateMachineBuilder.newStandardState(DefaultState.UNDER_CONSTRUCTION.getKey()).complete();
-        State fsmStateActive = stateMachineBuilder.newStandardState(DefaultState.ACTIVE.getKey()).complete();
-        State fsmStateInactive = stateMachineBuilder.newStandardState(DefaultState.INACTIVE.getKey()).complete();
-        State fsmStateDemolished = stateMachineBuilder.newStandardState(DefaultState.DEMOLISHED.getKey()).complete();
-        FiniteStateMachine stateMachine = stateMachineBuilder.complete(fsmStateUnderConstruction);
+        StageSet stageSet = getDefaultStageSet();
+        Stage postOperational = stageSet.getStageByName(UsagePointStage.POST_OPERATIONAL.getKey()).get();
+        Stage operational = stageSet.getStageByName(UsagePointStage.OPERATIONAL.getKey()).get();
+        Stage preOperational = stageSet.getStageByName(UsagePointStage.PRE_OPERATIONAL.getKey()).get();
+        Stage suspended = stageSet.getStageByName(UsagePointStage.SUSPENDED.getKey()).get();
+        FiniteStateMachineBuilder stateMachineBuilder = this.stateMachineService.newFiniteStateMachine(FSM_NAME_PREFIX + name, stageSet);
+        State stateUnderConstruction = stateMachineBuilder.newStandardState(DefaultState.UNDER_CONSTRUCTION.getKey(), preOperational).complete();
+        State stateActive = stateMachineBuilder.newStandardState(DefaultState.ACTIVE.getKey(), operational).complete();
+        State stateInactive = stateMachineBuilder.newStandardState(DefaultState.INACTIVE.getKey(), suspended).complete();
+        State stateDemolished = stateMachineBuilder.newStandardState(DefaultState.DEMOLISHED.getKey(), postOperational).complete();
+        FiniteStateMachine stateMachine = stateMachineBuilder.complete(stateUnderConstruction);
 
         lifeCycle.setName(name);
         lifeCycle.setStateMachine(stateMachine);
-        UsagePointState underConstruction = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateUnderConstruction, UsagePointStage.Key.PRE_OPERATIONAL);
-        UsagePointState active = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateActive, UsagePointStage.Key.OPERATIONAL);
-        UsagePointState inactive = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateInactive, UsagePointStage.Key.SUSPENDED);
-        UsagePointState demolished = this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, fsmStateDemolished, UsagePointStage.Key.POST_OPERATIONAL);
         lifeCycle.save();
-        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_INSTALL_ACTIVE).format(), underConstruction, active).complete();
-        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_INSTALL_INACTIVE).format(), underConstruction, inactive).complete();
-        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_DEACTIVATE).format(), active, inactive).complete();
-        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_ACTIVATE).format(), inactive, active).complete();
-        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_DEMOLISH_FROM_ACTIVE).format(), active, demolished).complete();
-        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_DEMOLISH_FROM_INACTIVE).format(), inactive, demolished).complete();
+        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_INSTALL_ACTIVE).format(), stateUnderConstruction, stateActive).complete();
+        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_INSTALL_INACTIVE).format(), stateUnderConstruction, stateInactive).complete();
+        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_DEACTIVATE).format(), stateActive, stateInactive).complete();
+        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_ACTIVATE).format(), stateInactive, stateActive).complete();
+        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_DEMOLISH_FROM_ACTIVE).format(), stateActive, stateDemolished).complete();
+        lifeCycle.newTransition(this.thesaurus.getFormat(TranslationKeys.TRANSITION_DEMOLISH_FROM_INACTIVE).format(), stateInactive, stateDemolished).complete();
         this.builders.forEach(builder -> builder.accept(lifeCycle));
         return lifeCycle;
     }
@@ -277,15 +278,6 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
         FiniteStateMachine stateMachine = this.stateMachineService.cloneFiniteStateMachine(sourceImpl.getStateMachine(), name);
         lifeCycle.setStateMachine(stateMachine);
         lifeCycle.save();
-        Map<String, State> targetFsmStates = stateMachine.getStates().stream().collect(Collectors.toMap(State::getName, Function.identity()));
-        source.getStates()
-                .forEach(usagePointState -> {
-                    State state = targetFsmStates.get(((UsagePointStateImpl) usagePointState).getState().getName());
-                    if (state == null) {
-                        throw new IllegalStateException("Cloned FSM doesn't contain expected state.");
-                    }
-                    this.dataModel.getInstance(UsagePointStateImpl.class).init(lifeCycle, state, usagePointState.getStage().getKey());
-                });
         cloneTransitions(sourceImpl, lifeCycle);
         return lifeCycle;
     }
@@ -300,6 +292,12 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
         return defaultLifeCycles.get(0);
     }
 
+    @Override
+    public StageSet getDefaultStageSet() {
+        return stateMachineService.findStageSetByName(UsagePointLifeCycleConfigurationService.USAGE_POINT_STAGE_SET_NAME)
+                .orElseThrow(getStageSetExceptionProvider());
+    }
+
     private void cloneTransitions(UsagePointLifeCycleImpl source, UsagePointLifeCycleImpl target) {
         // clean-up cloned fsm transitions
         FiniteStateMachineUpdater stateMachineUpdater = target.getStateMachine().startUpdate();
@@ -310,11 +308,11 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
         stateMachineUpdater.complete();
 
         // create new
-        Map<String, UsagePointState> statesMap = target.getStates().stream()
-                .collect(Collectors.toMap(state -> ((UsagePointStateImpl) state).getState().getName(), Function.identity()));
+        Map<String, State> statesMap = target.getStates().stream()
+                .collect(Collectors.toMap(State::getName, Function.identity()));
         source.getTransitions().forEach(sourceTransition -> target.newTransition(sourceTransition.getName(),
-                statesMap.get(((UsagePointStateImpl) sourceTransition.getFrom()).getState().getName()),
-                statesMap.get(((UsagePointStateImpl) sourceTransition.getTo()).getState().getName()))
+                statesMap.get((sourceTransition.getFrom()).getName()),
+                statesMap.get((sourceTransition.getTo()).getName()))
                 .withLevels(sourceTransition.getLevels())
                 .withChecks(sourceTransition.getChecks().stream().map(MicroCheck::getKey).collect(Collectors.toSet()))
                 .withActions(sourceTransition.getActions().stream().map(MicroAction::getKey).collect(Collectors.toSet()))
@@ -323,18 +321,21 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
     }
 
     @Override
-    public Finder<UsagePointState> getUsagePointStates() {
-        return DefaultFinder.of(UsagePointState.class, this.dataModel, State.class);
+    public List<State> getUsagePointStates() {
+        return this.getUsagePointLifeCycles().stream()
+                .map(UsagePointLifeCycle::getStates)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<UsagePointState> findUsagePointState(long id) {
-        return this.dataModel.mapper(UsagePointState.class).getOptional(id);
+    public Optional<State> findUsagePointState(long id) {
+        return this.stateMachineService.findFiniteStateById(id);
     }
 
     @Override
-    public Optional<UsagePointState> findAndLockUsagePointStateByIdAndVersion(long id, long version) {
-        return this.dataModel.mapper(UsagePointState.class).lockObjectIfVersion(version, id);
+    public Optional<State> findAndLockUsagePointStateByIdAndVersion(long id, long version) {
+        return this.dataModel.mapper(State.class).lockObjectIfVersion(version, id);
     }
 
     @Override
@@ -377,5 +378,15 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
         return this.microCheckFactories.stream()
                 .flatMap(factory -> factory.getAllChecks().stream())
                 .collect(Collectors.toSet());
+    }
+
+    private Supplier<IllegalStateException> getStageSetExceptionProvider() {
+        return () -> new IllegalStateException("Default usagepoint stage set not installed correctly");
+    }
+
+    public Map<Locale, String> getAllTranslationsForKey(String translationKey){
+        return userService.getUserPreferencesService().getSupportedLocales()
+                .stream()
+                .collect(Collectors.toMap(Function.identity(), locale -> thesaurus.getString(locale, translationKey, translationKey)));
     }
 }

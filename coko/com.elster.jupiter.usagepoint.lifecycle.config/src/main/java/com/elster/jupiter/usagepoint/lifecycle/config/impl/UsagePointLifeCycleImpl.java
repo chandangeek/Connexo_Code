@@ -8,6 +8,9 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -15,7 +18,6 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.util.Checks;
 
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -39,8 +42,7 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
         OBSOLETE_TIME("obsoleteTime"),
         STATE_MACHINE("stateMachine"),
         TRANSITIONS("transitions"),
-        STATES("states"),
-        DEFAULT("isDefault"),;
+        DEFAULT("isDefault");
 
         private final String javaFieldName;
 
@@ -64,8 +66,6 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
     private Reference<FiniteStateMachine> stateMachine = ValueReference.absent();
     @Valid
     private List<UsagePointTransitionImpl> transitions = new ArrayList<>();
-    @Valid
-    private List<UsagePointStateImpl> states = new ArrayList<>();
     private boolean isDefault;
 
     @SuppressWarnings("unused")
@@ -101,17 +101,18 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
     }
 
     @Override
-    public List<UsagePointState> getStates() {
-        return Collections.unmodifiableList(this.states);
+    public List<State> getStates() {
+        return Collections.unmodifiableList(this.stateMachine.get().getStates());
     }
 
     @Override
-    public UsagePointState.UsagePointStateCreator newState(String name) {
-        return this.dataModel.getInstance(UsagePointStateCreatorImpl.class).init(this, name);
+    public FiniteStateMachineUpdater getUpdater() {
+        return stateMachine.get().startUpdate();
+
     }
 
     @Override
-    public UsagePointTransition.UsagePointTransitionCreator newTransition(String name, UsagePointState from, UsagePointState to) {
+    public UsagePointTransition.UsagePointTransitionCreator newTransition(String name, State from, State to) {
         return this.dataModel.getInstance(UsagePointTransitionCreatorImpl.class).init(this, name, from, to);
     }
 
@@ -194,13 +195,29 @@ public class UsagePointLifeCycleImpl implements UsagePointLifeCycle {
         }
     }
 
-    void addState(UsagePointStateImpl state) {
-        Save.CREATE.validate(this.dataModel, state);
-        this.states.add(state);
+    void addState(String name, Stage stage) {
+        this.getStateMachine().startUpdate().newCustomState(name, stage).complete();
     }
 
-    void removeState(UsagePointStateImpl state) {
-        this.states.remove(state);
+    @Override
+    public void removeState(State state) {
+        this.eventService.postEvent(EventType.LIFE_CYCLE_STATE_BEFORE_DELETE.topic(), state);
+        List<UsagePointTransition> linkedTransitions = this.getTransitions()
+                .stream()
+                .filter(transition -> transition.getFrom().getId() == state.getId()
+                        || transition.getTo().getId() == state.getId())
+                .collect(Collectors.toList());
+        if (!linkedTransitions.isEmpty()) {
+            throw UsagePointStateRemoveException.stateHasLinkedTransitions(this.thesaurus, linkedTransitions);
+        }
+        if (getStates().size() == 1 && getStates().contains(state)) {
+            throw UsagePointStateRemoveException.stateIsTheLastState(this.thesaurus);
+        }
+        if (stateMachine.get().getInitialState().equals(state)) {
+            throw UsagePointStateRemoveException.stateIsInitial(this.thesaurus);
+        }
+        this.getStateMachine().startUpdate().removeState(state).complete();
+        this.eventService.postEvent(EventType.LIFE_CYCLE_STATE_DELETED.topic(), state);
         touch();
     }
 

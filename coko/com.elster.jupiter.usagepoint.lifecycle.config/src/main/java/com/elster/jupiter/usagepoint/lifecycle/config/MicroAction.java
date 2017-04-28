@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.config;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasName;
 
@@ -42,7 +43,7 @@ public interface MicroAction extends HasName {
      *
      * @return true if micro action is mandatory
      */
-    default boolean isMandatoryForTransition(UsagePointState fromState, UsagePointState toState) {
+    default boolean isMandatoryForTransition(State fromState, State toState) {
         return false;
     }
 }

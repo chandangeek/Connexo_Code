@@ -29,7 +29,7 @@ public class UniqueUsagePointLifeCycleNameValidator implements ConstraintValidat
     @Override
     public boolean isValid(UsagePointLifeCycle usagePointLifeCycle, ConstraintValidatorContext context) {
         Optional<UsagePointLifeCycle> lifeCycle = this.service.findUsagePointLifeCycleByName(usagePointLifeCycle.getName());
-        if (lifeCycle.isPresent() && lifeCycle.get().getId() != usagePointLifeCycle.getId()) {
+        if (lifeCycle.isPresent() && lifeCycle.get().getId() != usagePointLifeCycle.getId() || nameIsTheSameAsOneOfDefaultTranslations(usagePointLifeCycle)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
                     .addPropertyNode("name")
@@ -37,5 +37,16 @@ public class UniqueUsagePointLifeCycleNameValidator implements ConstraintValidat
             return false;
         }
         return true;
+    }
+
+    private boolean nameIsTheSameAsOneOfDefaultTranslations(UsagePointLifeCycle newUsagePointLifeCycle) {
+        Optional<UsagePointLifeCycle> usagePointLifeCycle = this.service.getUsagePointLifeCycles().stream()
+                .filter(lifeCycle -> lifeCycle.getName().equals(UsagePointLifeCycleConfigurationService.LIFE_CYCLE_KEY))
+                .findFirst();
+        return usagePointLifeCycle.isPresent() && !usagePointLifeCycle.get().isObsolete() &&
+                usagePointLifeCycle.get().getId() != newUsagePointLifeCycle.getId()
+                && this.service.getAllTranslationsForKey(TranslationKeys.LIFE_CYCLE_NAME.getKey())
+                .values()
+                .contains(newUsagePointLifeCycle.getName());
     }
 }
