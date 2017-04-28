@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.validation.rest.DataValidationTaskMinimalInfo;
@@ -26,8 +27,6 @@ public class PurposeInfo {
     public Long version;
     public UsagePointValidationStatusInfo validationInfo;
     public List<DataValidationTaskMinimalInfo> dataValidationTasks;
-    public List<com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo> readingTypeDeliverables;
+    public List<ReadingTypeDeliverablesInfo> readingTypeDeliverables;
 
-    public PurposeInfo() {
-    }
 }

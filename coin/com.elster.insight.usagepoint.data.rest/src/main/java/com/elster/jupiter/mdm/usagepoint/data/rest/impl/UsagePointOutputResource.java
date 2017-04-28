@@ -5,6 +5,9 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.estimation.Estimatable;
+import com.elster.jupiter.estimation.EstimationBlock;
+import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationService;
@@ -396,11 +399,11 @@ public class UsagePointOutputResource {
 
 
     private void processInfo(OutputChannelDataInfo channelDataInfo, List<Instant> removeCandidates, List<BaseReading> estimatedReadings, List<BaseReading> editedReadings, List<BaseReading> confirmedReadings) {
-        Optional<ReadingQualityComment> readingQualityComment =  resourceHelper.getReadingQualityComment(channelDataInfo.commentId);
+        Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.commentId);
 
         if (!isToBeConfirmed(channelDataInfo) && channelDataInfo.value == null) {
             removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
-        }  else {
+        } else {
             processValue(channelDataInfo, readingQualityComment, estimatedReadings, editedReadings);
             processConfirmedInfo(channelDataInfo, confirmedReadings);
         }
@@ -413,10 +416,10 @@ public class UsagePointOutputResource {
                 ((BaseReadingImpl) baseReading).addQuality("3.12.0", this.extractComment(readingQualityComment));
                 editedReadings.add(baseReading);
             } else if (channelDataInfo.ruleId != 0) {
-                ((BaseReadingImpl)baseReading).addQuality("3.8." + channelDataInfo.ruleId, this.extractComment(readingQualityComment));
+                ((BaseReadingImpl) baseReading).addQuality("3.8." + channelDataInfo.ruleId, this.extractComment(readingQualityComment));
                 estimatedReadings.add(baseReading);
             } else {
-                ((BaseReadingImpl)baseReading).addQuality("3.7.0", this.extractComment(readingQualityComment));
+                ((BaseReadingImpl) baseReading).addQuality("3.7.0", this.extractComment(readingQualityComment));
                 editedReadings.add(baseReading);
             }
         }
@@ -535,7 +538,7 @@ public class UsagePointOutputResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public List<OutputChannelDataInfo> previewCopyFromReferenceChannelData(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
-                                                                     ReferenceChannelDataInfo referenceChannelDataInfo) {
+                                                                           ReferenceChannelDataInfo referenceChannelDataInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
@@ -581,7 +584,7 @@ public class UsagePointOutputResource {
 
     private List<OutputChannelDataInfo> previewCopyFromRefernce(QualityCodeSystem system, AggregatedChannel channel, ReferenceChannelDataInfo referenceChannelDataInfo) {
         ReadingType readingType = meteringService.getReadingType(referenceChannelDataInfo.readingType)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_READING_TYPE_FOR_MRID, "readingType",referenceChannelDataInfo.readingType));
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_READING_TYPE_FOR_MRID, "readingType", referenceChannelDataInfo.readingType));
 
         UsagePoint usagePoint = resourceHelper.findUsagePointByName(referenceChannelDataInfo.referenceUsagePoint)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_USAGE_POINT_WITH_NAME, "usagePoint", referenceChannelDataInfo.referenceUsagePoint));
@@ -589,14 +592,15 @@ public class UsagePointOutputResource {
         MetrologyPurpose purpose = resourceHelper.findMetrologyPurpose(referenceChannelDataInfo.referencePurpose)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METROLOGY_PURPOSE, "referencePurpose", referenceChannelDataInfo.referencePurpose));
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContract(effectiveMetrologyConfigurationOnUsagePoint, purpose)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.METROLOGYPURPOSE_IS_NOT_FOUND_ON_USAGEPOINT, "referencePurpose", purpose.getName(), usagePoint.getName()));
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.METROLOGYPURPOSE_IS_NOT_FOUND_ON_USAGEPOINT, "referencePurpose", purpose.getName(), usagePoint
+                        .getName()));
         ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().stream().filter(output -> output.getReadingType().equals(readingType))
                 .findFirst()
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_USAGEPOINT, "readingType", referenceChannelDataInfo.readingType));
         AggregatedChannel referenceChannel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType())
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_USAGEPOINT, "readingType", referenceChannelDataInfo.readingType));
 
-        if(!matchReadingTypes(referenceChannel.getMainReadingType(), channel.getMainReadingType())){
+        if (!matchReadingTypes(referenceChannel.getMainReadingType(), channel.getMainReadingType())) {
             throw new LocalizedFieldValidationException(MessageSeeds.READINGTYPES_DONT_MATCH, "readingType");
         }
         if (!readingTypeDeliverable.getReadingType().isRegular()) {
@@ -614,12 +618,13 @@ public class UsagePointOutputResource {
                                             .getReadingType()
                                             .getMultiplier()
                                             .getMultiplier()),
-                                    referenceChannelDataInfo.projectedValue, referenceChannelDataInfo.commentId!=null ? resourceHelper.getReadingQualityComment(referenceChannelDataInfo.commentId) : Optional.empty());
-                            channelDataInfo.isProjected = referenceChannelDataInfo.projectedValue;
-                            if(referenceChannelDataInfo.allowSuspectData || referenceReading.getReadingQualities().stream().noneMatch(ReadingQualityRecord::isSuspect)) {
-                                resultReadings.add(channelDataInfo);
-                            }
-                        });
+                            referenceChannelDataInfo.projectedValue, referenceChannelDataInfo.commentId != null ? resourceHelper.getReadingQualityComment(referenceChannelDataInfo.commentId) : Optional
+                                    .empty());
+                    channelDataInfo.isProjected = referenceChannelDataInfo.projectedValue;
+                    if (referenceChannelDataInfo.allowSuspectData || referenceReading.getReadingQualities().stream().noneMatch(ReadingQualityRecord::isSuspect)) {
+                        resultReadings.add(channelDataInfo);
+                    }
+                });
             } else {
                 referenceRecord.ifPresent(referenceReading -> {
                     OutputChannelDataInfo channelDataInfo = new OutputChannelDataInfo();
@@ -647,15 +652,15 @@ public class UsagePointOutputResource {
         }
     }
 
-    private Map<Range<Instant>, Range<Instant>> getCorrectedTimeStampsForReference(Instant referenceStartDate,  List<IntervalInfo> intervals){
+    private Map<Range<Instant>, Range<Instant>> getCorrectedTimeStampsForReference(Instant referenceStartDate, List<IntervalInfo> intervals) {
         Instant startDate = intervals.stream().map(date -> Instant.ofEpochMilli(date.end)).min(Instant::compareTo).get();
         TemporalAmount offset = Duration.between(referenceStartDate, Instant.ofEpochMilli(intervals.get(0).end));
-        if(referenceStartDate.isAfter(startDate)){
-            return intervals.stream().map(interval -> Range.openClosed(Instant.ofEpochMilli(interval.start),Instant.ofEpochMilli(interval.end)))
-                    .collect(Collectors.toMap(Function.identity(),interval -> Range.openClosed(interval.lowerEndpoint().plus(offset), interval.upperEndpoint().plus(offset))));
+        if (referenceStartDate.isAfter(startDate)) {
+            return intervals.stream().map(interval -> Range.openClosed(Instant.ofEpochMilli(interval.start), Instant.ofEpochMilli(interval.end)))
+                    .collect(Collectors.toMap(Function.identity(), interval -> Range.openClosed(interval.lowerEndpoint().plus(offset), interval.upperEndpoint().plus(offset))));
         } else {
-            return intervals.stream().map(interval -> Range.openClosed(Instant.ofEpochMilli(interval.start),Instant.ofEpochMilli(interval.end)))
-                    .collect(Collectors.toMap(Function.identity(),interval -> Range.openClosed(interval.lowerEndpoint().minus(offset), interval.upperEndpoint().minus(offset))));
+            return intervals.stream().map(interval -> Range.openClosed(Instant.ofEpochMilli(interval.start), Instant.ofEpochMilli(interval.end)))
+                    .collect(Collectors.toMap(Function.identity(), interval -> Range.openClosed(interval.lowerEndpoint().minus(offset), interval.upperEndpoint().minus(offset))));
         }
     }
 
@@ -996,17 +1001,42 @@ public class UsagePointOutputResource {
     @RolesAllowed({com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_MANUAL})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response estimateMetrologyContract(@PathParam("name") String name, @PathParam("purposeId") long contractId, PurposeInfo purposeInfo) {
-        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, purposeInfo.parent.version);
+    public Response estimateMetrologyContract(@PathParam("name") String name, @PathParam("purposeId") long contractId, EstimatePurposeRequestInfo info) {
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, info.parent.version);
         EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyPurpose metrologyPurpose = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId)
-                .getMetrologyPurpose();
-        usagePoint.getEffectiveMetrologyConfigurations().forEach(effectiveMC -> findMetrologyContractForPurpose(effectiveMC, metrologyPurpose)
-                .ifPresent(contract -> effectiveMC.getChannelsContainer(contract)
-                        .ifPresent(channelsContainer ->
-                                estimationService.estimate(QualityCodeSystem.MDM, channelsContainer, channelsContainer.getRange()))));
+        MetrologyPurpose metrologyPurpose = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId).getMetrologyPurpose();
+        usagePoint.getEffectiveMetrologyConfigurations().forEach(effectiveMC ->
+                findMetrologyContractForPurpose(effectiveMC, metrologyPurpose)
+                        .flatMap(effectiveMC::getChannelsContainer)
+                        .map(this::estimate)
+                        .filter(estimationReport -> info.revalidate)
+                        .ifPresent(this::revalidate));
         usagePoint.update();
         return Response.status(Response.Status.OK).build();
+    }
+
+    private EstimationReport estimate(ChannelsContainer channelsContainer) {
+        return estimationService.estimate(QualityCodeSystem.MDM, channelsContainer, channelsContainer.getRange());
+    }
+
+    private void revalidate(EstimationReport estimationReport) {
+        estimationReport.getResults().values().stream()
+                .filter(estimationResult -> !estimationResult.estimated().isEmpty())
+                .forEach(this::revalidateNonEmpty);
+    }
+
+    private void revalidateNonEmpty(EstimationResult estimationResult) {
+        Channel channel = estimationResult.estimated().get(0).getChannel();
+        Instant firstEstimatedOnChannel = estimationResult.estimated().stream()
+                .map(EstimationBlock::estimatables)
+                .flatMap(Collection::stream)
+                .map(Estimatable::getTimestamp)
+                .min(Comparator.naturalOrder())
+                .get();
+        Instant lastChecked = validationService.getLastChecked(channel).orElse(null);
+        validationService.validate(
+                new ValidationContextImpl(ImmutableSet.of(QualityCodeSystem.MDM), channel.getChannelsContainer(), channel.getMainReadingType()),
+                Ranges.closed(firstEstimatedOnChannel, lastChecked));
     }
 
     @PUT
@@ -1113,7 +1143,7 @@ public class UsagePointOutputResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public List<OutputChannelDataInfo> correctValues(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
-                                                  ValueCorrectionInfo info, @BeanParam JsonQueryParameters queryParameters) {
+                                                     ValueCorrectionInfo info, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);

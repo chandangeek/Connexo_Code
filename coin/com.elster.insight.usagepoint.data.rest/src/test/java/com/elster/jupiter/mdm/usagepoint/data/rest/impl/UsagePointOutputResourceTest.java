@@ -6,6 +6,10 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.estimation.Estimatable;
+import com.elster.jupiter.estimation.EstimationBlock;
+import com.elster.jupiter.estimation.EstimationReport;
+import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.mdm.usagepoint.config.rest.FormulaInfo;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
@@ -26,12 +30,14 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.validation.DataValidationTask;
+import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
@@ -45,12 +51,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.assertj.core.data.MapEntry;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,6 +70,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -88,6 +98,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
     private UsagePointGroup usagePointGroup;
     @Mock
     private Query<UsagePoint> usagePointQuery;
+
     private MetrologyContract optionalContract, mandatoryContract1, mandatoryContract2;
 
     @Before
@@ -122,8 +133,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
 
         when(usagePointGroup.getId()).thenReturn(51L);
         doReturn(usagePointQuery).when(meteringService).getUsagePointQuery();
-        doReturn(Collections.singletonList(usagePoint)).when(usagePointQuery)
-                .select(any(Condition.class), anyInt(), anyInt());
+        doReturn(Collections.singletonList(usagePoint)).when(usagePointQuery).select(any(Condition.class), anyInt(), anyInt());
         doReturn(Collections.singletonList(estimationTask)).when(estimationService).findEstimationTasks(QualityCodeSystem.MDM);
         when(estimationTask.getUsagePointGroup()).thenReturn(Optional.of(usagePointGroup));
         when(estimationTask.getId()).thenReturn(32L);
@@ -131,11 +141,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         when(validationService.findValidationTasks()).thenReturn(Collections.singletonList(validationTask));
         when(validationTask.getUsagePointGroup()).thenReturn(Optional.of(usagePointGroup));
         when(validationTask.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
-        when(validationTask.getScheduleExpression()).thenReturn(PeriodicalScheduleExpression
-                .every(6)
-                .hours()
-                .at(10, 0)
-                .build());
+        when(validationTask.getScheduleExpression()).thenReturn(PeriodicalScheduleExpression.every(6).hours().at(10, 0).build());
         when(validationTask.getEndDeviceGroup()).thenReturn(Optional.empty());
         when(validationTask.getLastRun()).thenReturn(Optional.empty());
         when(validationTask.getLastOccurrence()).thenReturn(Optional.empty());
@@ -340,6 +346,92 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         verify(estimationService).estimate(QualityCodeSystem.MDM, channelsContainer1, channelsContainer1.getRange());
         verify(estimationService).estimate(QualityCodeSystem.MDM, channelsContainer2, channelsContainer2.getRange());
         verifyNoMoreInteractions(estimationService);
+        verifyNoMoreInteractions(validationService);
+    }
+
+    @Test
+    public void testEstimatePurposeOnRequestAndRevalidate() {
+        when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
+
+        Instant now = Instant.now();
+        Instant lastChecked = now.plus(1, ChronoUnit.DAYS);
+        when(validationService.getLastChecked(any(Channel.class))).thenReturn(Optional.of(lastChecked));
+        ReadingType rt1 = mock(ReadingType.class);
+        ReadingType rt2 = mock(ReadingType.class);
+        Channel channel1 = mockChannel(channelsContainer1, rt1);
+        Channel channel2 = mockChannel(channelsContainer1, rt2);
+        EstimationReport estimationReport = mockEstimationReport(ImmutableMap.of(
+                rt1, mockEstimationResult(
+                        mockEstimationBlock(channel1, mockEstimatable(now)),
+                        mockEstimationBlock(channel1, mockEstimatable(now), mockEstimatable(now.minus(1, ChronoUnit.DAYS)))),
+                rt2, mockEstimationResult(
+                        mockEstimationBlock(channel2, mockEstimatable(now)))
+        ));
+        when(estimationService.estimate(QualityCodeSystem.MDM, channelsContainer1, channelsContainer1.getRange())).thenReturn(estimationReport);
+
+        EstimationReport emptyEstimationResult = mockEstimationReport(ImmutableMap.of(
+                rt1, mockEstimationResult(/* without estimated blocks*/)
+        ));
+        when(estimationService.estimate(QualityCodeSystem.MDM, channelsContainer2, channelsContainer2.getRange())).thenReturn(emptyEstimationResult);
+
+        EstimatePurposeRequestInfo info = new EstimatePurposeRequestInfo();
+        info.revalidate = true;
+        info.parent = new VersionInfo<>(usagePoint.getId(), usagePoint.getVersion());
+
+        // Business method
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/estimate").request().put(Entity.json(info));
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        ArgumentCaptor<ValidationContext> validationContextArgumentCaptor = ArgumentCaptor.forClass(ValidationContext.class);
+        ArgumentCaptor<Range> rangeArgumentCaptor = ArgumentCaptor.forClass(Range.class);
+        verify(validationService, times(2)).validate(validationContextArgumentCaptor.capture(), rangeArgumentCaptor.capture());
+        List<ValidationContext> validationContexts = validationContextArgumentCaptor.getAllValues();
+        List<Range> validationRanges = rangeArgumentCaptor.getAllValues();
+
+        Map<ReadingType, Range<Instant>> arguments = ImmutableMap.of(
+                validationContexts.get(0).getReadingType().get(), (Range<Instant>) validationRanges.get(0),
+                validationContexts.get(1).getReadingType().get(), (Range<Instant>) validationRanges.get(1)
+        );
+        assertThat(arguments).contains(
+                MapEntry.entry(rt1, Range.closed(now.minus(1, ChronoUnit.DAYS), lastChecked)),
+                MapEntry.entry(rt2, Range.closed(now, lastChecked))
+        );
+    }
+
+    private EstimationReport mockEstimationReport(Map<ReadingType, EstimationResult> estimationResult) {
+        EstimationReport estimationReport = mock(EstimationReport.class);
+        when(estimationReport.getResults()).thenReturn(estimationResult);
+        return estimationReport;
+    }
+
+    private EstimationResult mockEstimationResult(EstimationBlock... estimatedBlocks) {
+        EstimationResult estimationResult = mock(EstimationResult.class);
+        when(estimationResult.estimated()).thenReturn(Arrays.asList(estimatedBlocks));
+        return estimationResult;
+    }
+
+    private EstimationBlock mockEstimationBlock(Channel channel, Estimatable... estimatables) {
+        EstimationBlock estimationBlock = mock(EstimationBlock.class);
+        when(estimationBlock.getChannel()).thenReturn(channel);
+        doReturn(Arrays.asList(estimatables)).when(estimationBlock).estimatables();
+        return estimationBlock;
+    }
+
+    private Estimatable mockEstimatable(Instant timestamp) {
+        Estimatable estimatable = mock(Estimatable.class);
+        when(estimatable.getTimestamp()).thenReturn(timestamp);
+        return estimatable;
+    }
+
+    private Channel mockChannel(ChannelsContainer channelsContainer, ReadingType readingType) {
+        Channel channel = mock(Channel.class);
+        when(channelsContainer.getChannel(readingType)).thenReturn(Optional.of(channel));
+        when(channelsContainer.getChannels()).thenReturn(Collections.singletonList(channel));
+        when(channel.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channel.getMainReadingType()).thenReturn(readingType);
+        return channel;
     }
 
     @Test
@@ -367,7 +459,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
     }
 
     @Test
-    public void testPurposeActivation(){
+    public void testPurposeActivation() {
         PurposeInfo purposeInfo = createPurposeInfo(optionalContract);
         when(effectiveMC.getChannelsContainer(optionalContract)).thenReturn(Optional.empty());
         when(effectiveMC.getChannelsContainer(eq(optionalContract), any(Instant.class))).thenReturn(Optional.empty());
@@ -381,7 +473,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
     }
 
     @Test
-    public void testPurposeDeactivation(){
+    public void testPurposeDeactivation() {
         PurposeInfo purposeInfo = createPurposeInfo(optionalContract);
         ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
         when(channelsContainer.getChannels()).thenReturn(Collections.emptyList());
