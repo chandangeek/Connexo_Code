@@ -29,7 +29,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -72,7 +71,7 @@ public class EndDeviceCommandImplTest {
     private static final TranslationKey CONTACTOR_ACTIVATION_DATE_ATTREIBUTE_TRANSLATION_KEY = new TranslationKey() {
         @Override
         public String getKey() {
-            return DeviceMessageConstants.contactorActivationDateAttributeName;
+            return "ContactorDeviceMessage.activationdate";
         }
 
         @Override

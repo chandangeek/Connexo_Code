@@ -11,12 +11,12 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.ami.EndDeviceCommandImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -34,7 +34,7 @@ public class CloseRemoteSwitchCommand extends EndDeviceCommandImpl {
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
         boolean useReleaseDate = false;
 
-        if (hasCommandArgumentValueFor(DeviceMessageConstants.contactorActivationDateAttributeName) && deviceHasSupportFor(DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE)) {
+        if (hasCommandArgumentValueFor(Date.class) && deviceHasSupportFor(DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE)) {
             deviceMessageIds.add(DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
         } else {
             deviceMessageIds.add(DeviceMessageId.CONTACTOR_CLOSE);

@@ -21,6 +21,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
@@ -44,12 +45,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
@@ -128,6 +131,7 @@ public class EndDeviceCommandFactoryImplTest {
 
         when(meteringService.getEndDeviceControlType(anyString())).thenReturn(Optional.of(endDeviceControlType));
         commandFactory = new EndDeviceCommandFactoryImpl(meteringService, deviceService, deviceMessageSpecificationService);
+        ((EndDeviceCommandFactoryImpl) commandFactory).setNlsService(mock(NlsService.class));
         propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         when(endDevice.getAmrId()).thenReturn("13");
         when(deviceService.findDeviceById(13L)).thenReturn(Optional.of(device));
@@ -167,6 +171,45 @@ public class EndDeviceCommandFactoryImplTest {
         assertEquals(endDeviceControlType, command.getEndDeviceControlType());
         assertEquals(1, command.getCommandArgumentSpecs().size());
         assertEquals(spec, command.getCommandArgumentSpecs().get(0));
+    }
+
+    @Test
+    public void createCommandWithActivationDate() {
+        DeviceMessageSpec messageSpec = mock(DeviceMessageSpec.class);
+        PropertySpec spec1 = this.propertySpecService
+                .stringSpec()
+                .named("string1", "One")
+                .describedAs("Description for string1")
+                .setDefaultValue("Value1")
+                .finish();
+
+        PropertySpec activationDatePropertySpec = mock(PropertySpec.class);
+        ValueFactory valueFactory1 = mock(ValueFactory.class);
+        when(valueFactory1.getValueType()).thenReturn(java.util.Date.class);
+        when(activationDatePropertySpec.getValueFactory()).thenReturn(valueFactory1);
+        when(activationDatePropertySpec.getName()).thenReturn("ActivityCalendarDeviceMessage.activitycalendar.activationdate");
+
+        when(messageSpec.getPropertySpecs()).thenReturn(Arrays.asList(spec1, activationDatePropertySpec));
+        when(deviceMessageSpecificationService.findMessageSpecById(anyLong())).thenReturn(Optional.of(messageSpec));
+        when(endDeviceControlType.getMRID()).thenReturn(EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH.getEndDeviceControlTypeMRID());
+
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> deviceMessageIds = new ArrayList<>();
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE.dbValue());
+        deviceMessageIds.add(deviceMessageSpec1);
+
+        when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
+
+        // Business method
+        Instant activationDate = Instant.now();
+        EndDeviceCommand command = commandFactory.createConnectCommand(endDevice, activationDate);
+
+        // asserts
+        assertEquals(endDevice, command.getEndDevice());
+        assertEquals(endDeviceControlType, command.getEndDeviceControlType());
+        assertEquals(2, command.getCommandArgumentSpecs().size());
+        assertTrue(command.getCommandArgumentSpecs().contains(spec1));
+        assertTrue(command.getCommandArgumentSpecs().contains(activationDatePropertySpec));
     }
 
     @Test

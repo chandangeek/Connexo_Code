@@ -166,7 +166,11 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_SHIPMENT_DATE(2140, Keys.INVALID_SHIPMENT_DATE, "The shipment date ({0}) should be between {1} and {2}"),
     DUPLICATE_DEVICE_NAME(2141, Keys.DUPLICATE_DEVICE_NAME, "Name must be unique"),
     MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK(2142, Keys.MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK, "You can not set a ComSchedule on the device because it already contains a ComTask which is linked to another ComSchedule"),
-    GROUP_IS_USED_BY_ANOTHER_GROUP(2143, Keys.GROUP_IS_USED_BY_ANOTHER_GROUP, "The group is used by another group")
+    GROUP_IS_USED_BY_ANOTHER_GROUP(2143, Keys.GROUP_IS_USED_BY_ANOTHER_GROUP, "The group is used by another group"),
+    COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE(2144, Keys.COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE, "The device command '{0}' should have an 'Activation date' attribute"),
+    COMMAND_SHOULD_HAVE_A_NORMAL_THRESHOLD_ATTRIBUTE(2145, Keys.COMMAND_SHOULD_HAVE_A_NORMAL_THRESHOLD_ATTRIBUTE, "The device command '{0}' should have a 'Normal threshold' attribute"),
+    COMMAND_SHOULD_HAVE_A_UNIT_ATTRIBUTE(2146, Keys.COMMAND_SHOULD_HAVE_A_UNIT_ATTRIBUTE, "The device command '{0}' should have a 'Unit' attribute"),
+
     ;
     private final int number;
     private final String key;
@@ -343,6 +347,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT = "unsatisfied.reading.type.requirements.of.usage.point";
         public static final String NO_STATUS_INFORMATION_COMTASK = "no.status.information.comtask";
         public static final String COULD_NOT_FIND_SERVICE_CALL_TYPE = "could.not.find.service.call.type";
+        public static final String COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE = "command.should.have.an.activation.date.attribute";
+        public static final String COMMAND_SHOULD_HAVE_A_NORMAL_THRESHOLD_ATTRIBUTE = "command.should.have.a.normal.threshold.attribute";
+        public static final String COMMAND_SHOULD_HAVE_A_UNIT_ATTRIBUTE = "command.should.have.a.unit.attribute";
         public static final String COMMAND_ARGUMENT_SPEC_NOT_FOUND = "command.argument.spec.not.found";
         public static final String VETO_ALLOWED_CALENDAR_IN_USE = "allowed.calendar.in.use";
         public static final String CANNOT_CHANGE_CONFIG_DATALOGGER_SLAVE = "device.config.change.not.on.slave";

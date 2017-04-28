@@ -11,13 +11,13 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.ami.EndDeviceCommandImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,7 +35,7 @@ public class ArmRemoteSwitchCommand extends EndDeviceCommandImpl {
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
         boolean useReleaseDate = false;
 
-        if (hasCommandArgumentValueFor(DeviceMessageConstants.contactorActivationDateAttributeName) && deviceHasSupportFor(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE)) {
+        if (hasCommandArgumentValueFor(Date.class) && deviceHasSupportFor(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE)) {
             deviceMessageIds.addAll(Arrays.asList(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE, DeviceMessageId.CONTACTOR_ARM_WITH_ACTIVATION_DATE));
         } else {
             deviceMessageIds.addAll(Arrays.asList(DeviceMessageId.CONTACTOR_OPEN, DeviceMessageId.CONTACTOR_ARM));
