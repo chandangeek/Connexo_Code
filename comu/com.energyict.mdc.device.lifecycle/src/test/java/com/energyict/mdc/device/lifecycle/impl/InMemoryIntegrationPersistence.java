@@ -35,7 +35,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -86,7 +85,6 @@ import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.pluggable.rest.MdcPropertyValueConverterFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
@@ -357,8 +355,6 @@ public class InMemoryIntegrationPersistence {
             bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HttpService.class).toInstance(mock(HttpService.class));
-            bind(PropertyValueInfoService.class).toInstance(mock(PropertyValueInfoService.class));
-            bind(MdcPropertyValueConverterFactory.class).toInstance(mock(MdcPropertyValueConverterFactory.class));
 
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
