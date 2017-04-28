@@ -22,4 +22,5 @@ public class UsagePointLifeCycleStateInfo {
     public VersionInfo<Long> parent;
     public String stage;
     public String stageName;
+    public String usagePointLifeCycleName;
 }

@@ -33,6 +33,7 @@ public class UsagePointLifeCycleStateInfoFactory {
         info.stage = thesaurus.getString(state.getStage().get().getName(), state.getStage().get().getName());
         info.stageName = state.getStage().get().getName();
         info.parent = new VersionInfo<>(lifeCycle.getId(), lifeCycle.getVersion());
+        info.usagePointLifeCycleName = thesaurus.getString(lifeCycle.getName(), lifeCycle.getName());
         return info;
     }
 
