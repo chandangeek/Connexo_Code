@@ -40,6 +40,7 @@ import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.Range;
@@ -54,6 +55,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.Year;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -450,9 +452,36 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                         withMissings
                             .put(
                                 readingTypeAndRecords.getKey(),
-                                this.addMissings(readingTypeAndRecords, introspector, period)));
+                                this.addMissings(
+                                        readingTypeAndRecords,
+                                        introspector,
+                                        this.ensureBoundsOn(period, introspector.getUsagePoint().getZoneId()))));
         return withMissings;
     }
+
+    /**
+     * Ensures that the specified period has a lower and upper bound
+     * to avoid the IllegalArgumentException being thrown by IntervalLength
+     * when generating a timeseries.
+     * If the period does not have a lower bound, the start of this year is used.
+     * If the period does not have an upper bound, the end of this year is used.
+     *
+     * @param period The period with or without lower and upper bound
+     * @return The period with lower and upper bound depending on which one was missing
+     */
+    private Range<Instant> ensureBoundsOn(Range<Instant> period, ZoneId zoneId) {
+        if (!period.hasLowerBound()) {
+            Loggers.POST_PROCESS.info(() -> "Cannot generate timeseries when start is not known, defaulting to start of this year");
+            return this.ensureBoundsOn(Ranges.copy(period).withOpenLowerBound(Year.now(this.clock).atDay(1).atStartOfDay(zoneId).toInstant()), zoneId);
+        }
+        if (!period.hasUpperBound()) {
+            Loggers.POST_PROCESS.info(() -> "Cannot generate timeseries when end is not known, defaulting to end of this year");
+            ZonedDateTime startOfThisYear = Year.now(this.clock).atDay(1).atStartOfDay(zoneId);
+            return this.ensureBoundsOn(Ranges.copy(period).withOpenLowerBound(startOfThisYear.plusYears(1).toInstant()), zoneId);
+        }
+        return period;
+    }
+
 
     private List<CalculatedReadingRecordImpl> addMissings(Map.Entry<ReadingType, List<CalculatedReadingRecordImpl>> readingTypeAndRecords, MetrologyContractCalculationIntrospector introspector, Range<Instant> period) {
         List<CalculatedReadingRecordImpl> withMissings = new ArrayList<>(readingTypeAndRecords.getValue());
