@@ -8,7 +8,6 @@ import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
@@ -29,6 +28,7 @@ import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ExportTaskFinder;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
@@ -37,7 +37,6 @@ import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -525,7 +524,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.standardDataSelector = new StandardDataSelectorInfo();
         info.standardDataSelector.deviceGroup = new IdWithNameInfo();
         info.standardDataSelector.deviceGroup.id = 5;
-        info.standardDataSelector.exportComplete = true;
+        info.standardDataSelector.exportComplete = MissingDataOption.EXCLUDE_ITEM;
         info.standardDataSelector.exportContinuousData = true;
         info.standardDataSelector.exportUpdate = true;
         info.standardDataSelector.exportAdjacentData = true;
@@ -561,7 +560,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         verify(selectorBuilder).withValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL);
         verify(selectorBuilder).fromEndDeviceGroup(endDeviceGroup);
         verify(selectorBuilder).continuousData(true);
-        verify(selectorBuilder).exportComplete(true);
+        verify(selectorBuilder).exportComplete(MissingDataOption.EXCLUDE_ITEM);
         verify(selectorBuilder).exportUpdate(true);
     }
 
@@ -579,7 +578,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.standardDataSelector.usagePointGroup.id = 5;
         info.standardDataSelector.purpose = new LongIdWithNameInfo();
         info.standardDataSelector.purpose.id = 1L;
-        info.standardDataSelector.exportComplete = true;
+        info.standardDataSelector.exportComplete = MissingDataOption.EXCLUDE_ITEM;
         info.standardDataSelector.exportContinuousData = true;
         info.standardDataSelector.exportPeriod = new RelativePeriodInfo();
         info.standardDataSelector.exportPeriod.id = exportPeriodId;
@@ -608,7 +607,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         verify(selectorBuilder).fromUsagePointGroup(usagePointGroup);
         verify(selectorBuilder).fromMetrologyPurpose(metrologyPurpose);
         verify(selectorBuilder).continuousData(true);
-        verify(selectorBuilder).exportComplete(true);
+        verify(selectorBuilder).exportComplete(MissingDataOption.EXCLUDE_OBJECT);
     }
 
     @Test
