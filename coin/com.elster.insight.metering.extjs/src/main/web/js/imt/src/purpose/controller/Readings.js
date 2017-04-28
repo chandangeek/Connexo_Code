@@ -886,6 +886,18 @@ Ext.define('Imt.purpose.controller.Readings', {
             commentValue = commentCombo ? commentCombo.getRawValue() : null,
             adjustedPropertyFormErrors;
 
+        if (commentId !== -1) {
+            if (!Ext.isArray(record)) {
+                record.set('commentId', commentId);
+                record.set('commentValue', commentValue);
+            } else {
+                Ext.Array.each(record, function (records) {
+                    records.set('commentId', commentId);
+                    records.set('commentValue', commentValue);
+                });
+            }
+        }
+
         record.getProxy().setParams(decodeURIComponent(router.arguments.usagePointId), router.arguments.purposeId, router.arguments.outputId);
         window.setLoading();
         Ext.Ajax.suspendEvent('requestexception');

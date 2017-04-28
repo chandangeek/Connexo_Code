@@ -171,18 +171,18 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                     Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
                     Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
                 ], false) + estimationComment + '"></span>';
-            if (record.get('isProjected') === true) {
+            if (record.get('isProjected')) {
                 icon = this.addProjectedFlag(icon);
             }
         } else if (record.get('estimatedNotSaved') && record.get('ruleId') > 0) {
-            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; data-qtip="' + estimationComment + '" color:#33CC33;"></span>';
-            if (record.get('isProjected') === true) {
+            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="' + estimationComment + '"></span>';
+            if (record.get('isProjected')) {
                 icon = this.addProjectedFlag(icon);
             }
         } else if ((record.get('isConfirmed') || record.get('confirmedNotSaved')) && !record.isModified('value')) {
             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.confirmed', 'IMT', 'Confirmed') + '"></span>';
-        } else if ((record.get('modificationFlag') && record.get('modificationDate') || record.isModified('value')) && record.get('isProjected') === true) {
+        } else if ((record.get('modificationFlag') && record.get('modificationDate') || record.isModified('value')) && record.get('isProjected')) {
             icon = this.addProjectedFlag(icon);
         }
         return value + icon + '<span>&nbsp;&nbsp;&nbsp;</span>';
