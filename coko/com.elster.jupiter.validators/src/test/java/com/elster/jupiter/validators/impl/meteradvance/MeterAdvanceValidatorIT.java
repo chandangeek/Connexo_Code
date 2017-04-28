@@ -130,7 +130,7 @@ public class MeterAdvanceValidatorIT {
                 .collect(Collectors.toMap(BaseReading::getTimeStamp, validator::validate));
 
         // Asserts
-        assertThat(validationResults).containsExactly(
+        assertThat(validationResults).containsOnly(
                 MapEntry.entry(startTime.plus(1, ChronoUnit.DAYS), ValidationResult.SUSPECT),
                 MapEntry.entry(startTime.plus(2, ChronoUnit.DAYS), ValidationResult.SUSPECT),
                 MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.SUSPECT),
@@ -192,7 +192,7 @@ public class MeterAdvanceValidatorIT {
                 .collect(Collectors.toMap(BaseReading::getTimeStamp, validator::validate));
 
         // Asserts
-        assertThat(validationResults).containsExactly(
+        assertThat(validationResults).containsOnly(
                 MapEntry.entry(startTime.plus(1, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(2, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.VALID),
@@ -252,7 +252,7 @@ public class MeterAdvanceValidatorIT {
                 .collect(Collectors.toMap(BaseReading::getTimeStamp, validator::validate));
 
         // Asserts
-        assertThat(validationResults).containsExactly(
+        assertThat(validationResults).containsOnly(
                 MapEntry.entry(startTime.plus(1, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(2, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.SUSPECT),
@@ -313,7 +313,7 @@ public class MeterAdvanceValidatorIT {
                 .collect(Collectors.toMap(BaseReading::getTimeStamp, validator::validate));
 
         // Asserts
-        assertThat(validationResults).containsExactly(
+        assertThat(validationResults).containsOnly(
                 MapEntry.entry(startTime.plus(1, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(2, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.VALID),
@@ -377,7 +377,7 @@ public class MeterAdvanceValidatorIT {
                 .collect(Collectors.toMap(BaseReading::getTimeStamp, validator::validate));
 
         // Asserts
-        assertThat(validationResults).containsExactly(
+        assertThat(validationResults).containsOnly(
                 MapEntry.entry(startTime.plus(1, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(2, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.VALID),
@@ -441,7 +441,7 @@ public class MeterAdvanceValidatorIT {
                 .collect(Collectors.toMap(BaseReading::getTimeStamp, validator::validate));
 
         // Asserts
-        assertThat(validationResults).containsExactly(
+        assertThat(validationResults).containsOnly(
                 MapEntry.entry(startTime.plus(1, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(2, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.VALID),
@@ -511,7 +511,7 @@ public class MeterAdvanceValidatorIT {
                 .collect(Collectors.toMap(BaseReading::getTimeStamp, validator::validate));
 
         // Asserts
-        assertThat(validationResults).containsExactly(
+        assertThat(validationResults).containsOnly(
                 MapEntry.entry(startTime.plus(1, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(2, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.NOT_VALIDATED),
@@ -568,7 +568,7 @@ public class MeterAdvanceValidatorIT {
                 .collect(Collectors.toMap(BaseReading::getTimeStamp, validator::validate));
 
         // Asserts
-        assertThat(validationResults).containsExactly(
+        assertThat(validationResults).containsOnly(
                 MapEntry.entry(startTime.plus(1, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(2, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.VALID),
@@ -615,7 +615,7 @@ public class MeterAdvanceValidatorIT {
 
         // Asserts
         // All should be not validated because validated interval is less or equal than reference period (4 days set by parameter)
-        assertThat(validationResults).containsExactly(
+        assertThat(validationResults).containsOnly(
                 MapEntry.entry(startTime.plus(1, ChronoUnit.DAYS), ValidationResult.NOT_VALIDATED),
                 MapEntry.entry(startTime.plus(2, ChronoUnit.DAYS), ValidationResult.NOT_VALIDATED),
                 MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.NOT_VALIDATED)
@@ -670,7 +670,7 @@ public class MeterAdvanceValidatorIT {
 
         // Asserts
         // All should be valid because validated interval is greater than reference period (4 days set by parameter)
-        assertThat(validationResults).containsExactly(
+        assertThat(validationResults).containsOnly(
                 MapEntry.entry(startTime.plus(1, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(2, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.VALID),
@@ -727,7 +727,7 @@ public class MeterAdvanceValidatorIT {
                 .collect(Collectors.toMap(BaseReading::getTimeStamp, validator::validate));
 
         // Asserts
-        assertThat(validationResults).containsExactly(
+        assertThat(validationResults).containsOnly(
                 MapEntry.entry(startTime.plus(1, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(2, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.VALID)
