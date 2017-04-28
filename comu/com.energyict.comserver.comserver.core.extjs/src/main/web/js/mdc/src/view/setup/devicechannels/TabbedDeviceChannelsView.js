@@ -174,7 +174,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                         noItemFoundClass.prototype.updateOnChange.apply(me, arguments);
                                         me.down('#add-device-load-profile-btn') && me.down('#add-device-load-profile-btn').setVisible(true);
                                         me.down('#no-items-found-panel-steps-label') && me.down('#no-items-found-panel-steps-label').setVisible(true);
-                                        me.up('#deviceLoadProfileChannelData') && me.up('#deviceLoadProfileChannelData').down('deviceLoadProfileChannelGraphView') && me.up('#deviceLoadProfileChannelData').down('deviceLoadProfileChannelGraphView').setVisible(hasValues);
+                                        me.up('#deviceLoadProfileChannelData') && me.up('#deviceLoadProfileChannelData').down('deviceLoadProfileChannelGraphView') && me.up('#deviceLoadProfileChannelData').down('deviceLoadProfileChannelGraphView').setVisible(false);
                                     }
                                 }
                             }
