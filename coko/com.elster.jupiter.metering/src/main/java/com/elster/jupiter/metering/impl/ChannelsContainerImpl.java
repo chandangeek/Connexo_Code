@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.util.streams.ExtraCollectors;
@@ -132,7 +133,7 @@ public abstract class ChannelsContainerImpl implements ChannelsContainer {
     }
 
     @Override
-    public List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, ReadingType readingType) {
+    public List<? extends BaseReadingRecord> getJournaledReadings(Range<Instant> range, ReadingType readingType) {
         if (!getRange().isConnected(range)) {
             return Collections.emptyList();
         }
@@ -140,7 +141,7 @@ public abstract class ChannelsContainerImpl implements ChannelsContainer {
                 .map(channel -> {
                     Function<Interval, Range<Instant>> toRange = channel.isRegular() ? Interval::toOpenClosedRange : Interval::toClosedRange;
                     Range<Instant> active = range.intersection(toRange.apply(getInterval()));
-                    return readingType.isRegular() ? channel.getIntervalJournalReadings(readingType, active) : channel.getRegisterJournalReadings(readingType, active);
+                    return readingType.isRegular() ? channel.getJournaledChannelReadings(readingType, active) : channel.getJournaledRegisterReadings(readingType, active);
                 })
                 .orElse(Collections.emptyList());
     }

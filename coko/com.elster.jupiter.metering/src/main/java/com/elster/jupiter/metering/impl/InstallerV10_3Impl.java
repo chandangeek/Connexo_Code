@@ -9,15 +9,19 @@ import com.elster.jupiter.fsm.StageSetBuilder;
 import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.impl.aggregation.CalendarTimeSeriesCacheHandlerFactory;
 import com.elster.jupiter.metering.impl.slp.SyntheticLoadProfileServiceImpl;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -32,14 +36,18 @@ import java.util.stream.Stream;
  */
 public class InstallerV10_3Impl implements FullInstaller {
 
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
+
     private final DataModel dataModel;
     private final IdsService idsService;
+    private final MessageService messageService;
     private final FiniteStateMachineService stateMachineService;
 
     @Inject
-    InstallerV10_3Impl(DataModel dataModel, IdsService idsService, FiniteStateMachineService stateMachineService) {
+    InstallerV10_3Impl(DataModel dataModel, IdsService idsService, MessageService messageService, FiniteStateMachineService stateMachineService) {
         this.dataModel = dataModel;
         this.idsService = idsService;
+        this.messageService = messageService;
         this.stateMachineService = stateMachineService;
     }
 
@@ -53,6 +61,11 @@ public class InstallerV10_3Impl implements FullInstaller {
         doTry(
                 "Create SLP Record Spec",
                 this::createRecordSpec,
+                logger
+        );
+        doTry(
+                "Create Queues",
+                this::createQueues,
                 logger
         );
     }
@@ -84,4 +97,16 @@ public class InstallerV10_3Impl implements FullInstaller {
                 .forEach(endDeviceStage -> stageSetBuilder.stage(endDeviceStage.getKey()));
         stageSetBuilder.add();
     }
+
+    public void createQueues() {
+        this.createQueue(CalendarTimeSeriesCacheHandlerFactory.TASK_DESTINATION, DefaultTranslationKey.CALENDAR_TIMESERIES_CACHE_HANDLER_SUBSCRIBER);
+    }
+
+    private void createQueue(String queueDestination, TranslationKey queueSubscriber) {
+        QueueTableSpec defaultQueueTableSpec = this.messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(queueDestination, DEFAULT_RETRY_DELAY_IN_SECONDS);
+        destinationSpec.activate();
+        destinationSpec.subscribe(queueSubscriber, MeteringDataModelService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
 }
