@@ -50,16 +50,4 @@ public interface BaseReadingRecord extends BaseReading {
     default boolean confirmed() {
         return getProcessStatus().get(ProcessStatus.Flag.CONFIRMED);
     }
-
-    default Instant getJournalTime() {
-        return Instant.EPOCH;
-    }
-
-    default String getUserName() {
-        return "";
-    }
-
-    default Channel getChannel() {
-        throw new UnsupportedOperationException();
-    }
 }

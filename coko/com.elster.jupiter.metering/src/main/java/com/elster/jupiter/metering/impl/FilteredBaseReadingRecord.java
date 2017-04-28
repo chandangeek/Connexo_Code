@@ -112,19 +112,4 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord {
     public BaseReadingRecord filter(ReadingType readingType) {
         return filtered.filter(readingType);
     }
-
-    @Override
-    public Instant getJournalTime() {
-        return filtered.getJournalTime();
-    }
-
-    @Override
-    public String getUserName() {
-        return filtered.getUserName();
-    }
-
-    @Override
-    public Channel getChannel() {
-        return filtered.getChannel();
-    }
 }
