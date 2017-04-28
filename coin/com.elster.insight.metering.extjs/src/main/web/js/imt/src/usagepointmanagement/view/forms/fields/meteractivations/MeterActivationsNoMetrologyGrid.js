@@ -8,10 +8,14 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
     requires: [
         'Uni.form.field.DateTime',
         'Uni.grid.plugin.EditableCells',
-        'Uni.grid.plugin.ShowConditionalToolTip'
+        'Uni.grid.plugin.ShowConditionalToolTip',
+        'Imt.usagepointmanagement.store.AllMeterRoles'
     ],
     store: Ext.create('Ext.data.Store', {
-        fields: ['meterRole', 'meter', 'activationTime', 'isAddRow']
+        fields: ['meterRole', 'meter', 'activationTime', 'isAddRow'],
+        getTotalCount: function () {
+            return this.getCount() - 1;
+        }
     }),
     disableSelection: true,
     plugins: [
@@ -22,7 +26,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
             ptype: 'showConditionalToolTip'
         }
     ],
-
+    usagePoint: null,
     initComponent: function () {
         var me = this;
 
@@ -34,22 +38,22 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                 editor: {
                     xtype: 'combo',
                     width: 220,
-                    fieldType: 'meterCombo',
                     multiSelect: false,
                     emptyText: Uni.I18n.translate('usagepoint.meterRole.select', 'IMT', 'Select a meter role'),
-                    //store: new Ext.create('Imt.usagepointmanagement.store.AllMeterRoles'),
-                    store: 'Imt.usagepointmanagement.store.AllMeterRoles',
+                    store: new Ext.create('Imt.usagepointmanagement.store.AllMeterRoles'),
                     displayField: 'displayName',
                     valueField: 'key',
                     cls: 'stretchy-combo',
                     listeners: {
                         afterrender: function (field) {
+                            field.bindStore(new Ext.create('Imt.usagepointmanagement.store.AllMeterRoles'));
                             if (field.cell.record.get('isAddRow') == true) {
                                 field.setVisible(false);
                             }
                         },
                         expand: function (field) {
                             var store = field.getStore();
+
                             store.filters.clear();
                             store.filter({
                                 filterFn: function (item) {
@@ -57,15 +61,21 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                                         me.getStore().find('meterRole', item.get('key')) == -1;
                                 }
                             });
-
                         }
                     },
                     setValue: function (value) {
-                        value.name && Ext.getClass(this).prototype.setValue.apply(this, [value.name]);
+                        if (value && Object.prototype.toString.call(value) == "[object Array]") {
+                            Ext.getClass(this).prototype.setValue.apply(this, [value[0].get('key')]);
+                        }
+                        else if (value && Object.prototype.toString.call(value) == "[object Object]") {
+                            Ext.getClass(this).prototype.setValue.apply(this, [value.id]);
+                        }
+                        else if (value && typeof value == 'string') {
+                            Ext.getClass(this).prototype.setValue.apply(this, [value]);
+                        }
                         return this;
                     }
                 }
-
             },
             {
                 header: Uni.I18n.translate('general.meter', 'IMT', 'Meter'),
@@ -142,14 +152,27 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                 tooltip: Uni.I18n.translate('general.UnlinkMeter', 'IMT', 'Unlink meter'),
                 handler: function (grid, rowIndex) {
                     if (grid.getStore().getAt(rowIndex).get('isAddRow') == true) {
-                        me.getStore().insert(me.getStore().count() - 1, {});
+                        me.getStore().insert(me.getStore().count() - 1, {activationTime: me.usagePoint.get('createTime')});
                         me.reconfigure();
                     }
                     else {
                         grid.getStore().remove([grid.getStore().getAt(rowIndex)]);
                         me.reconfigure();
                     }
+                    me.down('pagingtoolbartop').updateInfo();
                 }
+            }
+        ];
+
+        me.dockedItems = [
+            {
+                xtype: 'pagingtoolbartop',
+                store: me.store,
+                dock: 'top',
+                displayMsg: Uni.I18n.translate('metrologyConfigurationDetails.meterRolesCount', 'IMT', '{0} meter role(s)'),
+                isFullTotalCount: true,
+                noBottomPaging: true,
+                exportButton: false
             }
         ];
         me.callParent(arguments);
@@ -176,12 +199,5 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                 picker.un('refresh', fn);
             }, combo, {single: true});
         }
-    },
-
-    addNewRow: function () {
-        var me = this;
-
-
     }
-
 });
