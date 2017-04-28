@@ -21,26 +21,26 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.protocol.LicensedProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.LicensedProtocol;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingException;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.api.services.NotAppropriateDeviceCacheMarshallingTargetException;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
-
-import java.util.Optional;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +48,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -84,6 +86,12 @@ public class ProtocolPluggableServiceImplTest {
     @Mock
     private PluggableService pluggableService;
     @Mock
+    private IdentificationService identificationService;
+    @Mock
+    private CustomPropertySetInstantiatorService customPropertySetInstantiatorService;
+    @Mock
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
+    @Mock
     private CustomPropertySetService customPropertySetService;
     @Mock
     private LicenseService licenseService;
@@ -111,6 +119,7 @@ public class ProtocolPluggableServiceImplTest {
     public void tearDown() {
 
     }
+
     @Test(expected = NoServiceFoundThatCanLoadTheJavaClass.class)
     public void createProtocolWithoutDeviceProtocolService() {
         ProtocolPluggableServiceImpl service = this.newTestInstance();
@@ -225,8 +234,7 @@ public class ProtocolPluggableServiceImplTest {
         // Business method
         try {
             service.createInboundDeviceProtocolFor(pluggableClass);
-        }
-        catch (DeviceProtocolAdapterCodingExceptions e) {
+        } catch (DeviceProtocolAdapterCodingExceptions e) {
             // Asserts
             verify(inboundDeviceProtocolService1).createInboundDeviceProtocolFor(pluggableClass);
             verify(inboundDeviceProtocolService2).createInboundDeviceProtocolFor(pluggableClass);
@@ -784,7 +792,7 @@ public class ProtocolPluggableServiceImplTest {
     }
 
     private ProtocolPluggableServiceImpl newTestInstance() {
-        return new ProtocolPluggableServiceImpl(this.ormService, this.threadPrincipalService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, this.customPropertySetService, this.licenseService, this.dataVaultService, this.transactionService, UpgradeModule.FakeUpgradeService.getInstance());
+        return new ProtocolPluggableServiceImpl(this.ormService, this.threadPrincipalService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, identificationService, deviceMessageSpecificationService, customPropertySetInstantiatorService, this.customPropertySetService, this.licenseService, this.dataVaultService, this.transactionService, UpgradeModule.FakeUpgradeService.getInstance());
     }
 
 }

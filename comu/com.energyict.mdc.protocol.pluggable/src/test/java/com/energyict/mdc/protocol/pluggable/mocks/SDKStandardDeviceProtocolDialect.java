@@ -26,7 +26,7 @@ public class SDKStandardDeviceProtocolDialect extends AbstractDeviceProtocolDial
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDeviceProtocolDialectDisplayName() {
         return "SDK dialect (default)";
     }
 

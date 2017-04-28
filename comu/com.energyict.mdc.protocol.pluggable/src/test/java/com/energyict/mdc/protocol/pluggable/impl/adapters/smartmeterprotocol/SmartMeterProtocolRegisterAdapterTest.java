@@ -4,26 +4,27 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.Register;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.mocks.MockCollectedRegister;
+import com.energyict.mdc.upl.issue.Warning;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -58,40 +59,36 @@ public class SmartMeterProtocolRegisterAdapterTest {
     private final Date eventDate = new Date(1389613500000L);// Same as toDate
     private final String text = "Some Text From a Register";
     private final Quantity quantity = mock(Quantity.class);
-
-    private static OfflineRegister getMockedRegister() {
-        OfflineRegister register = mock(OfflineRegister.class);
-        when(register.getObisCode()).thenReturn(OBIS_CODE);
-        when(register.getDeviceSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
-        return register;
-    }
-
     @Mock
     private CollectedDataFactory collectedDataFactory;
     @Mock
     private IssueService issueService;
 
+    private static OfflineRegister getMockedRegister() {
+        OfflineRegister register = mock(OfflineRegister.class);
+        when(register.getObisCode()).thenReturn(OBIS_CODE);
+        when(register.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
+        return register;
+    }
+
     @Before
     public void initializeEnvironment() {
-        when(this.collectedDataFactory.createCollectedRegisterForAdapter(any(RegisterIdentifier.class), any(ReadingType.class))).
+        when(this.collectedDataFactory.createCollectedRegisterForAdapter(any(RegisterIdentifier.class))).
                 thenAnswer(invocationOnMock -> {
                     RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
-                    ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
-
-                    MockCollectedRegister collectedRegister = new MockCollectedRegister(registerIdentifier, readingType);
+                    MockCollectedRegister collectedRegister = new MockCollectedRegister(registerIdentifier);
                     collectedRegister.setResultType(ResultType.Supported);
                     return collectedRegister;
                 });
-        when(this.collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class), any(ReadingType.class))).
+        when(this.collectedDataFactory.createDefaultCollectedRegister(any(RegisterIdentifier.class))).
                 thenAnswer(invocationOnMock -> {
                     RegisterIdentifier registerIdentifier = (RegisterIdentifier) invocationOnMock.getArguments()[0];
-                    ReadingType readingType = (ReadingType) invocationOnMock.getArguments()[1];
-                    return new MockCollectedRegister(registerIdentifier, readingType);
+                    return new MockCollectedRegister(registerIdentifier);
                 });
     }
 
     @Before
-    public void initializeIssueService () {
+    public void initializeIssueService() {
         when(this.issueService.newWarning(any(), any(), anyVararg())).thenAnswer(invocationOnMock -> {
             Warning warning = mock(Warning.class);
             when(warning.getSource()).thenReturn(invocationOnMock.getArguments()[0]);
@@ -127,7 +124,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
         OfflineRegister register = getMockedRegister();
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
         SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService, collectedDataFactory);
-        final List<CollectedRegister> collectedRegisters = smartMeterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
+        final List<CollectedRegister> collectedRegisters = smartMeterProtocolRegisterAdapter.readRegisters(Collections.singletonList(register));
 
         assertThat(collectedRegisters).hasSize(1);
         assertThat(collectedRegisters.get(0).getResultType()).isEqualTo(ResultType.NotSupported);
@@ -137,11 +134,11 @@ public class SmartMeterProtocolRegisterAdapterTest {
     }
 
     @Test
-    public void unSupportedSizeTest(){
+    public void unSupportedSizeTest() {
         OfflineRegister register = getMockedRegister();
         final int registerListSize = 10;
         List<OfflineRegister> registerList = new ArrayList<>(registerListSize);
-        for(int i = 0; i < registerListSize; i++){
+        for (int i = 0; i < registerListSize; i++) {
             registerList.add(register);
         }
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
@@ -157,7 +154,7 @@ public class SmartMeterProtocolRegisterAdapterTest {
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
         when(smartMeterProtocol.readRegisters(Matchers.<List<Register>>any())).thenThrow(new IOException("Failure during the reading"));
         SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService, collectedDataFactory);
-        smartMeterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
+        smartMeterProtocolRegisterAdapter.readRegisters(Collections.singletonList(register));
     }
 
     @Test
@@ -166,15 +163,19 @@ public class SmartMeterProtocolRegisterAdapterTest {
         RegisterValue registerValue = getMockedRegisterValue();
 
         SmartMeterProtocol smartMeterProtocol = mock(SmartMeterProtocol.class);
-        when(smartMeterProtocol.readRegisters(Matchers.<List<Register>>any())).thenReturn(Arrays.asList(registerValue));
+        when(smartMeterProtocol.readRegisters(Matchers.<List<Register>>any())).thenReturn(Collections.singletonList(registerValue));
 
         SmartMeterProtocolRegisterAdapter meterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(smartMeterProtocol, issueService, collectedDataFactory);
-        final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(Arrays.asList(register));
 
-        assertThat(collectedRegisters.get(0).getFromTime()).isEqualTo(fromDate.toInstant());
-        assertThat(collectedRegisters.get(0).getToTime()).isEqualTo(toDate.toInstant());
-        assertThat(collectedRegisters.get(0).getEventTime()).isEqualTo(eventDate.toInstant());
-        assertThat(collectedRegisters.get(0).getReadTime()).isEqualTo(readDate.toInstant());
+        // Business method
+        final List<CollectedRegister> collectedRegisters = meterProtocolRegisterAdapter.readRegisters(Collections.singletonList(register));
+
+        // Asserts
+        assertThat(collectedRegisters).hasSize(1);
+        assertThat(collectedRegisters.get(0).getFromTime()).isEqualTo(fromDate);
+        assertThat(collectedRegisters.get(0).getToTime()).isEqualTo(toDate);
+        assertThat(collectedRegisters.get(0).getEventTime()).isEqualTo(eventDate);
+        assertThat(collectedRegisters.get(0).getReadTime()).isEqualTo(readDate);
         assertThat(collectedRegisters.get(0).getText()).isEqualTo(text);
         assertThat(collectedRegisters.get(0).getCollectedQuantity()).isEqualTo(quantity);
     }

@@ -5,7 +5,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -16,29 +15,21 @@ import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.api.DeviceFunction;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.PropertySpecMockSupport;
@@ -56,6 +47,17 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDevic
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.HhuEnabledMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
+import com.energyict.dialer.core.SerialCommunicationChannel;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -107,9 +109,11 @@ public class MeterProtocolAdapterTest {
     @Mock
     private CollectedDataFactory collectedDataFactory;
     @Mock
-    private MeteringService meteringService;
+    private IdentificationService identificationService;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     private InMemoryPersistence inMemoryPersistence;
     private ProtocolPluggableServiceImpl protocolPluggableService;
@@ -359,14 +363,10 @@ public class MeterProtocolAdapterTest {
         // Calling all business method on CachingProtocol
         meterProtocolAdapter.setCache(cacheObject);
         meterProtocolAdapter.getCache();
-        meterProtocolAdapter.fetchCache(deviceId);
-        meterProtocolAdapter.updateCache(deviceId, cacheObject);
 
         // Verify that the adapter properly forwarded the method calls to the meterProtocol
         verify(meterProtocol).setCache(cacheObject);
         verify(meterProtocol).getCache();
-        verify(meterProtocol).fetchCache(deviceId);
-        verify(meterProtocol).updateCache(deviceId, cacheObject);
     }
 
     @Test
@@ -519,13 +519,13 @@ public class MeterProtocolAdapterTest {
         MeterProtocolAdapterImpl adapter = new TestMeterProtocolAdapter(adaptedProtocol, this.inMemoryPersistence.getPropertySpecService(), this.protocolPluggableService, this.securitySupportAdapterMappingFactory);
 
         // Business method
-        Optional<PropertySpec> whatEverPropertySpec = adapter.getSecurityPropertySpec(PROPERTY_SPEC_NAME);
-        Optional<PropertySpec> firstPropertySpec = adapter.getSecurityPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName());
+        Optional<com.energyict.mdc.upl.properties.PropertySpec> whatEverPropertySpec = adapter.getSecurityPropertySpec(PROPERTY_SPEC_NAME);
+        Optional<com.energyict.mdc.upl.properties.PropertySpec> firstPropertySpec = adapter.getSecurityPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName());
 
         // Asserts
         assertThat(whatEverPropertySpec).isEmpty();
         assertThat(firstPropertySpec).isPresent();
-        PropertySpec propertySpec = firstPropertySpec.get();
+        com.energyict.mdc.upl.properties.PropertySpec propertySpec = firstPropertySpec.get();
         assertThat(propertySpec.getName()).isEqualTo(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName());
         assertThat(propertySpec.isRequired()).isFalse();
     }
@@ -539,7 +539,7 @@ public class MeterProtocolAdapterTest {
         adapter.getSecurityPropertySpec(PROPERTY_SPEC_NAME);
 
         // Asserts
-        verify(adaptedProtocol).getSecurityPropertySpecs();
+        verify(adaptedProtocol).getSecurityProperties();
     }
 
     @Test
@@ -636,7 +636,7 @@ public class MeterProtocolAdapterTest {
     }
 
     protected MeterProtocolAdapterImpl newMeterProtocolAdapter(MeterProtocol meterProtocol) {
-        return new MeterProtocolAdapterImpl(meterProtocol, this.inMemoryPersistence.getPropertySpecService(), this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.capabilityAdapterMappingFactory, messageAdapterMappingFactory, this.protocolPluggableService.getDataModel(), this.inMemoryPersistence.getIssueService(), collectedDataFactory, meteringService, thesaurus);
+        return new MeterProtocolAdapterImpl(meterProtocol, this.inMemoryPersistence.getPropertySpecService(), this.protocolPluggableService, this.securitySupportAdapterMappingFactory, this.capabilityAdapterMappingFactory, messageAdapterMappingFactory, this.protocolPluggableService.getDataModel(), this.inMemoryPersistence.getIssueService(), collectedDataFactory, identificationService, thesaurus, deviceMessageSpecificationService);
     }
 
     private interface MeterProtocolWithDeviceSecuritySupport extends MeterProtocol, DeviceSecuritySupport {
@@ -645,11 +645,12 @@ public class MeterProtocolAdapterTest {
     private class TestMeterProtocolAdapter extends MeterProtocolAdapterImpl {
 
         private TestMeterProtocolAdapter(MeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService1, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory) {
-            super(meterProtocol, propertySpecService, protocolPluggableService1, securitySupportAdapterMappingFactory, capabilityAdapterMappingFactory, messageAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService(), collectedDataFactory, meteringService, thesaurus);
+            super(meterProtocol, propertySpecService, protocolPluggableService1, securitySupportAdapterMappingFactory, capabilityAdapterMappingFactory, messageAdapterMappingFactory, protocolPluggableService.getDataModel(), inMemoryPersistence.getIssueService(), collectedDataFactory, identificationService, thesaurus, deviceMessageSpecificationService);
         }
 
         @Override
         protected void initializeAdapters() {
+            super.initializeAdapters();
             setMeterProtocolSecuritySupportAdapter(
                     new MeterProtocolSecuritySupportAdapter(
                             getMeterProtocol(),

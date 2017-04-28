@@ -5,7 +5,7 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
-import com.energyict.mdc.protocol.api.LicensedProtocol;
+import com.energyict.mdc.protocol.LicensedProtocol;
 
 import java.util.function.Supplier;
 import java.util.logging.Level;

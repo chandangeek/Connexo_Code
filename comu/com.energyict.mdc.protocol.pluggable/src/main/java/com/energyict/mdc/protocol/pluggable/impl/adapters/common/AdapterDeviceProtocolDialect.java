@@ -13,10 +13,21 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.TranslationKeys;
+import com.energyict.mdc.upl.properties.PropertySpec;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+/**
+ * Provides an Adapter implementation for the {@link DeviceProtocolDialect} interface
+ * to support the legacy protocols.
+ * <p>
+ * Date: 9/10/12
+ * Time: 13:37
+ */
 public class AdapterDeviceProtocolDialect implements DeviceProtocolDialect {
 
     private final Thesaurus thesaurus;
@@ -41,8 +52,13 @@ public class AdapterDeviceProtocolDialect implements DeviceProtocolDialect {
     }
 
     @Override
-    public String getDisplayName() {
+    public String getDeviceProtocolDialectDisplayName() {
         return this.thesaurus.getFormat(TranslationKeys.LEGACY_PROTOCOL).format();
+    }
+
+    @Override
+    public List<PropertySpec> getUPLPropertySpecs() {
+        return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
     }
 
     @Override
@@ -56,10 +72,8 @@ public class AdapterDeviceProtocolDialect implements DeviceProtocolDialect {
             ConfigurationSupportToDynamicPropertiesAdapter adapter = (ConfigurationSupportToDynamicPropertiesAdapter) this.withDynamicProperties;
             ConfigurationSupport configurationSupport = adapter.getConfigurationSupport();
             return configurationSupport.getClass().getName();
-        }
-        else {
+        } else {
             return this.withDynamicProperties.getClass().getName();
         }
     }
-
 }

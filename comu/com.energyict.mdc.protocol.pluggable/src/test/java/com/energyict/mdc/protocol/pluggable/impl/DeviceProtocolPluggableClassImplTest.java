@@ -32,7 +32,6 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -41,12 +40,14 @@ import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
@@ -61,7 +62,9 @@ import com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.NotADeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.SDKDeviceProtocolTestWithMandatoryProperty;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 
+import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -70,6 +73,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Optional;
@@ -100,15 +105,11 @@ public class DeviceProtocolPluggableClassImplTest {
 
     private static final String SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY = "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithMandatoryProperty";
 
-    private TransactionService transactionService;
-    private ProtocolPluggableServiceImpl protocolPluggableService;
-    @Mock
-    private DeviceProtocolService deviceProtocolService;
-    private PropertySpecServiceImpl propertySpecService;
-
     @Rule
     public ExpectedConstraintViolationRule rule = new ExpectedConstraintViolationRule();
 
+    @Mock
+    private DeviceProtocolService deviceProtocolService;
     @Mock
     private UserService userService;
     @Mock
@@ -119,9 +120,14 @@ public class DeviceProtocolPluggableClassImplTest {
     private LicensedProtocolService licensedProtocolService;
     @Mock
     private License license;
+    @Mock
+    private DeviceProtocolSecurityService deviceProtocolSecurityService;
 
     private DataModel dataModel;
     private InMemoryBootstrapModule bootstrapModule;
+    private TransactionService transactionService;
+    private ProtocolPluggableServiceImpl protocolPluggableService;
+    private PropertySpecServiceImpl propertySpecService;
 
     @Before
     public void initializeDatabase() throws SQLException {
@@ -155,8 +161,10 @@ public class DeviceProtocolPluggableClassImplTest {
             protocolPluggableService = (ProtocolPluggableServiceImpl) injector.getInstance(ProtocolPluggableService.class);
             protocolPluggableService.addDeviceProtocolService(this.deviceProtocolService);
             protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
+            protocolPluggableService.addDeviceProtocolSecurityService(deviceProtocolSecurityService);
             dataModel = protocolPluggableService.getDataModel();
             propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
+            this.initializeSecuritySupport();
             ctx.commit();
         }
     }
@@ -175,6 +183,25 @@ public class DeviceProtocolPluggableClassImplTest {
         when(deviceProtocolService.createProtocol(MOCK_SMART_METER_PROTOCOL)).thenReturn(new MockSmartMeterProtocol());
         when(deviceProtocolService.createProtocol(MOCK_NOT_A_DEVICE_PROTOCOL)).thenReturn(new NotADeviceProtocol());
         when(deviceProtocolService.createProtocol(SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY)).thenReturn(new SDKDeviceProtocolTestWithMandatoryProperty(this.propertySpecService, mock(CollectedDataFactory.class)));
+    }
+
+    private void initializeSecuritySupport() throws SQLException {
+        try (Connection connection = this.dataModel.getConnection(true)) {
+            try (PreparedStatement statement = connection.prepareStatement(insertSecuritySupportAdapterMappingSql())) {
+                statement.setString(1, "com.energyict.mdc.protocol.pluggable.mocks.MockSmartMeterProtocol");
+                statement.setString(2, NoSecuritySupport.class.getName());
+                statement.addBatch();
+                statement.setString(1, "com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol");
+                statement.setString(2, NoSecuritySupport.class.getName());
+                statement.addBatch();
+                statement.executeBatch();
+            }
+        }
+        when(deviceProtocolSecurityService.createDeviceProtocolSecurityFor(NoSecuritySupport.class.getName())).thenReturn(new NoSecuritySupport());
+    }
+
+    private String insertSecuritySupportAdapterMappingSql() {
+        return "insert into " + TableSpecs.PPC_SECSUPPORTADAPTERMAPPING.name() + " (deviceprotocoljavaclassname, securitysupportclassname) values(?, ?)";
     }
 
     @After
@@ -384,6 +411,9 @@ public class DeviceProtocolPluggableClassImplTest {
             bind(DeviceCacheMarshallingService.class).toInstance(mock(DeviceCacheMarshallingService.class));
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
         }
 
     }

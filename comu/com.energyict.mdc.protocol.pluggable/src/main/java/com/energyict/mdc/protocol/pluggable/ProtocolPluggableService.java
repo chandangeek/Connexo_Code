@@ -5,12 +5,18 @@
 package com.energyict.mdc.protocol.pluggable;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.protocol.LicensedProtocol;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.LicensedProtocol;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
@@ -262,5 +268,59 @@ public interface ProtocolPluggableService {
     ConnectionType createConnectionType(String javaClassName);
 
     InboundDeviceProtocol createInboundDeviceProtocolFor(PluggableClass pluggableClass);
+
+    /**
+     * Adapts a {@link com.energyict.mdc.upl.properties.PropertySpec UPL property spec}
+     * to the Connexo interface.
+     *
+     * @param uplPropertySpec The UPL PropertySpec
+     * @return The Connexo PropertySpec
+     */
+    PropertySpec adapt(com.energyict.mdc.upl.properties.PropertySpec uplPropertySpec);
+
+    /**
+     * Adapts a Connexo {@link PropertySpec} to the corresponding
+     * {@link com.energyict.mdc.upl.properties.PropertySpec UPL interface}.
+     *
+     * @param propertySpec The Connexo PropertySpec
+     * @return The UPL PropertySpec
+     */
+    com.energyict.mdc.upl.properties.PropertySpec adapt(PropertySpec propertySpec);
+
+    /**
+     * Adapts a {@link com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel UPL authentication device access level}
+     * to the Connexo interface.
+     *
+     * @param uplLevel The UPL AuthenticationDeviceAccessLevel
+     * @return The Connexo {@link AuthenticationDeviceAccessLevel}
+     */
+    AuthenticationDeviceAccessLevel adapt(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel uplLevel);
+
+    /**
+     * Adapts a {@link com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel UPL encryption device access level}
+     * to the Connexo interface.
+     *
+     * @param uplLevel The UPL EncryptionDeviceAccessLevel
+     * @return The Connexo {@link EncryptionDeviceAccessLevel}
+     */
+    EncryptionDeviceAccessLevel adapt(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel uplLevel);
+
+    /**
+     * Adapts a {@link com.energyict.mdc.upl.messages.DeviceMessageCategory Connexo device message category}
+     * to the UPL interface.
+     * @param connexoCategory The Connexo device message category
+     * @return The UPL device message category
+     */
+    com.energyict.mdc.upl.messages.DeviceMessageCategory adapt(DeviceMessageCategory connexoCategory);
+
+    /**
+     * Adapts a {@link com.energyict.mdc.upl.messages.DeviceMessageSpec Connexo device message specification}
+     * to the UPL interface.
+     * @param connexoSpec The Connexo device message specification
+     * @return The UPL device message specification
+     */
+    com.energyict.mdc.upl.messages.DeviceMessageSpec adapt(DeviceMessageSpec connexoSpec);
+
+    OfflineDevice adapt(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice);
 
 }

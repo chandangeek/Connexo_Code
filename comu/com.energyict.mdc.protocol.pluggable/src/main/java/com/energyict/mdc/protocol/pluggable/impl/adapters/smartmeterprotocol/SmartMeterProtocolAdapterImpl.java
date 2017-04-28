@@ -12,49 +12,28 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.ComChannelInputStreamAdapter;
 import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.CachingProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceProtocolSecuritySupportAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AdapterDeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
@@ -63,6 +42,33 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolT
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLProtocolAdapter;
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,10 +98,12 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
      * The use <code>IssueService</code> which can be used for this adapter.
      */
     private final IssueService issueService;
+    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final MessageAdapterMappingFactory messageAdapterMappingFactory;
     private final CollectedDataFactory collectedDataFactory;
     private final Thesaurus thesaurus;
     private final MeteringService meteringService;
+    private final IdentificationService identificationService;
 
     /**
      * The DeviceSecuritySupport component that <i>can</i> be used during communication.
@@ -113,32 +121,32 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     private OfflineDevice offlineDevice;
 
     /**
-     * The adapter used for the {@link com.energyict.mdc.protocol.api.tasks.support.DeviceClockSupport} functionality
+     * The adapter used for the {@link com.energyict.mdc.upl.tasks.support.DeviceClockSupport} functionality
      */
     private SmartMeterProtocolClockAdapter smartMeterProtocolClockAdapter;
 
     /**
-     * The adapter used for the {@link com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport} functionality
+     * The adapter used for the {@link com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport} functionality
      */
     private SmartMeterProtocolLoadProfileAdapter smartMeterProtocolLoadProfileAdapter;
 
     /**
-     * The adapter used for the {@link com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport} functionality
+     * The adapter used for the {@link com.energyict.mdc.upl.tasks.support.DeviceMessageSupport} functionality
      */
     private SmartMeterProtocolMessageAdapter smartMeterProtocolMessageAdapter;
 
     /**
-     * The adapter used for the {@link com.energyict.mdc.protocol.api.tasks.support.DeviceTopologySupport} functionality
+     * The adapter used for the {@link com.energyict.mdc.upl.tasks.support.DeviceTopologySupport} functionality
      */
     private DeviceProtocolTopologyAdapter deviceProtocolTopologyAdapter;
 
     /**
-     * The adapter used for the {@link com.energyict.mdc.protocol.api.tasks.support.DeviceLogBookSupport} functionality
+     * The adapter used for the {@link com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport} functionality
      */
     private SmartMeterProtocolLogBookAdapter smartMeterProtocolLogBookAdapter;
 
     /**
-     * The adapter used for the {@link com.energyict.mdc.protocol.api.tasks.support.DeviceRegisterSupport} functionality
+     * The adapter used for the {@link com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport} functionality
      */
     private SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter;
 
@@ -162,15 +170,17 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
      */
     private PropertiesAdapter propertiesAdapter;
 
-    public SmartMeterProtocolAdapterImpl(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, Thesaurus thesaurus) {
+    public SmartMeterProtocolAdapterImpl(SmartMeterProtocol meterProtocol, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, DataModel dataModel, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, IdentificationService identificationService, Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         super(propertySpecService, protocolPluggableService, thesaurus, securitySupportAdapterMappingFactory, dataModel, capabilityAdapterMappingFactory);
         this.messageAdapterMappingFactory = messageAdapterMappingFactory;
         this.meteringService = meteringService;
+        this.identificationService = identificationService;
         this.thesaurus = thesaurus;
         this.protocolLogger = Logger.getAnonymousLogger(); // default for now
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         initializeAdapters();
         initInheritors();
     }
@@ -190,16 +200,15 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     protected void initializeAdapters() {
         this.propertiesAdapter = new PropertiesAdapter();
         this.smartMeterProtocolClockAdapter = new SmartMeterProtocolClockAdapter(getSmartMeterProtocol());
-        this.smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory);
+        this.smartMeterProtocolLoadProfileAdapter = new SmartMeterProtocolLoadProfileAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory, identificationService, offlineDevice);
         this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService, collectedDataFactory);
         this.smartMeterProtocolLogBookAdapter = new SmartMeterProtocolLogBookAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory, meteringService);
         this.smartMeterProtocolRegisterAdapter = new SmartMeterProtocolRegisterAdapter(getSmartMeterProtocol(), issueService, collectedDataFactory);
 
         if (!DeviceMessageSupport.class.isAssignableFrom(getProtocolClass())) {
             // we only instantiate the adapter if the protocol needs it
-            this.smartMeterProtocolMessageAdapter = new SmartMeterProtocolMessageAdapter(getSmartMeterProtocol(), this.getDataModel(), this.messageAdapterMappingFactory, this.getProtocolPluggableService(), issueService, this.collectedDataFactory);
-        }
-        else {
+            this.smartMeterProtocolMessageAdapter = new SmartMeterProtocolMessageAdapter(getSmartMeterProtocol(), this.messageAdapterMappingFactory, this.getProtocolPluggableService(), issueService, this.collectedDataFactory, this.deviceMessageSpecificationService);
+        } else {
             this.deviceMessageSupport = (DeviceMessageSupport) this.meterProtocol;
         }
 
@@ -212,33 +221,36 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
                             this.getProtocolPluggableService(),
                             this.propertiesAdapter,
                             this.getSecuritySupportAdapterMappingFactory());
-        }
-        else {
+        } else {
             this.deviceSecuritySupport = (DeviceSecuritySupport) this.meterProtocol;
         }
     }
 
     protected Class getProtocolClass() {
-        return this.meterProtocol.getClass();
+        if (meterProtocol instanceof UPLProtocolAdapter) {
+            return ((UPLProtocolAdapter) meterProtocol).getActualClass();
+        } else {
+            return meterProtocol.getClass();
+        }
     }
 
     @Override
-    public void init(final OfflineDevice offlineDevice, ComChannel comChannel) {
-        this.offlineDevice = offlineDevice;
+    public void init(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, com.energyict.mdc.protocol.ComChannel comChannel) {
+        this.offlineDevice = new UPLOfflineDeviceAdapter(offlineDevice);
+        doInit(comChannel);
+    }
+
+    private void doInit(com.energyict.mdc.protocol.ComChannel comChannel) {
         try {
             this.meterProtocol.init(
                     new ComChannelInputStreamAdapter(comChannel),
                     new ComChannelOutputStreamAdapter(comChannel),
                     this.getDeviceTimeZoneFromProperties(),
                     this.protocolLogger);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
         this.propertiesAdapter.copyProperties(comChannel.getProperties());
-        if (this.smartMeterProtocolMessageAdapter != null) {
-            this.smartMeterProtocolMessageAdapter.setSerialNumber(this.offlineDevice.getSerialNumber());
-        }
     }
 
     @Override
@@ -250,8 +262,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
         TimeZone timeZone = this.propertiesAdapter.getProperties().getTypedProperty(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName());
         if (timeZone == null) {
             return TimeZone.getDefault();
-        }
-        else {
+        } else {
             return timeZone;
         }
     }
@@ -260,8 +271,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     public void terminate() {
         try {
             this.meterProtocol.release();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
     }
@@ -309,15 +319,9 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     public String getSerialNumber() {
         try {
             return this.meterProtocol.getMeterSerialNumber();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
-    }
-
-    @Override
-    public void setTime(final Date timeToSet) {
-        this.smartMeterProtocolClockAdapter.setTime(timeToSet);
     }
 
     @Override
@@ -336,6 +340,11 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     }
 
     @Override
+    public void setTime(final Date timeToSet) {
+        this.smartMeterProtocolClockAdapter.setTime(timeToSet);
+    }
+
+    @Override
     public List<CollectedLogBook> getLogBookData(final List<LogBookReader> logBookReaders) {
         return this.smartMeterProtocolLogBookAdapter.getLogBookData(logBookReaders);
     }
@@ -346,11 +355,10 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     }
 
     @Override
-    public Set<DeviceMessageId> getSupportedMessages() {
+    public List<DeviceMessageSpec> getSupportedMessages() {
         if (delegateDeviceMessagesToActualProtocol()) {
             return getDeviceMessageSupport().getSupportedMessages();
-        }
-        else {
+        } else {
             return this.smartMeterProtocolMessageAdapter.getSupportedMessages();
         }
     }
@@ -359,8 +367,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     public CollectedMessageList executePendingMessages(final List<OfflineDeviceMessage> pendingMessages) {
         if (delegateDeviceMessagesToActualProtocol()) {
             return getDeviceMessageSupport().executePendingMessages(pendingMessages);
-        }
-        else {
+        } else {
             return this.smartMeterProtocolMessageAdapter.executePendingMessages(pendingMessages);
         }
     }
@@ -369,20 +376,23 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
         if (delegateDeviceMessagesToActualProtocol()) {
             return getDeviceMessageSupport().updateSentMessages(sentMessages);
-        }
-        else {
+        } else {
             return this.smartMeterProtocolMessageAdapter.updateSentMessages(sentMessages);
         }
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         if (delegateDeviceMessagesToActualProtocol()) {
-            return getDeviceMessageSupport().format(propertySpec, messageAttribute);
+            return getDeviceMessageSupport().format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+        } else {
+            return this.smartMeterProtocolMessageAdapter.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
         }
-        else {
-            return this.smartMeterProtocolMessageAdapter.format(propertySpec, messageAttribute);
-        }
+    }
+
+    @Override
+    public Optional<String> prepareMessageContext(Device device, com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return Optional.empty();
     }
 
     @Override
@@ -444,8 +454,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     public void logOn() {
         try {
             this.meterProtocol.connect();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new ConnectionCommunicationException(MessageSeeds.PROTOCOL_CONNECT, e);
         }
     }
@@ -459,8 +468,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     public void logOff() {
         try {
             this.meterProtocol.disconnect();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new CommunicationException(MessageSeeds.PROTOCOL_DISCONNECT, e);
         }
     }
@@ -473,23 +481,22 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Collections.singletonList(
-                    new AdapterDeviceProtocolDialect(
-                            thesaurus,
-                            this.meterProtocol
-                    ));
+                new AdapterDeviceProtocolDialect(
+                        thesaurus,
+                        this.meterProtocol
+                ));
     }
 
     @Override
-    public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
+    public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
         this.propertiesAdapter.copyProperties(dialectProperties); // Adds all the dialectProperties to the deviceProperties
     }
 
     @Override
-    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
         if (this.delegateSecurityToActualProtocol()) {
             return this.getDeviceSecuritySupport().getCustomPropertySet();
-        }
-        else {
+        } else {
             return this.smartMeterProtocolSecuritySupportAdapter.getCustomPropertySet();
         }
     }
@@ -498,8 +505,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         if (this.delegateSecurityToActualProtocol()) {
             return getDeviceSecuritySupport().getAuthenticationAccessLevels();
-        }
-        else {
+        } else {
             return this.smartMeterProtocolSecuritySupportAdapter.getAuthenticationAccessLevels();
         }
     }
@@ -508,18 +514,21 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         if (this.delegateSecurityToActualProtocol()) {
             return getDeviceSecuritySupport().getEncryptionAccessLevels();
-        }
-        else {
+        } else {
             return this.smartMeterProtocolSecuritySupportAdapter.getEncryptionAccessLevels();
         }
     }
 
     @Override
-    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
+        return getDeviceSecuritySupport().getSecurityProperties();
+    }
+
+    @Override
+    public Optional<com.energyict.mdc.upl.properties.PropertySpec> getSecurityPropertySpec(String name) {
         if (this.delegateSecurityToActualProtocol()) {
             return getDeviceSecuritySupport().getSecurityPropertySpec(name);
-        }
-        else {
+        } else {
             return this.smartMeterProtocolSecuritySupportAdapter.getSecurityPropertySpec(name);
         }
     }
@@ -528,8 +537,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         if (this.delegateSecurityToActualProtocol()) {
             getDeviceSecuritySupport().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
-        }
-        else {
+        } else {
             this.smartMeterProtocolSecuritySupportAdapter.setSecurityPropertySet(deviceProtocolSecurityPropertySet);
             this.meterProtocol.addProperties(this.propertiesAdapter.getProperties());
         }
@@ -617,4 +625,13 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
         return collectedCalendar;
     }
 
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return new ArrayList<>(getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList()));
+    }
+
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+        this.propertiesAdapter.copyProperties(properties);
+    }
 }

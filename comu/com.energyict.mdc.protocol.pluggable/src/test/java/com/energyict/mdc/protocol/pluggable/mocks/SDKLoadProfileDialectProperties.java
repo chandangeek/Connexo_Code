@@ -8,7 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;

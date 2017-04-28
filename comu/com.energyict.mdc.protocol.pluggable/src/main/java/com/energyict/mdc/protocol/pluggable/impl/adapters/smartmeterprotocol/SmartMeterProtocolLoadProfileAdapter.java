@@ -6,20 +6,23 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.StackTracePrinter;
-import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.LoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
+
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Adapter between a {@link SmartMeterProtocolAdapterImpl} and a {@link com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport}
+ * Adapter between a {@link SmartMeterProtocolAdapterImpl} and a {@link com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport}
  *
  * @author gna
  * @since 5/04/12 - 13:56
@@ -47,33 +50,31 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
     private final SmartMeterProtocol smartMeterProtocol;
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
+    private final IdentificationService identificationService;
+    private final OfflineDevice offlineDevice;
 
     /**
      * The used {@link SmartMeterProtocolClockAdapter}
      */
     private final SmartMeterProtocolClockAdapter smartMeterProtocolClockAdapter;
 
-    /**
-     * Default constructor
-     *  @param smartMeterProtocol the {@link SmartMeterProtocol} to glue
-     * @param issueService
-     * @param collectedDataFactory
-     */
-    public SmartMeterProtocolLoadProfileAdapter(final SmartMeterProtocol smartMeterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory) {
+    public SmartMeterProtocolLoadProfileAdapter(final SmartMeterProtocol smartMeterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory, IdentificationService identificationService, OfflineDevice offlineDevice) {
         this.smartMeterProtocol = smartMeterProtocol;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
+        this.identificationService = identificationService;
+        this.offlineDevice = offlineDevice;
         this.smartMeterProtocolClockAdapter = new SmartMeterProtocolClockAdapter(smartMeterProtocol);
     }
 
     /**
      * <b>Note:</b> This method is only called by the Collection Software if the option to "fail if channel configuration mismatch" is
      * checked on the <code>CommunicationProfile</code>
-     * <p/>
+     * <p>
      * Get the configuration(interval, number of channels, channelUnits) of all given <code>LoadProfiles</code> from the Device.
      * Build up a list of <CODE>DeviceLoadProfileConfiguration</CODE> objects and return them so the framework can validate them to the configuration
      * in EIServer.
-     * <p/>
+     * <p>
      * If a <code>LoadProfile</code> is not supported, the corresponding boolean in the <code>DeviceLoadProfileConfiguration</code> should be set to false.
      *
      * @param loadProfilesToRead the <CODE>List</CODE> of <CODE>LoadProfileReaders</CODE> to indicate which profiles will be read
@@ -85,7 +86,7 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
         if (loadProfilesToRead != null) {
             try {
                 List<LoadProfileConfiguration> configurations = this.smartMeterProtocol.fetchLoadProfileConfiguration(loadProfilesToRead);
-                loadProfileConfigurations = convertToCollectedLoadProfileConfigurations(configurations);
+                loadProfileConfigurations = convertToCollectedLoadProfileConfigurations(configurations, this.meterSerialNumber(loadProfilesToRead));
             } catch (IOException | IndexOutOfBoundsException e) {
                 loadProfileConfigurations = createIssueListForLoadProfileReaders(loadProfilesToRead, e);
             }
@@ -98,20 +99,20 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
         return loadProfilesToRead
                 .stream()
                 .map(loadProfileReader -> {
-                        CollectedLoadProfileConfiguration deviceLoadProfileConfiguration =
-                                collectedDataFactory.createCollectedLoadProfileConfiguration(
-                                        loadProfileReader.getProfileObisCode(),
-                                        loadProfileReader.getDeviceIdentifier(),
-                                        false);
-                        deviceLoadProfileConfiguration.setFailureInformation(
-                                ResultType.DataIncomplete,
-                                getIssue(this, com.energyict.mdc.protocol.api.MessageSeeds.DEVICEPROTOCOL_LEGACY_ISSUE, StackTracePrinter.print(e)));
-                        return deviceLoadProfileConfiguration;
-                    })
+                    CollectedLoadProfileConfiguration deviceLoadProfileConfiguration =
+                            collectedDataFactory.createCollectedLoadProfileConfiguration(
+                                    loadProfileReader.getProfileObisCode(),
+                                    loadProfileReader.getMeterSerialNumber());
+                    deviceLoadProfileConfiguration.setSupportedByMeter(false);
+                    deviceLoadProfileConfiguration.setFailureInformation(
+                            ResultType.DataIncomplete,
+                            getIssue(this, com.energyict.mdc.protocol.api.MessageSeeds.DEVICEPROTOCOL_LEGACY_ISSUE, StackTracePrinter.print(e)));
+                    return deviceLoadProfileConfiguration;
+                })
                 .collect(Collectors.toList());
     }
 
-    private List<CollectedLoadProfileConfiguration> convertToCollectedLoadProfileConfigurations(List<LoadProfileConfiguration> loadProfileConfigurations) {
+    private List<CollectedLoadProfileConfiguration> convertToCollectedLoadProfileConfigurations(List<LoadProfileConfiguration> loadProfileConfigurations, String meterSerialNumber) {
         CollectedDataFactory collectedDataFactory = this.collectedDataFactory;
         return loadProfileConfigurations
                 .stream()
@@ -119,7 +120,8 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
                     CollectedLoadProfileConfiguration deviceLoadProfileConfiguration =
                             collectedDataFactory.createCollectedLoadProfileConfiguration(
                                     loadProfileConfiguration.getObisCode(),
-                                    loadProfileConfiguration.getDeviceIdentifier());
+                                    loadProfileConfiguration.getDeviceIdentifier(),
+                                    meterSerialNumber);
                     deviceLoadProfileConfiguration.setSupportedByMeter(loadProfileConfiguration.isSupportedByMeter());
                     deviceLoadProfileConfiguration.setChannelInfos(loadProfileConfiguration.getChannelInfos());
                     deviceLoadProfileConfiguration.setProfileInterval(loadProfileConfiguration.getProfileInterval());
@@ -128,16 +130,20 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
                 .collect(Collectors.toList());
     }
 
+    private String meterSerialNumber(List<LoadProfileReader> readers) {
+        return readers.stream().map(LoadProfileReader::getMeterSerialNumber).findAny().orElse("");
+    }
+
     /**
      * Collect one or more LoadProfiles from a device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
      * channels({@link LoadProfileReader#channelInfos}) to read. If it is possible then only these channels should be read,
      * if not then all channels may be returned.If {@link LoadProfileReader#channelInfos} contains an empty list
      * or null, then all channels from the corresponding LoadProfile should be fetched
-     * <p/>
+     * <p>
      * If for a certain <code>LoadProfile</code> not all data since {@link LoadProfileReader#getStartReadingTime() lastReading}
-     * can be returned, then a proper {@link ResultType} <b>and</b> {@link com.energyict.mdc.issues.Issue issue}
+     * can be returned, then a proper {@link ResultType} <b>and</b> {@link com.energyict.mdc.upl.issue.Issue issue}
      * should be set so proper logging of this action can be performed.
-     * <p/>
+     * <p>
      * In essence, the size of the returned <code>List</code> should be the same as the size of the given argument <code>List</code>.
      *
      * @param loadProfiles a list of <CODE>LoadProfileReader</CODE> which have to be read
@@ -156,17 +162,21 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
                     profileDataWithLoadProfileId.sort();
                     deviceLoadProfile =
                             collectedDataFactory.createCollectedLoadProfile(
-                                    loadProfileReader.getLoadProfileIdentifier());
+                                    this.identificationService.createLoadProfileIdentifierByDatabaseId(
+                                            loadProfileReader.getLoadProfileId(),
+                                            loadProfileReader.getProfileObisCode(),
+                                            offlineDevice.getDeviceIdentifier()
+                                    ));
                     if (!profileDataWithLoadProfileId.equals(INVALID_PROFILE_DATA)) {
-                        deviceLoadProfile.setCollectedData(profileDataWithLoadProfileId.getIntervalDatas(), profileDataWithLoadProfileId.getChannelInfos());
+                        deviceLoadProfile.setCollectedIntervalData(profileDataWithLoadProfileId.getIntervalDatas(), profileDataWithLoadProfileId.getChannelInfos());
                         deviceLoadProfile.setDoStoreOlderValues(profileDataWithLoadProfileId.shouldStoreOlderValues());
                     } else {
                         deviceLoadProfile.setFailureInformation(
                                 ResultType.NotSupported,
                                 getIssue(
-                                    loadProfileReader.getProfileObisCode(),
-                                    com.energyict.mdc.protocol.api.MessageSeeds.LOADPROFILE_NOT_SUPPORTED,
-                                    loadProfileReader.getProfileObisCode()));
+                                        loadProfileReader.getProfileObisCode(),
+                                        com.energyict.mdc.protocol.api.MessageSeeds.LOADPROFILE_NOT_SUPPORTED,
+                                        loadProfileReader.getProfileObisCode()));
                     }
                     collectedLoadProfiles.add(deviceLoadProfile);
                 }
