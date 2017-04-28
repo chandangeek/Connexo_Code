@@ -41,6 +41,13 @@ public interface ReadingTypeTemplate extends HasId, HasName {
     List<ReadingTypeRestriction> getReadingTypeRestrictions();
 
     /**
+     * Pretty prints the values of all of the attributes in the correct order.
+     *
+     * @return All attribute values
+     */
+    String attributeValues();
+
+    /**
      * Checks that all attributes in the given reading type (candidate) are within template limits.
      *
      * @param candidate reading type for check

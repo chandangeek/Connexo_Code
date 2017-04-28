@@ -22,9 +22,21 @@ public interface UsagePointMetrologyConfiguration extends MetrologyConfiguration
 
     List<MeterRole> getMeterRoles();
 
+    Optional<MeterRole> getMeterRoleFor(ReadingTypeRequirement readingTypeRequirement);
+
     List<ReadingTypeRequirement> getRequirements(MeterRole meterRole);
 
-    Optional<MeterRole> getMeterRoleFor(ReadingTypeRequirement readingTypeRequirement);
+    void validateMeterCapabilities(List<Pair<MeterRole, Meter>> meters);
+
+    /**
+     * Tests if this UsagePointMetrologyConfiguration requires that
+     * a {@link com.elster.jupiter.calendar.Calendar} is added
+     * to the {@link com.elster.jupiter.metering.UsagePoint}s
+     * to which this configuration is applied.
+     *
+     * @return <code>true</code> iff a Calendar will need to be added to a UsagePoint once this configuration is applied to it
+     */
+    boolean requiresCalendarOnUsagePoint();
 
     /**
      * Will throw an UnsupportedOperationException because a {@link MeterRole} is required
@@ -37,12 +49,10 @@ public interface UsagePointMetrologyConfiguration extends MetrologyConfiguration
 
     MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name, MeterRole role);
 
+    List<UsagePointRequirement> getUsagePointRequirements();
+
     UsagePointRequirement addUsagePointRequirement(SearchablePropertyValue.ValueBean valueBean);
 
     void removeUsagePointRequirement(UsagePointRequirement requirement);
-
-    void validateMeterCapabilities(List<Pair<MeterRole, Meter>> meters);
-
-    List<UsagePointRequirement> getUsagePointRequirements();
 
 }

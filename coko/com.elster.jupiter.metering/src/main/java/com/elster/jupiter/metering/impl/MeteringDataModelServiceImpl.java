@@ -12,6 +12,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmiBillingReadyKind;
 import com.elster.jupiter.metering.BypassStatus;
@@ -36,6 +37,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactory;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactoryImpl;
+import com.elster.jupiter.metering.impl.aggregation.CalendarTimeSeriesCacheHandlerFactory;
 import com.elster.jupiter.metering.impl.aggregation.DataAggregationServiceImpl;
 import com.elster.jupiter.metering.impl.aggregation.InstantTruncaterFactory;
 import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
@@ -65,6 +67,7 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.YesNoAnswer;
@@ -73,6 +76,7 @@ import com.elster.jupiter.util.json.JsonService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import com.google.inject.name.Names;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -95,6 +99,8 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
@@ -142,6 +148,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
 
     private boolean createAllReadingTypes;
     private String[] requiredReadingTypes;
+    private DestinationSpec calendarTimeSeriesCacheHandlerMessageDestination;
 
     @SuppressWarnings("unused")
     public MeteringDataModelServiceImpl() {
@@ -201,6 +208,12 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         registerUsagePointSearchDoamin();
         installDataModel();
         registerServices(bundleContext);
+        cacheCalendarTimeSeriesCacheHandlerDestinationSpec();
+    }
+
+    private void cacheCalendarTimeSeriesCacheHandlerDestinationSpec() {
+        // Assumed to be running after the installer or upgrader
+        this.calendarTimeSeriesCacheHandlerMessageDestination = this.messageService.getDestinationSpec(CalendarTimeSeriesCacheHandlerFactory.TASK_DESTINATION).get();
     }
 
     private void registerDatabaseTables() {
@@ -264,6 +277,10 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(Publisher.class).toInstance(publisher);
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
+                bind(SimpleChannelContract.class).to(ChannelImpl.class);
+                bind(DestinationSpec.class)
+                        .annotatedWith(Names.named(CalendarTimeSeriesCacheHandlerFactory.TASK_DESTINATION))
+                        .toProvider(() -> calendarTimeSeriesCacheHandlerMessageDestination);
             }
         });
     }
@@ -330,7 +347,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         if (bundleContext != null) {
             this.serviceRegistrations.add(
                     bundleContext.registerService(
-                            new String[]{DataAggregationService.class.getName()},
+                            new String[]{DataAggregationService.class.getName(), ServerDataAggregationService.class.getName()},
                             this.dataAggregationService,
                             noServiceProperties()));
         }
@@ -397,7 +414,10 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
 
     @Override
     public List<MessageSeed> getSeeds() {
-        return Arrays.asList(MessageSeeds.values());
+        return Stream.concat(
+                    Stream.of(MessageSeeds.values()),
+                    Stream.of(PrivateMessageSeeds.values()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -524,7 +544,8 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         this.nlsService = nlsService;
         Thesaurus myThesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
         Thesaurus cboThesaurus = nlsService.getThesaurus(I18N.COMPONENT_NAME, Layer.DOMAIN);
-        this.thesaurus = myThesaurus.join(cboThesaurus);
+        Thesaurus uplThesaurus = nlsService.getThesaurus(UsagePointLifeCycleConfigurationService.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = myThesaurus.join(cboThesaurus).join(uplThesaurus);
     }
 
     @Reference(name = "thePublisher")

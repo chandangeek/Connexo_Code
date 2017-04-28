@@ -14,6 +14,8 @@ public interface UsagePointRequirement {
 
     SearchableProperty getSearchableProperty();
 
+    String getName();
+
     SearchablePropertyValue.ValueBean toValueBean();
 
 }

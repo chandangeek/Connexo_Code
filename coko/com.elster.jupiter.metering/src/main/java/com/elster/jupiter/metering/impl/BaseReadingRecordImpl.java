@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.ids.TimeSeriesJournalEntry;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ProcessStatus;
@@ -31,11 +32,11 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
         this.entry = entry;
     }
 
-    TimeSeriesEntry getEntry() {
+    public TimeSeriesEntry getEntry() {
         return entry;
     }
 
-    public Channel getChannel() {
+    Channel getChannel() {
         return channel;
     }
 
@@ -62,18 +63,18 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
         List<Quantity> result = new ArrayList<>();
         int offset = 0;
         for (ReadingType readingType : channel.getReadingTypes()) {
-            result.add(getQuantity(offset++,readingType));
+            result.add(getQuantity(offset++, readingType));
         }
         return result;
     }
 
     @Override
     public Quantity getQuantity(int offset) {
-        return getQuantity(offset,channel.getReadingTypes().get(offset));
+        return getQuantity(offset, channel.getReadingTypes().get(offset));
     }
 
     private Quantity getQuantity(int offset, ReadingType readingType) {
-    	return ((IReadingType) readingType).toQuantity(doGetValue(offset));
+        return ((IReadingType) readingType).toQuantity(doGetValue(offset));
     }
 
     private BigDecimal doGetValue(int offset) {
@@ -81,16 +82,16 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     }
 
     int getIndex(ReadingType readingType) {
-    	int result = channel.getReadingTypes().indexOf(readingType);
-    	if (result < 0) {
-    		throw new IllegalArgumentException(MessageFormat.format("ReadingType {0} does not occur on this channel", readingType.getMRID()));
-    	}
-    	return result;
+        int result = channel.getReadingTypes().indexOf(readingType);
+        if (result < 0) {
+            throw new IllegalArgumentException(MessageFormat.format("ReadingType {0} does not occur on this channel", readingType.getMRID()));
+        }
+        return result;
     }
 
     @Override
     public Quantity getQuantity(ReadingType readingType) {
-        return getQuantity(getIndex(readingType),readingType);
+        return getQuantity(getIndex(readingType), readingType);
     }
 
     @Override
@@ -143,15 +144,4 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
     public List<? extends ReadingQualityRecord> getReadingQualities() {
         return getChannel().findReadingQualities().atTimestamp(getTimeStamp()).sorted().collect();
     }
-
-    @Override
-    public Instant getJournalTime() {
-        return getEntry().getJournalTime();
-    }
-
-    @Override
-    public String getUserName() {
-        return getEntry().getUserName();
-    }
-
 }

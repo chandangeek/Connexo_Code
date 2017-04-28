@@ -16,11 +16,6 @@ import java.util.Map;
 public class UnsatisfiedReadingTypeRequirements extends LocalizedException {
     private Map<MeterRole, List<ReadingTypeRequirement>> unsatisfiedRequirements;
 
-    @Deprecated
-    public UnsatisfiedReadingTypeRequirements(Thesaurus thesaurus, UsagePointMetrologyConfiguration metrologyConfiguration) {
-        super(thesaurus, MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS);
-    }
-
     public UnsatisfiedReadingTypeRequirements(Thesaurus thesaurus) {
         super(thesaurus, MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS);
     }

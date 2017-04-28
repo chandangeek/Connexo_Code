@@ -7,7 +7,6 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.RecordSpecBuilder;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -198,10 +197,10 @@ public enum RecordSpecs {
             reading.getTimePeriod().ifPresent(range -> {
                 // We can't set error to the timestamp field because it is inactive for edit register
                 if (range.lowerEndpoint().isAfter(reading.getTimeStamp())) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.READING_TIMESTAMP_NOT_IN_MEASUREMENT_PERIOD, "interval.start");
+                    throw new LocalizedFieldValidationException(PrivateMessageSeeds.READING_TIMESTAMP_NOT_IN_MEASUREMENT_PERIOD, "interval.start");
                 }
                 if (range.upperEndpoint().isBefore(reading.getTimeStamp())) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.READING_TIMESTAMP_NOT_IN_MEASUREMENT_PERIOD, "interval.end");
+                    throw new LocalizedFieldValidationException(PrivateMessageSeeds.READING_TIMESTAMP_NOT_IN_MEASUREMENT_PERIOD, "interval.end");
                 }
             });
         }
@@ -320,6 +319,18 @@ public enum RecordSpecs {
                 }
             });
             return result;
+        }
+
+        @Override
+        public Optional<Range<Instant>> getTimePeriod(BaseReading reading, Object[] values) {
+            if (values != null && values.length == 6) {
+                Instant start = (Instant) values[4];
+                Instant end = (Instant) values[5];
+                if (start != null && end != null) {
+                    return Optional.of(Range.openClosed(start, end));
+                }
+            }
+            return Optional.empty();
         }
 
         @Override

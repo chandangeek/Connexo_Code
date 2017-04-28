@@ -12,15 +12,15 @@ import java.util.Objects;
 
 /**
  * Provides an implementation for the {@link ServerExpressionNode.Visitor}
- * interface and returns a SQL construct (as String) that provides a LOCALDATE for the visited
- * {@link ExpressionNode}
- * or <code>null</code> if the ExpressionNode cannot provide such a LOCALDATE.
+ * interface and returns a SQL construct (as String) that can provide
+ * a LOCALDATE or a UTCSTAMP for the visited {@link ExpressionNode}
+ * or <code>null</code> if the ExpressionNode cannot provide that information.
  * A {@link NumericalConstantNode} is a good example of that.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
  */
-class LocalDateFromExpressionNode implements ServerExpressionNode.Visitor<String> {
+class TimeLineSqlNameFromExpressionNode implements ServerExpressionNode.Visitor<String> {
 
     @Override
     public String visitConstant(NumericalConstantNode constant) {
@@ -39,7 +39,7 @@ class LocalDateFromExpressionNode implements ServerExpressionNode.Visitor<String
 
     @Override
     public String visitSyntheticLoadProfile(SyntheticLoadProfilePropertyNode slp) {
-        return slp.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName();
+        return slp.sqlName();
     }
 
     @Override
@@ -54,12 +54,12 @@ class LocalDateFromExpressionNode implements ServerExpressionNode.Visitor<String
 
     @Override
     public String visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-        return deliverable.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName();
+        return deliverable.sqlName();
     }
 
     @Override
     public String visitVirtualRequirement(VirtualRequirementNode requirement) {
-        return requirement.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName();
+        return requirement.sqlName();
     }
 
     @Override

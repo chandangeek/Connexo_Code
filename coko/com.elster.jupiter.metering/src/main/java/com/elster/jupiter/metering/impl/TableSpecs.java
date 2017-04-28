@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
@@ -52,6 +53,8 @@ import com.elster.jupiter.metering.impl.config.AbstractNode;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePointImpl;
+import com.elster.jupiter.metering.impl.config.EventSetOnMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.EventSetOnMetrologyConfigurationImpl;
 import com.elster.jupiter.metering.impl.config.FormulaImpl;
 import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
@@ -82,7 +85,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 
 import com.google.common.collect.Range;
 
@@ -92,7 +95,6 @@ import java.util.Map;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2UNIT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUMPLUSONE;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -107,7 +109,6 @@ import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
-
 
 public enum TableSpecs {
     MTR_SERVICECATEGORY {
@@ -309,6 +310,7 @@ public enum TableSpecs {
                     .add();
             table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
             Column obsoleteTime = table.column("OBSOLETETIME").number().map("obsoleteTime").conversion(ColumnConversion.NUMBER2INSTANT).since(version(10, 3)).add();
+            Column lifeCycle = table.column("LIFECYCLE").number().notNull().since(version(10, 3)).add();
             table.addAuditColumns();
 
             table.primaryKey("PK_MTR_USAGEPOINT").on(idColumn).add();
@@ -334,6 +336,13 @@ public enum TableSpecs {
                     .onDelete(RESTRICT)
                     .map("upLocation", LocationMember.class)
                     .since(version(10, 2))
+                    .add();
+            table.foreignKey("FK_MTR_USAGEPOINT_LIFECYCLE")
+                    .on(lifeCycle)
+                    .references(UsagePointLifeCycle.class)
+                    .onDelete(RESTRICT)
+                    .map("usagepointLifeCycle")
+                    .since(version(10, 3))
                     .add();
         }
     },
@@ -738,11 +747,11 @@ public enum TableSpecs {
                     .varChar()
                     .map(MetrologyConfigurationImpl.Fields.DESCRIPTION.fieldName())
                     .add();
-            table.column(MetrologyConfigurationImpl.Fields.ALLOW_GAP.name())
+            table.column(MetrologyConfigurationImpl.Fields.ALLOW_GAPS.name())
                     .type("char(1)")
                     .notNull()
                     .conversion(CHAR2BOOLEAN)
-                    .map(MetrologyConfigurationImpl.Fields.ALLOW_GAP.fieldName())
+                    .map(MetrologyConfigurationImpl.Fields.ALLOW_GAPS.fieldName())
                     .since(version(10,3))
                     .installValue("'N'")
                     .add();
@@ -831,7 +840,7 @@ public enum TableSpecs {
                     .on(usagePoint)
                     .references(UsagePoint.class)
                     .map("usagePoint")
-                    .reverseMap("metrologyConfigurations")
+                    .reverseMap("metrologyConfigurations", EffectiveMetrologyContractOnUsagePoint.class, MetrologyContract.class, ChannelsContainer.class, Channel.class)
                     .composition()
                     .add();
             table.foreignKey("FK_MTR_UPMTRCONFIG_MC")
@@ -1700,7 +1709,7 @@ public enum TableSpecs {
                     .on(effectiveConfColumn)
                     .references(EffectiveMetrologyConfigurationOnUsagePoint.class)
                     .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.fieldName())
-                    .reverseMap("effectiveContracts")
+                    .reverseMap("effectiveContracts", MetrologyContract.class, ReadingTypeDeliverable.class)
                     .composition()
                     .add();
             table.foreignKey("MTR_EF_CONTRACT_2_CONTRACT")
@@ -1962,7 +1971,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("FK_UPL_STATE_2_STATE")
                     .on(state)
-                    .references(UsagePointState.class)
+                    .references(State.class)
                     .onDelete(RESTRICT)
                     .map("state")
                     .add();
@@ -1991,6 +2000,32 @@ public enum TableSpecs {
                     .on(calendar)
                     .map(CalendarUsageImpl.Fields.CALENDAR.fieldName())
                     .references(Calendar.class)
+                    .add();
+        }
+    },
+    MTR_EVENTSET_ON_METROCONFIG {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EventSetOnMetrologyConfiguration> table = dataModel.addTable(this.name(), EventSetOnMetrologyConfiguration.class).since(version(10, 3));
+            table.map(EventSetOnMetrologyConfigurationImpl.class);
+            Column metrologyConfiguration = table.column("METROLOGYCONFIGURATION").number().notNull().add();
+            Column eventSet = table.column("EVENTSET").number().notNull().add();
+            table.setJournalTableName("MTR_EVENTSET_ON_METROCONFJRNL");
+            table.addAuditColumns();
+            table.primaryKey("MTR_PK_EVSET_ON_METROCONF")
+                    .on(metrologyConfiguration, eventSet)
+                    .add();
+            table.foreignKey("MTR_FK_SET_ON_CONFIG_TO_CONFIG")
+                    .on(metrologyConfiguration)
+                    .references(MetrologyConfiguration.class)
+                    .map(EventSetOnMetrologyConfigurationImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
+                    .composition()
+                    .reverseMap("eventSets")
+                    .add();
+            table.foreignKey("MTR_FK_SET_ON_CONFIG_TO_SET")
+                    .on(eventSet)
+                    .references(EventSet.class)
+                    .map(EventSetOnMetrologyConfigurationImpl.Fields.EVENTSET.fieldName())
                     .add();
         }
     },

@@ -145,12 +145,12 @@ public class CalculatedMetrologyContractDataImplTest {
 
     @Test
     public void usagePointIsCopiedInConstructor() {
-        CalculatedReadingRecord r1 = mock(CalculatedReadingRecord.class);
+        CalculatedReadingRecordImpl r1 = mock(CalculatedReadingRecordImpl.class);
 
         when(r1.getTimeStamp()).thenReturn(instant(2016, Month.MARCH, 1));
-        CalculatedReadingRecord r2 = mock(CalculatedReadingRecord.class);
+        CalculatedReadingRecordImpl r2 = mock(CalculatedReadingRecordImpl.class);
         when(r2.getTimeStamp()).thenReturn(instant(2016, Month.APRIL, 1));
-        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
+        Map<ReadingType, List<CalculatedReadingRecordImpl>> recordsByReadingType = new HashMap<>();
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
@@ -163,16 +163,22 @@ public class CalculatedMetrologyContractDataImplTest {
 
     @Test
     public void contractIsCopiedInConstructor() {
-        CalculatedReadingRecord r1 = mock(CalculatedReadingRecord.class);
+        CalculatedReadingRecordImpl r1 = mock(CalculatedReadingRecordImpl.class);
         when(r1.getTimeStamp()).thenReturn(instant(2016, Month.MARCH, 1));
-        CalculatedReadingRecord r2 = mock(CalculatedReadingRecord.class);
+        CalculatedReadingRecordImpl r2 = mock(CalculatedReadingRecordImpl.class);
         when(r2.getTimeStamp()).thenReturn(instant(2016, Month.APRIL, 1));
-        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
+        Map<ReadingType, List<CalculatedReadingRecordImpl>> recordsByReadingType = new HashMap<>();
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
-                Range.all(), recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
+        CalculatedMetrologyContractDataImpl contractData =
+                new CalculatedMetrologyContractDataImpl(
+                        this.usagePoint,
+                        this.contract,
+                        Range.all(),
+                        recordsByReadingType,
+                        this.truncaterFactory,
+                        this.sourceChannelSetFactory);
 
         // Asserts
         assertThat(contractData.getMetrologyContract()).isEqualTo(this.contract);
@@ -180,11 +186,11 @@ public class CalculatedMetrologyContractDataImplTest {
 
     @Test
     public void constructorInjectUsagePointsIntoRecords() {
-        CalculatedReadingRecord r1 = mock(CalculatedReadingRecord.class);
+        CalculatedReadingRecordImpl r1 = mock(CalculatedReadingRecordImpl.class);
         when(r1.getTimeStamp()).thenReturn(instant(2016, Month.MARCH, 1));
-        CalculatedReadingRecord r2 = mock(CalculatedReadingRecord.class);
+        CalculatedReadingRecordImpl r2 = mock(CalculatedReadingRecordImpl.class);
         when(r2.getTimeStamp()).thenReturn(instant(2016, Month.APRIL, 1));
-        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
+        Map<ReadingType, List<CalculatedReadingRecordImpl>> recordsByReadingType = new HashMap<>();
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
@@ -197,16 +203,22 @@ public class CalculatedMetrologyContractDataImplTest {
 
     @Test
     public void noMergeForMonthlyBoundaryRecords() {
-        CalculatedReadingRecord r1 = mock(CalculatedReadingRecord.class);
+        CalculatedReadingRecordImpl r1 = mock(CalculatedReadingRecordImpl.class);
         when(r1.getTimeStamp()).thenReturn(instant(2016, Month.MARCH, 1));
-        CalculatedReadingRecord r2 = mock(CalculatedReadingRecord.class);
+        CalculatedReadingRecordImpl r2 = mock(CalculatedReadingRecordImpl.class);
         when(r2.getTimeStamp()).thenReturn(instant(2016, Month.APRIL, 1));
-        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
+        Map<ReadingType, List<CalculatedReadingRecordImpl>> recordsByReadingType = new HashMap<>();
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
-                Range.all(), recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
+        CalculatedMetrologyContractDataImpl contractData =
+                new CalculatedMetrologyContractDataImpl(
+                        this.usagePoint,
+                        this.contract,
+                        Range.all(),
+                        recordsByReadingType,
+                        this.truncaterFactory,
+                        this.sourceChannelSetFactory);
 
         // Asserts
         assertThat(contractData.getCalculatedDataFor(this.deliverable)).containsSequence(r1, r2);
@@ -214,18 +226,24 @@ public class CalculatedMetrologyContractDataImplTest {
 
     @Test
     public void mergeForMidMonthRecordsInOrder() throws SQLException {
-        CalculatedReadingRecord r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.MARCH, 15));
+        CalculatedReadingRecordImpl r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.MARCH, 15));
         r1.setUsagePoint(this.usagePoint);
         r1.setReadingType(this.monthlyNetConsumption);
-        CalculatedReadingRecord r2 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.APRIL, 1));
+        CalculatedReadingRecordImpl r2 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.APRIL, 1));
         r2.setUsagePoint(this.usagePoint);
         r2.setReadingType(this.monthlyNetConsumption);
-        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
+        Map<ReadingType, List<CalculatedReadingRecordImpl>> recordsByReadingType = new HashMap<>();
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
-                Range.all(), recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
+        CalculatedMetrologyContractDataImpl contractData =
+                new CalculatedMetrologyContractDataImpl(
+                        this.usagePoint,
+                        this.contract,
+                        Range.all(),
+                        recordsByReadingType,
+                        this.truncaterFactory,
+                        this.sourceChannelSetFactory);
 
         // Asserts
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
@@ -236,18 +254,24 @@ public class CalculatedMetrologyContractDataImplTest {
 
     @Test
     public void mergeForMidMonthRecordsInReverseOrder() throws SQLException {
-        CalculatedReadingRecord r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.MARCH, 15));
+        CalculatedReadingRecordImpl r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.MARCH, 15));
         r1.setUsagePoint(this.usagePoint);
         r1.setReadingType(this.monthlyNetConsumption);
-        CalculatedReadingRecord r2 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.APRIL, 1));
+        CalculatedReadingRecordImpl r2 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.APRIL, 1));
         r2.setUsagePoint(this.usagePoint);
         r2.setReadingType(this.monthlyNetConsumption);
-        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
+        Map<ReadingType, List<CalculatedReadingRecordImpl>> recordsByReadingType = new HashMap<>();
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r2, r1));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
-                Range.all(), recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
+        CalculatedMetrologyContractDataImpl contractData =
+                new CalculatedMetrologyContractDataImpl(
+                        this.usagePoint,
+                        this.contract,
+                        Range.all(),
+                        recordsByReadingType,
+                        this.truncaterFactory,
+                        this.sourceChannelSetFactory);
 
         // Asserts
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
@@ -258,18 +282,24 @@ public class CalculatedMetrologyContractDataImplTest {
 
     @Test
     public void mergeWithAllMidMonthRecords() throws SQLException {
-        CalculatedReadingRecord r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.MARCH, 10));
+        CalculatedReadingRecordImpl r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.MARCH, 10));
         r1.setUsagePoint(this.usagePoint);
         r1.setReadingType(this.monthlyNetConsumption);
-        CalculatedReadingRecord r2 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.MARCH, 25));
+        CalculatedReadingRecordImpl r2 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.MARCH, 25));
         r2.setUsagePoint(this.usagePoint);
         r2.setReadingType(this.monthlyNetConsumption);
-        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
+        Map<ReadingType, List<CalculatedReadingRecordImpl>> recordsByReadingType = new HashMap<>();
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
-                Range.all(), recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
+        CalculatedMetrologyContractDataImpl contractData =
+                new CalculatedMetrologyContractDataImpl(
+                        this.usagePoint,
+                        this.contract,
+                        Range.all(),
+                        recordsByReadingType,
+                        this.truncaterFactory,
+                        this.sourceChannelSetFactory);
 
         // Asserts
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
@@ -284,10 +314,10 @@ public class CalculatedMetrologyContractDataImplTest {
         Instant may1st2016 = instant(2016, Month.MAY, 1);
         Instant june1st2016 = instant(2016, Month.JUNE, 1);
         Instant july1st2016 = instant(2016, Month.JULY, 1);
-        CalculatedReadingRecord r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, BigDecimal.TEN, april1st2016);
+        CalculatedReadingRecordImpl r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, BigDecimal.TEN, april1st2016);
         r1.setUsagePoint(this.usagePoint);
         r1.setReadingType(this.monthlyNetConsumption);
-        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
+        Map<ReadingType, List<CalculatedReadingRecordImpl>> recordsByReadingType = new HashMap<>();
         recordsByReadingType.put(this.monthlyNetConsumption, Collections.singletonList(r1));
         Formula formula = mock(Formula.class);
         when(formula.getExpressionNode()).thenReturn(new ConstantNodeImpl(BigDecimal.TEN));
@@ -295,8 +325,14 @@ public class CalculatedMetrologyContractDataImplTest {
         Range<Instant> period = Range.openClosed(april1st2016, july1st2016);   // Expecting monthly consumption of April, May and June
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
-                period, recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
+        CalculatedMetrologyContractDataImpl contractData =
+                new CalculatedMetrologyContractDataImpl(
+                        this.usagePoint,
+                        this.contract,
+                        period,
+                        recordsByReadingType,
+                        this.truncaterFactory,
+                        this.sourceChannelSetFactory);
 
         // Asserts
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
@@ -319,13 +355,13 @@ public class CalculatedMetrologyContractDataImplTest {
         Instant may1st2016 = instant(2016, Month.MAY, 1);
         Instant june1st2016 = instant(2016, Month.JUNE, 1);
         Instant july1st2016 = instant(2016, Month.JULY, 1);
-        CalculatedReadingRecord r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, BigDecimal.ONE, march1st2016);    // For CPS, timestamp is start of the effectivity of the property value
+        CalculatedReadingRecordImpl r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, BigDecimal.ONE, march1st2016);    // For CPS, timestamp is start of the effectivity of the property value
         r1.setUsagePoint(this.usagePoint);
         r1.setReadingType(this.monthlyNetConsumption);
-        CalculatedReadingRecord r2 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, BigDecimal.TEN, june1st2016);    // For CPS, timestamp is start of the effectivity of the property value
+        CalculatedReadingRecordImpl r2 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, BigDecimal.TEN, june1st2016);    // For CPS, timestamp is start of the effectivity of the property value
         r2.setUsagePoint(this.usagePoint);
         r2.setReadingType(this.monthlyNetConsumption);
-        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
+        Map<ReadingType, List<CalculatedReadingRecordImpl>> recordsByReadingType = new HashMap<>();
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
         Formula formula = mock(Formula.class);
         ExpressionNode node = new CustomPropertyNodeImpl(this.propertySpec, this.customPropertySet);
@@ -334,8 +370,14 @@ public class CalculatedMetrologyContractDataImplTest {
         Range<Instant> period = Range.openClosed(march1st2016, july1st2016);
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
-                period, recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
+        CalculatedMetrologyContractDataImpl contractData =
+                new CalculatedMetrologyContractDataImpl(
+                        this.usagePoint,
+                        this.contract,
+                        period,
+                        recordsByReadingType,
+                        this.truncaterFactory,
+                        this.sourceChannelSetFactory);
 
         // Asserts
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
@@ -364,23 +406,29 @@ public class CalculatedMetrologyContractDataImplTest {
         Instant march31st2016 = instant(2016, Month.MARCH, 31, 5);
         Instant april1stMidnight2016 = instant(2016, Month.APRIL, 1);
         Instant april1st2016 = april1stMidnight2016.plus(5, ChronoUnit.HOURS);
-        CalculatedReadingRecord r1 = this.newRecord(DAILY_GAS_VOLUME_MRID, BigDecimal.TEN, april1stMidnight2016);
+        CalculatedReadingRecordImpl r1 = this.newRecord(DAILY_GAS_VOLUME_MRID, BigDecimal.TEN, april1stMidnight2016);
         r1.setUsagePoint(this.usagePoint);
         r1.setReadingType(this.dailyGasVolume);
-        CalculatedReadingRecord r2 = this.newRecord(DAILY_GAS_VOLUME_MRID, BigDecimal.TEN, march31st2016);
+        CalculatedReadingRecordImpl r2 = this.newRecord(DAILY_GAS_VOLUME_MRID, BigDecimal.TEN, march31st2016);
         r2.setUsagePoint(this.usagePoint);
         r2.setReadingType(this.dailyGasVolume);
-        CalculatedReadingRecord r3 = this.newRecord(DAILY_GAS_VOLUME_MRID, BigDecimal.TEN, march30st2016);
+        CalculatedReadingRecordImpl r3 = this.newRecord(DAILY_GAS_VOLUME_MRID, BigDecimal.TEN, march30st2016);
         r3.setUsagePoint(this.usagePoint);
         r3.setReadingType(this.dailyGasVolume);
-        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
+        Map<ReadingType, List<CalculatedReadingRecordImpl>> recordsByReadingType = new HashMap<>();
         recordsByReadingType.put(this.dailyGasVolume, Arrays.asList(r1, r2, r3));
         Range<Instant> period = Range.openClosed(march29th2016, april1st2016);   // Expecting three daily consumption records
         when(this.deliverable.getReadingType()).thenReturn(this.dailyGasVolume);
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract,
-                period, recordsByReadingType, this.truncaterFactory, this.sourceChannelSetFactory);
+        CalculatedMetrologyContractDataImpl contractData =
+                new CalculatedMetrologyContractDataImpl(
+                        this.usagePoint,
+                        this.contract,
+                        period,
+                        recordsByReadingType,
+                        this.truncaterFactory,
+                        this.sourceChannelSetFactory);
 
         // Asserts
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
@@ -396,16 +444,16 @@ public class CalculatedMetrologyContractDataImplTest {
                 .get()).isEqualTo(Range.openClosed(march30st2016, march31st2016));
         assertThat(beforeLastMarchRecord.getQuantity(0)).isEqualTo(Quantity.create(BigDecimal.TEN, "m3"));
         BaseReadingRecord lastMarchRecord = readingRecords.get(2);
-        assertThat(lastMarchRecord.getTimeStamp()).isEqualTo(april1stMidnight2016);
+        assertThat(lastMarchRecord.getTimeStamp()).isEqualTo(april1st2016);
         assertThat(lastMarchRecord.getTimePeriod().get()).isEqualTo(Range.openClosed(march31st2016, april1st2016));
         assertThat(lastMarchRecord.getQuantity(0)).isEqualTo(Quantity.create(BigDecimal.TEN, "m3"));
     }
 
-    private CalculatedReadingRecord newRecord(String readingTypeMRID, Instant now) throws SQLException {
+    private CalculatedReadingRecordImpl newRecord(String readingTypeMRID, Instant now) throws SQLException {
         return this.newRecord(readingTypeMRID, BigDecimal.ZERO, now);
     }
 
-    private CalculatedReadingRecord newRecord(String readingTypeMRID, BigDecimal value, Instant now) throws SQLException {
+    private CalculatedReadingRecordImpl newRecord(String readingTypeMRID, BigDecimal value, Instant now) throws SQLException {
         ResultSet resultSet = mock(ResultSet.class);
         when(resultSet.next()).thenReturn(true, false);
         when(resultSet.getString(1)).thenReturn(readingTypeMRID);
@@ -415,7 +463,7 @@ public class CalculatedMetrologyContractDataImplTest {
         when(resultSet.getLong(5)).thenReturn(0L);
         when(resultSet.getLong(6)).thenReturn(30L);
         when(resultSet.getString(7)).thenReturn("1001");
-        return new CalculatedReadingRecord(new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService)).init(resultSet, this.deliverablesPerMeterActivation);
+        return new CalculatedReadingRecordImpl(new InstantTruncaterFactory(this.meteringService), new SourceChannelSetFactory(this.meteringService)).init(resultSet, this.deliverablesPerMeterActivation);
     }
 
     private Instant instant(int year, Month month, int dayOfMonth) {

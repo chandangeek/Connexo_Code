@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ProcessStatus;
@@ -11,6 +12,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.CalculatedReadingRecord;
 import com.elster.jupiter.metering.impl.IReadingType;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.units.Quantity;
@@ -42,7 +44,7 @@ import static com.elster.jupiter.util.streams.Currying.test;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-11 (11:17)
  */
-class CalculatedReadingRecord implements BaseReadingRecord, Comparable<CalculatedReadingRecord> {
+class CalculatedReadingRecordImpl implements CalculatedReadingRecord {
 
     static final int SUSPECT = 4;
     static final int MISSING = 3;
@@ -53,17 +55,20 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
 
     private String readingTypeMRID;
     private IReadingType readingType;
-    private BigDecimal rawValue;
-    private Quantity value;
-    private Timestamp localDate;
-    private Instant timestamp;
+    private BigDecimal rawValue;    // Maybe null if record was missing
+    private Quantity value;         // Maybe null if record was missing
+    private Timestamp localDate;    // Maybe null if record was missing
+    private Instant timestamp;      // Never null, even if record was missing, in that case the timestamp is taken from the reading quality entity
+    private Instant recordTime;     // Maybe null if record was missing
+    private Optional<Range<Instant>> timePeriod;
     private UsagePoint usagePoint;
     private long readingQuality;
     private long count;
     private SourceChannelSet sourceChannelSet;
+    private Optional<Event> timeOfUseEvent;
 
     @Inject
-    CalculatedReadingRecord(InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory) {
+    CalculatedReadingRecordImpl(InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory) {
         super();
         this.truncaterFactory = truncaterFactory;
         this.sourceChannelSetFactory = sourceChannelSetFactory;
@@ -74,7 +79,7 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
         return this.getTimeStamp().compareTo(other.getTimeStamp());
     }
 
-    static CalculatedReadingRecord merge(CalculatedReadingRecord r1, CalculatedReadingRecord r2, Instant mergedTimestamp, InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory) {
+    static CalculatedReadingRecordImpl merge(CalculatedReadingRecordImpl r1, CalculatedReadingRecordImpl r2, Instant mergedTimestamp, InstantTruncaterFactory truncaterFactory, SourceChannelSetFactory sourceChannelSetFactory) {
         if (!r1.readingTypeMRID.equals(r2.readingTypeMRID)) {
             throw new IllegalArgumentException("Cannot merge two CalculatedReadingRecords with different reading type");
         }
@@ -85,20 +90,34 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
             if (r1.readingType == null) {
                 throw new IllegalStateException("CalculatedReadingRecords can only be merged if ReadingType was injected first: see com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecord.setReadingType");
             }
-            CalculatedReadingRecord merged = new CalculatedReadingRecord(truncaterFactory, sourceChannelSetFactory);
+            CalculatedReadingRecordImpl merged = new CalculatedReadingRecordImpl(truncaterFactory, sourceChannelSetFactory);
             merged.readingTypeMRID = r1.readingTypeMRID;
             merged.readingType = r1.readingType;
             merged.rawValue = mergeValue(VirtualReadingType.from(r1.readingType).aggregationFunction(), r1.rawValue, r2.rawValue);
             merged.value = merged.readingType.toQuantity(merged.rawValue);
             merged.localDate = r1.localDate;
             merged.timestamp = mergedTimestamp;
+            merged.recordTime = max(r1.recordTime, r2.recordTime);
             merged.usagePoint = r1.usagePoint;
             merged.readingQuality = Math.max(r1.readingQuality, r2.readingQuality);
             merged.count = r1.count + r2.count;
             merged.sourceChannelSet = sourceChannelSetFactory.merge(r1.sourceChannelSet, r2.sourceChannelSet);
+            merged.timeOfUseEvent = mergeEvent(r1, r2);
             return merged;
         } else {
             return merge(r2, r1, mergedTimestamp, truncaterFactory, sourceChannelSetFactory);
+        }
+    }
+
+    private static Instant max(Instant timestamp1, Instant timestamp2) {
+        if (timestamp1 == null) {
+            return timestamp2;
+        } else if (timestamp2 == null) {
+            return timestamp1;
+        } else if (timestamp1.compareTo(timestamp2) < 0) {
+            return timestamp2;
+        } else {
+            return timestamp1;
         }
     }
 
@@ -112,23 +131,57 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
         }
     }
 
+    private static Optional<Event> mergeEvent(CalculatedReadingRecord r1, CalculatedReadingRecord r2) {
+        if (r1.getTimeStamp().equals(r2.getTimeStamp())) {
+            if (r1.isPartOfTimeOfUseGap() && !r2.isPartOfTimeOfUseGap()) {
+                /* r2 is the original record whose TimeStamp was set during post-processing
+                 * and r1 is record that was added during post-processing because we thought r2 was missing.
+                 * see CalculatedMetrologyContractDataImpl.merge(CalculatedReadingRecordImpl, InstantTruncater, IntervalLength, Map<Instant, CalculatedReadingRecordImpl>)
+                 * and usages of CalculatedReadingRecordImpl.setTimestamp(Instant) */
+                return r2.getTimeOfUseEvent();
+            } else if (!r1.isPartOfTimeOfUseGap() && r2.isPartOfTimeOfUseGap()) {
+                /* r1 is the original record whose TimeStamp was set during post-processing
+                 * and r2 is record that was added during post-processing because we thought r1 was missing.
+                 * see CalculatedMetrologyContractDataImpl.merge(CalculatedReadingRecordImpl, InstantTruncater, IntervalLength, Map<Instant, CalculatedReadingRecordImpl>)
+                 * and usages of CalculatedReadingRecordImpl.setTimestamp(Instant) */
+                return r1.getTimeOfUseEvent();
+            } else {
+                return mergeEvent(r1.getTimeOfUseEvent(), r2.getTimeOfUseEvent());
+            }
+        } else {
+            return mergeEvent(r1.getTimeOfUseEvent(), r2.getTimeOfUseEvent());
+        }
+    }
+
+    private static Optional<Event> mergeEvent(Optional<Event> event1, Optional<Event> event2) {
+        if (event1.isPresent()) {
+            return event1;
+        } else if (event2.isPresent()) {
+            return event2;
+        } else {
+            return Optional.empty();
+        }
+    }
+
     /**
-     * Initializes this {@link CalculatedReadingRecord} from the specified {@link ResultSet}.
+     * Initializes this {@link CalculatedReadingRecordImpl} from the specified {@link ResultSet}.
      *
      * @param resultSet The ResultSet
-     * @return The initialized AggregatedReadingRecord
+     * @return The initialized CalculatedReadingRecord
      */
-    CalculatedReadingRecord init(ResultSet resultSet, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
+    CalculatedReadingRecordImpl init(ResultSet resultSet, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
         try {
+            this.timeOfUseEvent = Optional.empty();
             int columnIndex = 1;
             this.readingTypeMRID = resultSet.getString(columnIndex++);
             this.rawValue = resultSet.getBigDecimal(columnIndex++);
             this.localDate = resultSet.getTimestamp(columnIndex++);
             this.timestamp = Instant.ofEpochMilli(resultSet.getLong(columnIndex++));
+            this.recordTime = Instant.ofEpochMilli(resultSet.getLong(columnIndex++));
             this.readingQuality = resultSet.getLong(columnIndex++);
             this.count = resultSet.getLong(columnIndex++);
             this.sourceChannelSet = sourceChannelSetFactory.parseFromString(resultSet.getString(columnIndex++));
-            if (this.count != 1) {
+            if (this.count != 1 && this.readingQuality == 0) {
                 checkCount(deliverablesPerMeterActivation);
             }
             return this;
@@ -157,10 +210,36 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
                                     .stream()
                                     .filter(ReadingQualityRecord::isSuspect)
                                     .findAny()
-                                    .isPresent() ? SUSPECT : MISSING;
+                                    .map(r -> SUSPECT)
+                                    .orElse(MISSING);
                 }
             }
         }
+    }
+
+    /**
+     * Initializes this {@link CalculatedReadingRecordImpl}
+     * and mark it as being part of a time of use gap.
+     *
+     * @param usagePoint The UsagePoint
+     * @param readingType The ReadingType
+     * @param timestamp The utc timestamp
+     * @param event The Event
+     * @return The initialized CalculatedReadingRecord
+     */
+    CalculatedReadingRecordImpl initAsPartOfGapAt(UsagePoint usagePoint, IReadingType readingType, Instant timestamp, Event event) {
+        this.usagePoint = usagePoint;
+        this.timeOfUseEvent = Optional.of(event);
+        this.readingType = readingType;
+        this.readingTypeMRID = readingType.getMRID();
+        this.rawValue = null;
+        this.localDate = new java.sql.Timestamp(timestamp.toEpochMilli());
+        this.timestamp = timestamp;
+        this.recordTime = null; // Records that are part of a gap don't actually exist so should not have a record time
+        this.readingQuality = 0;
+        this.count = 0; // Not expecting any interval when record is part of a time of use gap
+        this.sourceChannelSet = sourceChannelSetFactory.empty();
+        return this;
     }
 
     private boolean readingTypeMatches(ReadingTypeDeliverableForMeterActivationSet set, String readingTypeMRID) {
@@ -173,17 +252,19 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
      * @param timeStamp The Timestamp
      * @return The copied CalculatedReadingRecord that occurs on the specified timestamp
      */
-    CalculatedReadingRecord atTimeStamp(Instant timeStamp) {
-        CalculatedReadingRecord record = new CalculatedReadingRecord(this.truncaterFactory, this.sourceChannelSetFactory);
+    CalculatedReadingRecordImpl atTimeStamp(Instant timeStamp) {
+        CalculatedReadingRecordImpl record = new CalculatedReadingRecordImpl(this.truncaterFactory, this.sourceChannelSetFactory);
         record.usagePoint = this.usagePoint;
         record.rawValue = this.rawValue;
         record.readingTypeMRID = this.readingTypeMRID;
         record.setReadingType(this.readingType);
         record.localDate = new java.sql.Timestamp(timeStamp.toEpochMilli());
         record.timestamp = timeStamp;
+        record.recordTime = this.recordTime;
         record.readingQuality = this.readingQuality;
         record.count = 1;
         record.sourceChannelSet = this.sourceChannelSet;
+        record.timeOfUseEvent = this.timeOfUseEvent;
         return record;
     }
 
@@ -303,9 +384,13 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
         return this.timestamp;
     }
 
+    void setTimestamp(Instant timestamp) {
+        this.timestamp = timestamp;
+    }
+
     @Override
     public Instant getReportedDateTime() {
-        return null;
+        return this.recordTime;
     }
 
     @Override
@@ -319,17 +404,20 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
 
     @Override
     public Optional<Range<Instant>> getTimePeriod() {
-        Optional<MeterActivation> meterActivation = this.usagePoint.getMeterActivations(this.getTimeStamp())
-                .stream()
-                .findFirst();
-        if (meterActivation.isPresent()) {
-            return this.getTimePeriod(meterActivation.get().getStart(), meterActivation.get().getChannelsContainer().getZoneId());
-        } else {
-            ZoneId zoneId = ZoneId.of("UTC");
-            IntervalLength intervalLength = IntervalLength.from(this.getReadingType());
-            Instant start = truncaterFactory.truncaterFor(this.getReadingType()).truncate(this.getTimeStamp(), intervalLength, zoneId);
-            return this.getTimePeriod(start, zoneId);
+        if (this.timePeriod == null) {
+            Optional<MeterActivation> meterActivation = this.usagePoint.getMeterActivations(this.getTimeStamp())
+                    .stream()
+                    .findFirst();
+            if (meterActivation.isPresent()) {
+                this.timePeriod = this.getTimePeriod(meterActivation.get().getStart(), meterActivation.get().getChannelsContainer().getZoneId());
+            } else {
+                ZoneId zoneId = ZoneId.of("UTC");
+                IntervalLength intervalLength = IntervalLength.from(this.getReadingType());
+                Instant start = truncaterFactory.truncaterFor(this.getReadingType()).truncate(this.getTimeStamp(), intervalLength, zoneId);
+                this.timePeriod = this.getTimePeriod(start, zoneId);
+            }
         }
+        return this.timePeriod;
     }
 
     private Optional<Range<Instant>> getTimePeriod(Instant start, ZoneId zoneId) {
@@ -382,4 +470,15 @@ class CalculatedReadingRecord implements BaseReadingRecord, Comparable<Calculate
     SourceChannelSet getSourceChannelSet() {
         return sourceChannelSet;
     }
+
+    @Override
+    public boolean isPartOfTimeOfUseGap() {
+        return this.timeOfUseEvent.isPresent();
+    }
+
+    @Override
+    public Optional<Event> getTimeOfUseEvent() {
+        return this.timeOfUseEvent;
+    }
+
 }

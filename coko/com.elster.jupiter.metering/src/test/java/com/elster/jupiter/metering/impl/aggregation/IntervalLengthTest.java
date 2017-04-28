@@ -824,6 +824,11 @@ public class IntervalLengthTest {
     }
 
     @Test
+    public void oneMinuteMultipliesToAllOthers() {
+        assertThat(IntervalLength.MINUTE1.multiples()).containsExactlyElementsOf(EnumSet.complementOf(EnumSet.of(IntervalLength.NOT_SUPPORTED)));
+    }
+
+    @Test
     public void flowVolumeConversionFactorForHourOrLess() {
         hourlyIntervals().forEach(this::doFlowVolumeConversionFactorForHourOrLess);
         EnumSet.of(

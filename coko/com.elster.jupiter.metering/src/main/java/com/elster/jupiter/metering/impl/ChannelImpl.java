@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.JournaledChannelReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
@@ -84,7 +85,7 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 import static com.elster.jupiter.util.streams.Predicates.on;
 import static com.elster.jupiter.util.streams.Predicates.self;
 
-public final class ChannelImpl implements ChannelContract {
+public final class ChannelImpl implements SimpleChannelContract {
 
     static final int INTERVALVAULTID = 1;
     static final int IRREGULARVAULTID = 2;
@@ -127,11 +128,12 @@ public final class ChannelImpl implements ChannelContract {
         this.eventService = eventService;
     }
 
-    public ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes) {
-        return init(channelsContainer, readingTypes, this::determineRule);
+    @Override
+    public ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes, Optional<Integer> hourOffset) {
+        return init(channelsContainer, readingTypes, hourOffset, this::determineRule);
     }
 
-    public ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes, BiFunction<IReadingType, IReadingType, DerivationRule> ruleDetermination) {
+    public ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes, Optional<Integer> hourOffset, BiFunction<IReadingType, IReadingType, DerivationRule> ruleDetermination) {
         this.channelsContainer.set(channelsContainer);
         this.mainReadingType.set(readingTypes.get(0));
         for (int index = 0; index < readingTypes.size(); index++) {
@@ -150,7 +152,7 @@ public final class ChannelImpl implements ChannelContract {
                 this.readingTypeInChannels.add(readingTypeInChannel);
             }
         }
-        this.timeSeries.set(createTimeSeries(channelsContainer.getZoneId()));
+        this.timeSeries.set(createTimeSeries(channelsContainer.getZoneId(), hourOffset));
         return this;
     }
 
@@ -285,13 +287,13 @@ public final class ChannelImpl implements ChannelContract {
         return result;
     }
 
-    private TimeSeries createTimeSeries(ZoneId zoneId) {
+    private TimeSeries createTimeSeries(ZoneId zoneId, Optional<Integer> hourOffset) {
         Vault vault = getVault();
         RecordSpec recordSpec = getRecordSpec();
         TimeZone timeZone = TimeZone.getTimeZone(zoneId);
         return isRegular() ?
-                vault.createRegularTimeSeries(recordSpec, timeZone, getIntervalLength().get(), 0) :
-                vault.createIrregularTimeSeries(recordSpec, timeZone);
+                    vault.createRegularTimeSeries(recordSpec, timeZone, getIntervalLength().get(), hourOffset.orElse(0)) :
+                    vault.createIrregularTimeSeries(recordSpec, timeZone);
     }
 
     @Override
@@ -364,7 +366,7 @@ public final class ChannelImpl implements ChannelContract {
             return mainDerivationRule.isMultiplied() ? RecordSpecs.VALUE_MULTIPLIED_INTERVAL : RecordSpecs.SINGLEINTERVAL;
         } else {
             if (hasMacroPeriod()) {
-                if(hasMultiplier()) {
+                if (hasMultiplier()) {
                     return RecordSpecs.BILLINGREGISTER_WITH_MULTIPLIED_REGISTER;
                 }
                 return RecordSpecs.BILLINGPERIOD;
@@ -481,12 +483,12 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<IntervalReadingRecord> getIntervalJournalReadings(ReadingType readingType, Range<Instant> interval) {
+    public List<? extends BaseReadingRecord> getJournaledChannelReadings(ReadingType readingType, Range<Instant> interval) {
         if (!isRegular()) {
             return Collections.emptyList();
         }
         return getTimeSeries().getJournalEntries(interval).stream()
-                .map(entry -> new IntervalReadingRecordImpl(this, entry))
+                .map(entry -> new JournaledChannelReadingRecordImpl(this, entry))
                 .map(reading -> reading.filter(readingType))
                 .collect(ExtraCollectors.toImmutableList());
     }
@@ -503,12 +505,12 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<ReadingRecord> getRegisterJournalReadings(ReadingType readingType, Range<Instant> interval) {
+    public List<? extends ReadingRecord> getJournaledRegisterReadings(ReadingType readingType, Range<Instant> interval) {
         if (isRegular()) {
             return Collections.emptyList();
         }
         return getTimeSeries().getJournalEntries(interval).stream()
-                .map(entry -> new ReadingRecordImpl(this, entry))
+                .map(entry -> new JournaledRegisterReadingRecordImpl(this, entry))
                 .map(reading -> reading.filter(readingType))
                 .collect(ExtraCollectors.toImmutableList());
     }

@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -25,6 +26,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-02-01 (13:35)
  */
+@ProviderType
 public interface MetrologyContractCalculationIntrospector {
 
     /**

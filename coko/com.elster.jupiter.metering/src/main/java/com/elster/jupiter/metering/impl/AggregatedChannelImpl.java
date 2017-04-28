@@ -4,11 +4,11 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -20,12 +20,15 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
+import com.elster.jupiter.metering.aggregation.CalculatedReadingRecord;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.util.streams.ExtraCollectors;
 import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.Range;
@@ -38,13 +41,18 @@ import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsLast;
 
 public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel {
 
@@ -123,7 +131,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<Instant> toList(Range<Instant> range) {
-        return persistedChannel.toList(range);
+        return this.persistedChannel.toList(range);
     }
 
     @Override
@@ -141,11 +149,17 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<IntervalReadingRecord> getIntervalReadings(Range<Instant> interval) {
-        Map<Instant, IntervalReadingRecord> calculatedReadings = getCalculatedIntervalReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record,clock));
-        Map<Instant, IntervalReadingRecord> persistedReadings = getPersistedIntervalReadings(interval).stream()
-                .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
+        Map<Instant, AggregatedIntervalReadingRecord> calculatedReadings = getCalculatedIntervalReadings(interval);
+        Map<Instant, AggregatedIntervalReadingRecord> persistedReadings =
+                getPersistedIntervalReadings(interval)
+                        .stream()
+                        .map(AggregatedReadingIntervalRecordBackedByPersistentIntervalReadingRecord::new)
+                        .collect(
+                            Collectors.toMap(
+                                IntervalReadingRecord::getTimeStamp,
+                                Function.identity()));
         calculatedReadings.putAll(persistedReadings);
-        return new ArrayList<>(calculatedReadings.values());
+        return calculatedReadings.values().stream().sorted(Comparator.comparing(BaseReading::getTimeStamp)).collect(Collectors.toList());
     }
 
     @Override
@@ -158,9 +172,17 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<ReadingRecord> getRegisterReadings(Range<Instant> interval) {
-        Map<Instant, ReadingRecord> calculatedReadings = getCalculatedRegisterReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record, clock));
-        Map<Instant, ReadingRecord> persistedReadings = getPersistedRegisterReadings(interval).stream()
-                .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
+        Map<Instant, ReadingRecord> calculatedReadings =
+                getCalculatedRegisterReadings(
+                        interval,
+                        record -> new AggregatedReadingRecordImpl(this.persistedChannel, record));
+        Map<Instant, ReadingRecord> persistedReadings =
+                getPersistedRegisterReadings(interval)
+                        .stream()
+                        .collect(
+                            Collectors.toMap(
+                                    BaseReadingRecord::getTimeStamp,
+                                    Function.identity()));
         calculatedReadings.putAll(persistedReadings);
         return new ArrayList<>(calculatedReadings.values());
     }
@@ -175,42 +197,61 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<BaseReadingRecord> getReadings(Range<Instant> interval) {
-        Map<Instant, BaseReadingRecord> calculatedReadings = getCalculatedReadings(interval, BaseReadingRecord.class::cast);
-        Map<Instant, BaseReadingRecord> persistedReadings = persistedChannel.getReadings(interval).stream()
-                .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
-        calculatedReadings.putAll(persistedReadings);
-        return new ArrayList<>(calculatedReadings.values());
-    }
-
-    private <T extends BaseReadingRecord> Map<Instant, T> getCalculatedReadings(Range<Instant> interval, Function<BaseReadingRecord, T> mapper) {
         if (this.isRegular()) {
-            return getCalculatedIntervalReadings(interval, mapper);
+            Map<Instant, AggregatedIntervalReadingRecord> calculatedReadings = getCalculatedIntervalReadings(interval);
+            Map<Instant, AggregatedIntervalReadingRecord> persistedReadings =
+                    this.persistedChannel
+                            .getReadings(interval)
+                            .stream()
+                            .map(AggregatedReadingIntervalRecordBackedByPersistentBaseReadingRecord::new)
+                            .collect(
+                                Collectors.toMap(
+                                        BaseReadingRecord::getTimeStamp,
+                                        Function.identity()));
+            calculatedReadings.putAll(persistedReadings);
+            return new ArrayList<>(calculatedReadings.values());
         } else {
-            return getCalculatedRegisterReadings(interval, mapper);
+            Map<Instant, BaseReadingRecord> calculatedReadings = getCalculatedRegisterReadings(interval, BaseReadingRecord.class::cast);
+            Map<Instant, BaseReadingRecord> persistedReadings =
+                    this.persistedChannel
+                            .getReadings(interval)
+                            .stream()
+                            .collect(
+                                Collectors.toMap(
+                                        BaseReadingRecord::getTimeStamp,
+                                        Function.identity()));
+            calculatedReadings.putAll(persistedReadings);
+            return new ArrayList<>(calculatedReadings.values());
         }
     }
 
-    private <T extends BaseReadingRecord> Map<Instant, T> getCalculatedIntervalReadings(Range<Instant> interval, Function<BaseReadingRecord, T> mapper) {
+    private Map<Instant, AggregatedIntervalReadingRecord> getCalculatedIntervalReadings(Range<Instant> interval) {
         if (isMetrologyConfigurationActive(interval)) {
-            Set<Instant> readingTimeStamps = new HashSet<>(this.toList(interval));
-            return this.dataAggregationService.calculate(usagePoint, metrologyContract, interval)
-                    .getCalculatedDataFor(this.deliverable).stream()
-                    .filter(readingRecord -> readingTimeStamps.contains(readingRecord.getTimeStamp()))
-                    .map(mapper::apply)
-                    .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
+            return this.dataAggregationService
+                        .calculate(usagePoint, metrologyContract, interval)
+                        .getCalculatedDataFor(this.deliverable).stream()
+                        .map(record -> new AggregatedReadingRecordImpl(this.persistedChannel, record))
+                        .collect(Collectors.toMap(
+                            AggregatedIntervalReadingRecord::getTimeStamp,
+                            Function.identity()));
         } else {
-            return Collections.emptyMap();
+            return new HashMap<>();
         }
     }
 
-    private <T extends BaseReadingRecord> Map<Instant, T> getCalculatedRegisterReadings(Range<Instant> interval, Function<BaseReadingRecord, T> mapper) {
+    private <T extends BaseReadingRecord> Map<Instant, T> getCalculatedRegisterReadings(Range<Instant> interval, Function<CalculatedReadingRecord, T> mapper) {
         if (isMetrologyConfigurationActive(interval)) {
-            return this.dataAggregationService.calculate(usagePoint, metrologyContract, interval)
-                    .getCalculatedDataFor(this.deliverable).stream()
+            return this.dataAggregationService
+                    .calculate(usagePoint, metrologyContract, interval)
+                    .getCalculatedDataFor(this.deliverable)
+                    .stream()
                     .map(mapper::apply)
-                    .collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
+                    .collect(
+                        Collectors.toMap(
+                                BaseReading::getTimeStamp,
+                                Function.identity()));
         } else {
-            return Collections.emptyMap();
+            return new HashMap<>();
         }
     }
 
@@ -225,6 +266,28 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
             throw new IllegalArgumentException("Incorrect reading type. This channel supports only " + this.deliverable.getReadingType().getMRID());
         }
         return getRegisterReadings(interval);
+    }
+
+    @Override
+    public List<? extends BaseReadingRecord> getJournaledChannelReadings(ReadingType readingType, Range<Instant> interval) {
+        if (!isRegular()) {
+            return Collections.emptyList();
+        }
+        return getTimeSeries().getJournalEntries(interval).stream()
+                .map(entry -> new JournaledChannelReadingRecordImpl(this, entry))
+                .map(reading -> reading.filter(readingType))
+                .collect(ExtraCollectors.toImmutableList());
+    }
+
+    @Override
+    public List<? extends ReadingRecord> getJournaledRegisterReadings(ReadingType readingType, Range<Instant> interval) {
+        if (isRegular()) {
+            return Collections.emptyList();
+        }
+        return getTimeSeries().getJournalEntries(interval).stream()
+                .map(entry -> new JournaledRegisterReadingRecordImpl(this, entry))
+                .map(reading -> reading.filter(readingType))
+                .collect(ExtraCollectors.toImmutableList());
     }
 
     @Override
@@ -291,7 +354,11 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
             List<? extends BaseReadingRecord> deliverableData = calculatedMetrologyContractData.getCalculatedDataFor(this.deliverable);
             if (!deliverableData.isEmpty()) {
                 Instant calculatedFirstDateTime = deliverableData.get(0).getTimeStamp();
-                return calculatedFirstDateTime.compareTo(persistedChannelFirstDateTime) < 0 ? calculatedFirstDateTime : persistedChannelFirstDateTime;
+                if (calculatedFirstDateTime.compareTo(persistedChannelFirstDateTime) < 0) {
+                    return calculatedFirstDateTime;
+                } else {
+                    return persistedChannelFirstDateTime;
+                }
             }
         }
         return persistedChannelFirstDateTime;
@@ -305,7 +372,11 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
             List<? extends BaseReadingRecord> deliverableData = calculatedMetrologyContractData.getCalculatedDataFor(this.deliverable);
             if (!deliverableData.isEmpty()) {
                 Instant calculatedLastDateTime = deliverableData.get(deliverableData.size() - 1).getTimeStamp();
-                return persistedChannelLastDateTime == null || calculatedLastDateTime.compareTo(persistedChannelLastDateTime) >= 0 ? calculatedLastDateTime : persistedChannelLastDateTime;
+                if (persistedChannelLastDateTime == null || calculatedLastDateTime.compareTo(persistedChannelLastDateTime) >= 0) {
+                    return calculatedLastDateTime;
+                } else {
+                    return persistedChannelLastDateTime;
+                }
             }
         }
         return persistedChannelLastDateTime;
@@ -366,14 +437,43 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
         return persistedChannel.getReadingTypes();
     }
 
-    @Override
-    public List<IntervalReadingRecord> getPersistedIntervalReadings(Range<Instant> interval) {
-        return persistedChannel.getIntervalReadings(interval);
+    private List<IntervalReadingRecord> getPersistedIntervalReadings(Range<Instant> interval) {
+        return Collections.unmodifiableList(persistedChannel.getIntervalReadings(interval));
     }
 
     @Override
-    public List<IntervalReadingRecord> getCalculatedIntervalReadings(Range<Instant> interval) {
-        return new ArrayList<>(getCalculatedIntervalReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record, clock)).values());
+    public List<AggregatedIntervalReadingRecord> getAggregatedIntervalReadings(Range<Instant> interval) {
+        Map<Instant, AggregatedIntervalReadingRecord> calculatedReadings = this.getCalculatedIntervalReadings(interval);
+        Map<Instant, IntervalReadingRecord> persistedReadings = toMap(this.getPersistedIntervalReadings(interval));
+        Map<Instant, AggregatedIntervalReadingRecord> merged =
+                calculatedReadings
+                    .entrySet()
+                    .stream()
+                    .map(entry -> this.merge(entry, persistedReadings))
+                    .collect(Collectors.toMap(
+                            AggregatedIntervalReadingRecord::getTimeStamp,
+                            Function.identity()));
+        persistedReadings
+                    .entrySet()
+                    .stream()
+                    .map(Map.Entry::getValue)
+                    .map(AggregatedReadingIntervalRecordBackedByPersistentIntervalReadingRecord::new)
+                    .forEach(reading -> merged.put(reading.getTimeStamp(), reading));
+        return new ArrayList<>(merged.values());
+    }
+
+    private <T extends BaseReadingRecord> Map<Instant, T> toMap(List<T> readings) {
+        return readings.stream().collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
+    }
+
+    private AggregatedIntervalReadingRecord merge(Map.Entry<Instant, AggregatedIntervalReadingRecord> calculated, Map<Instant, IntervalReadingRecord> persistedRecords) {
+        IntervalReadingRecord persisted = persistedRecords.get(calculated.getKey());
+        if (persisted == null) {
+            return calculated.getValue();
+        } else {
+            persistedRecords.remove(calculated.getKey());
+            return new EditedAggregatedReadingRecord(calculated.getValue(), persisted);
+        }
     }
 
     @Override
@@ -383,7 +483,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<ReadingRecord> getCalculatedRegisterReadings(Range<Instant> interval) {
-        return new ArrayList<>(getCalculatedRegisterReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record, clock)).values());
+        return new ArrayList<>(getCalculatedRegisterReadings(interval, record -> new AggregatedReadingRecordImpl(this.persistedChannel, record)).values());
     }
 
     @Override
@@ -399,112 +499,137 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
         return persistedChannel.hashCode();
     }
 
-    private static class CalculatedReadingRecordImpl implements IntervalReadingRecord, ReadingRecord {
+    /**
+     * Implementation class that only serves the purpose of unifying API in using
+     * AggregatedIntervalReadingRecord instead of BaseReadingRecord.
+     */
+    private static class AggregatedReadingIntervalRecordBackedByPersistentBaseReadingRecord implements AggregatedIntervalReadingRecord {
+        private final BaseReadingRecord persistentRecord;
 
-        private final BaseReadingRecord record;
-        private Clock clock;
-        private final Channel persistedChannel;
-
-        public CalculatedReadingRecordImpl(Channel persistedChannel, BaseReadingRecord record, Clock clock) {
-            this.record = record;
-            this.clock = clock;
-            this.persistedChannel = persistedChannel;
+        private AggregatedReadingIntervalRecordBackedByPersistentBaseReadingRecord(BaseReadingRecord persistentRecord) {
+            this.persistentRecord = persistentRecord;
         }
 
         @Override
-        public List<Quantity> getQuantities() {
-            return record.getQuantities();
+        public boolean wasEdited() {
+            return true;
         }
 
         @Override
-        public Quantity getQuantity(int offset) {
-            return record.getQuantity(offset);
+        public BigDecimal getOriginalValue() {
+            return null;    // No original value since this record replace a calculated record that was missing
         }
 
         @Override
-        public Quantity getQuantity(ReadingType readingType) {
-            return record.getQuantity(readingType);
+        public boolean isPartOfTimeOfUseGap() {
+            return false;
         }
 
         @Override
-        public ReadingType getReadingType() {
-            return record.getReadingType();
+        public Optional<Event> getTimeOfUseEvent() {
+            return Optional.empty();
         }
 
         @Override
-        public ReadingType getReadingType(int offset) {
-            return record.getReadingType(offset);
-        }
-
-        @Override
-        public List<? extends ReadingType> getReadingTypes() {
-            return record.getReadingTypes();
-        }
-
-        @Override
-        public ProcessStatus getProcessStatus() {
-            return record.getProcessStatus();
-        }
-
-        @Override
-        public void setProcessingFlags(ProcessStatus.Flag... flags) {
-            // do nothing as a workaround because this method is called from com.elster.jupiter.validation.impl.ChannelValidator.setValidationQuality()
-            // during validation and leads to UnsupportedOperationException thrown by com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecord.setProcessingFlags()
-        }
-
-        @Override
-        public CalculatedReadingRecordImpl filter(ReadingType readingType) {
+        public IntervalReadingRecord filter(ReadingType readingType) {
             return this;
         }
 
         @Override
+        public List<Quantity> getQuantities() {
+            return this.persistentRecord.getQuantities();
+        }
+
+        @Override
+        public Quantity getQuantity(ReadingType readingType) {
+            return persistentRecord.getQuantity(readingType);
+        }
+
+        @Override
+        public Quantity getQuantity(int offset) {
+            return persistentRecord.getQuantity(offset);
+        }
+
+        @Override
+        public ReadingType getReadingType() {
+            return persistentRecord.getReadingType();
+        }
+
+        @Override
+        public ReadingType getReadingType(int offset) {
+            return persistentRecord.getReadingType(offset);
+        }
+
+        @Override
+        public List<? extends ReadingType> getReadingTypes() {
+            return persistentRecord.getReadingTypes();
+        }
+
+        @Override
+        public ProcessStatus getProcessStatus() {
+            return persistentRecord.getProcessStatus();
+        }
+
+        @Override
+        public void setProcessingFlags(ProcessStatus.Flag... flags) {
+            persistentRecord.setProcessingFlags(flags);
+        }
+
+        @Override
         public List<? extends ReadingQualityRecord> getReadingQualities() {
-            return record.getReadingQualities();
+            return persistentRecord.getReadingQualities();
+        }
+
+        @Override
+        public boolean edited() {
+            return persistentRecord.edited();
+        }
+
+        @Override
+        public boolean wasAdded() {
+            return persistentRecord.wasAdded();
+        }
+
+        @Override
+        public boolean confirmed() {
+            return persistentRecord.confirmed();
         }
 
         @Override
         public BigDecimal getSensorAccuracy() {
-            return record.getSensorAccuracy();
+            return persistentRecord.getSensorAccuracy();
         }
 
         @Override
         public Instant getTimeStamp() {
-            return record.getTimeStamp();
+            return persistentRecord.getTimeStamp();
         }
 
         @Override
         public Instant getReportedDateTime() {
-            return this.clock.instant();
+            return persistentRecord.getReportedDateTime();
         }
 
         @Override
         public BigDecimal getValue() {
-            return record.getValue();
+            return persistentRecord.getValue();
         }
 
         @Override
         public String getSource() {
-            return record.getSource();
+            return persistentRecord.getSource();
         }
 
         @Override
         public Optional<Range<Instant>> getTimePeriod() {
-            return record.getTimePeriod();
+            return persistentRecord.getTimePeriod();
         }
 
         @Override
-        public String getReason() {
-            return null;
+        public boolean hasReadingQuality(ReadingQualityType readingQualityType) {
+            return persistentRecord.hasReadingQuality(readingQualityType);
         }
 
-        @Override
-        public String getReadingTypeCode() {
-            return persistedChannel.getMainReadingType().getMRID();
-        }
-
-        @Override
-        public String getText() {
-            return null;
-        }
     }
+
 }
