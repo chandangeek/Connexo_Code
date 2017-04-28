@@ -36,6 +36,10 @@ public abstract class FieldResource {
         this.thesaurus = thesaurus;
     }
 
+    protected Thesaurus getThesaurus() {
+        return thesaurus;
+    }
+
     /**
      * This method will return a JSON list of all available field descriptions in this resource
      */
