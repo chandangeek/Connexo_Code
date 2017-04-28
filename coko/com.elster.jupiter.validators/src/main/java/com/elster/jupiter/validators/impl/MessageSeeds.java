@@ -46,6 +46,9 @@ public enum MessageSeeds implements MessageSeed {
     REFERENCE_MISC_REFERENCE_READING_TYPE_NOT_SUTABLE(3006, "reference.validator.misc.check.readingtype.not.sutable", "not sutable FIXME" ),
     REFERENCE_MISC_CONFIGURATION_NOT_COMPLETE(3007, "reference.validator.misc.not.complete","Failed to validate period {0} using method \"{1}\" on {2}/{3}/{4} since validation rule is not fully configured on {5}"),
 
+    REFERENCE_VALIDATE_PROPS_NO_PURPOSE_ON_USAGE_POINT(3008,"reference.validator.validate.props.no.purpose","Purpose not found on usage point"),
+    REFERENCE_VALIDATE_PROPS_NO_READING_TYPE_ON_PURPOSE_ON_USAGE_POINT(3009,"reference.validator.validate.props.no.readingtype","Reading type not found on purpose"),
+
     // Meter advance messages
     // {0} - from time, {1} - to time, {2} - validator display name, {3} - reading type name, {4} - validate object name
     REFERENCE_READINGTYPE_DOES_NOT_MATCH_VALIDATED_ONE(4001, "ReferenceReadingTypeDoesNotMatch",

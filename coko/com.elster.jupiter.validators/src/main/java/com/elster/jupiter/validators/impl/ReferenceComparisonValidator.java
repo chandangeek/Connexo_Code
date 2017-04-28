@@ -5,13 +5,19 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeComparator;
 import com.elster.jupiter.metering.ReadingTypeValueFactory;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointValueFactory;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySelectionMode;
@@ -30,6 +36,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The validator compares delta values on the validated output channel on a usage point to another output channel
@@ -44,7 +51,7 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
 
     private MeteringService meteringService;
 
-    private UsagePoint referenceUsagePoint;
+    private UsagePointValueFactory.UsagePointReference referenceUsagePoint;
     private ReadingTypeValueFactory.ReadingTypeReference referenceReadingTypeProperty;
 
     public ReferenceComparisonValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, MeteringService meteringService) {
@@ -59,10 +66,50 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
 
     @Override
     public void validateProperties(Map<String, Object> properties) {
-        // FIXME:
+        MetrologyPurpose checkPurpose = Optional.ofNullable(properties.get(CHECK_PURPOSE))
+                .map(o -> (MetrologyPurpose) o)
+                .orElse(null);
+        ReadingTypeValueFactory.ReadingTypeReference checkReadingTypeRef = Optional.ofNullable(properties.get(CHECK_READING_TYPE))
+                .map(o -> (ReadingTypeValueFactory.ReadingTypeReference) o)
+                .orElse(null);
+        UsagePointValueFactory.UsagePointReference checkUsagePoint = Optional.ofNullable(properties.get(CHECK_USAGE_POINT))
+                .map(o -> (UsagePointValueFactory.UsagePointReference) o)
+                .orElse(null);
+        validateCheckUsagePointHasCheckPurpose(checkUsagePoint, checkPurpose, checkReadingTypeRef);
+    }
 
-        // The chosen check usage point doesn't have the selected purpose
-        // The chosen reading type is not available on the selected purpose of the usage point
+    private void validateCheckUsagePointHasCheckPurpose(UsagePointValueFactory.UsagePointReference checkUsagePoint, MetrologyPurpose checkPurpose, ReadingTypeValueFactory.ReadingTypeReference checkReadingReference) {
+        if (checkUsagePoint != null && checkPurpose != null && checkReadingReference != null) {
+            Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMC = checkUsagePoint.getUsagePoint()
+                    .getCurrentEffectiveMetrologyConfiguration();
+            MetrologyContract contract = null;
+            if (effectiveMC.isPresent()) {
+                Optional<MetrologyContract> metrologyContract = effectiveMC.get().getMetrologyConfiguration()
+                        .getContracts()
+                        .stream()
+                        .filter(c -> c.getMetrologyPurpose().equals(checkPurpose))
+                        .findAny();
+                if (metrologyContract.isPresent()) {
+                    contract = metrologyContract.get();
+                }
+            }
+            if (contract == null) {
+                throw new LocalizedFieldValidationException(MessageSeeds.REFERENCE_VALIDATE_PROPS_NO_PURPOSE_ON_USAGE_POINT, "properties." + CHECK_USAGE_POINT);
+            }else {
+                Channel channel = null;
+                Optional<ChannelsContainer> channelsContainerWithCheckChannel = effectiveMC.get()
+                        .getChannelsContainer(contract);
+                if (channelsContainerWithCheckChannel.isPresent()) {
+                    Optional<Channel> checkChannel = channelsContainerWithCheckChannel.get().getChannel(checkReadingReference.getReadingType());
+                    if (checkChannel.isPresent()) {
+                        channel = checkChannel.get();
+                    }
+                }
+                if (channel == null){
+                    throw new LocalizedFieldValidationException(MessageSeeds.REFERENCE_VALIDATE_PROPS_NO_READING_TYPE_ON_PURPOSE_ON_USAGE_POINT, "properties." + CHECK_READING_TYPE);
+                }
+            }
+        }
     }
 
     @Override
@@ -104,7 +151,7 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
 
     private PropertySpec buildReferenceUsagePointPropertySpec() {
         return getPropertySpecService()
-                .referenceSpec(UsagePoint.class)
+                .specForValuesOf(new UsagePointValueFactory(meteringService))
                 .named(CHECK_USAGE_POINT, TranslationKeys.CHECK_USAGE_POINT)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
@@ -112,8 +159,8 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
                 .finish();
     }
 
-    UsagePoint getCheckUsagePointProperty() {
-        return (UsagePoint) properties.get(CHECK_USAGE_POINT);
+    UsagePointValueFactory.UsagePointReference getCheckUsagePointProperty() {
+        return (UsagePointValueFactory.UsagePointReference) properties.get(CHECK_USAGE_POINT);
     }
 
     private PropertySpec buildReferenceReadingTypePropertySpec() {
@@ -131,17 +178,17 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
 
     @Override
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
-        super.init(channel,readingType,interval);
+        super.init(channel, readingType, interval);
 
         try {
             initOverridenProperties();
             ReadingType referenceReadingType = referenceReadingTypeProperty.getReadingType();
-            validateReferenceReadingType(readingType,referenceReadingType);
+            validateReferenceReadingType(readingType, referenceReadingType);
             validateReferenceUsagePoint();
             initValidatingPurpose();
             initUsagePointName(channel);
-            initCheckData(referenceUsagePoint, referenceReadingType);
-        }catch (InitCancelException e){
+            initCheckData(referenceUsagePoint.getUsagePoint(), referenceReadingType);
+        } catch (InitCancelException e) {
             preparedValidationResult = e.getValidationResult();
         }
     }
@@ -150,15 +197,16 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
         checkChannelPurpose = getCheckPurposeProperty(false);
         referenceUsagePoint = getCheckUsagePointProperty();
         referenceReadingTypeProperty = getReferenceReadingTypeProperty();
-        if (checkChannelPurpose ==null || referenceUsagePoint==null || referenceReadingTypeProperty == null){
+        if (checkChannelPurpose == null || referenceUsagePoint == null || referenceReadingTypeProperty == null) {
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_CONFIGURATION_NOT_COMPLETE)
-                            .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType, validatingPurpose.getName(),validatingUsagePointName));
+                            .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType, validatingPurpose
+                                    .getName(), validatingUsagePointName));
             throw new InitCancelException(ValidationResult.NOT_VALIDATED);
         }
     }
 
-    private void validateReferenceUsagePoint() throws InitCancelException{
+    private void validateReferenceUsagePoint() throws InitCancelException {
         // TODO: verify check usage point exists
     }
 
@@ -166,13 +214,14 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
     protected ComparingValues calculateComparingValues(IntervalReadingRecord mainReading, IntervalReadingRecord checkReading) {
         BigDecimal mainValue = mainReading.getValue();
         BigDecimal referenceValue = checkReading.getValue()
-        .scaleByPowerOfTen(checkReading.getReadingType().getMultiplier().getMultiplier())
+                .scaleByPowerOfTen(checkReading.getReadingType().getMultiplier().getMultiplier())
                 .scaleByPowerOfTen(-mainReading.getReadingType().getMultiplier().getMultiplier());
         return new ComparingValues(mainValue, referenceValue);
     }
 
-    private void validateReferenceReadingType(ReadingType validatingReadingType, ReadingType referenceReadingType) throws InitCancelException{
-        if (!areReadingTypesComparable(validatingReadingType,referenceReadingType)){
+    private void validateReferenceReadingType(ReadingType validatingReadingType, ReadingType referenceReadingType) throws
+            InitCancelException {
+        if (!areReadingTypesComparable(validatingReadingType, referenceReadingType)) {
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_REFERENCE_READING_TYPE_NOT_SUTABLE)
                             .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType, validatingUsagePointName));

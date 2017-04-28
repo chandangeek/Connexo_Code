@@ -395,7 +395,6 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
                 .named(CHECK_PURPOSE, MainCheckValidator.TranslationKeys.CHECK_PURPOSE)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .setDefaultValue(metrologyPurposes.get(0))
                 .addValues(metrologyPurposes)
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
