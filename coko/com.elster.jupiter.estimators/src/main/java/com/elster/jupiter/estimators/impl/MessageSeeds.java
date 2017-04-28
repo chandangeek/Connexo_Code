@@ -32,7 +32,9 @@ public enum MessageSeeds implements MessageSeed {
     // {0} - period, {1} - estimator name, {2} - usage point, {3} - purpose, {4} - reading type
     MAINCHECK_ESTIMATOR_FAIL_INTERNAL_ERROR(2006,"maincheck.estimator.fail.internal","Failed to estimate period \"{0}\" using method {1} on {2}/{3}/{4} due to internal error"),
 
-    REFERENCE_ESTIMATOR_NOT_CONFIGURED(3001,"reference.estimator.not.configured","FIXME failed since not configured"),
+    REFERENCE_VALIDATE_PROPS_NO_PURPOSE_ON_USAGE_POINT(3001,"reference.estimator.validate.props.no.purpose","Purpose not found on usage point"),
+    REFERENCE_VALIDATE_PROPS_NO_READING_TYPE_ON_PURPOSE_ON_USAGE_POINT(3002,"reference.estimator.validate.props.no.readingtype","Reading type not found on purpose"),
+
 
     INVALID_NUMBER(1015,"property.error", "This value should be positive"),
     INVALID_DISCARD_DAY_FIELD(1016, "property.error.discardDaySettings.not.null", "This field is required");

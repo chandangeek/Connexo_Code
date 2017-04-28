@@ -8,25 +8,30 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
 import com.elster.jupiter.estimation.EstimationResult;
-import com.elster.jupiter.estimators.MissingRequiredProperty;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeValueFactory;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointValueFactory;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.logging.LoggingContext;
-import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationService;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * This rule is identical to the {@link MainCheckEstimator} rule but instead of using the CHECK output on the same usage point
@@ -41,7 +46,7 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
 
     private boolean initFailed;
 
-    private UsagePoint referenceUsagePoint;
+    private UsagePointValueFactory.UsagePointReference referenceUsagePoint;
     private ReadingTypeValueFactory.ReadingTypeReference referenceReadingTypeProperty;
 
     ReferenceSubstitutionEstimator(Thesaurus thesaurus, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, PropertySpecService propertySpecService, MeteringService meteringService) {
@@ -57,45 +62,71 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
     @Override
     protected void init() {
         super.init();
-        initOverridenProperties();
+        referenceUsagePoint = getCheckUsagePointProperty();
+        referenceReadingTypeProperty = getReferenceReadingTypeProperty();
     }
 
-    UsagePoint getCheckUsagePointProperty() {
-        return (UsagePoint) getProperty(CHECK_USAGE_POINT);
+    UsagePointValueFactory.UsagePointReference getCheckUsagePointProperty() {
+        return (UsagePointValueFactory.UsagePointReference) getProperty(CHECK_USAGE_POINT);
     }
 
     ReadingTypeValueFactory.ReadingTypeReference getReferenceReadingTypeProperty() {
         return (ReadingTypeValueFactory.ReadingTypeReference) getProperty(CHECK_READING_TYPE);
     }
 
-    private void initOverridenProperties() {
-        referenceUsagePoint = getCheckUsagePointProperty();
-        referenceReadingTypeProperty = getReferenceReadingTypeProperty();
-        if (checkPurpose == null || referenceUsagePoint == null || referenceReadingTypeProperty == null) {
-            LoggingContext.get()
-                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_ESTIMATOR_NOT_CONFIGURED)
-                            .format(getDisplayName()));
-            initFailed = true;
-        }
-    }
-
     @Override
     public EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system) {
         // override validatingUsagePoint
-        validatingUsagePoint = referenceUsagePoint;
+        validatingUsagePoint = referenceUsagePoint.getUsagePoint();
         return initFailed ? SimpleEstimationResult.of(estimationBlocks, Collections.emptyList()) : super.estimate(estimationBlocks, system);
     }
 
     @Override
     public void validateProperties(Map<String, Object> properties) {
-        // TODO
-        /*
-        The chosen check usage point doesn't have the selected purpose
-         */
+        MetrologyPurpose checkPurpose = Optional.ofNullable(properties.get(CHECK_PURPOSE))
+                .map(o -> (MetrologyPurpose) o)
+                .orElse(null);
+        ReadingTypeValueFactory.ReadingTypeReference checkReadingTypeRef = Optional.ofNullable(properties.get(CHECK_READING_TYPE))
+                .map(o -> (ReadingTypeValueFactory.ReadingTypeReference) o)
+                .orElse(null);
+        UsagePoint checkUsagePoint = Optional.ofNullable(properties.get(CHECK_USAGE_POINT))
+                .map(o -> (UsagePoint) o)
+                .orElse(null);
+        validateCheckUsagePointHasCheckPurpose(checkUsagePoint, checkPurpose, checkReadingTypeRef);
+    }
 
-        /*
-        The chosen reading type is not available on the selected purpose of the usage point
-         */
+    private void validateCheckUsagePointHasCheckPurpose(UsagePoint checkUsagePoint, MetrologyPurpose checkPurpose, ReadingTypeValueFactory.ReadingTypeReference checkReadingTypeRef) {
+        if (checkUsagePoint != null && checkPurpose != null && checkReadingTypeRef != null) {
+            Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMC = checkUsagePoint
+                    .getCurrentEffectiveMetrologyConfiguration();
+            MetrologyContract contract = null;
+            if (effectiveMC.isPresent()) {
+                Optional<MetrologyContract> metrologyContract = effectiveMC.get().getMetrologyConfiguration()
+                        .getContracts()
+                        .stream()
+                        .filter(c -> c.getMetrologyPurpose().equals(checkPurpose))
+                        .findAny();
+                if (metrologyContract.isPresent()) {
+                    contract = metrologyContract.get();
+                }
+            }
+            if (contract == null) {
+                throw new LocalizedFieldValidationException(MessageSeeds.REFERENCE_VALIDATE_PROPS_NO_PURPOSE_ON_USAGE_POINT, "properties." + CHECK_USAGE_POINT);
+            }else {
+                Channel channel = null;
+                Optional<ChannelsContainer> channelsContainerWithCheckChannel = effectiveMC.get()
+                        .getChannelsContainer(contract);
+                if (channelsContainerWithCheckChannel.isPresent()) {
+                    Optional<Channel> checkChannel = channelsContainerWithCheckChannel.get().getChannel(checkReadingTypeRef.getReadingType());
+                    if (checkChannel.isPresent()) {
+                        channel = checkChannel.get();
+                    }
+                }
+                if (channel == null){
+                    throw new LocalizedFieldValidationException(MessageSeeds.REFERENCE_VALIDATE_PROPS_NO_READING_TYPE_ON_PURPOSE_ON_USAGE_POINT, "properties." + CHECK_READING_TYPE);
+                }
+            }
+        }
     }
 
     @Override
@@ -119,7 +150,7 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
 
     private PropertySpec buildReferenceUsagePointPropertySpec() {
         return getPropertySpecService()
-                .referenceSpec(UsagePoint.class)
+                .specForValuesOf(new UsagePointValueFactory(meteringService))
                 .named(TranslationKeys.CHECK_USAGE_POINT)
                 .describedAs(TranslationKeys.CHECK_USAGE_POINT_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())

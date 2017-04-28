@@ -118,7 +118,6 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
                 .describedAs(TranslationKeys.CHECK_PURPOSE_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .setDefaultValue(metrologyPurposes.get(0))
                 .addValues(metrologyPurposes)
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
