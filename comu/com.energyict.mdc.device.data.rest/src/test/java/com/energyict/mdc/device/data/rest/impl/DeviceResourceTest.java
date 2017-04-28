@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.Commodity;
@@ -35,7 +36,6 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.LocationTemplate;
@@ -45,9 +45,10 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecPossibleValues;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.StatusCode;
@@ -66,17 +67,19 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -108,18 +111,27 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.energyict.cbo.Unit;
+import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolReadingQualities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import org.assertj.core.data.MapEntry;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -144,14 +156,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import org.assertj.core.data.MapEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -255,7 +259,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
-        when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
+        when(connectionType.getPropertySpecs()).thenReturn(Collections.emptyList());
         when(pluggableClass.getName()).thenReturn("ctpc");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
         when(device.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
@@ -302,7 +306,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findDeviceByName(deviceName)).thenReturn(Optional.of(device));
 
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
-        when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
+        when(device.getInboundConnectionTaskBuilder(Matchers.any())).thenReturn(inboundConnectionTaskBuilder);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
@@ -310,7 +314,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
-        when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
+        when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask));
         when(partialConnectionTask.getName()).thenReturn("inbConnMethod");
 
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
@@ -322,7 +326,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
-        when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
+        when(connectionType.getPropertySpecs()).thenReturn(Collections.emptyList());
         when(pluggableClass.getName()).thenReturn("ctpc");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
 
@@ -346,7 +350,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(partialConnectionTask.getName()).thenReturn("inbConnMethod");
 
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
-        when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
+        when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask));
 
         Device device = mock(Device.class);
         when(device.getVersion()).thenReturn(1L);
@@ -354,14 +358,14 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getName()).thenReturn(deviceName);
         when(deviceService.findAndLockDeviceByNameAndVersion(deviceName, device.getVersion())).thenReturn(Optional.of(device));
         when(deviceService.findDeviceByName(deviceName)).thenReturn(Optional.of(device));
-        when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
+        when(device.getInboundConnectionTaskBuilder(Matchers.any())).thenReturn(inboundConnectionTaskBuilder);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
 
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
 
         ConnectionType connectionType = mock(ConnectionType.class);
-        when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
+        when(connectionType.getPropertySpecs()).thenReturn(Collections.emptyList());
 
         ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("My Test Protocol Dialect Properties");
@@ -393,6 +397,120 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
+    public void testSendCalendar() throws Exception {
+        Device device = mock(Device.class);
+        Device.DeviceMessageBuilder builder = mock(Device.DeviceMessageBuilder.class);
+        when(device.newDeviceMessage(Matchers.any(DeviceMessageId.class))).thenReturn(builder);
+        when(device.calendars()).thenReturn(mock(Device.CalendarSupport.class));
+        when(device.getVersion()).thenReturn(1L);
+        String deviceName = "ZABF0000000";
+        when(device.getName()).thenReturn(deviceName);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        DeviceType deviceType = mock(DeviceType.class);
+        AllowedCalendar allowedCalendar = mock(AllowedCalendar.class);
+        String name = "name";
+        when(allowedCalendar.getName()).thenReturn(name);
+        Calendar calendar = mock(Calendar.class);
+        when(allowedCalendar.getCalendar()).thenReturn(Optional.of(calendar));
+        when(allowedCalendar.getId()).thenReturn(1L);
+        when(deviceType.getAllowedCalendars()).thenReturn(Arrays.asList(allowedCalendar));
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(deviceService.findAndLockDeviceByNameAndVersion(deviceName, device.getVersion())).thenReturn(Optional.of(device));
+        when(deviceService.findDeviceByName(deviceName)).thenReturn(Optional.of(device));
+        TimeOfUseOptions timeOfUseOptions = mock(TimeOfUseOptions.class);
+        Set<ProtocolSupportedCalendarOptions> set = new HashSet<>();
+        set.addAll(Arrays.asList(ProtocolSupportedCalendarOptions.values()));
+        when(timeOfUseOptions.getOptions()).thenReturn(set);
+        when(deviceConfigurationService.findTimeOfUseOptions(anyObject())).thenReturn(Optional.of(timeOfUseOptions));
+
+        PropertySpec activationDatePropertySpec = mock(PropertySpec.class);
+        ValueFactory valueFactory1 = mock(ValueFactory.class);
+        when(valueFactory1.getValueType()).thenReturn(java.util.Date.class);
+        when(activationDatePropertySpec.getValueFactory()).thenReturn(valueFactory1);
+        when(activationDatePropertySpec.getName()).thenReturn("ActivityCalendarDeviceMessage.activitycalendar.activationdate");
+
+        PropertySpec typePropertySpec = mock(PropertySpec.class);
+        ValueFactory valueFactory = mock(ValueFactory.class);
+        when(valueFactory.getValueType()).thenReturn(String.class);
+        when(typePropertySpec.getValueFactory()).thenReturn(valueFactory);
+        PropertySpecPossibleValues possibleValues = mock(PropertySpecPossibleValues.class);
+        when(possibleValues.getAllValues()).thenReturn(Arrays.asList("PublicNetwork", "Provider"));
+        when(typePropertySpec.getPossibleValues()).thenReturn(possibleValues);
+        when(typePropertySpec.getName()).thenReturn("ActivityCalendarDeviceMessage.activitycalendar.type");
+
+        PropertySpec contractPropertySpec = mock(PropertySpec.class);
+        ValueFactory valueFactory4 = mock(ValueFactory.class);
+        when(valueFactory4.getValueType()).thenReturn(BigDecimal.class);
+        when(contractPropertySpec.getValueFactory()).thenReturn(valueFactory4);
+        when(contractPropertySpec.getName()).thenReturn("contract");
+
+        PropertySpec namePropertySpec = mock(PropertySpec.class);
+        ValueFactory valueFactory2 = mock(ValueFactory.class);
+        when(valueFactory2.getValueType()).thenReturn(String.class);
+        when(namePropertySpec.getValueFactory()).thenReturn(valueFactory2);
+        when(namePropertySpec.getName()).thenReturn("ActivityCalendarDeviceMessage.activitycalendar.name");
+
+        PropertySpec calendarPropertySpec = mock(PropertySpec.class);
+        ValueFactory valueFactory3 = mock(ValueFactory.class);
+        when(valueFactory3.getValueType()).thenReturn(Calendar.class);
+        when(calendarPropertySpec.getValueFactory()).thenReturn(valueFactory3);
+        when(valueFactory3.isReference()).thenReturn(true);
+        when(calendarPropertySpec.getName()).thenReturn("ActivityCalendarDeviceMessage.activitycalendar.codetable");
+
+        DeviceMessageSpec deviceMessageSpecWithType = mock(DeviceMessageSpec.class);
+        when(deviceMessageSpecWithType.getPropertySpecs()).thenReturn(Arrays.asList(activationDatePropertySpec, typePropertySpec, namePropertySpec, calendarPropertySpec));
+        when(deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE.dbValue())).thenReturn(Optional.of(deviceMessageSpecWithType));
+
+        DeviceMessageSpec deviceMessageSpecWithContract = mock(DeviceMessageSpec.class);
+        when(deviceMessageSpecWithContract.getPropertySpecs()).thenReturn(Arrays.asList(activationDatePropertySpec, contractPropertySpec, namePropertySpec, calendarPropertySpec));
+        when(deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT.dbValue())).thenReturn(Optional.of(deviceMessageSpecWithContract));
+
+        SendCalendarInfo infoWithDateAndType = new SendCalendarInfo();
+        Instant activationDate = Instant.now();
+        Instant releaseDate = Instant.now();
+        String type = "PublicNetwork";
+        infoWithDateAndType.activationDate = activationDate;
+        infoWithDateAndType.allowedCalendarId = 1L;
+        infoWithDateAndType.calendarUpdateOption = "activityCalendar";
+        infoWithDateAndType.type = type;
+        infoWithDateAndType.releaseDate = releaseDate;
+
+        Response response1 = target("/devices/" + deviceName + "/timeofuse/send").request().post(Entity.json(infoWithDateAndType));
+        assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(builder, times(4)).addProperty(anyString(), anyObject());
+        verify(builder).addProperty(eq("ActivityCalendarDeviceMessage.activitycalendar.activationdate"), eq(Date.from(activationDate)));
+        verify(builder).addProperty(eq("ActivityCalendarDeviceMessage.activitycalendar.type"), eq(type));
+        verify(builder).addProperty(eq("ActivityCalendarDeviceMessage.activitycalendar.name"), eq(name));
+        verify(builder).addProperty(eq("ActivityCalendarDeviceMessage.activitycalendar.codetable"), eq(calendar));
+        verify(builder, times(1)).add();
+        verify(builder, times(1)).setReleaseDate(eq(releaseDate));
+        verify(device.calendars(), times(1)).setPassive(eq(allowedCalendar), eq(activationDate), any(DeviceMessage.class));
+
+        SendCalendarInfo infoWithDateAndContract = new SendCalendarInfo();
+        BigDecimal contract = BigDecimal.ONE;
+        infoWithDateAndContract.activationDate = activationDate;
+        infoWithDateAndContract.allowedCalendarId = 1L;
+        infoWithDateAndContract.calendarUpdateOption = "fullCalendar";
+        infoWithDateAndContract.contract = contract;
+        infoWithDateAndContract.releaseDate = releaseDate;
+        Device.DeviceMessageBuilder builder2 = mock(Device.DeviceMessageBuilder.class);
+        when(device.newDeviceMessage(Matchers.any(DeviceMessageId.class))).thenReturn(builder2);
+
+        Response response2 = target("/devices/" + deviceName + "/timeofuse/send").request().post(Entity.json(infoWithDateAndContract));
+        assertThat(response2.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(builder2, times(4)).addProperty(anyString(), anyObject());
+        verify(builder2).addProperty(eq("ActivityCalendarDeviceMessage.activitycalendar.activationdate"), eq(Date.from(activationDate)));
+        verify(builder2).addProperty(eq("contract"), eq(contract));
+        verify(builder2).addProperty(eq("ActivityCalendarDeviceMessage.activitycalendar.name"), eq(name));
+        verify(builder2).addProperty(eq("ActivityCalendarDeviceMessage.activitycalendar.codetable"), eq(calendar));
+        verify(builder2, times(1)).add();
+        verify(builder2, times(1)).setReleaseDate(eq(releaseDate));
+        verify(device.calendars(), times(2)).setPassive(eq(allowedCalendar), eq(activationDate), any(DeviceMessage.class));
+    }
+
+    @Test
     public void testCreateDefaultInboundConnectionMethod() throws Exception {
         ProtocolDialectConfigurationProperties dialectProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("My Test Protocol Dialect Properties");
@@ -410,7 +528,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findAndLockDeviceByNameAndVersion(deviceName, device.getVersion())).thenReturn(Optional.of(device));
         when(deviceService.findDeviceByName(deviceName)).thenReturn(Optional.of(device));
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
-        when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
+        when(device.getInboundConnectionTaskBuilder(Matchers.any())).thenReturn(inboundConnectionTaskBuilder);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
@@ -418,7 +536,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
-        when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
+        when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask));
         when(partialConnectionTask.getName()).thenReturn("inbConnMethod");
 
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
@@ -429,7 +547,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
-        when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
+        when(connectionType.getPropertySpecs()).thenReturn(Collections.emptyList());
         when(pluggableClass.getName()).thenReturn("ctpc");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
 
@@ -450,7 +568,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findAndLockDeviceByNameAndVersion(deviceName, device.getVersion())).thenReturn(Optional.of(device));
         when(deviceService.findDeviceByName(deviceName)).thenReturn(Optional.of(device));
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
-        when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
+        when(device.getInboundConnectionTaskBuilder(Matchers.any())).thenReturn(inboundConnectionTaskBuilder);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
@@ -458,8 +576,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
-        when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?, ?>>asList(connectionTask));
-        when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
+        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask));
         when(partialConnectionTask.getName()).thenReturn("inbConnMethod");
 
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
@@ -472,7 +590,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
-        when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
+        when(connectionType.getPropertySpecs()).thenReturn(Collections.emptyList());
         when(pluggableClass.getName()).thenReturn("ctpc");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
 
@@ -501,7 +619,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findAndLockDeviceByNameAndVersion(deviceName, device.getVersion())).thenReturn(Optional.of(device));
         when(deviceService.findDeviceByName(deviceName)).thenReturn(Optional.of(device));
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = mock(Device.InboundConnectionTaskBuilder.class);
-        when(device.getInboundConnectionTaskBuilder(Matchers.<PartialInboundConnectionTask>any())).thenReturn(inboundConnectionTaskBuilder);
+        when(device.getInboundConnectionTaskBuilder(Matchers.any())).thenReturn(inboundConnectionTaskBuilder);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         PartialInboundConnectionTask partialConnectionTask = mock(PartialInboundConnectionTask.class);
@@ -509,8 +627,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(inboundConnectionTaskBuilder.add()).thenReturn(connectionTask);
         doReturn(Optional.of(comPortPool)).when(engineConfigurationService).findInboundComPortPoolByName("cpp");
         when(device.getDeviceConfiguration()).thenReturn(deviceConfig);
-        when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?, ?>>asList(connectionTask));
-        when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
+        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(deviceConfig.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask));
         when(partialConnectionTask.getName()).thenReturn("inbConnMethod");
 
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
@@ -523,7 +641,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(connectionTask.getProtocolDialectConfigurationProperties()).thenReturn(dialectProperties);
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
         when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
-        when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
+        when(connectionType.getPropertySpecs()).thenReturn(Collections.emptyList());
         when(pluggableClass.getName()).thenReturn("ctpc");
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
 
@@ -986,7 +1104,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(endDeviceEventType.getDomain()).thenReturn(EndDeviceDomain.BATTERY);
         when(endDeviceEventType.getSubDomain()).thenReturn(EndDeviceSubDomain.VOLTAGE);
         when(endDeviceEventType.getEventOrAction()).thenReturn(EndDeviceEventOrAction.DECREASED);
-        when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
+        when(nlsService.getThesaurus(Matchers.anyString(), Matchers.any())).thenReturn(thesaurus);
 
         LogBookInfo info = target("/devices/name/logbooks/1").request().get(LogBookInfo.class);
 
@@ -1098,7 +1216,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
         List<EndDeviceEventRecord> records = new ArrayList<>();
         records.add(endDeviceEventRecord);
-        when(logBook.getEndDeviceEventsByFilter(Matchers.<EndDeviceEventRecordFilterSpecification>any())).thenReturn(records);
+        when(logBook.getEndDeviceEventsByFilter(Matchers.any())).thenReturn(records);
         when(endDeviceEventRecord.getCreatedDateTime()).thenReturn(start);
         when(endDeviceEventRecord.getModTime()).thenReturn(end);
         when(endDeviceEventRecord.getDescription()).thenReturn(message);
@@ -1111,7 +1229,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(endDeviceType.getSubDomain()).thenReturn(subDomain);
         when(endDeviceType.getEventOrAction()).thenReturn(eventorAction);
 
-        when(nlsService.getThesaurus(Matchers.anyString(), Matchers.<Layer>any())).thenReturn(thesaurus);
+        when(nlsService.getThesaurus(Matchers.anyString(), Matchers.any())).thenReturn(thesaurus);
 
         Map<?, ?> response = target("/devices/name/logbooks/1/data")
                 .queryParam("filter", ("[{\"property\":\"intervalStart\",\"value\":1},"
@@ -1222,7 +1340,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device slave5 = mockDeviceForTopologyTest("slave5", gateway);
         Device slave6 = mockDeviceForTopologyTest("slave6", gateway);
         Device slave7 = mockDeviceForTopologyTest("slave7", gateway);
-        Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave5, slave2, slave7, slave4, slave1, slave6, slave3));
+        Set<Device> slaves = new HashSet<>(Arrays.asList(slave5, slave2, slave7, slave4, slave1, slave6, slave3));
 
         TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
         when(topologyTimeline.getAllDevices()).thenReturn(slaves);
@@ -1249,7 +1367,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device slave1 = mockDeviceForTopologyTest("SimpleStringName", gateway);
         Device slave2 = mockDeviceForTopologyTest("123456789", gateway);
         when(slave2.getSerialNumber()).thenReturn(null);
-        Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave1, slave2));
+        Set<Device> slaves = new HashSet<>(Arrays.asList(slave1, slave2));
 
         int limit = 10;
         DeviceTopology deviceTopology = mock(DeviceTopology.class);
@@ -1316,7 +1434,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device slave1 = mockDeviceForTopologyTest("SimpleStringName", gateway);
         Device slave2 = mockDeviceForTopologyTest("123456789", gateway);
         when(slave2.getSerialNumber()).thenReturn(null);
-        Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave1, slave2));
+        Set<Device> slaves = new HashSet<>(Arrays.asList(slave1, slave2));
         int limit = 10;
 
         DeviceTopology deviceTopology = mock(DeviceTopology.class);
@@ -1387,7 +1505,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device slave5 = mockDeviceForTopologyTest("slave5", gateway);
         Device slave6 = mockDeviceForTopologyTest("slave6", gateway);
         Device slave7 = mockDeviceForTopologyTest("slave7", gateway);
-        Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave3, slave4, slave5, slave6, slave7));
+        Set<Device> slaves = new HashSet<>(Arrays.asList(slave3, slave4, slave5, slave6, slave7));
         DeviceTopology deviceTopology = mock(DeviceTopology.class);
         when(deviceService.findDeviceByName("gateway")).thenReturn(Optional.of(gateway));
         when(topologyService.getPhysicalTopology(gateway, Range.atMost(NOW))).thenReturn(deviceTopology);
@@ -1413,7 +1531,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(infos.get(3).name).isEqualTo("slave4");
         assertThat(infos.get(4).name).isEqualTo("slave3");
 
-        slaves = new HashSet<>(Arrays.<Device>asList(slave1));
+        slaves = new HashSet<>(Arrays.asList(slave1));
         when(topologyTimeline.getAllDevices()).thenReturn(slaves);
         infos = DeviceTopologyInfo.from(topologyTimeline, deviceLifeCycleConfigurationService);
         assertThat(infos.size()).isEqualTo(1);
@@ -1917,7 +2035,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         TopologyTimeline topologyTimeLine = mock(TopologyTimeline.class);
         when(topologyTimeLine.getAllDevices()).thenReturn(Collections.emptySet());
         when(topologyService.getPysicalTopologyTimeline(dataLogger)).thenReturn(topologyTimeLine);
-         Response response = target("/devices/1").request().put(Entity.json(info));
+        Response response = target("/devices/1").request().put(Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         // Already linked, shouldn't be linked a second time
@@ -2482,7 +2600,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfile1.getInterval()).thenReturn(interval);
         when(loadProfile1.getId()).thenReturn(id);
         when(loadProfile1.getDeviceObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, (int) id));
-        when(loadProfile1.getChannels()).thenReturn(channels == null ? Collections.<Channel>emptyList() : Arrays.asList(channels));
+        when(loadProfile1.getChannels()).thenReturn(channels == null ? Collections.emptyList() : Arrays.asList(channels));
         when(loadProfile1.getLastReading()).thenReturn(Date.from(Instant.ofEpochMilli(1406617200000L))); //  (GMT): Tue, 29 Jul 2014 07:00:00 GMT
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
@@ -2535,7 +2653,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Number>get("$.total")).isEqualTo(17);
-        List<String> privileges = model.<List<String>>get("$.privileges[*].name");
+        List<String> privileges = model.get("$.privileges[*].name");
         assertThat(privileges).contains(
                 DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TOPOLOGY,
                 DevicePrivileges.DEVICES_WIDGET_CONNECTION,
@@ -2574,7 +2692,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Number>get("$.total")).isEqualTo(0);
-        List<String> privileges = model.<List<String>>get("$.privileges[*].name");
+        List<String> privileges = model.get("$.privileges[*].name");
         assertThat(privileges).isEmpty();
     }
 
@@ -2594,7 +2712,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Number>get("$.total")).isEqualTo(20);
-        List<String> privileges = model.<List<String>>get("$.privileges[*].name");
+        List<String> privileges = model.get("$.privileges[*].name");
         assertThat(privileges).contains(
                 DevicePrivileges.DEVICES_WIDGET_VALIDATION,
                 DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TOPOLOGY,
