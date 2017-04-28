@@ -12,6 +12,7 @@ Ext.define('Imt.metrologyconfiguration.model.ReadingTypeDeliverable', {
         'name',
         {name: 'metrologyContract', persist: false},
         {name: 'metrologyContractIsMandatory', persist: false},
+        'eventNames',
         'readingType'
     ],
 

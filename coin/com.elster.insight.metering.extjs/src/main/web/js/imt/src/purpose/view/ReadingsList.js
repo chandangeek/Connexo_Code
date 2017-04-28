@@ -47,7 +47,11 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 onSpecialKey: Ext.emptyFn // workaround to fix CXO-6274
             }
         ];
-
+        me.on('beforeedit',function(editor,e){
+            if(Ext.isEmpty(e.record.get('readinqQualities')) && Ext.isEmpty(e.record.get('value'))){
+                return false;
+            }
+        });
         me.columns = [
             {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'IMT', 'End of interval'),
@@ -72,7 +76,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                     stripCharsRe: /[^0-9\.]/,
                     selectOnFocus: true,
                     validateOnChange: true,
-                    fieldStyle: 'text-align: right'
+                    fieldStyle: 'text-align: right',
                 },
                 align: 'right',
                 dataIndex: 'value'
@@ -101,6 +105,9 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 menu: {
                     xtype: 'purpose-readings-data-action-menu',
                     itemId: 'purpose-readings-data-action-menu'
+                },
+                isDisabled: function(grid, rowIndex, colIndex, clickedItem, record) {
+                    return record.get('partOfTimeOfUseGap');
                 }
             }
         ];
@@ -154,12 +161,13 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             value = Ext.isEmpty(v) ? '-' : v,
             estimatedByRule = record.get('estimatedByRule'),
             icon = '';
-
         if (record.get('confirmedNotSaved') || record.isModified('isProjected')) {
             metaData.tdCls = 'x-grid-dirty-cell';
         }
-
-        if (status === 'notValidated') {
+        if (record.get('partOfTimeOfUseGap')) {
+            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
+                + Uni.I18n.translate('reading.tou.gap', 'IMT', 'Data not calculated, calendar \''+ record.get('calendarName') +'\' only uses data specified in the formula.') + '"></span>';
+        } else if (status === 'notValidated') {
             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + '"></span>';
         } else if (status === 'suspect') {

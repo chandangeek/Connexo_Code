@@ -308,6 +308,14 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                         color: 'rgba(235, 86, 66, 0.3)'
                     });
                     record.set('plotBand', true);
+                } else if (record.get('partOfTimeOfUseGap')) {
+                    missedValues.push({
+                        id: record.get('interval').start,
+                        from: record.get('interval').start,
+                        to: record.get('interval').end,
+                        color: 'rgba(210,210,210,1)'
+                    });
+                    record.set('plotBand', true);
                 }
             }
         });
