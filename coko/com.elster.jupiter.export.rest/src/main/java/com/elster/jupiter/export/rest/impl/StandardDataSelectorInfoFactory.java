@@ -11,6 +11,7 @@ import com.elster.jupiter.export.MeterReadingSelectorConfig;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 
 import javax.inject.Inject;
@@ -43,6 +44,8 @@ public class StandardDataSelectorInfoFactory {
         StandardDataSelectorInfo info = new StandardDataSelectorInfo();
         info.id = selector.getId();
         info.usagePointGroup = new IdWithNameInfo(selector.getUsagePointGroup().getId(), selector.getUsagePointGroup().getName());
+        selector.getMetrologyPurpose()
+                .ifPresent(purpose -> info.purpose = new LongIdWithNameInfo(purpose.getId(), purpose.getName()));
         info.exportPeriod = RelativePeriodInfo.withCategories(selector.getExportPeriod());
         info.readingTypes = selector.getReadingTypes()
                 .stream()

@@ -21,6 +21,8 @@ import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -82,6 +84,7 @@ public class DataExportTaskResource {
     private final TimeService timeService;
     private final MeteringGroupsService meteringGroupsService;
     private final MeteringService meteringService;
+    private final MetrologyConfigurationService metrologyConfigurationService;
     private final Thesaurus thesaurus;
     private final PropertyValueInfoService propertyValueInfoService;
     private final DataSourceInfoFactory dataSourceInfoFactory;
@@ -91,13 +94,14 @@ public class DataExportTaskResource {
 
     @Inject
     public DataExportTaskResource(DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService,
-                                  MeteringService meteringService, Thesaurus thesaurus, PropertyValueInfoService propertyValueInfoService,
-                                  ConcurrentModificationExceptionFactory conflictFactory, DataSourceInfoFactory dataSourceInfoFactory,
-                                  DataExportTaskInfoFactory dataExportTaskInfoFactory, DataExportTaskHistoryInfoFactory dataExportTaskHistoryInfoFactory) {
+                                  MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService, Thesaurus thesaurus,
+                                  PropertyValueInfoService propertyValueInfoService, ConcurrentModificationExceptionFactory conflictFactory,
+                                  DataSourceInfoFactory dataSourceInfoFactory, DataExportTaskInfoFactory dataExportTaskInfoFactory, DataExportTaskHistoryInfoFactory dataExportTaskHistoryInfoFactory) {
         this.dataExportService = dataExportService;
         this.timeService = timeService;
         this.meteringGroupsService = meteringGroupsService;
         this.meteringService = meteringService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
         this.thesaurus = thesaurus;
         this.propertyValueInfoService = propertyValueInfoService;
         this.conflictFactory = conflictFactory;
@@ -238,6 +242,9 @@ public class DataExportTaskResource {
                             .map(r -> meteringService.getReadingType(r.mRID))
                             .flatMap(Functions.asStream())
                             .forEach(selectorBuilder::fromReadingType);
+                    if(info.standardDataSelector.purpose.id != null){
+                        selectorBuilder = selectorBuilder.fromMetrologyPurpose(metrologyConfigurationService.findMetrologyPurpose(info.standardDataSelector.purpose.id).get());
+                    }
                     selectorBuilder.endSelection();
                     break;
                 }
@@ -364,6 +371,11 @@ public class DataExportTaskResource {
                     .setExportContinuousData(info.standardDataSelector.exportContinuousData)
                     .setExportOnlyIfComplete(info.standardDataSelector.exportComplete)
                     .setValidatedDataOption(info.standardDataSelector.validatedDataOption);
+            if(info.standardDataSelector.purpose.id != null) {
+                updater = updater.setMetrologyPurpose(metrologyPurpose(info.standardDataSelector.purpose.id));
+            } else {
+                updater = updater.setMetrologyPurpose(null);
+            }
             updateReadingTypes(config, updater, info);
         }
 
@@ -654,6 +666,10 @@ public class DataExportTaskResource {
 
     private UsagePointGroup usagePointGroup(Object usagePointGroupId) {
         return meteringGroupsService.findUsagePointGroup(((Number) usagePointGroupId).longValue()).orElse(null);
+    }
+
+    private MetrologyPurpose metrologyPurpose(Object purposeId){
+        return metrologyConfigurationService.findMetrologyPurpose(((Number)purposeId).longValue()).orElse(null);
     }
 
     private RelativePeriod getRelativePeriod(RelativePeriodInfo relativePeriodInfo) {

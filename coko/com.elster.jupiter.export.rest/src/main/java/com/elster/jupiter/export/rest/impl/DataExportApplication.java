@@ -7,6 +7,7 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
@@ -46,6 +47,7 @@ public class DataExportApplication extends Application implements MessageSeedPro
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
     private volatile MeteringService meteringService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile AppService appService;
 
@@ -81,6 +83,11 @@ public class DataExportApplication extends Application implements MessageSeedPro
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Reference
@@ -127,6 +134,7 @@ public class DataExportApplication extends Application implements MessageSeedPro
                 bind(meteringGroupsService).to(MeteringGroupsService.class);
                 bind(timeService).to(TimeService.class);
                 bind(meteringService).to(MeteringService.class);
+                bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(appService).to(AppService.class);
                 bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
