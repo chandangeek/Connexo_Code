@@ -24,8 +24,6 @@ import java.util.List;
  */
 public class IdWithNamePropertyValueConverter implements PropertyValueConverter {
 
-    private final static String USAGE_POINT_CLASS_NAME = "com.elster.jupiter.metering.UsagePoint";
-
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
         return propertySpec != null && (HasIdAndName.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())
@@ -45,9 +43,6 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
         }
         if (propertySpec.getValueFactory() instanceof ProcessPropertyFactory) {
             return SimplePropertyType.BPM_PROCESS;
-        }
-        if (propertySpec.getValueFactory().getValueType().getName().equals(USAGE_POINT_CLASS_NAME)) {
-            return SimplePropertyType.USAGE_POINT;
         }
         return SimplePropertyType.IDWITHNAME;
     }
