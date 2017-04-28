@@ -53,5 +53,46 @@ Ext.define('Uni.property.view.property.RegularReadingType', {
                 }
             }
         };
+    },
+    getValue: function () {
+        var me = this;
+        return {
+            mRID: me.getField().getValue(),
+            fullAliasName: me.getField().getRawValue()
+        };
+    },
+
+    setValue: function (value) {
+        var me = this,
+            combo = me.getField();
+
+        if (me.isEdit && value) {
+            combo.suspendEvent('change');
+            combo.setValue(value.mRID);
+            combo.setRawValue(value.fullAliasName);
+            combo.resumeEvent('change');
+            me.setDefaultFilter(value);
+        } else {
+            me.callParent([value.fullAliasName]);
+        }
+    },
+
+    setDefaultFilter: function (value) {
+        var me = this,
+            combo = me.getField(),
+            filter = [
+                {
+                    property: 'fullAliasName',
+                    value: '*' + value.fullAliasName + '*'
+                },
+                {
+                    property: 'equidistant',
+                    value: false
+                }
+            ];
+
+        combo.getStore().getProxy().setExtraParam('filter', Ext.encode(filter));
+        combo.readingTypeData = value;
+        combo.getStore().load();
     }
 });
