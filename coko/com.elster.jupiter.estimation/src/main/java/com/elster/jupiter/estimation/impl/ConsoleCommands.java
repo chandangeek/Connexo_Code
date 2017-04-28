@@ -200,7 +200,7 @@ public class ConsoleCommands {
                                     .orElse(null)
                     ));
 
-            set.updateRule(ruleId, name, rule.isActive(), readingTypes, props);
+            set.updateRule(ruleId, name, rule.isActive(), readingTypes, props, false);
 
             set.save();
             System.out.println(print(set));

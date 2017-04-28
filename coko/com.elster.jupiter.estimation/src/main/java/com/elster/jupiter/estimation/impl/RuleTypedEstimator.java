@@ -24,10 +24,12 @@ class RuleTypedEstimator implements Estimator {
 
     private final int ruleId;
     private final Estimator decorated;
+    private final boolean markProjected;
 
-    RuleTypedEstimator(Estimator decorated, int ruleId) {
+    RuleTypedEstimator(Estimator decorated, int ruleId, boolean markProjected) {
         this.ruleId = ruleId;
         this.decorated = decorated;
+        this.markProjected = markProjected;
     }
 
     @Override
@@ -39,7 +41,12 @@ class RuleTypedEstimator implements Estimator {
     public EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system) {
         EstimationResult result = decorated.estimate(estimationBlocks, system);
         ReadingQualityType readingQualityType = ReadingQualityType.of(system, QualityCodeCategory.ESTIMATED, ruleId);
-        result.estimated().forEach(block -> block.setReadingQualityType(readingQualityType));
+        result.estimated().forEach(block -> {
+            ((SimpleEstimationBlock) block).addReadingQualityType(readingQualityType);
+            if(markProjected) {
+                ((SimpleEstimationBlock) block).addReadingQualityType(ReadingQualityType.of(system, QualityCodeCategory.PROJECTED, 0));
+            }
+        });
         return result;
     }
 

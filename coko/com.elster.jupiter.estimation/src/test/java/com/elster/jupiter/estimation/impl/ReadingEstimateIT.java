@@ -25,6 +25,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.EstimationResultBuilder;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
@@ -129,7 +130,7 @@ public class ReadingEstimateIT {
 
                 @Override
                 public EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system) {
-                    SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
+                    EstimationResultBuilder builder = SimpleEstimationResult.builder();
                     estimationBlocks.stream()
                             .peek(block -> {
                                 if (block.estimatables().size() > 3) {

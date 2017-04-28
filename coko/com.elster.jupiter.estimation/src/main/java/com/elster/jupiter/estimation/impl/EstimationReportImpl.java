@@ -7,6 +7,7 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.EstimationResultBuilder;
 import com.elster.jupiter.metering.ReadingType;
 
 import java.util.HashMap;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 
 class EstimationReportImpl implements EstimationReport {
 
-    private Map<ReadingType, SimpleEstimationResult.EstimationResultBuilder> results = new HashMap<>();
+    private Map<ReadingType, EstimationResultBuilder> results = new HashMap<>();
 
     @Override
     public Map<ReadingType, EstimationResult> getResults() {
