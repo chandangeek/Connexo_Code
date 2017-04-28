@@ -36,7 +36,7 @@
              but it must be declared as a property because of the jacoco plugin (defined in jupiter parent)
              see http://docs.codehaus.org/display/SONAR/JaCoCo+Plugin
              -->
-        <argLine>-Xms512m -Xmx1024m</argLine>
+        <argLine>-Xms512m -Xmx1024m -Djava.util.logging.config.file=../copl/com.elster.jupiter.parent/junit-logging.properties</argLine>
 
         <serialio.version>10.0.4.2</serialio.version>
         <org.rxtx.version>2.2pre2</org.rxtx.version>
@@ -176,7 +176,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.device.config.rest</artifactId>
-                <version>3.1.0${revision}</version>
+                <version>4.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -308,7 +308,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.io</artifactId>
-                <version>2.2.0${revision}</version>
+                <version>3.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -350,13 +350,13 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.issues</artifactId>
-                <version>2.1.0${revision}</version>
+                <version>3.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.masterdata</artifactId>
-                <version>2.2.0${revision}</version>
+                <version>3.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -368,7 +368,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.metering</artifactId>
-                <version>1.4.0${revision}</version>
+                <version>2.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -386,7 +386,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.protocols</artifactId>
-                <version>1.3.0${revision}</version>
+                <version>2.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -398,13 +398,13 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.protocol.pluggable</artifactId>
-                <version>3.1.0${revision}</version>
+                <version>4.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.scheduling</artifactId>
-                <version>2.2.0${revision}</version>
+                <version>3.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -422,13 +422,19 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.tasks</artifactId>
-                <version>2.2.0${revision}</version>
+                <version>3.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.tasks.rest</artifactId>
                 <version>1.3.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.upl</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -487,6 +493,12 @@
                 <groupId>org.json</groupId>
                 <artifactId>json</artifactId>
                 <version>${json.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>2.3.2</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
