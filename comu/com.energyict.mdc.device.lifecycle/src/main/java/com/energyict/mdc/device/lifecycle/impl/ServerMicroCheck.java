@@ -28,10 +28,23 @@ public interface ServerMicroCheck {
      *
      * @param device The Device
      * @param effectiveTimestamp The effective timestamp of the transition
-     * @param state
      * @return The violation if the check fails
      */
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp, State state);
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp);
+
+    /**
+     * Evaluates this {@link MicroCheck} against the {@link Device}
+     * and returns an appropriate {@link DeviceLifeCycleActionViolation}
+     * when it fails.
+     *
+     * @param device The Device
+     * @param effectiveTimestamp The effective timestamp of the transition
+     * @param state The new target state
+     * @return The violation if the check fails
+     */
+    default Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp, State state) {
+        return evaluate(device, effectiveTimestamp);
+    };
 
     String getName();
 
