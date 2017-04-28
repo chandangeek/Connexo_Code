@@ -540,7 +540,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             directlyAddressableCheckBox.setValue(deviceConfiguration.get('isDirectlyAddressable'));
             directlyAddressableCheckBox.setDisabled(deviceConfiguration.get('active'));
         } else {
-            directlyAddressableCheckBox.setValue(false);
+            directlyAddressableCheckBox.setValue(deviceType.get('canBeDirectlyAddressed'));
             directlyAddressableCheckBox.setDisabled(false);
         }
         if (!deviceType.get('canBeDirectlyAddressed')) {
