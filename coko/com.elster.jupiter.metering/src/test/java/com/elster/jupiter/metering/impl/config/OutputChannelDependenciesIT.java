@@ -6,6 +6,8 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
@@ -38,6 +40,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.assertj.core.data.MapEntry;
 import org.junit.AfterClass;
@@ -45,6 +48,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -229,9 +233,15 @@ public class OutputChannelDependenciesIT {
     }
 
     private static void setUpMeter() {
-        meter = meteringService.findAmrSystem(1)
+        State deviceState = Mockito.mock(State.class);
+        Stage deviceStage = Mockito.mock(Stage.class);
+        String operationalDeviceStageKey = "mtr.enddevicestage.operational";
+        meter = Mockito.spy(meteringService.findAmrSystem(1)
                 .orElseThrow(() -> new NoSuchElementException("Default AMR system is not found."))
-                .newMeter("42", "Retem").create();
+                .newMeter("42", "Retem").create());
+        Mockito.when(meter.getState(Mockito.any(Instant.class))).thenReturn(Optional.of(deviceState));
+        Mockito.when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        Mockito.when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
         usagePoint.linkMeters().activate(Instant.EPOCH, meter, defaultMeterRole).complete();
 
         MeterActivation meterActivation = meter.getCurrentMeterActivation()
