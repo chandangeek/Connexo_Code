@@ -70,7 +70,8 @@ public class UsagePointConfigurationApplication extends Application implements T
         return ImmutableSet.of(
                 MetrologyConfigurationResource.class,
                 MetrologyConfigValidationRuleSetResource.class,
-                MetrologyConfigEstimationRuleSetResource.class
+                MetrologyConfigEstimationRuleSetResource.class,
+                MetrologyConfigFieldResource.class
         );
     }
 

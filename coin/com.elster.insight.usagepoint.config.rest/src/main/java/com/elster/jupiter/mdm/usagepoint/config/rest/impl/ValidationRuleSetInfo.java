@@ -4,12 +4,14 @@
 
 package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
+import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfo;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationVersionStatus;
 import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 import java.util.Optional;
 
 @XmlRootElement
@@ -24,6 +26,7 @@ public class ValidationRuleSetInfo {
     public long version;
     public long currentVersionId;
     public ValidationRuleSetVersionInfo currentVersion;
+    public List<UsagePointLifeCycleStateInfo> lifeCycleStates;
 
     public ValidationRuleSetInfo(ValidationRuleSet validationRuleSet) {
         id = validationRuleSet.getId();
@@ -43,9 +46,15 @@ public class ValidationRuleSetInfo {
         version = validationRuleSet.getVersion();
     }
 
-    public ValidationRuleSetInfo(ValidationRuleSet validationRuleSet, ValidationRuleSetVersion currentVersion) {
+    public ValidationRuleSetInfo(ValidationRuleSet validationRuleSet,  List<UsagePointLifeCycleStateInfo> lifeCycleStates) {
+        this(validationRuleSet);
+        this.lifeCycleStates = lifeCycleStates;
+    }
+
+    public ValidationRuleSetInfo(ValidationRuleSet validationRuleSet, ValidationRuleSetVersion currentVersion, List<UsagePointLifeCycleStateInfo> lifeCycleStates) {
         this(validationRuleSet);
         this.currentVersion = new ValidationRuleSetVersionInfo(currentVersion);
+        this.lifeCycleStates = lifeCycleStates;
     }
 
     public ValidationRuleSetInfo() {

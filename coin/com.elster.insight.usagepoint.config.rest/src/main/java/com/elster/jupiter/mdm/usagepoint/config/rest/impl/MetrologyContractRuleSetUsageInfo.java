@@ -15,5 +15,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MetrologyContractRuleSetUsageInfo {
     public long total;
-    public List<LinkableMetrologyContractInfo> contracts;
+    public List<MetrologyContractInfo> contracts;
+    public List<UsagePointLifeCycleStateInfo> lifeCycleStates;
 }

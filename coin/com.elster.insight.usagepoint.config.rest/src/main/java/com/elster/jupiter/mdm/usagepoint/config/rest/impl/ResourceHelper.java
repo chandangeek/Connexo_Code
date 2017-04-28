@@ -8,31 +8,42 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
+import com.elster.jupiter.validation.ValidationRuleSet;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ResourceHelper {
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final CustomPropertySetService customPropertySetService;
+    private final UsagePointConfigurationService usagePointConfigurationService;
+    private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
+    private final UsagePointLifeCycleStateInfoFactory usagePointLifeCycleStateInfoFactory;
 
     @Inject
-    public ResourceHelper(MetrologyConfigurationService metrologyConfigurationService, ConcurrentModificationExceptionFactory conflictFactory, CustomPropertySetService customPropertySetService) {
+    public ResourceHelper(MetrologyConfigurationService metrologyConfigurationService, ConcurrentModificationExceptionFactory conflictFactory, CustomPropertySetService customPropertySetService, UsagePointConfigurationService usagePointConfigurationService, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService, UsagePointLifeCycleStateInfoFactory usagePointLifeCycleStateInfoFactory) {
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.conflictFactory = conflictFactory;
         this.customPropertySetService = customPropertySetService;
+        this.usagePointConfigurationService = usagePointConfigurationService;
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
+        this.usagePointLifeCycleStateInfoFactory = usagePointLifeCycleStateInfoFactory;
     }
 
     UsagePointMetrologyConfiguration getMetrologyConfigOrThrowException(long metrologyConfigId) {
@@ -116,6 +127,25 @@ public class ResourceHelper {
         info.setLifeCycleStates(states);
 
         return info;
+    }
+
+    List<UsagePointLifeCycleStateInfo> getUsagePointLifeCycleStateInfos(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet){
+        return  usagePointConfigurationService.getStatesLinkedToValidationRuleSetAndMetrologyContract(validationRuleSet, metrologyContract).stream()
+                .flatMap(state -> usagePointLifeCycleConfigurationService.getUsagePointLifeCycles().stream()
+                        .filter(usagePointLifeCycle -> usagePointLifeCycle.getStates().contains(state))
+                        .map(usagePointLifeCycle -> usagePointLifeCycleStateInfoFactory.from(usagePointLifeCycle, state))
+                        .findAny()
+                        .map(Stream::of)
+                        .orElse(Stream.empty()))
+                .collect(Collectors.toList());
+    }
+
+    List<State> getStates (List<UsagePointLifeCycleStateInfo> lifeCycleStates){
+        return lifeCycleStates.stream()
+                .map(usagePointLifeCycleStateInfo -> usagePointLifeCycleConfigurationService.findUsagePointState(usagePointLifeCycleStateInfo.id))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 
     private Long getCurrentMetrologyContractVersion(long id) {

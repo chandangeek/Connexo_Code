@@ -146,12 +146,11 @@ public class MetrologyConfigValidationRuleSetResource {
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         metrologyContractRuleSetUsageInfo.contracts.forEach(metrologyContractInfo -> {
             MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(metrologyContractInfo);
-            List<State> states = metrologyContractInfo.getLifeCycleStates().stream()
-                    .map(usagePointLifeCycleStateInfo -> usagePointLifeCycleConfigurationService.findUsagePointState(usagePointLifeCycleStateInfo.id))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toList());
-            usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet, states);
+            if(metrologyContractRuleSetUsageInfo.lifeCycleStates==null || !metrologyContractRuleSetUsageInfo.lifeCycleStates.isEmpty()) {
+                usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet, resourceHelper.getStates(metrologyContractRuleSetUsageInfo.lifeCycleStates));
+            } else {
+                usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet);
+            }
         });
 
         return Response.status(Response.Status.OK).build();

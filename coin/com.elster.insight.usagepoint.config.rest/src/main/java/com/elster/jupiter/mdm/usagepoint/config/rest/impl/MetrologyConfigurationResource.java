@@ -243,7 +243,9 @@ public class MetrologyConfigurationResource {
                             .filter(validationRuleSetVersion -> validationRuleSetVersion.getStatus() == ValidationVersionStatus.CURRENT)
                             .findFirst()
                             .get();
-                    ValidationRuleSetInfo validationRuleSetInfo = new ValidationRuleSetInfo(validationRuleSet, activeRuleSetVersion);
+                    ValidationRuleSetInfo validationRuleSetInfo = new ValidationRuleSetInfo(validationRuleSet,
+                            activeRuleSetVersion,
+                            resourceHelper.getUsagePointLifeCycleStateInfos(metrologyContract, validationRuleSet));
                     validationRuleSetInfos.add(validationRuleSetInfo);
                 }
             }
@@ -286,7 +288,11 @@ public class MetrologyConfigurationResource {
         } else {
             for (ValidationRuleSetInfo validationRuleSetInfo : metrologyContractInfo.validationRuleSets) {
                 ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(validationRuleSetInfo.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-                usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet);
+                if(validationRuleSetInfo.lifeCycleStates==null || !validationRuleSetInfo.lifeCycleStates.isEmpty()) {
+                    usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet, resourceHelper.getStates(validationRuleSetInfo.lifeCycleStates));
+                } else {
+                    usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet);
+                }
             }
             for (EstimationRuleSetInfo estimationRuleSetInfo : metrologyContractInfo.estimationRuleSets) {
                 EstimationRuleSet estimationRuleSet = estimationService.getEstimationRuleSet(estimationRuleSetInfo.id)
@@ -309,7 +315,7 @@ public class MetrologyConfigurationResource {
                 .filter(validationRuleSet -> validationRuleSet.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
                 .filter(validationRuleSet -> !usagePointConfigurationService.getMatchingDeliverablesOnValidationRuleSet(metrologyContract, validationRuleSet).isEmpty())
                 .filter(validationRuleSet -> !linkedValidationRuleSets.contains(validationRuleSet))
-                .map(ValidationRuleSetInfo::new)
+                .map(validationRuleSet -> new ValidationRuleSetInfo(validationRuleSet, resourceHelper.getUsagePointLifeCycleStateInfos(metrologyContract, validationRuleSet)))
                 .collect(Collectors.toList());
         List<EstimationRuleSetInfo> linkableEstimationRuleSets = estimationService.getEstimationRuleSets()
                 .stream()
