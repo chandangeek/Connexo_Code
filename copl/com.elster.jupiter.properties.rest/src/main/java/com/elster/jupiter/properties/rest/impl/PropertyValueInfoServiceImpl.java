@@ -21,6 +21,7 @@ import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -42,10 +43,6 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
     private final Map<String, PropertyValueConverter> dedicatedConverters = new HashMap<>();
 
     private volatile Thesaurus thesaurus;
-
-    public PropertyValueInfoServiceImpl() {
-
-    }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
@@ -80,7 +77,14 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
 
     @Override
     public void removePropertyValueInfoConverter(PropertyValueConverter converter) {
+        this.dedicatedConverters.keySet().forEach(propertyName -> this.cleanupDedicatedConverters(propertyName, converter));
         this.converters.remove(converter);
+    }
+
+    private void cleanupDedicatedConverters(String propertyName, PropertyValueConverter converter) {
+        if (this.dedicatedConverters.get(propertyName).equals(converter)) {
+            this.dedicatedConverters.remove(propertyName);
+        }
     }
 
     @Override
