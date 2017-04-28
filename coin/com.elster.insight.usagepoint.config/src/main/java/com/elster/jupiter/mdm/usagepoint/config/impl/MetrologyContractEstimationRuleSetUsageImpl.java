@@ -7,7 +7,6 @@ package com.elster.jupiter.mdm.usagepoint.config.impl;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -39,10 +38,10 @@ class MetrologyContractEstimationRuleSetUsageImpl implements MetrologyContractEs
         }
     }
 
-    @NotEmpty(message = MessageSeeds.Constants.REQUIRED)
+    @NotEmpty(message = MessageSeeds.Keys.REQUIRED)
     @IsPresent
     private Reference<EstimationRuleSet> estimationRuleSet = ValueReference.absent();
-    @NotEmpty(message = MessageSeeds.Constants.REQUIRED)
+    @NotEmpty(message = MessageSeeds.Keys.REQUIRED)
     @IsPresent
     private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
     private long position;
