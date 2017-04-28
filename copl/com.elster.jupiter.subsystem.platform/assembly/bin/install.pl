@@ -767,6 +767,8 @@ sub activate_sso {
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.externalurl=http://$HOST_NAME");
             add_to_file("$CATALINA_BASE/conf/connexo.properties","$PUBLIC_KEY_PROPERTIES");
 
+            add_to_file($config_file,"$PUBLIC_KEY_PROPERTIES");
+
             #if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
             #    system("sc config \"Apache2.4\"  start= delayed-auto");
             #    system("sc start Apache2.4");
