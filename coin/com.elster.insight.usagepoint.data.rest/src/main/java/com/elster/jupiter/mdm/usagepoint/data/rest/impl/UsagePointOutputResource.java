@@ -548,7 +548,7 @@ public class UsagePointOutputResource {
         }
         AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
 
-        return previewCopyFromRefernce(QualityCodeSystem.MDM, channel, referenceChannelDataInfo);
+        return new UsagePointOutputReferenceCopier(meteringService, resourceHelper, outputChannelDataInfoFactory, channel).get(referenceChannelDataInfo);
     }
 
     @GET
@@ -580,106 +580,6 @@ public class UsagePointOutputResource {
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("rules", estimationRuleInfos, queryParameters);
-    }
-
-    private List<OutputChannelDataInfo> previewCopyFromRefernce(QualityCodeSystem system, AggregatedChannel channel, ReferenceChannelDataInfo referenceChannelDataInfo) {
-        ReadingType readingType = meteringService.getReadingType(referenceChannelDataInfo.readingType)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_READING_TYPE_FOR_MRID, "readingType", referenceChannelDataInfo.readingType));
-
-        UsagePoint usagePoint = resourceHelper.findUsagePointByName(referenceChannelDataInfo.referenceUsagePoint)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_USAGE_POINT_WITH_NAME, "usagePoint", referenceChannelDataInfo.referenceUsagePoint));
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyPurpose purpose = resourceHelper.findMetrologyPurpose(referenceChannelDataInfo.referencePurpose)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METROLOGY_PURPOSE, "referencePurpose", referenceChannelDataInfo.referencePurpose));
-        MetrologyContract metrologyContract = resourceHelper.findMetrologyContract(effectiveMetrologyConfigurationOnUsagePoint, purpose)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.METROLOGYPURPOSE_IS_NOT_FOUND_ON_USAGEPOINT, "referencePurpose", purpose.getName(), usagePoint
-                        .getName()));
-        ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().stream().filter(output -> output.getReadingType().equals(readingType))
-                .findFirst()
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_USAGEPOINT, "readingType", referenceChannelDataInfo.readingType));
-        AggregatedChannel referenceChannel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType())
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_USAGEPOINT, "readingType", referenceChannelDataInfo.readingType));
-
-        if (!matchReadingTypes(referenceChannel.getMainReadingType(), channel.getMainReadingType())) {
-            throw new LocalizedFieldValidationException(MessageSeeds.READINGTYPES_DONT_MATCH, "readingType");
-        }
-        if (!readingTypeDeliverable.getReadingType().isRegular()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, "readingType", readingTypeDeliverable.getName());
-        }
-
-        List<OutputChannelDataInfo> resultReadings = new ArrayList<>();
-        for (Map.Entry<Range<Instant>, Range<Instant>> range : getCorrectedTimeStampsForReference(referenceChannelDataInfo.startDate, referenceChannelDataInfo.intervals).entrySet()) {
-            Optional<IntervalReadingRecord> referenceRecord = referenceChannel.getCalculatedIntervalReadings(range.getValue()).stream().findFirst();
-            Optional<IntervalReadingRecord> sourceRecord = channel.getCalculatedIntervalReadings(range.getKey()).stream().findFirst();
-            if (sourceRecord.isPresent()) {
-                referenceRecord.ifPresent(referenceReading -> {
-                    OutputChannelDataInfo channelDataInfo = outputChannelDataInfoFactory.createUpdatedChannelDataInfo(sourceRecord.get(), referenceReading.getValue()
-                                    .scaleByPowerOfTen(referenceReading.getReadingType().getMultiplier().getMultiplier() - sourceRecord.get()
-                                            .getReadingType()
-                                            .getMultiplier()
-                                            .getMultiplier()),
-                            referenceChannelDataInfo.projectedValue, referenceChannelDataInfo.commentId != null ? resourceHelper.getReadingQualityComment(referenceChannelDataInfo.commentId) : Optional
-                                    .empty());
-                    channelDataInfo.isProjected = referenceChannelDataInfo.projectedValue;
-                    if (referenceChannelDataInfo.allowSuspectData || referenceReading.getReadingQualities().stream().noneMatch(ReadingQualityRecord::isSuspect)) {
-                        resultReadings.add(channelDataInfo);
-                    }
-                });
-            } else {
-                referenceRecord.ifPresent(referenceReading -> {
-                    OutputChannelDataInfo channelDataInfo = new OutputChannelDataInfo();
-                    channelDataInfo.value = referenceReading.getValue()
-                            .scaleByPowerOfTen(referenceReading.getReadingType().getMultiplier().getMultiplier() - channel.getMainReadingType().getMultiplier().getMultiplier());
-                    if (referenceChannelDataInfo.commentId != null) {
-                        resourceHelper.getReadingQualityComment(referenceChannelDataInfo.commentId)
-                                .ifPresent(comment -> {
-                                    channelDataInfo.commentId = comment.getId();
-                                    channelDataInfo.commentValue = comment.getComment();
-                                });
-                    }
-                    channelDataInfo.isProjected = referenceChannelDataInfo.projectedValue;
-                    channelDataInfo.interval = IntervalInfo.from(range.getKey());
-                    if (referenceChannelDataInfo.allowSuspectData || referenceReading.getReadingQualities().stream().noneMatch(ReadingQualityRecord::isSuspect)) {
-                        resultReadings.add(channelDataInfo);
-                    }
-                });
-            }
-        }
-        if (!referenceChannelDataInfo.completePeriod || resultReadings.size() == referenceChannelDataInfo.intervals.size()) {
-            return resultReadings;
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    private Map<Range<Instant>, Range<Instant>> getCorrectedTimeStampsForReference(Instant referenceStartDate, List<IntervalInfo> intervals) {
-        Instant startDate = intervals.stream().map(date -> Instant.ofEpochMilli(date.end)).min(Instant::compareTo).get();
-        TemporalAmount offset = Duration.between(referenceStartDate, Instant.ofEpochMilli(intervals.get(0).end));
-        if (referenceStartDate.isAfter(startDate)) {
-            return intervals.stream().map(interval -> Range.openClosed(Instant.ofEpochMilli(interval.start), Instant.ofEpochMilli(interval.end)))
-                    .collect(Collectors.toMap(Function.identity(), interval -> Range.openClosed(interval.lowerEndpoint().plus(offset), interval.upperEndpoint().plus(offset))));
-        } else {
-            return intervals.stream().map(interval -> Range.openClosed(Instant.ofEpochMilli(interval.start), Instant.ofEpochMilli(interval.end)))
-                    .collect(Collectors.toMap(Function.identity(), interval -> Range.openClosed(interval.lowerEndpoint().minus(offset), interval.upperEndpoint().minus(offset))));
-        }
-    }
-
-    private boolean matchReadingTypes(ReadingType first, ReadingType second) {
-        return first.equals(second)
-                || (first.getMacroPeriod().equals(second.getMacroPeriod())
-                && first.getAggregate().equals(second.getAggregate())
-                && first.getMeasuringPeriod().equals(second.getMeasuringPeriod())
-                && first.getAccumulation().equals(second.getAccumulation())
-                && first.getFlowDirection().equals(second.getFlowDirection())
-                && first.getCommodity().equals(second.getCommodity())
-                && first.getMeasurementKind().equals(second.getMeasurementKind())
-                && first.getInterharmonic().equals(second.getInterharmonic())
-                && first.getArgument().equals(second.getArgument())
-                && first.getTou() == second.getTou()
-                && first.getCpp() == second.getCpp()
-                && first.getPhases().equals(second.getPhases())
-                && first.getUnit().equals(second.getUnit())
-                && first.getCurrency().equals(second.getCurrency()));
     }
 
     private List<OutputChannelDataInfo> previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
