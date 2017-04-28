@@ -47,6 +47,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -64,6 +65,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -94,12 +96,13 @@ public class ResourceHelper {
     private final MdcPropertyUtils mdcPropertyUtils;
     private final CustomPropertySetService customPropertySetService;
     private final TopologyService topologyService;
+    private final MultiElementDeviceService multiElementDeviceService;
     private final Clock clock;
     private final Thesaurus thesaurus;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     @Inject
-    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService, MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService, ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService, MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock, MasterDataService masterDataService, TopologyService topologyService, NlsService nlsService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService, MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService, ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService, MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock, MasterDataService masterDataService, TopologyService topologyService, MultiElementDeviceService multiElementDeviceService, NlsService nlsService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         super();
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
@@ -117,6 +120,7 @@ public class ResourceHelper {
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.customPropertySetService = customPropertySetService;
         this.topologyService = topologyService;
+        this.multiElementDeviceService = multiElementDeviceService;
         this.clock = clock;
 
         this.thesaurus = nlsService.getThesaurus(DeviceApplication.COMPONENT_NAME, Layer.REST)
@@ -1120,16 +1124,28 @@ public class ResourceHelper {
     }
 
     public List<DeviceTopologyInfo> getDataLoggerSlaves(Device device) {
-        List<Device> slaves = topologyService.findDataLoggerSlaves(device);
+        List<Device> slaves = new ArrayList<>();
+        if (device.getDeviceConfiguration().isDataloggerEnabled()) {
+            slaves.addAll(topologyService.findDataLoggerSlaves(device));
+        }
+        if (device.getDeviceConfiguration().isMultiElementEnabled()){
+            slaves.addAll(multiElementDeviceService.findMultiElementSlaves(device));
+        }
         return slaves
                 .stream()
                 .map(slave -> DeviceTopologyInfo.from(slave, getLinkingDate(slave), deviceLifeCycleConfigurationService))
                 .collect(Collectors.toList());
+
     }
 
     private Optional<Instant> getLinkingDate(Device slave) {
-        return topologyService.findDataloggerReference(slave, clock.instant())
-                .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint());
+        if (slave.getDeviceType().isDataloggerSlave()) {
+            return topologyService.findDataloggerReference(slave, clock.instant())
+                    .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint());
+        }else{
+            return multiElementDeviceService.findMultiElementDeviceReference(slave, clock.instant())
+                    .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint());
+        }
     }
 
     public ConnectionTask updateConnectionTask(ConnectionTask connectionTask, ProtocolDialectConfigurationProperties properties){

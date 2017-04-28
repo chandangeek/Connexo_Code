@@ -96,6 +96,8 @@ import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.device.topology.impl.TopologyModule;
+import com.energyict.mdc.device.topology.impl.multielement.MultiElementDeviceModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -281,6 +283,8 @@ public class InMemoryIntegrationPersistence {
                 new ServiceCallRestModule(),
                 new CalendarModule(),
                 new CalendarRestModule(),
+                new TopologyModule(),
+                new MultiElementDeviceModule(),
                 new PropertyValueInfoServiceModule()
         );
         this.transactionService = injector.getInstance(TransactionService.class);
