@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.metering.rest.properties.ReadingTypeValueConverter;
+import com.elster.jupiter.metering.rest.properties.UsagePointValueConverter;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -139,11 +140,13 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     @Activate
     public void activate() {
         propertyValueInfoService.addPropertyValueInfoConverter(ReadingTypeValueConverter.INSTANCE);
+        propertyValueInfoService.addPropertyValueInfoConverter(UsagePointValueConverter.INSTANCE);
     }
 
     @Deactivate
     public void deactivate() {
         propertyValueInfoService.removePropertyValueInfoConverter(ReadingTypeValueConverter.INSTANCE);
+        propertyValueInfoService.removePropertyValueInfoConverter(UsagePointValueConverter.INSTANCE);
     }
 
     @Override

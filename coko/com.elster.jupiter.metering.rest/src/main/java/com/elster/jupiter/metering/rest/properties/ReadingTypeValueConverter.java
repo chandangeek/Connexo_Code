@@ -6,7 +6,6 @@ package com.elster.jupiter.metering.rest.properties;
 
 import com.elster.jupiter.metering.ReadingTypeValueFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.rest.PropertyType;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.SimplePropertyType;
 
@@ -24,16 +23,16 @@ public class ReadingTypeValueConverter implements PropertyValueConverter {
     }
 
     @Override
-    public PropertyType getPropertyType(PropertySpec propertySpec) {
+    public com.elster.jupiter.properties.rest.PropertyType getPropertyType(PropertySpec propertySpec) {
         if (propertySpec.getValueFactory() instanceof ReadingTypeValueFactory) {
                 ReadingTypeValueFactory.Mode factoryMode = ((ReadingTypeValueFactory) propertySpec.getValueFactory()).getMode();
                 switch (factoryMode) {
                     case ALL:
-                        return ReadingPropertyType.READING_TYPE;
+                        return PropertyType.READING_TYPE;
                     case ONLY_REGULAR:
-                        return ReadingPropertyType.REGULAR_READINGTYPE;
+                        return PropertyType.REGULAR_READINGTYPE;
                     case ONLY_IRREGULAR:
-                        return ReadingPropertyType.IRREGULAR_READINGTYPE;
+                        return PropertyType.IRREGULAR_READINGTYPE;
                 }
         }
         return SimplePropertyType.UNKNOWN;
