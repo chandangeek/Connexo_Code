@@ -4,14 +4,13 @@
 
 package com.energyict.mdc.scheduling.model;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.tasks.ComTask;
-
-import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import java.time.Instant;
 import java.util.Calendar;
@@ -22,45 +21,45 @@ import java.util.Optional;
 @ProviderType
 public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration {
 
-    public void setName(String name);
+    void setName(String name);
 
-    public long getVersion();
+    long getVersion();
 
-    public SchedulingStatus getSchedulingStatus();
+    SchedulingStatus getSchedulingStatus();
 
-    public void setSchedulingStatus(SchedulingStatus status);
+    void setSchedulingStatus(SchedulingStatus status);
 
-    public Date getNextTimestamp(Calendar calendar);
+    Date getNextTimestamp(Calendar calendar);
 
-    public void addComTask(ComTask comTask);
+    void addComTask(ComTask comTask);
 
-    public void removeComTask(ComTask comTask);
+    void removeComTask(ComTask comTask);
 
-    public List<ComTask> getComTasks();
+    List<ComTask> getComTasks();
 
-    public boolean containsComTask(ComTask comTask);
+    boolean containsComTask(ComTask comTask);
 
-    public NextExecutionSpecs getNextExecutionSpecs();
+    NextExecutionSpecs getNextExecutionSpecs();
 
-    public TemporalExpression getTemporalExpression();
+    TemporalExpression getTemporalExpression();
 
-    public void setTemporalExpression(TemporalExpression temporalExpression);
+    void setTemporalExpression(TemporalExpression temporalExpression);
 
-    public void update();
+    void update();
 
-    public void delete();
+    void delete();
 
     /**
      * Makes this ComSchedule obsolete, i.e. it will appear as it no longer exists.
      */
-    public void makeObsolete();
+    void makeObsolete();
 
     /**
      * Indicates if this ComSchedule is marked as deleted.
      *
      * @return A flag that indicates if this ComSchedule is marked as deleted
      */
-    public boolean isObsolete();
+    boolean isObsolete();
 
     /**
      * Gets the date when this ComSchedule was made obsolete.
@@ -68,13 +67,13 @@ public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration
      * @return The date when this ComSchedule was made obsolete
      * or <code>empty</code> when this ComSchedule is not obsolete at all.
      */
-    public Optional<Instant> getObsoleteDate();
+    Optional<Instant> getObsoleteDate();
 
-    public Instant getStartDate();
+    Instant getStartDate();
 
-    public void setStartDate(Instant startDate);
+    void setStartDate(Instant startDate);
 
-    public Optional<Instant> getPlannedDate();
+    Optional<Instant> getPlannedDate();
 
     /**
      * Gets the master resource identifier of this ComSchedule
@@ -84,8 +83,8 @@ public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration
      *
      * @return This ComSchedule's master resource identifier
      */
-    public Optional<String> getmRID();
+    Optional<String> getmRID();
 
-    public void setmRID(String mRID);
+    void setmRID(String mRID);
 
 }

@@ -33,6 +33,7 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -47,12 +48,12 @@ import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -61,7 +62,9 @@ import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
 import java.sql.SQLException;
+import java.util.Optional;
 
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -117,6 +120,7 @@ public class InMemoryPersistence {
                 new MdcDynamicModule(),
                 new ProtocolApiModule(),
                 new TasksModule(),
+                new TaskModule(),// TaskService from c.e.j.tasks
                 new SchedulingModule(),
                 new CustomPropertySetsModule()
         );
@@ -185,12 +189,25 @@ public class InMemoryPersistence {
     }
 
     private class MockModule extends AbstractModule {
+
+        private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+
+        public MockModule() {
+            this.deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
+
+            when(deviceMessageSpecificationService.findCategoryById(anyInt())).thenAnswer(invocation -> {
+                Object[] args = invocation.getArguments();
+                return Optional.of(DeviceMessageTestCategories.values()[((int) args[0])]);
+            });
+        }
+
         @Override
         protected void configure() {
             bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(DataModel.class).toProvider(() -> dataModel);
+            bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
             bind(SearchService.class).toInstance(mock(SearchService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
