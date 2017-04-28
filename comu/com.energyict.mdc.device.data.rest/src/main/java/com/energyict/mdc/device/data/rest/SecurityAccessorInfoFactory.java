@@ -56,6 +56,7 @@ public class SecurityAccessorInfoFactory {
         info.status = thesaurus.getFormat(keyAccessor.getStatus()).format();
         info.canGeneratePassiveKey = KeyAccessorStatus.COMPLETE.equals(keyAccessor.getStatus());
         info.hasTempValue = keyAccessor.getTempValue().isPresent();
+        info.hasActualValue = keyAccessor.getActualValue().isPresent();
         keyAccessor.getActualValue().ifPresent(ka->ka.getExpirationTime().ifPresent(expiration -> info.expirationTime = expiration));
 
         return info;
