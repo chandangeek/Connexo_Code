@@ -355,32 +355,34 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                         && discardDay) {
                     String message = getThesaurus().getFormat(MessageSeeds.NEAREST_AVG_VALUE_DAY_ESTIMATOR_FAIL_ESTIMATED_DAY_DISCARDED)
                             .format(blockToString(estimationBlock), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
-                                    .format(), estimationBlock.getReadingType()
-                                    .getFullAliasName(), estimateOn);
+                                    .format(), estimateOn, estimationBlock.getReadingType()
+                                    .getFullAliasName());
                     LoggingContext.get().warning(getLogger(), message);
                     return false;
                 }
 
                 final Calendar.ZonedView view = zonedView;
-                readingsBefore
+                readingsBefore = readingsBefore
                         .stream()
+                        .sorted((r1, r2) -> r2.getTimeStamp().compareTo(r1.getTimeStamp()))
                         .filter(brcc -> isValidSample(estimationBlock, estimatable.getTimestamp(), brcc, systems, zone))
                         .collect(Collectors.toList());
-                skipDayIfHasEvent(readingsBefore, skippedDays, calendarEventId, view, discardDay);
+                readingsBefore = skipDayIfHasEvent(readingsBefore, skippedDays, calendarEventId, view, discardDay);
 
             } else {
-                readingsBefore
+                readingsBefore = readingsBefore
                         .stream()
+                        .sorted((r1, r2) -> r2.getTimeStamp().compareTo(r1.getTimeStamp()))
                         .filter(brcc -> isValidSample(estimationBlock, estimatable.getTimestamp(), brcc, systems, zone))
                         .collect(Collectors.toList());
-                skipDayIfHasEvent(readingsBefore, skippedDays, calendarEventId, zonedView, discardDay);
+                readingsBefore = skipDayIfHasEvent(readingsBefore, skippedDays, calendarEventId, zonedView, discardDay);
             }
 
             if (readingsBefore.size() < numberOfSamples) {
                 String message = getThesaurus().getFormat(MessageSeeds.NEAREST_AVG_VALUE_DAY_ESTIMATOR_FAIL_NOT_ENOUGH_SAMPLES)
                         .format(blockToString(estimationBlock), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
-                                .format(), estimationBlock.getReadingType()
-                                .getFullAliasName(), estimateOn);
+                                .format(), estimateOn, estimationBlock.getReadingType()
+                                .getFullAliasName());
                 LoggingContext.get().warning(getLogger(), message);
                 return false;
             }
@@ -410,7 +412,7 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                 && record.getQuantity(estimationBlock.getReadingType()) != null;
     }
 
-    private static void skipDayIfHasEvent(List<? extends BaseReadingRecord> readingRecords, Set<Instant> skippedDays
+    private static List<? extends BaseReadingRecord> skipDayIfHasEvent(List<? extends BaseReadingRecord> readingRecords, Set<Instant> skippedDays
             , Long calendarEventId, Calendar.ZonedView view, boolean discardDay) {
         skippedDays.addAll(readingRecords
                 .stream()
@@ -431,7 +433,7 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                     .map(brrc -> brrc.getTimeStamp().truncatedTo(ChronoUnit.DAYS))
                     .collect(Collectors.toSet()));
         }
-        readingRecords
+        return readingRecords
                 .stream()
                 .filter(brrc -> skippedDays
                         .stream()
