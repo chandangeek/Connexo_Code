@@ -8,6 +8,8 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterType;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,10 +37,21 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
         return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE, measurementType.getReadingType().getAliasName(), namesToStringListForLoadProfileTypes(loadProfileTypes));
     }
 
+    public static CannotDeleteBecauseStillInUseException registerTypeIsStillInUseByRegisterGroup(Thesaurus thesaurus, RegisterType registerType, List<RegisterGroup> registerGroups) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_MAPPING_STILL_USED_BY_REGISTER_GROUP, registerType.getReadingType().getAliasName(), namesToStringListForRegisterGroups(registerGroups));
+    }
+
     private static String namesToStringListForLoadProfileTypes(List<LoadProfileType> loadProfileTypes) {
         return loadProfileTypes
                 .stream()
                 .map(LoadProfileType::getName)
+                .collect(Collectors.joining(", "));
+    }
+
+    private static String namesToStringListForRegisterGroups(List<RegisterGroup> registerGroups) {
+        return registerGroups
+                .stream()
+                .map(RegisterGroup::getName)
                 .collect(Collectors.joining(", "));
     }
 
