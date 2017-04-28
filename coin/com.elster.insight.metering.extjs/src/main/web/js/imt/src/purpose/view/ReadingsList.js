@@ -147,6 +147,9 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         var status = record.get('validationResult') ? record.get('validationResult').split('.')[1] : '',
             value = Ext.isEmpty(v) ? '-' : v,
             estimatedByRule = record.get('estimatedByRule'),
+            estimationComment = record.get('commentValue')
+                ? Uni.I18n.translate('general.estimationCommentWithComment', 'IMT', 'Estimation comment: {0}', record.get('commentValue'))
+                : '',
             icon = '';
 
         if (record.get('confirmedNotSaved') || record.isModified('isProjected')) {
@@ -167,20 +170,12 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated on {0} at {1}', [
                     Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
                     Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
-                ], false) +
-            record.get('commentValue')
-                ? Uni.I18n.translate('general.estimationCommentWithComment', 'IMT', 'Estimation comment: {0}', record.get('commentValue'))
-                : ''
-            + '"></span>';
+                ], false) + estimationComment + '"></span>';
             if (record.get('isProjected') === true) {
                 icon = this.addProjectedFlag(icon);
             }
         } else if (record.get('estimatedNotSaved') && record.get('ruleId') > 0) {
-            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; data-qtip="' +
-            record.get('commentValue')
-                ? Uni.I18n.translate('general.estimationCommentWithComment', 'IMT', 'Estimation comment: {0}', record.get('commentValue'))
-                : ''
-                + '" color:#33CC33;"></span>';
+            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; data-qtip="' + estimationComment + '" color:#33CC33;"></span>';
             if (record.get('isProjected') === true) {
                 icon = this.addProjectedFlag(icon);
             }
