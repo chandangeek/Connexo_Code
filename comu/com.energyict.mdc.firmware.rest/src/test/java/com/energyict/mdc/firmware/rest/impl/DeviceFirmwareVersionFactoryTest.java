@@ -164,11 +164,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         DeviceMessageSpec messageSpec = mock(DeviceMessageSpec.class);
         when(messageSpec.getCategory()).thenReturn(firmwareCategory);
         if (withPropertySpecs) {
-            PropertySpec propertySpec = mock(PropertySpec.class);
-            ValueFactory valueFactory = mock(ValueFactory.class);
-            when(valueFactory.getValueType()).thenReturn(BaseFirmwareVersion.class);
-            when(propertySpec.getValueFactory()).thenReturn(valueFactory);
-            when(propertySpec.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
+            PropertySpec propertySpec = mockFirmwareVersionPropertySpec();
             when(messageSpec.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         }
         when(custom.getSpecification()).thenReturn(messageSpec);
@@ -203,6 +199,10 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareVersion.getFirmwareVersion()).thenReturn("MTR-001-UPGR");
         DeviceMessageAttribute fileAttr = mock(DeviceMessageAttribute.class);
         when(fileAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
+
+        PropertySpec propertySpec = mockFirmwareVersionPropertySpec();
+        when(fileAttr.getSpecification()).thenReturn(propertySpec);
+
         when(fileAttr.getValue()).thenReturn(firmwareVersion);
         List<DeviceMessageAttribute> messageAttributes = new ArrayList<>();
         messageAttributes.add(fileAttr);
@@ -447,9 +447,16 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareVersion.getFirmwareVersion()).thenReturn("MTR-001-UPGR");
         DeviceMessageAttribute fileAttr = mock(DeviceMessageAttribute.class);
         when(fileAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
+
+        PropertySpec propertySpec = mockFirmwareVersionPropertySpec();
+        when(fileAttr.getSpecification()).thenReturn(propertySpec);
+
         when(fileAttr.getValue()).thenReturn(firmwareVersion);
         DeviceMessageAttribute dateAttr = mock(DeviceMessageAttribute.class);
         when(dateAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.activationdate");
+        PropertySpec activationDatePropertySpec = mockActivationDatePropertySpec();
+        when(dateAttr.getSpecification()).thenReturn(activationDatePropertySpec);
+
         when(dateAttr.getValue()).thenReturn(new Date(NOW.minus(1, ChronoUnit.DAYS).toEpochMilli()));
         List<DeviceMessageAttribute> messageAttributes = new ArrayList<>();
         messageAttributes.add(fileAttr);
@@ -460,6 +467,24 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareMessage.getId()).thenReturn(1001L);
         when(firmwareMessage.getReleaseDate()).thenReturn(TIME);
         return firmwareMessage;
+    }
+
+    private PropertySpec mockFirmwareVersionPropertySpec() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        ValueFactory valueFactory = mock(ValueFactory.class);
+        when(valueFactory.getValueType()).thenReturn(BaseFirmwareVersion.class);
+        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
+        when(propertySpec.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
+        return propertySpec;
+    }
+
+    private PropertySpec mockActivationDatePropertySpec() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        ValueFactory valueFactory = mock(ValueFactory.class);
+        when(valueFactory.getValueType()).thenReturn(Date.class);
+        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
+        when(propertySpec.getName()).thenReturn("FirmwareDeviceMessage.upgrade.activationdate");
+        return propertySpec;
     }
 
     @Test
@@ -520,6 +545,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         // Set activation date in future
         DeviceMessageAttribute dateAttr = mock(DeviceMessageAttribute.class);
         when(dateAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.activationdate");
+        PropertySpec activationDatePropertySpec = mockActivationDatePropertySpec();
+        when(dateAttr.getSpecification()).thenReturn(activationDatePropertySpec);
         when(dateAttr.getValue()).thenReturn(new Date(NOW.plus(1, ChronoUnit.DAYS).toEpochMilli()));
         firmwareMessage.getAttributes().remove(1);
         List<com.energyict.mdc.upl.messages.DeviceMessageAttribute> attributes = (List<com.energyict.mdc.upl.messages.DeviceMessageAttribute>) firmwareMessage.getAttributes();
@@ -633,6 +660,10 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         DeviceMessageAttribute fileAttr = mock(DeviceMessageAttribute.class);
         when(fileAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
         when(fileAttr.getValue()).thenReturn(firmwareVersion);
+
+        PropertySpec propertySpec = mockFirmwareVersionPropertySpec();
+        when(fileAttr.getSpecification()).thenReturn(propertySpec);
+
         List<DeviceMessageAttribute> messageAttributes = new ArrayList<>();
         messageAttributes.add(fileAttr);
         DeviceMessage firmwareMessage = mockFirmwareMessage();
@@ -879,6 +910,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         DeviceMessageAttribute meterFileAttr = mock(DeviceMessageAttribute.class);
         when(meterFileAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
         when(meterFileAttr.getValue()).thenReturn(meterFirmwareVersion);
+        PropertySpec firmwareVersionPropertySpec = mockFirmwareVersionPropertySpec();
+        when(meterFileAttr.getSpecification()).thenReturn(firmwareVersionPropertySpec);
         List<DeviceMessageAttribute> meterMessageAttributes = new ArrayList<>();
         meterMessageAttributes.add(meterFileAttr);
         DeviceMessage uploadMeterFirmware = mockFirmwareMessage();
@@ -908,6 +941,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         DeviceMessageAttribute communicationFileAttr = mock(DeviceMessageAttribute.class);
         when(communicationFileAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
         when(communicationFileAttr.getValue()).thenReturn(communicationFirmwareVersion);
+        PropertySpec firmwareVersionPropertySpec2 = mockFirmwareVersionPropertySpec();
+        when(communicationFileAttr.getSpecification()).thenReturn(firmwareVersionPropertySpec2);
         List<DeviceMessageAttribute> communicationMessageAttributes = new ArrayList<>();
         communicationMessageAttributes.add(communicationFileAttr);
         DeviceMessage uploadCommunicationFirmware = mockFirmwareMessage();
@@ -960,6 +995,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         DeviceMessageAttribute meterFileAttr = mock(DeviceMessageAttribute.class);
         when(meterFileAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
         when(meterFileAttr.getValue()).thenReturn(meterFirmwareVersion);
+        PropertySpec firmwareVersionPropertySpec = mockFirmwareVersionPropertySpec();
+        when(meterFileAttr.getSpecification()).thenReturn(firmwareVersionPropertySpec);
         List<DeviceMessageAttribute> meterMessageAttributes = new ArrayList<>();
         meterMessageAttributes.add(meterFileAttr);
         DeviceMessage uploadMeterFirmware = mockFirmwareMessage();
@@ -989,6 +1026,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         DeviceMessageAttribute communicationFileAttr = mock(DeviceMessageAttribute.class);
         when(communicationFileAttr.getName()).thenReturn("FirmwareDeviceMessage.upgrade.userfile");
         when(communicationFileAttr.getValue()).thenReturn(communicationFirmwareVersion);
+        PropertySpec firmwareVersionPropertySpec2 = mockFirmwareVersionPropertySpec();
+        when(communicationFileAttr.getSpecification()).thenReturn(firmwareVersionPropertySpec2);
         List<DeviceMessageAttribute> communicationMessageAttributes = new ArrayList<>();
         communicationMessageAttributes.add(communicationFileAttr);
         DeviceMessage uploadCommunicationFirmware = mockFirmwareMessage();

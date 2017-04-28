@@ -27,8 +27,9 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
@@ -71,9 +72,10 @@ public class DeviceFirmwareMessagesResource {
     private final Thesaurus thesaurus;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final DeviceService deviceService;
+    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     @Inject
-    public DeviceFirmwareMessagesResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, FirmwareService firmwareService, FirmwareMessageInfoFactory firmwareMessageInfoFactory, TaskService taskService, Clock clock, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus, ConcurrentModificationExceptionFactory conflictFactory, DeviceService deviceService) {
+    public DeviceFirmwareMessagesResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, FirmwareService firmwareService, FirmwareMessageInfoFactory firmwareMessageInfoFactory, TaskService taskService, Clock clock, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus, ConcurrentModificationExceptionFactory conflictFactory, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.firmwareService = firmwareService;
@@ -84,9 +86,11 @@ public class DeviceFirmwareMessagesResource {
         this.thesaurus = thesaurus;
         this.conflictFactory = conflictFactory;
         this.deviceService = deviceService;
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/firmwaremessagespecs/{uploadOption}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
@@ -96,7 +100,8 @@ public class DeviceFirmwareMessagesResource {
         return Response.ok(firmwareMessageInfoFactory.from(firmwareMessageSpec, device, uploadOption, firmwareType)).build();
     }
 
-    @POST @Transactional
+    @POST
+    @Transactional
     @Path("/firmwaremessages")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -110,7 +115,7 @@ public class DeviceFirmwareMessagesResource {
         Map<String, Object> convertedProperties = getConvertedProperties(firmwareMessageSpec, info);
         Instant releaseDate = info.releaseDate == null ? this.clock.instant() : info.releaseDate;
 
-        prepareCommunicationTask(device, convertedProperties);
+        prepareCommunicationTask(device, convertedProperties, firmwareMessageSpec);
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(firmwareMessageId).setReleaseDate(releaseDate);
         for (Map.Entry<String, Object> property : convertedProperties.entrySet()) {
             deviceMessageBuilder.addProperty(property.getKey(), property.getValue());
@@ -121,7 +126,8 @@ public class DeviceFirmwareMessagesResource {
     }
 
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/firmwaremessages/{messageId}/activate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -145,7 +151,13 @@ public class DeviceFirmwareMessagesResource {
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE);
         deviceMessageBuilder.setTrackingId(String.valueOf(messageId));
         deviceMessageBuilder.setReleaseDate(info.releaseDate);
-        deviceMessageBuilder.addProperty(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName, info.releaseDate != null ? Date.from(info.releaseDate) : new Date());
+
+        DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.dbValue()).get();
+        Optional<PropertySpec> activationDatePropertySpec = deviceMessageSpec.getPropertySpecs().stream().filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(Date.class)).findAny();
+        if (activationDatePropertySpec.isPresent()) {
+            deviceMessageBuilder.addProperty(activationDatePropertySpec.get().getName(), info.releaseDate != null ? Date.from(info.releaseDate) : new Date());
+        }
+
         deviceMessageBuilder.add();
         rescheduleFirmwareUpgradeTask(device);
         return Response.ok().build();
@@ -169,25 +181,28 @@ public class DeviceFirmwareMessagesResource {
         return convertedProperties;
     }
 
-    private void prepareCommunicationTask(Device device, Map<String, Object> convertedProperties) {
+    private void prepareCommunicationTask(Device device, Map<String, Object> convertedProperties, DeviceMessageSpec firmwareMessageSpec) {
         FirmwareManagementDeviceUtils helper = this.firmwareService.getFirmwareManagementDeviceUtilsFor(device);
         Optional<ComTaskExecution> fuComTaskExecutionRef = helper.getFirmwareComTaskExecution();
         if (!fuComTaskExecutionRef.isPresent()) {
             createFirmwareComTaskExecution(device);
         } else {
-            cancelOldFirmwareUpdates(helper, convertedProperties);
+            cancelOldFirmwareUpdates(helper, convertedProperties, firmwareMessageSpec);
         }
     }
 
-    private void cancelOldFirmwareUpdates(FirmwareManagementDeviceUtils helper, Map<String, Object> convertedProperties) {
-        String firmwareVersionPropertyName = DeviceMessageConstants.firmwareUpdateFileAttributeName;
-        FirmwareVersion requestedFirmwareVersion = (FirmwareVersion) convertedProperties.get(firmwareVersionPropertyName);
-        if (requestedFirmwareVersion != null) {
-            helper.cancelPendingFirmwareUpdates(requestedFirmwareVersion.getFirmwareType());
+    private void cancelOldFirmwareUpdates(FirmwareManagementDeviceUtils helper, Map<String, Object> convertedProperties, DeviceMessageSpec firmwareMessageSpec) {
+        Optional<PropertySpec> firmwareVersionPropertySpec = firmwareMessageSpec.getPropertySpecs().stream().filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(BaseFirmwareVersion.class)).findAny();
+        if (firmwareVersionPropertySpec.isPresent()) {
+            FirmwareVersion requestedFirmwareVersion = (FirmwareVersion) convertedProperties.get(firmwareVersionPropertySpec.get().getName());
+            if (requestedFirmwareVersion != null) {
+                helper.cancelPendingFirmwareUpdates(requestedFirmwareVersion.getFirmwareType());
+            }
         }
     }
 
-    @DELETE @Transactional
+    @DELETE
+    @Transactional
     @Path("/firmwaremessages/{msgId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -210,7 +225,8 @@ public class DeviceFirmwareMessagesResource {
         return Response.ok().build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/firmwaresactions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
@@ -242,7 +258,8 @@ public class DeviceFirmwareMessagesResource {
         return Response.ok(PagedInfoList.fromPagedList("firmwareactions", deviceFirmwareActions, queryParameters)).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/status/run")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
@@ -259,7 +276,8 @@ public class DeviceFirmwareMessagesResource {
     }
 
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/status/runnow")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
