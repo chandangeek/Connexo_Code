@@ -103,6 +103,8 @@ public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> im
         this.swapped=false;
     }
 
+    public abstract void clearActualValue();
+
     @Override
     public boolean isSwapped() {
         return swapped;
@@ -115,7 +117,7 @@ public abstract class AbstractKeyAccessorImpl<T extends SecurityValueWrapper> im
 
     @Override
     public KeyAccessorStatus getStatus() {
-        if (getActualValue().getProperties().containsValue(null) || getActualValue().getProperties().size()!=getPropertySpecs().size()) {
+        if (!getActualValue().isPresent() || getActualValue().get().getProperties().containsValue(null) || getActualValue().get().getProperties().size()!=getPropertySpecs().size()) {
             return KeyAccessorStatus.INCOMPLETE;
         }
         return KeyAccessorStatus.COMPLETE;

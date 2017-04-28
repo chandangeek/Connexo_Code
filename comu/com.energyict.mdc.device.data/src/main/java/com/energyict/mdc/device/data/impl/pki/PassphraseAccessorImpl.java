@@ -37,8 +37,11 @@ public class PassphraseAccessorImpl extends AbstractKeyAccessorImpl<PassphraseWr
     }
 
     @Override
-    public PassphraseWrapper getActualValue() {
-        return (PassphraseWrapper) actualPassphraseWrapperReference.get();
+    public Optional<PassphraseWrapper> getActualValue() {
+        if (actualPassphraseWrapperReference==null) {
+            return Optional.empty();
+        }
+        return (Optional<PassphraseWrapper>) actualPassphraseWrapperReference.getOptional();
     }
 
     @Override
@@ -76,10 +79,20 @@ public class PassphraseAccessorImpl extends AbstractKeyAccessorImpl<PassphraseWr
 
     @Override
     public void clearTempValue() {
-        if (tempPassphraseWrapperReference.isPresent()) {
+        if (getTempValue().isPresent()) {
             super.clearTempValue();
             PassphraseWrapper passphraseWrapper = (PassphraseWrapper) this.tempPassphraseWrapperReference.get();
             this.tempPassphraseWrapperReference = null;
+            passphraseWrapper.delete();
+            this.save();
+        }
+    }
+
+    @Override
+    public void clearActualValue() {
+        if (getActualValue().isPresent()) {
+            PassphraseWrapper passphraseWrapper = (PassphraseWrapper) this.actualPassphraseWrapperReference.get();
+            this.actualPassphraseWrapperReference = null;
             passphraseWrapper.delete();
             this.save();
         }

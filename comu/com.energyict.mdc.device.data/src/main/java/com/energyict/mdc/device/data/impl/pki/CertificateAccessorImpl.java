@@ -39,8 +39,8 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
     }
 
     @Override
-    public CertificateWrapper getActualValue() {
-        return actualCertificate.get();
+    public Optional<CertificateWrapper> getActualValue() {
+        return actualCertificate.getOptional();
     }
 
     @Override
@@ -97,12 +97,20 @@ public class CertificateAccessorImpl extends AbstractKeyAccessorImpl<Certificate
         }
     }
 
+    @Override
+    public void clearActualValue() {
+        if (actualCertificate.isPresent()) {
+            actualCertificate.setNull();
+            this.save();
+        }
+    }
+
     private void doRenewCertificate() throws CertificateEncodingException { // TODO can NOT renew non-ClientCertificate types
         ClientCertificateWrapper clientCertificateWrapper = pkiService.newClientCertificateWrapper(getKeyAccessorType().getKeyType(), getKeyAccessorType().getKeyEncryptionMethod())
                 .alias(actualCertificate.get().getAlias()+"-new)")
                 .add();
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
-        X500Name x500Name = getDNFromCertificate(getActualValue());
+        X500Name x500Name = getDNFromCertificate(getActualValue().get());
         PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
                 .generateCSR(x500Name, getKeyAccessorType().getKeyType().getSignatureAlgorithm());
         clientCertificateWrapper.setCSR(pkcs10CertificationRequest);
