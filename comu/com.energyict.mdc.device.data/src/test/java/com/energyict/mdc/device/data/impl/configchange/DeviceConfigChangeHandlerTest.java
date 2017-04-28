@@ -85,8 +85,6 @@ public class DeviceConfigChangeHandlerTest {
     public TestRule expectedErrorRule = new ExpectedExceptionRule();
 
     @Mock
-    private EventService eventService;
-    @Mock
     private JsonService jsonService;
     @Mock
     private MessageService messageService;
