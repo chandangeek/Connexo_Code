@@ -56,6 +56,8 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.device.lifecycle.impl.DeviceLifeCycleModule;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.impl.TopologyModule;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyValueConverterFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -114,6 +116,7 @@ public class InMemoryPersistence {
     private IssueService issueService;
     private PropertySpecService propertySpecService;
     private TopologyService topologyService;
+    private MultiElementDeviceService multiElementDeviceService;
     private DataVaultService dataVaultService;
     private CustomPropertySetService customPropertySetService;
     private LicenseService licenseService;
@@ -213,6 +216,7 @@ public class InMemoryPersistence {
         this.issueService = mock(IssueService.class);
         this.propertySpecService = mock(PropertySpecService.class);
         this.topologyService = mock(TopologyService.class);
+        this.multiElementDeviceService = mock(MultiElementDeviceService.class);
         this.dataVaultService = mock(DataVaultService.class);
         this.licenseService = mock(LicenseService.class);
         this.searchService = mock(SearchService.class);
@@ -250,6 +254,7 @@ public class InMemoryPersistence {
             bind(IssueService.class).toInstance(issueService);
             bind(PropertySpecService.class).toInstance(propertySpecService);
             bind(TopologyService.class).toInstance(topologyService);
+            bind(MultiElementDeviceService.class).toInstance(multiElementDeviceService);
             bind(DataVaultService.class).toInstance(dataVaultService);
             bind(SearchService.class).toInstance(searchService);
             bind(TimeService.class).toInstance(timeService);
