@@ -17,7 +17,7 @@ Ext.define('Uni.property.view.property.UsagePoint', {
             readOnly: me.isReadOnly,
             blankText: me.blankText,
             emptyText: Uni.I18n.translate('property.selectUsagePoint', 'UNI', 'Select usage point'),
-            valueField: 'name',
+            valueField: 'id',
             displayField: 'name',
             queryMode: 'remote',
             remoteFilter: true,
@@ -38,13 +38,23 @@ Ext.define('Uni.property.view.property.UsagePoint', {
         };
     },
 
-    getField: function () {
-        return this.down('combobox');
+    isCombo: function () {
+        return this.getComboField();
+    },
+
+    getValue: function () {
+        return {
+            id: this.getComboField().getValue(),
+            name: this.getComboField().getRawValue()
+        }
     },
 
     setValue: function (value) {
-        var me = this,
-            combo = me.getField();
-        combo.setValue(value);
+        if (this.isCombo()) {
+            this.getComboField().setRawValue(value.name);
+            this.getComboField().setValue(value.id);
+        } else {
+            this.callParent([value.name]);
+        }
     }
 });
