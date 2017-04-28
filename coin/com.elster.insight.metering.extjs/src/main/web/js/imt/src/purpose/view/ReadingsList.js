@@ -12,7 +12,8 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         'Imt.purpose.view.SingleReadingActionMenu',
         'Imt.purpose.view.MultipleReadingsActionMenu',
         'Uni.grid.column.Edited',
-        'Imt.purpose.util.TooltipRenderer'
+        'Imt.purpose.util.TooltipRenderer',
+        'Uni.grid.plugin.CopyPasteForGrid'
     ],
     selModel: {
         mode: 'MULTI'
@@ -31,6 +32,10 @@ Ext.define('Imt.purpose.view.ReadingsList', {
 
         me.plugins = [
             {
+                ptype: 'gridviewcopypaste',
+                editColumnDataIndex: 'value'
+            },
+            {
                 ptype: 'bufferedrenderer',
                 trailingBufferZone: 12,
                 leadingBufferZone: 24
@@ -38,7 +43,8 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             {
                 ptype: 'cellediting',
                 clicksToEdit: 1,
-                pluginId: 'cellplugin'
+                pluginId: 'cellplugin',
+                onSpecialKey: Ext.emptyFn // workaround to fix CXO-6274
             }
         ];
         me.on('beforeedit',function(editor,e){
