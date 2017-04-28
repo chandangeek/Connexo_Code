@@ -29,6 +29,7 @@ import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ExportTaskFinder;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.export.ValidatedDataOption;
@@ -518,7 +519,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.standardDataSelector = new StandardDataSelectorInfo();
         info.standardDataSelector.deviceGroup = new IdWithNameInfo();
         info.standardDataSelector.deviceGroup.id = 5;
-        info.standardDataSelector.exportComplete = true;
+        info.standardDataSelector.exportComplete = MissingDataOption.EXCLUDE_ITEM;
         info.standardDataSelector.exportContinuousData = true;
         info.standardDataSelector.exportUpdate = true;
         info.standardDataSelector.exportAdjacentData = true;
@@ -554,7 +555,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         verify(selectorBuilder).withValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL);
         verify(selectorBuilder).fromEndDeviceGroup(endDeviceGroup);
         verify(selectorBuilder).continuousData(true);
-        verify(selectorBuilder).exportComplete(true);
+        verify(selectorBuilder).exportComplete(MissingDataOption.EXCLUDE_ITEM);
         verify(selectorBuilder).exportUpdate(true);
     }
 
@@ -570,7 +571,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.standardDataSelector = new StandardDataSelectorInfo();
         info.standardDataSelector.usagePointGroup = new IdWithNameInfo();
         info.standardDataSelector.usagePointGroup.id = 5;
-        info.standardDataSelector.exportComplete = true;
+        info.standardDataSelector.exportComplete = MissingDataOption.EXCLUDE_OBJECT;
         info.standardDataSelector.exportContinuousData = true;
         info.standardDataSelector.exportPeriod = new RelativePeriodInfo();
         info.standardDataSelector.exportPeriod.id = exportPeriodId;
@@ -598,7 +599,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         verify(selectorBuilder).withValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL);
         verify(selectorBuilder).fromUsagePointGroup(usagePointGroup);
         verify(selectorBuilder).continuousData(true);
-        verify(selectorBuilder).exportComplete(true);
+        verify(selectorBuilder).exportComplete(MissingDataOption.EXCLUDE_OBJECT);
     }
 
     @Test
