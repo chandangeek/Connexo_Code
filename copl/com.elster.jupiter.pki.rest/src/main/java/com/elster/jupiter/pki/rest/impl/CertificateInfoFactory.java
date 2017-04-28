@@ -52,7 +52,7 @@ public class CertificateInfoFactory {
             info.signatureAlgorithm = x509Certificate.getSigAlgName();
         } else if (certificateWrapper.hasCSR()) {
             PKCS10CertificationRequest csr = ((ClientCertificateWrapper) certificateWrapper).getCSR().get();
-            info.subject = csr.getSubject().toString();
+            info.subject = new X500Principal(csr.getSubject().toString()).getName(X500Principal.RFC1779);
         }
 
         return info;
