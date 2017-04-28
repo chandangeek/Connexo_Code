@@ -97,8 +97,7 @@ public class ConsoleCommands {
                 .flatMap(asStream())
                 .collect(Collectors.toList());
 
-        Map<Long, EnumeratedGroup.Entry<EndDevice>> currentEntries = enumeratedEndDeviceGroup.getEntries().stream()
-                .collect(endDeviceMapper());
+        Map<Long, EnumeratedGroup.Entry<EndDevice>> currentEntries = enumeratedEndDeviceGroup.getEntries().stream().collect(endDeviceMapper());
 
         // remove those no longer mapped
         currentEntries.entrySet().stream()
@@ -127,8 +126,7 @@ public class ConsoleCommands {
                 .flatMap(asStream())
                 .collect(Collectors.toList());
 
-        Map<Long, EnumeratedGroup.Entry<UsagePoint>> currentEntries = enumeratedUsagePointGroup.getEntries().stream()
-                .collect(usagePointMapper());
+        Map<Long, EnumeratedGroup.Entry<UsagePoint>> currentEntries = enumeratedUsagePointGroup.getEntries().stream().collect(usagePointMapper());
 
         // remove those no longer mapped
         currentEntries.entrySet().stream()
