@@ -17,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 public class TimeZonePropertySpec extends BasicPropertySpec {
 
@@ -51,15 +52,23 @@ public class TimeZonePropertySpec extends BasicPropertySpec {
             if (Checks.is(value).emptyOrOnlyWhiteSpace()) {
                 return false;
             }
-            try {
-                format.parse(value);
-            } catch (DateTimeParseException e) {
-                throw new InvalidValueException(thesaurus.getFormat(MessageSeeds.TIME_ZONE_IS_NOT_VALID).format(),
-                        MessageSeeds.TIME_ZONE_IS_NOT_VALID.getDefaultFormat(),
-                        getName());
-            }
-            return true;
+            return checkForKnowTimeZoneId(value) || checkAccordingToDateTimeFormatter(value);
         }
         return false;
+    }
+
+    private boolean checkAccordingToDateTimeFormatter(String value) throws InvalidValueException {
+        try {
+            format.parse(value);
+        } catch (DateTimeParseException e) {
+            throw new InvalidValueException(thesaurus.getFormat(MessageSeeds.TIME_ZONE_IS_NOT_VALID).format(),
+                    MessageSeeds.TIME_ZONE_IS_NOT_VALID.getDefaultFormat(),
+                    getName());
+        }
+        return true;
+    }
+
+    private boolean checkForKnowTimeZoneId(String value) {
+        return Stream.of(TimeZone.getAvailableIDs()).filter(s -> s.equals(value)).findFirst().isPresent();
     }
 }
