@@ -458,13 +458,13 @@ Ext.define('Imt.purpose.controller.Purpose', {
             {
                 xtype: 'label',
                 margin: 6,
-                text: Uni.I18n.translate('purpose.revalidationEstimatedData', 'IMT', 'Re-validation estimated data')
+                text: Uni.I18n.translate('purpose.revalidationEstimatedData', 'IMT', 'Re-validate estimated data')
             }
         ]
         });
 
         confirmationWindow.show({
-            title: Uni.I18n.translate('purpose.estimateNow', 'IMT', "Estimate data for '{0}' purpose on usage point '{1}'?",
+            title: Uni.I18n.translate('purpose.estimateData', 'IMT', "Estimate data of '{0}' purpose on usage point '{1}'?",
                 [purpose.get('name'), usagePoint.get('name')], false),
             icon: 'icon-question4'
         });
