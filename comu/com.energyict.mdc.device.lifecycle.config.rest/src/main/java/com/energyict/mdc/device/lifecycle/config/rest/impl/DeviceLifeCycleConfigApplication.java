@@ -44,7 +44,6 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyValueConverterFactory;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -83,7 +82,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     private PropertyValueConverter usagePointConverter;
 
     @Activate
-    public void activate(BundleContext bundleContext) {
+    public void activate() {
         this.usagePointConverter = this.propertyValueConverterFactory.getConverterFor(UsagePoint.class);
         this.propertyValueInfoService.addPropertyValueInfoConverter(usagePointConverter, "transition.microaction.name.LINK_TO_USAGE_POINT");
     }
