@@ -1614,6 +1614,8 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#data-selector-export-complete').setVisible(true);
         page.down('#updated-data-container').setVisible(true);
         page.down('#continuous-data-container').setVisible(true);
+        page.down('#skip-window-up-complete-data-radiofield').setVisible(false);
+        page.down('#skip-window-up-validated-data-radiofield').setVisible(false);
 
         me.updatedDataEnableDisable();
         me.exportUpdatedEnableDisabled();
@@ -1634,6 +1636,8 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#data-selector-export-complete').setVisible(true);
         page.down('#updated-data-container').setVisible(false);
         page.down('#continuous-data-container').setVisible(true);
+        page.down('#skip-window-up-complete-data-radiofield').setVisible(true);
+        page.down('#skip-window-up-validated-data-radiofield').setVisible(true);
 
         me.updatedDataEnableDisable();
         me.exportUpdatedEnableDisabled();

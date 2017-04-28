@@ -242,7 +242,9 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             persist: false,
             mapping: function (data) {
                 if ((data.task.standardDataSelector)) {
-                    return data.task.standardDataSelector.exportComplete?'true':'false';
+                    return data.task.standardDataSelector.exportComplete;
+                } else {
+                    return null;
                 }
             }
         },

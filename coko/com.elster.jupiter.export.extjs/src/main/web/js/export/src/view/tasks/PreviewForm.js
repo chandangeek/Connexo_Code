@@ -206,9 +206,16 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         hidden: true,
                         itemId: 'data-selector-export-complete',
                         renderer: function (value) {
-                                return value==='true'?Uni.I18n.translate('general.skipExportWindowMissingData', 'DES', 'Skip export window for reading types with missing data (complete data)'):
-                                    Uni.I18n.translate('general.skipMissingData', 'DES', 'Skip intervals with missing data (data with gaps)');
-
+                            if (value) {
+                                if (value === 'EXCLUDE_INTERVAL') {
+                                    return Uni.I18n.translate('general.skipMissingData', 'DES', 'Skip intervals with missing data (data with gaps)');
+                                } else if (value === 'EXCLUDE_ITEM') {
+                                    return Uni.I18n.translate('general.skipExportWindowMissingData', 'DES', 'Skip export window for reading types with missing data (complete data)');
+                                } else if (value === 'EXCLUDE_OBJECT') {
+                                    return Uni.I18n.translate('general.usagePoints.skipExportWindowMissingDataMsg', 'DES', 'Skip export window for usage points with missing data (complete data)');
+                                }
+                                return '';
+                            }
                         }
                     },
                     {
@@ -224,6 +231,8 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                                     return Uni.I18n.translate('general.skipSuspectOrNotValidated', 'DES', 'Skip intervals with suspect/not validated data');
                                 } else if (value === 'EXCLUDE_ITEM') {
                                     return Uni.I18n.translate('general.skipExportWindow', 'DES', 'Skip export window for reading types with suspect/not validated data');
+                                } else if (value === 'EXCLUDE_OBJECT') {
+                                    return Uni.I18n.translate('general.usagePoints.skipExportWindowMsg', 'DES', 'Skip export window for usage points with suspect/not validated data');
                                 }
                                 return '';
                             }

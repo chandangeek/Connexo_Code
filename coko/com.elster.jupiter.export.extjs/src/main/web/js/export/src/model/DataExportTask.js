@@ -76,7 +76,9 @@ Ext.define('Dxp.model.DataExportTask', {
             persist: false,
             mapping: function (data) {
                 if ((data.standardDataSelector)) {
-                    return data.standardDataSelector.exportComplete?'true':'false';
+                    return data.standardDataSelector.exportComplete;
+                } else {
+                    return null;
                 }
             }
         },

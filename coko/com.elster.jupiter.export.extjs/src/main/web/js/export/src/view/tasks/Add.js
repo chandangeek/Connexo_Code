@@ -652,13 +652,20 @@ Ext.define('Dxp.view.tasks.Add', {
                                 boxLabel: Uni.I18n.translate('general.skipMissingData', 'DES', 'Skip intervals with missing data (data with gaps)'),
                                 name: 'exportComplete',
                                 checked: true,
-                                inputValue: false
+                                inputValue: 'EXCLUDE_INTERVAL'
                             },
                             {
                                 xtype: 'radiofield',
                                 boxLabel: Uni.I18n.translate('general.skipExportWindowMissingData', 'DES', 'Skip export window for reading types with missing data (complete data)'),
                                 name: 'exportComplete',
-                                inputValue: true
+                                inputValue: 'EXCLUDE_ITEM'
+                            },
+                            {
+                                xtype: 'radiofield',
+                                itemId: 'skip-window-up-complete-data-radiofield',
+                                boxLabel: Uni.I18n.translate('general.usagePoints.skipExportWindowMissingDataMsg', 'DES', 'Skip export window for usage points with missing data (complete data)'),
+                                name: 'exportComplete',
+                                inputValue: 'EXCLUDE_OBJECT'
                             }
                         ]
                     },
@@ -690,6 +697,13 @@ Ext.define('Dxp.view.tasks.Add', {
                                 boxLabel: Uni.I18n.translate('general.skipExportWindow', 'DES', 'Skip export window for reading types with suspect/not validated data'),
                                 name: 'validatedDataOption',
                                 inputValue: 'EXCLUDE_ITEM'
+                            },
+                            {
+                                xtype: 'radiofield',
+                                itemId: 'skip-window-up-validated-data-radiofield',
+                                boxLabel: Uni.I18n.translate('general.usagePoints.skipExportWindowMsg', 'DES', 'Skip export window for usage points with suspect/not validated data'),
+                                name: 'validatedDataOption',
+                                inputValue: 'EXCLUDE_OBJECT'
                             }
                         ]
                     },
