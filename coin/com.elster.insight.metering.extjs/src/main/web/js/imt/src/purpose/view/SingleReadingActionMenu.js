@@ -45,7 +45,6 @@ Ext.define('Imt.purpose.view.SingleReadingActionMenu', {
             },
             {
                 itemId: 'view-history',
-                hidden: true,
                 text: Uni.I18n.translate('general.viewHistory', 'IMT', 'View history'),
                 action: 'viewHistory',
                 section: this.SECTION_ACTION
