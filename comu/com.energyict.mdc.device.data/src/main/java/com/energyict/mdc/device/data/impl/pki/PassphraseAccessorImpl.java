@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.PkiService;
-import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.energyict.mdc.device.data.PassphraseAccessor;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
@@ -79,9 +78,9 @@ public class PassphraseAccessorImpl extends AbstractKeyAccessorImpl<PassphraseWr
     public void clearTempValue() {
         if (tempPassphraseWrapperReference.isPresent()) {
             super.clearTempValue();
-            SymmetricKeyWrapper symmetricKeyWrapper = (SymmetricKeyWrapper) this.tempPassphraseWrapperReference.get();
+            PassphraseWrapper passphraseWrapper = (PassphraseWrapper) this.tempPassphraseWrapperReference.get();
             this.tempPassphraseWrapperReference = null;
-            symmetricKeyWrapper.delete();
+            passphraseWrapper.delete();
             this.save();
         }
     }
