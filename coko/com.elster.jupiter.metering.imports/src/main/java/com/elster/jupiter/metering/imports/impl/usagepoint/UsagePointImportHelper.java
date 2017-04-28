@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
@@ -22,8 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class UsagePointImportHelper {
+public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.ServiceProvider {
 
     private MeteringDataImporterContext context;
     private Clock clock;
@@ -33,6 +35,11 @@ public class UsagePointImportHelper {
         this.clock = clock;
     }
 
+    @Override
+    public CalendarService calendarService() {
+        return this.context.getCalendarService();
+    }
+
     public UsagePoint createUsagePointForInsight(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
         setLocation(usagePointBuilder, data);
         usagePointBuilder.withOutageRegion(data.getOutageRegion());
@@ -40,7 +47,10 @@ public class UsagePointImportHelper {
         usagePointBuilder.withServicePriority(data.getServicePriority());
         usagePointBuilder.withServiceDeliveryRemark(data.getServiceDeliveryRemark());
         addCustomPropertySetsValues(usagePointBuilder, data);
-        return usagePointBuilder.create();
+        UsagePoint usagePoint = usagePointBuilder.create();
+        this.addCalendars(data, usagePoint);
+        this.applyMetrologyConfiguration(data, usagePoint);
+        return usagePoint;
     }
 
     public UsagePoint createUsagePointForMultiSense(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {
@@ -50,17 +60,72 @@ public class UsagePointImportHelper {
         UsagePoint usagePoint = usagePointBuilder.create();
         usagePoint.addDetail(usagePoint.getServiceCategory().newUsagePointDetail(usagePoint, clock.instant()));
         usagePoint.update();
+        this.addCalendars(data, usagePoint);
+        this.applyMetrologyConfiguration(data, usagePoint);
+        return usagePoint;
+    }
 
-        if (data.getMetrologyConfiguration().isPresent()) {
-            validateMetrologyConfiguration(data.getMetrologyConfiguration().get(), usagePoint, data);
+    private void applyMetrologyConfiguration(UsagePointImportRecord data, UsagePoint usagePoint) {
+        data.getMetrologyConfigurationName().ifPresent(metrologyConfigurationName -> {
+            validateMetrologyConfiguration(metrologyConfigurationName, usagePoint, data);
             setMetrologyConfigurationForUsagePoint(data, usagePoint);
+        });
+    }
+
+    private void addCalendars(UsagePointImportRecord data, UsagePoint usagePoint) {
+        Stream
+            .of(OutOfTheBoxCategoryForImport.values())
+            .forEach(each -> each.addCalendar(data, usagePoint, this));
+    }
+
+    public UsagePoint updateUsagePoint(UsagePoint usagePoint, UsagePointImportRecord data) {
+        List<String> locationData = data.getLocation();
+        List<String> geoCoordinatesData = data.getGeoCoordinates();
+
+        if (locationData.stream().anyMatch(s -> s != null)) {
+            context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
+                    .filter(LocationTemplate.TemplateField::isMandatory)
+                    .forEach(field -> {
+                        if (locationData.get(field.getRanking()) == null) {
+                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field
+                                    .getName());
+                        } else if (locationData.get(field.getRanking()).isEmpty()) {
+                            throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field
+                                    .getName());
+                        }
+                    });
+            LocationBuilder builder = usagePoint.updateLocation();
+            Map<String, Integer> ranking = context.getMeteringService()
+                    .getLocationTemplate()
+                    .getTemplateMembers()
+                    .stream()
+                    .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
+
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData.get(ranking.get("locale")));
+            if (memberBuilder.isPresent()) {
+                setLocationAttributes(memberBuilder.get(), data, ranking);
+            } else {
+                setLocationAttributes(builder.member(), data, ranking).add();
+            }
+            usagePoint.setLocation(builder.create().getId());
         }
+        if (geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
+            usagePoint.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream()
+                    .reduce((s, t) -> s + ":" + t)
+                    .get()));
+        }
+        usagePoint.setOutageRegion(data.getOutageRegion());
+        usagePoint.setReadRoute(data.getReadRoute());
+        usagePoint.setServicePriority(data.getServicePriority());
+        usagePoint.setServiceDeliveryRemark(data.getServiceDeliveryRemark());
+        usagePoint.update();
         return usagePoint;
     }
 
     public UsagePoint updateUsagePointForMultiSense(UsagePoint usagePoint, UsagePointImportRecord data) {
         updateLocation(usagePoint, data);
         usagePoint.update();
+        this.addCalendars(data, usagePoint);
         return usagePoint;
     }
 
@@ -71,11 +136,19 @@ public class UsagePointImportHelper {
         usagePoint.setServicePriority(data.getServicePriority());
         usagePoint.setServiceDeliveryRemark(data.getServiceDeliveryRemark());
         usagePoint.update();
+        this.addCalendars(data, usagePoint);
         return usagePoint;
     }
 
     private LocationBuilder.LocationMemberBuilder setLocationAttributes(LocationBuilder.LocationMemberBuilder builder, UsagePointImportRecord data, Map<String, Integer> ranking) {
         List<String> location = data.getLocation();
+        String locale;
+        if (   data.getLocation().get(ranking.get("locale")) == null
+            || "".equals(data.getLocation().get(ranking.get("locale")))) {
+            locale = "en";
+        } else {
+            locale = data.getLocation().get(ranking.get("locale"));
+        }
         builder.setCountryCode(location.get(ranking.get("countryCode")))
                 .setCountryName(location.get(ranking.get("countryName")))
                 .setAdministrativeArea(location.get(ranking.get("administrativeArea")))
@@ -90,21 +163,21 @@ public class UsagePointImportHelper {
                 .setAddressDetail(location.get(ranking.get("addressDetail")))
                 .setZipCode(location.get(ranking.get("zipCode")))
                 .isDaultLocation(true)
-                .setLocale(data.getLocation().get(ranking.get("locale")) == null || data.getLocation()
-                        .get(ranking.get("locale"))
-                        .equals("") ? "en" : data.getLocation().get(ranking.get("locale")));
+                .setLocale(locale);
         return builder;
     }
 
 
-    public void setMetrologyConfigurationForUsagePoint(UsagePointImportRecord data, UsagePoint usagePoint) {
-        if (data.getMetrologyConfiguration().isPresent()) {
+    private void setMetrologyConfigurationForUsagePoint(UsagePointImportRecord data, UsagePoint usagePoint) {
+        data.getMetrologyConfigurationName().ifPresent(metrologyConfigurationName ->
             context.getMetrologyConfigurationService()
-                    .findMetrologyConfiguration(data.getMetrologyConfiguration().get())
+                    .findMetrologyConfiguration(metrologyConfigurationName)
+                    .map(UsagePointMetrologyConfiguration.class::cast)
                     .ifPresent(configuration ->
-                            usagePoint.apply(((UsagePointMetrologyConfiguration) configuration), data.getMetrologyConfigurationApplyTime()
-                                    .get()));
-        }
+                            usagePoint
+                                    .apply(
+                                        configuration,
+                                        data.getMetrologyConfigurationApplyTime().get())));
     }
 
     private void addCustomPropertySetsValues(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data) {

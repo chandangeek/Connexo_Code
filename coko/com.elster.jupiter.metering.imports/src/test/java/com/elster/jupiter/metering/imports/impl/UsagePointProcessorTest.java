@@ -39,7 +39,6 @@ import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -67,7 +66,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
@@ -79,6 +77,7 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -187,9 +186,7 @@ public class UsagePointProcessorTest {
     private MeteringDataImporterContext context;
 
     @Before
-    public void initMocks() {
-        MockitoAnnotations.initMocks(this);
-
+    public void initMocks() throws FileNotFoundException {
         when(meteringService.getLocationTemplate()).thenReturn(locationTemplate);
         when(templateFieldZipCode.getName()).thenReturn("zipCode");
         when(templateFieldZipCode.isMandatory()).thenReturn(false);
@@ -270,7 +267,7 @@ public class UsagePointProcessorTest {
         when(usagePointBuilder.newLocationBuilder()).thenReturn(locationBuilder);
         when(serviceCategoryTwo.getId()).thenReturn(34L);
         when(thesaurus.getFormat((Matchers.any(MessageSeeds.class)))).thenReturn(nlsMessageFormat);
-        when(licenseService.getLicensedApplicationKeys()).thenReturn(Arrays.asList("INS"));
+        when(licenseService.getLicensedApplicationKeys()).thenReturn(Collections.singletonList("INS"));
         when(licenseService.getLicenseForApplication("INS")).thenReturn(Optional.ofNullable(license));
         when(clock.instant()).thenReturn(Instant.EPOCH);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
@@ -307,14 +304,10 @@ public class UsagePointProcessorTest {
         when(usagePointLifeCycleService.getAvailableTransitions(anyObject(), "INS")).thenReturn(transitions);
         when(usagePointTransition.getName()).thenReturn("install active");
 
-        try {
-            when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);
-            when(fileImportOccurrenceIncorrect.getLogger()).thenReturn(logger);
-            when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_correct.csv").getPath()));
-            when(fileImportOccurrenceIncorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_incorrect.csv").getPath()));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);
+        when(fileImportOccurrenceIncorrect.getLogger()).thenReturn(logger);
+        when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_correct.csv").getPath()));
+        when(fileImportOccurrenceIncorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_incorrect.csv").getPath()));
 
         context = spy(new MeteringDataImporterContext());
         context.setMeteringService(meteringService);
@@ -400,7 +393,7 @@ public class UsagePointProcessorTest {
 
         importer.process(occurrence);
 
-        verify(metrologyConfigurationService, times(3)).findMetrologyConfiguration("SP10_DEMO_1");
+        verify(metrologyConfigurationService, atLeastOnce()).findMetrologyConfiguration("SP10_DEMO_1");
         verify(usagePoint, times(2)).linkMeters();
         verify(meteringService, times(2)).findMeterByName("meter");
         verify(metrologyConfigurationService, times(2)).findMeterRole("meter.role.default");
@@ -417,7 +410,7 @@ public class UsagePointProcessorTest {
         PropertyInfo propertyInfo = mock(PropertyInfo.class);
 
         mockMeterActivation(occurrence, csv);
-        when(usagePointLifeCycleService.getAvailableTransitions(any(UsagePointState.class), eq("INS"))).thenReturn(Collections.singletonList(usagePointTransition));
+        when(usagePointLifeCycleService.getAvailableTransitions(any(UsagePoint.class), eq("INS"))).thenReturn(Collections.singletonList(usagePointTransition));
         when(usagePointTransition.getName()).thenReturn("Install active");
         when(usagePointTransition.getChecks()).thenReturn(Collections.emptySet());
         when(usagePointTransition.getMicroActionsProperties()).thenReturn(Collections.singletonList(transitionSpec));
