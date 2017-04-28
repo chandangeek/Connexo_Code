@@ -1,12 +1,6 @@
 package com.energyict.protocolimpl.iec1107.abba1500;
 
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connections.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
@@ -18,6 +12,13 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MeterExceptionInfo;
@@ -224,7 +225,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
                 this.integerSpec("ExtendedLogging", PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING),
                 this.integerSpec("VDEWCompatible", PropertyTranslationKeys.IEC1107_VDEWCOMPATIBLE),
                 this.integerSpec("ForcedDelay", PropertyTranslationKeys.IEC1107_FORCEDELAY),
-                this.integerSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC1107_SERIALNUMBER),
+                this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC1107_SERIALNUMBER),
                 this.stringSpec("FirmwareVersion", PropertyTranslationKeys.IEC1107_FIRMWARE_VERSION),
                 this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1),
                 this.integerSpec("MaxNrOfDaysProfileData", PropertyTranslationKeys.IEC1107_MAX_NR_OF_DAYS_PROFILE_DATA),
@@ -246,33 +247,30 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
-        try {
-            strID = properties.getTypedProperty(ADDRESS.getName());
-            strPassword = properties.getTypedProperty(PASSWORD.getName());
-            iIEC1107TimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "20000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            iSecurityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "1").trim());
-            nodeId = properties.getTypedProperty(NODEID.getName(), "");
-            iEchoCancelling = Integer.parseInt(properties.getTypedProperty("EchoCancelling", "0").trim());
-            iIEC1107Compatible = Integer.parseInt(properties.getTypedProperty("IEC1107Compatible", "1").trim());
-            profileInterval = Integer.parseInt(properties.getTypedProperty(PROFILEINTERVAL.getName(), "3600").trim());
-            channelMap = new ChannelMap(properties.getTypedProperty("ChannelMap", "0"));
-            requestHeader = Integer.parseInt(properties.getTypedProperty("RequestHeader", "1").trim());
-            protocolChannelMap = new ProtocolChannelMap(properties.getTypedProperty("ChannelMap", "0,0,0,0"));
-            dataReadoutRequest = Integer.parseInt(properties.getTypedProperty("DataReadout", "0").trim());
-            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0").trim());
-            vdewCompatible = Integer.parseInt(properties.getTypedProperty("VDEWCompatible", "1").trim());
-            forcedDelay = Integer.parseInt(properties.getTypedProperty("ForcedDelay", "0").trim());
-            serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
-            iFirmwareVersion = properties.getTypedProperty("FirmwareVersion", "3.03").trim();
-            this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
-            this.MaxNrOfDaysProfileData = Integer.parseInt(properties.getTypedProperty("MaxNrOfDaysProfileData", "0").trim());
-            strDateFormat = properties.getTypedProperty("DateFormat", "yy/MM/dd").trim();
-            this.profileRequestBlockSize = properties.getTypedProperty("ProfileRequestBlockSize", 8);
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
-        }
+        strID = properties.getTypedProperty(ADDRESS.getName());
+        strPassword = properties.getTypedProperty(PASSWORD.getName());
+        iIEC1107TimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 20000);
+        iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 5);
+        iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
+        iSecurityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), 1);
+        nodeId = properties.getTypedProperty(NODEID.getName(), "");
+        iEchoCancelling = properties.getTypedProperty("EchoCancelling", 0);
+        iIEC1107Compatible = properties.getTypedProperty("IEC1107Compatible", 1);
+        profileInterval = properties.getTypedProperty(PROFILEINTERVAL.getName(), 3600);
+        // Todo: resolve conflicting properties on next two lines
+        channelMap = properties.getTypedProperty("ChannelMap", new ChannelMap("0"));
+        protocolChannelMap = new ProtocolChannelMap(properties.getTypedProperty("ChannelMap", "0,0,0,0"));
+        requestHeader = properties.getTypedProperty("RequestHeader", 1);
+        dataReadoutRequest = properties.getTypedProperty("DataReadout", 0);
+        extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+        vdewCompatible = properties.getTypedProperty("VDEWCompatible", 1);
+        forcedDelay = properties.getTypedProperty("ForcedDelay", 0);
+        serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+        iFirmwareVersion = properties.getTypedProperty("FirmwareVersion", "3.03").trim();
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+        this.MaxNrOfDaysProfileData = properties.getTypedProperty("MaxNrOfDaysProfileData", 0);
+        this.profileRequestBlockSize = properties.getTypedProperty("ProfileRequestBlockSize", 8);
+        strDateFormat = properties.getTypedProperty("DateFormat", "yy/MM/dd").trim();
     }
 
     private int getDataReadoutRequest() {

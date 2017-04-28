@@ -256,30 +256,27 @@ public class ABBA1350
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
-        try {
-            strID = properties.getTypedProperty(ADDRESS.getName(), "");
-            strPassword = properties.getTypedProperty(PASSWORD.getName());
-            serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
-            iIEC1107TimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "20000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            iSecurityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "1").trim());
-            nodeId = properties.getTypedProperty(NODEID.getName(), "");
-            iEchoCancelling = Integer.parseInt(properties.getTypedProperty("EchoCancelling", "0").trim());
-            iForceDelay = Integer.parseInt(properties.getTypedProperty("ForceDelay", "0").trim());
-            profileInterval = Integer.parseInt(properties.getTypedProperty(PROFILEINTERVAL.getName(), "3600").trim());
-            channelMap = new ChannelMap(properties.getTypedProperty("ChannelMap", "0"));
-            requestHeader = Integer.parseInt(properties.getTypedProperty("RequestHeader", "1").trim());
-            protocolChannelMap = new ProtocolChannelMap(properties.getTypedProperty("ChannelMap", "0:0:0:0:0:0"));
-            scaler = Integer.parseInt(properties.getTypedProperty("Scaler", "0").trim());
-            dataReadoutRequest = Integer.parseInt(properties.getTypedProperty("DataReadout", "0").trim());
-            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0").trim());
-            vdewCompatible = Integer.parseInt(properties.getTypedProperty("VDEWCompatible", "0").trim());
-            loadProfileNumber = Integer.parseInt(properties.getTypedProperty("LoadProfileNumber", "1"));
-            this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
-        }
+        strID = properties.getTypedProperty(ADDRESS.getName(), "");
+        strPassword = properties.getTypedProperty(PASSWORD.getName());
+        serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+        iIEC1107TimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 20000);
+        iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 5);
+        iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
+        iSecurityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), 1);
+        nodeId = properties.getTypedProperty(NODEID.getName(), "");
+        iEchoCancelling = properties.getTypedProperty("EchoCancelling", 0);
+        iForceDelay = properties.getTypedProperty("ForceDelay", 0);
+        profileInterval = properties.getTypedProperty(PROFILEINTERVAL.getName(), 3600);
+        // Todo: resolve conflicting properties on next two lines
+        channelMap = properties.getTypedProperty("ChannelMap", new ChannelMap("0"));
+        protocolChannelMap = new ProtocolChannelMap(properties.getTypedProperty("ChannelMap", "0:0:0:0:0:0"));
+        requestHeader = properties.getTypedProperty("RequestHeader", 1);
+        scaler = properties.getTypedProperty("Scaler", 0);
+        dataReadoutRequest = properties.getTypedProperty("DataReadout", 0);
+        extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+        vdewCompatible = properties.getTypedProperty("VDEWCompatible", 0);
+        loadProfileNumber = properties.getTypedProperty("LoadProfileNumber", 1);
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
     }
 
     protected boolean isDataReadout() {

@@ -539,11 +539,11 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        String extendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
-        pExtendedLogging = (extendedLogging == null) ? 0 : Integer.parseInt(extendedLogging);
+        Integer extendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
+        pExtendedLogging = (extendedLogging == null) ? 0 : extendedLogging;
 
-        String logger = properties.getTypedProperty(PK_LOGGER);
-        pLogger = (logger == null) ? PD_LOGGER : Integer.parseInt(logger);
+        Integer logger = properties.getTypedProperty(PK_LOGGER);
+        pLogger = (logger == null) ? PD_LOGGER : logger;
         this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
     }
 

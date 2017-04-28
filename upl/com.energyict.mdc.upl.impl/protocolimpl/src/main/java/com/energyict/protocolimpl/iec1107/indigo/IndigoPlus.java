@@ -236,14 +236,10 @@ public class IndigoPlus extends AbstractIEC1107Protocol implements SerialNumberS
     @Override
     public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         super.setUPLProperties(properties);
-        try {
-            statusFlagChannel = Integer.parseInt(properties.getTypedProperty("StatusFlagChannel", "0"));
-            readCurrentDay = Integer.parseInt(properties.getTypedProperty("ReadCurrentDay", "0"));
-            emptyNodeAddress = Integer.parseInt(properties.getTypedProperty("EmptyNodeAddress", "0"));
-            setNodeId(properties.getTypedProperty(NODEID.getName(), emptyNodeAddress==0?"001":""));
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
-        }
+        statusFlagChannel = properties.getTypedProperty("StatusFlagChannel", 0);
+        readCurrentDay = properties.getTypedProperty("ReadCurrentDay", 0);
+        emptyNodeAddress = properties.getTypedProperty("EmptyNodeAddress", 0);
+        setNodeId(properties.getTypedProperty(NODEID.getName(), emptyNodeAddress == 0 ? "001" : ""));
     }
 
     @Override

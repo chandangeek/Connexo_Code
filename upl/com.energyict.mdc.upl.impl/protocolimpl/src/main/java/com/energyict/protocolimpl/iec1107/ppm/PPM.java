@@ -278,63 +278,46 @@ public class PPM extends PluggableMeterProtocol implements HHUEnabler, SerialNum
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
-        try {
-            if (properties.getTypedProperty(ADDRESS.getName()) != null) {
-                this.pAddress = properties.getTypedProperty(ADDRESS.getName());
-            }
-
-            if (properties.getTypedProperty(NODEID.getName()) != null) {
-                this.pNodeId = properties.getTypedProperty(NODEID.getName());
-            }
-
-            if (properties.getTypedProperty(SERIALNUMBER.getName()) != null) {
-                this.pSerialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
-            }
-
-            if (properties.getTypedProperty(PASSWORD.getName()) != null) {
-                this.pPassword = properties.getTypedProperty(PASSWORD.getName());
-            }
-
-            if (properties.getTypedProperty(PK_OPUS) != null) {
-                this.pOpus = properties.getTypedProperty(PK_OPUS);
-            }
-
-            if (properties.getTypedProperty(PK_TIMEOUT) != null) {
-                this.pTimeout = Integer.parseInt(properties.getTypedProperty(PK_TIMEOUT));
-            }
-
-            if (properties.getTypedProperty(PK_RETRIES) != null) {
-                this.pRetries = Integer.parseInt(properties.getTypedProperty(PK_RETRIES));
-            }
-
-            if (properties.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
-                this.pRountTripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName()));
-            }
-
-            if (properties.getTypedProperty(PK_DELAY_AFTER_FAIL) != null) {
-                this.pDelayAfterFail = Integer.parseInt(properties.getTypedProperty(PK_DELAY_AFTER_FAIL));
-            }
-
-            if (properties.getTypedProperty(PK_SECURITY_LEVEL) != null) {
-                this.pRetries = Integer.parseInt(properties.getTypedProperty(PK_SECURITY_LEVEL));
-            }
-
-            if (properties.getTypedProperty(CORRECTTIME.getName()) != null) {
-                this.pCorrectTime = Integer.parseInt(properties.getTypedProperty(CORRECTTIME.getName()));
-            }
-
-            if (properties.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
-                this.pExtendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
-            }
-
-            if (properties.getTypedProperty(PK_FORCE_DELAY) != null) {
-                this.pForceDelay = Integer.parseInt(properties.getTypedProperty(PK_FORCE_DELAY));
-            }
-
-            this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        if (properties.getTypedProperty(ADDRESS.getName()) != null) {
+            this.pAddress = properties.getTypedProperty(ADDRESS.getName());
         }
+        if (properties.getTypedProperty(NODEID.getName()) != null) {
+            this.pNodeId = properties.getTypedProperty(NODEID.getName());
+        }
+        if (properties.getTypedProperty(SERIALNUMBER.getName()) != null) {
+            this.pSerialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+        }
+        if (properties.getTypedProperty(PASSWORD.getName()) != null) {
+            this.pPassword = properties.getTypedProperty(PASSWORD.getName());
+        }
+        if (properties.getTypedProperty(PK_OPUS) != null) {
+            this.pOpus = properties.getTypedProperty(PK_OPUS);
+        }
+        if (properties.getTypedProperty(PK_TIMEOUT) != null) {
+            this.pTimeout = properties.getTypedProperty(PK_TIMEOUT);
+        }
+        if (properties.getTypedProperty(PK_RETRIES) != null) {
+            this.pRetries = properties.getTypedProperty(PK_RETRIES);
+        }
+        if (properties.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
+            this.pRountTripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName());
+        }
+        if (properties.getTypedProperty(PK_DELAY_AFTER_FAIL) != null) {
+            this.pDelayAfterFail = properties.getTypedProperty(PK_DELAY_AFTER_FAIL);
+        }
+        if (properties.getTypedProperty(PK_SECURITY_LEVEL) != null) {
+            this.pRetries = properties.getTypedProperty(PK_SECURITY_LEVEL);
+        }
+        if (properties.getTypedProperty(CORRECTTIME.getName()) != null) {
+            this.pCorrectTime = properties.getTypedProperty(CORRECTTIME.getName());
+        }
+        if (properties.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
+            this.pExtendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
+        }
+        if (properties.getTypedProperty(PK_FORCE_DELAY) != null) {
+            this.pForceDelay = properties.getTypedProperty(PK_FORCE_DELAY);
+        }
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
     }
 
     @Override

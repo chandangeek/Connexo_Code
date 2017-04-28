@@ -254,38 +254,34 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
     }
 
     public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
-        try {
-            strID = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "");
-            iSecurityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "2").trim());
-            if (iSecurityLevel != 0) {
-                if (strPassword == null || strPassword.isEmpty()) {
-                    throw new InvalidPropertyException("Password field is empty! correct first!");
-                }
-                if (strPassword.length() != 8) {
-                    throw new InvalidPropertyException("Password must have a length of 8 characters!, correct first!");
-                }
+        strID = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
+        strPassword = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "");
+        iSecurityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), 2);
+        if (iSecurityLevel != 0) {
+            if (strPassword == null || strPassword.isEmpty()) {
+                throw new InvalidPropertyException("Password field is empty! correct first!");
             }
-            iTimeout = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "10000").trim());
-            iProtocolRetries = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            nodeId = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
-            iEchoCancelling = Integer.parseInt(properties.getTypedProperty("EchoCancelling", "0").trim());
-            iIEC1107Compatible = Integer.parseInt(properties.getTypedProperty("IEC1107Compatible", "0").trim());
-            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0").trim());
-            // 15122003 get the serialNumber
-            serialNumber = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-
-            // 0 = 16 TOU registers type (most in the UK)
-            // 1 = 32 TOU registers type (Portugal, etc...)
-            // -1 = use identification string from signon later...
-            abba1700MeterType = new ABBA1700MeterType(Integer.parseInt(properties.getTypedProperty("MeterType", "-1").trim()));
-            forcedDelay = Integer.parseInt(properties.getTypedProperty("ForcedDelay", "300").trim());
-            this.soft7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
-            this.breakBeforeConnect = !"0".equalsIgnoreCase(properties.getTypedProperty("BreakBeforeConnect", "0"));
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, "ABBA1700: validation of properties failed before");
+            if (strPassword.length() != 8) {
+                throw new InvalidPropertyException("Password must have a length of 8 characters!, correct first!");
+            }
         }
+        iTimeout = properties.getTypedProperty(TIMEOUT.getName(), 10000);
+        iProtocolRetries = properties.getTypedProperty(RETRIES.getName(), 5);
+        iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
+        nodeId = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+        iEchoCancelling = properties.getTypedProperty("EchoCancelling", 0);
+        iIEC1107Compatible = properties.getTypedProperty("IEC1107Compatible", 0);
+        extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+        // 15122003 get the serialNumber
+        serialNumber = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
+
+        // 0 = 16 TOU registers type (most in the UK)
+        // 1 = 32 TOU registers type (Portugal, etc...)
+        // -1 = use identification string from signon later...
+        abba1700MeterType = new ABBA1700MeterType(properties.getTypedProperty("MeterType", -1));
+        forcedDelay = properties.getTypedProperty("ForcedDelay", 300);
+        this.soft7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+        this.breakBeforeConnect = !"0".equalsIgnoreCase(properties.getTypedProperty("BreakBeforeConnect", "0"));
     }
 
     @Override

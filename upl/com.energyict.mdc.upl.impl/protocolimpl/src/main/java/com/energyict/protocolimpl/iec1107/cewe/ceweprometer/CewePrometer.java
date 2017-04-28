@@ -243,19 +243,19 @@ public class CewePrometer extends AbstractProtocol implements SerialNumberSuppor
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.stringSpec("Software7E1", PropertyTranslationKeys.IEC1107_SOFTWARE_7E1, false));
+        propertySpecs.add(this.integerSpec(PK_LOGGER, PropertyTranslationKeys.IEC1107_LOGGER, false));
         return propertySpecs;
     }
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        String v = properties.getTypedProperty(PK_EXTENDED_LOGGING);
-        pExtendedLogging = (v == null) ? 0 : Integer.parseInt(v);
+        Integer v = properties.getTypedProperty(PK_EXTENDED_LOGGING);
+        pExtendedLogging = (v == null) ? 0 : v;
 
         v = properties.getTypedProperty(PK_LOGGER);
-        pLogger = (v == null) ? PD_LOGGER : Integer.parseInt(v);
+        pLogger = (v == null) ? PD_LOGGER : v;
         this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
-
     }
 
     @Override

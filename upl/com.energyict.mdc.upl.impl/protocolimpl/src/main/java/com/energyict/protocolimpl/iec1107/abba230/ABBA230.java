@@ -30,7 +30,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -228,7 +227,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
                 UPLPropertySpecFactory.specBuilder(PK_RETRIES, false, PropertyTranslationKeys.IEC1107_RETRIES, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(ROUNDTRIPCORRECTION.getName(), false, PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(CORRECTTIME.getName(), false, PropertyTranslationKeys.IEC1107_CORRECTTIME, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(PK_EXTENDED_LOGGING, false, PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING, this.propertySpecService::stringSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(PK_EXTENDED_LOGGING, false, PropertyTranslationKeys.IEC1107_EXTENDED_LOGGING, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_SECURITYLEVEL, false, PropertyTranslationKeys.IEC1107_SECURITYLEVEL, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_ECHO_CANCELING, false, PropertyTranslationKeys.IEC1107_ECHOCANCELLING, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_SCRIPTING_ENABLED, false, PropertyTranslationKeys.IEC1107_SCRIPTING_ENABLED, this.propertySpecService::integerSpec).finish(),
@@ -245,78 +244,50 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
 
     @Override
     public void setUPLProperties(TypedProperties p) throws PropertyValidationException {
-        try {
-            if (p.getTypedProperty(ADDRESS.getName()) != null) {
-                this.pAddress = p.getTypedProperty(ADDRESS.getName());
-            }
-
-            if (p.getTypedProperty(NODEID.getName()) != null) {
-                this.pNodeId = p.getTypedProperty(NODEID.getName());
-            }
-
-            if (p.getTypedProperty(SERIALNUMBER.getName()) != null) {
-                this.pSerialNumber = p.getTypedProperty(SERIALNUMBER.getName());
-            }
-
-            if (p.getTypedProperty(PASSWORD.getName()) != null) {
-                this.pPassword = p.getTypedProperty(PASSWORD.getName());
-            }
-
-            if (p.getTypedProperty(PK_TIMEOUT) != null) {
-                this.pTimeout = Integer.parseInt(p.getTypedProperty(PK_TIMEOUT));
-            }
-
-            if (p.getTypedProperty(PK_RETRIES) != null) {
-                this.pRetries = Integer.parseInt(p.getTypedProperty(PK_RETRIES));
-            }
-
-            if (p.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
-                this.pRoundTripCorrection = Integer.parseInt(p.getTypedProperty(ROUNDTRIPCORRECTION.getName()));
-            }
-
-            if (p.getTypedProperty(CORRECTTIME.getName()) != null) {
-                this.pCorrectTime = Integer.parseInt(p.getTypedProperty(CORRECTTIME.getName()));
-            }
-
-            if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
-                this.pExtendedLogging = Integer.parseInt(p.getTypedProperty(PK_EXTENDED_LOGGING));
-            }
-
-            this.pSecurityLevel = Integer.parseInt(p.getTypedProperty(PK_SECURITYLEVEL, "3").trim());
-            if (this.pSecurityLevel != 0) {
-                // Password is required when security level != 0
-                this.passwordPropertySpec(true).validateValue(this.pPassword);
-            }
-
-            if (p.getTypedProperty(PK_ECHO_CANCELING) != null) {
-                this.pEchoCancelling = Integer.parseInt(p.getTypedProperty(PK_ECHO_CANCELING));
-            }
-
-            if (p.getTypedProperty(PK_SCRIPTING_ENABLED) != null) {
-                this.scriptingEnabled = Integer.parseInt(p.getTypedProperty(PK_SCRIPTING_ENABLED, "0"));
-            }
-            // tricky... If scripting is enabled, we know it is an RF meter. So set the forced delay default to 0!
-            if (this.scriptingEnabled > 0) {
-                this.forcedDelay = 0;
-            }
-
-            if (p.getTypedProperty(PK_FORCED_DELAY) != null) {
-                this.forcedDelay = Integer.parseInt(p.getTypedProperty(PK_FORCED_DELAY));
-            }
-
-            if (p.getTypedProperty(PK_IEC1107_COMPATIBLE) != null) {
-                this.pIEC1107Compatible = Integer.parseInt(p.getTypedProperty(PK_IEC1107_COMPATIBLE));
-            }
-
-            this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
-
-            this.dontSendBreakCommand = !"0".equalsIgnoreCase(p.getTypedProperty("DisableLogOffCommand", "0"));
-            this.sendBreakBeforeDisconnect = !this.dontSendBreakCommand;
-
-            this.instrumentationProfileMode = !"0".equalsIgnoreCase(p.getTypedProperty(INSTRUMENTATION_PROFILE_MODE, "0"));
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        if (p.getTypedProperty(ADDRESS.getName()) != null) {
+            this.pAddress = p.getTypedProperty(ADDRESS.getName());
         }
+
+        if (p.getTypedProperty(NODEID.getName()) != null) {
+            this.pNodeId = p.getTypedProperty(NODEID.getName());
+        }
+
+        if (p.getTypedProperty(SERIALNUMBER.getName()) != null) {
+            this.pSerialNumber = p.getTypedProperty(SERIALNUMBER.getName());
+        }
+
+        if (p.getTypedProperty(PASSWORD.getName()) != null) {
+            this.pPassword = p.getTypedProperty(PASSWORD.getName());
+        }
+
+        this.pTimeout = p.getTypedProperty(PK_TIMEOUT);
+        this.pRetries = p.getTypedProperty(PK_RETRIES);
+        this.pRoundTripCorrection = p.getTypedProperty(ROUNDTRIPCORRECTION.getName());
+        this.pCorrectTime = p.getTypedProperty(CORRECTTIME.getName());
+        this.pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
+        this.pSecurityLevel = p.getTypedProperty(PK_SECURITYLEVEL, 3);
+        if (this.pSecurityLevel != 0) {
+            // Password is required when security level != 0
+            this.passwordPropertySpec(true).validateValue(this.pPassword);
+        }
+        this.pEchoCancelling = p.getTypedProperty(PK_ECHO_CANCELING);
+        this.scriptingEnabled = p.getTypedProperty(PK_SCRIPTING_ENABLED, 0);
+        // tricky... If scripting is enabled, we know it is an RF meter. So set the forced delay default to 0!
+        if (this.scriptingEnabled > 0) {
+            this.forcedDelay = 0;
+        }
+
+        if (p.getTypedProperty(PK_FORCED_DELAY) != null) {
+            this.forcedDelay = p.getTypedProperty(PK_FORCED_DELAY);
+        }
+        this.pIEC1107Compatible = p.getTypedProperty(PK_IEC1107_COMPATIBLE);
+
+        this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
+
+        this.dontSendBreakCommand = !"0".equalsIgnoreCase(p.getTypedProperty("DisableLogOffCommand", "0"));
+        this.sendBreakBeforeDisconnect = !this.dontSendBreakCommand;
+
+        this.instrumentationProfileMode = !"0".equalsIgnoreCase(p.getTypedProperty(INSTRUMENTATION_PROFILE_MODE, "0"));
     }
 
     @Override

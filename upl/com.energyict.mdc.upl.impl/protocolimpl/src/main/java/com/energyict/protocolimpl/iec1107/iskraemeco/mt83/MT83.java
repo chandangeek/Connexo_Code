@@ -241,26 +241,22 @@ public class MT83 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
-        try {
-            strID = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
-            strPassword = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
-            serialNumber = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
-            iIEC1107TimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "20000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            iSecurityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "1").trim());
-            nodeId = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
-            iEchoCancelling = Integer.parseInt(properties.getTypedProperty("EchoCancelling", "0").trim());
-            iIEC1107Compatible = Integer.parseInt(properties.getTypedProperty("IEC1107Compatible", "1").trim());
-            iProfileInterval = Integer.parseInt(properties.getTypedProperty(PROFILEINTERVAL.getName(), "900").trim());
-            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0").trim());
-            readCurrentDay = Integer.parseInt(properties.getTypedProperty("ReadCurrentDay", "0").trim());
-            loadProfileNumber = Integer.parseInt(properties.getTypedProperty("LoadProfileNumber", "1").trim());
-            this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
-            this.dataReadoutRequest = Integer.parseInt(properties.getTypedProperty("DataReadout", "0").trim());
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, "Iskra MT83: validation of properties failed before");
-        }
+        strID = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
+        strPassword = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
+        serialNumber = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName());
+        iIEC1107TimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 20000);
+        iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 5);
+        iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
+        iSecurityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), 1);
+        nodeId = properties.getTypedProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+        iEchoCancelling = properties.getTypedProperty("EchoCancelling", 0);
+        iIEC1107Compatible = properties.getTypedProperty("IEC1107Compatible", 1);
+        iProfileInterval = properties.getTypedProperty(PROFILEINTERVAL.getName(), 900);
+        extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+        readCurrentDay = properties.getTypedProperty("ReadCurrentDay", 0);
+        loadProfileNumber = properties.getTypedProperty("LoadProfileNumber", 1);
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+        this.dataReadoutRequest = properties.getTypedProperty("DataReadout", 0);
     }
 
     @Override

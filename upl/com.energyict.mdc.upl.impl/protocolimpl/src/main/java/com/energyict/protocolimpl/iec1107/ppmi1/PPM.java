@@ -284,43 +284,33 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
         if (p.getTypedProperty(ADDRESS.getName()) != null) {
             this.pAddress = p.getTypedProperty(ADDRESS.getName());
         }
-
         if (p.getTypedProperty(NODEID.getName()) != null) {
             pNodeId = p.getTypedProperty(NODEID.getName());
         }
-
         if (p.getTypedProperty(SERIALNUMBER.getName()) != null) {
             pSerialNumber = p.getTypedProperty(SERIALNUMBER.getName());
         }
-
         if (p.getTypedProperty(PROFILEINTERVAL.getName()) != null) {
             pProfileInterval = p.getTypedProperty(PROFILEINTERVAL.getName());
         }
-
         if (p.getTypedProperty(PASSWORD.getName()) != null) {
             pPassword = p.getTypedProperty(PASSWORD.getName());
         }
-
         if (p.getTypedProperty(PK_OPUS) != null) {
             pOpus = p.getTypedProperty(PK_OPUS);
         }
-
         if (p.getTypedProperty(PK_TIMEOUT) != null) {
-            pTimeout = Integer.parseInt(p.getTypedProperty(PK_TIMEOUT));
+            pTimeout = p.getTypedProperty(PK_TIMEOUT);
         }
-
         if (p.getTypedProperty(PK_RETRIES) != null) {
-            pRetries = Integer.parseInt(p.getTypedProperty(PK_RETRIES));
+            pRetries = p.getTypedProperty(PK_RETRIES);
         }
-
         if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
             pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
         }
-
         if (p.getTypedProperty(PK_FORCE_DELAY) != null) {
-            pForceDelay = Integer.parseInt(p.getTypedProperty(PK_FORCE_DELAY));
+            pForceDelay = p.getTypedProperty(PK_FORCE_DELAY);
         }
-
         this.software7E1 = !"0".equalsIgnoreCase(p.getTypedProperty("Software7E1", "0"));
     }
 
