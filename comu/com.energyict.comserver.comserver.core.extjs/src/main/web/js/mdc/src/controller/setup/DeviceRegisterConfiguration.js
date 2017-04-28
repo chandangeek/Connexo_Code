@@ -289,7 +289,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         model.getProxy().setExtraParam('deviceId', me.deviceId);
         form.setLoading(true);
         model.load(record.getId(), {
-            callback: function(record, operation, success) {
+            callback: function (record, operation, success) {
                 previewContainer.setLoading(false);
 
                 if (form.rendered) {
@@ -381,10 +381,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                                 config.down('#deviceRegisterConfigurationActionMenu').record = register;
                                 widget.down('#register-specifications').add(config);
                             },
-                            loadSlaveHistoryIfNeeded = function() {
+                            loadSlaveHistoryIfNeeded = function () {
                                 if (!Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')) {
                                     slaveHistoryStore.getProxy().setParams(deviceId, registerId);
-                                    slaveHistoryStore.load(function() {
+                                    slaveHistoryStore.load(function () {
                                         func();
                                     });
                                 } else {
@@ -436,12 +436,16 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                         msg: ''
                     });
                 } else {
-                    var title = Uni.I18n.translate('registerconfiguration.validateNow.error', 'MDC', 'Failed to validate data of register configuration {0}', [record.get('readingType').fullAliasName]),
-                        message = Uni.I18n.translate('registerconfiguration.validation.noData', 'MDC', 'There is currently no data for this register configuration'),
+                    var title =Uni.I18n.translate('registerconfiguration.validateNow.errorTitle', 'MDC', 'Couldn\'t perform your action'),
+                        message = Uni.I18n.translate('registerconfiguration.validateNow.error', 'MDC', 'Failed to validate data of register configuration {0}', [record.get('readingType').fullAliasName]) + '.' + Uni.I18n.translate('registerconfiguration.validation.noData', 'MDC', 'There is currently no data for this register configuration'),
+                        code = '',
                         config = {
                             icon: Ext.MessageBox.WARNING
                         };
-                    me.getApplication().getController('Uni.controller.Error').showError(title, message, config);
+                    if (res && res.errorCode) {
+                        code = res.errorCode;
+                    }
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, code, config);
                 }
             }
         });
@@ -456,7 +460,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         if (confWindow.down('#validateRegisterFromDate').getValue() > me.dataValidationLastChecked) {
             confWindow.down('#validateRegisterDateErrors').update(Uni.I18n.translate('deviceloadprofiles.activation.error', 'MDC', 'The date should be before or equal to the default date.'));
             confWindow.down('#validateRegisterDateErrors').setVisible(true);
-        } else  {
+        } else {
             confWindow.down('button').setDisabled(true);
             Ext.Ajax.request({
                 url: '/api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/registers/' + me.registerId + '/validate',
@@ -622,7 +626,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         me.deviceId = deviceId;
         viewport.setLoading();
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
-            success: function(device) {
+            success: function (device) {
                 var widget = Ext.widget('device-register-edit', {
                     itemId: 'mdc-device-register-edit',
                     device: device,
@@ -632,7 +636,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceRegister');
                 model.getProxy().setExtraParam('deviceId', deviceId);
                 model.load(registerIdAsString, {
-                    success: function(register) {
+                    success: function (register) {
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         widget.setRegister(register);
                         me.updateEditRegisterFields(register);
@@ -650,7 +654,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         });
     },
 
-    updateEditRegisterFields: function(register) {
+    updateEditRegisterFields: function (register) {
         var me = this,
             type = register.get('type'),
             isCumulative = register.get('isCumulative'),
@@ -682,7 +686,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         }
     },
 
-    onOverruledObisCodeChange: function(overruledObisCodeField, newValue) {
+    onOverruledObisCodeChange: function (overruledObisCodeField, newValue) {
         var me = this;
         me.getRestoreObisCodeBtn().setDisabled(newValue === me.originalObisCodeOfConfig);
         me.getRestoreObisCodeBtn().setTooltip(
@@ -692,47 +696,47 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         );
     },
 
-    onRestoreObisCodeBtnClicked: function() {
+    onRestoreObisCodeBtnClicked: function () {
         var me = this;
         me.getOverruledObisCodeField().setValue(me.originalObisCodeOfConfig);
         me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.originalObisCodeOfConfig);
     },
 
-    onOverflowChange: function(overflowField, newValue) {
+    onOverflowChange: function (overflowField, newValue) {
         var me = this;
         me.getRestoreOverflowBtn().setDisabled(newValue === me.originalOverflowOfConfig);
         me.getRestoreOverflowBtn().setTooltip(
             newValue === me.originalOverflowOfConfig
                 ? null
                 : Uni.I18n.translate(
-                    'general.overflow.reset.tooltip',
-                    'MDC',
-                    'Reset to {0}, the overflow value of the device configuration',
-                    me.originalOverflowOfConfig)
+                'general.overflow.reset.tooltip',
+                'MDC',
+                'Reset to {0}, the overflow value of the device configuration',
+                me.originalOverflowOfConfig)
         );
     },
 
-    onRestoreOverflowBtnClicked: function() {
+    onRestoreOverflowBtnClicked: function () {
         var me = this;
         me.getOverflowField().setValue(me.originalOverflowOfConfig);
         me.onOverflowChange(me.getOverflowField(), me.originalOverflowOfConfig);
     },
 
-    onNumberOfFractionDigitsChange: function(fractionField, newValue) {
+    onNumberOfFractionDigitsChange: function (fractionField, newValue) {
         var me = this;
         me.getRestoreNumberOfFractionDigitsBtn().setDisabled(newValue === me.originalNumberOfFractionDigitsOfConfig);
         me.getRestoreNumberOfFractionDigitsBtn().setTooltip(
             newValue === me.originalNumberOfFractionDigitsOfConfig
                 ? null
                 : Uni.I18n.translate(
-                    'general.numberOfFractionDigits.reset.tooltip',
-                    'MDC',
-                    'Reset to {0}, the number of fraction digits of the device configuration',
-                    me.originalNumberOfFractionDigitsOfConfig)
+                'general.numberOfFractionDigits.reset.tooltip',
+                'MDC',
+                'Reset to {0}, the number of fraction digits of the device configuration',
+                me.originalNumberOfFractionDigitsOfConfig)
         );
     },
 
-    onRestoreNumberOfFractionDigitsBtnClicked: function() {
+    onRestoreNumberOfFractionDigitsBtnClicked: function () {
         var me = this;
         me.getNumberOfFractionDigitsField().setValue(me.originalNumberOfFractionDigitsOfConfig);
         me.onNumberOfFractionDigitsChange(me.getNumberOfFractionDigitsField(), me.originalNumberOfFractionDigitsOfConfig);
