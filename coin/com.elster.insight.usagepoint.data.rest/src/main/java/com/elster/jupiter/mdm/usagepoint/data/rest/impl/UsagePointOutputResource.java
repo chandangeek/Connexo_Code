@@ -22,7 +22,6 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityComment;
-import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -37,7 +36,6 @@ import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
@@ -82,10 +80,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -580,23 +576,6 @@ public class UsagePointOutputResource {
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("rules", estimationRuleInfos, queryParameters);
-    }
-
-    private List<OutputChannelDataInfo> previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
-        Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
-        ReadingType readingType = channel.getMainReadingType();
-        List<Range<Instant>> ranges = estimateChannelDataInfo.intervals.stream()
-                .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
-                .collect(Collectors.toList());
-        ImmutableSet<Range<Instant>> blocks = ranges.stream()
-                .collect(ImmutableRangeSet::<Instant>builder, ImmutableRangeSet.Builder::add, (b1, b2) -> b1.addAll(b2.build()))
-                .build()
-                .asRanges();
-
-        List<EstimationResult> results = blocks.stream()
-                .map(block -> estimationHelper.previewEstimate(system, channelsContainer, readingType, block, estimator))
-                .collect(Collectors.toList());
-        return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results, estimateChannelDataInfo.markAsProjected, resourceHelper.getReadingQualityComment(estimateChannelDataInfo.commentId));
     }
 
     private Stream<? extends EstimationRule> streamMatchingEstimationRules(ReadingType readingType, MetrologyContract metrologyContract) {
