@@ -22,7 +22,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.DataLoggerReference;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
@@ -132,7 +131,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
 
     private void updateLastReadingIfApplicable(TopologyServiceImpl topologyService, Channel channel) {
         LoadProfile toUpdate = topologyService.getChannel(this.getOrigin(), channel).map(com.energyict.mdc.device.data.Channel::getLoadProfile).get();
-        if (!toUpdate.getLastReading().isPresent() || toUpdate.getLastReading().get().isBefore(channel.getLastDateTime())) {
+        if (toUpdate.getLastReading() == null || toUpdate.getLastReading().toInstant().isBefore(channel.getLastDateTime())) {
             this.getOrigin().getLoadProfileUpdaterFor(toUpdate).setLastReading(channel.getLastDateTime()).update();
         }
     }
