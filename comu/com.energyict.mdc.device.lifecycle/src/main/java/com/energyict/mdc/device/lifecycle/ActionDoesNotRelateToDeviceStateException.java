@@ -51,7 +51,7 @@ public class ActionDoesNotRelateToDeviceStateException extends DeviceLifeCycleAc
     }
 
     private NlsMessageFormat getFormat() {
-        return this.thesaurus.getFormat(this.messageSeed);
+        return this.thesaurus.getSimpleFormat(this.messageSeed);
     }
 
 }
