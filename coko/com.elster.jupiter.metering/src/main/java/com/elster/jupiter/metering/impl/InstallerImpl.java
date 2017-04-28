@@ -373,7 +373,4 @@ public class InstallerImpl implements FullInstaller {
         destinationSpec.subscribe(queueSubscriber, MeteringDataModelService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
-
 }
-
-
