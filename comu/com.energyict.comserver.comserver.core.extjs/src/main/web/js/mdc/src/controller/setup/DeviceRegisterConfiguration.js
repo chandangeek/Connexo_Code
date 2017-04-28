@@ -256,7 +256,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             widget = Ext.widget('deviceRegisterConfigurationPreview-' + type, {
                 router: me.getController('Uni.controller.history.Router'),
                 showDataLoggerSlaveField: me.getDeviceRegisterConfigurationGrid().showDataLoggerSlaveColumn,
-                showDataLoggerSlaveHistory: false // no history in preview
+                showDataLoggerSlaveHistory: false, // no history in preview
+                linkPurpose: me.getDeviceRegisterConfigurationGrid().getLinkPurpose()
             }),
             form = widget.down('#deviceRegisterConfigurationPreviewForm'),
             previewContainer = me.getDeviceRegisterConfigurationSetup().down('#previewComponentContainer'),
@@ -343,9 +344,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                                         deviceId: encodeURIComponent(deviceId),
                                         registerId: registerId,
                                         router: me.getController('Uni.controller.history.Router'),
-                                        showDataLoggerSlaveField: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
-                                        showDataLoggerSlaveHistory: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
-                                        dataLoggerSlaveHistoryStore: slaveHistoryStore
+                                        showDataLoggerSlaveField: (!Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')) || (!Ext.isEmpty(device.get('isMultiElementDevice')) && device.get('isMultiElementDevice')),
+                                        showDataLoggerSlaveHistory:  (!Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')) || (!Ext.isEmpty(device.get('isMultiElementDevice')) && device.get('isMultiElementDevice')),
+                                        dataLoggerSlaveHistoryStore: slaveHistoryStore,
+                                        linkPurpose: Mdc.util.LinkPurpose.forDevice(device)
                                     }),
                                     form = config.down('#deviceRegisterConfigurationDetailForm'),
                                     multiplierField = form.down('[name=multiplier]'),

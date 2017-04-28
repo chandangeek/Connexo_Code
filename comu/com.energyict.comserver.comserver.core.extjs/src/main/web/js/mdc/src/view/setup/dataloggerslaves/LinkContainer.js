@@ -4,13 +4,13 @@
 
 Ext.define('Mdc.view.setup.dataloggerslaves.LinkContainer', {
     extend: 'Uni.view.container.ContentContainer',
-    xtype: 'dataloggerslave-link-container',
-
+    xtype: 'slave-link-container',
     requires: [
         'Mdc.view.setup.dataloggerslaves.LinkNavigationMenu',
         'Mdc.view.setup.dataloggerslaves.LinkWizard'
     ],
-
+    itemId: 'mdc-slave-link-container',
+    purpose: undefined,
     router: null,
     returnLink: null,
     service: null,
@@ -19,8 +19,9 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkContainer', {
         var me = this;
 
         me.side = {
-            itemId: 'mdc-link-dataloggerslave-sidemenu-panel',
+            itemId: 'mdc-link-slave-sidemenu-panel',
             xtype: 'panel',
+            title: me.purpose.displayValue,
             ui: 'medium',
             layout: {
                 type: 'vbox',
@@ -28,16 +29,18 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkContainer', {
             },
             items: [
                 {
-                    xtype: 'dataloggerslave-link-navigation',
-                    itemId: 'mdc-link-dataloggerslave-navigation-menu'
+                    xtype: 'slave-link-navigation',
+                    itemId: 'mdc-link-slave-navigation-menu',
+                    purpose: me.purpose
                 }
             ]
         };
 
         me.content = [
             {
-                xtype: 'dataloggerslave-link-wizard',
-                itemId: 'mdc-dataloggerslave-link-wizard',
+                xtype: 'slave-link-wizard',
+                itemId: 'mdc-slave-link-wizard',
+                purpose: me.purpose,
                 router: me.router,
                 service: me.service,
                 returnLink: me.returnLink

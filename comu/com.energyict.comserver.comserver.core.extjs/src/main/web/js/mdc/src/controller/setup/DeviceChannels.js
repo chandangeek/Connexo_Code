@@ -99,7 +99,6 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                         if (record.get('hasLoadProfiles')) {
                             me.getApplication().fireEvent('loadDevice', record);
                             widget = Ext.widget('deviceLoadProfileChannelsSetup', {
-                                deviceId: deviceId,
                                 router: router,
                                 device: record
                             });

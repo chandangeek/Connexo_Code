@@ -215,7 +215,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         routerIdArgument: routerIdArgument,
                         isFullTotalCount: isFullTotalCount,
                         filterDefault: activeTab === 1 ? me.getDataFilter(channel, contentName, gasDayYearStart, router) : {},
-                        mentionDataLoggerSlave: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
                         dataLoggerSlaveHistoryStore: slaveHistoryStore
                     });
                     me.getApplication().fireEvent('changecontentevent', widget);

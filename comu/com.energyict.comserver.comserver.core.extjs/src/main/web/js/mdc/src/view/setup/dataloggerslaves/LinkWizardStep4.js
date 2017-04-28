@@ -6,13 +6,11 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.dataloggerslave-link-wizard-step4',
     ui: 'large',
-
     requires: [
         'Uni.util.FormErrorMessage',
         'Mdc.model.Register',
         'Uni.form.field.DateTime'
     ],
-
     initComponent: function () {
         var me = this;
 
@@ -32,6 +30,12 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
                 },
                 items: [
                     {
+                        xtype: 'uni-form-empty-message',
+                        itemId: 'automatic-linking-date',
+                        text: Uni.I18n.translate('general.linkingDate.set.automatically', 'MDC', 'The linking date is set automatically.'),
+                        hidden: true
+                       },
+                    {
                         xtype: 'date-time',
                         layout: 'hbox',
                         itemId: 'mdc-step4-linking-date',
@@ -44,22 +48,31 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
                 ]
             }
         ];
-
         me.callParent(arguments);
     },
 
-    initialize: function(minimalLinkingDateInMillis, linkingDateToSuggest) {
+    initialize: function (minimalLinkingDateInMillis, linkingDateToSuggest, enabled) {
         var me = this;
         if (me.rendered) {
             me.doConfigureLinkingDate(minimalLinkingDateInMillis, linkingDateToSuggest);
         } else {
-            me.on('afterrender', function() {
+            me.on('afterrender', function () {
                 me.doConfigureLinkingDate(minimalLinkingDateInMillis, linkingDateToSuggest);
-            }, me, {single:true});
+            }, me, {single: true});
+        }
+        if (!enabled) {
+            me.down('#mdc-step4-linking-date').eachItem(function (item) {
+                item.disable()
+            });
+            me.down('#automatic-linking-date').show();
+        } else {
+            me.down('#mdc-step4-linking-date').eachItem(function (item) {
+                item.enable()
+            });
+            me.down('#automatic-linking-date').hide()
         }
     },
-
-    doConfigureLinkingDate: function(minimalLinkingDateInMillis, linkingDateToSuggest) {
+    doConfigureLinkingDate: function (minimalLinkingDateInMillis, linkingDateToSuggest) {
         var me = this;
 
         me.down('#mdc-step4-linking-date').setMinValue(minimalLinkingDateInMillis);
