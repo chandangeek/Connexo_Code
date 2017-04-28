@@ -45,6 +45,27 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                     itemId: 'add-register-data'
                 }
             ];
+            emptyComponent.reasons = [
+                Uni.I18n.translate('readings.list.reason1x', 'IMT', 'No metrology configurations in the specified period of time'),
+                Uni.I18n.translate('readings.list.reason2x', 'IMT', 'No data has been collected or added yet'),
+                Uni.I18n.translate('readings.list.reason4', 'IMT', 'No data matching to the filters')
+            ];
+        }
+        else {
+            emptyComponent.stepItems = [
+                {
+                    text: Uni.I18n.translate('deviceloadprofiles.data.empty.addReadings', 'IMT', 'Add readings'),
+                    itemId: 'add-readind-data',
+                    handler: function () {
+                        var me = this,
+                            preview = me.up('#output-readings-preview-container'),
+                            noItemFoundClass = Ext.getClass(preview);
+
+                        arguments[0] = false;
+                        noItemFoundClass.prototype.updateOnChange.apply(preview, arguments);
+                    }
+                }
+            ];
         }
 
         if (me.interval) {
@@ -138,6 +159,33 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                         },
                         listeners: {
                             rowselect: Ext.bind(me.onRowSelect, me)
+                        },
+                        updateOnChange: function (isEmpty) {
+                            var me = this,
+                                noItemFoundClass = Ext.getClass(me);
+
+                            if (isEmpty) {
+                                noItemFoundClass.prototype.updateOnChange.apply(me, arguments);
+                                me.down('#no-items-found-panel-steps-label') && me.down('#no-items-found-panel-steps-label').setVisible(false);
+                                me.down('#add-readind-data') && me.down('#add-readind-data').setVisible(false);
+                            }
+                            else {
+                                var store = me.grid.getStore(),
+                                    count = store.getCount()
+                                hasValues = false;
+
+                                for (var i = 0; i < count; i++) {
+                                    if (store.getAt(i).get('value')) {
+                                        hasValues = true;
+                                        return;
+                                    }
+                                }
+                                arguments[0] = !hasValues;
+                                noItemFoundClass.prototype.updateOnChange.apply(me, arguments);
+                                me.down('#add-readind-data') && me.down('#add-readind-data').setVisible(true);
+                                me.down('#no-items-found-panel-steps-label') && me.down('#no-items-found-panel-steps-label').setVisible(true);
+                                me.up('#output-readings') && me.up('#output-readings').down('readings-graph') && me.up('#output-readings').down('readings-graph').setVisible(hasValues);
+                            }
                         }
                     }
                 );
@@ -258,6 +306,14 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                         from: record.get('interval').start,
                         to: record.get('interval').end,
                         color: 'rgba(235, 86, 66, 0.3)'
+                    });
+                    record.set('plotBand', true);
+                } else if (record.get('partOfTimeOfUseGap')) {
+                    missedValues.push({
+                        id: record.get('interval').start,
+                        from: record.get('interval').start,
+                        to: record.get('interval').end,
+                        color: 'rgba(210,210,210,1)'
                     });
                     record.set('plotBand', true);
                 }

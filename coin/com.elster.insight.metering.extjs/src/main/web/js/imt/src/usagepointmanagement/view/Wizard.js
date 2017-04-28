@@ -7,7 +7,8 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
     alias: 'widget.add-usage-point-wizard',
 
     requires: [
-        'Imt.usagepointmanagement.view.forms.GeneralInfo'
+        'Imt.usagepointmanagement.view.forms.GeneralInfo',
+        'Imt.usagepointmanagement.view.forms.CalendarInfo'
     ],
 
     layout: {
@@ -21,7 +22,6 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
 
     initComponent: function () {
         var me = this;
-
         me.items = [
             {
                 xtype: 'general-info-form',
@@ -32,6 +32,14 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
                 stepName: 'generalInfo',
                 ui: 'large',
                 isPossibleAdd: me.isPossibleAdd
+            },
+            {
+                xtype: 'calendar-info-form',
+                title: Uni.I18n.translate('usagepoint.wizard.calendarStepTitle', 'IMT', 'Step {0}: {1}', [4, Uni.I18n.translate('general.calendarTransition', 'IMT', 'Calendar transition')]),
+                navigationIndex: 3,
+                stepName: 'calendarTransitionInfo',
+                ui: 'large',
+                isWizardStep: true
             },
             {
                 xtype: 'life-cycle-transition-info-form',
@@ -86,7 +94,6 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
     updateRecord: function () {
         var me = this,
             step = me.getLayout().getActiveItem();
-
         switch (step.stepName) {
             case 'generalInfo':
                 me.callParent(arguments);
@@ -105,6 +112,10 @@ Ext.define('Imt.usagepointmanagement.view.Wizard', {
             case 'lifeCycleTransitionInfo':
                 me.getRecord().set('transitionToPerform', step.getRecord());
                 break;
+            case 'calendarTransitionInfo':
+                me.getRecord().set('calendars', step.getRecord());
+                break;
+
         }
     },
 
