@@ -11,9 +11,9 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.io.ConnectionCommunicationException;
-import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.upl.io.ConnectionCommunicationException;
+import com.energyict.mdc.upl.issue.Problem;
 
 public class DaisyChainedLogOnCommand extends SimpleComCommand {
 
@@ -25,13 +25,11 @@ public class DaisyChainedLogOnCommand extends SimpleComCommand {
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         try {
             deviceProtocol.daisyChainedLogOn();
+        } catch (ConnectionCommunicationException e) {
+            throw e;
         } catch (Throwable e) {
-            if (e instanceof ConnectionCommunicationException) {
-                throw e;
-            } else {
-                Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e);
-                addIssue(problem, CompletionCode.InitError);
-            }
+            Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e);
+            addIssue(problem, CompletionCode.InitError);
         }
     }
 

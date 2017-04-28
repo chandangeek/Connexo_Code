@@ -11,12 +11,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.tasks.ComTask;
-
-import java.sql.SQLException;
-import java.util.Arrays;
-
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +21,9 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+
+import java.sql.SQLException;
+import java.util.Arrays;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doCallRealMethod;

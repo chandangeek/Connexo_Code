@@ -7,6 +7,7 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -32,21 +33,10 @@ import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageAcknowledgement;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
@@ -54,6 +44,17 @@ import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageAcknowledgement;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.time.Clock;
 import java.util.ArrayList;
@@ -68,6 +69,17 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * An {@link InboundJobExecutionDataProcessor} is responsible for
+ * processing collected data which was received during inbound communication.
+ * A logical <i>connect</i> can be skipped as the
+ * {@link ComChannel ComChannl}
+ * will already be created by the ComPortListener
+ * <p>
+ *
+ * Date: 9/3/13
+ * Time: 3:38 PM
+ */
 public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
     private static final byte REGISTER_DATA = 0x01;
@@ -76,7 +88,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     private static final byte MESSAGE_DATA = 0x08;
     private static final byte TOPOLOGY_DATA = 0x10;
 
-    private final InboundDeviceProtocol inboundDeviceProtocol;
+    private final com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol;
     private final OfflineDevice offlineDevice;
     private final InboundCommunicationHandler inboundCommunicationHandler;
     private final ComPortDiscoveryLogger comPortDiscoveryLogger;
@@ -95,7 +107,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     private Map<ComTaskExecution, List<ProtocolTask>> protocolTasksAlreadyExecutedForComTask = new HashMap<>();
 
 
-    public InboundJobExecutionDataProcessor(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext, InboundDeviceProtocol inboundDeviceProtocol, OfflineDevice offlineDevice, ServiceProvider serviceProvider, InboundCommunicationHandler inboundCommunicationHandler, ComPortDiscoveryLogger logger, boolean executePendingTaskOnInboundConnection) {
+    public InboundJobExecutionDataProcessor(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext, com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol, OfflineDevice offlineDevice, ServiceProvider serviceProvider, InboundCommunicationHandler inboundCommunicationHandler, ComPortDiscoveryLogger logger, boolean executePendingTaskOnInboundConnection) {
         super(comPort, comServerDAO, deviceCommandExecutor, inboundDiscoveryContext, serviceProvider, inboundCommunicationHandler);
         this.inboundDeviceProtocol = inboundDeviceProtocol;
         this.offlineDevice = offlineDevice;
@@ -214,7 +226,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
                 }
             }
 
-            for (CollectedData collectedData : inboundDeviceProtocol.getCollectedData(offlineDevice)) {
+            for (CollectedData collectedData : inboundDeviceProtocol.getCollectedData()) {
                 if (!dataWasProcessed(processedCollectedData, collectedData)) {
                     getInboundDiscoveryContext().markNotAllCollectedDataWasProcessed();
                     logDroppedDataOnComPortDiscoveryLogger(collectedData.getClass().getSimpleName());
@@ -275,7 +287,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
      * Check if data of the given type is already processed.
      *
      * @param alreadyProcessedDataTypes The bitstring containing the already processed data types
-     * @param dataType The byte indicating the dataType
+     * @param dataType                  The byte indicating the dataType
      * @return true if the given data type is already processed
      * false if the given data type was not yet processed
      */
@@ -381,7 +393,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     private List<ServerCollectedData> receivedCollectedDataFor(ComTaskExecution comTaskExecution) {
         List<ServerCollectedData> collectedDatas = new ArrayList<>();
         resetReceivedDataFlags();
-        for (CollectedData collectedData : inboundDeviceProtocol.getCollectedData(offlineDevice)) {
+        for (CollectedData collectedData : inboundDeviceProtocol.getCollectedData()) {
             if (collectedData.isConfiguredIn(comTaskExecution)) {
                 ServerCollectedData dataItem = (ServerCollectedData) collectedData;
                 collectedDatas.add(dataItem);
@@ -481,6 +493,11 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         @Override
         public MeteringService meteringService() {
             return serviceProvider.meteringService();
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return serviceProvider.deviceMessageService();
         }
     }
 }

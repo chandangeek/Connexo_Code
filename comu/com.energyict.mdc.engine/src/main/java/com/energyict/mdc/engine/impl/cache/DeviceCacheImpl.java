@@ -11,8 +11,8 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
@@ -85,11 +85,10 @@ public final class DeviceCacheImpl implements DeviceCache {
         if (bytes != null) {
             String completeCache = new String(bytes);
             return this.protocolPluggableService
-                        .unMarshallDeviceProtocolCache(completeCache)
-                        .map(DeviceProtocolCache.class::cast)
-                        .orElse(null);
-        }
-        else {
+                    .unMarshallDeviceProtocolCache(completeCache)
+                    .map(DeviceProtocolCache.class::cast)
+                    .orElse(null);
+        } else {
             return null;
         }
     }
@@ -135,7 +134,7 @@ public final class DeviceCacheImpl implements DeviceCache {
 
         DeviceCacheImpl that = (DeviceCacheImpl) o;
 
-        if(device.get().getId() != that.device.get().getId()) return false;
+        if (device.get().getId() != that.device.get().getId()) return false;
         return Arrays.equals(simpleCache, that.simpleCache);
 
     }

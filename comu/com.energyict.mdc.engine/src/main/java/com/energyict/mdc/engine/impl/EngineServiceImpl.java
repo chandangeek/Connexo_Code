@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.datavault.KeyStoreService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -21,11 +22,13 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -39,27 +42,29 @@ import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.PrettyPrintTimeDurationTranslationKeys;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.io.LibraryType;
-import com.energyict.mdc.io.ModemType;
-import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.BaseLogBook;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.io.LibraryType;
+import com.energyict.mdc.upl.io.ModemType;
+import com.energyict.mdc.upl.io.SerialComponentService;
+import com.energyict.mdc.upl.io.SocketService;
+import com.energyict.mdc.upl.meterdata.LoadProfile;
+import com.energyict.mdc.upl.meterdata.LogBook;
+import com.energyict.mdc.upl.meterdata.Register;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
+import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
@@ -85,7 +90,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
 
 @Component(name = "com.energyict.mdc.engine",
-        service = {EngineService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        service = {EngineService.class, ServerEngineService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = {"name=" + EngineService.COMPONENTNAME,
                 "osgi.command.scope=mdc",
                 "osgi.command.function=become",
@@ -94,9 +99,10 @@ import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
                 "osgi.command.function=lcs",
                 "osgi.command.function=scs"},
         immediate = true)
-public class EngineServiceImpl implements EngineService, TranslationKeyProvider, MessageSeedProvider {
+public class EngineServiceImpl implements ServerEngineService, TranslationKeyProvider, MessageSeedProvider {
 
     public static final String COMSERVER_USER = "comserver";
+    public static final String PORT_PROPERTY_NUMBER = "org.osgi.service.http.port";
     private volatile DataModel dataModel;
     private volatile EventService eventService;
     private volatile Thesaurus thesaurus;
@@ -105,14 +111,16 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
     private volatile NlsService nlsService;
     private volatile MeteringService meteringService;
     private volatile ThreadPrincipalService threadPrincipalService;
-
     private volatile HexService hexService;
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile IssueService issueService;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile LogBookService logBookService;
+    private volatile DeviceMessageService deviceMessageService;
     private volatile DeviceService deviceService;
+    private volatile RegisterService registerService;
+    private volatile LoadProfileService loadProfileService;
     private volatile TopologyService topologyService;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private volatile StatusService statusService;
@@ -123,15 +131,13 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
     private volatile SocketService socketService;
     private volatile SerialComponentService serialATComponentService;
     private volatile FirmwareService firmwareService;
+    private volatile KeyStoreService keyStoreService;
     private volatile UpgradeService upgradeService;
     private volatile AppService appService;
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
-
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
     private ComServerLauncher launcher;
     private ProtocolDeploymentListenerRegistration protocolDeploymentListenerRegistration;
-
-    public static final String PORT_PROPERTY_NUMBER = "org.osgi.service.http.port";
 
     public EngineServiceImpl() {
     }
@@ -142,13 +148,14 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
             OrmService ormService, EventService eventService, NlsService nlsService, TransactionService transactionService, Clock clock, ThreadPrincipalService threadPrincipalService,
             HexService hexService, EngineConfigurationService engineConfigurationService, IssueService issueService,
             MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, DeviceConfigurationService deviceConfigurationService,
-            ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService, TopologyService topologyService,
+            ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService, LogBookService logBookService, DeviceService deviceService, TopologyService topologyService, RegisterService registerService, LoadProfileService loadProfileService, DeviceMessageService deviceMessageService,
             ProtocolPluggableService protocolPluggableService, StatusService statusService,
             ManagementBeanFactory managementBeanFactory,
             SocketService socketService,
             SerialComponentService serialATComponentService,
             IdentificationService identificationService,
             FirmwareService firmwareService,
+            KeyStoreService keyStoreService,
             UpgradeService upgradeService) {
         this();
         setOrmService(ormService);
@@ -162,9 +169,12 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         setIssueService(issueService);
         setDeviceService(deviceService);
         setTopologyService(topologyService);
+        setRegisterService(registerService);
+        setLoadProfileService(loadProfileService);
         setConnectionTaskService(connectionTaskService);
         setCommunicationTaskService(communicationTaskService);
         setLogBookService(logBookService);
+        setDeviceMessageService(deviceMessageService);
         setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
         setUserService(userService);
         setDeviceConfigurationService(deviceConfigurationService);
@@ -175,17 +185,36 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         setManagementBeanFactory(managementBeanFactory);
         addIdentificationService(identificationService);
         setFirmwareService(firmwareService);
+        setKeyStoreService(keyStoreService);
         setUpgradeService(upgradeService);
         activate(bundleContext);
     }
 
     @Override
-    public Optional<DeviceCache> findDeviceCacheByDevice(Device device) {
+    public Thesaurus thesaurus() {
+        return this.thesaurus;
+    }
+
+    @Override
+    public Optional<DeviceCache> findDeviceCacheByDevice(com.energyict.mdc.device.data.Device device) {
         return dataModel.mapper(DeviceCache.class).getUnique("device", device);
     }
 
     @Override
-    public DeviceCache newDeviceCache(Device device, DeviceProtocolCache deviceProtocolCache) {
+    public Optional<DeviceCache> findDeviceCacheByDeviceIdentifier(DeviceIdentifier deviceIdentifier) {
+        Device device = deviceService
+                .findDeviceByIdentifier(deviceIdentifier)
+                .orElseThrow(() -> new IllegalArgumentException("Device with identifier " + deviceIdentifier.toString() + " does not exist"));
+
+        return dataModel.mapper(DeviceCache.class).getUnique("device", device);
+    }
+
+    @Override
+    public DeviceCache newDeviceCache(DeviceIdentifier deviceIdentifier, DeviceProtocolCache deviceProtocolCache) {
+        Device device = deviceService
+                .findDeviceByIdentifier(deviceIdentifier)
+                .orElseThrow(() -> new IllegalArgumentException("Device with identifier " + deviceIdentifier.toString() + " does not exist"));
+
         final DeviceCacheImpl deviceCache = dataModel.getInstance(DeviceCacheImpl.class).initialize(device, deviceProtocolCache);
         deviceCache.save();
         return deviceCache;
@@ -217,8 +246,23 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
     }
 
     @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
+    }
+
+    @Reference
     public void setAppService(AppService appService) {
         this.appService = appService;
+    }
+
+    @Reference
+    public void setRegisterService(RegisterService registerService) {
+        this.registerService = registerService;
+    }
+
+    @Reference
+    public void setLoadProfileService(LoadProfileService loadProfileService) {
+        this.loadProfileService = loadProfileService;
     }
 
     @Reference
@@ -291,6 +335,7 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>();
         keys.addAll(Arrays.asList(PrettyPrintTimeDurationTranslationKeys.values()));
+        keys.addAll(Arrays.asList(NextExecutionSpecsFormat.TranslationKeys.values()));
         return keys;
     }
 
@@ -366,13 +411,14 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         this.firmwareService = firmwareService;
     }
 
+    @Reference
+    public void setKeyStoreService(KeyStoreService keyStoreService) {
+        this.keyStoreService = keyStoreService;
+    }
+
     @SuppressWarnings("unused")
     public void removeIdentificationService(IdentificationService identificationService) {
         this.identificationService.clear();
-    }
-
-    Thesaurus getThesaurus() {
-        return thesaurus;
     }
 
     private Module getModule() {
@@ -535,10 +581,18 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         }
 
         @Override
-        public DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(BaseDevice device) {
+        public DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(com.energyict.mdc.upl.meterdata.Device device) {
             return this.identificationService
                     .get()
                     .map(s -> s.createDeviceIdentifierForAlreadyKnownDevice(device))
+                    .orElseThrow(IdentificationServiceMissingException::new);
+        }
+
+        @Override
+        public RegisterIdentifier createRegisterIdentifierByAlreadyKnownRegister(Register register) {
+            return this.identificationService
+                    .get()
+                    .map(s -> s.createRegisterIdentifierByAlreadyKnownRegister(register))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
@@ -559,15 +613,15 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         }
 
         @Override
-        public LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id, ObisCode obisCode) {
+        public LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id, ObisCode obisCode, DeviceIdentifier deviceIdentifier) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createLoadProfileIdentifierByDatabaseId(id, obisCode))
+                    .map(s -> s.createLoadProfileIdentifierByDatabaseId(id, obisCode, deviceIdentifier))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public LoadProfileIdentifier createLoadProfileIdentifierForAlreadyKnownLoadProfile(BaseLoadProfile loadProfile, ObisCode obisCode) {
+        public LoadProfileIdentifier createLoadProfileIdentifierForAlreadyKnownLoadProfile(LoadProfile loadProfile, ObisCode obisCode) {
             return this.identificationService
                     .get()
                     .map(s -> s.createLoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile, obisCode))
@@ -591,10 +645,10 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         }
 
         @Override
-        public LogBookIdentifier createLogbookIdentifierByDatabaseId(long id, ObisCode obisCode) {
+        public LogBookIdentifier createLogbookIdentifierByDatabaseId(long id, ObisCode obisCode, DeviceIdentifier deviceIdentifier) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createLogbookIdentifierByDatabaseId(id, obisCode))
+                    .map(s -> s.createLogbookIdentifierByDatabaseId(id, obisCode, deviceIdentifier))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
@@ -607,18 +661,10 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         }
 
         @Override
-        public LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(BaseLogBook logBook) {
+        public LogBookIdentifier createLogbookIdentifierForAlreadyKnownLogbook(LogBook logBook, DeviceIdentifier deviceIdentifier) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createLogbookIdentifierForAlreadyKnownLogbook(logBook))
-                    .orElseThrow(IdentificationServiceMissingException::new);
-        }
-
-        @Override
-        public MessageIdentifier createMessageIdentifierByDatabaseId(long id) {
-            return this.identificationService
-                    .get()
-                    .map(s -> s.createMessageIdentifierByDatabaseId(id))
+                    .map(s -> s.createLogbookIdentifierForAlreadyKnownLogbook(logBook, deviceIdentifier))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
@@ -630,13 +676,6 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
-        @Override
-        public MessageIdentifier createMessageIdentifierByDeviceAndProtocolInfoParts(DeviceIdentifier deviceIdentifier, String... messageProtocolInfoParts) {
-            return this.identificationService
-                    .get()
-                    .map(s -> s.createMessageIdentifierByDeviceAndProtocolInfoParts(deviceIdentifier, messageProtocolInfoParts))
-                    .orElseThrow(IdentificationServiceMissingException::new);
-        }
     }
 
     private static class IdentificationServiceMissingException extends RuntimeException {
@@ -742,6 +781,26 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         }
 
         @Override
+        public RegisterService registerService() {
+            return registerService;
+        }
+
+        @Override
+        public LoadProfileService loadProfileService() {
+            return loadProfileService;
+        }
+
+        @Override
+        public LogBookService logBookService() {
+            return logBookService;
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return deviceMessageService;
+        }
+
+        @Override
         public EngineService engineService() {
             return EngineServiceImpl.this;
         }
@@ -764,6 +823,11 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         @Override
         public FirmwareService firmwareService() {
             return firmwareService;
+        }
+
+        @Override
+        public KeyStoreService keyStoreService() {
+            return keyStoreService;
         }
     }
 

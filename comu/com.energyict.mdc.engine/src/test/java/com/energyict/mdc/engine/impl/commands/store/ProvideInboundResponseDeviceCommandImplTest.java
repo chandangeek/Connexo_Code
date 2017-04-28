@@ -27,21 +27,20 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.tasks.ComTask;
-
-import java.time.Clock;
-import java.util.logging.Logger;
-
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.time.Clock;
+import java.util.logging.Logger;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -60,7 +59,6 @@ public class ProvideInboundResponseDeviceCommandImplTest {
     private static final long COM_TASK_EXECUTION_ID = DEVICE_ID + 1;
     private static final long PROTOCOL_DIALECT_CONFIG_PROPS_ID = 6516;
 
-    private final String deviceIdentifierString = "MyIdentifier";
     @Mock
     protected EventPublisherImpl eventPublisher;
     private ExecutionContext executionContext;
@@ -101,12 +99,11 @@ public class ProvideInboundResponseDeviceCommandImplTest {
         when(executionContextServiceProvider.eventPublisher()).thenReturn(this.eventPublisher);
 
         executionContext = newTestExecutionContext();
-        when(deviceIdentifier.getIdentifier()).thenReturn(deviceIdentifierString);
     }
 
     @Test
     public void provideResponseFailedTest() {
-        doThrow(new RuntimeException("It's oké, the exception is just for my test purposes")).when(inboundCommunicationHandler).provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.SUCCESS);
+        doThrow(new RuntimeException("It's oké, the exception is just for my test purposes")).when(inboundCommunicationHandler).provideResponse(inboundDeviceProtocol, com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.SUCCESS);
         ProvideInboundResponseDeviceCommandImpl testInstance = getTestInstance();
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         CreateComSessionDeviceCommand createComSessionDeviceCommand = mock(CreateComSessionDeviceCommand.class);

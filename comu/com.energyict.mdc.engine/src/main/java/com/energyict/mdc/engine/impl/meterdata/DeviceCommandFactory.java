@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * Provides factory services for DeviceCommands
- * that are created from {@link com.energyict.mdc.protocol.api.device.data.CollectedData}.
+ * that are created from {@link com.energyict.mdc.upl.meterdata.CollectedData}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-08-22 (16:35)

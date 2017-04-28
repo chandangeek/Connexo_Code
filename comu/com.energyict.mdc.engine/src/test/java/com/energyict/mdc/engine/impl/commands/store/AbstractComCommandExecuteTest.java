@@ -12,7 +12,6 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.CompositeThesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
@@ -26,6 +25,8 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
+import com.energyict.mdc.engine.impl.commands.offline.ServerOfflineDevice;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
@@ -35,11 +36,14 @@ import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
+import com.energyict.obis.ObisCode;
 
 import java.time.Clock;
 import java.util.Locale;
@@ -78,6 +82,8 @@ public abstract class AbstractComCommandExecuteTest {
     private static OutboundConnectionTask connectionTask;
     @Mock
     protected ThreadPrincipalService threadPrincipalService;
+    @Mock
+    protected OfflineDeviceImpl.ServiceProvider offlineDeviceServiceProvider;
     @Mock
     protected ExecutionContext.ServiceProvider executionContextServiceProvider;
     @Mock
@@ -136,7 +142,7 @@ public abstract class AbstractComCommandExecuteTest {
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
 
         when(nlsService.getThesaurus("CES", Layer.DOMAIN)).thenReturn(thesaurusCES);
-        when(thesaurusISU.join(thesaurusCES)).thenReturn(new CompositeThesaurus(threadPrincipalService),thesaurusISU, thesaurusCES );
+        when(thesaurusISU.join(thesaurusCES)).thenReturn(new CompositeThesaurus(threadPrincipalService), thesaurusISU, thesaurusCES);
 
         when(thesaurusJoined.getString(any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
         when(thesaurusJoined.getString(any(), any(), any())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
@@ -160,7 +166,7 @@ public abstract class AbstractComCommandExecuteTest {
         when(commandRootServiceProvider.deviceService()).thenReturn(deviceService);
         when(commandRootServiceProvider.thesaurus()).thenReturn(thesaurusCES);
         IdentificationService identificationService = mock(IdentificationService.class);
-        when(identificationService.createLoadProfileIdentifierByDatabaseId(Matchers.anyLong(), Matchers.<ObisCode>any())).thenReturn(mock(LoadProfileIdentifier.class));
+        when(identificationService.createLoadProfileIdentifierByDatabaseId(Matchers.anyLong(), Matchers.<ObisCode>any(), Matchers.<DeviceIdentifier>any())).thenReturn(mock(LoadProfileIdentifier.class));
         when(commandRootServiceProvider.identificationService()).thenReturn(identificationService);
     }
 
@@ -224,7 +230,7 @@ public abstract class AbstractComCommandExecuteTest {
     }
 
     protected GroupedDeviceCommand getGroupedDeviceCommand() {
-        OfflineDevice offlineDevice = mock(OfflineDevice.class);
+        ServerOfflineDevice offlineDevice = mock(ServerOfflineDevice.class);
         CommandRoot commandRoot = new CommandRootImpl(newTestExecutionContext(), commandRootServiceProvider);
         return new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, null);
     }

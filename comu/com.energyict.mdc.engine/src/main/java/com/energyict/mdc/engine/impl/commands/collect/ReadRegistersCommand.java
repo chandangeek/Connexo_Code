@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.impl.commands.collect;
 
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import java.util.List;
 

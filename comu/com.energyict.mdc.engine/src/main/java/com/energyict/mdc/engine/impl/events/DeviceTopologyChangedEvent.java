@@ -4,9 +4,10 @@
 
 package com.energyict.mdc.engine.impl.events;
 
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 public class DeviceTopologyChangedEvent {
@@ -14,20 +15,20 @@ public class DeviceTopologyChangedEvent {
     private final String masterDeviceId;
     private final DeviceIdentifier masterDevice;
     private final String slaveIdentifiers;
-    private final List<DeviceIdentifier> slaveDevices;
+    private final Collection<DeviceIdentifier> slaveDevices;
 
-    public DeviceTopologyChangedEvent(DeviceIdentifier masterDeviceIdentifier, List<DeviceIdentifier> slaveIdentifiers) {
+    public DeviceTopologyChangedEvent(DeviceIdentifier masterDeviceIdentifier, Collection<DeviceIdentifier> slaveIdentifiers) {
         super();
-        masterDevice = masterDeviceIdentifier;
-        this.masterDeviceId = masterDeviceIdentifier.getIdentifier();
-        slaveDevices = slaveIdentifiers;
+        this.masterDevice = masterDeviceIdentifier;
+        this.masterDeviceId = masterDeviceIdentifier.toString();
+        this.slaveDevices = slaveIdentifiers;
         this.slaveIdentifiers = asString(slaveIdentifiers);
     }
 
-    private String asString(List<DeviceIdentifier> slaveIdentifiers) {
+    private String asString(Collection<DeviceIdentifier> slaveIdentifiers) {
         return slaveIdentifiers
                 .stream()
-                .map(DeviceIdentifier::getIdentifier)
+                .map(DeviceIdentifier::toString)
                 .collect(Collectors.joining(","));
     }
 
@@ -43,8 +44,8 @@ public class DeviceTopologyChangedEvent {
         return masterDevice;
     }
 
-    public List<DeviceIdentifier> getSlaveDevices() {
-        return slaveDevices;
+    public Collection<DeviceIdentifier> getSlaveDevices() {
+        return Collections.unmodifiableCollection(slaveDevices);
     }
 
 }

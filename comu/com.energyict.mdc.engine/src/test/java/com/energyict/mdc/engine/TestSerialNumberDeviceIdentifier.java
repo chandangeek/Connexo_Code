@@ -4,12 +4,12 @@
 
 package com.energyict.mdc.engine;
 
-import com.energyict.mdc.protocol.api.device.BaseChannel;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
-import com.energyict.mdc.protocol.api.device.BaseRegister;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class TestSerialNumberDeviceIdentifier implements DeviceIdentifier {
 
@@ -20,28 +20,29 @@ public class TestSerialNumberDeviceIdentifier implements DeviceIdentifier {
     }
 
     @Override
-    public String getIdentifier() {
-        return serialNumber;
+    public Introspector forIntrospection() {
+        return new TestIntrospector();
     }
 
-    @Override
-    public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.SerialNumber;
-    }
+    private class TestIntrospector implements Introspector {
+        @Override
+        public String getTypeName() {
+            return "SerialNumber";
+        }
 
-    @Override
-    public String getXmlType() {
-        return null;
-    }
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Collections.singletonList("serialNumber"));
+        }
 
-    @Override
-    public void setXmlType(String ignore) {
-
-    }
-
-    @Override
-    public BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> findDevice() {
-        return null;
+        @Override
+        public Object getValue(String role) {
+            if ("serialNumber".equals(role)) {
+                return serialNumber;
+            } else {
+                throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+            }
+        }
     }
 
 }

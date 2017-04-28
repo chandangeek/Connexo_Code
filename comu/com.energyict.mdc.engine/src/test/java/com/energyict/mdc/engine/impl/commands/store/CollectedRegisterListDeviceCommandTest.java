@@ -8,9 +8,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Quantity;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
@@ -19,19 +16,22 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceRegisterList;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceImpl;
-import com.energyict.mdc.protocol.api.device.DeviceFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 
 import org.junit.Assert;
@@ -73,8 +73,6 @@ public class CollectedRegisterListDeviceCommandTest {
     @Mock
     private RegisterIdentifier collectedRegisterIdentifier;
     @Mock
-    private DeviceFactory deviceFactory;
-    @Mock
     private Device device;
     @Mock
     private DeviceCommand.ExecutionLogger executionLogger;
@@ -93,26 +91,26 @@ public class CollectedRegisterListDeviceCommandTest {
         when(offlineRegister.getObisCode()).thenReturn(REGISTER_OBIS);
         when(offlineRegister.getOverFlowValue()).thenReturn(new BigDecimal(DeviceCreator.CHANNEL_OVERFLOW_VALUE));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
-        when(deviceIdentifier.findDevice()).thenReturn(device);
         when(offlineRegister.getDeviceIdentifier()).thenReturn(deviceIdentifier);
 
         when(this.collectedRegister.getCollectedQuantity()).thenReturn(new Quantity("2", Unit.getUndefined()));
-        when(this.collectedRegister.getEventTime()).thenReturn(Instant.ofEpochMilli(1358757000000L)); // 21 januari 2013 9:30:00
-        when(this.collectedRegister.getFromTime()).thenReturn(Instant.ofEpochMilli(1358755200000L));  // 21 januari 2013 9:00:00
-        when(this.collectedRegister.getToTime()).thenReturn(Instant.ofEpochMilli(1358758800000L));    // 21 januari 2013 10:00:00
-        when(this.collectedRegister.getReadTime()).thenReturn(Instant.ofEpochMilli(1358758920000L));  // 21 januari 2013 10:02:00
+        when(this.collectedRegister.getEventTime()).thenReturn(new Date(1358757000000L)); // 21 januari 2013 9:30:00
+        when(this.collectedRegister.getFromTime()).thenReturn(new Date(1358755200000L));  // 21 januari 2013 9:00:00
+        when(this.collectedRegister.getToTime()).thenReturn(new Date(1358758800000L));    // 21 januari 2013 10:00:00
+        when(this.collectedRegister.getReadTime()).thenReturn(new Date(1358758920000L));  // 21 januari 2013 10:02:00
         when(this.collectedRegister.getText()).thenReturn("CollectedRegister text");
         when(this.collectedRegister.getResultType()).thenReturn(ResultType.Supported);
         ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMRID()).thenReturn("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.3.72.0");
-        when(this.collectedRegister.getReadingType()).thenReturn(readingType);
-        when(this.collectedRegisterIdentifier.getObisCode()).thenReturn(REGISTER_OBIS);
+        String readingType_mRID = "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.3.72.0";
+        when(readingType.getMRID()).thenReturn(readingType_mRID);
+        when(this.offlineRegister.getReadingTypeMRID()).thenReturn(readingType_mRID);
+        when(this.collectedRegisterIdentifier.getRegisterObisCode()).thenReturn(REGISTER_OBIS);
         when(this.collectedRegister.getRegisterIdentifier()).thenReturn(this.collectedRegisterIdentifier);
         when(this.device.getId()).thenReturn(DEVICE_ID);
         when(this.meteringService.getReadingType(Matchers.<String>any())).thenReturn(Optional.empty());
         when(serviceProvider.mdcReadingTypeUtilService()).thenReturn(new MdcReadingTypeUtilServiceImpl(this.meteringService));
         when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
-   }
+    }
 
     @Test
     public void testExecutionOfDeviceCommand() {
@@ -132,9 +130,9 @@ public class CollectedRegisterListDeviceCommandTest {
         Assert.assertEquals("Expecting only 1 registerValue", 1, readingData.getReadings().size());
         Reading registerValue = readingData.getReadings().get(0);
         Assert.assertEquals(collectedRegister.getCollectedQuantity().getAmount(), registerValue.getValue());
-        Assert.assertEquals(collectedRegister.getEventTime(), registerValue.getTimeStamp());
-        Assert.assertEquals(collectedRegister.getFromTime(), registerValue.getTimePeriod().filter(Range::hasLowerBound).map(Range::lowerEndpoint).orElse(null));
-        Assert.assertEquals(collectedRegister.getToTime(), registerValue.getTimePeriod().filter(Range::hasUpperBound).map(Range::upperEndpoint).orElse(null));
+        Assert.assertEquals(collectedRegister.getEventTime(), Date.from(registerValue.getTimeStamp()));
+        Assert.assertEquals(collectedRegister.getFromTime(), Date.from(registerValue.getTimePeriod().filter(Range::hasLowerBound).map(Range::lowerEndpoint).orElse(null)));
+        Assert.assertEquals(collectedRegister.getToTime(), Date.from(registerValue.getTimePeriod().filter(Range::hasUpperBound).map(Range::upperEndpoint).orElse(null)));
     }
 //
 //    @Test
@@ -158,8 +156,8 @@ public class CollectedRegisterListDeviceCommandTest {
 //        freezeClock(currentTimeStamp);
 //
 //        // Assert That the channels are not linked
-//        assertThat(getTopologyService().getSlaveChannel(loadProfile.getChannels().get(0), fromClock.toInstant()).isPresent()).isFalse();
-//        assertThat(getTopologyService().getSlaveChannel(loadProfile.getChannels().get(1), fromClock.toInstant()).isPresent()).isFalse();
+//        assertThat(getTopologyService().getSlaveChannel(loadProfile.getOfflineChannels().get(0), fromClock.toInstant()).isPresent()).isFalse();
+//        assertThat(getTopologyService().getSlaveChannel(loadProfile.getOfflineChannels().get(1), fromClock.toInstant()).isPresent()).isFalse();
 //
 //        assertThat(collectedLoadProfile.getCollectedIntervalData()).overridingErrorMessage("The collected data should contain {0} intervals to start", 6).hasSize(6);
 //
@@ -175,8 +173,8 @@ public class CollectedRegisterListDeviceCommandTest {
 //        assertThat(singlePreStoredLoadProfile.getDeviceIdentifier().findDevice().getId()).isEqualTo(dataLogger.getId());
 //
 //        assertThat(singlePreStoredLoadProfile.getIntervalBlocks()).hasSize(2);
-//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(0).getReadingTypeCode()).isEqualTo(loadProfile.getChannels().get(0).getReadingType().getMRID());
-//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(1).getReadingTypeCode()).isEqualTo(loadProfile.getChannels().get(1).getReadingType().getMRID());
+//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(0).getReadingTypeCode()).isEqualTo(loadProfile.getOfflineChannels().get(0).getReadingTypeMRID().getMRID());
+//        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(1).getReadingTypeCode()).isEqualTo(loadProfile.getOfflineChannels().get(1).getReadingTypeMRID().getMRID());
 //        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(0).getIntervals()).hasSize(4);
 //        assertThat(singlePreStoredLoadProfile.getIntervalBlocks().get(1).getIntervals()).hasSize(4);
 //
@@ -195,7 +193,7 @@ public class CollectedRegisterListDeviceCommandTest {
     }
 
     private DeviceRegisterList getDeviceRegisterList() {
-        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         DeviceRegisterList deviceRegisterList = new DeviceRegisterList(deviceIdentifier);
         when(this.collectedRegisterIdentifier.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         deviceRegisterList.addCollectedRegister(collectedRegister);

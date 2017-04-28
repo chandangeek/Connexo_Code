@@ -4,12 +4,14 @@
 
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.mdc.common.BaseUnit;
-import com.energyict.mdc.common.Unit;
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 
 import java.util.Optional;
 
@@ -42,8 +44,11 @@ public class OfflineLoadProfileChannelImplTest {
         Device device = mock(Device.class);
         when(device.getSerialNumber()).thenReturn(MASTER_SERIAL_NUMBER);
         when(device.getId()).thenReturn(DEVICE_ID);
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMRID()).thenReturn(OfflineLoadProfileChannelImplTest.class.getSimpleName());
         Channel channel = mock(Channel.class);
         ChannelSpec channelSpec = mock(ChannelSpec.class);
+        when(channelSpec.getReadingType()).thenReturn(readingType);
         when(channel.getObisCode()).thenReturn(OfflineRegisterImplTest.REGISTER_MAPPING_OBISCODE);
         when(channel.getChannelSpec()).thenReturn(channelSpec);
         when(channel.getUnit()).thenReturn(CHANNEL_UNIT);
@@ -57,7 +62,7 @@ public class OfflineLoadProfileChannelImplTest {
         assertNotNull(offlineLoadProfileChannel);
         assertEquals("Expected the correct ObisCode", OfflineRegisterImplTest.REGISTER_MAPPING_OBISCODE, offlineLoadProfileChannel.getObisCode());
         assertEquals("Expected the correct Unit", CHANNEL_UNIT, offlineLoadProfileChannel.getUnit());
-        assertEquals("Expected the correct DEVICE_ID", DEVICE_ID, offlineLoadProfileChannel.getRtuId());
+        assertEquals("Expected the correct DEVICE_ID", DEVICE_ID, offlineLoadProfileChannel.getDeviceId());
         assertEquals("Expected the correct LOAD_PROFILE_ID", LOAD_PROFILE_ID, offlineLoadProfileChannel.getLoadProfileId());
         assertEquals("Expected the correct MASTER_SERIAL_NUMBER", MASTER_SERIAL_NUMBER, offlineLoadProfileChannel.getMasterSerialNumber());
         assertTrue("Expected to store the meterData", offlineLoadProfileChannel.isStoreData());

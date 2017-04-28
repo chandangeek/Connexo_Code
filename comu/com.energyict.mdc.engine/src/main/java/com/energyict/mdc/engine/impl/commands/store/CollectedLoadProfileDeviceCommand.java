@@ -12,18 +12,25 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedLoadProfileEvent;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+import com.energyict.protocol.ChannelInfo;
 
-import java.time.Instant;
+import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Provides functionality to store {@link com.energyict.mdc.upl.meterdata.LoadProfile} data.
+ * <p>
+ *
+ * Date: 29/08/12
+ * Time: 14:52
+ */
 public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<CollectedLoadProfileEvent> {
 
-    public final static String DESCRIPTION_TITLE = "Collected load profile data";
+    public static final String DESCRIPTION_TITLE = "Collected load profile data";
 
     private final CollectedLoadProfile collectedLoadProfile;
     private final MeterDataStoreCommand meterDataStoreCommand;
@@ -35,20 +42,21 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
     }
 
     @Override
-    public void doExecute (ComServerDAO comServerDAO) {
+    public void doExecute(ComServerDAO comServerDAO) {
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.getClock(), this.getMdcReadingTypeUtilService(), comServerDAO);
         PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
         if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
             preStoredLoadProfile.updateCommand(this.meterDataStoreCommand);
         } else if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED)) {
             final Optional<OfflineLoadProfile> optionalLoadProfile = comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier());
+            java.util.Date lastReading = optionalLoadProfile.get().getLastReading() == null ? Date.from(getClock().instant()) : optionalLoadProfile.get().getLastReading();
             this.addIssue(
                     CompletionCode.Ok,
                     this.getIssueService().newWarning(
                             this,
                             MessageSeeds.NO_NEW_LOAD_PROFILE_DATA_COLLECTED,
                             optionalLoadProfile.get().getObisCode().toString(),
-                            optionalLoadProfile.get().getLastReading().map(instant -> instant).orElse(Instant.EPOCH)));
+                            optionalLoadProfile.get().getLastReading()));
         } else if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH)) {
             final Optional<OfflineLoadProfile> optionalLoadProfile = comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier());
             this.addIssue(
@@ -57,7 +65,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
                             this,
                             MessageSeeds.LOAD_PROFILE_CONFIGURATION_MISMATCH,
                             optionalLoadProfile.get().getObisCode().toString(),
-                            optionalLoadProfile.get().getInterval().toString()));
+                            optionalLoadProfile.get().interval().toString()));
         }
         else {
             this.addIssue(
@@ -89,7 +97,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
     }
 
     protected Optional<CollectedLoadProfileEvent> newEvent(List<Issue> issues) {
-        CollectedLoadProfileEvent event  =  new CollectedLoadProfileEvent(new ComServerEventServiceProvider(), collectedLoadProfile);
+        CollectedLoadProfileEvent event = new CollectedLoadProfileEvent(new ComServerEventServiceProvider(), collectedLoadProfile);
         event.addIssues(issues);
         return Optional.of(event);
     }

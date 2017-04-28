@@ -4,17 +4,17 @@
 
 package com.energyict.mdc.engine.impl.commands.offline;
 
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceBySerialNumber;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.offline.OfflineLogBook;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -59,9 +60,9 @@ public class OfflineLogBookImplTest {
         assertThat(LOGBOOK_ID).isEqualTo(offlineLogBook.getLogBookId());
         assertThat(device.getId()).isEqualTo(offlineLogBook.getDeviceId());
         assertThat(device.getSerialNumber()).isEqualTo(offlineLogBook.getMasterSerialNumber());
-        assertThat(offlineLogBook.getLastLogBook().isPresent());
-        assertThat(LAST_LOGBOOK).isEqualTo(offlineLogBook.getLastLogBook().get());
-        assertThat(LOGBOOK_TYPE_ID).isEqualTo(offlineLogBook.getLogBookTypeId());
+        assertNotNull(offlineLogBook.getLastReading());
+        assertThat(Date.from(LAST_LOGBOOK)).isEqualTo(offlineLogBook.getLastReading());
+        assertThat(LOGBOOK_TYPE_ID).isEqualTo(offlineLogBook.getOfflineLogBookSpec().getLogBookTypeId());
     }
 
     private LogBook getMockedLogBook(LogBookType logBookType, LogBookSpec logBookSpec, Device device) {
@@ -84,6 +85,7 @@ public class OfflineLogBookImplTest {
     private LogBookSpec getMockedLogBookSpec(LogBookType logBookType) {
         LogBookSpec logBookSpec = mock(LogBookSpec.class);
         when(logBookSpec.getLogBookType()).thenReturn(logBookType);
+        when(logBookSpec.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         return logBookSpec;
     }
 
@@ -100,11 +102,11 @@ public class OfflineLogBookImplTest {
         Device device = getMockedDevice();
         LogBook logBook = getMockedLogBook(logBookType, logBookSpec, device);
         DeviceIdentifierForAlreadyKnownDeviceBySerialNumber deviceIdentifierForAlreadyKnownDevice = new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(device);
-        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(BaseDevice.class))).thenReturn(deviceIdentifierForAlreadyKnownDevice);
+        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(Device.class))).thenReturn(deviceIdentifierForAlreadyKnownDevice);
 
         //Business Methods
         OfflineLogBook offlineLogBook = new OfflineLogBookImpl(logBook, this.identificationService);
 
-        assertThat(offlineLogBook.getDeviceIdentifier().getDeviceIdentifierType()).isEqualTo(DeviceIdentifierType.SerialNumber);
+        assertThat(offlineLogBook.getDeviceIdentifier().forIntrospection().getTypeName()).isEqualTo("SerialNumber");
     }
 }

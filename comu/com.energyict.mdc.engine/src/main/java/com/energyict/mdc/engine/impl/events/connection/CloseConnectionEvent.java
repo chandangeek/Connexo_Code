@@ -6,13 +6,12 @@ package com.energyict.mdc.engine.impl.events.connection;
 
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComPort;
-
 import org.json.JSONException;
 import org.json.JSONWriter;
 
 /**
  * Represents a {@link com.energyict.mdc.engine.events.ConnectionEvent}
- * for a connection with a {@link com.energyict.mdc.protocol.api.device.BaseDevice device} that was closed.
+ * for a connection with a {@link com.energyict.mdc.upl.meterdata.Device device} that was closed.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-06 (13:20)

@@ -24,27 +24,12 @@ import java.util.regex.Pattern;
  */
 public class RequestParser {
 
-    public interface ServiceProvider {
-
-        ConnectionTaskService connectionTaskService();
-
-        CommunicationTaskService communicationTaskService();
-
-        DeviceService deviceService();
-
-        EngineConfigurationService engineConfigurationService();
-
-        IdentificationService identificationService();
-
-    }
-
-    private static final Pattern COMMAND_PATTERN = Pattern.compile("(?i)register request (?:for events )?for (.*):\\s*(.*)");
-    static final String PING_MESSAGE = "ping";
     public static final String PONG_MESSAGE = "pong";
-
-    private List<RequestType> requestTypes;
+    static final String PING_MESSAGE = "ping";
+    private static final Pattern COMMAND_PATTERN = Pattern.compile("(?i)register request (?:for events )?for (.*):\\s*(.*)");
     private final RunningComServer comServer;
     private final ServiceProvider serviceProvider;
+    private List<RequestType> requestTypes;
 
     public RequestParser(RunningComServer comServer, ServiceProvider serviceProvider) {
         this.comServer = comServer;
@@ -52,21 +37,21 @@ public class RequestParser {
     }
 
     public Request parse(String message) throws RequestParseException {
-        switch(message){
-        case PING_MESSAGE:
-            return new PingRequest();
-        case PONG_MESSAGE:
-            return new PongRequest();
-        default:
-            Matcher matcher = COMMAND_PATTERN.matcher(message);
-            if (matcher.matches()) {
-                String narrowType = matcher.group(1);
-                String narrowSpecs = matcher.group(2);
-                RequestType requestType = this.parseRequestType(narrowType, matcher.start(1));
-                return requestType.parse(narrowSpecs);
-            } else {
-                throw new UnexpectedRequestFormatException(COMMAND_PATTERN.toString());
-            }
+        switch (message) {
+            case PING_MESSAGE:
+                return new PingRequest();
+            case PONG_MESSAGE:
+                return new PongRequest();
+            default:
+                Matcher matcher = COMMAND_PATTERN.matcher(message);
+                if (matcher.matches()) {
+                    String narrowType = matcher.group(1);
+                    String narrowSpecs = matcher.group(2);
+                    RequestType requestType = this.parseRequestType(narrowType, matcher.start(1));
+                    return requestType.parse(narrowSpecs);
+                } else {
+                    throw new UnexpectedRequestFormatException(COMMAND_PATTERN.toString());
+                }
         }
     }
 
@@ -90,11 +75,24 @@ public class RequestParser {
                         new InfoLoggingRequestType(),
                         new DebugLoggingRequestType(),
                         new TraceLoggingRequestType(),
-                        new DeviceRequestType(serviceProvider.identificationService()),
+                        new DeviceRequestType(serviceProvider.deviceService()),
                         new ConnectionTaskRequestType(serviceProvider.connectionTaskService()),
                         new ComTaskExecutionRequestType(serviceProvider.communicationTaskService()),
                         new ComPortRequestType(this.comServer),
                         new ComPortPoolRequestType(serviceProvider.engineConfigurationService()));
     }
 
+    public interface ServiceProvider {
+
+        ConnectionTaskService connectionTaskService();
+
+        CommunicationTaskService communicationTaskService();
+
+        DeviceService deviceService();
+
+        EngineConfigurationService engineConfigurationService();
+
+        IdentificationService identificationService();
+
+    }
 }

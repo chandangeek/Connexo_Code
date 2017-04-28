@@ -9,6 +9,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -21,26 +22,28 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
-import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
-import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
-import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
+import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.OfflineDeviceContext;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLogBook;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.security.CertificateAlias;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -54,17 +57,17 @@ import java.util.Optional;
  * Models the behavior of a component that provides access to the data
  * that is relevant to the ComServer.
  * Implementation classes will focus on the actual data source containing the data.
- * <p/>
+ * <p>
  * The implementation classes are allowed to throw com.energyict.comserver.core.interfaces.DataAccessException(s)
  * to report severe problems that relate to the actual data source.
- * <p/>
+ * <p>
  * Refer to java website for a complete discussion on the
  * <a href="http://java.sun.com/blueprints/corej2eepatterns/Patterns/DataAccessObject.html">Data Access Object design pattern</a>.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-16 (16:14)
  */
-public interface ComServerDAO extends InboundDAO, ServerProcess {
+public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerProcess {
 
     /**
      * Gets the ComServer that relates to the machine where this code is running on.
@@ -73,6 +76,43 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * the machine is <strong>NOT</strong> the name of a registered ComServer.
      */
     ComServer getThisComServer();
+
+    /**
+     * Gets the {@link SecurityProperty security properties} that have been
+     * created against the Device that is currently connected to the ComServer
+     * via the specified {@link InboundComPort}.
+     *
+     * @param deviceIdentifier The object that uniquely identifies the Device
+     * @param inboundComPort   The InboundComPort
+     * @return The List of SecurityProperty or null if the Device is not ready for inbound communication
+     */
+    List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
+
+    /**
+     * Returns the dialect properties of the first comtask of a given device or <code>null</code>.
+     */
+    com.energyict.mdc.upl.properties.TypedProperties getDeviceDialectProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
+
+    /**
+     * Gets the {@link TypedProperties} that have been
+     * created against the {@link com.energyict.mdc.device.data.tasks.ConnectionTask}
+     * that is currently used to connect the Device to the ComServer
+     * via the specified {@link InboundComPort}.
+     *
+     * @param deviceIdentifier The object that uniquely identifies the Device
+     * @param inboundComPort   The InboundComPort
+     * @return The TypedProperties or <code>null</code> if the Device is not ready for inbound communication
+     */
+    com.energyict.mdc.upl.properties.TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
+
+    /**
+     * Finds the {@link com.energyict.mdc.upl.meterdata.Device} that is uniquely identified
+     * by the specified {@link DeviceIdentifier}.
+     *
+     * @param identifier The DeviceIdentifier
+     * @return The offline version of the Device that is identified by the DeviceIdentifier
+     */
+    Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier);
 
     /**
      * Gets the ComServer that relates to the machine with the specified host name.
@@ -106,7 +146,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * <code>null</code> if the ComPort was deleted or made obsolete or
      * exactly the same Comport if no changes were found
      */
-    public ComPort refreshComPort(ComPort comPort);
+    ComPort refreshComPort(ComPort comPort);
 
     /**
      * Finds and returns all the ComJobs that are ready
@@ -127,11 +167,21 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * or when none of the ComTaskExecutions are ready to execute, i.e. their state is not
      * TaskStatus#Pending, an empty list is returned.
      *
-     * @param device The device
+     * @param device  The device
      * @param comPort The InboundComPort
      * @return The List of ComTaskExecutions that are ready to be executed
      */
     List<ComTaskExecution> findExecutableInboundComTasks(OfflineDevice device, InboundComPort comPort);
+
+    /**
+     * Gets the {@link PropertyValueType} of the protocol property of the {@link com.energyict.mdc.device.data.Device}
+     * that is uniquely identified by the specified {@link DeviceIdentifier}.
+     *
+     * @param deviceIdentifier The DeviceIdentifier
+     * @param propertyName     The name of the protocol property
+     * @return The PropertyValueType
+     */
+    PropertyValueType getDeviceProtocolPropertyValueType(DeviceIdentifier deviceIdentifier, String propertyName);
 
     /**
      * Finds the {@link ConnectionTaskProperty connection properties}
@@ -153,7 +203,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * never execute again.
      *
      * @param connectionTask The OutboundConnectionTask
-     * @param comServer The ComServer
+     * @param comServer      The ComServer
      * @return <code>true</code> iff the lock succeeds
      */
     ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer);
@@ -179,7 +229,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * never execute again.
      *
      * @param comTaskExecution The ComTaskExecution
-     * @param comPort The ComPort
+     * @param comPort          The ComPort
      * @return <code>true</code> iff the lock succeeds
      */
     boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort);
@@ -195,8 +245,9 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     /**
      * Notifies that execution of the specified OutboundConnectionTask
      * was started by the specified ComServer.
-     *  @param connectionTask The OutboundConnectionTask
-     * @param comServer The ComServer that started the execution
+     *
+     * @param connectionTask The OutboundConnectionTask
+     * @param comServer      The ComServer that started the execution
      */
     ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComServer comServer);
 
@@ -219,8 +270,8 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * Notifies that execution of the specified ComTaskExecution has been started
      * on the specified ComPort.
      *
-     * @param comTaskExecution The ComTaskExecution
-     * @param comPort The ComPort that has started the execution of the ComTaskExecution
+     * @param comTaskExecution     The ComTaskExecution
+     * @param comPort              The ComPort that has started the execution of the ComTaskExecution
      * @param executeInTransaction A flag that indicates if a transaction is needed or not
      */
     void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction);
@@ -236,7 +287,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * Notifies that the execution of the specified ComTaskExecution was postponed and needs to be rescheduled
      *
      * @param comTaskExecution the ComTaskExecution
-     * @param rescheduleDate The timestamp on which the task should be rescheduled for execution
+     * @param rescheduleDate   The timestamp on which the task should be rescheduled for execution
      */
     void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate);
 
@@ -309,22 +360,22 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * Stores the given list of Reading readings on the Meter.
      *
      * @param deviceIdentifier the identifier of the Device
-     * @param meterReading the readings to store
+     * @param meterReading     the readings to store
      */
-    void storeMeterReadings(DeviceIdentifier<Device> deviceIdentifier, MeterReading meterReading);
+    void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading);
 
     /**
      * Finds the OfflineDevice that is uniquely identified
      * by the specified {@link DeviceIdentifier}.
      *
-     * @param identifier The DeviceIdentifier
+     * @param identifier           The DeviceIdentifier
      * @param offlineDeviceContext the offlineContext identifying what needs to be offline
      * @return The offline version of the Device that is identified by the DeviceIdentifier
      */
-    Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext);
+    Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier, OfflineDeviceContext offlineDeviceContext);
 
     /**
-     * Finds the BaseRegister that is uniquely identified
+     * Finds the Register that is uniquely identified
      * by the specified RegisterIdentifier.
      *
      * @param identifier The RegisterIdentifier
@@ -338,7 +389,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
 
     /**
      * Finds the <b>offline</b> version of the {@link com.energyict.mdc.protocol.api.device.messages.DeviceMessage}
-     * that is uniquely identified by the specified {@link com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier}.
+     * that is uniquely identified by the specified {@link com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier}.
      *
      * @param identifier The MessageIdentifier
      * @return The <b>offline</b> version of the DeviceMessage that is identified by the MessageIdentifier
@@ -347,54 +398,87 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier);
 
     /**
-     * Updates the ip address of the BaseDevice device
+     * Updates the ip address of the Device device
      * that is configured in the specified ConnectionTask
      * only when the value has actually changed.
      *
-     * @param ipAddress The new ip address
-     * @param connectionTask The ConnectionTask
+     * @param ipAddress                  The new ip address
+     * @param connectionTask             The ConnectionTask
      * @param connectionTaskPropertyName The name of the ConnectionTask's property that holds the ip address
      */
     void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName);
 
     /**
-     * Updates a protocol property of the BaseDevice
+     * Updates a protocol property of the Device
      * that is uniquely identified by the specified identifier with the given value.
      *
      * @param deviceIdentifier The DeviceIdentifier
-     * @param propertyName The name of the generic communication property
-     * @param propertyValue The new property value
+     * @param propertyName     The name of the generic communication property
+     * @param propertyValue    The new property value
      */
     void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
 
     /**
-     * Updates the gateway device of the BaseDevice device
+     * Updates a dialect property of the Device
+     * that is uniquely identified by the specified identifier with the given value.
+     * <p>
+     * Note that, if multiple dialects contain the given propertyName, both properties will be updated.
+     */
+    void updateDeviceDialectProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
+
+    /**
+     * Updates a security property of the Device
+     * that is uniquely identified by the specified identifier with the given value.
+     * <p>
+     * Note that, if multiple security sets contain the given propertyName, both properties will be updated.
+     * <p>
+     * Also note that, updating a security property of type CertificateAlias will
+     * also add the given certificate in the DLMS key store, under the given alias.
+     * <p>
+     * Also note that, updating a security property of type CertificateWrapperId will create
+     * the proper CertificateWrapper and fill the property value with the ID of this certificateWrapper.
+     */
+    void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
+
+    /**
+     * Add/update the given sub-CA or root-CA certificate in the persisted DLMS trust store, for the given alias.
+     */
+    void addCACertificate(CertificateAlias certificateAlias);
+
+    /**
+     * Add the given server end-device certificate as a certificate wrapper.
+     * Returns the database ID of the created {@link com.energyict.mdc.upl.security.CertificateWrapper}
+     */
+    long addEndDeviceCertificate(CollectedCertificateWrapper collectedCertificateWrapper);
+
+    /**
+     * Updates the gateway device of the Device device
      * that is uniquely identified by the specified identifier.
      *
-     * @param deviceIdentifier The DeviceIdentifier
+     * @param deviceIdentifier        The DeviceIdentifier
      * @param gatewayDeviceIdentifier The device identifier of the new gateway device or null (to be used in case no gateway is present)
      */
     void updateGateway(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier);
 
     /**
-     * Store configuration information of a BaseDevice device
+     * Store configuration information of a Device device
      * in a UserFile alongside that device,
      * i.e. the UserFile will be stored
      * in the same parent folder.
      *
      * @param deviceIdentifier The DeviceIdentifier
-     * @param timeStampFormat The preferred DateFormat that should be used for the
-     * current date and time when that should be necessary
-     * to create a unique name for the UserFile name.
-     * @param fileExtension The extension for the UserFile
-     * @param contents The contents of the UserFile   @see UserFile#getExtension()
+     * @param timeStampFormat  The preferred DateFormat that should be used for the
+     *                         current date and time when that should be necessary
+     *                         to create a unique name for the UserFile name.
+     * @param fileExtension    The extension for the UserFile
+     * @param contents         The contents of the UserFile   @see UserFile#getExtension()
      */
     void storeConfigurationFile(DeviceIdentifier deviceIdentifier, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents);
 
     /**
      * Signals the occurrence of an event.
      *
-     * @param topic The name of the event topic where the event will be published
+     * @param topic  The name of the event topic where the event will be published
      * @param source The source that produced the event and that also holds the event data that will be published
      */
     void signalEvent(String topic, Object source);
@@ -404,10 +488,10 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * of the DeviceMessage DeviceMessage
      * which is identified by the given MessageIdentifier.
      *
-     * @param messageIdentifier the messageIdentifier
+     * @param messageIdentifier      the messageIdentifier
      * @param newDeviceMessageStatus the status to update the message to
-     * @param sentDate the date&time the message was sent to the device - if this message was not yet sent to the device, this could be null
-     * @param protocolInformation the protocolInformation to add to the DeviceMessage
+     * @param sentDate               the date&time the message was sent to the device - if this message was not yet sent to the device, this could be null
+     * @param protocolInformation    the protocolInformation to add to the DeviceMessage
      */
     void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation);
 
@@ -435,9 +519,19 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      */
     <T> T executeTransaction(Transaction<T> transaction);
 
-    DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier);
+    DeviceIdentifier getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier);
 
-    DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier);
+    DeviceIdentifier getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier);
+
+    /**
+     * Resolve a given deviceIdentifier using the deviceService
+     */
+    Optional<Device> getDeviceFor(DeviceIdentifier deviceIdentifier);
+
+    /**
+     * Return all devices matching the given deviceIdentifier
+     */
+    List<Device> getAllDevicesFor(DeviceIdentifier deviceIdentifier);
 
     void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading);
 
@@ -456,6 +550,17 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus);
 
     void updateCalendars(CollectedCalendar collectedCalendar);
+
+    /**
+     * Gets the onHold property for the inbound com task
+     * created against the Device that is currently connected to the ComServerc
+     * via the specified {@link InboundComPort}.
+     *
+     * @param deviceIdentifier The object that uniquely identifies the Device
+     * @param inboundComPort   The InboundComPort
+     * @return the onHold property vale
+     */
+    Boolean getInboundComTaskOnHold(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
 
     /**
      * Request cleanup of all outdated {@link com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger}s<br/>

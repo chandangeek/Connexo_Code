@@ -20,10 +20,19 @@ import com.energyict.mdc.engine.events.DeviceRelatedEvent;
 import com.energyict.mdc.engine.events.LoggingEvent;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-
 import org.json.JSONException;
 import org.json.JSONWriter;
 
+/**
+ * Provides an implementation for the {@link LoggingEvent} interface
+ * for events that relate to the execution of a
+ * {@link ComTaskExecution comTask} with a {@link ConnectionTask connectionTask}
+ * for a {@link com.energyict.mdc.upl.meterdata.Device device} on a specific {@link ComPort comPort}.
+ * <p/>
+ *
+ * Date: 22/11/12
+ * Time: 15:30
+ */
 public class ComCommandLoggingEvent extends AbstractComServerEventImpl implements LoggingEvent, DeviceRelatedEvent, ConnectionTaskRelatedEvent, ComPortRelatedEvent, ComPortPoolRelatedEvent, ComTaskExecutionRelatedEvent {
 
     private ComPort comPort;

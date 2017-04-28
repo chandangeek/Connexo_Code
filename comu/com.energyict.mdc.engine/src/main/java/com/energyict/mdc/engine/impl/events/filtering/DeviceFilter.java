@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Provides an implementation for the {@link EventFilterCriterion} interface
  * that will filter {@link ComServerEvent}s when they do not relate
- * to a number of {@link com.energyict.mdc.protocol.api.device.BaseDevice devices}.
+ * to a number of {@link com.energyict.mdc.upl.meterdata.Device devices}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-31 (12:18)

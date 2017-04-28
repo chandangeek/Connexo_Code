@@ -18,9 +18,9 @@ import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactor
 import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
-import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.upl.io.SocketService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -87,7 +87,7 @@ public class SingleThreadedComPortListenerTest {
     public void initializeMocks() throws IOException {
         when(this.inboundComPortExecutorServiceProvider.issueService()).thenReturn(this.issueService);
         when(this.inboundComPortExecutorServiceProvider.clock()).thenReturn(this.clock);
-        when(this.socketService.newInboundTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
+        when(this.socketService.newTCPSocket(anyInt())).thenReturn(mock(ServerSocket.class));
         when(this.socketService.newSocketComChannel(any(Socket.class))).thenReturn(new SystemOutComChannel());
         when(this.userService.findUser(EngineServiceImpl.COMSERVER_USER)).thenReturn(Optional.of(user));
         when(user.getLocale()).thenReturn(Optional.of(Locale.ENGLISH));

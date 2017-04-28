@@ -6,22 +6,23 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
-import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.upl.issue.Issue;
 
 import java.time.Clock;
 
 /**
  * Models the behavior of a command component
  * (as in <a href="http://en.wikipedia.org/wiki/Command_pattern">Command Design Pattern</a>)
- * that executes against a {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
+ * that executes against a {@link com.energyict.mdc.upl.meterdata.Device device}.
  * The command are kept separate from the devices to be able to delay the execution.
  * The execution is done by the {@link DeviceCommandExecutor} process.
  *
@@ -60,7 +61,7 @@ public interface DeviceCommand {
         void addIssue(CompletionCode completionCode, Issue issue, ComTaskExecution comTaskExecution);
 
         /**
-         * Tests if {@link com.energyict.mdc.issues.Problem}s have been added.
+         * Tests if {@link com.energyict.mdc.upl.issue.Problem}s have been added.
          *
          * @return true iff Problems have been added
          * @see #addIssue(CompletionCode, Issue, ComTaskExecution)
@@ -88,6 +89,8 @@ public interface DeviceCommand {
         NlsService nlsService();
 
         EventPublisher eventPublisher();
+
+        DeviceMessageService deviceMessageService();
 
     }
 

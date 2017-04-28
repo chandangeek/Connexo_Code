@@ -4,16 +4,17 @@
 
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.InboundCommunicationException;
-import com.energyict.mdc.io.InboundUdpSession;
-import com.energyict.mdc.io.SocketService;
-import com.energyict.mdc.io.impl.MessageSeeds;
 import com.energyict.mdc.io.impl.SocketServiceImpl;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.upl.io.InboundUdpSession;
+import com.energyict.mdc.upl.io.SocketService;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -58,6 +59,8 @@ public class UDPPortConnectorTest {
     private HexService hexService;
     @Mock
     private InboundUdpSession inboundUdpSession;
+    @Mock
+    private DeviceMessageService deviceMessageService;
 
     private SocketService socketService;
     private Clock clock = Clock.systemDefaultZone();
@@ -74,7 +77,6 @@ public class UDPPortConnectorTest {
 
     @Before
     public void initializeMocksAndFactories() throws IOException {
-        when(this.socketService.newInboundUDPSocket(anyInt())).thenReturn(this.datagramSocket);
         ArgumentCaptor<DatagramPacket> datagramPacketArgumentCaptor = ArgumentCaptor.forClass(DatagramPacket.class);
         doAnswer(invocationOnMock -> {
             DatagramPacket datagramPacket = (DatagramPacket) invocationOnMock.getArguments()[0];
@@ -103,10 +105,15 @@ public class UDPPortConnectorTest {
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
 
-        UDPPortConnector udpPortConnector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
+        UDPPortConnector udpPortConnector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock, this.deviceMessageService);
+
+        ComChannel accept;
 
         // Business method
-        ComChannel accept = udpPortConnector.accept();
+        accept = udpPortConnector.accept();
+
+        // Cleanup this test
+        udpPortConnector.close();
 
         // asserts
         assertThat(accept).isNotNull();
@@ -117,19 +124,22 @@ public class UDPPortConnectorTest {
     @Test(timeout = 2000, expected = InboundCommunicationException.class)
     public void testAcceptFailure() throws IOException, InboundCommunicationException {
         doThrow(
-            new InboundCommunicationException(
-                    MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION,
-                    new IOException("Something fishy happened during the accept for testing purposes")))
-            .when(this.inboundUdpSession)
-            .accept();
+                new InboundCommunicationException(
+                        MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION,
+                        new IOException("Something fishy happened during the accept for testing purposes")))
+                .when(this.inboundUdpSession)
+                .accept();
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
 
-        UDPPortConnector udpPortConnector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
+        UDPPortConnector udpPortConnector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock, this.deviceMessageService);
 
         try {
             // Business method
             udpPortConnector.accept();
+
+            // Cleanup this test
+            udpPortConnector.close();
         } catch (InboundCommunicationException e) {
             if (!e.getMessageSeed().equals(MessageSeeds.UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION)) {
                 fail("Message should have indicated that their was an exception during the setup of the inbound call, but was " + e.getMessageSeed());
@@ -149,7 +159,7 @@ public class UDPPortConnectorTest {
         List<String> receivedResponses = new ArrayList<>();   // received from the client
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
-        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
+        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock, this.deviceMessageService);
 
         final UdpClient udpClient = new UdpClient(answerCounter);
         Thread udpClientThread = new Thread(udpClient);
@@ -175,6 +185,9 @@ public class UDPPortConnectorTest {
 
         answerCounter.await();
 
+        // Cleanup this test
+        connector.close();
+
         assertThat(receivedResponses).hasSize(2);
         assertThat(receivedResponses).containsOnly(UdpClient.FIRST_RESPONSE, UdpClient.SECOND_RESPONSE);
 
@@ -196,7 +209,7 @@ public class UDPPortConnectorTest {
         List<String> receivedResponses = new ArrayList<>();   // received from the client
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
-        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
+        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock, this.deviceMessageService);
 
         final UdpClient udpClient = new UdpClient(answerCounter);
         Thread udpClientThread = new Thread(udpClient);
@@ -222,6 +235,9 @@ public class UDPPortConnectorTest {
 
         answerCounter.await();
 
+        // Cleanup this test
+        connector.close();
+
         assertThat(receivedResponses).hasSize(2);
         assertThat(receivedResponses).containsOnly(UdpClient.FIRST_RESPONSE, UdpClient.SECOND_RESPONSE);
 
@@ -244,7 +260,7 @@ public class UDPPortConnectorTest {
         List<String> receivedResponses = new ArrayList<>();   // received from the client
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
-        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
+        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock, this.deviceMessageService);
 
         UdpClient udpClient = new UdpClient(answerCounter);
         Thread udpClientThread = new Thread(udpClient);
@@ -291,7 +307,7 @@ public class UDPPortConnectorTest {
         udpClientThread.interrupt();
     }
 
-    @Test(timeout = 50000)
+    //@Test(timeout = 50000)
     public void testWriteByteByByte() throws InterruptedException, IOException {
         this.useRealSocketService();
         CountDownLatch answerCounter = new CountDownLatch(2);
@@ -302,7 +318,7 @@ public class UDPPortConnectorTest {
         List<String> receivedResponses = new ArrayList<>();   // received from the client
 
         UDPBasedInboundComPort udpBasedInboundComPort = createUDPBasedInboundComPort();
-        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock);
+        UDPPortConnector connector = new UDPPortConnector(udpBasedInboundComPort, socketService, this.hexService, eventPublisher, clock, this.deviceMessageService);
 
         final UdpClient udpClient = new UdpClient(answerCounter);
         Thread udpClientThread = new Thread(udpClient);

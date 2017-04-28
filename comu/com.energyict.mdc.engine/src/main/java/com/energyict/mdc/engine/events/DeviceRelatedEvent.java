@@ -4,12 +4,11 @@
 
 package com.energyict.mdc.engine.events;
 
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.device.data.Device;
 
-import aQute.bnd.annotation.ProviderType;
-
 /**
- * Marks a {@link ComServerEvent} as relating to a {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
+ * Marks a {@link ComServerEvent} as relating to a {@link com.energyict.mdc.upl.meterdata.Device device}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-02 (08:50)
@@ -18,10 +17,10 @@ import aQute.bnd.annotation.ProviderType;
 public interface DeviceRelatedEvent extends ComServerEvent {
 
     /**
-     * Gets the related {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
+     * Gets the related {@link com.energyict.mdc.upl.meterdata.Device device}.
      *
      * @return The device
      */
-    public Device getDevice ();
+    Device getDevice();
 
 }
