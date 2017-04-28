@@ -49,6 +49,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
+import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -79,6 +80,9 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.SystemComTask;
+import com.energyict.obis.ObisCode;
+import org.junit.Before;
+import org.mockito.Mock;
 
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
@@ -97,9 +101,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import org.junit.Before;
-import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -207,6 +208,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     DeviceAlarmService deviceAlarmService;
     @Mock
     UserService userService;
+    @Mock
+    ObisCodeDescriptor obisCodeDescriptor;
 
     @Mock
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -229,6 +232,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
 
     @Before
     public void setup() {
+        when(obisCodeDescriptor.describe(any(ObisCode.class))).thenReturn("obisCodeDescription");
         readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
         channelInfoFactory = new ChannelInfoFactory(clock, topologyService, readingTypeInfoFactory);
         this.setupTranslations();
@@ -247,6 +251,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
         doReturn(messageFormat).when(thesaurus).getFormat(any(MessageSeed.class));
         doReturn(messageFormat).when(thesaurus).getFormat(any(TranslationKey.class));
+        doReturn(messageFormat).when(thesaurus).getSimpleFormat(any(MessageSeed.class));
     }
 
     protected boolean disableDeviceConstraintsBasedOnDeviceState() {
@@ -313,6 +318,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setDeviceAlarmService(deviceAlarmService);
         application.setUserService(userService);
+        application.setObisCodeDescriptor(obisCodeDescriptor);
         return application;
     }
 
