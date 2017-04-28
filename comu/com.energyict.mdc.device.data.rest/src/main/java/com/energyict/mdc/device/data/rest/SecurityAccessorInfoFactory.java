@@ -56,7 +56,7 @@ public class SecurityAccessorInfoFactory {
         info.status = thesaurus.getFormat(keyAccessor.getStatus()).format();
         info.canGeneratePassiveKey = KeyAccessorStatus.COMPLETE.equals(keyAccessor.getStatus());
         info.hasTempValue = keyAccessor.getTempValue().isPresent();
-        keyAccessor.getActualValue().getExpirationTime().ifPresent(expiration -> info.expirationTime = expiration);
+        keyAccessor.getActualValue().ifPresent(ka->ka.getExpirationTime().ifPresent(expiration -> info.expirationTime = expiration));
 
         return info;
     }
@@ -100,7 +100,7 @@ public class SecurityAccessorInfoFactory {
         info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
 
         if (keyAccessor instanceof CertificateAccessor) {
-            ((CertificateAccessor)keyAccessor).getActualValue().getLastReadDate().ifPresent(date -> info.lastReadDate = date);
+            ((CertificateAccessor)keyAccessor).getActualValue().ifPresent(cw->cw.getLastReadDate().ifPresent(date -> info.lastReadDate = date));
         }
 
         return info;
@@ -114,8 +114,7 @@ public class SecurityAccessorInfoFactory {
 
     private TypedProperties getPropertiesActualValue(KeyAccessor<?> keyAccessor) {
         TypedProperties actualTypedProperties = TypedProperties.empty();
-        keyAccessor.getActualValue()
-                .getProperties().entrySet().forEach(e1 -> actualTypedProperties.setProperty(e1.getKey(), e1.getValue()));
+        keyAccessor.getActualValue().ifPresent(ka->ka.getProperties().entrySet().forEach(e1 -> actualTypedProperties.setProperty(e1.getKey(), e1.getValue())));
         return actualTypedProperties;
     }
 

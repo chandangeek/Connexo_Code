@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
@@ -347,6 +346,75 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     }
 
     @Test
+    public void setActualAndTempOnExistingCertificateAccessorWithTempWithoutActual() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 22L;
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("alias", "comserver"));
+        securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("alias", "newcomserver"));
+
+        CertificateWrapper tempCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "tempAlias");
+        clientCertificateAccessor = mock(KeyAccessor.class);
+        when(clientCertificateAccessor.getTempValue()).thenReturn(Optional.of(tempCertificateWrapper));
+        when(clientCertificateAccessor.getActualValue()).thenReturn(Optional.empty());
+        when(clientCertificateAccessor.getKeyAccessorType()).thenReturn(certificateKeyAccessorType);
+        when(clientCertificateAccessor.getPropertySpecs()).thenReturn(certificatePropertySpecs);
+        when(device.getKeyAccessor(certificateKeyAccessorType)).thenReturn(Optional.of(clientCertificateAccessor));
+        when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, certificateKeyAccessorType, 22L)).thenReturn(Optional.of(clientCertificateAccessor));
+
+        Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
+
+        verify(clientCertificateAccessor, times(1)).setActualValue(actualClientCertificateWrapper);
+        verify(actualClientCertificateWrapper, never()).setProperties(any(Map.class));
+
+        verify(clientCertificateAccessor, times(1)).setTempValue(tempClientCertificateWrapper);
+        verify(tempClientCertificateWrapper, never()).setProperties(any(Map.class));
+        verify(tempClientCertificateWrapper, never()).delete();
+    }
+
+    @Test
+    public void setActualAndNoTempOnExistingCertificateAccessorWithTempWithoutActual() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 22L;
+        securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("alias", "comserver"));
+        securityAccessorInfo.tempProperties = Collections.emptyList();
+
+        CertificateWrapper tempCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "tempAlias");
+        clientCertificateAccessor = mock(KeyAccessor.class);
+        when(clientCertificateAccessor.getTempValue()).thenReturn(Optional.of(tempCertificateWrapper));
+        when(clientCertificateAccessor.getActualValue()).thenReturn(Optional.empty());
+        when(clientCertificateAccessor.getKeyAccessorType()).thenReturn(certificateKeyAccessorType);
+        when(clientCertificateAccessor.getPropertySpecs()).thenReturn(certificatePropertySpecs);
+        when(device.getKeyAccessor(certificateKeyAccessorType)).thenReturn(Optional.of(clientCertificateAccessor));
+        when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, certificateKeyAccessorType, 22L)).thenReturn(Optional.of(clientCertificateAccessor));
+
+        Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
+
+        verify(clientCertificateAccessor, times(1)).setActualValue(actualClientCertificateWrapper);
+        verify(actualClientCertificateWrapper, never()).setProperties(any(Map.class));
+
+        verify(clientCertificateAccessor, never()).setTempValue(tempClientCertificateWrapper);
+        verify(tempClientCertificateWrapper, never()).setProperties(any(Map.class));
+        verify(clientCertificateAccessor, times(1)).clearTempValue();
+    }
+
+    @Test
+    public void setNoActualAndNoTempOnExistingCertificateAccessorWithActual() throws Exception {
+        SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
+        securityAccessorInfo.version = 22L;
+        securityAccessorInfo.currentProperties = Collections.emptyList();
+        securityAccessorInfo.tempProperties = Collections.emptyList();
+
+        Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
+
+        verify(clientCertificateAccessor, never()).setActualValue(actualClientCertificateWrapper);
+        verify(actualClientCertificateWrapper, never()).setProperties(any(Map.class));
+
+        verify(clientCertificateAccessor, never()).setTempValue(tempClientCertificateWrapper);
+        verify(tempClientCertificateWrapper, never()).setProperties(any(Map.class));
+        verify(clientCertificateAccessor, times(1)).delete();
+    }
+
+    @Test
     public void setActualAndNoTempOnExistingKeyAccessorWithoutTemp() throws Exception {
         SecurityAccessorInfo securityAccessorInfo = new SecurityAccessorInfo();
         securityAccessorInfo.version = 11L;
@@ -595,7 +663,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     private KeyAccessor mockClientCertificateAccessor(List<PropertySpec> propertySpecs, SecurityValueWrapper clientCertificateWrapper) {
         KeyAccessor keyAccessor1 = mock(KeyAccessor.class);
         when(keyAccessor1.getTempValue()).thenReturn(Optional.empty());
-        when(keyAccessor1.getActualValue()).thenReturn(clientCertificateWrapper);
+        when(keyAccessor1.getActualValue()).thenReturn(Optional.of(clientCertificateWrapper));
         when(keyAccessor1.getKeyAccessorType()).thenReturn(certificateKeyAccessorType);
         when(keyAccessor1.getPropertySpecs()).thenReturn(propertySpecs);
         return keyAccessor1;
@@ -638,7 +706,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         KeyAccessor<SecurityValueWrapper> keyAccessor1 = mock(KeyAccessor.class);
         when(keyAccessor1.getPropertySpecs()).thenReturn(symmetricKeyPropertySpecs);
         when(keyAccessor1.getTempValue()).thenReturn(Optional.ofNullable(temp));
-        when(keyAccessor1.getActualValue()).thenReturn(actual);
+        when(keyAccessor1.getActualValue()).thenReturn(Optional.ofNullable(actual));
         when(keyAccessor1.getKeyAccessorType()).thenReturn(symmetricKeyAccessorType);
         return keyAccessor1;
     }

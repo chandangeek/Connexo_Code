@@ -54,8 +54,8 @@ public class KeyAccessorPlaceHolder implements KeyAccessor {
     }
 
     @Override
-    public SecurityValueWrapper getActualValue() {
-        return new SecurityValueWrapper() {
+    public Optional getActualValue() {
+        return Optional.of(new SecurityValueWrapper() {
             @Override
             public Optional<Instant> getExpirationTime() {
                 return Optional.empty();
@@ -75,7 +75,7 @@ public class KeyAccessorPlaceHolder implements KeyAccessor {
             public List<PropertySpec> getPropertySpecs() {
                 return Collections.emptyList();
             }
-        };
+        });
     }
 
     @Override
@@ -105,6 +105,11 @@ public class KeyAccessorPlaceHolder implements KeyAccessor {
 
     @Override
     public void clearTempValue() {
+
+    }
+
+    @Override
+    public void clearActualValue() {
 
     }
 
