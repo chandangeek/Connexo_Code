@@ -49,8 +49,8 @@ Ext.define('Dxp.view.datasources.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.connectionState', 'DES', 'Connection state'),
-                dataIndex: 'connectionState',
+                header: Uni.I18n.translate('general.purpose', 'DES', 'Purpose'),
+                dataIndex: 'purpose',
                 flex: 1
             }
         ]

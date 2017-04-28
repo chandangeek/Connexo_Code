@@ -279,7 +279,6 @@ Ext.define('Dxp.view.tasks.Add', {
                             }
                         ]
                     },
-
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.usagePointGroup', 'DES', 'Usage point group'),
@@ -311,6 +310,47 @@ Ext.define('Dxp.view.tasks.Add', {
                                 style: {
                                     'color': '#FF0000',
                                     'margin': '6px 10px 6px 0px'
+                                }
+                            }
+                        ]
+                    },
+
+                    {
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('estimationtasks.general.purpose', 'DES', 'Purpose'),
+                        itemId: 'purpose-group-container',
+                        hidden: true,
+                        layout: {
+                            type: 'hbox',
+                        },
+                        items: [
+                            {
+                                xtype: 'combobox',
+                                width: 235,
+                                itemId: 'purpose-combo',
+                                editable: false,
+                                queryMode: 'local',
+                                displayField: 'name',
+                                valueField: 'id',
+                                name: 'purpose',
+                                store: 'Dxp.store.MetrologyPurposes',
+                                emptyText: Uni.I18n.translate('estimationtasks.addValidationTask.purposePrompt', 'DES', 'Select a purpose...'),
+                                disabled: false,
+                                listeners: {
+                                    change: function () {
+                                        me.down('#reset-purpose-btn').enable();
+                                    }
+                                }
+                            },
+                            {
+                                xtype: 'uni-default-button',
+                                itemId: 'reset-purpose-btn',
+                                disabled: true,
+                                tooltip: Uni.I18n.translate('estimationtasks.addValidationTask.clear', 'DES', 'Clear'),
+                                hidden: false,
+                                handler:  function (btn) {
+                                    me.down('#purpose-combo').clearValue();
+                                    btn.disable();
                                 }
                             }
                         ]

@@ -304,6 +304,7 @@ Ext.define('Dxp.controller.Tasks', {
                     selectorPropertyForm = detailsForm.down('#data-selector-properties-preview'),
                     deviceGroup = detailsForm.down('#data-selector-deviceGroup-preview'),
                     usagePointGroup = detailsForm.down('#data-selector-usage-point-group-preview'),
+                    purpose = detailsForm.down('#data-selector-purpose-preview'),
                     exportPeriod = detailsForm.down('#data-selector-exportPeriod-preview'),
                     readingTypes = detailsForm.down('#data-selector-readingTypes-preview'),
                     eventTypes = detailsForm.down('#data-selector-eventTypes-preview'),
@@ -348,6 +349,7 @@ Ext.define('Dxp.controller.Tasks', {
                             selectorPropertyForm.setVisible(false);
                             deviceGroup.setVisible(true);
                             usagePointGroup.setVisible(false);
+                            purpose.setVisible(false);
                             exportPeriod.setVisible(true);
                             readingTypes.setVisible(true);
                             eventTypes.setVisible(false);
@@ -365,6 +367,7 @@ Ext.define('Dxp.controller.Tasks', {
                             selectorPropertyForm.setVisible(false);
                             deviceGroup.setVisible(false);
                             usagePointGroup.setVisible(true);
+                            purpose.setVisible(true);
                             exportPeriod.setVisible(true);
                             readingTypes.setVisible(true);
                             eventTypes.setVisible(false);
@@ -378,6 +381,7 @@ Ext.define('Dxp.controller.Tasks', {
                             selectorPropertyForm.setVisible(false);
                             deviceGroup.setVisible(false);
                             usagePointGroup.setVisible(false);
+                            purpose.setVisible(false);
                             exportPeriod.setVisible(true);
                             continuousDataPreview.setVisible(false);
                             readingTypes.setVisible(false);
@@ -486,6 +490,7 @@ Ext.define('Dxp.controller.Tasks', {
                         previewForm.down('#data-selector-properties-preview').hide();
                         previewForm.down('#data-selector-deviceGroup-preview').show();
                         previewForm.down('#data-selector-usage-point-group-preview').hide();
+                        previewForm.down('#data-selector-purpose-preview').hide();
                         previewForm.down('#data-selector-readingTypes-preview').show();
                         previewForm.down('#data-selector-eventTypes-preview').hide();
                         previewForm.down('#data-selector-exportPeriod-preview').show();
@@ -507,6 +512,7 @@ Ext.define('Dxp.controller.Tasks', {
                         previewForm.down('#data-selector-properties-preview').hide();
                         previewForm.down('#data-selector-deviceGroup-preview').hide();
                         previewForm.down('#data-selector-usage-point-group-preview').show();
+                        previewForm.down('#data-selector-purpose-preview').show();
                         previewForm.down('#data-selector-readingTypes-preview').show();
                         previewForm.down('#data-selector-eventTypes-preview').hide();
                         previewForm.down('#data-selector-exportPeriod-preview').show();
@@ -520,6 +526,7 @@ Ext.define('Dxp.controller.Tasks', {
                         previewForm.down('#data-selector-properties-preview').hide();
                         previewForm.down('#data-selector-deviceGroup-preview').show();
                         previewForm.down('#data-selector-usage-point-group-preview').hide();
+                        previewForm.down('#data-selector-purpose-preview').hide();
                         previewForm.down('#data-selector-readingTypes-preview').hide();
                         previewForm.down('#data-selector-eventTypes-preview').show();
                         previewForm.down('#data-selector-exportPeriod-preview').show();
@@ -796,6 +803,8 @@ Ext.define('Dxp.controller.Tasks', {
             dataSelectorCombo = view.down('#data-selector-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
             usagePointGroupCombo = view.down('#usage-point-group-combo'),
+            purposeCombo = view.down('#purpose-combo'),
+            purposeContainer = view.down('#purpose-group-container'),
             exportPeriodCombo = view.down('#export-period-combo'),
             updateWindowCombo = view.down('#update-window'),
             timeframeCombo = view.down('#timeFrame'),
@@ -846,11 +855,14 @@ Ext.define('Dxp.controller.Tasks', {
                 usagePointGroupCombo.allowBlank = true;
                 Ext.suspendLayouts();
                 usagePointGroupCombo.hide();
+                purposeContainer.hide();
                 view.down('#no-usage-point').show();
                 Ext.resumeLayouts(true);
+            } else if(typeof(MdmApp) != 'undefined'){
+                purposeCombo.store.load();
+                purposeCombo.allowBlank = true;
             }
         });
-
 
         dataSelectorCombo.store.load(function () {
             recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.findRecord('name', 'months'));
@@ -894,6 +906,7 @@ Ext.define('Dxp.controller.Tasks', {
             fileFormatterCombo = view.down('#file-formatter-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
             usagePointGroupCombo = view.down('#usage-point-group-combo'),
+            purposeCombo = view.down('#purpose-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
 
             dataSelectorCombo = view.down('#data-selector-combo'),
@@ -916,6 +929,7 @@ Ext.define('Dxp.controller.Tasks', {
             view.down('#dxp-data-selector-container').setDisabled(true);
             view.down('#device-group-container').setDisabled(true);
             view.down('#usage-point-group-container').setDisabled(true);
+            view.down('#purpose-group-container').setDisabled(true);
             view.down('#readingTypesFieldContainer').setDisabled(true);
             view.down('#eventTypesFieldContainer').setDisabled(true);
             view.down('#readingTypesGridPanel').setDisabled(true);
@@ -1098,6 +1112,14 @@ Ext.define('Dxp.controller.Tasks', {
                                             Ext.resumeLayouts(true);
                                         }
                                     });
+
+                                    purposeCombo.store.load({
+                                        callback: function () {
+                                            if(record.getStandardDataSelector().data.purpose){
+                                                purposeCombo.setValue(purposeCombo.store.getById(record.getStandardDataSelector().data.purpose.id));
+                                            }
+                                        }
+                                    });
                                     missingData.setValue({exportComplete: record.getStandardDataSelector().get('exportComplete')});
 
                                     continuousDataRadioGroup.setValue({exportContinuousData: record.getStandardDataSelector().get('exportContinuousData')});
@@ -1174,6 +1196,7 @@ Ext.define('Dxp.controller.Tasks', {
             selectorPropertyForm = previewForm.down('#data-selector-properties-preview'),
             deviceGroup = previewForm.down('#data-selector-deviceGroup-preview'),
             usagePointGroup = previewForm.down('#data-selector-usage-point-group-preview'),
+            purpose = previewForm.down('#data-selector-purpose-preview'),
             exportPeriod = previewForm.down('#data-selector-exportPeriod-preview'),
             continuousData = previewForm.down('#continuousData-preview'),
             readingTypes = previewForm.down('#data-selector-readingTypes-preview'),
@@ -1231,6 +1254,7 @@ Ext.define('Dxp.controller.Tasks', {
                     selectorPropertyForm.hide();
                     deviceGroup.show();
                     usagePointGroup.hide();
+                    purpose.hide();
                     exportPeriod.show();
                     continuousData.show();
                     readingTypes.show();
@@ -1248,6 +1272,7 @@ Ext.define('Dxp.controller.Tasks', {
                     selectorPropertyForm.hide();
                     deviceGroup.hide();
                     usagePointGroup.show();
+                    purpose.show();
                     exportPeriod.show();
                     continuousData.show();
                     readingTypes.show();
@@ -1261,6 +1286,7 @@ Ext.define('Dxp.controller.Tasks', {
                     selectorPropertyForm.hide();
                     deviceGroup.show();
                     usagePointGroup.hide();
+                    purpose.hide();
                     exportPeriod.show();
                     continuousData.hide();
                     readingTypes.hide();
@@ -1606,6 +1632,7 @@ Ext.define('Dxp.controller.Tasks', {
         Ext.suspendLayouts();
         page.down('#device-group-container').setVisible(true);
         page.down('#usage-point-group-container').setVisible(false);
+        page.down('#purpose-group-container').setVisible(false);
         page.down('#readingTypesFieldContainer').setVisible(true);
         page.down('#eventTypesFieldContainer').setVisible(false);
         page.down('#export-periods-container').setVisible(true);
@@ -1628,6 +1655,7 @@ Ext.define('Dxp.controller.Tasks', {
         Ext.suspendLayouts();
         page.down('#device-group-container').setVisible(false);
         page.down('#usage-point-group-container').setVisible(true);
+        page.down('#purpose-group-container').setVisible(true);
         page.down('#readingTypesFieldContainer').setVisible(true);
         page.down('#eventTypesFieldContainer').setVisible(false);
         page.down('#export-periods-container').setVisible(true);
@@ -1650,6 +1678,7 @@ Ext.define('Dxp.controller.Tasks', {
         Ext.suspendLayouts();
         page.down('#device-group-container').setVisible(true);
         page.down('#usage-point-group-container').setVisible(false);
+        page.down('#purpose-group-container').setVisible(false);
         page.down('#readingTypesFieldContainer').setVisible(false);
         page.down('#eventTypesFieldContainer').setVisible(true);
         page.down('#export-periods-container').setVisible(true);
@@ -2110,6 +2139,10 @@ Ext.define('Dxp.controller.Tasks', {
                             id: form.down('#usage-point-group-combo').getValue(),
                             name: form.down('#usage-point-group-combo').getRawValue()
                         },
+                        purpose: {
+                            id: form.down('#purpose-combo').getValue(),
+                            name: form.down('#purpose-combo').getRawValue()
+                        },
                         exportPeriod: {
                             id: form.down('#export-period-combo').getValue(),
                             name: form.down('#export-period-combo').getRawValue()
@@ -2362,6 +2395,7 @@ Ext.define('Dxp.controller.Tasks', {
         view.down('#data-selector-combo').setValue(formModel.get('readingTypeDataSelector.value.dataSelector'));
         view.down('#device-group-combo').setValue(formModel.get('readingTypeDataSelector.value.endDeviceGroup'));
         view.down('#usage-point-group-combo').setValue(formModel.get('readingTypeDataSelector.value.usagePointGroup'));
+        view.down('#purpose-combo').setValue(formModel.get('purpose'));
         view.down('#export-period-combo').setValue(formModel.get('readingTypeDataSelector.value.exportPeriod'));
 
         view.down('#recurrence-trigger').setValue({recurrence: formModel.get('recurrence')});
