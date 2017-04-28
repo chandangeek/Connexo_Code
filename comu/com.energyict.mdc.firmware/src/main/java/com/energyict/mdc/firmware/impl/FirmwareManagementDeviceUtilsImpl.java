@@ -17,7 +17,6 @@ import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -97,7 +96,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
         this.firmwareComTaskExecution = this.taskService
                 .findFirmwareComTask()
                 .map(ct -> this.device.getComTaskExecutions().stream().filter(cte -> cte.executesComTask(ct)).findFirst())
-                .orElse(Optional.<ComTaskExecution>empty());
+                .orElse(Optional.empty());
     }
 
     private void compareAndSwapUploadMessage(Map<FirmwareType, DeviceMessage> uploadMessages, DeviceMessage candidate) {
@@ -145,11 +144,9 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     public Optional<Instant> getActivationDateFromMessage(DeviceMessage message) {
         Optional<DeviceMessageAttribute> activationDateMessageAttr = message.getAttributes().stream()
                 .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
-                .filter(attr -> DeviceMessageConstants.firmwareUpdateActivationDateAttributeName.equals(attr.getName()))
+                .filter(deviceMessageAttribute -> deviceMessageAttribute.getSpecification().getValueFactory().getValueType().equals(Date.class))
                 .findFirst();
-        return activationDateMessageAttr.isPresent() ?
-                Optional.of(((Date) activationDateMessageAttr.get().getValue()).toInstant()) :
-                Optional.<Instant>empty();
+        return activationDateMessageAttr.map(deviceMessageAttribute -> ((Date) deviceMessageAttribute.getValue()).toInstant());
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.ComWindow;
@@ -22,9 +23,9 @@ import com.energyict.mdc.firmware.FirmwareCampaignStatus;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
@@ -183,7 +184,18 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     @Override
     public FirmwareVersion getFirmwareVersion() {
-        return (FirmwareVersion) getProperties().get(DeviceMessageConstants.firmwareUpdateFileAttributeName);
+        Optional<DeviceMessageSpec> firmwareMessageSpec = getFirmwareMessageSpec();
+        if (firmwareMessageSpec.isPresent()) {
+            Optional<PropertySpec> firmwareVersionPropertySpec = firmwareMessageSpec.get()
+                    .getPropertySpecs()
+                    .stream()
+                    .filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(BaseFirmwareVersion.class))
+                    .findAny();
+            if (firmwareVersionPropertySpec.isPresent()) {
+                return (FirmwareVersion) getProperties().get(firmwareVersionPropertySpec.get().getName());
+            }
+        }
+        return null;
     }
 
     @Override
