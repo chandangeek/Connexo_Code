@@ -29,7 +29,6 @@ import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -40,8 +39,13 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.google.common.collect.Range;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -57,13 +61,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -150,7 +147,7 @@ public class SecurityPropertyServiceImplTest {
         when(this.deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(cte1, cte2));
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(this.deviceProtocolPluggableClass));
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
-        CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> customPropertySet = TestProtocolWithOnlySecurityProperties.getCustomPropertySet(
+        CustomPropertySet<com.energyict.mdc.upl.meterdata.Device, ? extends PersistentDomainExtension<com.energyict.mdc.upl.meterdata.Device>> customPropertySet = TestProtocolWithOnlySecurityProperties.getCustomPropertySet(
                 new PropertySpecServiceImpl(
                         new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService, this.ormService, new DefaultBeanService()),
                         this.dataVaultService,

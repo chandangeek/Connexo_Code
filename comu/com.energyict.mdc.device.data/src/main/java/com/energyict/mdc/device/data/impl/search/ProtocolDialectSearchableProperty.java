@@ -236,7 +236,7 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
 
         @Override
         public String getName() {
-            return getProtocolDialect().getDisplayName();
+            return getProtocolDialect().getDeviceProtocolDialectDisplayName();
         }
 
         public DeviceProtocolPluggableClass getPluggableClass() {

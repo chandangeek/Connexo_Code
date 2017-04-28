@@ -13,7 +13,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendarInformation;
+import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
 
 import com.google.common.collect.Range;
 
@@ -140,16 +140,14 @@ public class ActiveEffectiveCalendarImplTest extends PersistenceIntegrationTest 
     private Calendar createCalendar() {
         CalendarService calendarService = inMemoryPersistence.
                 getCalendarService();
-        Category category = calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.getDefaultDisplayName()).get();
+        Category category = calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.name()).get();
         EventSet eventSet = calendarService.newEventSet("eventset")
                 .addEvent("On peak").withCode(3)
                 .addEvent("Off peak").withCode(5)
                 .addEvent("Demand response").withCode(97)
                 .add();
         return calendarService
-                .newCalendar("Calendar", Year.of(2010), eventSet)
-                .category(category)
-                .endYear(Year.of(2020))
+                .newCalendar("Calendar", category, Year.of(2010), eventSet)
                 .description("Description remains to be completed :-)")
                 .mRID("Calendar")
                 .newDayType("Summer weekday")

@@ -33,6 +33,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -60,7 +61,6 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCal
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -69,12 +69,19 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.LicensedProtocol;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.LicensedProtocol;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
@@ -84,11 +91,17 @@ import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageCategoryAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -199,7 +212,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new ValidationModule(),
                 new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
-                new MdcIOModule(),
                 new SchedulingModule(),
                 new DeviceDataModule(),
                 new CalendarModule());
@@ -310,6 +322,9 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
         }
 
     }
@@ -324,6 +339,40 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
         public ProtocolPluggableService getMockedProtocolPluggableService() {
             return protocolPluggableService;
+        }
+        @Override
+        public PropertySpec adapt(com.energyict.mdc.upl.properties.PropertySpec uplPropertySpec) {
+            return new UPLToConnexoPropertySpecAdapter(uplPropertySpec);
+        }
+
+        @Override
+        public com.energyict.mdc.upl.properties.PropertySpec adapt(PropertySpec propertySpec) {
+            return new ConnexoToUPLPropertSpecAdapter(propertySpec);
+        }
+
+        @Override
+        public AuthenticationDeviceAccessLevel adapt(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel uplLevel) {
+            return new UPLAuthenticationLevelAdapter(uplLevel);
+        }
+
+        @Override
+        public EncryptionDeviceAccessLevel adapt(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel uplLevel) {
+            return new UPLEncryptionLevelAdapter(uplLevel);
+        }
+
+        @Override
+        public com.energyict.mdc.upl.messages.DeviceMessageCategory adapt(DeviceMessageCategory connexoCategory) {
+            return new ConnexoDeviceMessageCategoryAdapter(connexoCategory);
+        }
+
+        @Override
+        public com.energyict.mdc.upl.messages.DeviceMessageSpec adapt(DeviceMessageSpec connexoSpec) {
+            return new ConnexoDeviceMessageSpecAdapter(connexoSpec);
+        }
+
+        @Override
+        public OfflineDevice adapt(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice) {
+            return new UPLOfflineDeviceAdapter(offlineDevice);
         }
 
         @Override

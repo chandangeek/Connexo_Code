@@ -12,7 +12,7 @@ import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
-import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

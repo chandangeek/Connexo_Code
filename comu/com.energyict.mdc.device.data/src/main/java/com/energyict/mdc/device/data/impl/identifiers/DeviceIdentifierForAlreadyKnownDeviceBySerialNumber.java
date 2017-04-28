@@ -4,19 +4,19 @@
 
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This is a DeviceIdentifier that uniquely identifies a Device which you have given in the Constructor.
- * The {@link #getIdentifier()} method will return the <b>SerialNumber</b> of the device!
  */
 @XmlRootElement
-public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements DeviceIdentifier<Device> {
+public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements DeviceIdentifier {
 
     private Device device;
 
@@ -27,41 +27,18 @@ public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements Devi
     }
 
     public DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(Device device) {
+        this();
         this.device = device;
     }
 
-    /**
-     * @return the SERIALNUMBER of the device
-     */
     @Override
-    public String getIdentifier() {
-        return this.device.getSerialNumber();
-    }
-
-    @Override
-    public DeviceIdentifierType getDeviceIdentifierType() {
-        return DeviceIdentifierType.SerialNumber;
-    }
-
-    @Override
-    @XmlElement(name = "type")
-    public String getXmlType() {
-        return this.getClass().getName();
-    }
-
-    @Override
-    public void setXmlType(String ignore) {
-
-    }
-
-    @Override
-    public Device findDevice() {
-        return this.device;
+    public com.energyict.mdc.upl.meterdata.identifiers.Introspector forIntrospection() {
+        return new Introspector();
     }
 
     @Override
     public String toString() {
-        return "device having serial number '" + this.device.getSerialNumber() + "'";
+        return "device having serial number '" + ((com.energyict.mdc.device.data.Device) this.device).getSerialNumber() + "'";
     }
 
     @Override
@@ -75,12 +52,39 @@ public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements Devi
 
         DeviceIdentifierForAlreadyKnownDeviceBySerialNumber that = (DeviceIdentifierForAlreadyKnownDeviceBySerialNumber) o;
 
-        return device.getId() == that.device.getId();
+        return ((com.energyict.mdc.device.data.Device) this.device).getId() == ((com.energyict.mdc.device.data.Device) that.device).getId();
 
     }
 
     @Override
     public int hashCode() {
         return device.hashCode();
+    }
+
+    private class Introspector implements com.energyict.mdc.upl.meterdata.identifiers.Introspector {
+        @Override
+        public String getTypeName() {
+            return "SerialNumber";
+        }
+
+        @Override
+        public Set<String> getRoles() {
+            return new HashSet<>(Arrays.asList("actual", "serialNumber"));
+        }
+
+        @Override
+        public Object getValue(String role) {
+            switch (role) {
+                case "actual": {
+                    return device;
+                }
+                case "serialNumber": {
+                    return ((com.energyict.mdc.device.data.Device) device).getSerialNumber();
+                }
+                default: {
+                    throw new IllegalArgumentException("Role '" + role + "' is not supported by identifier of type " + getTypeName());
+                }
+            }
+        }
     }
 }

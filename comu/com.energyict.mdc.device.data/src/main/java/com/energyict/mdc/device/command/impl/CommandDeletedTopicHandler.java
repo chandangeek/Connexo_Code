@@ -8,7 +8,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Component;
