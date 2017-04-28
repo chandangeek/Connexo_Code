@@ -251,6 +251,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
         doReturn(messageFormat).when(thesaurus).getFormat(any(MessageSeed.class));
         doReturn(messageFormat).when(thesaurus).getFormat(any(TranslationKey.class));
+        doReturn(messageFormat).when(thesaurus).getSimpleFormat(any(MessageSeed.class));
     }
 
     protected boolean disableDeviceConstraintsBasedOnDeviceState() {

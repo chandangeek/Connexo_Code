@@ -4,9 +4,9 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.JournaledRegisterReadingRecord;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -16,6 +16,7 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -24,12 +25,9 @@ import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.data.BillingReading;
-import com.energyict.mdc.device.data.BillingRegister;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.FlagsReading;
 import com.energyict.mdc.device.data.FlagsRegister;
 import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -40,13 +38,19 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.TextReading;
 import com.energyict.mdc.device.data.TextRegister;
 import com.energyict.mdc.device.topology.TopologyService;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -262,7 +266,8 @@ public class DeviceDataInfoFactory {
     private void setCommonReadingInfo(Reading reading, ReadingInfo readingInfo, Register<?, ?> register) {
         readingInfo.id = "" + reading.getTimeStamp().toEpochMilli() + register.getRegisterSpecId();
         readingInfo.timeStamp = reading.getTimeStamp();
-        readingInfo.userName = reading.getUserName();
+        readingInfo.userName = (reading.getActualReading() instanceof JournaledRegisterReadingRecord) && ((JournaledRegisterReadingRecord) reading.getActualReading()).getUserName() != null ?
+                ((JournaledRegisterReadingRecord) reading.getActualReading()).getUserName() : "";
         readingInfo.reportedDateTime = reading.getReportedDateTime();
         readingInfo.readingQualities = createReadingQualitiesInfo(reading);
         Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading);
@@ -293,7 +298,7 @@ public class DeviceDataInfoFactory {
         setMultiplier(register, numericalReadingInfo, reading);
         setInterval(reading, numericalReadingInfo);
         setCollectedValue(reading, register, numericalReadingInfo, numberOfFractionDigits);
-        setDeltaValue(reading,register, numericalReadingInfo);
+        setDeltaValue(reading, register, numericalReadingInfo);
         setCalculatedValueIfApplicable(reading, register, numericalReadingInfo, numberOfFractionDigits);
         addValidationInfo(reading, numericalReadingInfo, isValidationStatusActive);
         setSlaveInformation(register, dataLoggerSlave, numericalReadingInfo);
@@ -302,7 +307,7 @@ public class DeviceDataInfoFactory {
     }
 
     private void setDeltaValue(NumericalReading reading, Register<?, ?> register, NumericalReadingInfo numericalReadingInfo) {
-        if(register.getReadingType().isCumulative()) {
+        if (register.getReadingType().isCumulative()) {
             reading.getDelta().ifPresent(deltaValue -> numericalReadingInfo.deltaValue = deltaValue);
         }
     }
@@ -376,8 +381,8 @@ public class DeviceDataInfoFactory {
             return info;
         } else if (register instanceof TextRegister) {
             return createTextRegisterInfo((TextRegister) register, topologyService);
-        } else if (register instanceof FlagsRegister){
-            RegisterInfo info = createFlagsRegisterInfo((FlagsRegister) register,topologyService);
+        } else if (register instanceof FlagsRegister) {
+            RegisterInfo info = createFlagsRegisterInfo((FlagsRegister) register, topologyService);
             info.detailedValidationInfo = registerValidationInfo;
             return info;
         }
@@ -429,6 +434,7 @@ public class DeviceDataInfoFactory {
         Instant timeStamp = register.getLastReadingDate().orElse(clock.instant());
         register.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> registerInfo.calculatedReadingType = readingTypeInfoFactory.from(calculatedReadingType));
         registerInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
+        registerInfo.readingType.names.unitOfMeasure = (registerInfo.readingType.names.unitOfMeasure.isEmpty() && registerInfo.readingType.metricMultiplier == -2) ? Unit.PERCENT.getSymbol() : registerInfo.readingType.names.unitOfMeasure; // -2 is also percentage
         return registerInfo;
     }
 
