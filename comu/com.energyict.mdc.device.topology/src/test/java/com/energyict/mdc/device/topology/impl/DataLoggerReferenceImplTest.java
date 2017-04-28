@@ -21,7 +21,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -34,9 +33,10 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
-import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -162,7 +162,11 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         dataLoggerConfiguration.createNumericalRegisterSpec(registerTypeForChannel5).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
         dataLoggerConfiguration.createNumericalRegisterSpec(registerTypeForChannel6).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
 
-        deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(dataLoggerConfiguration::createDeviceMessageEnablement);
+        deviceMessageSpecs
+                .stream()
+                .map(DeviceMessageSpec::getId)
+                .map(DeviceMessageId::havingId)
+                .forEach(dataLoggerConfiguration::createDeviceMessageEnablement);
         dataLoggerConfiguration.activate();
     }
 
@@ -201,7 +205,11 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         configurationForSlaveWithLoadProfiles.createChannelSpec(lpt.findChannelType(registerTypeForChannel2).get(), lpSpec).overflow(new BigDecimal(1000000L)).add();
         configurationForSlaveWithLoadProfiles.createChannelSpec(lpt.findChannelType(registerTypeForChannel3).get(), lpSpec).overflow(new BigDecimal(1000000L)).add();
 
-        deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(configurationForSlaveWithLoadProfiles::createDeviceMessageEnablement);
+        deviceMessageSpecs
+                .stream()
+                .map(DeviceMessageSpec::getId)
+                .map(DeviceMessageId::havingId)
+                .forEach(configurationForSlaveWithLoadProfiles::createDeviceMessageEnablement);
         configurationForSlaveWithLoadProfiles.activate();
 
     }
@@ -234,7 +242,11 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         configurationForSlaveWithRegisters.createNumericalRegisterSpec(registerTypeForChannel2).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
         configurationForSlaveWithRegisters.createNumericalRegisterSpec(registerTypeForChannel3).noMultiplier().overflowValue(new BigDecimal(999999L)).numberOfFractionDigits(0).add();
 
-        deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(configurationForSlaveWithRegisters::createDeviceMessageEnablement);
+        deviceMessageSpecs
+                .stream()
+                .map(DeviceMessageSpec::getId)
+                .map(DeviceMessageId::havingId)
+                .forEach(configurationForSlaveWithRegisters::createDeviceMessageEnablement);
         configurationForSlaveWithRegisters.activate();
 
     }

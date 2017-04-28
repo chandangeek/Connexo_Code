@@ -9,8 +9,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceTypePurpose;
@@ -20,8 +18,11 @@ import com.energyict.mdc.device.topology.impl.multielement.MultiElementDeviceLin
 import com.energyict.mdc.device.topology.impl.multielement.MultiElementDeviceReferenceImpl;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -71,7 +72,11 @@ public class MultiElementDeviceServiceImplTest extends PersistenceIntegrationTes
         multiElementEnabledDeviceConfigurationBuilder.multiElementEnabled(true);
 
         multiElementEnabledDeviceConfiguration = multiElementEnabledDeviceConfigurationBuilder.add();
-        deviceMessageIds.stream().forEach(multiElementEnabledDeviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageSpecs
+                .stream()
+                .map(DeviceMessageSpec::getId)
+                .map(DeviceMessageId::havingId)
+                .forEach(each -> multiElementEnabledDeviceConfiguration.createDeviceMessageEnablement(each));
         ReadingType activeEnergy = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.1.8.0.255"), Unit.get("kWh"));
         RegisterType registerType1 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(activeEnergy).get();
         ReadingType reactiveEnergy = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.2.8.0.255"), Unit.get("kWh"));
@@ -86,7 +91,11 @@ public class MultiElementDeviceServiceImplTest extends PersistenceIntegrationTes
         multiElementSlaveDeviceConfigurationBuilder.isDirectlyAddressable(true);
         multiElementSlaveDeviceConfiguration = multiElementSlaveDeviceConfigurationBuilder.add();
         multiElementSlaveDeviceType.addRegisterType(registerType1);
-        deviceMessageIds.stream().forEach(multiElementSlaveDeviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageSpecs
+                .stream()
+                .map(DeviceMessageSpec::getId)
+                .map(DeviceMessageId::havingId)
+                .forEach(multiElementSlaveDeviceConfiguration::createDeviceMessageEnablement);
         multiElementSlaveDeviceConfiguration.createNumericalRegisterSpec(registerType1).overflowValue(BigDecimal.valueOf(1000L)).numberOfFractionDigits(0).add();
         multiElementSlaveDeviceConfiguration.activate();
     }
@@ -183,7 +192,7 @@ public class MultiElementDeviceServiceImplTest extends PersistenceIntegrationTes
             @Override
             public boolean matches(List<? extends Device> value) {
                 boolean bothMatch = true;
-                for (BaseDevice baseDevice : value) {
+                for (Device baseDevice : value) {
                     bothMatch &= ((baseDevice.getId() == slave1.getId()) || (baseDevice.getId() == slave2.getId()));
                 }
                 return bothMatch;
