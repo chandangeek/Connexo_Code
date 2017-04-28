@@ -37,6 +37,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -122,8 +123,20 @@ public abstract class DataQualityKpiImpl implements HasId, DataQualityKpi, Persi
         return frequency;
     }
 
-    List<DataQualityKpiMember> getKpiMembers() {
+    protected List<DataQualityKpiMember> getKpiMembers() {
         return kpiMembers;
+    }
+
+    protected void add(DataQualityKpiMember kpiMember) {
+        this.kpiMembers.add(kpiMember);
+    }
+
+    protected void remove(DataQualityKpiMember kpiMember) {
+        this.kpiMembers.remove(kpiMember);
+    }
+
+    protected void removeAll(Collection<DataQualityKpiMember> obsoleteMembers) {
+        this.kpiMembers.removeAll(obsoleteMembers);
     }
 
     void setFrequency(TemporalAmount frequency) {
