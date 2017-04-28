@@ -1178,6 +1178,16 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 commentValue: commentValue
             };
 
+        if (commentId !== -1) {
+            if (!Ext.isArray(record)) {
+                record.set(validationInfoName, comment);
+            } else {
+                Ext.Array.each(record, function (records) {
+                    records.set(validationInfoName, comment);
+                });
+            }
+        }
+
         record.getProxy().setParams(decodeURIComponent(router.arguments.deviceId), router.arguments.channelId);
         window.setLoading();
         Ext.Ajax.suspendEvent('requestexception');
@@ -1190,17 +1200,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
-                        if (commentId !== -1) {
-                            readings.set(validationInfoName, comment);
-                        }
                         me.updateEstimatedValues(record, readings, responseText[0], ruleId, action);
                     } else {
                         Ext.Array.each(responseText, function (estimatedReading) {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
-                                    if (commentId !== -1) {
-                                        readings.set(validationInfoName, comment);
-                                    }
                                     me.updateEstimatedValues(record, reading, estimatedReading, ruleId, action);
                                     return true;
                                 }

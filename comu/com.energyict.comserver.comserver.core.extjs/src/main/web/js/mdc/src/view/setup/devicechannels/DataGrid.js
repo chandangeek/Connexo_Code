@@ -208,14 +208,14 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
 
     formatColumn: function (v, metaData, record, validationInfo) {
         var me = this,
+            validationFlag = validationInfo === 'mainValidationInfo' ? 'mainValidationInfo' : validationInfo ==='bulkValidationInfo' ? 'bulkValidationInfo' : null,
+            validationInfo = validationFlag ? record.get(validationInfo) : validationInfo,
             status = validationInfo.validationResult ? validationInfo.validationResult.split('.')[1] : '',
             icon = '',
             app,
             date,
             tooltipText,
             formattedDate,
-            validationFlag = validationInfo === 'mainValidationInfo' ? 'mainValidationInfo' : validationInfo ==='bulkValidationInfo' ? 'bulkValidationInfo' : null,
-            validationInfo = validationFlag ? record.get(validationInfo) : validationInfo,
             estimationComment = null,
             value = Ext.isEmpty(v)
                 ? '-'
@@ -227,7 +227,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         if (validationFlag && validationInfo && validationInfo.commentValue) {
             estimationComment = validationInfo.commentValue;
         }
-
+debugger;
         if (status === 'notValidated') {
             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('general.notValidated', 'MDC', 'Not validated') + '"></span>';
