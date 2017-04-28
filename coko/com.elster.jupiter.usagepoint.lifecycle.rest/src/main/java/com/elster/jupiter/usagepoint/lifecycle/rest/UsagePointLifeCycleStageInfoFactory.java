@@ -4,14 +4,24 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
+
+import javax.inject.Inject;
 
 public class UsagePointLifeCycleStageInfoFactory {
-    public IdWithNameInfo from(UsagePointStage stage) {
+    private final Thesaurus thesaurus;
+
+    @Inject
+    public UsagePointLifeCycleStageInfoFactory(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
+
+    public IdWithNameInfo from(Stage stage) {
         IdWithNameInfo info = new IdWithNameInfo();
-        info.id = stage.getKey();
-        info.name = stage.getDisplayName();
+        info.id = stage.getName();
+        info.name = thesaurus.getString(stage.getName(), stage.getName());
 
         return info;
     }

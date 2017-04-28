@@ -4,9 +4,9 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.impl.UsagePointStateChangeRequestInfo;
 import com.elster.jupiter.users.User;
@@ -36,9 +36,9 @@ public class UsagePointStateChangeRequestResourceTest extends UsagePointLifeCycl
     @Mock
     private UsagePoint usagePoint;
     @Mock
-    private UsagePointState fromState;
+    private State fromState;
     @Mock
-    private UsagePointState toState;
+    private State toState;
     @Mock
     private UsagePointTransition transition;
 
@@ -88,7 +88,7 @@ public class UsagePointStateChangeRequestResourceTest extends UsagePointLifeCycl
 
     @Test
     public void testGetAvailableTransitions() {
-        when(usagePointLifeCycleService.getAvailableTransitions(fromState, APPLICATION)).thenReturn(Collections.singletonList(transition));
+        when(usagePointLifeCycleService.getAvailableTransitions(usagePoint, APPLICATION)).thenReturn(Collections.singletonList(transition));
         String response = target("/usagepoint/UsagePoint/transitions").request().header("X-CONNEXO-APPLICATION-NAME", APPLICATION).get(String.class);
 
         JsonModel model = JsonModel.model(response);

@@ -5,20 +5,29 @@
 package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
 
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeFail;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.users.User;
 
+import javax.inject.Inject;
 import java.util.stream.Collectors;
 
 public class UsagePointStateChangeRequestInfoFactory {
+    private final Thesaurus thesaurus;
+
+    @Inject
+    public UsagePointStateChangeRequestInfoFactory(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
+
     public UsagePointStateChangeRequestInfo from(UsagePointStateChangeRequest changeRequest, String application) {
         UsagePointStateChangeRequestInfo info = new UsagePointStateChangeRequestInfo();
         info.id = changeRequest.getId();
-        info.fromStateName = changeRequest.getFromStateName();
-        info.toStateName = changeRequest.getToStateName();
+        info.fromStateName = thesaurus.getString(changeRequest.getFromStateName(), changeRequest.getFromStateName());
+        info.toStateName = thesaurus.getString(changeRequest.getToStateName(), changeRequest.getToStateName());
         info.transitionTime = changeRequest.getTransitionTime();
         info.scheduleTime = changeRequest.getScheduleTime();
         User originator = changeRequest.getOriginator();

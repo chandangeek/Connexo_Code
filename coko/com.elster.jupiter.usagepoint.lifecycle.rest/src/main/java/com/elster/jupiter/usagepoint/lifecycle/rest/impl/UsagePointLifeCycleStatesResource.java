@@ -4,14 +4,19 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
 
+import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.StageSet;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.usagepoint.lifecycle.config.Privileges;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfo;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 
@@ -34,13 +39,15 @@ import java.util.stream.Collectors;
 public class UsagePointLifeCycleStatesResource {
     private final ResourceHelper resourceHelper;
     private final UsagePointLifeCycleStateInfoFactory stateInfoFactory;
+    private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
 
     @Inject
     public UsagePointLifeCycleStatesResource(ResourceHelper resourceHelper,
-                                             UsagePointLifeCycleStateInfoFactory stateInfoFactory) {
+                                             UsagePointLifeCycleStateInfoFactory stateInfoFactory, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         this.resourceHelper = resourceHelper;
         this.stateInfoFactory = stateInfoFactory;
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
     }
 
     @GET
@@ -50,7 +57,7 @@ public class UsagePointLifeCycleStatesResource {
         UsagePointLifeCycle lifeCycle = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
         List<UsagePointLifeCycleStateInfo> states = lifeCycle.getStates()
                 .stream()
-                .map(this.stateInfoFactory::fullInfo)
+                .map(state -> this.stateInfoFactory.fullInfo(lifeCycle, state))
                 .sorted((st1, st2) -> st1.name.compareToIgnoreCase(st2.name))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("states", states, queryParameters);
@@ -60,9 +67,10 @@ public class UsagePointLifeCycleStatesResource {
     @Path("/{sid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_VIEW, Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
-    public UsagePointLifeCycleStateInfo getStateById(@PathParam("sid") long stateId, @BeanParam JsonQueryParameters queryParameters) {
-        UsagePointState state = this.resourceHelper.getStateByIdOrThrowException(stateId);
-        return this.stateInfoFactory.fullInfo(state);
+    public UsagePointLifeCycleStateInfo getStateById(@PathParam("lid") long lifeCycleId, @PathParam("sid") long stateId, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointLifeCycle lifeCycle = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
+        State state = this.resourceHelper.getStateByIdOrThrowException(stateId);
+        return this.stateInfoFactory.fullInfo(lifeCycle, state);
     }
 
     @POST
@@ -76,11 +84,15 @@ public class UsagePointLifeCycleStatesResource {
                 .notEmpty(stateInfo.stage, "stage", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY)
                 .validate();
         UsagePointLifeCycle lifeCycle = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
-        UsagePointState.UsagePointStateCreator builder = lifeCycle.newState(stateInfo.name);
-        stateInfo.onEntry.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onEntry);
-        stateInfo.onExit.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onExit);
-        builder.setStage(stateInfo.stage);
-        return this.stateInfoFactory.fullInfo(builder.complete());
+        StageSet defaultStageSet = usagePointLifeCycleConfigurationService.getDefaultStageSet();
+        Stage stage = defaultStageSet.getStageByName(stateInfo.stage).get();
+        FiniteStateMachineUpdater lifeCycleUpdater = lifeCycle.getUpdater();
+        FiniteStateMachineBuilder.StateBuilder stateBuilder = lifeCycleUpdater.newCustomState(stateInfo.name, stage);
+        stateInfo.onEntry.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(stateBuilder::onEntry);
+        stateInfo.onExit.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(stateBuilder::onExit);
+        State state = stateBuilder.complete();
+        lifeCycleUpdater.complete();
+        return this.stateInfoFactory.fullInfo(lifeCycle, state);
     }
 
     @PUT
@@ -89,19 +101,26 @@ public class UsagePointLifeCycleStatesResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
-    public UsagePointLifeCycleStateInfo editState(UsagePointLifeCycleStateInfo stateInfo) {
+    public UsagePointLifeCycleStateInfo editState(@PathParam("lid") long lifeCycleId, UsagePointLifeCycleStateInfo stateInfo) {
         RestValidationBuilder validationBuilder = new RestValidationBuilder();
+        UsagePointLifeCycle lifeCycle = this.resourceHelper.lockLifeCycle(stateInfo.parent);
         validationBuilder.notEmpty(stateInfo.name, "name")
                 .notEmpty(stateInfo.stage, "stage")
                 .validate();
-        UsagePointState state = this.resourceHelper.lockState(stateInfo);
-        UsagePointState.UsagePointStateUpdater builder = state.startUpdate().setName(stateInfo.name);
+        State state = resourceHelper.getStateByIdOrThrowException(stateInfo.id);
+        FiniteStateMachineUpdater finiteStateMachineUpdater = state.getFiniteStateMachine().startUpdate();
+        FiniteStateMachineUpdater.StateUpdater builder = finiteStateMachineUpdater.state(state.getName());
+        builder.setName(stateInfo.name);
         state.getOnEntryProcesses().stream().map(ProcessReference::getStateChangeBusinessProcess).forEach(builder::removeOnEntry);
         state.getOnExitProcesses().stream().map(ProcessReference::getStateChangeBusinessProcess).forEach(builder::removeOnExit);
         stateInfo.onEntry.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onEntry);
         stateInfo.onExit.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onExit);
-        builder.setStage(stateInfo.stage);
-        return this.stateInfoFactory.fullInfo(builder.complete());
+        StageSet defaultStageSet = usagePointLifeCycleConfigurationService.getDefaultStageSet();
+        Stage stage = defaultStageSet.getStageByName(stateInfo.stage).get();
+        builder.stage(stage);
+        state = builder.complete();
+        finiteStateMachineUpdater.complete();
+        return this.stateInfoFactory.fullInfo(lifeCycle, state);
     }
 
     @PUT
@@ -110,10 +129,15 @@ public class UsagePointLifeCycleStatesResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
-    public UsagePointLifeCycleStateInfo setInitialState(UsagePointLifeCycleStateInfo stateInfo) {
-        UsagePointState state = this.resourceHelper.lockState(stateInfo);
-        state = state.startUpdate().setInitial().complete();
-        return this.stateInfoFactory.fullInfo(state);
+    public UsagePointLifeCycleStateInfo setInitialState(@PathParam("lid") long lifeCycleId, UsagePointLifeCycleStateInfo stateInfo) {
+        UsagePointLifeCycle lifeCycle = this.resourceHelper.lockLifeCycle(stateInfo.parent);
+        State state = lifeCycle.getStates().stream()
+                .filter(lcState -> lcState.getId() == stateInfo.id)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Given state does not exist"));
+        FiniteStateMachineUpdater finiteStateMachineUpdater = state.getFiniteStateMachine().startUpdate();
+        finiteStateMachineUpdater.complete(state);
+        return this.stateInfoFactory.fullInfo(lifeCycle, state);
     }
 
     @DELETE
@@ -122,8 +146,10 @@ public class UsagePointLifeCycleStatesResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed({Privileges.Constants.USAGE_POINT_LIFE_CYCLE_ADMINISTER})
-    public Response removeState(UsagePointLifeCycleStateInfo stateInfo) {
-        this.resourceHelper.lockState(stateInfo).remove();
+    public Response removeState(@PathParam("lid") long lifeCycleId, UsagePointLifeCycleStateInfo stateInfo) {
+        UsagePointLifeCycle lifeCycle = this.resourceHelper.lockLifeCycle(stateInfo.parent);
+        State state = this.resourceHelper.lockState(stateInfo);
+        lifeCycle.removeState(state);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 }

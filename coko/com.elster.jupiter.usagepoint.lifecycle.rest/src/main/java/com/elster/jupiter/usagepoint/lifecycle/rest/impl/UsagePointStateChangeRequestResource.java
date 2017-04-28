@@ -78,7 +78,7 @@ public class UsagePointStateChangeRequestResource {
                                             @HeaderParam("X-CONNEXO-APPLICATION-NAME") String application,
                                             @BeanParam JsonQueryParameters queryParameters) {
         List<IdWithNameInfo> transitions = this.usagePointLifeCycleService
-                .getAvailableTransitions(this.resourceHelper.getUsagePointOrThrowException(usagePointName).getState(), application)
+                .getAvailableTransitions(this.resourceHelper.getUsagePointOrThrowException(usagePointName), application)
                 .stream()
                 .map(IdWithNameInfo::new)
                 .sorted((a1, a2) -> a1.name.compareToIgnoreCase(a2.name))
