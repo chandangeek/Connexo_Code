@@ -157,24 +157,25 @@ Ext.define('Isu.view.issues.ActionMenu', {
         var me = this,
             issueId = me.record.getId(),
             issueType = me.record.get('issueType').uid,
-            fromDetails = Ext.ComponentQuery.query('issue-detail-top')[0];
+            fromDetails = Ext.ComponentQuery.query('issue-detail-top')[0],
+            predefinedItems = me.getPredefinedItems();
 
         // show/hide 'Assign to me and' and 'Unassign' menu items
-        var assignIssueToMe = me.getPredefinedItems().filter(function (menu) {
+        var assignIssueToMe = predefinedItems.filter(function (menu) {
             return menu.action === 'assignIssueToMe';
         })[0];
         assignIssueToMe.hidden = (me.record.get('userId') == me.currentUserId);
         assignIssueToMe.record = me.record;
 
-        var unassign = me.getPredefinedItems().filter(function (menu) {
+        var unassign = predefinedItems.filter(function (menu) {
             return menu.action === 'unassign';
         })[0];
         unassign.hidden = (me.record.get('userId') != me.currentUserId);
         unassign.record = me.record;
 
         // add predefined actions
-        if (me.getPredefinedItems() && me.getPredefinedItems().length) {
-            Ext.Array.each(me.getPredefinedItems(), function (menuItem) {
+        if (predefinedItems && predefinedItems.length) {
+            Ext.Array.each(predefinedItems, function (menuItem) {
                 switch (menuItem.action) {
                     case 'assignIssue':
                         menuItem.href = me.router.getRoute(me.router.currentRoute.replace('/view', '') + '/view/assignIssue').buildUrl(
@@ -223,7 +224,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
                         break;
                 }
             });
-            me.add(me.getPredefinedItems());
+            me.add(predefinedItems);
         }
 
         if (Isu.privileges.Issue.canViewProcessMenu() && issueType == 'datacollection')
