@@ -25,7 +25,7 @@ import java.util.List;
  */
 public interface MessagesTask extends ProtocolTask {
 
-    public enum MessageTaskType {
+    enum MessageTaskType {
         NONE,
         ALL,
         SELECTED
@@ -57,7 +57,7 @@ public interface MessagesTask extends ProtocolTask {
          * @param messageTaskType the current type to set
          * @return this builder
          */
-        public MessagesTaskBuilder setMessageTaskType(MessageTaskType messageTaskType);
+        MessagesTaskBuilder setMessageTaskType(MessageTaskType messageTaskType);
 
         /**
          * Sets the given deviceMessageCategories.
@@ -66,14 +66,14 @@ public interface MessagesTask extends ProtocolTask {
          * @param deviceMessageCategories the categories to set
          * @return the builder
          */
-        public MessagesTaskBuilder deviceMessageCategories(List<DeviceMessageCategory> deviceMessageCategories);
+        MessagesTaskBuilder deviceMessageCategories(List<DeviceMessageCategory> deviceMessageCategories);
 
         /**
          * Returns the object which was <i>constructed</i> with this builder
          *
          * @return the object
          */
-        public MessagesTask add();
+        MessagesTask add();
     }
 
 }
