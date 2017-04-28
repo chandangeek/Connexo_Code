@@ -49,6 +49,7 @@ public class UsagePointInfo {
     public UsagePointLifeCycleStateInfo state;
     public UsagePointLifeCycleInfo lifeCycle;
     public UsagePointTransitionInfo transitionToPerform;
+    public List<CalendarOnUsagePointInfo> calendars;
     public Long lastTransitionTime;
     public boolean hasEffectiveMCs;
 
