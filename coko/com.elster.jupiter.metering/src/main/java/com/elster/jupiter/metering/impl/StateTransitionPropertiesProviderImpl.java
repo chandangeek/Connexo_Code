@@ -5,7 +5,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
-import com.elster.jupiter.fsm.FsmUsagePointProvider;
+import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectionState;
@@ -22,19 +22,19 @@ import java.util.Optional;
 
 @Component(
         name = "com.elster.jupiter.metering.fsmprovider",
-        service = {FsmUsagePointProvider.class},
+        service = {StateTransitionPropertiesProvider.class},
         property = {"name=FSM_PROVIDER"}, immediate = true)
-public class FsmUsagePointProviderImpl implements FsmUsagePointProvider {
+public class StateTransitionPropertiesProviderImpl implements StateTransitionPropertiesProvider {
 
     private volatile MeteringService meteringService;
     private final static String CONNECTION_STATES = "connectionStates";
     private final static String METROLOGY_CONFIG = "metrologyConfigurations";
 
-    public FsmUsagePointProviderImpl(){
+    public StateTransitionPropertiesProviderImpl(){
     }
 
     @Inject
-    public FsmUsagePointProviderImpl(MeteringService meteringService){
+    public StateTransitionPropertiesProviderImpl(MeteringService meteringService){
         this.meteringService = meteringService;
     }
 
