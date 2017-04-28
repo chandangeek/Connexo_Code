@@ -145,7 +145,6 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
         private DeviceConfiguration deviceConfiguration;
         private boolean dataLoggerEnabled;
         private boolean multiElementEnabled;
-        private DeviceTypePurpose deviceTypePurpose =  DeviceTypePurpose.REGULAR;
         private DeviceTypePurpose deviceTypePurpose = DeviceTypePurpose.REGULAR;
 
         @Override
