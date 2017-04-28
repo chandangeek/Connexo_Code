@@ -9,6 +9,7 @@ import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.EndDeviceEventTypeFilter;
 import com.elster.jupiter.export.EventDataExportStrategy;
 import com.elster.jupiter.export.EventSelectorConfig;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
@@ -52,7 +53,7 @@ public class EventSelectorConfigImpl extends StandardDataSelectorConfigImpl impl
 
     @Override
     public EventDataExportStrategy getStrategy() {
-        return new DataExportStrategyImpl(false, isExportContinuousData(), false, null, null, null);
+        return new DataExportStrategyImpl(false, isExportContinuousData(), MissingDataOption.EXCLUDE_INTERVAL, null, null, null);
     }
 
     @Override

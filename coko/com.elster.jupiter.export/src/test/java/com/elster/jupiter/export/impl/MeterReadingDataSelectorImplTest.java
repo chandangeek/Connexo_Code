@@ -12,6 +12,7 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.EndDevice;
@@ -285,7 +286,7 @@ public class MeterReadingDataSelectorImplTest {
                 .setEndDeviceGroup(endDeviceGroup)
                 .addReadingType(readingType)
                 .setExportUpdate(false)
-                .setExportOnlyIfComplete(true)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_ITEM)
                 .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL);
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
@@ -308,7 +309,7 @@ public class MeterReadingDataSelectorImplTest {
                 .setExportUpdate(true)
                 .setUpdatePeriod(updatePeriod)
                 .setUpdateWindow(updateWindow)
-                .setExportOnlyIfComplete(true)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_ITEM)
                 .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL);
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
@@ -359,7 +360,7 @@ public class MeterReadingDataSelectorImplTest {
                 .setExportUpdate(true)
                 .setUpdatePeriod(updatePeriod)
                 .setUpdateWindow(updateWindow)
-                .setExportOnlyIfComplete(false)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_INTERVAL)
                 .setValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL);
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
@@ -417,7 +418,7 @@ public class MeterReadingDataSelectorImplTest {
                 .setExportUpdate(true)
                 .setUpdatePeriod(updatePeriod)
                 .setUpdateWindow(updateWindow)
-                .setExportOnlyIfComplete(false)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_INTERVAL)
                 .setValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL);
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
@@ -476,7 +477,7 @@ public class MeterReadingDataSelectorImplTest {
                 .setExportUpdate(true)
                 .setUpdatePeriod(updatePeriod)
                 .setUpdateWindow(updateWindow)
-                .setExportOnlyIfComplete(false)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_INTERVAL)
                 .setValidatedDataOption(ValidatedDataOption.EXCLUDE_ITEM);
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 

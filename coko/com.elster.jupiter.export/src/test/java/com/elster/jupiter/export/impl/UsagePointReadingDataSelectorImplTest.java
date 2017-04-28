@@ -11,6 +11,7 @@ import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -197,7 +198,7 @@ public class UsagePointReadingDataSelectorImplTest {
         selectorConfig.startUpdate()
                 .setUsagePointGroup(usagePointGroup)
                 .addReadingType(readingType)
-                .setExportOnlyIfComplete(true)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_ITEM)
                 .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
                 .complete();
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
@@ -221,7 +222,7 @@ public class UsagePointReadingDataSelectorImplTest {
         selectorConfig.startUpdate()
                 .setUsagePointGroup(usagePointGroup)
                 .addReadingType(readingType)
-                .setExportOnlyIfComplete(false)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_INTERVAL)
                 .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
                 .complete();
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
@@ -254,7 +255,7 @@ public class UsagePointReadingDataSelectorImplTest {
         selectorConfig.startUpdate()
                 .setUsagePointGroup(usagePointGroup)
                 .addReadingType(readingType)
-                .setExportOnlyIfComplete(false)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_INTERVAL)
                 .setValidatedDataOption(ValidatedDataOption.EXCLUDE_ITEM)
                 .complete();
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
@@ -286,7 +287,7 @@ public class UsagePointReadingDataSelectorImplTest {
         selectorConfig.startUpdate()
                 .setUsagePointGroup(usagePointGroup)
                 .addReadingType(readingType)
-                .setExportOnlyIfComplete(false)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_INTERVAL)
                 .setValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL)
                 .complete();
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
@@ -320,7 +321,7 @@ public class UsagePointReadingDataSelectorImplTest {
         selectorConfig.startUpdate()
                 .setUsagePointGroup(usagePointGroup)
                 .addReadingType(readingType)
-                .setExportOnlyIfComplete(false)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_INTERVAL)
                 .setValidatedDataOption(ValidatedDataOption.EXCLUDE_INTERVAL)
                 .complete();
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
@@ -352,7 +353,7 @@ public class UsagePointReadingDataSelectorImplTest {
         selectorConfig.startUpdate()
                 .setUsagePointGroup(usagePointGroup)
                 .addReadingType(missingReadingType)
-                .setExportOnlyIfComplete(false)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_INTERVAL)
                 .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
                 .complete();
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
@@ -381,7 +382,7 @@ public class UsagePointReadingDataSelectorImplTest {
         selectorConfig.startUpdate()
                 .setUsagePointGroup(usagePointGroup)
                 .addReadingType(readingType)
-                .setExportOnlyIfComplete(false)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_INTERVAL)
                 .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
                 .complete();
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
