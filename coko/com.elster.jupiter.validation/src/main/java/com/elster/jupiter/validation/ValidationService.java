@@ -130,6 +130,7 @@ public interface ValidationService {
      * Resets last checked date on {@link Channel Channels} specified in the given map before the beginning of corresponding {@link Range Ranges},
      * and re-validates the data again if 'validation-on-storage' is active on their {@link ChannelsContainer ChannelsContainers}.
      * Does not take channel dependencies into account, i.e. does not guarantee the order of validation.
+     *
      * @param rangeByChannelMap A {@link Map} of {@link Channel Channels} to re-validate and corresponding time {@link Range Ranges}.
      */
     void validate(Map<Channel, Range<Instant>> rangeByChannelMap);
@@ -138,6 +139,7 @@ public interface ValidationService {
      * Resets last checked date on {@link Channel Channels} specified in the given map before the beginning of corresponding {@link Range Ranges},
      * and re-validates the data again if 'validation-on-storage' is active on the given {@link ChannelsContainer}.
      * Does not take channel dependencies into account, i.e. does not guarantee the order of validation.
+     *
      * @param channelsContainer A {@link ChannelsContainer} that contains all channels present in {@code rangeByChannelMap}.
      * @param rangeByChannelMap A {@link Map} of {@link Channel Channels} to re-validate and corresponding time {@link Range Ranges}.
      */
@@ -146,6 +148,9 @@ public interface ValidationService {
     ValidationEvaluator getEvaluator();
 
     ValidationEvaluator getEvaluator(Meter meter);
+
+    ValidationEvaluator getEvaluator(ChannelsContainer container);
+
 
     void addValidatorFactory(ValidatorFactory validatorfactory);
 
