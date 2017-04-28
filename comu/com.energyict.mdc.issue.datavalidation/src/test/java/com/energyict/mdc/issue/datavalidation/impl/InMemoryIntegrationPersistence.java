@@ -16,7 +16,6 @@ import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.FsmUsagePointProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -35,7 +34,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -54,11 +52,9 @@ import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleCo
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
@@ -76,14 +72,15 @@ import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -106,9 +103,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-
-import org.mockito.Matchers;
-import org.mockito.Mock;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -176,7 +170,7 @@ public class InMemoryIntegrationPersistence {
                         new StateTransitionChangeEventTopicHandler(
                                 this.injector.getInstance(FiniteStateMachineService.class),
                                 this.injector.getInstance(MeteringService.class),
-                                this.clock);
+                                clock);
                 ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionChangeEventTopicHandler);
                 DeviceLifeCycleChangeEventHandler deviceLifeCycleChangeEventHandler = getDeviceLifeCycleChangeEventHandler();
                 ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(deviceLifeCycleChangeEventHandler);
@@ -296,7 +290,7 @@ public class InMemoryIntegrationPersistence {
             bind(KnowledgeBuilderFactoryService.class).to(KnowledgeBuilderFactoryServiceImpl.class);
 
             Thesaurus thesaurus = mock(Thesaurus.class);
-            when(thesaurus.getString(Matchers.anyString(), Matchers.anyString())).then(invocation -> invocation.getArgumentAt(1, String.class));
+            when(thesaurus.getString(anyString(), anyString())).then(invocation -> invocation.getArgumentAt(1, String.class));
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(MessageInterpolator.class).toInstance(thesaurus);
 
@@ -309,6 +303,9 @@ public class InMemoryIntegrationPersistence {
                 bind(LockService.class).toInstance(mock(LockService.class));
             }
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
         }
     }
 
