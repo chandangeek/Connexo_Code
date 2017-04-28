@@ -6,7 +6,7 @@ package com.elster.jupiter.fsm;
 
 import java.util.Map;
 
-public interface FsmUsagePointProvider {
+public interface StateTransitionPropertiesProvider {
 
     boolean areProcessPropertiesAvailableForUP(Map<String, Object> processProperties, long id);
 

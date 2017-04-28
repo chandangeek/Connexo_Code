@@ -14,6 +14,8 @@ import aQute.bnd.annotation.ProviderType;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-09 (09:45)
  */
+
+@ProviderType
 public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
 
     /**
@@ -85,12 +87,44 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
 
         StateUpdater setName(String newName);
 
+        /**
+         * Adds the {@link BpmProcessDefinition} to the list of
+         * processes that need to execute when the {@link State}
+         * that is currently being built is entered.
+         *
+         * @param process The BpmProcessDefinition
+         * @return The StateBuilder
+         */
         StateUpdater onEntry(BpmProcessDefinition process);
 
+        /**
+         * Removes the {@link BpmProcessDefinition} from the list of
+         * processes that need to execute when the {@link State}
+         * that is currently being built is entered.
+         *
+         * @param process The BpmProcessDefinition
+         * @return The StateBuilder
+         */
         StateUpdater removeOnEntry(BpmProcessDefinition process);
 
+        /**
+         * Adds the {@link BpmProcessDefinition} to the list of
+         * processes that need to execute when the {@link State}
+         * that is currently being built is exited.
+         *
+         * @param process The BpmProcessDefinition
+         * @return The StateBuilder
+         */
         StateUpdater onExit(BpmProcessDefinition process);
 
+        /**
+         * Removes the {@link BpmProcessDefinition} from the list of
+         * processes that need to execute when the {@link State}
+         * that is currently being built is exited.
+         *
+         * @param process The BpmProcessDefinition
+         * @return The StateBuilder
+         */
         StateUpdater removeOnExit(BpmProcessDefinition process);
 
         /**

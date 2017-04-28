@@ -9,12 +9,12 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.FsmUsagePointProvider;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 
@@ -60,7 +60,7 @@ public class StateTransitionTriggerEventTopicHandlerTest {
     @Mock
     private HttpAuthenticationService httpAuthenticationService;
     @Mock
-    private FsmUsagePointProvider usagePointProvider;
+    private StateTransitionPropertiesProvider usagePointProvider;
     @Mock
     private LocalEvent localEvent;
     @Mock
