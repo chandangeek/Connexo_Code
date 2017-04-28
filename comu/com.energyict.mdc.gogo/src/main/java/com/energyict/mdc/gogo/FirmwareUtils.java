@@ -6,6 +6,7 @@ package com.energyict.mdc.gogo;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -21,7 +22,9 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
@@ -59,10 +62,16 @@ public class FirmwareUtils {
     private volatile DeviceService deviceService;
     private volatile UserService userService;
     private volatile TaskService taskService;
+    private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
+    }
+
+    @Reference
+    public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
     @Reference
@@ -183,8 +192,12 @@ public class FirmwareUtils {
             Optional<FirmwareVersion> firmwareVersionByVersion = this.firmwareService.getFirmwareVersionByVersionAndType(firwareVersion, FirmwareType.METER, device.get().getDeviceType());
             firmwareVersionByVersion.ifPresent(firmwareVersion -> executeTransaction(() -> {
                 Device.DeviceMessageBuilder deviceMessageBuilder = device.get().newDeviceMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
+
+                DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE.dbValue()).get();
+                PropertySpec firmwareVersionPropertySpec = deviceMessageSpec.getPropertySpecs().stream().filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(BaseFirmwareVersion.class)).findAny().get();
+
                 DeviceMessage deviceMessage = deviceMessageBuilder
-                        .addProperty(DeviceMessageConstants.firmwareUpdateFileAttributeName, firmwareVersion)
+                        .addProperty(firmwareVersionPropertySpec.getName(), firmwareVersion)
                         .setReleaseDate(clock.instant())
                         .add();
                 System.out.println("Create message for " + deviceName + " with id " + deviceMessage.getId());
