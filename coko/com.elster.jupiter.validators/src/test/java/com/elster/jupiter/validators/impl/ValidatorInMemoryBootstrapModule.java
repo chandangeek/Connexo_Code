@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.elster.jupiter.validators.impl.meteradvance;
+package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
@@ -46,24 +46,24 @@ import java.time.Clock;
 
 import static org.mockito.Mockito.mock;
 
-public class MeterAdvanceInMemoryBootstrapModule {
+public class ValidatorInMemoryBootstrapModule {
     private final Clock clock;
     private final String[] readingTypeRequirements;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
 
-    private MeterAdvanceInMemoryBootstrapModule(Clock clock, String... requiredReadingTypes) {
+    private ValidatorInMemoryBootstrapModule(Clock clock, String... requiredReadingTypes) {
         this.clock = clock;
         this.readingTypeRequirements = requiredReadingTypes;
     }
 
-    public static MeterAdvanceInMemoryBootstrapModule withAllDefaults() {
-        return new MeterAdvanceInMemoryBootstrapModule(Clock.systemUTC());
+    public static ValidatorInMemoryBootstrapModule withAllDefaults() {
+        return new ValidatorInMemoryBootstrapModule(Clock.systemUTC());
     }
 
-    public static MeterAdvanceInMemoryBootstrapModule withClockAndReadingTypes(Clock clock, String... requiredReadingTypes) {
-        return new MeterAdvanceInMemoryBootstrapModule(clock, requiredReadingTypes);
+    public static ValidatorInMemoryBootstrapModule withClockAndReadingTypes(Clock clock, String... requiredReadingTypes) {
+        return new ValidatorInMemoryBootstrapModule(clock, requiredReadingTypes);
     }
 
     public void activate() {

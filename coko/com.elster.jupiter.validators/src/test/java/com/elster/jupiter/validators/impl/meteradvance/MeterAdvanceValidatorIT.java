@@ -28,6 +28,7 @@ import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.Validator;
+import com.elster.jupiter.validators.impl.ValidatorInMemoryBootstrapModule;
 import com.elster.jupiter.validators.impl.properties.ReadingTypeReference;
 
 import com.google.common.collect.ImmutableMap;
@@ -64,7 +65,7 @@ public class MeterAdvanceValidatorIT {
     private static final String METER_NAME = "SPE01";
 
     private static final Clock clock = Clock.system(ZoneId.of("Europe/Athens"));
-    private static MeterAdvanceInMemoryBootstrapModule inMemoryBootstrapModule = MeterAdvanceInMemoryBootstrapModule
+    private static ValidatorInMemoryBootstrapModule inMemoryBootstrapModule = ValidatorInMemoryBootstrapModule
             .withClockAndReadingTypes(clock, DAILY_DELTA_A_PLUS_KWH, DAILY_BULK_A_PLUS_KWH, BULK_A_PLUS_MWH);
 
     @Rule

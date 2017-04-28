@@ -190,7 +190,7 @@ public class ConsecutiveZerosValidator extends AbstractValidator {
     public void validateProperties(Map<String, Object> properties) {
         TimeDuration minPeriod = (TimeDuration) properties.get(MINIMUM_PERIOD);
         TimeDuration maxPeriod = (TimeDuration) properties.get(MAXIMUM_PERIOD);
-        if (minPeriod.compareTo(maxPeriod) > 0) {
+        if (minPeriod != null && maxPeriod != null && minPeriod.compareTo(maxPeriod) > 0) {
             throw new LocalizedFieldValidationException(MAX_PERIOD_SHORTER_THEN_MIN_PERIOD, "properties." + MAXIMUM_PERIOD);
         }
     }
@@ -203,11 +203,10 @@ public class ConsecutiveZerosValidator extends AbstractValidator {
                     .filter(interval -> interval.contains(lastCheck))
                     .findFirst();
             if (retroactivelyZeroInterval.isPresent()) {
-                Map<Instant, ValidationResult> result = retroactivelyRecords.stream()
+                return retroactivelyRecords.stream()
                         .filter(record -> record.getTimeStamp().compareTo(lastCheck) <= 0 && retroactivelyZeroInterval.get().contains(record.getTimeStamp()))
                         .map(IntervalReadingRecord::getTimeStamp)
                         .collect(Collectors.toMap(Function.identity(), instant -> ValidationResult.SUSPECT));
-                return result;
             }
 
         }
@@ -266,6 +265,12 @@ public class ConsecutiveZerosValidator extends AbstractValidator {
                     zeroIntervals.add(Range.openClosed(startZeroInterval, endZeroInterval));
                 }
                 intervalStarted = false;
+            }
+        }
+        if(intervalStarted){
+            long periodLength = endZeroInterval.toEpochMilli() - startZeroInterval.toEpochMilli();
+            if (periodLength > minPeriod.getMilliSeconds() && periodLength < maxPeriod.getMilliSeconds()) {
+                zeroIntervals.add(Range.openClosed(startZeroInterval, endZeroInterval));
             }
         }
         return zeroIntervals;
