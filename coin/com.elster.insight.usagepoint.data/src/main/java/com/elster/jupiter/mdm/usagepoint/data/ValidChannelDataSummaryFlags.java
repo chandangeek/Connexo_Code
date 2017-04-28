@@ -6,6 +6,7 @@ package com.elster.jupiter.mdm.usagepoint.data;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.impl.aggregation.ReadingQuality;
 
 import java.util.function.Predicate;
 
@@ -14,7 +15,8 @@ public enum ValidChannelDataSummaryFlags implements IChannelDataCompletionSummar
     ESTIMATED("estimated", "Estimated", ReadingQualityType::hasEstimatedCategory),
     INFORMATIVE("statisticsInformative", "Informative", ReadingQualityType::hasValidationCategory),
     // VALID is processed in another way so predicate is not important
-    VALID("statisticsNotSuspect", "Not suspect", type -> true);
+    VALID("statisticsNotSuspect", "Not suspect", type -> true),
+    PROJECTED("estimatedProjected", "Projected", ReadingQualityType::hasProjectedCategory);
 
     private String key, translation;
     private Predicate<ReadingQualityType> qualityTypePredicate;
