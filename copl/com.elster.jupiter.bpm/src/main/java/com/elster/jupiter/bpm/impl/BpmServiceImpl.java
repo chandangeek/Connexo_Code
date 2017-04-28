@@ -83,6 +83,8 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
     private volatile UpgradeService upgradeService;
     private List<ProcessAssociationProvider> processAssociationProviders = new CopyOnWriteArrayList<>();
 
+    private final static String TOKEN_AUTH = "com.elster.jupiter.token";
+
     public BpmServiceImpl() {
     }
 
@@ -115,7 +117,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
                 bind(BpmService.class).toInstance(BpmServiceImpl.this);
             }
         });
-        bpmServer = new BpmServerImpl(context, threadPrincipalService);
+        bpmServer = new BpmServerImpl(context, threadPrincipalService, context.getProperty(TOKEN_AUTH));
         upgradeService.register(
                 identifier("Pulse", COMPONENTNAME),
                 dataModel,
@@ -211,13 +213,13 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
     }
 
     @Override
-    public boolean startProcess(BpmProcessDefinition bpmProcessDefinition, Map<String, Object> parameters, String auth) {
+    public boolean startProcess(BpmProcessDefinition bpmProcessDefinition, Map<String, Object> parameters) {
         String jsonContent;
         JSONArray arr = null;
         String errorInvalidMessage = thesaurus.getString("error.flow.invalid.response", "Invalid response received, please check your Flow version.");
         String errorNotFoundMessage = thesaurus.getString("error.flow.unavailable", "Connexo Flow is not available.");
         try {
-            jsonContent = this.getBpmServer().doGet("/rest/deployment/processes", auth);
+            jsonContent = this.getBpmServer().doGet("/rest/deployment/processes");
             if (!"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
                 arr = jsnobject.getJSONArray("processDefinitionList");

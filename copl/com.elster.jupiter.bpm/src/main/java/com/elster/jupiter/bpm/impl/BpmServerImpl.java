@@ -33,12 +33,14 @@ public class BpmServerImpl implements BpmServer {
 
     private String url;
     private String basicAuthString;
+    private String staticTokenAuth;
 
     private volatile ThreadPrincipalService threadPrincipalService;
 
-    BpmServerImpl(BundleContext context, ThreadPrincipalService threadPrincipalService) {
+    BpmServerImpl(BundleContext context, ThreadPrincipalService threadPrincipalService, String staticTokenAuth) {
         this.threadPrincipalService = threadPrincipalService;
         this.setUrlFromContext(context);
+        this.staticTokenAuth = staticTokenAuth;
 
         String user = this.getUserFromContext(context);
         String password = this.getPasswordFromContext(context);
@@ -97,7 +99,7 @@ public class BpmServerImpl implements BpmServer {
     @Override
     public String doPost(String targetURL, String payload, String authorization, long version) {
         HttpURLConnection httpConnection = null;
-        authorization = (basicAuthString != null) ? basicAuthString : authorization;
+        authorization = (basicAuthString != null) ? basicAuthString : authorization != null ? authorization : staticTokenAuth;
         try {
             URL targetUrl = new URL(url + targetURL);
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
@@ -155,7 +157,7 @@ public class BpmServerImpl implements BpmServer {
     @Override
     public String doGet(String targetURL, String authorization) {
         HttpURLConnection httpConnection = null;
-        String authorizationHeader = (basicAuthString != null) ? basicAuthString : authorization;
+        String authorizationHeader = (basicAuthString != null) ? basicAuthString : authorization != null ? authorization : staticTokenAuth;
         try {
             URL targetUrl = new URL(url + targetURL);
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
