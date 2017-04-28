@@ -100,7 +100,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private volatile CommunicationTaskService communicationTaskService;
     private volatile UpgradeService upgradeService;
     private volatile QueryService queryService;
-    private MeteringChannelProvider meteringChannelProvider ;
+    private MeteringChannelProvider meteringChannelProvider;
 
     // For OSGi framework only
     public TopologyServiceImpl() {
@@ -313,11 +313,11 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
-    public Subquery IsLinkedToMaster(Device device){
+    public Subquery IsLinkedToMaster(Device device) {
         return queryService.wrap(this.dataModel.query(PhysicalGatewayReference.class))
-               .asSubquery(where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(device)
-                           .and
-                           (where("interval").isEffective(Instant.now())) ,PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName());
+                .asSubquery(where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(device)
+                        .and
+                                (where("interval").isEffective(Instant.now())), PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName());
     }
 
     public Optional<PhysicalGatewayReference> getPhysicalGatewayReference(Device slave, Instant when) {
@@ -650,7 +650,14 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     public List<DataLoggerChannelUsage> findDataLoggerChannelUsagesForChannels(Channel dataLoggerChannel, Range<Instant> referencePeriod) {
         Optional<com.elster.jupiter.metering.Channel> meteringChannel = meteringChannelProvider.getMeteringChannel(dataLoggerChannel);
         if (meteringChannel.isPresent()) {
-            return findDataLoggerChannelUsages(meteringChannel.get(), referencePeriod);
+            List<MeterActivation> meterActivations = dataLoggerChannel.getDevice().getMeterActivations(referencePeriod);
+            return meterActivations.stream()
+                    .flatMap(meterActivation -> meterActivation.getChannelsContainer()
+                            .getChannels()
+                            .stream()
+                            .filter(channel -> channel.getMainReadingType().equals(meteringChannel.get().getMainReadingType())))
+                    .flatMap(channel1 -> findDataLoggerChannelUsages(channel1, referencePeriod).stream())
+                    .collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
@@ -796,8 +803,8 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         sqlBuilder.append(") connect by (cps.srcdevice = prior cps.nexthopdevice and cps.targetdevice = ");
         sqlBuilder.addLong(target.getId());
         sqlBuilder.append(")");
-        try(Fetcher<G3CommunicationPathSegment> fetcher = mapper.fetcher(sqlBuilder)) {
-        	fetcher.forEach(communicationPath::addSegment);
+        try (Fetcher<G3CommunicationPathSegment> fetcher = mapper.fetcher(sqlBuilder)) {
+            fetcher.forEach(communicationPath::addSegment);
         }
         return communicationPath;
     }
