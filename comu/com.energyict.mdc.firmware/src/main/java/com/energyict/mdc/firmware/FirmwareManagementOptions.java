@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.firmware;
 
-import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
+import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import java.util.Set;
 
