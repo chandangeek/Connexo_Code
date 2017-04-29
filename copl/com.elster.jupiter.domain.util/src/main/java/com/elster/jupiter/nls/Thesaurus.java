@@ -30,6 +30,8 @@ public interface Thesaurus extends MessageInterpolator {
 
     NlsMessageFormat getFormat(TranslationKey key);
 
+    NlsMessageFormat getSimpleFormat(MessageSeed seed);
+
     /**
      * @return map containing the key and the translation to the current locale (as obtained from security.thread) for all the keys of the thesausrus
      * @since v3.0
