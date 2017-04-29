@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
@@ -65,6 +66,7 @@ public class UsagePointConsoleCommands {
     private volatile TransactionService transactionService;
     private volatile MeteringService meteringService;
     private volatile ValidationService validationService;
+    private volatile CalendarService calendarService;
     private volatile Clock clock;
 
     public void createMetrologyConfiguration(String name, String serviceKindName) {
@@ -99,7 +101,7 @@ public class UsagePointConsoleCommands {
                 transactionService.builder()
                         .principal(() -> "console")
                         .run(() -> {
-                            MetrologyConfigurationsInstaller metrologyConfigurationsInstaller = new MetrologyConfigurationsInstaller(metrologyConfigurationService, meteringService);
+                            MetrologyConfigurationsInstaller metrologyConfigurationsInstaller = new MetrologyConfigurationsInstaller(calendarService, metrologyConfigurationService, meteringService);
                             ootbMetrologyConfiguration.get().install(metrologyConfigurationsInstaller);
                         });
             }
@@ -310,6 +312,11 @@ public class UsagePointConsoleCommands {
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     @Reference

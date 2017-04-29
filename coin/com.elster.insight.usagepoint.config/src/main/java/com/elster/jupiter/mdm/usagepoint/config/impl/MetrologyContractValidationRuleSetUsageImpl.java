@@ -5,7 +5,6 @@
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -36,10 +35,10 @@ class MetrologyContractValidationRuleSetUsageImpl implements MetrologyContractVa
         }
     }
 
-    @NotEmpty(message = MessageSeeds.Constants.REQUIRED)
+    @NotEmpty(message = MessageSeeds.Keys.REQUIRED)
     @IsPresent
     private Reference<ValidationRuleSet> validationRuleSet = ValueReference.absent();
-    @NotEmpty(message = MessageSeeds.Constants.REQUIRED)
+    @NotEmpty(message = MessageSeeds.Keys.REQUIRED)
     @IsPresent
     private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
     @SuppressWarnings("unused") // Managed by ORM
