@@ -241,10 +241,8 @@ public abstract class AbstractCimChannel implements CimChannel {
         } else {
             reading.getReadingQualities().stream()
                     .filter(readingQuality -> currentQualityRecords.stream()
-                            .filter(record -> !record.getType()
-                                    .equals(readingQuality.getType()) || !matchComments(record, readingQuality))
-                            .findAny()
-                            .isPresent())
+                            .anyMatch(record -> !record.getType()
+                                    .equals(readingQuality.getType()) || !matchComments(record, readingQuality)))
                     .forEach(readingQuality -> {
                         Optional<ReadingQualityRecord> record = currentQualityRecords.stream()
                                 .filter(rec -> rec.getType().equals(readingQuality.getType()))
