@@ -620,6 +620,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 reading.set(record);
             });
         }
+
         me.showButtons();
         window.close();
     },
