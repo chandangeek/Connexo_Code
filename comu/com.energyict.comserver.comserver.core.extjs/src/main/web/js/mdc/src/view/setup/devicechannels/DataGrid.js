@@ -227,7 +227,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         if (validationFlag && validationInfo && validationInfo.commentValue) {
             estimationComment = validationInfo.commentValue;
         }
-debugger;
+
         if (status === 'notValidated') {
             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('general.notValidated', 'MDC', 'Not validated') + '"></span>';
