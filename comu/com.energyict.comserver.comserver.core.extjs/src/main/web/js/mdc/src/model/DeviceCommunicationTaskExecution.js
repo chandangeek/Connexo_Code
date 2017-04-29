@@ -18,7 +18,9 @@ Ext.define('Mdc.model.DeviceCommunicationTaskExecution', {
         {name: 'startTime', dateFormat: 'time', type: 'date'},
         {name: 'finishTime', dateFormat: 'time', type: 'date'},
         {name: 'alwaysExecuteOnInbound', type: 'boolean'},
-        {name: 'durationInSeconds', type: 'int'}
+        {name: 'durationInSeconds', type: 'int'},
+        {name: 'errors'},
+        {name: 'warnings'}
     ],
     proxy: {
         type: 'rest',

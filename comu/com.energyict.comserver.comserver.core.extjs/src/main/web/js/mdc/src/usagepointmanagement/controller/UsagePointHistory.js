@@ -82,7 +82,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
                     app.fireEvent('changecontentevent', widget);
                     switch (tab) {
                         case 'devices' :
-                            me.showDevicesTab(widget.down('#usage-point-devices'));
+                            me.showDevicesTab(widget.down('#usage-point-devices'), id);
                             break;
                         case 'metrologyconfigurationversion' :
                             me.showMetrologyConfigurationHistory(widget.down('#usage-point-metrologyconfigurationversion'));
@@ -109,7 +109,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
         }
     },
 
-    showDevicesTab: function (panel) {
+    showDevicesTab: function (panel, usagePointId) {
         var me = this,
             store = me.getStore('Mdc.usagepointmanagement.store.UsagePointHistoryDevices'),
             router = me.getController('Uni.controller.history.Router');

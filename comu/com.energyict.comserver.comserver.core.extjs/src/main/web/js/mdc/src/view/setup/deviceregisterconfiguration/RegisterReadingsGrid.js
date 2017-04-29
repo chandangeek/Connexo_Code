@@ -7,8 +7,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
     alias: 'widget.deviceRegisterReadingsGrid',
     store: undefined,
     router: undefined,
-    mRID: undefined,
-    showDataLoggerSlaveColumn: false,
+    device: null,
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
@@ -25,7 +24,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                 dataIndex: 'register',
                 renderer: function (value, metaData, record) {
                     var to = moment(record.get('timeStamp')).add(1, 'minutes').valueOf(),
-                        url = '#/devices/' + me.mRID + '/registers/' + value.id + '/data?interval=-' + to;
+                        mRID = encodeURIComponent(me.device.get('name')),
+                        url = '#/devices/' + mRID + '/registers/' + value.id + '/data?interval=-' + to;
                     return '<a href="' + url + '">' + Ext.String.htmlEncode(value.name) + '</a>';
                 },
                 flex: 15
@@ -108,13 +108,13 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                 }
             }
         ];
-
-        if (me.showDataLoggerSlaveColumn) {
+        if ((!Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')) ||
+            (!Ext.isEmpty(me.device.get('isMultiElementDevice')) && me.device.get('isMultiElementDevice'))){
             me.columns.push(
                 {
                     dataIndex: 'dataloggerSlavemRID',
                     flex: 10,
-                    header: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                    header: Mdc.util.LinkPurpose.forDevice(me.device).channelGridSlaveColumn,
                     renderer: function (value) {
                         if (Ext.isEmpty(value)) {
                             return '-';

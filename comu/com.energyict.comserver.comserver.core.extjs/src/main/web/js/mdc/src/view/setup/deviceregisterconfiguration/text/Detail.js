@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Detail', {
                                         hidden: true
                                     },
                                     {
-                                        fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                                        fieldLabel: me.linkPurpose.channelGridSlaveColumn,
                                         name: 'dataloggerSlaveName',
                                         hidden: !me.showDataLoggerSlaveField,
                                         renderer: function(value) {
@@ -118,7 +118,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Detail', {
                 me.down('#deviceRegisterConfigurationDetailForm').add(
                     {
                         xtype: 'dataLogger-slaveRegisterHistory',
-                        dataLoggerSlaveHistoryStore: me.dataLoggerSlaveHistoryStore
+                        dataLoggerSlaveHistoryStore: me.dataLoggerSlaveHistoryStore,
+                        linkPurpose: me.linkPurpose
                     }
                 );
             }, me, {single:true});

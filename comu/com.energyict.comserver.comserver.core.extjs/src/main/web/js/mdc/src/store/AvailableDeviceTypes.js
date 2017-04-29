@@ -13,6 +13,13 @@ Ext.define('Mdc.store.AvailableDeviceTypes',{
         property: 'name',
         direction: 'ASC'
     }],
+    filters: [
+        function(deviceType) {
+            return deviceType.get('deviceTypePurpose') !== 'MULTI_ELEMENT_SLAVE';
+        }
+    ],
+    filterOnLoad: true,
+    remoteFilter: false,
     remoteSort: true,
     proxy: {
         type: 'rest',
