@@ -34,7 +34,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -95,7 +95,10 @@ public class UsagePointConfigurationApplication extends Application implements T
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(FunctionTranslationKey.values());
+        List<TranslationKey> keys = new ArrayList<>();
+        Collections.addAll(keys, FunctionTranslationKey.values());
+        Collections.addAll(keys, OperatorTranslationKey.values());
+        return keys;
     }
 
     @Reference
