@@ -7,7 +7,7 @@ package com.elster.jupiter.kore.api.v2;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kore.api.impl.PublicRestAppServiceImpl;
-import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandHelper;
+import com.elster.jupiter.kore.api.impl.servicecall.CommandHelper;
 import com.elster.jupiter.kore.api.v2.issue.DeviceShortInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueAssigneeInfoFactory;
 import com.elster.jupiter.kore.api.v2.issue.IssueInfoFactory;
@@ -204,7 +204,7 @@ public class PublicRestApplication extends Application {
             bind(HeatDetailsResource.class).to(HeatDetailsResource.class);
             bind(WaterDetailInfoFactory.class).to(WaterDetailInfoFactory.class);
             bind(WaterDetailResource.class).to(WaterDetailResource.class);
-            bind(UsagePointCommandHelper.class).to(UsagePointCommandHelper.class);
+            bind(CommandHelper.class).to(CommandHelper.class);
             bind(EndDeviceInfoFactory.class).to(EndDeviceInfoFactory.class);
             bind(EndDeviceResource.class).to(EndDeviceResource.class);
             bind(EffectiveMetrologyConfigurationInfoFactory.class).to(EffectiveMetrologyConfigurationInfoFactory.class);

@@ -14,49 +14,54 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public enum UsagePointCommand {
-    CONNECT((serviceCall, usagePoint, usagePointCommandInfo, usagePointCommandHelper) -> {
-        List<CompletionOptions> completionOptionsList = usagePoint.connect(Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp), serviceCall);
-        Command.updateCallback(completionOptionsList, serviceCall, usagePointCommandHelper.getDestinationSpec());
+    CONNECT((serviceCall, commandContext) -> {
+        List<CompletionOptions> completionOptionsList = commandContext.getUsagePoint()
+                .connect(Instant.ofEpochMilli(commandContext.getUsagePointCommandInfo().effectiveTimestamp), serviceCall);
+        CommandHelper.updateCallback(completionOptionsList, serviceCall, commandContext.getCommandHelper().getDestinationSpec());
         return completionOptionsList;
     }),
-    DISCONNECT((serviceCall, usagePoint, usagePointCommandInfo, usagePointCommandHelper) -> {
-        List<CompletionOptions> completionOptionsList = usagePoint.disconnect(Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp), serviceCall);
-        Command.updateCallback(completionOptionsList, serviceCall, usagePointCommandHelper.getDestinationSpec());
+    DISCONNECT((serviceCall, commandContext) -> {
+        List<CompletionOptions> completionOptionsList = commandContext.getUsagePoint()
+                .disconnect(Instant.ofEpochMilli(commandContext.getUsagePointCommandInfo().effectiveTimestamp), serviceCall);
+        CommandHelper.updateCallback(completionOptionsList, serviceCall, commandContext.getCommandHelper().getDestinationSpec());
         return completionOptionsList;
     }),
-    ENABLELOADLIMIT((serviceCall, usagePoint, usagePointCommandInfo, usagePointCommandHelper) -> {
-        List<CompletionOptions> completionOptionsList = usagePoint.enableLoadLimit(Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp), usagePointCommandInfo.loadLimit, serviceCall);
-        Command.updateCallback(completionOptionsList, serviceCall, usagePointCommandHelper.getDestinationSpec());
+    ENABLELOADLIMIT((serviceCall, commandContext) -> {
+        List<CompletionOptions> completionOptionsList = commandContext.getUsagePoint()
+                .enableLoadLimit(Instant.ofEpochMilli(commandContext.getUsagePointCommandInfo().effectiveTimestamp), commandContext.getUsagePointCommandInfo().loadLimit, serviceCall);
+        CommandHelper.updateCallback(completionOptionsList, serviceCall, commandContext.getCommandHelper().getDestinationSpec());
         return completionOptionsList;
     }),
-    DISABLELOADLIMIT((serviceCall, usagePoint, usagePointCommandInfo, usagePointCommandHelper) -> {
-        List<CompletionOptions> completionOptionsList = usagePoint.disableLoadLimit(Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp), serviceCall);
-        Command.updateCallback(completionOptionsList, serviceCall, usagePointCommandHelper.getDestinationSpec());
+    DISABLELOADLIMIT((serviceCall, commandContext) -> {
+        List<CompletionOptions> completionOptionsList = commandContext.getUsagePoint()
+                .disableLoadLimit(Instant.ofEpochMilli(commandContext.getUsagePointCommandInfo().effectiveTimestamp), serviceCall);
+        CommandHelper.updateCallback(completionOptionsList, serviceCall, commandContext.getCommandHelper().getDestinationSpec());
         return completionOptionsList;
     }),
-    READMETERS((serviceCall, usagePoint, usagePointCommandInfo, usagePointCommandHelper) -> {
-        List<CompletionOptions> completionOptionsList = usagePoint.readData(Instant.ofEpochMilli(usagePointCommandInfo.effectiveTimestamp),
-                usagePointCommandHelper.getReadingTypesToRead(usagePointCommandInfo, usagePoint)
+    READMETERS((serviceCall, commandContext) -> {
+        List<CompletionOptions> completionOptionsList = commandContext.getUsagePoint().readData(Instant.ofEpochMilli(commandContext.getUsagePointCommandInfo().effectiveTimestamp),
+                commandContext.getCommandHelper().getReadingTypesToRead(commandContext.getUsagePointCommandInfo(), commandContext.getUsagePoint())
                 , serviceCall);
-        Command.updateCallback(completionOptionsList, serviceCall, usagePointCommandHelper.getDestinationSpec());
+        CommandHelper.updateCallback(completionOptionsList, serviceCall, commandContext.getCommandHelper().getDestinationSpec());
         return completionOptionsList;
     });
 
-    Command usagePointCommand;
+    BiFunction<ServiceCall, UsagePointCommandContext, List<CompletionOptions>> usagePointCommand;
 
-    UsagePointCommand(Command usagePointCommand) {
+    UsagePointCommand(BiFunction<ServiceCall, UsagePointCommandContext, List<CompletionOptions>> usagePointCommand) {
         this.usagePointCommand = usagePointCommand;
     }
 
-    public CommandRunStatusInfo process(UsagePoint usagePoint, UsagePointCommandInfo commandInfo, UsagePointCommandHelper usagePointCommandHelper) {
-        long expectedCommands = usagePointCommandHelper.getExpectedNumberOfCommands(usagePoint, Instant.ofEpochMilli(commandInfo.effectiveTimestamp));
+    public CommandRunStatusInfo process(UsagePoint usagePoint, UsagePointCommandInfo commandInfo, CommandHelper commandHelper) {
+        long expectedCommands = commandHelper.getExpectedNumberOfCommands(usagePoint, Instant.ofEpochMilli(commandInfo.effectiveTimestamp));
 
-        ServiceCall serviceCall = usagePointCommandHelper.createServiceCall(usagePoint, commandInfo);
-        List<CompletionOptions> completionOptionsList = usagePointCommand.process(serviceCall, usagePoint, commandInfo, usagePointCommandHelper);
+        ServiceCall serviceCall = commandHelper.createServiceCall(usagePoint, commandInfo);
+        UsagePointCommandContext usagePointCommandContext = new UsagePointCommandContext(usagePoint, commandInfo, commandHelper);
+        List<CompletionOptions> completionOptionsList = usagePointCommand.apply(serviceCall, usagePointCommandContext);
 
         if (completionOptionsList.isEmpty() || completionOptionsList.size() < expectedCommands) {
             serviceCall.requestTransition(DefaultState.ONGOING);

@@ -8,14 +8,23 @@ import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTimeline;
+import com.elster.jupiter.kore.api.impl.servicecall.EndDeviceCommand;
+import com.elster.jupiter.kore.api.impl.servicecall.EndDeviceCommandInfo;
+import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandCallbackInfo;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.ami.CompletionOptions;
+import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
+import com.elster.jupiter.servicecall.ServiceCall;
 
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -87,6 +96,12 @@ public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
         when(record2.getReadingType()).thenReturn(readingType2);
         doReturn(Collections.singletonList(record1)).when(meter).getReadings(any(Range.class), eq(readingType1));
         doReturn(Collections.singletonList(record1)).when(meter).getReadings(any(Range.class), eq(readingType2));
+        HeadEndInterface headEndInterface = mock(HeadEndInterface.class);
+        CompletionOptions completionOptions = mock(CompletionOptions.class);
+        when(meter.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));
+        when(headEndInterface.scheduleMeterRead(eq(meter), any(), any(Instant.class), any(ServiceCall.class))).thenReturn(completionOptions);
+        EndDeviceCapabilities capabilities = new EndDeviceCapabilities(Collections.emptyList(), Collections.emptyList());
+        when(headEndInterface.getCapabilities(meter)).thenReturn(capabilities);
     }
 
     @Test
@@ -136,5 +151,28 @@ public class EndDeviceResourceTest extends PlatformPublicApiJerseyTest {
         assertThat(model.<List>get("$.intervalBlocks")).hasSize(1);
         assertThat(model.<String>get("$.intervalBlocks[0].readingType"))
                 .isEqualTo("0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+    }
+
+    @Test
+    public void testCommand() throws Exception {
+        mockCommands();
+        EndDeviceCommandInfo info = new EndDeviceCommandInfo();
+        info.command = EndDeviceCommand.READMETER;
+        info.effectiveTimestamp = 1491944400000L;
+        info.httpCallBack = new UsagePointCommandCallbackInfo();
+        info.httpCallBack.method = "POST";
+        info.httpCallBack.successURL = "http://success";
+        info.httpCallBack.partialSuccessURL = "http://successPartial";
+        info.httpCallBack.failureURL = "http://fail";
+
+
+        // Business method
+        Response response = target("/enddevices/" + METER_MRID + "/commands").request().put(Entity.json(info));
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<String>get("status")).isEqualTo("SUCCESS");
+        assertThat(model.<String>get("id")).isEqualTo(METER_MRID);
     }
 }

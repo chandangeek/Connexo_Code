@@ -11,9 +11,11 @@ import com.elster.jupiter.kore.api.impl.TranslationKeys;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.nls.Layer;
@@ -31,7 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class UsagePointCommandHelper {
+public class CommandHelper {
     private final CustomPropertySetService customPropertySetService;
     private final ServiceCallService serviceCallService;
     private final MessageService messageService;
@@ -39,7 +41,7 @@ public class UsagePointCommandHelper {
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public UsagePointCommandHelper(CustomPropertySetService customPropertySetService, ServiceCallService serviceCallService, MessageService messageService, MeteringService meteringService, ExceptionFactory exceptionFactory) {
+    public CommandHelper(CustomPropertySetService customPropertySetService, ServiceCallService serviceCallService, MessageService messageService, MeteringService meteringService, ExceptionFactory exceptionFactory) {
         this.customPropertySetService = customPropertySetService;
         this.serviceCallService = serviceCallService;
         this.messageService = messageService;
@@ -62,6 +64,25 @@ public class UsagePointCommandHelper {
         ServiceCall serviceCall = serviceCallType.newServiceCall()
                 .extendedWith(usagePointCommandDomainExtension)
                 .targetObject(usagePoint)
+                .create();
+        serviceCall.requestTransition(DefaultState.PENDING);
+        return serviceCall;
+    }
+
+    ServiceCall createServiceCall(EndDevice endDevice, EndDeviceCommandInfo commandInfo) {
+        UsagePointCommandDomainExtension usagePointCommandDomainExtension = new UsagePointCommandDomainExtension();
+        usagePointCommandDomainExtension.setExpectedNumberOfCommands(BigDecimal.ONE);
+        usagePointCommandDomainExtension.setCallbackHttpMethod(commandInfo.httpCallBack.method);
+        usagePointCommandDomainExtension.setCallbackSuccessURL(commandInfo.httpCallBack.successURL);
+        usagePointCommandDomainExtension.setCallbackPartialSuccessURL(commandInfo.httpCallBack.partialSuccessURL);
+        usagePointCommandDomainExtension.setCallbackFailureURL(commandInfo.httpCallBack.failureURL);
+
+        ServiceCallType serviceCallType = serviceCallService.findServiceCallType(UsagePointCommandHandler.USAGE_POINT_COMMAND_HANDLER_NAME, UsagePointCommandHandler.USAGE_POINT_COMMAND_HANDLER_VERSION)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL_TYPE, UsagePointCommandHandler.USAGE_POINT_COMMAND_HANDLER_NAME));
+
+        ServiceCall serviceCall = serviceCallType.newServiceCall()
+                .extendedWith(usagePointCommandDomainExtension)
+                .targetObject(endDevice)
                 .create();
         serviceCall.requestTransition(DefaultState.PENDING);
         return serviceCall;
@@ -110,6 +131,14 @@ public class UsagePointCommandHelper {
 
     public MeteringService getMeteringService() {
         return meteringService;
+    }
+
+    static void updateCallback(List<CompletionOptions> completionOptionsList, ServiceCall serviceCall, DestinationSpec destinationSpec) {
+        for (CompletionOptions options : completionOptionsList) {
+            if (options != null) {
+                options.whenFinishedSendCompletionMessageWith(String.valueOf(serviceCall.getId()), destinationSpec);
+            }
+        }
     }
 
 }
