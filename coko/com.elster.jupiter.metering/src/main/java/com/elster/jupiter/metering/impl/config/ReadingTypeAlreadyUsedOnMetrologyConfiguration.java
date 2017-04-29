@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 
@@ -14,7 +14,7 @@ import com.elster.jupiter.nls.Thesaurus;
 public class ReadingTypeAlreadyUsedOnMetrologyConfiguration extends LocalizedException {
 
     public ReadingTypeAlreadyUsedOnMetrologyConfiguration(Thesaurus thesaurus) {
-        super(thesaurus, MessageSeeds.READING_TYPE_FOR_DELIVERABLE_ALREADY_USED);
+        super(thesaurus, PrivateMessageSeeds.READING_TYPE_FOR_DELIVERABLE_ALREADY_USED);
     }
 
 }

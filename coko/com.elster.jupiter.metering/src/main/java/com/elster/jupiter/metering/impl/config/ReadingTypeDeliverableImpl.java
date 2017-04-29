@@ -9,7 +9,6 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.Formula;
@@ -18,6 +17,8 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverablesCollector;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -30,12 +31,13 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
 @ValidDeliverable(groups = { Save.Create.class, Save.Update.class })
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
-public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUniqueName {
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+public class ReadingTypeDeliverableImpl implements ServerReadingTypeDeliverable, HasUniqueName {
 
     public enum Fields {
         ID("id"),
@@ -65,17 +67,17 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     // Managed by ORM
     @SuppressWarnings("unused")
     private long id;
-    @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @NotEmpty(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, message = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<MetrologyContractImpl> metrologyContract = ValueReference.absent();
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     @ValidExpression
     private Reference<ServerFormula> formula = ValueReference.absent();
-    @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @NotNull(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private DeliverableType deliverableType;
 
     // Managed by ORM
@@ -139,13 +141,41 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     }
 
     @Override
-    public ReadingType getReadingType() {
-        return this.readingType.orNull();
+    public DeliverableType getType() {
+        return this.deliverableType;
     }
 
     @Override
-    public DeliverableType getType() {
-        return this.deliverableType;
+    public Optional<Long> getRequiredTimeOfUse() {
+        final int myTimeOfUse = this.getReadingType().getTou();
+        if (myTimeOfUse == 0) {
+            return Optional.empty();
+        } else {
+            if (this.getFormula()
+                    .getExpressionNode()
+                    .accept(new ReadingTypeRequirementsCollector())
+                    .stream()
+                    .map(ReadingTypeRequirement::getTou)
+                    .anyMatch(tou -> tou == 0)) {
+                /* At least one of the requirements has no specification
+                 * for the time of use bucket so data aggregation
+                 * will have to apply time of use for that requirement
+                 * and will therefore require a Calendar that contains
+                 * an event whose code matches my time of use bucket. */
+                return Optional.of((long) myTimeOfUse);
+            } else {
+                /* All requirements have a specification
+                 * for the time of use bucket so data aggregation
+                 * will not have to apply time of use for any of the requirements
+                 * and will therefore not require a Calendar. */
+                return Optional.empty();
+            }
+        }
+    }
+
+    @Override
+    public ReadingType getReadingType() {
+        return this.readingType.orNull();
     }
 
     private void setReadingType(ReadingType readingType) {
@@ -193,7 +223,8 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
         this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_UPDATED.topic(), this);
     }
 
-    void prepareDelete() {
+    @Override
+    public void prepareDelete() {
         ServerFormula serverFormula = this.formula.get();
         formula.setNull();
         dataModel.update(this);

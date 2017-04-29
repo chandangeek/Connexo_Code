@@ -130,7 +130,7 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
             }
             if (preferredReadingTypes.size() == 1) {
                 // All child nodes are fine with the same reading type, simply enforce that one
-                VirtualReadingType preferredReadingType = preferredReadingTypes.iterator().next();
+                VirtualReadingType preferredReadingType = preferredReadingTypes.get(0);
                 return this.enforceReadingType(children, preferredReadingType);
             } else {
                 // Difference of opinions, try to compromise
@@ -265,7 +265,7 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
 
         @Override
         public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-            deliverable.setTargetReadingType(this.readingType);
+            // We should not enforce a ReadingType onto a deliverable as it is supposed to deliver exactly what it is configured for
             return null;
         }
 

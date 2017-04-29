@@ -10,6 +10,7 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.time.DayMonthTime;
 
+import java.time.Instant;
 import java.time.Month;
 import java.time.MonthDay;
 import java.util.Collections;
@@ -50,11 +51,7 @@ final class TruncatedTimelineSqlBuilderFactory {
 
         TruncatedTimelineSqlBuilder using(SqlBuilder sqlBuilder, ServerMeteringService meteringService) {
             if (this.targetReadingType.isGas()) {
-                if (IntervalLength.YEAR1.equals(this.intervalLength)) {
-                    return new YearLevelGasRelatedTruncatedTimelineSqlBuilder(this.targetReadingType, this.intervalLength, sqlBuilder, meteringService);
-                } else {
-                    return new GasRelatedTruncatedTimelineSqlBuilder(this.targetReadingType, this.intervalLength, sqlBuilder, meteringService);
-                }
+                return new GasRelatedTruncatedTimelineSqlBuilder(this.targetReadingType, this.intervalLength, sqlBuilder, meteringService);
             } else {
                 return new TruncatedTimelineSqlBuilderImpl(this.targetReadingType, this.intervalLength, sqlBuilder);
             }
@@ -65,7 +62,6 @@ final class TruncatedTimelineSqlBuilderFactory {
         final VirtualReadingType targetReadingType;
         final IntervalLength intervalLength;
         final SqlBuilder sqlBuilder;
-        String sqlName;
 
         private TruncatedTimelineSqlBuilderImpl(VirtualReadingType targetReadingType, IntervalLength intervalLength, SqlBuilder sqlBuilder) {
             this.targetReadingType = targetReadingType;
@@ -75,67 +71,16 @@ final class TruncatedTimelineSqlBuilderFactory {
 
         @Override
         public void append(String sqlName) {
-            this.sqlName = sqlName;
-            this.logActivity();
-            this.truncate();
+            this.logActivity(sqlName);
+            this.truncate(sqlName);
         }
 
-        void truncate() {
-            this.sqlBuilder.append("TRUNC(");
-            this.appendTruncateExpression();
-            this.sqlBuilder.append(", '");
-            this.sqlBuilder.append(this.intervalLength.toOracleTruncFormatModel());
-            this.sqlBuilder.append("')");
+        void truncate(String sqlName) {
+            this.intervalLength.appendTruncation(this.sqlBuilder, sqlName);
         }
 
-        void appendTruncateExpression() {
-            this.sqlBuilder.append(this.sqlName);
-        }
-
-        void logActivity() {
-            Loggers.SQL.debug(() -> "Truncating " + this.sqlName + " to " + this.intervalLength.toOracleTruncFormatModel());
-        }
-    }
-
-    private enum IntervalOperation {
-        PLUS {
-            @Override
-            void appendTo(SqlBuilder sqlBuilder) {
-                sqlBuilder.append(" + ");
-            }
-        },
-        MINUS {
-            @Override
-            void appendTo(SqlBuilder sqlBuilder) {
-                sqlBuilder.append(" - ");
-            }
-        };
-
-        abstract void appendTo(SqlBuilder sqlBuilder);
-    }
-
-    private enum GasStartField {
-        HOUR {
-            @Override
-            void appendValueTo(IntervalOperation operation, GasDayOptions gasDayOptions, SqlBuilder sqlBuilder) {
-                sqlBuilder.append(String.valueOf(gasDayOptions.getYearStart().getHour()));
-            }
-        },
-        MONTH {
-            @Override
-            void appendValueTo(IntervalOperation operation, GasDayOptions gasDayOptions, SqlBuilder sqlBuilder) {
-                if (IntervalOperation.PLUS.equals(operation)) {
-                    sqlBuilder.append(String.valueOf(gasDayOptions.getYearStart().getMonthValue() - 1));
-                } else {
-                    sqlBuilder.append(String.valueOf(gasDayOptions.getYearStart().getMonthValue()));
-                }
-            }
-        };
-
-        abstract void appendValueTo(IntervalOperation operation, GasDayOptions gasDayOptions, SqlBuilder sqlBuilder);
-
-        void appendUnitTo(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(this.name());
+        void logActivity(String sqlName) {
+            Loggers.SQL.debug(() -> "Truncating " + sqlName + " to " + this.intervalLength);
         }
     }
 
@@ -152,56 +97,16 @@ final class TruncatedTimelineSqlBuilderFactory {
         }
 
         @Override
-        void logActivity() {
-            Loggers.SQL.debug(() -> "Truncating " + this.sqlName + " to " + this.intervalLength.toOracleTruncFormatModel() + " for gas commodity using gasday start " + this.gasDayOptions
-                    .getYearStart()
-                    .toString());
+        void logActivity(String sqlName) {
+            Loggers.SQL.debug(() -> "Truncating " + sqlName + " to " + this.intervalLength + " for gas commodity using gasday start " + this.gasDayOptions.getYearStart().toString());
         }
+
 
         @Override
-        void appendTruncateExpression() {
-            super.appendTruncateExpression();
-            this.appendOracleIntervalExpression(IntervalOperation.MINUS, GasStartField.HOUR);
+        void truncate(String sqlName) {
+            this.intervalLength.appendTruncation(this.gasDayOptions, this.sqlBuilder, sqlName);
         }
 
-        void appendOracleIntervalExpression(IntervalOperation operation, GasStartField field) {
-            operation.appendTo(this.sqlBuilder);
-            this.sqlBuilder.append("INTERVAL '");
-            field.appendValueTo(operation, this.gasDayOptions, this.sqlBuilder);
-            this.sqlBuilder.append("' ");
-            field.appendUnitTo(this.sqlBuilder);
-        }
-
-        @Override
-        void truncate() {
-            this.sqlBuilder.append("(");
-            super.truncate();
-            this.appendOracleIntervalExpression(IntervalOperation.PLUS, GasStartField.HOUR);
-            this.sqlBuilder.append(")");
-        }
-
-    }
-
-    private static class YearLevelGasRelatedTruncatedTimelineSqlBuilder extends GasRelatedTruncatedTimelineSqlBuilder {
-        YearLevelGasRelatedTruncatedTimelineSqlBuilder(VirtualReadingType targetReadingType, IntervalLength intervalLength, SqlBuilder sqlBuilder, ServerMeteringService meteringService) {
-            super(targetReadingType, intervalLength, sqlBuilder, meteringService);
-        }
-
-        @Override
-        void appendTruncateExpression() {
-            this.sqlBuilder.append("(");
-            super.appendTruncateExpression();
-            this.sqlBuilder.append(")");
-            this.appendOracleIntervalExpression(IntervalOperation.MINUS, GasStartField.MONTH);
-        }
-
-        @Override
-        void truncate() {
-            this.sqlBuilder.append("(");
-            super.truncate();
-            this.appendOracleIntervalExpression(IntervalOperation.PLUS, GasStartField.MONTH);
-            this.sqlBuilder.append(")");
-        }
     }
 
     private static final class NoGasDayOptions implements GasDayOptions {
@@ -213,6 +118,16 @@ final class TruncatedTimelineSqlBuilderFactory {
         @Override
         public List<RelativePeriod> getRelativePeriods() {
             return Collections.emptyList();
+        }
+
+        @Override
+        public Instant addTo(Instant timestamp) {
+            return timestamp;
+        }
+
+        @Override
+        public Instant subtractFrom(Instant timestamp) {
+            return timestamp;
         }
     }
 

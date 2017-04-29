@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
@@ -17,7 +18,6 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -61,7 +61,12 @@ class MetrologyContractCalculationIntrospectorImpl implements MetrologyContractC
 
     @Override
     public List<CalendarUsage> getCalendarUsagesFor(ReadingTypeDeliverable deliverable) {
-        return Collections.emptyList();
+        return this.deliverablesPerMeterActivation
+                .stream()
+                .filter(each -> each.getDeliverable().equals(deliverable))
+                .map(this::toCalendarUsages)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
     private Collection<ChannelUsage> toChannelUsages(ReadingTypeDeliverableForMeterActivationSet readingTypeDeliverableForMeterActivationSet) {
@@ -69,6 +74,14 @@ class MetrologyContractCalculationIntrospectorImpl implements MetrologyContractC
                 .getPreferredChannels()
                 .stream()
                 .map(requirementAndChannel -> new ChannelUsageImpl(requirementAndChannel, readingTypeDeliverableForMeterActivationSet.getRange()))
+                .collect(Collectors.toList());
+    }
+
+    private Collection<CalendarUsage> toCalendarUsages(ReadingTypeDeliverableForMeterActivationSet readingTypeDeliverableForMeterActivationSet) {
+        return readingTypeDeliverableForMeterActivationSet
+                .getUsedCalendars()
+                .stream()
+                .map(calendar -> new CalendarUsageImpl(calendar, readingTypeDeliverableForMeterActivationSet.getRange()))
                 .collect(Collectors.toList());
     }
 
@@ -96,6 +109,26 @@ class MetrologyContractCalculationIntrospectorImpl implements MetrologyContractC
         @Override
         public Range<Instant> getRange() {
             return range;
+        }
+    }
+
+    private static class CalendarUsageImpl implements CalendarUsage {
+        private final Calendar calendar;
+        private final Range<Instant> range;
+
+        private CalendarUsageImpl(Calendar calendar, Range<Instant> range) {
+            this.calendar = calendar;
+            this.range = range;
+        }
+
+        @Override
+        public Calendar getCalendar() {
+            return this.calendar;
+        }
+
+        @Override
+        public Range<Instant> getRange() {
+            return this.range;
         }
     }
 

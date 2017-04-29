@@ -14,6 +14,8 @@ import com.elster.jupiter.util.time.DayMonthTime;
 
 import com.google.inject.Inject;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.util.List;
@@ -71,6 +73,16 @@ class GasDayOptionsImpl implements GasDayOptions {
                 .map(def -> this.timeService.findRelativePeriodByName(def.getPeriodName()))
                 .flatMap(Functions.asStream())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Instant addTo(Instant timestamp) {
+        return timestamp.plus(Duration.ofHours(this.hour));
+    }
+
+    @Override
+    public Instant subtractFrom(Instant timestamp) {
+        return timestamp.minus(Duration.ofHours(this.hour));
     }
 
 }

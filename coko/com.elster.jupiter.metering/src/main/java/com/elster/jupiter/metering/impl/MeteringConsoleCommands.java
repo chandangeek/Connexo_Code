@@ -4,10 +4,14 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationBuilder.LocationMemberBuilder;
@@ -17,7 +21,18 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.*;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeTemplate;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilderImpl;
 import com.elster.jupiter.metering.impl.config.ServerExpressionNode;
@@ -36,17 +51,21 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
+import com.google.common.base.MoreObjects;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.time.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +88,7 @@ import java.util.stream.Stream;
         "osgi.command.function=meterActivations",
         "osgi.command.function=renameMeter",
         "osgi.command.function=activateMeter",
+        "osgi.command.function=addCalendar",
         "osgi.command.function=addUsagePointToCurrentMeterActivation",
         "osgi.command.function=endCurrentMeterActivation",
         "osgi.command.function=advanceStartDate",
@@ -97,6 +117,7 @@ import java.util.stream.Stream;
         "osgi.command.function=addUsagePointLocation",
         "osgi.command.function=addUsagePointGeoCoordinates",
         "osgi.command.function=activateMetrologyConfig",
+        "osgi.command.function=deactivateMetrologyConfig",
         "osgi.command.function=addCustomPropertySet",
         "osgi.command.function=unlinkMetrologyConfiguration",
         "osgi.command.function=linkMetrologyConfiguration",
@@ -104,6 +125,11 @@ import java.util.stream.Stream;
 @SuppressWarnings("unused")
 public class MeteringConsoleCommands {
 
+    private static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+    private volatile Clock clock;
+    private volatile CalendarService calendarService;
     private volatile ServerMeteringService meteringService;
     private volatile DataModel dataModel;
     private volatile UserService userService;
@@ -112,8 +138,10 @@ public class MeteringConsoleCommands {
     private volatile CustomPropertySetService customPropertySetService;
     private volatile ServerMetrologyConfigurationService metrologyConfigurationService;
 
-    private static DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
 
     @Reference
     public void setUserService(UserService userService) {
@@ -138,6 +166,11 @@ public class MeteringConsoleCommands {
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     @Reference
@@ -351,6 +384,40 @@ public class MeteringConsoleCommands {
         meteringService.getAvailableReadingTypes().stream()
                 .map(ReadingType::getMRID)
                 .forEach(System.out::println);
+        System.out.println("Note that you can also list the available reading types on a meter by specifying the meter database id, mRID or name as a parameter to this command");
+    }
+
+    public void readingTypes(String meterIdentifier) {
+        try {
+            Optional<Meter> candidate = this.meteringService.findMeterById(Long.parseLong(meterIdentifier));
+            if (candidate.isPresent()) {
+                this.readingTypes(candidate.get());
+            } else {
+                this.readingTypesByNameOrmRID(meterIdentifier);
+            }
+        } catch (NumberFormatException e) {
+            // Maybe the meter identifier was not the database id
+            this.readingTypesByNameOrmRID(meterIdentifier);
+        }
+    }
+
+    private void readingTypesByNameOrmRID(String meterIdentifier) {
+        this.readingTypes(
+                this.meteringService
+                        .findMeterByName(meterIdentifier)
+                        .orElseGet(() -> this.meteringService
+                                .findMeterByMRID(meterIdentifier)
+                                .orElseThrow(() -> new IllegalArgumentException("Unable to find meter with database that id, mRID or name "))));
+    }
+
+    private void readingTypes(Meter meter) {
+        meter
+            .getChannelsContainers()
+            .stream()
+            .map(ChannelsContainer::getChannels)
+            .flatMap(Collection::stream)
+            .map(ChannelInfo::from)
+            .forEach(System.out::println);
     }
 
     public void addEvents(String name, String dataFile) {
@@ -489,6 +556,33 @@ public class MeteringConsoleCommands {
                 setLocationAttributes(builder.member(), location).add();
             }
             return builder;
+        }
+    }
+
+    public void addCalendar() {
+        System.out.println("Usage: addCalendar <calendar id> <usage point id> [<utc timestamp>]");
+    }
+
+    public void addCalendar(long calendarId, long usagePointId) {
+        this.addCalendar(calendarId, usagePointId, this.clock.instant());
+    }
+
+    public void addCalendar(long calendarId, long usagePointId, long utcTimeStamp) {
+        this.addCalendar(calendarId, usagePointId, Instant.ofEpochMilli(utcTimeStamp));
+    }
+
+    private void addCalendar(long calendarId, long usagePointId, Instant from) {
+        this.addCalendar(
+                this.calendarService.findCalendar(calendarId).orElseThrow(() -> new IllegalArgumentException("Calendar with id " + calendarId + " not found")),
+                this.meteringService.findUsagePointById(usagePointId).orElseThrow(() -> new IllegalArgumentException("Usage point with id " + usagePointId + " not found")),
+                from);
+    }
+
+    private void addCalendar(Calendar calendar, UsagePoint usagePoint, Instant from) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            usagePoint.getUsedCalendars().addCalendar(calendar, from);
+            context.commit();
         }
     }
 
@@ -657,17 +751,27 @@ public class MeteringConsoleCommands {
         return (ServerExpressionNode) formula.getExpressionNode();
     }
 
-    public void addContract(){
-        System.out.println("Usage: addContract  <metrology configuration id> <default purpose>");
+    public void addContract() {
+        System.out.println("Usage: addContract <metrology configuration id> <" + Stream.of(DefaultMetrologyPurpose.values()).map(DefaultMetrologyPurpose::name).collect(Collectors.joining(" | ")) + ">");
     }
 
-    public void addContract(long id, String defaultPurpose){
-        MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.valueOf(defaultPurpose))
-                .orElseThrow(() -> new NoSuchElementException("Default purposes not installed"));
-        MetrologyContract contract = metrologyConfigurationService.findMetrologyConfiguration(id)
-                .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
-                .addMetrologyContract(purpose);
-        System.out.println(Collections.singletonList(contract));
+    public void addContract(long metrologyConfigurationId, String metrologyPurpose) {
+        this.threadPrincipalService.set(() -> "Console");
+        this.addContract(
+                this.metrologyConfigurationService
+                        .findMetrologyConfiguration(metrologyConfigurationId)
+                        .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration")),
+                this.metrologyConfigurationService
+                        .findMetrologyPurpose(DefaultMetrologyPurpose.valueOf(metrologyPurpose))
+                        .orElseThrow(() -> new IllegalArgumentException("No such metrology purpose")));
+    }
+
+    private void addContract(MetrologyConfiguration metrologyConfiguration, MetrologyPurpose metrologyPurpose) {
+        try (TransactionContext context = this.transactionService.getContext()) {
+            MetrologyContract metrologyContract = metrologyConfiguration.addMetrologyContract(metrologyPurpose);
+            System.out.println("Metrology contract created: " + metrologyContract.getId());
+            context.commit();
+        }
     }
 
     public void addDeliverable() {
@@ -862,6 +966,16 @@ public class MeteringConsoleCommands {
         }
     }
 
+    public void deactivateMetrologyConfig(String name) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            metrologyConfigurationService.findMetrologyConfiguration(name)
+                    .orElseThrow(() -> new IllegalArgumentException("No such metrology configuration"))
+                    .deactivate();
+            context.commit();
+        }
+    }
+
     public void addCustomPropertySet() {
         System.out.println("Usage: addCustomPropertySet <metrology configuration id> <custom property set id>");
     }
@@ -922,6 +1036,28 @@ public class MeteringConsoleCommands {
                     .orElseThrow(() -> new IllegalArgumentException("Metrology configuration with id " + metrologyConfigurationId + " does not exist"));
             usagePoint.apply(metrologyConfiguration, startDate);
             context.commit();
+        }
+    }
+
+    private static class ChannelInfo {
+        private final Channel channel;
+
+        static ChannelInfo from(Channel channel) {
+            return new ChannelInfo(channel);
+        }
+
+        private ChannelInfo(Channel channel) {
+            this.channel = channel;
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects
+                    .toStringHelper(this.channel)
+                    .add("ID", this.channel.getId())
+                    .add("main reading type mRID", this.channel.getMainReadingType().getMRID())
+                    .add("main reading type", this.channel.getMainReadingType().getFullAliasName())
+                    .toString();
         }
     }
 

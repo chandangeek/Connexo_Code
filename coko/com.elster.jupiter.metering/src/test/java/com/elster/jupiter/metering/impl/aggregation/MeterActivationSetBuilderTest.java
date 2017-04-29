@@ -99,10 +99,10 @@ public class MeterActivationSetBuilderTest {
 
     @Before
     public void initializeMocks() {
-        when(this.main.getKey()).thenReturn("meterole.main");
+        when(this.main.getKey()).thenReturn("meterrole.main");
         when(this.main.getDisplayName()).thenReturn("Main");
         when(this.mainMeterActivation.getMeterRole()).thenReturn(Optional.of(this.main));
-        when(this.check.getKey()).thenReturn("meterole.check");
+        when(this.check.getKey()).thenReturn("meterrole.check");
         when(this.check.getDisplayName()).thenReturn("Check");
         when(this.checkMeterActivation.getMeterRole()).thenReturn(Optional.of(this.check));
         when(this.serviceCategory.getCustomPropertySets()).thenReturn(Collections.emptyList());
@@ -112,7 +112,7 @@ public class MeterActivationSetBuilderTest {
         when(this.usagePoint.getTimeOfUseCalendarUsages()).thenReturn(Collections.emptyList());
         when(this.effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(this.configuration);
         when(this.category.getId()).thenReturn(1L);
-        when(this.category.getName()).thenReturn(OutOfTheBoxCategory.TOU.getDefaultDisplayName());
+        when(this.category.getName()).thenReturn(OutOfTheBoxCategory.TOU.name());
         this.initializeCalendar(this.calendar, CALENDAR1_ID, 1);
         this.initializeCustomPropertySet();
     }

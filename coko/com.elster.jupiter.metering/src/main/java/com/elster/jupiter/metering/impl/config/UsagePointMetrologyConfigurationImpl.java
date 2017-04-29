@@ -7,15 +7,16 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointRequirement;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pubsub.Publisher;
@@ -23,16 +24,19 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.streams.Functions;
 
 import javax.inject.Inject;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {
     public static final String TYPE_IDENTIFIER = "U";
@@ -45,7 +49,7 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
 
     @Inject
     UsagePointMetrologyConfigurationImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService, UsagePointRequirementsSearchDomain searchDomain, SearchService searchService, Clock clock, Publisher publisher) {
-        super(dataModel, metrologyConfigurationService, eventService, customPropertySetService, clock, publisher);
+        super(dataModel, metrologyConfigurationService, eventService, clock, publisher);
         this.searchDomain = searchService.findDomain(searchDomain.getId()).get();
     }
 
@@ -61,7 +65,7 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
     public void addMeterRole(MeterRole meterRole) {
         if (!getMeterRoles().contains(meterRole)) {
             if (!getServiceCategory().getMeterRoles().contains(meterRole)
-                    && !meterRole.equals(super.getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).orElse(null))) {
+                    && !meterRole.equals(this.getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).orElse(null))) {
                 throw CannotManageMeterRoleOnMetrologyConfigurationException
                         .canNotAddMeterRoleWhichIsNotAssignedToServiceCategory(getMetrologyConfigurationService().getThesaurus(),
                                 meterRole.getDisplayName(), getServiceCategory().getDisplayName());
@@ -131,7 +135,7 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
 
     @Override
     public UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name) {
-        throw new UnsupportedOperationException(MessageSeeds.Constants.REQUIRED);
+        throw new UnsupportedOperationException(PrivateMessageSeeds.Constants.REQUIRED);
     }
 
     @Override
@@ -141,21 +145,32 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
 
     @Override
     public UsagePointRequirement addUsagePointRequirement(SearchablePropertyValue.ValueBean valueBean) {
-        Optional<UsagePointRequirementImpl> existedUsagePointRequirement = getUsagePointRequirements()
+        DataModel dataModel = getMetrologyConfigurationService().getDataModel();
+        boolean requirementDoesNotExist =
+            this.getUsagePointRequirements()
                 .stream()
-                .filter(requirement -> requirement.getSearchableProperty().getName().equals(valueBean.getPropertyName()))
-                .findAny()
-                .map(UsagePointRequirementImpl.class::cast);
-        UsagePointRequirementImpl usagePointRequirement = existedUsagePointRequirement
-                .orElseGet(() -> getMetrologyConfigurationService().getDataModel().getInstance(UsagePointRequirementImpl.class))
-                .init(this, valueBean);
-        Save.CREATE.validate(getMetrologyConfigurationService().getDataModel(), usagePointRequirement);
-        if (!existedUsagePointRequirement.isPresent()) {
+                .map(UsagePointRequirement::getName)
+                .noneMatch(propertyName -> propertyName.equals(valueBean.getPropertyName()));
+        if (requirementDoesNotExist) {
+            UsagePointRequirementImpl usagePointRequirement =
+                    dataModel
+                            .getInstance(UsagePointRequirementImpl.class)
+                            .init(this, valueBean);
+            Save.CREATE.validate(dataModel, usagePointRequirement);
             this.usagePointRequirements.add(usagePointRequirement);
+            return usagePointRequirement;
         } else {
-            getMetrologyConfigurationService().getDataModel().update(usagePointRequirement);
+            UsagePointRequirementImpl existingRequirement = this.getUsagePointRequirements()
+                    .stream()
+                    .filter(requirement -> requirement.getSearchableProperty().getName().equals(valueBean.getPropertyName()))
+                    .findAny()
+                    .map(UsagePointRequirementImpl.class::cast)
+                    .get();
+            existingRequirement.init(this, valueBean);
+            Save.UPDATE.validate(dataModel, existingRequirement);
+            dataModel.update(existingRequirement);
+            return existingRequirement;
         }
-        return usagePointRequirement;
     }
 
     @Override
@@ -213,4 +228,27 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
         getRequirementRoleUsage(readingTypeRequirement).ifPresent(requirementToRoleUsages::remove);
         super.removeReadingTypeRequirement(readingTypeRequirement);
     }
+
+    @Override
+    public boolean requiresCalendarOnUsagePoint() {
+        return this.mandatoryDeliverables()
+                .map(ServerReadingTypeDeliverable::getRequiredTimeOfUse)
+                .flatMap(Functions.asStream())
+                .count() > 0;
+    }
+
+    private Stream<ServerReadingTypeDeliverable> mandatoryDeliverables() {
+        return this.mandatoryContracts()
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
+                .map(ServerReadingTypeDeliverable.class::cast);
+    }
+
+    private Stream<MetrologyContract> mandatoryContracts() {
+        return this
+                .getContracts()
+                .stream()
+                .filter(MetrologyContract::isMandatory);
+    }
+
 }

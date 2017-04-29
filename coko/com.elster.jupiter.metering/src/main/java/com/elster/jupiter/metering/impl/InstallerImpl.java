@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.impl.aggregation.CalendarTimeSeriesCacheHandlerFactory;
 import com.elster.jupiter.metering.impl.upgraders.GasDayOptionsCreator;
 import com.elster.jupiter.metering.impl.upgraders.GasDayRelativePeriodCreator;
 import com.elster.jupiter.nls.Layer;
@@ -371,7 +372,4 @@ public class InstallerImpl implements FullInstaller {
         destinationSpec.subscribe(queueSubscriber, MeteringDataModelService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
-
 }
-
-
