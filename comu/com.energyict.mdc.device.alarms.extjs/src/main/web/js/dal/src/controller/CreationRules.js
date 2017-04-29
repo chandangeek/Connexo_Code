@@ -121,7 +121,8 @@ Ext.define('Dal.controller.CreationRules', {
             },
             failure: function (response) {
                 if (response.status == 400) {
-                    var errorText = Uni.I18n.translate('administration.alarmCreationRules.error.unknown', 'DAL', 'Unknown error occurred');
+                    var errorText = Uni.I18n.translate('administration.alarmCreationRules.error.unknown', 'DAL', 'Unknown error occurred'),
+                        code = '';
                     if (!Ext.isEmpty(response.statusText)) {
                         errorText = response.statusText;
                     }
@@ -130,12 +131,15 @@ Ext.define('Dal.controller.CreationRules', {
                         if (json && json.error) {
                             errorText = json.error;
                         }
+                        if (json && json.errorCode) {
+                            code = json.errorCode;
+                        }
                     }
-                    var titleText = suspended
+                    var msgText = suspended
                         ? Uni.I18n.translate('administration.alarmCreationRules.deactivate.operation.failed', 'DAL', 'Deactivate operation failed')
                         : Uni.I18n.translate('administration.alarmCreationRules.activate.operation.failed', 'DAL', 'Activate operation failed');
 
-                    me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
+                    me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('administration.alarmCreationRules.deactivate.operation.failed.title', 'DAL', 'Couldn\'t perform your action'), msgText + '.' + errorText, code);
                 }
             }
         });
