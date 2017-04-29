@@ -143,6 +143,11 @@ public class NlsModule extends AbstractModule {
         }
 
         @Override
+        public NlsMessageFormat getSimpleFormat(MessageSeed seed)  {
+            return new FakeNlsMessageFormat(seed);
+        }
+
+        @Override
         public Map<String, String> getTranslationsForCurrentLocale() {
             return translations;
         }
