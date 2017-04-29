@@ -385,7 +385,7 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
     private Calendar createCalendar(String name) {
         CalendarService calendarService = inMemoryPersistence.
                 getCalendarService();
-        Category category = calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.getDefaultDisplayName()).get();
+        Category category = calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.name()).get();
         EventSet eventSet = calendarService.newEventSet("eventset")
                 .addEvent("On peak").withCode(3)
                 .addEvent("Off peak").withCode(5)
@@ -393,9 +393,7 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
                 .add();
 
         return calendarService
-                .newCalendar(name, Year.of(2010), eventSet)
-                .category(category)
-                .endYear(Year.of(2020))
+                .newCalendar(name, category, Year.of(2010), eventSet)
                 .description("Description remains to be completed :-)")
                 .mRID(name + "-mRID")
                 .newDayType("Summer weekday")
