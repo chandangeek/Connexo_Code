@@ -27,7 +27,6 @@ Ext.define('Uni.view.readings.EstimationComment', {
             emptyText: Uni.I18n.translate('estimationComment.selectComment', 'UNI', 'Select a comment..'),
             listeners: {
                 afterrender: function () {
-                    debugger;
                     var keepComment = {
                         comment: Uni.I18n.translate('estimationComment.keepComment', 'UNI', 'Keep original comment'),
                         id: -1

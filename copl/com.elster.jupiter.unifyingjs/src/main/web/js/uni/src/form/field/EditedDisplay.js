@@ -17,7 +17,7 @@ Ext.define('Uni.form.field.EditedDisplay', {
             formattedDate,
             iconClass,
             tooltipText;
-debugger;
+
         if (value) {
             date = Ext.isDate(value.date) ? value.date : new Date(value.date);
             formattedDate = Uni.I18n.translate('general.dateAtTime', 'UNI', '{0} at {1}',
