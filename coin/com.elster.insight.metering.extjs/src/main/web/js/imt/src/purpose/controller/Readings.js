@@ -469,7 +469,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             }
 
             changedRecord = Ext.merge(confirmedObj, changedRecord);
-            changedRecord.value = !record.get('collectedValue') ? record.get('value') : undefined;
+            changedRecord.value = record.get('collectedValue') ? record.get('collectedValue') : record.get('value');
             changedRecord.commentId = record.get('commentId') ? record.get('commentId') : undefined;
             changedData.push(changedRecord);
         });
@@ -586,10 +586,18 @@ Ext.define('Imt.purpose.controller.Readings', {
     },
 
     editEstimationComment: function (records) {
+        var readings = [];
+
+        if (!Array.isArray(records)) {
+            readings.push(records);
+        } else {
+            readings = records;
+        }
+
         Ext.widget('reading-edit-estimation-comment-window',
             {
                 itemId: 'channel-edit-estimation-comment-window',
-                records: records,
+                records: readings,
                 usagePoint: true
             }).show();
     },
@@ -607,16 +615,9 @@ Ext.define('Imt.purpose.controller.Readings', {
                 commentId: commentId,
                 commentValue: commentValue
             };
-
-        if (!Array.isArray(readings)) {
-            if (commentId !== -1) {
-                me.set( record);
-            }
-        } else {
+        if (commentId !== -1) {
             _.each(readings, function (reading) {
-                if (commentId !== -1) {
-                    reading.set(record);
-                }
+                reading.set(record);
             });
         }
         me.showButtons();
@@ -661,7 +662,8 @@ Ext.define('Imt.purpose.controller.Readings', {
             router = me.getController('Uni.controller.history.Router'),
             commentCombo = window.down('#estimation-comment-box'),
             commentId = commentCombo.getValue(),
-            commentValue = commentCombo.getRawValue();
+            commentValue = commentCombo.getRawValue(),
+            readings = [];
 
         form.updateRecord(model);
         model.getProxy().extraParams = {
@@ -670,15 +672,16 @@ Ext.define('Imt.purpose.controller.Readings', {
             outputId: router.arguments.outputId
         };
 
-        if (Array.isArray(window.records)) {
-            _.each(window.records, function (record) {
-                intervals.push(record.get('interval'));
-            });
+        if (!Array.isArray(window.records)) {
+            readings.push(window.records);
         } else {
-            intervals.push(window.records.get('interval'));
+            readings = window.records;
         }
-        model.set('intervals', intervals);
+        _.each(readings, function (reading) {
+            intervals.push(reading.get('interval'));
+        });
 
+        model.set('intervals', intervals);
         model.save({
             failure: function (record, operation) {
                 var response = JSON.parse(operation.response.responseText);
@@ -693,37 +696,23 @@ Ext.define('Imt.purpose.controller.Readings', {
                     response = JSON.parse(operation.response.responseText);
                 if (response[0]) {
                     Ext.suspendLayouts();
-                    if (Array.isArray(window.records)) {
-                        _.each(window.records, function (record) {
-                            item = record.get('interval').end;
+                        _.each(readings, function (reading) {
+                            item = reading.get('interval').end;
                             item = _.find(response, function (rec) {
                                 return rec.interval.end === item;
                             });
-                            if (item && record.get('value') !== item.value) {
-                                record.set('value', item.value);
-                                record.set('isProjected', model.get('projectedValue'));
-                                record.set('bulkValidationInfo', item.bulkValidationInfo);
-                                record.set('mainValidationInfo', item.mainValidationInfo);
-                                record.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+                            if (item && reading.get('value') !== item.value) {
+                                reading.set('value', item.value);
+                                reading.set('isProjected', model.get('projectedValue'));
+                                reading.set('bulkValidationInfo', item.bulkValidationInfo);
+                                reading.set('mainValidationInfo', item.mainValidationInfo);
+                                reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
                                 if (commentId !== -1) {
-                                    record.set('commentId', commentId);
-                                    record.set('commentValue', commentValue);
+                                    reading.set('commentId', commentId);
+                                    reading.set('commentValue', commentValue);
                                 }
                             }
                         });
-                    } else {
-                        if (response[0] && window.records.get('value') !== response[0].value) {
-                            window.records.set('value', response[0].value);
-                            window.records.set('isProjected', model.get('projectedValue'));
-                            window.records.set('bulkValidationInfo', response[0].bulkValidationInfo);
-                            window.records.set('mainValidationInfo', response[0].mainValidationInfo);
-                            window.records.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
-                            if (commentId !== -1) {
-                                window.records.set('commentId', commentId);
-                                window.records.set('commentValue', commentValue);
-                            }
-                        }
-                    }
                     me.showButtons();
                     Ext.resumeLayouts(true);
                 }
