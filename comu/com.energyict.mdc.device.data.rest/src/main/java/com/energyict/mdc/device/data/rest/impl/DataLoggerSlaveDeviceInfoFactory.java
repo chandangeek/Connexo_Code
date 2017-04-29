@@ -4,11 +4,13 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.MeterActivation;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -24,6 +26,7 @@ public class DataLoggerSlaveDeviceInfoFactory {
     private volatile DataLoggerSlaveRegisterInfoFactory slaveRegisterInfoFactory;
     private volatile Clock clock;
     private volatile TopologyService topologyService;
+    private volatile MultiElementDeviceService multiElementDeviceService;
     private volatile BatchService batchService;
     private DataLoggerSlaveDeviceInfo slaveDeviceInfoForUnlinkedDataLoggerElements;
     private final ChannelInfoFactory channelInfoFactory;
@@ -31,11 +34,13 @@ public class DataLoggerSlaveDeviceInfoFactory {
     @Inject
     public DataLoggerSlaveDeviceInfoFactory(Clock clock,
                                             TopologyService topologyService,
+                                            MultiElementDeviceService multiElementDeviceService,
                                             DeviceDataInfoFactory deviceDataInfoFactory,
                                             BatchService batchService,
                                             ChannelInfoFactory channelInfoFactory) {
         this.clock = clock;
         this.topologyService = topologyService;
+        this.multiElementDeviceService = multiElementDeviceService;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
         this.slaveChannelInfoFactory = new DataLoggerSlaveChannelInfoFactory();
         this.slaveRegisterInfoFactory = new DataLoggerSlaveRegisterInfoFactory();
@@ -44,7 +49,7 @@ public class DataLoggerSlaveDeviceInfoFactory {
     }
 
     public List<DataLoggerSlaveDeviceInfo> from(Device dataLogger) {
-        if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()) {
+        if (dataLogger.getDeviceConfiguration().isDataloggerEnabled() || dataLogger.getDeviceConfiguration().isMultiElementEnabled()) {
             // DataLoggerSlaveDeviceInfo holding the unlinked data logger channels/registers
             slaveDeviceInfoForUnlinkedDataLoggerElements = new DataLoggerSlaveDeviceInfo();
             List<DataLoggerSlaveDeviceInfo> slaveDeviceInfos = new ArrayList<>();
@@ -62,10 +67,9 @@ public class DataLoggerSlaveDeviceInfoFactory {
         DataLoggerSlaveChannelInfo slaveChannelInfo = slaveChannelInfoFactory.from(channelInfoFactory.from(dataLoggerChannel), slaveChannel.map(channelInfoFactory::from));
         if (slaveChannel.isPresent()){
             Device slave = slaveChannel.get().getDevice();
-
             existingSlaveDeviceInfo = slaveDeviceInfos.stream().filter(slaveDeviceInfo -> slaveDeviceInfo.id == slave.getId()).findFirst();
             if (!existingSlaveDeviceInfo.isPresent()){
-                DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = DataLoggerSlaveDeviceInfo.from(slave, batchService, topologyService, clock);
+                DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = newSlaveWithLinkingInfo(slave);
                 existingSlaveDeviceInfo = Optional.of(newSlaveDeviceInfo);
                 slaveDeviceInfos.add(newSlaveDeviceInfo);
             }
@@ -89,7 +93,7 @@ public class DataLoggerSlaveDeviceInfoFactory {
             Device slave = slaveRegister.get().getDevice();
             existingSlaveDeviceInfo = slaveDeviceInfos.stream().filter(slaveDeviceInfo -> slaveDeviceInfo.id == slave.getId()).findFirst();
             if (!existingSlaveDeviceInfo.isPresent()){
-                DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = DataLoggerSlaveDeviceInfo.from(slave, batchService, topologyService, clock);
+                DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = newSlaveWithLinkingInfo(slave);
                 existingSlaveDeviceInfo = Optional.of(newSlaveDeviceInfo);
                 slaveDeviceInfos.add(newSlaveDeviceInfo);
             }
@@ -105,8 +109,29 @@ public class DataLoggerSlaveDeviceInfoFactory {
     }
 
     public DataLoggerSlaveDeviceInfos forDataLoggerSlaves(List<Device> devices) {
-        DataLoggerSlaveDeviceInfos dataLoggerSlaveDeviceInfos = new DataLoggerSlaveDeviceInfos(topologyService, clock, batchService);
-        dataLoggerSlaveDeviceInfos.addAll(devices);
-        return dataLoggerSlaveDeviceInfos;
+        return new DataLoggerSlaveDeviceInfos(devices, this);
+    }
+
+    DataLoggerSlaveDeviceInfo newSlaveWithLinkingInfo(Device slave){
+        DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = new DataLoggerSlaveDeviceInfo(slave);
+        if (slave.getDeviceType().isDataloggerSlave()) {
+            topologyService.findDataloggerReference(slave, clock.instant()).ifPresent(
+                    dataLoggerReference -> {
+                        newSlaveDeviceInfo.linkingTimeStamp = dataLoggerReference.getRange().lowerEndpoint().toEpochMilli();
+                    }
+            );
+            topologyService.findLastDataloggerReference(slave).ifPresent(dataLoggerReference -> {
+                if (dataLoggerReference.isTerminated()) {
+                    newSlaveDeviceInfo.unlinkingTimeStamp = dataLoggerReference.getRange().upperEndpoint().toEpochMilli();
+                }
+            });
+        }else{
+            multiElementDeviceService.findMultiElementDeviceReference(slave, clock.instant()).ifPresent(
+                    multiElementDeviceReference -> {
+                        newSlaveDeviceInfo.linkingTimeStamp = multiElementDeviceReference.getRange().lowerEndpoint().toEpochMilli();
+                    }
+            );
+        }
+        return newSlaveDeviceInfo;
     }
 }

@@ -171,8 +171,8 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         ConcurrentModificationInfo concurrentModificationInfo = response.readEntity(ConcurrentModificationInfo.class);
-        assertThat(concurrentModificationInfo.messageTitle).isEqualTo(thesaurus.getFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_TITLE).format("name"));
-        assertThat(concurrentModificationInfo.messageBody).isEqualTo(thesaurus.getFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY).format("name"));
+        assertThat(concurrentModificationInfo.messageTitle).isEqualTo(thesaurus.getSimpleFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_TITLE).format("name"));
+        assertThat(concurrentModificationInfo.messageBody).isEqualTo(thesaurus.getSimpleFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY).format("name"));
         assertThat(concurrentModificationInfo.parent.id).isEqualTo((int)device.getId());
         assertThat(concurrentModificationInfo.parent.version).isEqualTo(device.getVersion());
     }
@@ -189,8 +189,8 @@ public class DeviceLabelResourceTest extends DeviceDataRestApplicationJerseyTest
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         ConcurrentModificationInfo concurrentModificationInfo = response.readEntity(ConcurrentModificationInfo.class);
-        assertThat(concurrentModificationInfo.messageTitle).isEqualTo(thesaurus.getFormat(MessageSeeds.REMOVE_FLAG_DEVICE_CONCURRENT_TITLE).format("name"));
-        assertThat(concurrentModificationInfo.messageBody).isEqualTo(thesaurus.getFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY).format("name"));
+        assertThat(concurrentModificationInfo.messageTitle).isEqualTo(thesaurus.getSimpleFormat(MessageSeeds.REMOVE_FLAG_DEVICE_CONCURRENT_TITLE).format("name"));
+        assertThat(concurrentModificationInfo.messageBody).isEqualTo(thesaurus.getSimpleFormat(MessageSeeds.FLAG_DEVICE_CONCURRENT_BODY).format("name"));
         assertThat(concurrentModificationInfo.parent.id).isEqualTo((int)device.getId());
         assertThat(concurrentModificationInfo.parent.version).isEqualTo(device.getVersion());
     }

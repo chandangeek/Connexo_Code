@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -44,7 +45,6 @@ public class DeviceInfo extends DeviceVersionInfo {
     public String batch;
     public String masterDeviceName;
     public Long masterDeviceId;
-    public String dataloggerName; // only available when we are a dataloggerslave
     public List<DeviceTopologyInfo> slaveDevices;
     public int nbrOfDataCollectionIssues;
     public Long openDataValidationIssue;
@@ -56,7 +56,11 @@ public class DeviceInfo extends DeviceVersionInfo {
     public Boolean isDirectlyAddressed;
     public Boolean isGateway;
     public Boolean isDataLogger;
+    public String dataloggerName; // only available when we are a dataloggerslave
     public Boolean isDataLoggerSlave;
+    public Boolean isMultiElementDevice;
+    public String multiElementDeviceName; // only available when we are a multi-element slave
+    public Boolean isMultiElementSlave;
     public String serviceCategory;
     public String usagePoint;
     public DeviceEstimationStatusInfo estimationStatus;
@@ -101,7 +105,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         return deviceInfo;
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, TopologyService topologyService, IssueRetriever issueRetriever, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates, Clock clock) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, TopologyService topologyService, MultiElementDeviceService multiElementDeviceService, IssueRetriever issueRetriever, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates, Clock clock) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = from(device, location, geoCoordinates);
         deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().map(HasId::getId).orElse(0L);
@@ -111,11 +115,6 @@ public class DeviceInfo extends DeviceVersionInfo {
         if (physicalGateway.isPresent()) {
             deviceInfo.masterDeviceId = physicalGateway.get().getId();
             deviceInfo.masterDeviceName = physicalGateway.get().getName();
-        }
-
-        if (device.getDeviceType().isDataloggerSlave()) {
-            topologyService.findDataloggerReference(device, clock.instant())
-                    .ifPresent(dataLoggerReference -> deviceInfo.dataloggerName = dataLoggerReference.getGateway().getName());
         }
         deviceInfo.gatewayType = device.getConfigurationGatewayType();
         deviceInfo.slaveDevices = slaveDevices;
@@ -128,6 +127,14 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.isGateway = deviceConfiguration.canActAsGateway();
         deviceInfo.isDataLogger = deviceConfiguration.isDataloggerEnabled();
         deviceInfo.isDataLoggerSlave = device.getDeviceType().isDataloggerSlave();
+        if (device.getDeviceType().isDataloggerSlave()) {
+            topologyService.getDataLogger(device, clock.instant()).ifPresent(datalogger -> deviceInfo.dataloggerName = device.getName());
+        }
+        deviceInfo.isMultiElementDevice = deviceConfiguration.isMultiElementEnabled();
+        deviceInfo.isMultiElementSlave = device.getDeviceType().isMultiElementSlave();
+        if (device.getDeviceType().isMultiElementSlave()) {
+            multiElementDeviceService.getMultiElementDevice(device, clock.instant()).ifPresent(multiElementDevice -> deviceInfo.multiElementDeviceName = multiElementDevice.getName());
+        }
         device.getUsagePoint().ifPresent(usagePoint -> {
             deviceInfo.usagePoint = usagePoint.getName();
             deviceInfo.serviceCategory = usagePoint.getServiceCategory().getName();

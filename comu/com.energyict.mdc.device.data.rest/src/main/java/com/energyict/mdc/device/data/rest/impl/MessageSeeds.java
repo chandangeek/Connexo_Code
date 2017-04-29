@@ -112,13 +112,15 @@ public enum MessageSeeds implements MessageSeed {
     PROCESS_STATUS_ABORTED(290, "ProcessStatusAborted", "Aborted"),
     PROCESS_STATUS_SUSPENDED(291, "ProcessStatusSuspended", "Suspended"),
     OVERLAPPING_COMTASKS_IN_COMSCHEDULES(292, "OverlappingComTasks", "There are overlapping communication tasks in the schedules"),
-    NO_SUCH_PROTOCOL_PROPERTIES(293, "NoSuchProtocolDialectProperties", "\"No protocol dialect with name '{0}'"),
-    NO_SUCH_VALIDATION_RULE(294, "noSuchValidationRule", "No validation rule with id {0}"),
-    NO_SUCH_ESTIMATION_RULE(295, "noSuchEstimationRule", "No estimation rule with id {0}"),
-    NO_SUCH_READINGTYPE_ON_CHANNEL(296, "noSuchReadingTypeOnChannel", "Device''s channel doesn''t provide reading type {0}"),
-    VALIDATION_RULE_IS_NOT_APPLICABLE_TO_READINGTYPE(297, "ValidationRuleIsNotApplicableToReadingType", "Validation rule with id {0} is not applicable to reading type {1}"),
-    ESTIMATION_RULE_IS_NOT_APPLICABLE_TO_READINGTYPE(298, "EstimationRuleIsNotApplicableToReadingType", "Estimation rule with id {0} is not applicable to reading type {1}"),
-    NO_CALCULATED_READINGTYPE_ON_CHANNEL(299, "noCalculatedReadingTypeOnChannel", "Device''s channel with id {0} doesn''t provide calculated reading type"),;
+    NO_SUCH_VALIDATION_RULE(293, "noSuchValidationRule", "No validation rule with id {0}"),
+    NO_SUCH_PROTOCOL_PROPERTIES(294, "NoSuchProtocolDialectProperties", "No protocol dialect with name '{0}'"),
+    UPDATE_OF_DEVICE_FAILED(295, "UpdateOfDeviceFailed", "Update of device failed"),
+    NO_SUCH_ESTIMATION_RULE(296, "noSuchEstimationRule", "No estimation rule with id {0}"),
+    NO_SUCH_READINGTYPE_ON_CHANNEL(297, "noSuchReadingTypeOnChannel", "Device''s channel doesn''t provide reading type {0}"),
+    VALIDATION_RULE_IS_NOT_APPLICABLE_TO_READINGTYPE(298, "ValidationRuleIsNotApplicableToReadingType", "Validation rule with id {0} is not applicable to reading type {1}"),
+    ESTIMATION_RULE_IS_NOT_APPLICABLE_TO_READINGTYPE(299, "EstimationRuleIsNotApplicableToReadingType", "Estimation rule with id {0} is not applicable to reading type {1}"),
+    NO_CALCULATED_READINGTYPE_ON_CHANNEL(300, "noCalculatedReadingTypeOnChannel", "Device''s channel with id {0} doesn''t provide calculated reading type"),
+    ;
 
     private final int number;
     private final String key;
