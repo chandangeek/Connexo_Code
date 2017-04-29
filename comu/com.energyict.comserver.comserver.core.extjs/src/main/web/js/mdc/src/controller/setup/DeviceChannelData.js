@@ -1073,9 +1073,17 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             window = me.getReadingEstimationWindow(),
             propertyForm = window.down('#property-form'),
             model = Ext.create('Mdc.model.DeviceChannelDataEstimate'),
+            commentCombo = window.down('#estimation-comment-box'),
+            commentValue = commentCombo.getRawValue(),
+            commentId = commentCombo.getValue(),
             estimateBulk = false,
             record = window.record,
-            intervalsArray = [];
+            intervalsArray = [],
+            validationInfoName,
+            comment = {
+                commentId: commentId,
+                commentValue: commentValue
+            };
 
         !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
         !window.down('#error-label').isHidden() && window.down('#error-label').hide();
@@ -1098,17 +1106,21 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 });
             }
         }
+
+        validationInfoName = estimateBulk ? 'bulkValidationInfo' : 'mainValidationInfo';
         if (!Ext.isArray(record)) {
             intervalsArray.push({
                 start: record.get('interval').start,
                 end: record.get('interval').end
             });
+            record.set(validationInfoName, comment);
         } else {
             Ext.Array.each(record, function (item) {
                 intervalsArray.push({
                     start: item.get('interval').start,
                     end: item.get('interval').end
                 });
+                item.set(validationInfoName, comment);
             });
         }
         model.set('estimateBulk', estimateBulk);
@@ -1122,9 +1134,17 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             propertyForm = window.down('#property-form'),
             estimationRuleId = window.down('#estimator-field').getValue(),
             model = Ext.create('Mdc.model.DeviceChannelDataEstimate'),
+            commentCombo = window.down('#estimation-comment-box'),
+            commentValue = commentCombo.getRawValue(),
+            commentId = commentCombo.getValue(),
             estimateBulk = false,
             record = window.record,
-            intervalsArray = [];
+            intervalsArray = [],
+            validationInfoName,
+            comment = {
+                commentId: commentId,
+                commentValue: commentValue
+            };
 
         !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
         !window.down('#error-label').isHidden() && window.down('#error-label').hide();
@@ -1146,17 +1166,21 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 });
             }
         }
+
+        validationInfoName = estimateBulk ? 'bulkValidationInfo' : 'mainValidationInfo';
         if (!Ext.isArray(record)) {
             intervalsArray.push({
                 start: record.get('interval').start,
                 end: record.get('interval').end
             });
+            record.set(validationInfoName, comment);
         } else {
             Ext.Array.each(record, function (item) {
                 intervalsArray.push({
                     start: item.get('interval').start,
                     end: item.get('interval').end
                 });
+                item.set(validationInfoName, comment);
             });
         }
         model.set('estimateBulk', estimateBulk);
@@ -1167,26 +1191,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     saveChannelDataEstimateModelr: function (record, readings, window, ruleId, action) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            commentCombo = window.down('#estimation-comment-box'),
-            commentValue = commentCombo ? commentCombo.getRawValue() : null,
-            commentId = commentCombo ? commentCombo.getValue() : -1,
-            adjustedPropertyFormErrors,
-            validationInfoName = record.get('estimateBulk') ? 'bulkValidationInfo' : 'mainValidationInfo',
-            validationInfo = {},
-            comment = {
-                commentId: commentId,
-                commentValue: commentValue
-            };
-
-        if (commentId !== -1) {
-            if (!Ext.isArray(record)) {
-                record.set(validationInfoName, comment);
-            } else {
-                Ext.Array.each(record, function (records) {
-                    records.set(validationInfoName, comment);
-                });
-            }
-        }
+            adjustedPropertyFormErrors;
 
         record.getProxy().setParams(decodeURIComponent(router.arguments.deviceId), router.arguments.channelId);
         window.setLoading();
@@ -1436,8 +1441,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
         menu.down('#estimate-value').setVisible(suspects.length);
         menu.down('#estimate-value-with-rule').setVisible(suspects.length && estimationRulesCount);
-        // menu.down('#estimate-value').setVisible(true);
-        // menu.down('#estimate-value-with-rule').setVisible(true);
 
         var confirms = suspects.filter(function (record) {
             return !record.get('confirmed') && !record.isModified('value') && !record.isModified('collectedValue')
@@ -1451,7 +1454,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         canEditingComment = flagForComment(record.get('mainModificationState').flag);
                         if (!canEditingComment) {
                             canEditingComment = flagForComment(record.get('bulkModificationState').flag);
-                            // canEditingComment = true;
                         }
                     }
                     return canEditingComment;
