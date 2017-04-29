@@ -330,7 +330,7 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
         if (discardDay) {
             calendar = ((DiscardDaySettings) discardSpecificDay).getCalendar();
             calendarEventId = ((DiscardDaySettings) discardSpecificDay).getEvent().getId();
-            zonedView = calendar.forZone(estimationBlock.getChannel().getZoneId(), calendar.getStartYear(), calendar.getEndYear());
+            zonedView = calendar.forZone(estimationBlock.getChannel().getZoneId(), calendar.getStartYear(), calendar.getEndYear().get());
         } else {
             calendar = null;
             calendarEventId = 0;
