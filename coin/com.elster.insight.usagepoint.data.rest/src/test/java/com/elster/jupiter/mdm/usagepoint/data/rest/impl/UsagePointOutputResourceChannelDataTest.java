@@ -33,12 +33,11 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
-import com.elster.jupiter.rest.util.BigDecimalFunction;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.BigDecimalFunction;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -50,11 +49,6 @@ import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -75,11 +69,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -598,7 +596,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
     @Test
     public void testReadingValidationInfoForMissedReadingInTheMiddleOfValidatedData() {
-        OutputChannelDataInfoFactory factory = new OutputChannelDataInfoFactory(new ValidationRuleInfoFactory(propertyValueInfoService, readingTypeInfoFactory), readingQualityInfoFactory, estimationRuleInfoFactory);
+        OutputChannelDataInfoFactory factory = new OutputChannelDataInfoFactory(new ValidationRuleInfoFactory(propertyValueInfoService, readingTypeInfoFactory), readingQualityInfoFactory, estimationRuleInfoFactory, meteringService);
         ChannelReadingWithValidationStatus status = mock(ChannelReadingWithValidationStatus.class);
         when(status.getTimeStamp()).thenReturn(TIMESTAMP.minus(1, ChronoUnit.DAYS));
         when(status.getTimePeriod()).thenReturn(Range.closedOpen(TIMESTAMP.minus(1, ChronoUnit.DAYS), TIMESTAMP));
@@ -614,7 +612,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
     @Test
     public void testReadingValidationInfoForMissedReadingAfterLastCheckedDate() {
-        OutputChannelDataInfoFactory factory = new OutputChannelDataInfoFactory(new ValidationRuleInfoFactory(propertyValueInfoService, readingTypeInfoFactory), readingQualityInfoFactory, estimationRuleInfoFactory);
+        OutputChannelDataInfoFactory factory = new OutputChannelDataInfoFactory(new ValidationRuleInfoFactory(propertyValueInfoService, readingTypeInfoFactory), readingQualityInfoFactory, estimationRuleInfoFactory, meteringService);
         ChannelReadingWithValidationStatus status = mock(ChannelReadingWithValidationStatus.class);
         Instant dayAfter = TIMESTAMP.plus(1, ChronoUnit.DAYS);
         when(status.getTimeStamp()).thenReturn(dayAfter);
