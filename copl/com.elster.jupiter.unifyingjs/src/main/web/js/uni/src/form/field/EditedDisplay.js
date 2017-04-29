@@ -17,7 +17,7 @@ Ext.define('Uni.form.field.EditedDisplay', {
             formattedDate,
             iconClass,
             tooltipText;
-
+debugger;
         if (value) {
             date = Ext.isDate(value.date) ? value.date : new Date(value.date);
             formattedDate = Uni.I18n.translate('general.dateAtTime', 'UNI', '{0} at {1}',
@@ -35,27 +35,45 @@ Ext.define('Uni.form.field.EditedDisplay', {
                     tooltipText = value.date === null
                         ? Uni.I18n.translate('general.editedOnXx', 'UNI', 'Edited')
                         : Uni.I18n.translate('general.editedOnX', 'UNI', 'Edited on {0}', formattedDate);
-                    tooltipText += record && record.get('commentValue')
-                        ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
-                        : '';
+                    if (record) {
+                        tooltipText += record.get('commentValue')
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
+                            : record.get('mainValidationInfo') && record.get('mainValidationInfo').commentValue
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('mainValidationInfo').commentValue)
+                            : record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentValue
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('bulkValidationInfo').commentValue)
+                            : '';
+                    }
                     break;
                 case 'ESTIMATED':
                     iconClass = 'icon-pencil4';
                     tooltipText = value.date === null
                         ? Uni.I18n.translate('general.estimatedOnXx', 'UNI', 'Estimated')
                         : Uni.I18n.translate('general.estimatedOnX', 'UNI', 'Estimated on {0}', formattedDate);
-                    tooltipText += record && record.get('commentValue')
-                        ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
-                        : '';
+                    if (record) {
+                        tooltipText += record.get('commentValue')
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
+                            : record.get('mainValidationInfo') && record.get('mainValidationInfo').commentValue
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('mainValidationInfo').commentValue)
+                            : record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentValue
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('bulkValidationInfo').commentValue)
+                            : '';
+                    }
                     break;
                 case 'REMOVED':
                     iconClass = 'icon-cancel-circle';
                     tooltipText = value.date === null
                         ? Uni.I18n.translate('general.removedOnXx', 'UNI', 'Removed')
                         : Uni.I18n.translate('general.removedOnX', 'UNI', 'Removed on {0}', formattedDate);
-                    tooltipText += record && record.get('commentValue')
-                        ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
-                        : '';
+                    if (record) {
+                        tooltipText += record.get('commentValue')
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
+                            : record.get('mainValidationInfo') && record.get('mainValidationInfo').commentValue
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('mainValidationInfo').commentValue)
+                            : record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentValue
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('bulkValidationInfo').commentValue)
+                            : '';
+                    }
                     break;
                 case 'RESET':
                     iconClass = 'icon-cancel-circle';
