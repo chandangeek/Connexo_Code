@@ -21,14 +21,17 @@ import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -38,12 +41,9 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
 
     private static PropertyValueConverter DEFAULT_CONVERTER = new DefaultPropertyValueConverter();
     private final List<PropertyValueConverter> converters = new CopyOnWriteArrayList<>();
+    private final Map<String, PropertyValueConverter> dedicatedConverters = new HashMap<>();
 
     private volatile Thesaurus thesaurus;
-
-    public PropertyValueInfoServiceImpl() {
-
-    }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
@@ -70,21 +70,35 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
     }
 
     @Override
+    public void addPropertyValueInfoConverter(PropertyValueConverter converter, String propertyName) {
+        dedicatedConverters.put(propertyName, converter);
+    }
+
+    @Override
     public void addPropertyValueInfoConverter(PropertyValueConverter converter) {
         this.converters.add(converter);
     }
 
     @Override
     public void removePropertyValueInfoConverter(PropertyValueConverter converter) {
+        this.dedicatedConverters.keySet().forEach(propertyName -> this.cleanupDedicatedConverters(propertyName, converter));
         this.converters.remove(converter);
+    }
+
+    private void cleanupDedicatedConverters(String propertyName, PropertyValueConverter converter) {
+        if (this.dedicatedConverters.get(propertyName).equals(converter)) {
+            this.dedicatedConverters.remove(propertyName);
+        }
     }
 
     @Override
     public PropertyValueConverter getConverter(PropertySpec propertySpec) {
-        return this.converters.stream()
+        return Optional.ofNullable(dedicatedConverters.get(propertySpec.getName())).orElseGet(() ->
+             this.converters.stream()
                 .filter(converter -> converter.canProcess(propertySpec))
                 .findAny()
-                .orElse(DEFAULT_CONVERTER);
+                .orElse(DEFAULT_CONVERTER)
+        );
     }
 
     @Override
