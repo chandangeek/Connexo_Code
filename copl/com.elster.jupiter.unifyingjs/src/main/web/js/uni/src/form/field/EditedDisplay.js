@@ -38,9 +38,9 @@ Ext.define('Uni.form.field.EditedDisplay', {
                     if (record) {
                         tooltipText += record.get('commentValue')
                             ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
-                            : record.get('mainValidationInfo') && record.get('mainValidationInfo').commentValue
+                            : cell.column.dataIndex === 'mainModificationState' && record.get('mainValidationInfo') && record.get('mainValidationInfo').commentValue
                             ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('mainValidationInfo').commentValue)
-                            : record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentValue
+                            : cell.column.dataIndex === 'bulkModificationState' && record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentValue
                             ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('bulkValidationInfo').commentValue)
                             : '';
                     }
@@ -53,9 +53,9 @@ Ext.define('Uni.form.field.EditedDisplay', {
                     if (record) {
                         tooltipText += record.get('commentValue')
                             ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
-                            : record.get('mainValidationInfo') && record.get('mainValidationInfo').commentValue
+                            : cell.column.dataIndex === 'mainModificationState' && record.get('mainValidationInfo') && record.get('mainValidationInfo').commentValue
                             ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('mainValidationInfo').commentValue)
-                            : record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentValue
+                            : cell.column.dataIndex === 'bulkModificationState' && record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentValue
                             ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('bulkValidationInfo').commentValue)
                             : '';
                     }
@@ -68,9 +68,9 @@ Ext.define('Uni.form.field.EditedDisplay', {
                     if (record) {
                         tooltipText += record.get('commentValue')
                             ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
-                            : record.get('mainValidationInfo') && record.get('mainValidationInfo').commentValue
+                            : cell.column.dataIndex === 'mainModificationState' && record.get('mainValidationInfo') && record.get('mainValidationInfo').commentValue
                             ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('mainValidationInfo').commentValue)
-                            : record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentValue
+                            : cell.column.dataIndex === 'bulkModificationState' && record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentValue
                             ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('bulkValidationInfo').commentValue)
                             : '';
                     }
