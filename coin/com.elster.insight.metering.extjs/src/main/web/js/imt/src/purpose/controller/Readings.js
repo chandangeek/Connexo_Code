@@ -539,7 +539,6 @@ Ext.define('Imt.purpose.controller.Readings', {
         menu.down('#estimate-value').setVisible(canEstimate);
         menu.down('#estimate-value-with-rule').setVisible(canEstimateWithRule);
         menu.down('#edit-estimation-comment').setVisible(canEditingComment);
-        // menu.down('#edit-estimation-comment').setVisible(true);
         menu.down('#copy-form-value').setVisible(canCopyFromReference);
         menu.down('#confirm-value').setVisible(canConfirm);
         menu.down('#reset-value').setVisible(canReset);
@@ -805,6 +804,9 @@ Ext.define('Imt.purpose.controller.Readings', {
             estimator = window.down('#estimator-field').getValue(),
             propertyForm = window.down('#property-form'),
             model = Ext.create('Imt.purpose.model.ChannelDataEstimate'),
+            commentCombo = window.down('#estimation-comment-box'),
+            commentId = commentCombo.getValue(),
+            commentValue = commentCombo.getRawValue(),
             record = window.record,
             markAsProjected,
             commentId,
@@ -828,12 +830,16 @@ Ext.define('Imt.purpose.controller.Readings', {
                 start: record.get('interval').start,
                 end: record.get('interval').end
             });
+            record.set('commentId', commentId);
+            record.set('commentValue', commentValue);
         } else {
             Ext.Array.each(record, function (item) {
                 intervalsArray.push({
                     start: item.get('interval').start,
                     end: item.get('interval').end
                 });
+                item.set('commentId', commentId);
+                item.set('commentValue', commentValue);
             });
         }
         model.set('intervals', intervalsArray);
@@ -847,6 +853,9 @@ Ext.define('Imt.purpose.controller.Readings', {
             estimationRuleId = window.down('#estimation-rule-field').getValue(),
             propertyForm = window.down('#property-form'),
             model = Ext.create('Imt.purpose.model.ChannelDataEstimate'),
+            commentCombo = window.down('#estimation-comment-box'),
+            commentId = commentCombo.getValue(),
+            commentValue = commentCombo.getRawValue(),
             record = window.record,
             markAsProjected,
             intervalsArray = [];
@@ -864,12 +873,20 @@ Ext.define('Imt.purpose.controller.Readings', {
                 start: record.get('interval').start,
                 end: record.get('interval').end
             });
+            if (commentId !== -1) {
+                record.set('commentId', commentId);
+                record.set('commentValue', commentValue);
+            }
         } else {
             Ext.Array.each(record, function (item) {
                 intervalsArray.push({
                     start: item.get('interval').start,
                     end: item.get('interval').end
                 });
+                if (commentId !== -1) {
+                    item.set('commentId', commentId);
+                    item.set('commentValue', commentValue);
+                }
             });
         }
         model.set('intervals', intervalsArray);
@@ -881,22 +898,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         var me = this,
             grid = me.getReadingsList(),
             router = me.getController('Uni.controller.history.Router'),
-            commentCombo = window.down('#estimation-comment-box'),
-            commentId = commentCombo ? commentCombo.getValue() : null,
-            commentValue = commentCombo ? commentCombo.getRawValue() : null,
             adjustedPropertyFormErrors;
-
-        if (commentId !== -1) {
-            if (!Ext.isArray(record)) {
-                record.set('commentId', commentId);
-                record.set('commentValue', commentValue);
-            } else {
-                Ext.Array.each(record, function (records) {
-                    records.set('commentId', commentId);
-                    records.set('commentValue', commentValue);
-                });
-            }
-        }
 
         record.getProxy().setParams(decodeURIComponent(router.arguments.usagePointId), router.arguments.purposeId, router.arguments.outputId);
         window.setLoading();
