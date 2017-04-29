@@ -89,6 +89,14 @@ Ext.define('Imt.util.CommonFields', {
         } : null;
     },
 
+    prepareEventName: function(names){
+        return names ? {
+            fieldLabel: Uni.I18n.translate('general.eventName', 'IMT', 'Time of use events'),
+            value: names.join('<BR>'),
+            htmlEncode: false
+        } : null;
+    },
+
     prepareCustomPropertyInfoIcon: function (customPropertySetName) {
         var tooltip = Uni.I18n.translate('general.tooltip.partOfCustomAttributeSet', 'IMT', 'Part of {0} custom attribute set', [customPropertySetName]);
 
