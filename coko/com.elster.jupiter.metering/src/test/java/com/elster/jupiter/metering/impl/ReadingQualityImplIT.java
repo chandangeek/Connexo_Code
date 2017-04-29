@@ -86,9 +86,9 @@ public class ReadingQualityImplIT {
         doTest(date);
 
         ArgumentCaptor<LocalEvent> localEventCapture = ArgumentCaptor.forClass(LocalEvent.class);
-        verify(topicHandler, times(6)).handle(localEventCapture.capture());
+        verify(topicHandler, times(7)).handle(localEventCapture.capture());
 
-        LocalEvent localEvent = localEventCapture.getAllValues().get(5);
+        LocalEvent localEvent = localEventCapture.getAllValues().get(6);
         assertThat(localEvent.getType().getTopic()).isEqualTo(EventType.READING_QUALITY_CREATED.topic());
         Event event = localEvent.toOsgiEvent();
         assertThat(event.containsProperty("readingTimestamp")).isTrue();
