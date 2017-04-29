@@ -44,6 +44,7 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
 
     @Inject
     public UsagePointsImporterFactory(MeteringDataImporterContext context) {
+        this();
         setMeteringDataImporterContext(context);
     }
 

@@ -5,6 +5,8 @@
 package com.elster.jupiter.metering.imports.impl.usagepoint;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.fileimport.csvimport.FileImportLogger;
+import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.GasDetail;
@@ -25,10 +27,8 @@ import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
-import com.elster.jupiter.fileimport.csvimport.FileImportLogger;
 import com.elster.jupiter.metering.imports.impl.MessageSeeds;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
-import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.metering.imports.impl.parsers.InstantParser;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
@@ -64,14 +64,13 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
     @Override
     public void process(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {
         try {
-            validate(data, logger);
-            UsagePoint usagePoint = getUsagePoint(data, logger);
+            validate(data);
+            UsagePoint usagePoint = getUsagePoint(data);
             if (usagePoint.getDetail(getClock().instant()).isPresent()) {
-                updateDetails(usagePoint, data, logger).create();
+                updateDetails(usagePoint, data).create();
             } else {
-                createDetails(usagePoint, data, logger).create();
+                createDetails(usagePoint, data).create();
             }
-            usagePointImportHelper.setMetrologyConfigurationForUsagePoint(data, usagePoint);
             activateMeters(data, usagePoint);
             performUsagePointTransition(data, usagePoint);
         } catch (ConstraintViolationException e) {
@@ -88,7 +87,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
 
     }
 
-    private void validate(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {
+    private void validate(UsagePointImportRecord data) throws ProcessorException {
         String identifier = data.getUsagePointIdentifier()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_IDENTIFIER_INVALID, data.getLineNumber()));
         String serviceKindString = data.getServiceKind()
@@ -103,26 +102,25 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
         Optional<UsagePoint> usagePoint = findUsagePointByIdentifier(identifier);
         if (usagePoint.isPresent()) {
             if (data.isAllowUpdate()) {
-                updateDetails(usagePoint.get(), data, logger).validate();
+                updateDetails(usagePoint.get(), data).validate();
                 validateCustomPropertySetValues(usagePoint.get(), data);
             } else {
                 throw new ProcessorException(MessageSeeds.UPDATE_NOT_ALLOWED, data.getLineNumber());
             }
         } else {
             if (data.isAllowUpdate()) {
-                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NOT_FOUND, data.getLineNumber(), data.getUsagePointIdentifier()
-                        .get());
+                throw new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NOT_FOUND, data.getLineNumber(), data.getUsagePointIdentifier().get());
             }
             UsagePoint dummyUsagePoint = serviceCategory.newUsagePoint(identifier, data.getInstallationTime()
                     .orElse(getClock().instant())).validate();
-            createDetails(dummyUsagePoint, data, logger).validate();
+            createDetails(dummyUsagePoint, data).validate();
             validateMandatoryCustomProperties(dummyUsagePoint, data);
             validateCustomPropertySetValues(dummyUsagePoint, data);
             validateMeterConfigurationAndTransition(dummyUsagePoint, data);
         }
     }
 
-    private UsagePoint getUsagePoint(UsagePointImportRecord data, FileImportLogger logger) {
+    private UsagePoint getUsagePoint(UsagePointImportRecord data) {
         String identifier = data.getUsagePointIdentifier()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_IDENTIFIER_INVALID, data.getLineNumber()));
         String serviceKindString = data.getServiceKind()
@@ -143,12 +141,15 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
                     .get();
             return usagePointImportHelper.updateUsagePointForInsight(usagePoint, data);
         } else {
-            return usagePointImportHelper.createUsagePointForInsight(serviceCategory.get().newUsagePoint(identifier,
-                    data.getInstallationTime().orElse(getContext().getClock().instant())), data);
+            return usagePointImportHelper.createUsagePointForInsight(
+                    serviceCategory.get().newUsagePoint(
+                            identifier,
+                            data.getInstallationTime().orElse(getContext().getClock().instant())),
+                    data);
         }
     }
 
-    private UsagePointDetailBuilder createDetails(UsagePoint usagePoint, UsagePointImportRecord data, FileImportLogger logger) {
+    private UsagePointDetailBuilder createDetails(UsagePoint usagePoint, UsagePointImportRecord data) {
         switch (usagePoint.getServiceCategory().getKind()) {
             case ELECTRICITY:
                 return buildElectricityDetails(usagePoint.newElectricityDetailBuilder(getClock().instant()),
@@ -173,7 +174,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
         }
     }
 
-    private UsagePointDetailBuilder updateDetails(UsagePoint usagePoint, UsagePointImportRecord data, FileImportLogger logger) {
+    private UsagePointDetailBuilder updateDetails(UsagePoint usagePoint, UsagePointImportRecord data) {
         UsagePointDetail detail = usagePoint.getDetail(getClock().instant())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, data.getLineNumber(), data
                         .getServiceKind()
@@ -261,12 +262,12 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
     }
 
     private void validateMeterConfigurationAndTransition(UsagePoint usagePoint, UsagePointImportRecord data) {
-        data.getMetrologyConfiguration().ifPresent(metrologyConfigurationName -> {
+        data.getMetrologyConfigurationName().ifPresent(metrologyConfigurationName -> {
             usagePointImportHelper.validateMetrologyConfiguration(metrologyConfigurationName, usagePoint, data);
-            usagePoint.apply((UsagePointMetrologyConfiguration) getContext().getMetrologyConfigurationService()
-                    .findMetrologyConfiguration(data.getMetrologyConfiguration().get())
-                    .get(), data.getMetrologyConfigurationApplyTime().get());
-
+            UsagePointMetrologyConfiguration metrologyConfiguration = (UsagePointMetrologyConfiguration) getContext().getMetrologyConfigurationService()
+                    .findMetrologyConfiguration(metrologyConfigurationName)
+                    .get();
+            usagePoint.apply(metrologyConfiguration, data.getMetrologyConfigurationApplyTime().get());
             validateMeterActivation(usagePoint, data);
             validateUsagePointTransitionValues(usagePoint, data);
         });
@@ -353,9 +354,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
 
     private void validateUsagePointTransitionValues(UsagePoint usagePoint, UsagePointImportRecord data) {
         if (data.getTransition().isPresent()) {
-            Optional<UsagePointTransition> optionalTransition = getOptionalTransition(usagePoint, data.getTransition()
-                    .get());
-
+            Optional<UsagePointTransition> optionalTransition = getOptionalTransition(usagePoint, data.getTransition().get());
             if (!optionalTransition.isPresent()) {
                 throw new ProcessorException(MessageSeeds.NO_SUCH_TRANSITION_FOUND, data.getTransition().get());
             }
@@ -387,11 +386,13 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
         for (UsagePointPropertySet propertySet : usagePoint.forCustomProperties().getAllPropertySets()) {
             if (customPropertySetValues.containsKey(propertySet.getCustomPropertySet().getId())) {
                 if (propertySet instanceof UsagePointVersionedPropertySet) {
-                    validateCreateOrUpdateVersionedSet((UsagePointVersionedPropertySet) propertySet, customPropertySetValues
-                            .get(propertySet.getCustomPropertySet().getId()));
+                    validateCreateOrUpdateVersionedSet(
+                            (UsagePointVersionedPropertySet) propertySet,
+                            customPropertySetValues.get(propertySet.getCustomPropertySet().getId()));
                 } else {
-                    validateCreateOrUpdateNonVersionedSet(propertySet, customPropertySetValues.get(propertySet.getCustomPropertySet()
-                            .getId()));
+                    validateCreateOrUpdateNonVersionedSet(
+                            propertySet,
+                            customPropertySetValues.get(propertySet.getCustomPropertySet().getId()));
                 }
             }
         }
@@ -399,8 +400,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
 
     private void validateCreateOrUpdateVersionedSet(UsagePointVersionedPropertySet usagePointCustomPropertySet, CustomPropertySetRecord customPropertySetRecord) {
         if (customPropertySetRecord.getVersionId().isPresent()) {
-            CustomPropertySetValues values = usagePointCustomPropertySet.getVersionValues(customPropertySetRecord.getVersionId()
-                    .get());
+            CustomPropertySetValues values = usagePointCustomPropertySet.getVersionValues(customPropertySetRecord.getVersionId().get());
             if (values != null) {
                 usagePointCustomPropertySet.getCustomPropertySet()
                         .getPropertySpecs()
