@@ -2486,6 +2486,32 @@ Ext.define('Mdc.controller.history.Setup', {
                                         }
                                     }
                                 }
+                            },
+                            registers: {
+                                title: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
+                                privileges: Mdc.privileges.UsagePoint.canView(),
+                                route: 'registers',
+                                controller: 'Mdc.usagepointmanagement.controller.ViewRegistersList',
+                                action: 'showOverview',
+                                callback: me.checkInsightRedirect,
+                                items: {
+                                    registerdata: {
+                                        title: Uni.I18n.translate('routing.registers', 'MDC', 'Registers'),
+                                        privileges: Mdc.privileges.UsagePoint.canView(),
+                                        route: '{registerId}/data',
+                                        controller: 'Mdc.usagepointmanagement.controller.ViewRegisterDataAndReadingQualities',
+                                        action: 'showOverview',
+                                        callback: function (route) {
+                                            me.checkInsightRedirect(route);
+                                            this.getApplication().on('usagePointRegisterLoaded', function (record) {
+                                                route.setTitle(record.get('readingType').fullAliasName);
+                                                return true;
+                                            }, {single: true});
+
+                                            return this;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

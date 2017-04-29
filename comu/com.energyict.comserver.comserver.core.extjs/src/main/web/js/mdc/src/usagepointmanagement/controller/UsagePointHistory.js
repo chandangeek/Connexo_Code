@@ -118,7 +118,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
         Uni.util.History.setParsePath(false);
         router.getRoute('usagepoints/usagepoint/history').forward({tab: 'devices'});
 
-        store.getProxy().setExtraParam('usagePointId', router.arguments.usagePointId);
+        store.getProxy().setExtraParam('usagePointId', decodeURIComponent(router.arguments.usagePointId));
         store.load(function () {
             Ext.suspendLayouts();
             panel.removeAll();
