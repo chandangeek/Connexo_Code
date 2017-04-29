@@ -93,7 +93,7 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
                     xtype: 'checkbox',
                     itemId: 'suspect-flag',
                     name: 'allowSuspectData',
-                    fieldLabel: Uni.I18n.translate('copyFromReference.suspectFlag', 'CFG', 'Allow suspect date'),
+                    fieldLabel: Uni.I18n.translate('copyFromReference.suspectFlag', 'CFG', 'Allow suspect data'),
                     flex: 1
                 },
                 {

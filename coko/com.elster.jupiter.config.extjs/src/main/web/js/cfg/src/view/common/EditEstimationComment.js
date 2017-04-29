@@ -6,6 +6,7 @@ Ext.define('Cfg.view.common.EditEstimationComment', {
     extend: 'Ext.window.Window',
     alias: 'widget.reading-edit-estimation-comment-window',
     title: Uni.I18n.translate('general.editEstimationComment', 'CFG', 'Edit estimation comment'),
+    modificationState: null,
     records: null,
     usagePoint: null,
 
@@ -41,6 +42,7 @@ Ext.define('Cfg.view.common.EditEstimationComment', {
                             xtype: 'button',
                             itemId: 'edit-comment-button',
                             readings: me.records,
+                            modificationState: me.modificationState,
                             margin: '0 0 0 40',
                             text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
                             ui: 'action'
@@ -58,7 +60,7 @@ Ext.define('Cfg.view.common.EditEstimationComment', {
                 }
             ]
         };
-        if (!me.usagePoint) {
+        if (!me.usagePoint && !me.modificationState) {
             me.items.items.unshift(
                 {
                     xtype: 'radiogroup',
