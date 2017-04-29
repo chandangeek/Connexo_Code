@@ -8,3 +8,7 @@ Seal;com.elster:UsagePointProcesses:2.0
 Replace meter;com.elster:UsagePointProcesses:2.0
 Activate device;com.elster:UsagePointProcesses:2.0
 Decommission device;com.elster:UsagePointProcesses:2.0
+Install meter;com.elster:UsagePointProcesses:2.0
+Remove meter;com.elster:UsagePointProcesses:2.0
+Link metrology configuration;com.elster:UsagePointProcesses:2.0
+Unlink metrology configuration;com.elster:UsagePointProcesses:2.0
