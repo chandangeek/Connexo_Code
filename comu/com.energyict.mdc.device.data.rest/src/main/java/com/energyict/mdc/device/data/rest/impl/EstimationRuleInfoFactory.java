@@ -80,6 +80,10 @@ public class EstimationRuleInfoFactory {
         info.estimatorImpl = estimationRule.getImplementation();
         info.ruleSetId = estimationRule.getRuleSet().getId();
         info.deleted = estimationRule.isObsolete();
+        estimationRule.getComment().ifPresent(comment -> {
+            info.commentValue = comment.getComment();
+            info.commentId = comment.getId();
+        });
         info.application = resourceHelper.getApplicationInfo(estimationRule.getRuleSet().getQualityCodeSystem());
         return info;
     }

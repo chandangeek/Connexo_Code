@@ -291,6 +291,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(estimationRuleSet.getId()).thenReturn(15L);
         when(estimationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
         when(estimationRule.getName()).thenReturn("EstimationRule");
+        when(estimationRule.getComment()).thenReturn(Optional.empty());
         ReadingQualityType readingQualityTypeEstimatedByRule = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int) estimationRule.getId());
         when(quality2.getType()).thenReturn(readingQualityTypeEstimatedByRule);
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityTypeEstimatedByRule);

@@ -26,4 +26,8 @@ public class EstimationRuleInfo {
 
     public String estimatorImpl;
 
+    public long commentId;
+
+    public String commentValue;
+
 }
