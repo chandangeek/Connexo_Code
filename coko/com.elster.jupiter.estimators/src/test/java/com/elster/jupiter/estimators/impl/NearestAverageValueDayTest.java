@@ -52,6 +52,7 @@ import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.Year;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -144,6 +145,7 @@ public class NearestAverageValueDayTest {
         when(event.getId()).thenReturn(1L);
         when(calendar.getEvents()).thenReturn(eventList);
         when(calendar.forZone(any(), any(), any())).thenReturn(zonedView);
+        when(calendar.getEndYear()).thenReturn(Optional.of(Year.now()));
         when(zonedView.eventFor(ESTIMABLE_TIME.toInstant())).thenReturn(falseEvent);
         when(falseEvent.getId()).thenReturn(2L);
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
