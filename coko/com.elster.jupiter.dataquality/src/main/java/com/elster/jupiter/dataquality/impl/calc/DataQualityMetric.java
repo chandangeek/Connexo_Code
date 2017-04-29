@@ -24,6 +24,7 @@ interface DataQualityMetric {
         REMOVED(QualityCodeIndex.REJECTED),
         ESTIMATED,
         CONFIRMED(QualityCodeIndex.ACCEPTED),
+        PROJECTED(QualityCodeIndex.PROJECTEDGENERIC),
         UNKNOWN;
 
         private QualityCodeIndex qualityCodeIndex;
