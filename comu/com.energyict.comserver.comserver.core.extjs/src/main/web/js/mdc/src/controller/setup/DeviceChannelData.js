@@ -728,10 +728,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             } else if (record.isModified('collectedValue')) {
                 confirmedObj = _.pick(record.getData(), 'interval', 'collectedValue');
             }
+
             if (record.get('mainValidationInfo') && record.get('mainValidationInfo').commentId) {
                 confirmedObj.value = record.get('value');
                 confirmedObj.interval = record.get('interval');
-                confirmedObj.bulkValidationInfo = {
+                confirmedObj.mainValidationInfo = {
                     commentId: record.get('mainValidationInfo').commentId,
                     isConfirmed: record.get('mainValidationInfo').confirmedNotSaved || false
                 };
@@ -1661,8 +1662,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             commentCombo = window.down('#estimation-comment-box'),
             commentValue = commentCombo.getRawValue(),
             commentId = commentCombo.getValue(),
-            mainValidationInfo = {},
             intervalsArray = [],
+            validationInfo,
             comment = {
                 commentId: commentId,
                 commentValue: commentValue
@@ -1705,11 +1706,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
+                    validationInfo = responseText[0].isBulk ? 'bulkValidationInfo' : 'mainValidationInfo';
                     Ext.Array.each(responseText, function (correctedInterval) {
                         Ext.Array.findBy(records, function (reading) {
                             if (correctedInterval.interval.start == reading.get('interval').start) {
                                 if (commentId !== -1) {
-                                    reading.set('mainValidationInfo', comment);
+                                    reading.get(validationInfo).commentId = commentId;
+                                    reading.get(validationInfo).commentValue = commentValue;
                                 }
                                 me.updateCorrectedValues(reading, correctedInterval);
                                 return true;
