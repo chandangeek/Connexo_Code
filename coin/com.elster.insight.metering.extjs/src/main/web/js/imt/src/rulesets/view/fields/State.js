@@ -8,7 +8,7 @@ Ext.define('Imt.rulesets.view.fields.State', {
 
     renderer: function (value) {
         if(value.name){
-            return Ext.String.format('{0} ({1})', value.name, value.lifeCycle);
+            return Ext.String.format('{0} ({1})', value.name, value.usagePointLifeCycleName);
         } else if(value.all){
             return Uni.I18n.translate('general.all', 'IMT', 'All');
         }

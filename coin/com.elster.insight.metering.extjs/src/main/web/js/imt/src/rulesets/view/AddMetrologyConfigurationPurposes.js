@@ -12,7 +12,7 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposes', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.util.FormInfoMessage',
         'Imt.rulesets.view.AddMetrologyConfigurationPurposesGrid',
-        'Imt.rulesets.view.AddMetrologyConfigurationPreviewContainer'
+        'Imt.rulesets.view.StatesGridWithPreviewContainer'
     ],
     purposesStore: null,
     router: null,
@@ -50,7 +50,12 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposes', {
         previewComponent = !!me.usagePointStatesStore ? {
             xtype: 'add-metrology-configuration-preview-container',
             bottomToolbar: bottomToolbar,
-            usagePointStatesStore: me.usagePointStatesStore
+            usagePointStatesStore: me.usagePointStatesStore,
+            detailsComponent: {
+                xtype: 'metrology-configuration-purpose-details',
+                itemId: 'metrology-configuration-purpose-preview',
+                frame: true
+            }
         } : {
             xtype: 'container',
             items: [

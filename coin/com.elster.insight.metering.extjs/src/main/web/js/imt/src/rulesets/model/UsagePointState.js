@@ -4,5 +4,5 @@
 
 Ext.define('Imt.rulesets.model.UsagePointState', {
     extend: 'Uni.model.Version',
-    fields: ['id', 'name', 'stage', 'usagePointLifeCycle'],
+    fields: ['id', 'name', 'stage', 'usagePointLifeCycleName']
 });

@@ -62,6 +62,12 @@ Ext.define('Imt.metrologyconfiguration.view.validation.PurposeWithRuleSetsGrid',
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('validation.usagePointStates', 'IMT', 'Usage point states'),
+                dataIndex: 'lifeCycleStatesCount',
+                flex: 1,
+                renderer: me.statesColumnRenderer
+            },
+            {
                 xtype: 'uni-actioncolumn-remove',
                 itemId: 'remove-rule-set-from-purpose-column',
                 hidden: me.metrologyConfig.get('status').id == 'deprecated',
@@ -94,6 +100,59 @@ Ext.define('Imt.metrologyconfiguration.view.validation.PurposeWithRuleSetsGrid',
             }
         ];
 
+        me.addListener('cellclick', function(view, td, cellIndex, record, tr, rowIndex, e, eOpts){
+            if(cellIndex == 2) {
+                if(record.get('lifeCycleStates') && record.get('lifeCycleStates').length){
+                    me.openInfoWindow(record);
+                }
+            }
+        }, me);
+
         me.callParent(arguments);
+    },
+
+    //private
+    statesColumnRenderer: function(value, metaData, record){
+        var states = record.get('lifeCycleStates'),
+            qtip;
+
+
+        function addCategoryAndNames (states) {
+            var result = '',
+                count = 0;
+            Ext.Array.each(states, function (s) {
+                if(count < 5){
+                    result += Ext.String.format('{0} ({1})', s.name, s.usagePointLifeCycleName) + '<br>';
+                    count++;
+                }
+            });
+            result += '<br>' +Uni.I18n.translate('validation.clickForMoreInformation', 'IMT', 'Click for more information');
+            return result;
+        }
+
+        if(record.get('lifeCycleStates') && record.get('lifeCycleStates').length){
+            qtip = addCategoryAndNames(states)
+        } else {
+            qtip = Uni.I18n.translate('validation.ruleSetAllStates', 'IMT', 'The validation rule set is applied to data in all the usage point states')
+        }
+
+        return Ext.String.format(
+            '<span style="display: inline-block; float: left; margin: 0px 10px 0px 0px">{0}</span>' +
+            '<span id = "states-info-tooltip" style="display: inline-block; float: left; width: 16px; height: 16px; margin-top: -3px; cursor:pointer" class="uni-icon-info-small" data-qtip="{1}">  </span>',
+            value,
+            qtip
+        );
+    },
+
+    //private
+    openInfoWindow: function (record) {
+        var widget = Ext.widget('states-info-window', {
+                statesStore: Ext.create('Ext.data.Store', {
+                    fields: ['name', 'stage', 'usagePointLifeCycleName'],
+                    data: record.get('lifeCycleStates')
+                })
+            });
+
+        widget.show();
     }
 });

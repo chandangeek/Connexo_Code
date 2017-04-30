@@ -3,10 +3,11 @@
  */
 
 Ext.define('Imt.metrologyconfiguration.view.validation.AddValidationRuleSetsToPurposeGrid', {
-    extend: 'Uni.view.grid.SelectionGrid',
+    extend: 'Uni.view.grid.SelectionGridForPreviewContainer',
     alias: 'widget.add-validation-rule-sets-to-purpose-grid',
     router: null,
-   
+    bottomToolbarHidden: true,
+
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural('validationRuleSets.count.selected', count, 'IMT', 'No validation rule sets selected',
             '{0} validation rule set selected',
@@ -50,7 +51,7 @@ Ext.define('Imt.metrologyconfiguration.view.validation.AddValidationRuleSetsToPu
                                 .setText(Uni.I18n.translate('metrologyConfiguration.validation.rulesCount', 'IMT', '{0} validation rule(s)', rulesStore.getCount()));
                         });
                     }
-                    view.down('#add-validation-rule-sets-to-purpose-add-button').setDisabled(records.length === 0);
+                    view.down('#addButton').setDisabled(records.length === 0);
                     Ext.resumeLayouts(true);
                 }
             }

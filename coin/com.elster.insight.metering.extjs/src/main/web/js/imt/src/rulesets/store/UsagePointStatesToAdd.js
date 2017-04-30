@@ -7,7 +7,7 @@ Ext.define('Imt.rulesets.store.UsagePointStatesToAdd', {
     model: 'Imt.rulesets.model.UsagePointState',
     proxy: {
         type: 'rest',
-        url: '/api/upl/states',
+        url: '/api/ucr/fields/lifecyclestates',
         pageParam: false,
         startParam: false,
         limitParam: false,

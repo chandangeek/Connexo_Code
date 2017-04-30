@@ -30,7 +30,7 @@ Ext.define('Imt.rulesets.view.AddUsagePointStatesGrid', {
             },
             {
                 header: Uni.I18n.translate('general.usagePointLifeCycle', 'IMT', 'Usage point life cycle'),
-                dataIndex: 'usagePointLifeCycle',
+                dataIndex: 'usagePointLifeCycleName',
                 flex: 1
             }
         ];

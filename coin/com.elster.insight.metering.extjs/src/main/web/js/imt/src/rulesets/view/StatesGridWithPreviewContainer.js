@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPreviewContainer',{
+Ext.define('Imt.rulesets.view.StatesGridWithPreviewContainer',{
     extend: 'Ext.container.Container',
     alias: 'widget.add-metrology-configuration-preview-container',
     requires: [
@@ -13,6 +13,7 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPreviewContainer',{
     usagePointStatesStore: null,
 
     bottomToolbar: null,
+    detailsComponent: null,
 
     initComponent: function(){
         var me = this;
@@ -23,7 +24,7 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPreviewContainer',{
                 itemId: 'add-metrology-configuration-purpose-checkbox',
                 defaultType: 'radiofield',
                 layout: 'vbox',
-                labelWidth: 200,
+                labelWidth: 120,
                 fieldLabel: Uni.I18n.translate('general.usagePointStates', 'IMT', 'Usage point states'),
                 items: [
                     {
@@ -46,7 +47,7 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPreviewContainer',{
                                     statesGrid.triggerAllSelection(newValue);
                                 }
                                 statesErrorMessage.hide();
-                                statesGrid.setDisabled(!newValue);
+                                statesGrid.setVisible(newValue);
                                 statesGrid.allStatesSelected = !newValue;
                             }
                         }
@@ -56,7 +57,7 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPreviewContainer',{
             {
                 xtype: 'add-usage-point-states-grid',
                 itemId: 'add-usage-point-states-grid',
-                disabled: true,
+                hidden: true,
                 bottomToolbarHidden: true,
                 store: me.usagePointStatesStore,
                 allStatesSelected: true,
@@ -69,11 +70,7 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPreviewContainer',{
                 html: '<span style="color: #eb5642">' + Uni.I18n.translate('general.usagePointLifeCycle.no.stages.selected', 'IMT', 'Select at least 1 usage point stage') + '</span>'
             },
             me.bottomToolbar,
-            {
-                xtype: 'metrology-configuration-purpose-details',
-                itemId: 'metrology-configuration-purpose-preview',
-                frame: true
-            }
+            me.detailsComponent
         ];
 
         me.callParent(arguments);
