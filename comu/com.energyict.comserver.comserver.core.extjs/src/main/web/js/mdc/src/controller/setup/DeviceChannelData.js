@@ -153,6 +153,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 beforeshow: this.beforeShowMenu,
                 click: this.chooseAction
             },
+            '#deviceLoadProfileChannelData #pre-validate-button': {
+                click: this.prevalidateChannelDataChanges
+            },
             '#deviceLoadProfileChannelData #save-changes-button': {
                 click: this.saveChannelDataChanges
             },
@@ -633,8 +636,71 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this;
 
         me.getPage().down('#save-changes-button').enable();
+        me.getPage().down('#pre-validate-button').enable();
         me.getPage().down('#undo-button').enable();
     },
+
+    prevalidateChannelDataChanges: function () {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                itemId: 'validateNowConfirmationWindow',
+                confirmText: Uni.I18n.translate('general.saveChanges', 'MDC', 'Save changes'),
+                green: true,
+                // iconCls: 'icon-confirm',
+                msg: 'message'
+            }),
+            conteinerStyle;
+        viewport.setLoading();
+        confirmationWindow.insert(1, {
+            xtype: 'label',
+            margin: '-5 10 10 50',
+            width: 250,
+            style: {
+                'white-space': 'normal'
+            },
+            text: Ext.String.format(Uni.I18n.translate('prevalidate.noSuspect.text', 'MDC', 'No potential suspect found in visible part of data starting from {0}'), 'some')
+        });
+
+        confirmationWindow.show({
+            title: Ext.String.format(Uni.I18n.translate('prevalidate.noSuspect.title', 'MDC', 'No potential suspect readings found.'))
+        });
+
+        conteinerStyle = confirmationWindow.down('button').container.dom.style;
+        conteinerStyle.width = '100px';
+        conteinerStyle.left = 'auto';
+        conteinerStyle.right = '100px';
+    },
+
+    // prevalidateChannelDataChanges: function () {
+    //     var me = this,
+    //         viewport = Ext.ComponentQuery.query('viewport')[0],
+    //         confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+    //             itemId: 'validateNowConfirmationWindow',
+    //             confirmText: undefined,
+    //             msg: 'message'
+    //         }),
+    //         closeBtn;
+    //     viewport.setLoading();
+    //     confirmationWindow.insert(1, {
+    //         xtype: 'label',
+    //         margin: '-5 10 10 50',
+    //         style: {
+    //             'white-space': 'normal'
+    //         },
+    //         text: Ext.String.format(Uni.I18n.translate('prevalidate.suspect.text', 'MDC', 'There are potential suspects in visible part of data starting from {0}'), 'some')
+    //     });
+    //     confirmationWindow.show({
+    //         title: Ext.String.format(Uni.I18n.translate('prevalidate.suspect.title', 'MDC', '{0} potential suspect readings found.'), 'Some')
+    //     });
+    //     closeBtn = confirmationWindow.down('[action = cancel]').el.dom;
+    //     confirmationWindow.down('button').hide();
+    //     closeBtn.style.right = 0;
+    //     closeBtn.style.left = 'auto';
+    //     confirmati.rigtnonWindow.on('close', function () {
+    //         this.destroy();
+    //     });
+    // },
 
     saveChannelDataChanges: function () {
         var me = this,
@@ -834,6 +900,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         record.reject();
         if (!store.getUpdatedRecords().length) {
             me.getPage().down('#save-changes-button').disable();
+            me.getPage().down('#pre-validate-button').disable();
             me.getPage().down('#undo-button').disable();
         }
     },
