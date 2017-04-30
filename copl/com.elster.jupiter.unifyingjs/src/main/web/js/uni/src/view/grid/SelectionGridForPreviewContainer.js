@@ -207,8 +207,10 @@ Ext.define('Uni.view.grid.SelectionGridForPreviewContainer', {
             Ext.suspendLayouts();
             me.down('#selectionCounter').update(me.counterTextFn(selectedRecords.length));
             me.down('#uncheckAllButton').setDisabled(!selectedRecords.length);
-            me.down('#checkAllButton').setDisabled(store.getCount() === selectedRecords.length);
-            if (!me.bottomToolbarHidden) {
+            if(me.checkAllButtonPresent){
+                me.down('#checkAllButton').setDisabled(store.getCount() === selectedRecords.length);
+            }
+            if (!me.bottomToolbarHidden){
                 me.down('#addButton').setDisabled(!selectedRecords.length);
             }
             if(!!me.externalBottomToolbar){
