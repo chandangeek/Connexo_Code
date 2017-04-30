@@ -642,16 +642,23 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     prevalidateChannelDataChanges: function () {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            changedData = me.getChangedData(me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData')),
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
-                itemId: 'validateNowConfirmationWindow',
-                confirmText: Uni.I18n.translate('general.saveChanges', 'MDC', 'Save changes'),
-                green: true,
-                // iconCls: 'icon-confirm',
-                msg: 'message'
-            }),
+            confirmationWindow,
             conteinerStyle;
+
+
+
         viewport.setLoading();
+        confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+            itemId: 'validateNowConfirmationWindow',
+            confirmText: Uni.I18n.translate('general.saveChanges', 'MDC', 'Save changes'),
+            green: true,
+            // iconCls: 'icon-confirm',
+            msg: 'message'
+        });
+
         confirmationWindow.insert(1, {
             xtype: 'label',
             margin: '-5 10 10 50',
