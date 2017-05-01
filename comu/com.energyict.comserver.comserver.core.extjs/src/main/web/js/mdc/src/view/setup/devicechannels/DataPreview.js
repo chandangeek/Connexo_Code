@@ -50,6 +50,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             if (me.channels) {
                 dataQualitiesForChannels = false;
                 Ext.Array.each(me.channels, function (channel) {
+                    debugger;
                     var mainValidationInfoField = me.down('#mainValidationInfo' + channel.id),
                         channelBulkValueField = me.down('#channelBulkValue' + channel.id),
                         containter = me.down("#channelFieldContainer" + channel.id);
@@ -101,6 +102,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             detailRecord.set('value', record.get('value'));
             detailRecord.set('collectedValue', record.get('collectedValue'));
             detailRecord.set('multiplier', record.get('multiplier'));
+            detailRecord.set('commentValue', record.get('mainValidationInfo').commentValue);
             me.down('#values-panel').loadRecord(detailRecord);
             me.setLoading(false);
         });
@@ -279,7 +281,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             generalItems = [],
             valuesItems = [],
             qualityItems = [];
-
+debugger;
         generalItems.push(
             {
                 fieldLabel: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
@@ -502,13 +504,14 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     labelWidth: 200,
                     fieldLabel: Uni.I18n.translate('general.estimationComment', 'MDC', 'Estimation comment'),
                     layout: 'hbox',
-                    hidden: !me.channelRecord.get('commentValue'),
+                    // hidden: !me.channelRecord.get('mainValidationInfo') && !me.channelRecord.get('mainValidationInfo').commentValue,
                     items: [
                         {
                             xtype: 'displayfield',
                             name: 'commentValue',
-                            renderer: function (string) {
-                                return string ? string : '-';
+                            renderer: function (item) {
+                                debugger;
+                                return item ? item : '-';
                             }
                         }
                     ]
