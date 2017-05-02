@@ -11,8 +11,7 @@ Ext.define('Imt.purpose.model.ChannelDataEstimate', {
     fields: [
         'estimatorImpl',
         'intervals',
-        'markAsProjected',
-        'commentId'
+        'markAsProjected'
     ],
 
     associations: [

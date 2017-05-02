@@ -697,23 +697,20 @@ Ext.define('Imt.purpose.controller.Readings', {
                     response = JSON.parse(operation.response.responseText);
                 if (response[0]) {
                     Ext.suspendLayouts();
-                        _.each(readings, function (reading) {
-                            item = reading.get('interval').end;
-                            item = _.find(response, function (rec) {
-                                return rec.interval.end === item;
-                            });
-                            if (item && reading.get('value') !== item.value) {
-                                reading.set('value', item.value);
-                                reading.set('isProjected', model.get('projectedValue'));
-                                reading.set('bulkValidationInfo', item.bulkValidationInfo);
-                                reading.set('mainValidationInfo', item.mainValidationInfo);
-                                reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
-                                if (commentId !== -1) {
-                                    reading.set('commentId', commentId);
-                                    reading.set('commentValue', commentValue);
-                                }
-                            }
+                    _.each(readings, function (reading) {
+                        item = reading.get('interval').end;
+                        item = _.find(response, function (rec) {
+                            return rec.interval.end === item;
                         });
+                        reading.set('value', item.value);
+                        reading.set('isProjected', model.get('projectedValue'));
+                        reading.set('mainValidationInfo', item.mainValidationInfo);
+                        reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+                        if (commentId !== -1) {
+                            reading.set('commentId', commentId);
+                            reading.set('commentValue', commentValue);
+                        }
+                    });
                     me.showButtons();
                     Ext.resumeLayouts(true);
                 }

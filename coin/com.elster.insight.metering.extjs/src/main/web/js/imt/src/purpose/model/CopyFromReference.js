@@ -10,6 +10,7 @@ Ext.define('Imt.purpose.model.CopyFromReference', {
         'referencePurpose',
         'readingType',
         'startDate',
+        'projectedValue',
         'allowSuspectData',
         'completePeriod',
         'intervals'
