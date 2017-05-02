@@ -26,7 +26,7 @@ Ext.define('Cfg.insight.dataqualitykpi.view.Overview', {
                     {
                         xtype: 'uni-form-info-message',
                         itemId: 'data-quality-kpi-overview-info',
-                        text: Uni.I18n.translate('ins.dataqualitykpi.overview.info', 'CFG', 'KPIs for inactive purposes of usage points are not calculated')
+                        text: Uni.I18n.translate('ins.dataqualitykpi.overview.info', 'CFG', "KPIs for inactive purposes of usage points aren't calculated")
                     },
                     {
                         xtype: 'preview-container',
