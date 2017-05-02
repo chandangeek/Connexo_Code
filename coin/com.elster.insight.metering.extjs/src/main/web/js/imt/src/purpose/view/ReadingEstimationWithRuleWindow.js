@@ -127,6 +127,7 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
                         },
                         {
                             xtype: 'displayfield',
+                            itemId: 'estimation-comment',
                             fieldLabel: Uni.I18n.translate('general.estimationComment', 'IMT', 'Estimation comment'),
                             name: 'commentValue',
                             renderer: function (value) {

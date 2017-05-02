@@ -840,7 +840,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             estimationRuleId = window.down('#estimation-rule-field').getValue(),
             propertyForm = window.down('#property-form'),
             model = Ext.create('Imt.purpose.model.ChannelDataEstimate'),
-            commentCombo = window.down('#estimation-comment-box'),
+            commentCombo = window.down('#estimation-comment'),
             commentId = commentCombo.getValue(),
             commentValue = commentCombo.getRawValue(),
             record = window.record,
@@ -985,6 +985,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         if (correctedInterval.value != reading.get('value')) {
             reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
             reading.set('validationResult', 'validationStatus.ok');
+            reading.set('estimatedByRule', false);
         }
         reading.set('value', correctedInterval.value);
         reading.set('isProjected', model.get('projected'));
