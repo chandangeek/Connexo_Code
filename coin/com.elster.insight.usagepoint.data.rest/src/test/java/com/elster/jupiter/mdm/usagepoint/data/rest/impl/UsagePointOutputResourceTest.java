@@ -289,4 +289,26 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         assertThat(model.<List>get("$.dataEstimationTasks")).hasSize(1);
         assertThat(model.<Integer>get("$.dataEstimationTasks[0].id")).isEqualTo(32);
     }
+
+    @Test
+    public void testGetIntervalsOfUsagePointPurpose() throws Exception {
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(effectiveMC));
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/" + optionalContract.getId() + "/outputs/intervals").request().get();
+        assertThat(response.getStatus()).isEqualTo(200);
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(model.<Integer>get("$.intervals[0].id")).isEqualTo(11);
+        assertThat(model.<String>get("$.intervals[0].name")).isEqualTo("Daily");
+    }
+
+    @Test
+    public void testGetUnitsOfUsagePointPurpose() throws  Exception {
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(effectiveMC));
+        Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/" + optionalContract.getId() + "/outputs/units").request().get();
+        assertThat(response.getStatus()).isEqualTo(200);
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(model.<String>get("$.units[0].id")).isEqualTo("-2:5");
+        assertThat(model.<String>get("$.units[0].name")).isEqualTo("A");
+    }
 }

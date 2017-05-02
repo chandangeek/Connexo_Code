@@ -29,6 +29,7 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -192,6 +193,16 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         return ExtjsFilter.filter()
                 .property("intervalStart", start.toEpochMilli())
                 .property("intervalEnd", end.toEpochMilli())
+                .create();
+    }
+
+    private String buildFilterForData(Instant start, Instant end, IdWithNameInfo interval, IdWithNameInfo unit, boolean includeBulk) throws UnsupportedEncodingException {
+        return ExtjsFilter.filter()
+                .property("intervalStart", start.toEpochMilli())
+                .property("intervalEnd", end.toEpochMilli())
+                .property("timeInterval", interval.id.toString())
+                .property("unit", unit.id.toString())
+                .property("bulk", String.valueOf(includeBulk))
                 .create();
     }
 
@@ -516,6 +527,38 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         // Business method
         String json = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData")
                 .queryParam("filter", buildFilter(INTERVAL_1.lowerEndpoint(), INTERVAL_1.upperEndpoint())).request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Long>get("$.channelData[0].interval.start")).isEqualTo(INTERVAL_1.lowerEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.channelData[0].interval.end")).isEqualTo(INTERVAL_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.channelData[0].reportedDateTime")).isEqualTo(INTERVAL_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<String>get("$.channelData[0].value")).isEqualTo("1");
+        assertThat(jsonModel.<List<?>>get("$.channelData[0].readingQualities")).hasSize(2);
+        assertThat(jsonModel.<List<String>>get("$.channelData[0].readingQualities[*].cimCode")).containsOnly("2.7.0", "2.5.258");
+    }
+
+    @Test
+    public void testGetOutputsData() throws UnsupportedEncodingException {
+        IdWithNameInfo intervalInfo  = new IdWithNameInfo(11, "Daily");
+        IdWithNameInfo unitInfo = new IdWithNameInfo("-2:5", "A");
+        MetrologyContract contract1 = effectiveMC1.getMetrologyConfiguration().getContracts().get(0);
+        Range<Instant> interval = Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_1.upperEndpoint());
+        when(channel2.toList(interval)).thenReturn(Collections.singletonList(INTERVAL_1.upperEndpoint()));
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(effectiveMC1));
+        IntervalReadingRecord reading = mockIntervalReadingRecord(INTERVAL_1, BigDecimal.ONE);
+        when(channel2.getCalculatedIntervalReadings(interval)).thenReturn(Collections.singletonList(reading));
+        when(channel2.getPersistedIntervalReadings(interval)).thenReturn(Collections.emptyList());
+
+        doReturn(Arrays.asList(
+                mockReadingQualityRecord(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC)),
+                mockReadingQualityRecord(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT))
+        )).when(reading).getReadingQualities();
+
+        // Business method
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/data")
+                .queryParam("filter", buildFilterForData(INTERVAL_1.lowerEndpoint(), INTERVAL_1.upperEndpoint(), intervalInfo, unitInfo, true)).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
