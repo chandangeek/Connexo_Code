@@ -224,7 +224,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
         if (effectiveMCList.size() != 1) {
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.VALIDATOR_MISC_NOT_ONE_EMC)
-                            .format(rangeToString(failedValidatonInterval), getDisplayName(), referenceReadingType, effectiveMCList
+                            .format(rangeToString(failedValidatonInterval), getDisplayName(), referenceReadingType.getFullAliasName(), effectiveMCList
                                     .size()));
             throw new InitCancelException(ValidationResult.NOT_VALIDATED);
         }

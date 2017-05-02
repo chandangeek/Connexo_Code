@@ -95,17 +95,18 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
             }
             if (contract == null) {
                 throw new LocalizedFieldValidationException(MessageSeeds.REFERENCE_VALIDATE_PROPS_NO_PURPOSE_ON_USAGE_POINT, "properties." + CHECK_USAGE_POINT);
-            }else {
+            } else {
                 Channel channel = null;
                 Optional<ChannelsContainer> channelsContainerWithCheckChannel = effectiveMC.get()
                         .getChannelsContainer(contract);
                 if (channelsContainerWithCheckChannel.isPresent()) {
-                    Optional<Channel> checkChannel = channelsContainerWithCheckChannel.get().getChannel(checkReadingReference.getReadingType());
+                    Optional<Channel> checkChannel = channelsContainerWithCheckChannel.get()
+                            .getChannel(checkReadingReference.getReadingType());
                     if (checkChannel.isPresent()) {
                         channel = checkChannel.get();
                     }
                 }
-                if (channel == null){
+                if (channel == null) {
                     throw new LocalizedFieldValidationException(MessageSeeds.REFERENCE_VALIDATE_PROPS_NO_READING_TYPE_ON_PURPOSE_ON_USAGE_POINT, "properties." + CHECK_READING_TYPE);
                 }
             }
@@ -181,11 +182,11 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
         super.init(channel, readingType, interval);
 
         try {
+            initUsagePointName(channel);
             initOverridenProperties();
             ReadingType referenceReadingType = referenceReadingTypeProperty.getReadingType();
             validateReferenceReadingType(readingType, referenceReadingType);
             initValidatingPurpose();
-            initUsagePointName(channel);
             initCheckData(referenceUsagePoint.getUsagePoint(), referenceReadingType);
         } catch (InitCancelException e) {
             preparedValidationResult = e.getValidationResult();
@@ -199,8 +200,8 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
         if (checkChannelPurpose == null || referenceUsagePoint == null || referenceReadingTypeProperty == null) {
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_CONFIGURATION_NOT_COMPLETE)
-                            .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType, validatingPurpose
-                                    .getName(), validatingUsagePointName));
+                            .format(rangeToString(failedValidatonInterval), getDisplayName(), validatingUsagePointName, validatingPurpose
+                                    .getName(), readingType.getFullAliasName()));
             throw new InitCancelException(ValidationResult.NOT_VALIDATED);
         }
     }
@@ -218,8 +219,9 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
             InitCancelException {
         if (!areReadingTypesComparable(validatingReadingType, referenceReadingType)) {
             LoggingContext.get()
-                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_REFERENCE_READING_TYPE_NOT_SUTABLE)
-                            .format(rangeToString(failedValidatonInterval), getDisplayName(), readingType, validatingUsagePointName));
+                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_REFERENCE_READING_TYPE_NOT_COMPARABLE)
+                            .format(rangeToString(failedValidatonInterval), getDisplayName(), validatingUsagePointName, validatingPurpose
+                                    .getName(), readingType.getFullAliasName()));
             throw new InitCancelException(ValidationResult.NOT_VALIDATED);
         }
     }
@@ -276,12 +278,14 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
             case NO_REFERENCE_PURPOSE_FOUND_ON_REFERENCE_USAGE_POINT:
                 LoggingContext.get()
                         .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_NO_PURPOSE)
-                                .format(rangeToString(failedValidatonInterval), getDisplayName(), props.readingType, validatingUsagePointName));
+                                .format(rangeToString(failedValidatonInterval), getDisplayName(), validatingUsagePointName, validatingPurpose
+                                        .getName(), readingType.getFullAliasName(), referenceUsagePoint.getUsagePoint()
+                                        .getName()));
                 break;
             case REFERENCE_PURPOSE_HAS_NOT_BEEN_EVER_ACTIVATED:
                 LoggingContext.get()
                         .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_PURPOSE_NEVER_ACTIVATED)
-                                .format(rangeToString(failedValidatonInterval), getDisplayName(), props.readingType, validatingUsagePointName));
+                                .format(rangeToString(failedValidatonInterval), getDisplayName(), props.readingType.getFullAliasName(), validatingUsagePointName));
 
                 break;
             case REFERENCE_OUTPUT_DOES_NOT_EXIST:
@@ -289,7 +293,7 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
                         .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_NO_CHECK_OUTPUT)
                                 .format(rangeToString(failedValidatonInterval),
                                         getDisplayName(),
-                                        props.readingType,
+                                        props.readingType.getFullAliasName(),
                                         validatingUsagePointName));
                 break;
         }

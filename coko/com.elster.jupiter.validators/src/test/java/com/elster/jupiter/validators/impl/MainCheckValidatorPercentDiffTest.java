@@ -8,13 +8,14 @@ import com.elster.jupiter.validation.ValidationResult;
 
 import org.junit.Test;
 
+import static com.elster.jupiter.validators.impl.Utils.*;
 import static org.junit.Assert.assertEquals;
 
 public class MainCheckValidatorPercentDiffTest extends MainCheckValidatorTest {
     @Test
     public void identicalReadingsValidationTest() {
 
-        validateWithReadings(new MainCheckValidatorRule()
+        validateWithReadings(new ValidatorRule()
                 .withCheckPurpose(CHECK_PURPOSE)
                 .withPercentDifference(50D)
                 .passIfNoRefData(false)
@@ -22,17 +23,17 @@ public class MainCheckValidatorPercentDiffTest extends MainCheckValidatorTest {
                 .withNoMinThreshold());
     }
 
-    private void validateWithReadings(MainCheckValidatorRule rule){
+    private void validateWithReadings(ValidatorRule rule){
         ChannelReadings mainChannelReadings = new ChannelReadings(3);
-        mainChannelReadings.setReadingValue(0, bigDecimal(10D), instant("20160101000000"));
-        mainChannelReadings.setReadingValue(1, bigDecimal(20D), instant("20160102000000"));
-        mainChannelReadings.setReadingValue(2, bigDecimal(30D), instant("20160103000000"));
+        mainChannelReadings.setReadingValue(0, BIG_DECIMAL_10, INSTANT_2016_FEB_01);
+        mainChannelReadings.setReadingValue(1, BIG_DECIMAL_20, INSTANT_2016_FEB_02);
+        mainChannelReadings.setReadingValue(2, BIG_DECIMAL_30, INSTANT_2016_FEB_03);
 
         // NOTE: check channel readings are not validated!
         ValidatedChannelReadings checkReadings = new ValidatedChannelReadings(3);
-        checkReadings.setReadingValue(0, bigDecimal(10D), instant("20160101000000"));
-        checkReadings.setReadingValue(1, bigDecimal(50D), instant("20160102000000"));
-        checkReadings.setReadingValue(2, bigDecimal(130D), instant("20160103000000"));
+        checkReadings.setReadingValue(0, BIG_DECIMAL_10, INSTANT_2016_FEB_01);
+        checkReadings.setReadingValue(1, BIG_DECIMAL_50, INSTANT_2016_FEB_02);
+        checkReadings.setReadingValue(2, BIG_DECIMAL_130, INSTANT_2016_FEB_03);
 
         ValidationConfiguration validationConfiguration = new ValidationConfiguration(rule, mainChannelReadings, checkReadings);
         MainCheckValidator validator = initValidator(validationConfiguration);

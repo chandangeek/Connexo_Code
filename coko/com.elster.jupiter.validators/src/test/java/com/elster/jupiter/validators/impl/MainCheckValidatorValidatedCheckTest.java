@@ -8,55 +8,56 @@ import com.elster.jupiter.validation.ValidationResult;
 
 import org.junit.Test;
 
+import static com.elster.jupiter.validators.impl.Utils.*;
 import static org.junit.Assert.assertEquals;
 
 public class MainCheckValidatorValidatedCheckTest extends MainCheckValidatorTest {
 
     @Test
     public void test(){
-        validateWithIdenticalReadings(new MainCheckValidatorRule()
+        validateWithIdenticalReadings(new ValidatorRule()
                 .withCheckPurpose(CHECK_PURPOSE)
-                .withValuedDifference(bigDecimal(100D))
+                .withValuedDifference(BIG_DECIMAL_100)
                 .passIfNoRefData(false)
                 .useValidatedData(false)
                 .withNoMinThreshold());
-        validateWithIdenticalReadings(new MainCheckValidatorRule()
+        validateWithIdenticalReadings(new ValidatorRule()
                 .withCheckPurpose(CHECK_PURPOSE)
-                .withValuedDifference(bigDecimal(0D))
+                .withValuedDifference(BIG_DECIMAL_0)
                 .passIfNoRefData(false)
                 .useValidatedData(false)
                 .withNoMinThreshold());
-        validateWithIdenticalReadings(new MainCheckValidatorRule()
+        validateWithIdenticalReadings(new ValidatorRule()
                 .withCheckPurpose(CHECK_PURPOSE)
-                .withValuedDifference(bigDecimal(100D))
+                .withValuedDifference(BIG_DECIMAL_100)
                 .passIfNoRefData(false)
                 .useValidatedData(true)
                 .withNoMinThreshold());
-        validateWithIdenticalReadings(new MainCheckValidatorRule()
+        validateWithIdenticalReadings(new ValidatorRule()
                 .withCheckPurpose(CHECK_PURPOSE)
-                .withValuedDifference(bigDecimal(100D))
+                .withValuedDifference(BIG_DECIMAL_100)
                 .passIfNoRefData(false)
                 .useValidatedData(false)
                 .withNoMinThreshold());
-        validateWithIdenticalReadings(new MainCheckValidatorRule()
+        validateWithIdenticalReadings(new ValidatorRule()
                 .withCheckPurpose(CHECK_PURPOSE)
-                .withValuedDifference(bigDecimal(100D))
+                .withValuedDifference(BIG_DECIMAL_100)
                 .passIfNoRefData(true)
                 .useValidatedData(true)
                 .withNoMinThreshold());
     }
 
-    private void validateWithIdenticalReadings(MainCheckValidatorRule rule){
+    private void validateWithIdenticalReadings(ValidatorRule rule){
         ChannelReadings mainChannelReadings = new ChannelReadings(3);
-        mainChannelReadings.setReadingValue(0, bigDecimal(10D), instant("20160101000000"));
-        mainChannelReadings.setReadingValue(1, bigDecimal(20D), instant("20160102000000"));
-        mainChannelReadings.setReadingValue(2, bigDecimal(30D), instant("20160103000000"));
+        mainChannelReadings.setReadingValue(0, BIG_DECIMAL_10, INSTANT_2016_FEB_01);
+        mainChannelReadings.setReadingValue(1, BIG_DECIMAL_20, INSTANT_2016_FEB_02);
+        mainChannelReadings.setReadingValue(2, BIG_DECIMAL_30, INSTANT_2016_FEB_03);
 
         // NOTE: check channel readings are all validated!
         ValidatedChannelReadings checkReadings = new ValidatedChannelReadings(3);
-        checkReadings.setReadingValue(0, bigDecimal(10D), instant("20160101000000"), ValidationResult.VALID);
-        checkReadings.setReadingValue(1, bigDecimal(20D), instant("20160102000000"), ValidationResult.VALID);
-        checkReadings.setReadingValue(2, bigDecimal(30D), instant("20160103000000"), ValidationResult.VALID);
+        checkReadings.setReadingValue(0, BIG_DECIMAL_10, INSTANT_2016_FEB_01, ValidationResult.VALID);
+        checkReadings.setReadingValue(1, BIG_DECIMAL_20, INSTANT_2016_FEB_02, ValidationResult.VALID);
+        checkReadings.setReadingValue(2, BIG_DECIMAL_30, INSTANT_2016_FEB_03, ValidationResult.VALID);
 
         ValidationConfiguration validationConfiguration = new ValidationConfiguration(rule, mainChannelReadings, checkReadings);
         MainCheckValidator validator = initValidator(validationConfiguration);
