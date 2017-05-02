@@ -164,8 +164,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     showDeviceRegisterConfigurationsView: function (deviceId, tab) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            viewport = Ext.ComponentQuery.query('viewport')[0],
-            showMeReadings = router.currentRoute.endsWith('readings');
+            viewport = Ext.ComponentQuery.query('viewport')[0];
 
         if (!Ext.isEmpty(router.queryParams)) {
             me.previousMeasurementTime = Ext.isEmpty(router.queryParams.measurementTime) ? undefined : router.queryParams.measurementTime;
