@@ -240,7 +240,8 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
     }
 
     protected boolean validateInvokeId() {
-        return Integer.parseInt(properties.getProperty(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID)) == 1;
+        // Todo: property is not added to the list of prop specs
+        return Integer.parseInt(properties.getTypedProperty(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID)) == 1;
     }
 
     @Override

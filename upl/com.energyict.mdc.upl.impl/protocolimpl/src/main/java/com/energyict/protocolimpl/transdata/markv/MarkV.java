@@ -126,7 +126,7 @@ public class MarkV extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        verifyTimeDelay=Integer.parseInt(properties.getTypedProperty("VerifyTimeDelay", "2000").trim());
+        verifyTimeDelay = properties.getTypedProperty("VerifyTimeDelay", 2000);
     }
 
     @Override

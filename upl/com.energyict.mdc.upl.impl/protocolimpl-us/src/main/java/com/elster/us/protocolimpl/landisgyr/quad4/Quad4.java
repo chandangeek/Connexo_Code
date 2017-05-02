@@ -1,8 +1,5 @@
 package com.elster.us.protocolimpl.landisgyr.quad4;
 
-import com.elster.us.nls.PropertyTranslationKeys;
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.TranslationKey;
@@ -12,6 +9,10 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.elster.us.nls.PropertyTranslationKeys;
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -194,67 +195,63 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
 
     @Override
     public void setUPLProperties(TypedProperties p) throws InvalidPropertyException, MissingPropertyException {
-        try {
-            if (p.getTypedProperty(SERIALNUMBER.getName()) != null) {
-                pSerialNumber = p.getTypedProperty(SERIALNUMBER.getName());
-            }
-
-            if (p.getTypedProperty(NODEID.getName()) != null) {
-                pNodeId = getpNodePrefix(p) + p.getTypedProperty(NODEID.getName());
-                //Replace integer.parse because of overflow, REGEX is cleaner as well
-                Pattern pattern = Pattern.compile("[[A-F][a-f]\\d]*");
-                Matcher matcher = pattern.matcher(pNodeId);
-                if (!matcher.matches()) {
-                    throw new InvalidPropertyException("NodeId and prefix must be hexadecimal numbers");
-                }
-            }
-
-            if (p.getTypedProperty(PROFILEINTERVAL.getName()) != null) {
-                pProfileInterval = Integer.parseInt(p.getTypedProperty(PROFILEINTERVAL.getName()));
-            }
-
-            if (p.getTypedProperty(Property.PASSWORD.getName()) != null) {
-                String pwd = p.getTypedProperty(Property.PASSWORD.getName());
-                pPassword = new byte[4];
-                pPassword[0] = pwd.getBytes()[0];
-                pPassword[1] = pwd.getBytes()[1];
-                pPassword[2] = pwd.getBytes()[2];
-                pPassword[3] = pwd.getBytes()[3];
-            }
-
-            if (p.getTypedProperty(PK_TIMEOUT) != null) {
-                pTimeout = Integer.parseInt(p.getTypedProperty(PK_TIMEOUT));
-            }
-
-            if (p.getTypedProperty(PK_RETRIES) != null) {
-                pRetries = Integer.parseInt(p.getTypedProperty(PK_RETRIES));
-            }
-
-            if (p.getTypedProperty(Property.ROUNDTRIPCORRECTION.getName()) != null) {
-                pRountTripCorrection = Integer.parseInt(p.getTypedProperty(Property.ROUNDTRIPCORRECTION.getName()));
-            }
-
-            if (p.getTypedProperty(Property.CORRECTTIME.getName()) != null) {
-                pCorrectTime = Integer.parseInt(p.getTypedProperty(Property.CORRECTTIME.getName()));
-            }
-
-            if (p.getTypedProperty(PK_FORCE_DELAY) != null) {
-                pForceDelay = Integer.parseInt(p.getTypedProperty(PK_FORCE_DELAY));
-            }
-
-            if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
-                pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
-            }
-
-            if (p.getTypedProperty(PK_SHOULD_DISCONNECT) != null) {
-                pShouldDisconnect = p.getTypedProperty(PK_SHOULD_DISCONNECT, PD_SHOULD_DISCONNECT) == "1";
-            }
-
-            readUnit1SerialNumber = "1".equals(p.getTypedProperty(PK_READ_UNIT1_SERIALNUMBER));
-            readProfileDataBeforeConfigChange = !"0".equals(p.getTypedProperty(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE));
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        if (p.getTypedProperty(SERIALNUMBER.getName()) != null) {
+            pSerialNumber = p.getTypedProperty(SERIALNUMBER.getName());
         }
+
+        if (p.getTypedProperty(NODEID.getName()) != null) {
+            pNodeId = getpNodePrefix(p) + p.getTypedProperty(NODEID.getName());
+            //Replace integer.parse because of overflow, REGEX is cleaner as well
+            Pattern pattern = Pattern.compile("[[A-F][a-f]\\d]*");
+            Matcher matcher = pattern.matcher(pNodeId);
+            if (!matcher.matches()) {
+                throw new InvalidPropertyException("NodeId and prefix must be hexadecimal numbers");
+            }
+        }
+
+        if (p.getTypedProperty(PROFILEINTERVAL.getName()) != null) {
+            pProfileInterval = Integer.parseInt(p.getTypedProperty(PROFILEINTERVAL.getName()));
+        }
+
+        if (p.getTypedProperty(Property.PASSWORD.getName()) != null) {
+            String pwd = p.getTypedProperty(Property.PASSWORD.getName());
+            pPassword = new byte[4];
+            pPassword[0] = pwd.getBytes()[0];
+            pPassword[1] = pwd.getBytes()[1];
+            pPassword[2] = pwd.getBytes()[2];
+            pPassword[3] = pwd.getBytes()[3];
+        }
+
+        if (p.getTypedProperty(PK_TIMEOUT) != null) {
+            pTimeout = p.getTypedProperty(PK_TIMEOUT);
+        }
+
+        if (p.getTypedProperty(PK_RETRIES) != null) {
+            pRetries = p.getTypedProperty(PK_RETRIES);
+        }
+
+        if (p.getTypedProperty(Property.ROUNDTRIPCORRECTION.getName()) != null) {
+            pRountTripCorrection = p.getTypedProperty(Property.ROUNDTRIPCORRECTION.getName());
+        }
+
+        if (p.getTypedProperty(Property.CORRECTTIME.getName()) != null) {
+            pCorrectTime = p.getTypedProperty(Property.CORRECTTIME.getName());
+        }
+
+        if (p.getTypedProperty(PK_FORCE_DELAY) != null) {
+            pForceDelay = p.getTypedProperty(PK_FORCE_DELAY);
+        }
+
+        if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
+            pExtendedLogging = p.getTypedProperty(PK_EXTENDED_LOGGING);
+        }
+
+        if (p.getTypedProperty(PK_SHOULD_DISCONNECT) != null) {
+            pShouldDisconnect = p.getTypedProperty(PK_SHOULD_DISCONNECT, PD_SHOULD_DISCONNECT) == "1";
+        }
+
+        readUnit1SerialNumber = "1".equals(p.getTypedProperty(PK_READ_UNIT1_SERIALNUMBER));
+        readProfileDataBeforeConfigChange = !"0".equals(p.getTypedProperty(PK_READ_PROFILE_DATA_BEFORE_CONIG_CHANGE));
     }
 
     /**

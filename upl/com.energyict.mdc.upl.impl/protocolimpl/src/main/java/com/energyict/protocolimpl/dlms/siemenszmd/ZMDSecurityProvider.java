@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
 import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 
 import java.io.IOException;
-import java.util.Properties;
 
 /**
  * Default implementation of the securityProvider for the ZMD Meters.
@@ -28,12 +28,7 @@ public class ZMDSecurityProvider extends NTASecurityProvider {
     private static final int VARIANT4_ADD_XOR = 4;
     private static final int VARIANT5_ADD = 5;
 
-    /**
-     * Create a new instance of LocalSecurityProvider
-     *
-     * @param properties - contains the keys for the authentication/encryption
-     */
-    public ZMDSecurityProvider(Properties properties) {
+    public ZMDSecurityProvider(TypedProperties properties) {
         super(properties);
     }
 

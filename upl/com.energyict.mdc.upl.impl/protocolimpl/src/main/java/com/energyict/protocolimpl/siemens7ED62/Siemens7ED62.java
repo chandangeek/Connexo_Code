@@ -9,8 +9,6 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
@@ -20,6 +18,10 @@ import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
@@ -44,7 +46,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -462,7 +463,6 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
         result.add("ForcedDelay");
         result.add("ChannelMap");
         result.add("TimeSetMethod");
-        result.add("Software7E1");
         result.add("SendWakeUp");
         return result;
     }
@@ -477,28 +477,6 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
 
     private PropertySpec integerSpec(String name) {
         return this.spec(name, this.propertySpecService::integerSpec);
-    }
-
-    private void validateProperties(Properties properties) throws InvalidPropertyException {
-        try {
-            strID = properties.getProperty(ADDRESS.getName());
-            iProfileInterval = Integer.parseInt(properties.getProperty(PROFILEINTERVAL.getName(), "900").trim()); // configured profile interval in seconds
-
-            iSCTMTimeoutProperty = Integer.parseInt(properties.getProperty(TIMEOUT.getName(), "10000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getProperty(RETRIES.getName(), "2").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            iEchoCancelling = Integer.parseInt(properties.getProperty("EchoCancelling", "0").trim());
-            strMeterClass = properties.getProperty("MeterClass", "1");
-            nodeId = properties.getProperty(NODEID.getName(), "");
-            removePowerOutageIntervals = Integer.parseInt(properties.getProperty("RemovePowerOutageIntervals", "0").trim()) == 1;
-            forcedDelay = Integer.parseInt(properties.getProperty("ForcedDelay", "100"));
-            nrOfChannels = Integer.parseInt(properties.getProperty("ChannelMap", "6"));
-            timeSetMethod = Integer.parseInt(properties.getProperty("TimeSetMethod", "0").trim());
-            software7E1 = !properties.getProperty("Software7E1", "0").equalsIgnoreCase("0");
-            wakeupMeter = !properties.getProperty("SendWakeUp", "0").equalsIgnoreCase("0");
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(this.getClass().getSimpleName() + ", validateProperties, NumberFormatException, " + e.getMessage());
-        }
     }
 
     private void setMeterReadingRegisters() throws SiemensSCTMException {
@@ -531,8 +509,22 @@ public class Siemens7ED62 implements MeterProtocol, RegisterProtocol {
     public void initializeDevice() throws IOException {
     }
 
-    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
-        validateProperties(properties.toStringProperties());
+    public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+        strID = properties.getTypedProperty(ADDRESS.getName());
+        iProfileInterval = properties.getTypedProperty(PROFILEINTERVAL.getName(), 900);
+
+        iSCTMTimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 10000);
+        iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 2);
+        iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
+        iEchoCancelling = properties.getTypedProperty("EchoCancelling", 0);
+        strMeterClass = properties.getTypedProperty("MeterClass", "1");
+        nodeId = properties.getTypedProperty(NODEID.getName(), "");
+        removePowerOutageIntervals = properties.getTypedProperty("RemovePowerOutageIntervals", 0) == 1;
+        forcedDelay = properties.getTypedProperty("ForcedDelay", 100);
+        nrOfChannels = properties.getTypedProperty("ChannelMap", 6);
+        timeSetMethod = properties.getTypedProperty("TimeSetMethod", 0);
+        wakeupMeter = !"0".equals(properties.getTypedProperty("SendWakeUp", "0"));
+        software7E1 = !"0".equals(properties.getTypedProperty("Software7E1", "0"));
     }
 
     @Override

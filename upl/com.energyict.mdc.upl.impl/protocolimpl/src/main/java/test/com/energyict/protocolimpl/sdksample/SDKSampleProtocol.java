@@ -342,7 +342,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        setSDKSampleProperty(Integer.parseInt(properties.getTypedProperty(PK_SAMPLE, "123")));
+        setSDKSampleProperty(properties.getTypedProperty(PK_SAMPLE, 123));
         this.simulateRealCommunication = "1".equalsIgnoreCase(properties.getTypedProperty(PK_SIMULATE_REAL_COMMUNICATION, "0").trim());
         setLoadProfileObisCode(ObisCode.fromString(properties.getTypedProperty(PK_LOAD_PROFILE_OBIS_CODE, "0.0.99.1.0.255")));
     }

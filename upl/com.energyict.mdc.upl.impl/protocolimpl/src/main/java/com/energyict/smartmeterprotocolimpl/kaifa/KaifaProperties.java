@@ -16,7 +16,7 @@ class KaifaProperties extends AM110RProperties {
     @Override
     @ProtocolProperty
     public boolean isBulkRequest() {
-        return getBooleanProperty(BULK_REQUEST, "0");   //Don't use get-with-list by default
+        return getBooleanProperty(BULK_REQUEST, false);   //Don't use get-with-list by default
     }
 
     public void setProperty(String propertyName, String propertyValue) {

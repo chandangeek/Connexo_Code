@@ -120,7 +120,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     /**
      * The {@link Properties} of the current RTU
      */
-    private Properties properties;
+    private TypedProperties properties;
     /**
      * The {@link Logger} provided by the ComServer
      */
@@ -205,39 +205,35 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
-        try {
-            String[] securityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), "0").split(":");
-            this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
-            if (securityLevel.length == 2) {
-                this.datatransportSecurityLevel = Integer.parseInt(securityLevel[1]);
-            } else if (securityLevel.length == 1) {
-                this.datatransportSecurityLevel = 0;
-            } else {
-                throw new InvalidPropertyException("SecurityLevel property contains an illegal value " + properties.getTypedProperty("SecurityLevel", "0"));
-            }
-
-            this.nodeId = properties.getTypedProperty(NODEID.getName(), "");
-            this.deviceId = properties.getTypedProperty(ADDRESS.getName(), "");
-            this.serialNumber = properties.getTypedProperty(SERIALNUMBER.getName(), "");
-            this.connectionMode = Integer.parseInt(properties.getTypedProperty("Connection", "1"));
-            this.clientMacAddress = Integer.parseInt(properties.getTypedProperty("ClientMacAddress", "16"));
-            this.serverLowerMacAddress = Integer.parseInt(properties.getTypedProperty("ServerLowerMacAddress", "1"));
-            this.serverUpperMacAddress = Integer.parseInt(properties.getTypedProperty("ServerUpperMacAddress", "17"));
-            this.timeOut = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), (this.connectionMode == 0) ? "5000" : "60000"));    // set the HDLC timeout to 5000 for the WebRTU KP
-            this.retries = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "3"));
-            this.roundTripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0"));
-            this.forceDelay = Integer.parseInt(properties.getTypedProperty("ForceDelay", "1"));
-            this.addressingMode = Integer.parseInt(properties.getTypedProperty("AddressingMode", "2"));
-            this.manufacturer = properties.getTypedProperty("Manufacturer", "WKP");
-            this.informationFieldSize = Integer.parseInt(properties.getTypedProperty("InformationFieldSize", "-1"));
-            this.iiapInvokeId = Integer.parseInt(properties.getTypedProperty("IIAPInvokeId", "0"));
-            this.iiapPriority = Integer.parseInt(properties.getTypedProperty("IIAPPriority", "1"));
-            this.iiapServiceClass = Integer.parseInt(properties.getTypedProperty("IIAPServiceClass", "1"));
-            this.cipheringType = Integer.parseInt(properties.getTypedProperty("CipheringType", Integer.toString(CipheringType.GLOBAL.getType())));
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        String[] securityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), "0").split(":");
+        this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
+        if (securityLevel.length == 2) {
+            this.datatransportSecurityLevel = Integer.parseInt(securityLevel[1]);
+        } else if (securityLevel.length == 1) {
+            this.datatransportSecurityLevel = 0;
+        } else {
+            throw new InvalidPropertyException("SecurityLevel property contains an illegal value " + properties.getTypedProperty("SecurityLevel", "0"));
         }
-        this.properties = properties.toStringProperties();
+
+        this.nodeId = properties.getTypedProperty(NODEID.getName(), "");
+        this.deviceId = properties.getTypedProperty(ADDRESS.getName(), "");
+        this.serialNumber = properties.getTypedProperty(SERIALNUMBER.getName(), "");
+        this.connectionMode = properties.getTypedProperty("Connection", 1);
+        this.clientMacAddress = properties.getTypedProperty("ClientMacAddress", 16);
+        this.serverLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 1);
+        this.serverUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 17);
+        this.timeOut = properties.getTypedProperty(TIMEOUT.getName(), (this.connectionMode == 0) ? 5000 : 60000);    // set the HDLC timeout to 5000 for the WebRTU KP
+        this.retries = properties.getTypedProperty(RETRIES.getName(), 3);
+        this.roundTripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
+        this.forceDelay = properties.getTypedProperty("ForceDelay", 1);
+        this.addressingMode = properties.getTypedProperty("AddressingMode", 2);
+        this.manufacturer = properties.getTypedProperty("Manufacturer", "WKP");
+        this.informationFieldSize = properties.getTypedProperty("InformationFieldSize", -1);
+        this.iiapInvokeId = properties.getTypedProperty("IIAPInvokeId", 0);
+        this.iiapPriority = properties.getTypedProperty("IIAPPriority", 1);
+        this.iiapServiceClass = properties.getTypedProperty("IIAPServiceClass", 1);
+        this.cipheringType = properties.getTypedProperty("CipheringType", CipheringType.GLOBAL.getType());
+        this.properties = properties;
     }
 
     @Override
@@ -262,9 +258,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @throws IOException if initializing the connection failed of the connectionMode is invalid
      */
     private void initDLMSConnection(InputStream inputStream, OutputStream outputStream) throws IOException {
-
         DLMSConnection connection;
-
         try {
             switch (connectionMode) {
                 case CONNECTION_MODE_HDLC:

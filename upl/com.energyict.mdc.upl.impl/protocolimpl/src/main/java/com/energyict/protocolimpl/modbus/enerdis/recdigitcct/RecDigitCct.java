@@ -108,10 +108,10 @@ public class RecDigitCct extends Modbus {
     @Override
 	public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
 		super.setUPLProperties(properties);
-       	setInfoTypePhysicalLayer(Integer.parseInt(properties.getTypedProperty(PK_PHYSICAL_LAYER, "1").trim()));
-    	setInfoTypeInterframeTimeout(Integer.parseInt(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, "100").trim()));
+       	setInfoTypePhysicalLayer(properties.getTypedProperty(PK_PHYSICAL_LAYER, 1));
+    	setInfoTypeInterframeTimeout(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, 100));
 
-        String property = properties.getTypedProperty( PK_CHANNEL_MAP );
+        String property = properties.getTypedProperty(PK_CHANNEL_MAP);
         if (property != null) {
 			channelMap = new ChannelMap( property );
 		} else {
@@ -124,7 +124,7 @@ public class RecDigitCct extends Modbus {
             throw new InvalidPropertyException( msg );
         }
 
-        this.limitMaxNrOfDays = Integer.parseInt(properties.getTypedProperty(PR_LIMIT_MAX_NR_OF_DAYS, "0"));
+        this.limitMaxNrOfDays = properties.getTypedProperty(PR_LIMIT_MAX_NR_OF_DAYS, 0);
     }
 
     @Override

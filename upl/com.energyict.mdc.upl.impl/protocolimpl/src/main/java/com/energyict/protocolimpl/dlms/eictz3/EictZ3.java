@@ -126,7 +126,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -569,10 +568,10 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return the current securityProvider (currently only LocalSecurityProvider is available)
      */
     public SecurityProvider getSecurityProvider() {
-        Properties props = new Properties();
-        props.put(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, this.authenticationLevel.getAuthenticationValue());
-        props.put(LocalSecurityProvider.DATATRANSPORTKEY, this.encryptionLevel.getEncryptionValue());
-        props.put(PASSWORD.getName(), password);
+        com.energyict.protocolimpl.properties.TypedProperties props = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        props.setProperty(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, this.authenticationLevel.getAuthenticationValue());
+        props.setProperty(LocalSecurityProvider.DATATRANSPORTKEY, this.encryptionLevel.getEncryptionValue());
+        props.setProperty(PASSWORD.getName(), password);
         return new LocalSecurityProvider(props);
     }
 

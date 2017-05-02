@@ -83,13 +83,13 @@ public class Datastar extends SchlumbergerProtocol {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        allowClockSet = Integer.parseInt(properties.getTypedProperty(ALLOW_CLOCK_SET, "0").trim()) == 1;
-        setDelayAfterConnect(Integer.parseInt(properties.getTypedProperty(DELAY_AFTER_CONNECT, "2000").trim()));
+        allowClockSet = properties.getTypedProperty(ALLOW_CLOCK_SET, 0) == 1;
+        setDelayAfterConnect(properties.getTypedProperty(DELAY_AFTER_CONNECT, 2000));
     }
 
     @Override
     public int getProfileInterval() throws IOException {
-        return getBasePagesFactory().getOperatingSetUpBasePage().getProfileInterval()*60;
+        return getBasePagesFactory().getOperatingSetUpBasePage().getProfileInterval() * 60;
     }
 
     @Override

@@ -191,8 +191,8 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
                 this.integerSpec(PK_CORRECTTIME, PropertyTranslationKeys.ION_CORRECTTIME),
                 this.stringSpec(PK_EXTENDED_LOGGING, PropertyTranslationKeys.ION_EXTENDED_LOGGING),
                 this.stringSpec(PK_DATA_RECORDER_NAME, PropertyTranslationKeys.ION_DATA_RECORDER_NAME),
-                this.stringSpec(PK_DTR_BEHAVIOUR, PropertyTranslationKeys.ION_DTR_BEHAVIOUR),
-                this.stringSpec(PK_FORCE_DELAY, PropertyTranslationKeys.ION_FORCE_DELAY),
+                this.integerSpec(PK_DTR_BEHAVIOUR, PropertyTranslationKeys.ION_DTR_BEHAVIOUR),
+                this.integerSpec(PK_FORCE_DELAY, PropertyTranslationKeys.ION_FORCE_DELAY),
                 ProtocolChannelMap.propertySpec(PK_CHANNEL_MAP, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.IEC1107_CHANNEL_MAP).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.IEC1107_CHANNEL_MAP_DESCRIPTION).format()));
     }
 
@@ -210,69 +210,65 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+        pNodeId = properties.getTypedProperty(NODEID.getName());
+        if (properties.getTypedProperty(PK_USER_ID) != null) {
+            pUserId = properties.getTypedProperty(PK_USER_ID);
+        }
+
+        if (properties.getTypedProperty(PASSWORD.getName()) != null) {
+            pPassword = properties.getTypedProperty(PASSWORD.getName());
+        }
+
         try {
-            pNodeId = Integer.parseInt(properties.getTypedProperty(NODEID.getName()));
-            if (properties.getTypedProperty(PK_USER_ID) != null) {
-                pUserId = properties.getTypedProperty(PK_USER_ID);
+            if (!ProtocolTools.isNull(pPassword) && !ProtocolTools.isNull(pUserId)) {
+                this.authentication = new Authentication(pPassword, pUserId);
             }
+        } catch (InvalidPasswordException e) {
+            throw new InvalidPropertyException(e, e.getMessage());
+        }
 
-            if (properties.getTypedProperty(PASSWORD.getName()) != null) {
-                pPassword = properties.getTypedProperty(PASSWORD.getName());
-            }
+        if (properties.getTypedProperty(PK_SERIALNUMBER) != null) {
+            pSerialNumber = properties.getTypedProperty(PK_SERIALNUMBER);
+        }
 
-            try {
-                if (!ProtocolTools.isNull(pPassword) && !ProtocolTools.isNull(pUserId)) {
-                    this.authentication = new Authentication(pPassword, pUserId);
-                }
-            } catch (InvalidPasswordException e) {
-                throw new InvalidPropertyException(e, e.getMessage());
-            }
+        if (properties.getTypedProperty(PK_PROFILEINTERVAL) != null) {
+            pProfileInterval = properties.getTypedProperty(PK_PROFILEINTERVAL);
+        }
 
-            if (properties.getTypedProperty(PK_SERIALNUMBER) != null) {
-                pSerialNumber = properties.getTypedProperty(PK_SERIALNUMBER);
-            }
+        if (properties.getTypedProperty(PK_TIMEOUT) != null) {
+            pTimeout = properties.getTypedProperty(PK_TIMEOUT);
+        }
 
-            if (properties.getTypedProperty(PK_PROFILEINTERVAL) != null) {
-                pProfileInterval = Integer.parseInt(properties.getTypedProperty(PK_PROFILEINTERVAL));
-            }
+        if (properties.getTypedProperty(PK_RETRIES) != null) {
+            pRetries = properties.getTypedProperty(PK_RETRIES);
+        }
 
-            if (properties.getTypedProperty(PK_TIMEOUT) != null) {
-                pTimeout = Integer.parseInt(properties.getTypedProperty(PK_TIMEOUT));
-            }
+        if (properties.getTypedProperty(PK_ROUNDTRIPCORRECTION) != null) {
+            pRountTripCorrection = properties.getTypedProperty(PK_ROUNDTRIPCORRECTION);
+        }
 
-            if (properties.getTypedProperty(PK_RETRIES) != null) {
-                pRetries = Integer.parseInt(properties.getTypedProperty(PK_RETRIES));
-            }
+        if (properties.getTypedProperty(PK_CORRECTTIME) != null) {
+            pCorrectTime = properties.getTypedProperty(PK_CORRECTTIME);
+        }
 
-            if (properties.getTypedProperty(PK_ROUNDTRIPCORRECTION) != null) {
-                pRountTripCorrection = Integer.parseInt(properties.getTypedProperty(PK_ROUNDTRIPCORRECTION));
-            }
+        if (properties.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
+            pExtendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
+        }
 
-            if (properties.getTypedProperty(PK_CORRECTTIME) != null) {
-                pCorrectTime = Integer.parseInt(properties.getTypedProperty(PK_CORRECTTIME));
-            }
+        if (properties.getTypedProperty(PK_DATA_RECORDER_NAME) != null) {
+            pDataRecorderName = properties.getTypedProperty(PK_DATA_RECORDER_NAME);
+        }
 
-            if (properties.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
-                pExtendedLogging = properties.getTypedProperty(PK_EXTENDED_LOGGING);
-            }
+        if (properties.getTypedProperty(PK_DTR_BEHAVIOUR) != null) {
+            dtrBehaviour = properties.getTypedProperty(PK_DTR_BEHAVIOUR);
+        }
 
-            if (properties.getTypedProperty(PK_DATA_RECORDER_NAME) != null) {
-                pDataRecorderName = properties.getTypedProperty(PK_DATA_RECORDER_NAME);
-            }
+        if (properties.getTypedProperty(PK_FORCE_DELAY) != null) {
+            pForceDelay = properties.getTypedProperty(PK_FORCE_DELAY);
+        }
 
-            if (properties.getTypedProperty(PK_DTR_BEHAVIOUR) != null) {
-                dtrBehaviour = Integer.parseInt(properties.getTypedProperty(PK_DTR_BEHAVIOUR));
-            }
-
-            if (properties.getTypedProperty(PK_FORCE_DELAY) != null) {
-                pForceDelay = Integer.parseInt(properties.getTypedProperty(PK_FORCE_DELAY));
-            }
-
-            if (properties.getTypedProperty(PK_CHANNEL_MAP) != null) {
-                pChannelMap = new ProtocolChannelMap(((String) properties.getTypedProperty(PK_CHANNEL_MAP)));
-            }
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        if (properties.getTypedProperty(PK_CHANNEL_MAP) != null) {
+            pChannelMap = new ProtocolChannelMap(((String) properties.getTypedProperty(PK_CHANNEL_MAP)));
         }
     }
 

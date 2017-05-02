@@ -182,31 +182,31 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
             }
 
             if (properties.getTypedProperty(PROFILEINTERVAL.getName()) != null) {
-                pProfileInterval = Integer.parseInt(properties.getTypedProperty(PROFILEINTERVAL.getName()));
+                pProfileInterval = properties.getTypedProperty(PROFILEINTERVAL.getName());
             }
 
             if (properties.getTypedProperty(PK_TIMEOUT) != null) {
-                pTimeout = Integer.parseInt(properties.getTypedProperty(PK_TIMEOUT));
+                pTimeout = properties.getTypedProperty(PK_TIMEOUT);
             }
 
             if (properties.getTypedProperty(PK_RETRIES) != null) {
-                pRetries = Integer.parseInt(properties.getTypedProperty(PK_RETRIES));
+                pRetries = properties.getTypedProperty(PK_RETRIES);
             }
 
             if (properties.getTypedProperty(PK_FORCE_DELAY) != null) {
-                pForceDelay = Integer.parseInt(properties.getTypedProperty(PK_FORCE_DELAY));
+                pForceDelay = properties.getTypedProperty(PK_FORCE_DELAY);
             }
 
             if (properties.getTypedProperty(PK_ECHO_CANCELLING) != null) {
-                pEchoCanceling = Integer.parseInt(properties.getTypedProperty(PK_ECHO_CANCELLING));
+                pEchoCanceling = properties.getTypedProperty(PK_ECHO_CANCELLING);
             }
 
             if (properties.getTypedProperty(PK_IEC1107_COMPATIBLE) != null) {
-                pIec1107Compatible = Integer.parseInt(properties.getTypedProperty(PK_IEC1107_COMPATIBLE));
+                pIec1107Compatible = properties.getTypedProperty(PK_IEC1107_COMPATIBLE);
             }
 
             if (properties.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
-                pRountTripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName()));
+                pRountTripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName());
             }
 
             this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty(PK_SOFTWARE_7E1, "0"));

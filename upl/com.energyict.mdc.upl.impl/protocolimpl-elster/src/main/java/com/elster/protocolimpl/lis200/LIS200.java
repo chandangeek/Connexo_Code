@@ -59,6 +59,7 @@ import java.util.logging.Logger;
 
 import static com.elster.utils.VersionInfo.getVersionMajor;
 import static com.elster.utils.VersionInfo.getVersionMinor;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
 
 /**
  * @author heuckeg
@@ -188,7 +189,7 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
         propertySpecs.add(this.stringSpec(USE_LOCK, PropertyTranslationKeys.LIS200_USE_LOCK));
         propertySpecs.add(this.integerRangeSpec(METER_INDEX, false, Range.closed(1, this.maxMeterIndex), PropertyTranslationKeys.LIS200_METER_INDEX));
         propertySpecs.add(this.integerRangeSpec(ARCHIVE_TO_READOUT, false, PropertyTranslationKeys.LIS200_ARCHIVE_TO_READOUT));
-        propertySpecs.add(this.integerRangeSpec(ARCHIVE_STRUCTURE, false, PropertyTranslationKeys.LIS200_ARCHIVE_STRUCTURE));
+        propertySpecs.add(this.stringSpec(ARCHIVE_STRUCTURE, PropertyTranslationKeys.LIS200_ARCHIVE_STRUCTURE));
         propertySpecs.add(LIS200Utils.propertySpec(ARCHIVE_INTERVAL_ADDRESS, false, this.getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.LIS200_ARCHIVE_INTERVAL_ADDRESS).format(), this.getNlsService().getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.LIS200_ARCHIVE_INTERVAL_ADDRESS_DESCRIPTION).format()));
         propertySpecs.add(this.integerSpec(DELAY_AFTER_CHECK, PropertyTranslationKeys.LIS200_DELAY_AFTER_CHECK));
         return propertySpecs;
@@ -208,73 +209,54 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
     @Override
     public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
         super.setUPLProperties(properties);
-        try {
-            securityLevel = Integer.parseInt(properties.getTypedProperty("SecurityLevel", "0").trim());  //Default
-            this.profileRequestBlockSize = Integer.parseInt(properties.getTypedProperty(PROFILE_REQUEST_BLOCK_SIZE, "10"));
-            this.disableAutoLogoff = Integer.parseInt(properties.getTypedProperty(DISABLE_AUTO_LOGOFF, "0")) > 0;
-            suppressWakeupSequence = Integer.parseInt(properties.getTypedProperty(SUPPRESS_WAKEUP_SEQUENCE, "0")) != 0;
+        this.profileRequestBlockSize = properties.getTypedProperty(PROFILE_REQUEST_BLOCK_SIZE, 10);
+        this.securityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), 0);
+        this.disableAutoLogoff = properties.getTypedProperty(DISABLE_AUTO_LOGOFF, 0) > 0;
+        this.suppressWakeupSequence = properties.getTypedProperty(SUPPRESS_WAKEUP_SEQUENCE, 0) != 0;
 
-        /* check for lock to open... */
-            usedLock = LockObject.CustomerLock;
-            final String lockName = properties.getTypedProperty(USE_LOCK, "");
-            if (!lockName.isEmpty()) {
-                usedLock = null;
-                for (LockObject lock : getLockObjects())
-                {
-                    if (lockName.equalsIgnoreCase(lock.getName()))
-                    {
-                        usedLock = lock;
-                        break;
-                    }
-                }
-                if (usedLock == null)
-                {
-                    StringBuilder msg = new StringBuilder("Incorrect UseLock property. Valid value are: ");
-                    boolean notFirst = false;
-                    for (LockObject lock : getLockObjects())
-                    {
-                        if (notFirst)
-                        {
-                            msg.append(",");
-                        }
-                        msg.append("'");
-                        msg.append(lock.getName());
-                        msg.append("'");
-                        notFirst = true;
-                    }
-                    msg.append(". If UseLock is empty, then default 'CustomerLock' will be used.");
-
-                    throw new InvalidPropertyException(msg.toString());
+            /* check for lock to open... */
+        usedLock = LockObject.CustomerLock;
+        final String lockName = properties.getTypedProperty(USE_LOCK, "");
+        if (!lockName.isEmpty()) {
+            usedLock = null;
+            for (LockObject lock : getLockObjects()){
+                if (lockName.equalsIgnoreCase(lock.getName())) {
+                    usedLock = lock;
+                    break;
                 }
             }
+            if (usedLock == null) {
+                StringBuilder msg = new StringBuilder("Incorrect UseLock property. Valid value are: ");
+                boolean notFirst = false;
+                for (LockObject lock : getLockObjects()){
+                    if (notFirst) {
+                        msg.append(",");
+                    }
+                    msg.append("'");
+                    msg.append(lock.getName());
+                    msg.append("'");
+                    notFirst = true;
+                }
+                msg.append(". If UseLock is empty, then default 'CustomerLock' will be used.");
+
+                throw new InvalidPropertyException(msg.toString());
+            }
+        }
 
         /* check which archive to readout... */
-            String strMeterIndex = properties.getTypedProperty(METER_INDEX, "");
-            String strArchive = properties.getTypedProperty(ARCHIVE_TO_READOUT, "");
-
-        /* property MeterIndex set ? */
-            if ((strMeterIndex != null) && (!strMeterIndex.isEmpty())) {
-                meterIndex = Integer.parseInt(strMeterIndex);
-            }
-
-        /* property ArchiveToReadout set? */
-            if ((strArchive != null) && (!strArchive.isEmpty())) {
-                archiveIndex = Integer.parseInt(strArchive);
-            }
-
-        /* check if archive structure is given by property */
-            String struct = properties.getTypedProperty(ARCHIVE_STRUCTURE, "");
-            if ((struct != null) && (!struct.isEmpty())) {
-                archiveStructure = struct;
-            }
-
-            archiveIntervalAddr = properties.getTypedProperty(ARCHIVE_INTERVAL_ADDRESS, "");
-
-            delayAfterCheck = Integer.parseInt(properties.getTypedProperty(DELAY_AFTER_CHECK, "0"));
+        if (properties.hasValueFor(METER_INDEX)) {
+            this.meterIndex = properties.getTypedProperty(METER_INDEX);
         }
-        catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        if (properties.hasValueFor(ARCHIVE_TO_READOUT)) {
+            this.archiveIndex = properties.getTypedProperty(ARCHIVE_TO_READOUT);
         }
+        if (properties.hasValueFor(ARCHIVE_STRUCTURE)) {
+            this.archiveStructure = properties.getTypedProperty(ARCHIVE_STRUCTURE);
+        }
+
+        archiveIntervalAddr = properties.getTypedProperty(ARCHIVE_INTERVAL_ADDRESS, "");
+
+        delayAfterCheck = properties.getTypedProperty(DELAY_AFTER_CHECK, 0);
     }
 
     @Override
@@ -377,13 +359,10 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
            * get type of archive. if unknown type, property archiveStructure has
            * to be defined
            */
-        SimpleObject archiveTypeObject = new SimpleObject(this,
-                archiveInstance, "A32.0");
+        SimpleObject archiveTypeObject = new SimpleObject(this, archiveInstance, "A32.0");
         String archiveType = archiveTypeObject.getValue();
         int archiveTypeNo = Integer.parseInt(archiveType);
-        getLogger().info(
-                "-- Requested Archive instance: " + archiveInstance
-                        + ". Archive type is " + archiveType);
+        getLogger().info("-- Requested Archive instance: " + archiveInstance + ". Archive type is " + archiveType);
         if (archiveStructure.isEmpty()) {
             archiveStructure = getStructureForType(archiveTypeNo);
         }
@@ -392,8 +371,7 @@ public class LIS200 extends AbstractIEC1107Protocol implements SerialNumberSuppo
             archiveIntervalAddr = getAddressOfInterval(archiveTypeNo);
         }
 
-        getLogger().info(
-                "-- Requested Archive structure: <" + archiveStructure + ">");
+        getLogger().info("-- Requested Archive structure: <" + archiveStructure + ">");
 //        IntervalArchiveRecordConfig recordConfig = new IntervalArchiveRecordConfig(archiveStructure);
 
         if (archiveIntervalAddr.isEmpty()){

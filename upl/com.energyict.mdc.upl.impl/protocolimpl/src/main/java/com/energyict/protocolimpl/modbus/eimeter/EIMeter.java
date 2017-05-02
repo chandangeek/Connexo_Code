@@ -42,12 +42,12 @@ public class EIMeter extends Modbus {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, "25").trim()));
+        setInfoTypeInterframeTimeout(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, 25));
         setInfoTypeMeterFirmwareVersion(properties.getTypedProperty(PK_METER_FIRMWARE_VERSION, "1.07"));
         if (Float.parseFloat(getInfoTypeMeterFirmwareVersion()) >= 1.07) {
-            setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getTypedProperty(PK_FIRST_TIME_DELAY, "0").trim()));
+            setInfoTypeFirstTimeDelay(properties.getTypedProperty(PK_FIRST_TIME_DELAY, 0));
         } else {
-            setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getTypedProperty(PK_FIRST_TIME_DELAY, "400").trim()));
+            setInfoTypeFirstTimeDelay(properties.getTypedProperty(PK_FIRST_TIME_DELAY, 400));
         }
     }
 

@@ -58,15 +58,15 @@ public class Enerium200 extends Modbus implements SerialNumberSupport {
     @Override
 	public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
 		super.setUPLProperties(properties);
-        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, "500").trim()));
-        setInfoTypePhysicalLayer(Integer.parseInt(properties.getTypedProperty(PK_PHYSICAL_LAYER, "1").trim()));
-        setInfoTypeResponseTimeout(Integer.parseInt(properties.getTypedProperty(PK_RESPONSE_TIMEOUT, "2000").trim()));
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(),"5000").trim()));
-        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim()));
+        setInfoTypeInterframeTimeout(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, 500));
+        setInfoTypePhysicalLayer(properties.getTypedProperty(PK_PHYSICAL_LAYER, 1));
+        setInfoTypeResponseTimeout(properties.getTypedProperty(PK_RESPONSE_TIMEOUT, 2000));
+	    setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(),"5000").trim()));
+	    setInfoTypeProtocolRetriesProperty(properties.getTypedProperty(RETRIES.getName(), 5));
 
 		try {
 			Integer.parseInt(getInfoTypeDeviceID());
-		} catch (Exception e) {
+		} catch (NumberFormatException e) {
 			setInfoTypeDeviceID("1");
 		}
 

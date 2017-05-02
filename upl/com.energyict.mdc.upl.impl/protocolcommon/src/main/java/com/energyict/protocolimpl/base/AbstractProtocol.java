@@ -248,7 +248,8 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
                 this.stringSpec(PROP_TIMEOUT, PropertyTranslationKeys.BASE_TIMEOUT, false),
                 this.integerSpec(PROP_RETRIES, PropertyTranslationKeys.BASE_RETRIES, false),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.BASE_ROUNDTRIPCORRECTION, false),
-                this.integerSpec(PROP_SECURITY_LEVEL, PropertyTranslationKeys.BASE_SECURITY_LEVEL, false),
+                // This class prefers security level to be of type int but subclasses prefer String and parse it into two properties :-(
+                this.stringSpec(PROP_SECURITY_LEVEL, PropertyTranslationKeys.BASE_SECURITY_LEVEL, false),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.BASE_NODEID, false),
                 this.integerSpec(PROP_ECHO_CANCELING, PropertyTranslationKeys.BASE_ECHO_CANCELLING, false),
                 this.integerSpec(PROP_PROTOCOL_COMPATIBLE, PropertyTranslationKeys.BASE_PROTOCOL_COMPATABLE, false),
@@ -305,7 +306,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
             setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "10000").trim()));
             setInfoTypeProtocolRetriesProperty(properties.getTypedProperty(PROP_RETRIES, 5));
             roundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
-            securityLevel = properties.getTypedProperty(PROP_SECURITY_LEVEL, 1);
+            this.setSecurityLevelFrom(properties);
             nodeId = properties.getTypedProperty(NODEID.getName(), "");
             echoCancelling = properties.getTypedProperty(PROP_ECHO_CANCELING, 0);
             protocolCompatible = properties.getTypedProperty(PROP_PROTOCOL_COMPATIBLE, 1);
@@ -327,6 +328,10 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
+    }
+
+    protected void setSecurityLevelFrom(TypedProperties properties) {
+        securityLevel = Integer.parseInt(properties.getTypedProperty(PROP_SECURITY_LEVEL, "1"));
     }
 
     protected int defaultForcedDelayPropertyValue() {
@@ -662,7 +667,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     }
 
     public int getSecurityLevel() {
-        return securityLevel;
+        return getInfoTypeSecurityLevel();
     }
 
     public String getStrPassword() {

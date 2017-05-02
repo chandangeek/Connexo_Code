@@ -69,7 +69,7 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
     }
 
 	@Override
-	protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
+	protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
 		if (halfDuplexController != null && this.isRS485RtuPlusServer()) {
 			halfDuplexController = new RtuPlusServerHalfDuplexController(halfDuplexController);
 		}

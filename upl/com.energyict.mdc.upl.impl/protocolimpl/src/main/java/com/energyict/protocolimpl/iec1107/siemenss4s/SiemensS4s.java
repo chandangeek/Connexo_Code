@@ -39,7 +39,6 @@ public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberS
     private boolean requestDataReadout;
 
 	private int securityLevel;
-	private int channelMap;
 
 	private byte[] dataReadout;
 
@@ -80,11 +79,6 @@ public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberS
 		initLocalObjects();
 	}
 
-	@Override
-    public int getNumberOfChannels(){
-        return this.channelMap;
-     }
-
 	/**
 	 * Initialize local objects
 	 */
@@ -99,13 +93,12 @@ public class SiemensS4s extends AbstractIEC1107Protocol implements SerialNumberS
         try {
             this.deviceId = properties.getTypedProperty(ADDRESS.getName());
             this.passWord = properties.getTypedProperty(PASSWORD.getName(), "4281602592");
-            if("".equalsIgnoreCase(this.passWord)){
+            if ("".equalsIgnoreCase(this.passWord)) {
                 this.passWord = "4281602592";
             }
             //TODO set the level in the encryptor
-            this.securityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(),"2").trim());
+            this.securityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), 2);
             this.nodeAddress = properties.getTypedProperty(NODEID.getName(),"");
-            this.channelMap = Integer.parseInt(properties.getTypedProperty("ChannelMap","1"));
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

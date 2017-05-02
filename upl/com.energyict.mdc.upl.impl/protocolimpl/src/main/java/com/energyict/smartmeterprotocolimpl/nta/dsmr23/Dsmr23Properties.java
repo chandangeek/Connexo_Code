@@ -1,19 +1,19 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23;
 
-import com.energyict.dlms.DLMSReference;
-import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
-import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
 import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY;
@@ -28,7 +28,7 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
     private static final String OLD_MBUS_DISCOVERY = "OldMbusDiscovery";
     private static final String FIX_MBUS_HEX_SHORT_ID = "FixMbusHexShortId";
 
-    private static final String DEFAULT_CLIENT_MAC_ADDRESS = "1";
+    private static final int DEFAULT_CLIENT_MAC_ADDRESS = 1;
 
     private final PropertySpecService propertySpecService;
 
@@ -36,7 +36,7 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
         this.propertySpecService = propertySpecService;
     }
 
-    public Dsmr23Properties(Properties properties, PropertySpecService propertySpecService) {
+    public Dsmr23Properties(TypedProperties properties, PropertySpecService propertySpecService) {
         super(properties);
         this.propertySpecService = propertySpecService;
     }
@@ -81,12 +81,12 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
 
     @ProtocolProperty
     public boolean getFixMbusHexShortId() {
-        return getBooleanProperty(FIX_MBUS_HEX_SHORT_ID, "0");
+        return getBooleanProperty(FIX_MBUS_HEX_SHORT_ID, false);
     }
 
     @ProtocolProperty
     public boolean getOldMbusDiscovery() {
-        return getBooleanProperty(OLD_MBUS_DISCOVERY, "0");
+        return getBooleanProperty(OLD_MBUS_DISCOVERY, false);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
 
     @ProtocolProperty
     public boolean isBulkRequest() {
-        return getBooleanProperty(BULK_REQUEST, "1");
+        return getBooleanProperty(BULK_REQUEST, true);
     }
 
     @ProtocolProperty

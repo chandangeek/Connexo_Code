@@ -3,13 +3,14 @@ package com.energyict.protocolimpl.dlms.edp;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Wrapper class that holds the EDP DLMS protocol properties, parses them and returns the proper values.
@@ -28,30 +29,34 @@ class EDPProperties {
     public  static final String READ_CACHE_DEFAULT_VALUE = "0";
     private static final int FIRMWARE_CLIENT = 3;
 
-    private final Properties properties;
+    private final TypedProperties properties;
     private final PropertySpecService propertySpecService;
 
-    EDPProperties(Properties properties, PropertySpecService propertySpecService) {
+    EDPProperties(PropertySpecService propertySpecService) {
+        this(com.energyict.protocolimpl.properties.TypedProperties.empty(), propertySpecService);
+    }
+
+    EDPProperties(TypedProperties properties, PropertySpecService propertySpecService) {
         this.properties = properties;
         this.propertySpecService = propertySpecService;
     }
 
-    public void addProperties(Properties properties) {
-        this.properties.putAll(properties);
+    public void addProperties(TypedProperties properties) {
+        this.properties.setAllProperties(properties);
     }
 
     /**
      * Property indicating to read the cache out (useful because there's no config change state)
      */
     public boolean isReadCache() {
-        return Integer.parseInt(properties.getProperty(READCACHE_PROPERTY, READ_CACHE_DEFAULT_VALUE).trim()) == 1;
+        return "1".equals(properties.getTypedProperty(READCACHE_PROPERTY, READ_CACHE_DEFAULT_VALUE));
     }
 
     protected List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
-                this.stringSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
-                this.stringSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
+                this.integerSpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
+                this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
+                this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
                 this.stringSpec(DlmsProtocolProperties.CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION),
                 this.stringSpec(DlmsProtocolProperties.PK_TIMEOUT, PropertyTranslationKeys.DLMS_TIMEOUT),
                 this.stringSpec(DlmsProtocolProperties.PK_RETRIES, PropertyTranslationKeys.DLMS_RETRIES),
@@ -62,36 +67,25 @@ class EDPProperties {
         return UPLPropertySpecFactory.specBuilder(name, false, translationKey, this.propertySpecService::stringSpec).finish();
     }
 
+    private PropertySpec integerSpec(String name, TranslationKey translationKey) {
+        return UPLPropertySpecFactory.specBuilder(name, false, translationKey, this.propertySpecService::integerSpec).finish();
+    }
+
     boolean isFirmwareClient() {
-        String property = properties.getProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, DlmsProtocolProperties.DEFAULT_CLIENT_MAC_ADDRESS);
-        try {
-            return Integer.parseInt(property) == FIRMWARE_CLIENT;
-        } catch (NumberFormatException e) {
-            return false;
-        }
+        int property = properties.getTypedProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, DlmsProtocolProperties.DEFAULT_CLIENT_MAC_ADDRESS);
+        return property == FIRMWARE_CLIENT;
     }
 
     public int getClientMacAddress() {
-        try {
-            return Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, "1"));
-        } catch (NumberFormatException e) {
-            return 1;
-        }
+        return properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, 1);
     }
 
     int getServerUpperMacAddress() {
-        try {
-            return Integer.parseInt(properties.getProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "1"));
-        } catch (NumberFormatException e) {
-            return 1;
-        }
+        return properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, 1);
     }
 
     int getServerLowerMacAddress() {
-        try {
-            return Integer.parseInt(properties.getProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "16"));
-        } catch (NumberFormatException e) {
-            return 16;
-        }
+        return properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, 16);
     }
+
 }

@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 
@@ -12,14 +13,14 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
  */
 class KaifaProperties extends Dsmr40Properties {
 
-    public KaifaProperties(PropertySpecService propertySpecService) {
+    KaifaProperties(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 
     @Override
     @ProtocolProperty
     public boolean isBulkRequest() {
-        return getBooleanProperty(BULK_REQUEST, "0");   //Don't use get-with-list by default
+        return getBooleanProperty(BULK_REQUEST, false);   //Don't use get-with-list by default
     }
 
 }

@@ -35,6 +35,8 @@ import com.energyict.protocolimpl.emon.ez7.core.command.SetKey;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.logging.Logger;
 
@@ -118,7 +120,7 @@ public class EZ7 extends AbstractProtocol implements SerialNumberSupport {
     }
 
     @Override
-    protected ProtocolConnection doInit(java.io.InputStream inputStream, java.io.OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws java.io.IOException {
+    protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws java.io.IOException {
         ez7Connection = new EZ7Connection(inputStream,outputStream,timeoutProperty,protocolRetriesProperty,forcedDelay,echoCancelling,halfDuplexController);
         return ez7Connection;
     }

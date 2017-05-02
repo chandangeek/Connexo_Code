@@ -83,7 +83,7 @@ public class RecDigitCdtPr extends RecDigitCdt {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        this.limitMaxNrOfDays = Integer.parseInt(properties.getTypedProperty(PK_LIMIT_MAX_NR_OF_DAYS, "0"));
+        this.limitMaxNrOfDays = properties.getTypedProperty(PK_LIMIT_MAX_NR_OF_DAYS, 0);
 
     }
 

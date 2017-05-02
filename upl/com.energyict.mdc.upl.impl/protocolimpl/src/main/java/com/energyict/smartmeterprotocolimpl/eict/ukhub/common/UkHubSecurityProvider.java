@@ -1,8 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.common;
 
-import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
-import java.util.Properties;
+import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,13 +12,7 @@ import java.util.Properties;
  * To change this template use File | Settings | File Templates.
  */
 public class UkHubSecurityProvider extends NTASecurityProvider{
-
-    /**
-     * Create a new instance of LocalSecurityProvider
-     *
-     * @param properties - contains the keys for the authentication/encryption
-     */
-    public UkHubSecurityProvider(Properties properties) {
+    public UkHubSecurityProvider(TypedProperties properties) {
         super(properties);
         setRespondingFrameCounterHandling(new UkHubRespondingFrameCounterHandler());
     }

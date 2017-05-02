@@ -6,12 +6,13 @@
 
 package com.energyict.protocolimpl.iec1107.sdc;
 
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -42,7 +43,6 @@ import java.util.Map;
  * @author gna
  * <B>@beginchanges</B><BR>
  * GN|29012008| Adjusted the readRegisters according to the spec
- *@endchanges
  *
  */
 abstract class SdcBase extends AbstractProtocol implements SerialNumberSupport {
@@ -51,7 +51,6 @@ abstract class SdcBase extends AbstractProtocol implements SerialNumberSupport {
     private DataReadingCommandFactory dataReadingCommandFactory = null;
     private SdcLoadProfile sdcLoadProfile = null;
     private ObisCodeMapper ocm = null;
-	private int extendedLogging;
 	private boolean software7E1;
 
     protected abstract RegisterConfig getRegs();
@@ -118,7 +117,6 @@ abstract class SdcBase extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-    	extendedLogging=Integer.parseInt(properties.getTypedProperty(PROP_EXTENDED_LOGGING, "0").trim());
         this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
     }
 
@@ -196,9 +194,9 @@ abstract class SdcBase extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public String getSerialNumber(){
         try {
-            ObisCode oc = new ObisCode(1,0,0,0,0,255);
+            ObisCode oc = new ObisCode(1, 0, 0, 0, 0, 255);
             String str = readRegister(oc).getText();
-            return str.substring(str.indexOf(",") + 2 );
+            return str.substring(str.indexOf(",") + 2);
         } catch (IOException e) {
             throw ProtocolIOExceptionHandler.handle(e, getInfoTypeRetries() + 1);
         }

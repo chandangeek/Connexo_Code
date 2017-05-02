@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.protocolimpl.base.ProtocolProperty;
@@ -14,7 +15,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.function.Supplier;
 
 import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
@@ -29,24 +29,24 @@ import static com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties.D
 public class G3Properties extends DlmsProtocolProperties {
 
     private static final String PROFILE_TYPE = "ProfileType";
-    private static final String DEFAULT_G3_MAX_REC_PDU_SIZE = "512";
+    private static final int DEFAULT_G3_MAX_REC_PDU_SIZE = 512;
     private static final String HLS_SECRET = "HlsSecret";
     public static final String AARQ_RETRIES = "AARQRetries";
-    public static final String DEFAULT_AARQ_RETRIES = "2";
+    public static final int DEFAULT_AARQ_RETRIES = 2;
     public static final String AARQ_TIMEOUT = "AARQTimeout";
     public static final String PSK = "PSK";
-    public static final String DEFAULT_AARQ_TIMEOUT = "0";      //Means: not used
-    public static final String DEFAULT_VALIDATE_INVOKE_ID = "1";
+    public static final int DEFAULT_AARQ_TIMEOUT = 0;      //Means: not used
+    public static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
     public static final String PROP_LASTSEENDATE = "LastSeenDate";
 
     private G3SecurityProvider g3SecurityProvider;
     private final PropertySpecService propertySpecService;
 
     public G3Properties(PropertySpecService propertySpecService) {
-        this(new Properties(), propertySpecService);
+        this(com.energyict.protocolimpl.properties.TypedProperties.empty(), propertySpecService);
     }
 
-    public G3Properties(Properties properties, PropertySpecService propertySpecService) {
+    public G3Properties(TypedProperties properties, PropertySpecService propertySpecService) {
         super(properties);
         this.propertySpecService = propertySpecService;
     }
@@ -111,7 +111,7 @@ public class G3Properties extends DlmsProtocolProperties {
 
     @Override
     public int getClientMacAddress() {
-        return getIntProperty(CLIENT_MAC_ADDRESS, "2");
+        return getIntProperty(CLIENT_MAC_ADDRESS, 2);
     }
 
     @Override
@@ -134,7 +134,7 @@ public class G3Properties extends DlmsProtocolProperties {
 
     @ProtocolProperty
     public G3ProfileType getProfileType() {
-        final int profileTypeId = getIntProperty(PROFILE_TYPE, "1");
+        final int profileTypeId = getIntProperty(PROFILE_TYPE, 1);
         return G3ProfileType.fromProfileId(profileTypeId);
     }
 

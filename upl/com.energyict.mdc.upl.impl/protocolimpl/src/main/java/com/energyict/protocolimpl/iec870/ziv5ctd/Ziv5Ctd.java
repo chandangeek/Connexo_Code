@@ -130,7 +130,7 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC870_ADDRESS),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC870_NODEID),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC870_SERIALNUMBER),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC870_PASSWORD),
+                this.integerSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC870_PASSWORD),
                 this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.IEC870_PROFILEINTERVAL),
                 this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.IEC870_TIMEOUT),
                 this.integerSpec(PK_RETRIES, PropertyTranslationKeys.IEC870_RETRIES),
@@ -169,27 +169,27 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
             }
 
             if (p.getTypedProperty(PROFILEINTERVAL.getName()) != null) {
-                pProfileInterval = Integer.parseInt(p.getTypedProperty(PROFILEINTERVAL.getName()));
+                pProfileInterval = p.getTypedProperty(PROFILEINTERVAL.getName());
             }
 
             if (p.getTypedProperty(Property.PASSWORD.getName()) != null) {
-                pPassword = Integer.parseInt(p.getTypedProperty(Property.PASSWORD.getName()));
+                pPassword = p.getTypedProperty(Property.PASSWORD.getName());
             }
 
             if (p.getTypedProperty(PK_TIMEOUT) != null) {
-                pTimeout = Integer.parseInt(p.getTypedProperty(PK_TIMEOUT));
+                pTimeout = p.getTypedProperty(PK_TIMEOUT);
             }
 
             if (p.getTypedProperty(PK_RETRIES) != null) {
-                pRetries = Integer.parseInt(p.getTypedProperty(PK_RETRIES));
+                pRetries = p.getTypedProperty(PK_RETRIES);
             }
 
             if (p.getTypedProperty(ROUNDTRIPCORRECTION.getName()) != null) {
-                pRountTripCorrection = Integer.parseInt(p.getTypedProperty(ROUNDTRIPCORRECTION.getName()));
+                pRountTripCorrection = p.getTypedProperty(ROUNDTRIPCORRECTION.getName());
             }
 
             if (p.getTypedProperty(CORRECTTIME.getName()) != null) {
-                pCorrectTime = Integer.parseInt(p.getTypedProperty(CORRECTTIME.getName()));
+                pCorrectTime = p.getTypedProperty(CORRECTTIME.getName());
             }
 
             if (p.getTypedProperty(PK_EXTENDED_LOGGING) != null) {

@@ -102,9 +102,9 @@ public class RecDigit1800 extends Modbus {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-    	setInfoTypePhysicalLayer(Integer.parseInt(properties.getTypedProperty(PK_PHYSICAL_LAYER, "1").trim()));
-    	setInfoTypeInterframeTimeout(Integer.parseInt(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, "100").trim()));
-        this.limitMaxNrOfDays = Integer.parseInt(properties.getTypedProperty(PK_LIMIT_MAX_NR_OF_DAYS, "0"));
+    	setInfoTypePhysicalLayer(properties.getTypedProperty(PK_PHYSICAL_LAYER, 1));
+    	setInfoTypeInterframeTimeout(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, 100));
+        this.limitMaxNrOfDays = properties.getTypedProperty(PK_LIMIT_MAX_NR_OF_DAYS, 0);
     }
 
     @Override

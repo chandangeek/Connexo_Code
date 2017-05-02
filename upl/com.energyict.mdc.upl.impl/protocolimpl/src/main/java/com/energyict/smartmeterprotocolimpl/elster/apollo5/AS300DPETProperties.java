@@ -13,7 +13,7 @@ import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300Properties;
 class AS300DPETProperties extends AS300Properties {
 
     private static final int FIRMWARE_CLIENT = 3;
-    private static final String DEFAULT_AS300_PET_CLIENT_MAC_ADDRESS = "1";
+    private static final int DEFAULT_AS300_PET_CLIENT_MAC_ADDRESS = 1;
     private static final String DEFAULT_AS300_PET_LOGICAL_DEVICE_ADDRESS = "1:17";
 
     AS300DPETProperties(PropertySpecService propertySpecService) {

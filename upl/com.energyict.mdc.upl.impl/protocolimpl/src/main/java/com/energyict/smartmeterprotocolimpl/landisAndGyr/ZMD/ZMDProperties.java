@@ -1,12 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
-import com.energyict.dlms.ConnectionMode;
-import com.energyict.dlms.DLMSReference;
-import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
+import com.energyict.dlms.ConnectionMode;
+import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
@@ -14,7 +15,6 @@ import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Copyrights EnergyICT
@@ -24,9 +24,9 @@ import java.util.Properties;
  */
 class ZMDProperties extends DlmsProtocolProperties {
 
-    private static final String DEFAULT_MAX_REC_PDU_SIZE = "-1";
-    private static final String DEFAULT_ADDRESSING_MODE = "-1";
-    private static final String DEFAULT_CLIENT_MAC_ADDRESS = "32";
+    private static final int DEFAULT_MAX_REC_PDU_SIZE = -1;
+    private static final int DEFAULT_ADDRESSING_MODE = -1;
+    private static final int DEFAULT_CLIENT_MAC_ADDRESS = 32;
 
     private SecurityProvider securityProvider;
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
@@ -34,12 +34,7 @@ class ZMDProperties extends DlmsProtocolProperties {
 
     private final PropertySpecService propertySpecService;
 
-    public ZMDProperties(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    public ZMDProperties(Properties properties, PropertySpecService propertySpecService) {
-        super(properties);
+    ZMDProperties(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
@@ -80,12 +75,12 @@ class ZMDProperties extends DlmsProtocolProperties {
 
     @ProtocolProperty
     public int getRequestTimeZone() {
-        return getIntProperty("RequestTimeZone", "0");
+        return getIntProperty("RequestTimeZone", 0);
     }
 
     @ProtocolProperty
     public int getEventIdIndex() {
-        return getIntProperty("EventIdIndex", "-1");
+        return getIntProperty("EventIdIndex", -1);
     }
 
     public DLMSReference getReference() {
@@ -95,7 +90,7 @@ class ZMDProperties extends DlmsProtocolProperties {
     @Override
     public long getConformance() {
         if (isSNReference()) {
-            return getLongProperty(CONFORMANCE_BLOCK_VALUE, Long.toString(1573408L));
+            return getLongProperty(CONFORMANCE_BLOCK_VALUE, 1573408L);
         } else if (isLNReference()) {
             return getLongProperty(CONFORMANCE_BLOCK_VALUE, DEFAULT_CONFORMANCE_BLOCK_VALUE_LN);
         } else {

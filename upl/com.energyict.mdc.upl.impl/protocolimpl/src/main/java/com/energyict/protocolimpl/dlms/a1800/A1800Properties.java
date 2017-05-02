@@ -85,15 +85,15 @@ class A1800Properties extends DlmsProtocolProperties implements DlmsSessionPrope
     }
 
     public int getClientMacAddress() {
-        return getIntProperty(CLIENT_MAC_ADDRESS, "17");
+        return getIntProperty(CLIENT_MAC_ADDRESS, 17);
     }
 
     public int getUpperHDLCAddress() {
-        return getIntProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "1");
+        return getIntProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, 1);
     }
 
     public int getLowerHDLCAddress() {
-        return getIntProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "16");
+        return getIntProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, 16);
     }
 
     public int getAddressingMode() {
@@ -136,12 +136,12 @@ class A1800Properties extends DlmsProtocolProperties implements DlmsSessionPrope
     }
 
     public int getTimeout() {
-        return getIntProperty(PK_TIMEOUT, "10000");
+        return getIntProperty(PK_TIMEOUT, 10000);
     }
 
     @ProtocolProperty
     public final boolean isReadSerialNumber() {
-        return getBooleanProperty(READ_SERIAL_NUMBER, "0");
+        return getBooleanProperty(READ_SERIAL_NUMBER, false);
     }
 
     @ProtocolProperty
@@ -156,7 +156,7 @@ class A1800Properties extends DlmsProtocolProperties implements DlmsSessionPrope
 
     @ProtocolProperty
     public final boolean sendPrefix() {
-        return getBooleanProperty(PROPNAME_SEND_PREFIX, "0");
+        return getBooleanProperty(PROPNAME_SEND_PREFIX, false);
     }
 
     @Override
@@ -166,7 +166,7 @@ class A1800Properties extends DlmsProtocolProperties implements DlmsSessionPrope
     }
 
     public boolean needToApplyTransformerRatios() {
-        return getBooleanProperty(PROPNAME_APPLY_TRANSFORMER_RATIOS, "0");
+        return getBooleanProperty(PROPNAME_APPLY_TRANSFORMER_RATIOS, false);
     }
 
 }

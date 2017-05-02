@@ -1,11 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.elster.AS300P;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.mdc.upl.DeviceProtocol;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
@@ -25,18 +25,18 @@ import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRA
  */
 public class AS300PProperties extends SmsWakeUpDlmsProtocolProperties {
 
-    private static final String DEFAULT_AS300_CLIENT_MAC_ADDRESS = "64";
+    private static final int DEFAULT_AS300_CLIENT_MAC_ADDRESS = 64;
     private static final String DEFAULT_AS300_LOGICAL_DEVICE_ADDRESS = "45";
 
     private static final String LOGBOOK_SELECTOR = "LogbookSelector";
-    private static final String DEFAULT_LOGBOOK_SELECTOR = "-1";
+    private static final int DEFAULT_LOGBOOK_SELECTOR = -1;
 
     private static final String VERIFY_FIRMWARE_VERSION = "VerifyFirmwareVersion";
-    private static final String DEFAULT_VERIFY_FIRMWARE_VERSION = "0";
+    private static final boolean DEFAULT_VERIFY_FIRMWARE_VERSION = false;
 
     private static final int FIRMWARE_CLIENT = 0x50;
-    private static final String MaxReceivePduSize_Optical = "276";
-    private static final String MaxReceivePduSize_TCP_IP = "1070";
+    private static final int MAX_RECEIVE_PDU_SIZE_OPTICAL = 276;
+    private static final int MAX_RECEIVE_PDU_SIZE_TCP_IP = 1070;
 
     public AS300PProperties(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -79,7 +79,7 @@ public class AS300PProperties extends SmsWakeUpDlmsProtocolProperties {
     @ProtocolProperty
     @Override
     public boolean isBulkRequest() {
-        return getBooleanProperty(BULK_REQUEST, "1");
+        return getBooleanProperty(BULK_REQUEST, true);
     }
 
     public DLMSReference getReference() {
@@ -106,9 +106,9 @@ public class AS300PProperties extends SmsWakeUpDlmsProtocolProperties {
     @Override
     public int getMaxRecPDUSize() {
         if (getConnectionMode().equals(ConnectionMode.HDLC)) {
-            return getIntProperty(MAX_REC_PDU_SIZE, MaxReceivePduSize_Optical);
+            return getIntProperty(MAX_REC_PDU_SIZE, MAX_RECEIVE_PDU_SIZE_OPTICAL);
         } else {
-            return getIntProperty(MAX_REC_PDU_SIZE, MaxReceivePduSize_TCP_IP);
+            return getIntProperty(MAX_REC_PDU_SIZE, MAX_RECEIVE_PDU_SIZE_TCP_IP);
         }
     }
 

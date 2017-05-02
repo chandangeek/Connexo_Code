@@ -544,7 +544,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        setEICTTestProperty(Integer.parseInt(properties.getTypedProperty(PK_TEST_PROPERTY, "123")));
+        setEICTTestProperty(properties.getTypedProperty(PK_TEST_PROPERTY, 123));
         setLoadProfileObisCode(ObisCode.fromString(properties.getTypedProperty(PK_LOAD_PROFILE_OBIS_CODE, "0.0.99.1.0.255")));
     }
 

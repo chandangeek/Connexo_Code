@@ -27,13 +27,13 @@ import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRA
  */
 public class UkHubProperties extends DlmsProtocolProperties {
 
-    private static final String DEFAULT_UK_HUB_CLIENT_MAC_ADDRESS = "64";
+    private static final int DEFAULT_UK_HUB_CLIENT_MAC_ADDRESS = 64;
     private static final String DEFAULT_UK_HUB_LOGICAL_DEVICE_ADDRESS = "1";
-    private static final String MaxReceivePduSize = "4096";
-    private static final String DefaultZ3BulkRequesSupport = "1";
+    private static final int MAX_RECEIVE_PDU_SIZE = 4096;
+    private static final boolean DEFAULT_Z_3_BULK_REQUES_SUPPORT = true;
 
     private static final String LOGBOOK_SELECTOR = "LogbookSelector";
-    private static final String DEFAULT_LOGBOOK_SELECTOR = "-1";
+    private static final int DEFAULT_LOGBOOK_SELECTOR = -1;
 
     public static final int FIRMWARE_CLIENT = 0x50;
 
@@ -102,7 +102,7 @@ public class UkHubProperties extends DlmsProtocolProperties {
     @ProtocolProperty
     @Override
     public int getMaxRecPDUSize() {
-        return getIntProperty(MAX_REC_PDU_SIZE, MaxReceivePduSize);
+        return getIntProperty(MAX_REC_PDU_SIZE, MAX_RECEIVE_PDU_SIZE);
     }
 
     public int getLogbookSelector() {
@@ -112,7 +112,7 @@ public class UkHubProperties extends DlmsProtocolProperties {
     @ProtocolProperty
     @Override
     public boolean isBulkRequest() {
-        return getBooleanProperty(BULK_REQUEST, DefaultZ3BulkRequesSupport);
+        return getBooleanProperty(BULK_REQUEST, DEFAULT_Z_3_BULK_REQUES_SUPPORT);
     }
 
     public boolean isFirmwareUpdateSession() {

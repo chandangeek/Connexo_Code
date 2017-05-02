@@ -36,18 +36,13 @@ public class ACE4000Properties {
         this.properties = new Properties();
     }
 
-    private ACE4000Properties(TypedProperties properties, PropertySpecService propertySpecService) {
-        this(propertySpecService);
-        this.copyProperties(properties);
-    }
-
     private void copyProperties(TypedProperties properties) {
         this.copyPropertyValue(properties, TIMEOUT);
         this.copyPropertyValue(properties, RETRIES);
     }
 
     private void copyPropertyValue(TypedProperties properties, String propertyName) {
-        Object propertyValue = properties.getProperty(TIMEOUT);
+        Object propertyValue = properties.getProperty(propertyName);
         if (propertyValue != null) {
             this.properties.put(propertyName, propertyValue);
         }
@@ -55,10 +50,6 @@ public class ACE4000Properties {
 
     void setAllProperties(TypedProperties properties) {
         this.copyProperties(properties);
-    }
-
-    void setAllProperties(Properties properties) {
-        this.properties = new Properties(properties);
     }
 
     List<PropertySpec> getPropertySpecs() {

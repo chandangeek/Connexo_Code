@@ -193,16 +193,12 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
 	public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
 		super.setUPLProperties(properties);
 		sendDebug("setProperties()", 5);
-        try {
-            setLoadProfileNumber(Integer.parseInt(properties.getTypedProperty("LoadProfileNumber", "1").trim()));
-            if (getInfoTypePassword() != null) {
-                while (getInfoTypePassword().length() < 8) {
-                    setInfoTypePassword(getInfoTypePassword() + " ");
-                }
-            }
-        } catch (NumberFormatException e) {
-            e.printStackTrace(System.err);
-        }
+		setLoadProfileNumber(properties.getTypedProperty("LoadProfileNumber", 1));
+		if (getInfoTypePassword() != null) {
+			while (getInfoTypePassword().length() < 8) {
+				setInfoTypePassword(getInfoTypePassword() + " ");
+			}
+		}
     }
 
 	@Override

@@ -39,8 +39,4 @@ public enum CipheringType {
         return type;
     }
 
-    public String getTypeString() {
-        return "" + getType();
-    }
-
 }

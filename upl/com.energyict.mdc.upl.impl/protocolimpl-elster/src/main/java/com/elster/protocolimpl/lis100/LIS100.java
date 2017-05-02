@@ -127,13 +127,9 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
-        try {
-            serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
-            strPassword = properties.getTypedProperty(PASSWORD.getName());
-            protocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "3").trim());
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
-        }
+        serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+        strPassword = properties.getTypedProperty(PASSWORD.getName());
+        protocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 3);
     }
 
     @Override

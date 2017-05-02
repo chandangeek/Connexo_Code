@@ -39,7 +39,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Level;
 
 /**
@@ -105,7 +104,7 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        getEdpProperties().addProperties(properties.toStringProperties());
+        getEdpProperties().addProperties(properties);
     }
 
     @Override
@@ -117,7 +116,7 @@ public class CX20009 extends AbstractDLMSProtocol implements MessageProtocol, Ca
 
     private EDPProperties getEdpProperties() {
         if (edpProperties == null) {
-            edpProperties = new EDPProperties(new Properties(), this.getPropertySpecService());
+            edpProperties = new EDPProperties(this.getPropertySpecService());
         }
         return edpProperties;
     }

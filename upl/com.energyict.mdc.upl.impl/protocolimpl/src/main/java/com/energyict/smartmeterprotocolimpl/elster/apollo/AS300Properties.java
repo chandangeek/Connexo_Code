@@ -1,10 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
@@ -13,7 +13,6 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvi
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
 import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY;
@@ -25,23 +24,18 @@ import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRA
  */
 public class AS300Properties extends DlmsProtocolProperties {
 
-    private static final String DEFAULT_AS300_CLIENT_MAC_ADDRESS = "64";
+    private static final int DEFAULT_AS300_CLIENT_MAC_ADDRESS = 64;
     private static final String DEFAULT_AS300_LOGICAL_DEVICE_ADDRESS = "45";
 
     private static final String LOGBOOK_SELECTOR = "LogbookSelector";
-    private static final String DEFAULT_LOGBOOK_SELECTOR = "-1";
+    private static final int DEFAULT_LOGBOOK_SELECTOR = -1;
 
     private static final int FIRMWARE_CLIENT = 0x50;
-    private static final String MaxReceivePduSize = "128";
+    private static final int MAX_RECEIVE_PDU_SIZE = 128;
 
     private final PropertySpecService propertySpecService;
 
     public AS300Properties(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    public AS300Properties(Properties properties, PropertySpecService propertySpecService) {
-        super(properties);
         this.propertySpecService = propertySpecService;
     }
 
@@ -82,7 +76,7 @@ public class AS300Properties extends DlmsProtocolProperties {
     @ProtocolProperty
     @Override
     public boolean isBulkRequest() {
-        return getBooleanProperty(BULK_REQUEST, "1");
+        return getBooleanProperty(BULK_REQUEST, true);
     }
 
     public DLMSReference getReference() {
@@ -108,7 +102,7 @@ public class AS300Properties extends DlmsProtocolProperties {
     @ProtocolProperty
     @Override
     public int getMaxRecPDUSize() {
-        return getIntProperty(MAX_REC_PDU_SIZE, MaxReceivePduSize);
+        return getIntProperty(MAX_REC_PDU_SIZE, MAX_RECEIVE_PDU_SIZE);
     }
 
     public int getLogbookSelector() {

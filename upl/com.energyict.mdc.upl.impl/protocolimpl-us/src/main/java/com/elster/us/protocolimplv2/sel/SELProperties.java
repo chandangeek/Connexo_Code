@@ -1,36 +1,36 @@
 package com.elster.us.protocolimplv2.sel;
 
-import com.elster.us.nls.PropertyTranslationKeys;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.elster.us.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 
 public class SELProperties implements HasDynamicProperties {
 
-    public final static String DEVICE_TIMEZONE = "deviceTimeZone";
-    public final static String TIMEZONE = "Timezone";
-    public final static String RETRIES = "Retries";
-    public final static String DEVICE_PWD = "Password";
-    public final static String MAX_INTERVAL_RETRIEVAL_IN_DAYS = "MaxIntervalRetrievalInDays";
-    public final static String LP_RECORDER = "LoadProfileRecorder"; //supported types are COI(Change-Over-Interval) or EOI(End-Of-Interval)
-    public final static String LEVEL_E_PWD = "LevelEPassword";
+    public static final String DEVICE_TIMEZONE = "deviceTimeZone";
+    public static final String TIMEZONE = "Timezone";
+    public static final String RETRIES = "Retries";
+    public static final String DEVICE_PWD = "Password";
+    public static final String MAX_INTERVAL_RETRIEVAL_IN_DAYS = "MaxIntervalRetrievalInDays";
+    public static final String LP_RECORDER = "LoadProfileRecorder"; //supported types are COI(Change-Over-Interval) or EOI(End-Of-Interval)
+    public static final String LEVEL_E_PWD = "LevelEPassword";
 
-    private final static TimeZone DEFAULT_DEVICE_TIMEZONE = TimeZone.getDefault();
-    private final static TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
+    private static final TimeZone DEFAULT_DEVICE_TIMEZONE = TimeZone.getDefault();
+    private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
     ;
-    private final static int DEFAULT_RETRIES = 3;
-    private final static String DEFAULT_DEVICE_PWD = "SEL";
-    private final static int DEFAULT_MAX_INTERVAL_RETRIEVAL_IN_DAYS = 7;
-    private final static String DEFAULT_LP_RECORDER = "COI"; //supported types are COI(Change-Over-Interval) or EOI(End-Of-Interval)
-    private final static String DEFAULT_LEVEL_E_PWD = "BLONDEL";
+    private static final int DEFAULT_RETRIES = 3;
+    private static final String DEFAULT_DEVICE_PWD = "SEL";
+    private static final int DEFAULT_MAX_INTERVAL_RETRIEVAL_IN_DAYS = 7;
+    private static final String DEFAULT_LP_RECORDER = "COI"; //supported types are COI(Change-Over-Interval) or EOI(End-Of-Interval)
+    private static final String DEFAULT_LEVEL_E_PWD = "BLONDEL";
     private final PropertySpecService propertySpecService;
 
     private TypedProperties properties;
@@ -74,25 +74,16 @@ public class SELProperties implements HasDynamicProperties {
     }
 
     public int getRetries() {
-        try {
-            String str = properties.getTypedProperty(RETRIES);
-            return Integer.parseInt(str);
-        } catch (Throwable t) {
-            return DEFAULT_RETRIES;
-        }
+        return properties.getTypedProperty(RETRIES, DEFAULT_RETRIES);
     }
 
     public int getMaxIntervalRetrievalInDays() {
-        try {
-            return properties.getTypedProperty(MAX_INTERVAL_RETRIEVAL_IN_DAYS, new BigDecimal(DEFAULT_MAX_INTERVAL_RETRIEVAL_IN_DAYS)).toBigInteger().intValue();
-        } catch (Throwable t) {
-            return DEFAULT_MAX_INTERVAL_RETRIEVAL_IN_DAYS;
-        }
+        return properties.getTypedProperty(MAX_INTERVAL_RETRIEVAL_IN_DAYS, DEFAULT_MAX_INTERVAL_RETRIEVAL_IN_DAYS);
     }
 
     public String getLPRecorder() {
         String retVal = properties.getTypedProperty(LP_RECORDER);
-        if (!retVal.equalsIgnoreCase("EOI")) {
+        if (!"EOI".equalsIgnoreCase(retVal)) {
             retVal = DEFAULT_LP_RECORDER;
         } else {
             retVal = "EOI";
@@ -102,26 +93,24 @@ public class SELProperties implements HasDynamicProperties {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELProperties").append(" = {\r\n");
-        sb.append("getRetries").append(" = {\r\n");
-        sb.append("getTimezone").append(" = {\r\n");
-        sb.append("getDeviceTimezone").append(" = {\r\n");
-        sb.append("getMaxIntervalRetrievalInDays").append(" = {\r\n");
-        sb.append("getLPRecorder").append(" = {\r\n");
-        sb.append("getLevelERecorder").append(" = {\r\n");
-        sb.append("").append(" = {\r\n");
-        return sb.toString();
+        return "SELProperties" + " = {\r\n" +
+                "getRetries" + " = {\r\n" +
+                "getTimezone" + " = {\r\n" +
+                "getDeviceTimezone" + " = {\r\n" +
+                "getMaxIntervalRetrievalInDays" + " = {\r\n" +
+                "getLPRecorder" + " = {\r\n" +
+                "getLevelERecorder" + " = {\r\n" +
+                "" + " = {\r\n";
     }
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.specBuilder(RETRIES, false, PropertyTranslationKeys.SEL_RETRIES, this.propertySpecService::bigDecimalSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(RETRIES, false, PropertyTranslationKeys.SEL_RETRIES, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(TIMEZONE, false, PropertyTranslationKeys.SEL_TIMEZONE, this.propertySpecService::timeZoneSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(DEVICE_PWD, false, PropertyTranslationKeys.SEL_DEVICE_PWD, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(DEVICE_TIMEZONE, false, PropertyTranslationKeys.SEL_DEVICE_TIMEZONE, this.propertySpecService::timeZoneSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(MAX_INTERVAL_RETRIEVAL_IN_DAYS, false, PropertyTranslationKeys.SEL_MAX_INTERVAL_RETRIEVAL_IN_DAYS, this.propertySpecService::bigDecimalSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(MAX_INTERVAL_RETRIEVAL_IN_DAYS, false, PropertyTranslationKeys.SEL_MAX_INTERVAL_RETRIEVAL_IN_DAYS, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(LP_RECORDER, false, PropertyTranslationKeys.SEL_LP_RECORDER, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(LEVEL_E_PWD, false, PropertyTranslationKeys.SEL_LEVEL_E_PWD, this.propertySpecService::stringSpec).finish()
         );

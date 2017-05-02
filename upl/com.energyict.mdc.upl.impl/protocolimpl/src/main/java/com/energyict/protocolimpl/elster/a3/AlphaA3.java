@@ -249,7 +249,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink, Serial
     }
 
     @Override
-    protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
+    protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         psemServiceFactory = new PSEMServiceFactory(this);
 
         C1222Buffer c1222Buffer = checkForC1222();

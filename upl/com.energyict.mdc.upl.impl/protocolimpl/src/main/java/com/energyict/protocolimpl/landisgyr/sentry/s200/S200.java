@@ -82,9 +82,9 @@ public class S200 extends AbstractProtocol {
         super.setUPLProperties(properties);
         setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "0000000"));
         setInfoTypePassword(properties.getTypedProperty(PASSWORD.getName(), "0000"));
-        setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "0")));
-        setCrnInitialValue(Integer.parseInt(properties.getTypedProperty("CRNInitialValue", "-1")));
-        setModeOfOperation(Integer.parseInt(properties.getTypedProperty("ModeOfOperation", "0"), 16));
+        setForcedDelay(properties.getTypedProperty(PROP_FORCED_DELAY, 0));
+        setCrnInitialValue(properties.getTypedProperty("CRNInitialValue", -1));
+        setModeOfOperation(properties.getTypedProperty("ModeOfOperation", 0));
     }
 
     @Override
@@ -94,7 +94,7 @@ public class S200 extends AbstractProtocol {
 
     @Override
     public int getProfileInterval() throws IOException {
-        return getCommandFactory().getBeginRecordTimeCommand().getProfileInterval()*60;
+        return getCommandFactory().getBeginRecordTimeCommand().getProfileInterval() * 60;
     }
 
     @Override
@@ -103,12 +103,10 @@ public class S200 extends AbstractProtocol {
     }
 
     @Override
-    protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
-
+    protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         s200Connection = new S200Connection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber(),getInfoTypeSecurityLevel(),getCrnInitialValue());
         commandFactory = new CommandFactory(this);
         setS200Profile(new S200Profile(this));
-
         return s200Connection;
     }
 

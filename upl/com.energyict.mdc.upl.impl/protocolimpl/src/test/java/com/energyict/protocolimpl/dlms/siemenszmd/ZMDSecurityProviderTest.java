@@ -1,9 +1,10 @@
 package com.energyict.protocolimpl.dlms.siemenszmd;
 
-import org.junit.Test;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import java.io.IOException;
-import java.util.Properties;
+
+import org.junit.Test;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -18,15 +19,15 @@ public class ZMDSecurityProviderTest {
 
     @Test
     public void testEncryptByManufacturer() throws Exception {
-        Properties props = new Properties();
-        props.put("Password", "0000000");
+        TypedProperties props = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        props.setProperty("Password", "0000000");
 
         ZMDSecurityProvider sProvider = new ZMDSecurityProvider(props);
         try {
             sProvider.associationEncryptionByManufacturer(new byte[0]);
             fail("We should have gotten an length-error when we try to encrypt an empty byteArray");
         } catch (Exception e) {
-            if (e.getMessage().indexOf("RespondingAuthenticationValue should be 8 bytes instead of 0") < 0) {
+            if (!e.getMessage().contains("RespondingAuthenticationValue should be 8 bytes instead of 0")) {
                 fail("We should have gotten a different error.");
             }
         }
@@ -36,15 +37,15 @@ public class ZMDSecurityProviderTest {
         String rValue1 = "12345670";
         assertArrayEquals(rValue1.getBytes(), sProvider.associationEncryptionByManufacturer(aValue1.getBytes()));
 
-        props = new Properties();
-        props.put("Password", "5102074");
+        props = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        props.setProperty("Password", "5102074");
         sProvider = new ZMDSecurityProvider(props);
-        String aValue2 = "18811E81";    // Level1    
+        String aValue2 = "18811E81";    // Level1
         String rValue2 = "59831FC1";
         assertArrayEquals(rValue2.getBytes(), sProvider.associationEncryptionByManufacturer(aValue2.getBytes()));
 
-        props = new Properties();
-        props.put("Password", "1234567");
+        props = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        props.setProperty("Password", "1234567");
         sProvider = new ZMDSecurityProvider(props);
         String aValue3 = "8B729272";    // Level2
         String rValue3 = "9946C402";
@@ -60,7 +61,7 @@ public class ZMDSecurityProviderTest {
 
         String aValue6 = "B48FBB85";    // Level5
         String rValue6 = "C6B301F5";
-        assertArrayEquals(rValue6.getBytes(), sProvider.associationEncryptionByManufacturer(aValue6.getBytes()));        
+        assertArrayEquals(rValue6.getBytes(), sProvider.associationEncryptionByManufacturer(aValue6.getBytes()));
     }
 
     @Test
@@ -82,7 +83,7 @@ public class ZMDSecurityProviderTest {
             ZMDSecurityProvider.bitWiseAdd(null, null);
             fail("We should have gotten a nul-argument error when we try to ADD null arguments");
         } catch (Exception e) {
-            if (e.getMessage().indexOf("Bitwise ADD-operation requires two not-null arguments.") < 0) {
+            if (!e.getMessage().contains("Bitwise ADD-operation requires two not-null arguments.")) {
                 fail("We should have gotten a different error.");
             }
         }
@@ -112,7 +113,7 @@ public class ZMDSecurityProviderTest {
             ZMDSecurityProvider.bitWiseOr(null, null);
             fail("We should have gotten a nul-argument error when we try to OR null arguments");
         } catch (Exception e) {
-            if (e.getMessage().indexOf("Bitwise OR-operation requires two not-null arguments.") < 0) {
+            if (!e.getMessage().contains("Bitwise OR-operation requires two not-null arguments.")) {
                 fail("We should have gotten a different error.");
             }
         }
@@ -143,7 +144,7 @@ public class ZMDSecurityProviderTest {
             ZMDSecurityProvider.bitWiseXor(null, null);
             fail("We should have gotten a nul-argument error when we try to XOR null arguments");
         } catch (Exception e) {
-            if (e.getMessage().indexOf("Bitwise XOR-operation requires two not-null arguments.") < 0) {
+            if (!e.getMessage().contains("Bitwise XOR-operation requires two not-null arguments.")) {
                 fail("We should have gotten a different error.");
             }
         }
@@ -174,7 +175,7 @@ public class ZMDSecurityProviderTest {
             ZMDSecurityProvider.bitWiseAddOr(null, null);
             fail("We should have gotten a nul-argument error when we try to Add/Or null arguments");
         } catch (Exception e) {
-            if (e.getMessage().indexOf("Bitwise Add/Or-operation requires two not-null arguments.") < 0) {
+            if (!e.getMessage().contains("Bitwise Add/Or-operation requires two not-null arguments.")) {
                 fail("We should have gotten a different error.");
             }
         }
@@ -194,7 +195,6 @@ public class ZMDSecurityProviderTest {
         arg1 = new byte[]{0x02, 0x05, 0x0C, 0x09};
         arg2 = new byte[]{0x0C, 0x03, 0x0A, 0x07};
         assertArrayEquals(new byte[]{14, 7, 6, 15}, ZMDSecurityProvider.bitWiseAddOr(arg1, arg2));
-
     }
 
     @Test
@@ -203,7 +203,7 @@ public class ZMDSecurityProviderTest {
             ZMDSecurityProvider.bitWiseAddXor(null, null);
             fail("We should have gotten a nul-argument error when we try to Add/Xor null arguments");
         } catch (Exception e) {
-            if (e.getMessage().indexOf("Bitwise Add/Xor-operation requires two not-null arguments.") < 0) {
+            if (!e.getMessage().contains("Bitwise Add/Xor-operation requires two not-null arguments.")) {
                 fail("We should have gotten a different error.");
             }
         }
@@ -227,4 +227,5 @@ public class ZMDSecurityProviderTest {
         assertEquals(4, ZMDSecurityProvider.bitWiseAddXor(arg1, arg2).length);
         assertArrayEquals(new byte[]{14, 6, 6, 14}, ZMDSecurityProvider.bitWiseAddXor(arg1, arg2));
     }
+
 }

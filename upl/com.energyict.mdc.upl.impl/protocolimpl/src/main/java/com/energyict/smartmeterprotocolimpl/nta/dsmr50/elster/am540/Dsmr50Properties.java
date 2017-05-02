@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
@@ -12,7 +13,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import static com.energyict.protocolimpl.dlms.g3.G3Properties.AARQ_RETRIES;
 import static com.energyict.protocolimpl.dlms.g3.G3Properties.AARQ_TIMEOUT;
@@ -37,7 +37,7 @@ public class Dsmr50Properties extends Dsmr40Properties {
         super(propertySpecService);
     }
 
-    public Dsmr50Properties(Properties properties, PropertySpecService propertySpecService) {
+    public Dsmr50Properties(TypedProperties properties, PropertySpecService propertySpecService) {
         super(properties, propertySpecService);
     }
 
@@ -78,7 +78,7 @@ public class Dsmr50Properties extends Dsmr40Properties {
     }
 
     public boolean getCheckNumberOfBlocksDuringFirmwareResume() {
-        return getBooleanProperty(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, "1");
+        return getBooleanProperty(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, true);
     }
 
 }

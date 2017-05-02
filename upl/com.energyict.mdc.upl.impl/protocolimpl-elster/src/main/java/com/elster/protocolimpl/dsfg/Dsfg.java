@@ -150,25 +150,21 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
+        strPassword = properties.getTypedProperty(PASSWORD.getName());
+        protocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
+
+        /* DSfG specific properties */
+        registrationInstance = properties.getTypedProperty("RegistrationInstance", "0").substring(0, 1).toUpperCase();
+        archiveInstance = properties.getTypedProperty("ArchiveInstance", "0").substring(0, 1).toLowerCase();
+
         try {
-            strPassword = properties.getTypedProperty(PASSWORD.getName());
-            protocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
-
-            /* DSfG specific properties */
-            registrationInstance = properties.getTypedProperty("RegistrationInstance", "0").substring(0, 1).toUpperCase();
-            archiveInstance = properties.getTypedProperty("ArchiveInstance", "0").substring(0, 1).toLowerCase();
-
-            try {
-                channelMap = properties.getTypedProperty("ChannelMap", "");
-                archiveStructure = new ArchiveRecordConfig(archiveInstance, channelMap);
-            } catch (Exception e) {
-                throw new InvalidPropertyException(" validateProperties, ChannelMap is not valid (" + channelMap + ")");
-            }
-
-            profileInterval = Integer.parseInt(properties.getTypedProperty("ProfileInterval", "3600"));
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+            channelMap = properties.getTypedProperty("ChannelMap", "");
+            archiveStructure = new ArchiveRecordConfig(archiveInstance, channelMap);
+        } catch (Exception e) {
+            throw new InvalidPropertyException(" validateProperties, ChannelMap is not valid (" + channelMap + ")");
         }
+
+        profileInterval = properties.getTypedProperty("ProfileInterval", 3600);
     }
 
     @Override

@@ -10,15 +10,16 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.ansi;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -56,8 +57,6 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 /**
  *
  * @author  Koen
- * @beginchanges
- * @endchanges
  */
 public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumberSupport {
 
@@ -150,17 +149,16 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "10").trim()));
+        setForcedDelay(properties.getTypedProperty(PROP_FORCED_DELAY, 10));
         setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "0"));
         c12User = properties.getTypedProperty("C12User", "");
-        c12UserId = Integer.parseInt(properties.getTypedProperty("C12UserId","0").trim());
+        c12UserId = properties.getTypedProperty("C12UserId", 0);
         convertRegReads = Boolean.parseBoolean(properties.getTypedProperty("ConvertRegReadsToEngineering", "true"));
         controlToggleBitMode = Integer.parseInt(properties.getTypedProperty("FrameControlToggleBitMode", "2"));
-
     }
 
     @Override
-    protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
+    protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         c12Layer2 = new C12Layer2(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getLogger(), controlToggleBitMode);
         c12Layer2.initStates();
         psemServiceFactory = new PSEMServiceFactory(this);
@@ -267,49 +265,158 @@ public class S4 extends AbstractProtocol implements C12ProtocolLink, SerialNumbe
         builder.append("----------------------------------------------STANDARD TABLES--------------------------------------------------\n");
         while(true) {
             try {
-                if (skip<=0) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getManufacturerIdentificationTable());}
-                if (skip<=1) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getConfigurationTable());}
-                if (skip<=2) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEndDeviceModeAndStatusTable());}
-                if (skip<=3) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDeviceIdentificationTable());}
-                if (skip<=4) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualSourcesLimitingTable());}
-                if (skip<=5) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getUnitOfMeasureEntryTable(true));}
-
-                if (skip<=6) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDemandControlTable());}
-                if (skip<=7) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDataControlTable());}
-                if (skip<=8) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getConstantsTable(true));}
-                if (skip<=9) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getSourceDefinitionTable(true));}
-                if (skip<=10) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualRegisterTable());}
-                if (skip<=11) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getDataSelectionTable());}
-                if (skip<=12) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getCurrentRegisterDataTable(true));}
-                if (skip<=13) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getPreviousSeasonDataTable(true));}
-                if (skip<=14) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getPreviousDemandResetDataTable(true));}
-                if (skip<=15) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getSelfReadDataTable(true));}
-                if (skip<=16) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getPresentRegisterDataTable(true));}
-                if (skip<=17) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualTimeAndTOUTable());}
-                if (skip<=18) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getTimeOffsetTable());}
-                if (skip<=19) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getCalendarTable());}
-                if (skip<=20) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getClockTable());}
-                if (skip<=21) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualLoadProfileTable());}
-                if (skip<=22) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getLoadProfileControlTable());}
-                if (skip<=23) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getLoadProfileStatusTable());}
-                if (skip<=24) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getActualLogTable());}
-                if (skip<=25) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventsIdentificationTable());}
-                if (skip<=26) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getHistoryLogControlTable());}
-if (skip<=27) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getHistoryLogDataTable());}
-                if (skip<=28) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogControlTable());}
-if (skip<=29) { skip+=2;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogDataTableHeader());}
+                if (skip<=0) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getManufacturerIdentificationTable());}
+                if (skip<=1) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getConfigurationTable());}
+                if (skip<=2) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getEndDeviceModeAndStatusTable());}
+                if (skip<=3) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getDeviceIdentificationTable());}
+                if (skip<=4) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getActualSourcesLimitingTable());}
+                if (skip<=5) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getUnitOfMeasureEntryTable(true));
+                }
+                if (skip<=6) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getDemandControlTable());}
+                if (skip<=7) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getDataControlTable());}
+                if (skip<=8) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getConstantsTable(true));}
+                if (skip<=9) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getSourceDefinitionTable(true));}
+                if (skip<=10) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getActualRegisterTable());}
+                if (skip<=11) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getDataSelectionTable());}
+                if (skip<=12) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getCurrentRegisterDataTable(true));}
+                if (skip<=13) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getPreviousSeasonDataTable(true));}
+                if (skip<=14) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getPreviousDemandResetDataTable(true));}
+                if (skip<=15) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getSelfReadDataTable(true));}
+                if (skip<=16) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getPresentRegisterDataTable(true));}
+                if (skip<=17) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getActualTimeAndTOUTable());}
+                if (skip<=18) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getTimeOffsetTable());}
+                if (skip<=19) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getCalendarTable());}
+                if (skip<=20) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getClockTable());}
+                if (skip<=21) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getActualLoadProfileTable());}
+                if (skip<=22) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getLoadProfileControlTable());}
+                if (skip<=23) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getLoadProfileStatusTable());}
+                if (skip<=24) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getActualLogTable());}
+                if (skip<=25) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getEventsIdentificationTable());}
+                if (skip<=26) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getHistoryLogControlTable());}
+                if (skip<=27) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getHistoryLogDataTable());
+                }
+                if (skip<=28) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getEventLogControlTable());}
+                if (skip<=29) { skip+=2;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getStandardTableFactory().getEventLogDataTableHeader());
+                }
 //if (skip<=30) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getStandardTableFactory().getEventLogDataTableEventEntries(145, 10));}
-                if (skip<=31) { skip++;builder.append("----------------------------------------------MANUFACTURER TABLES--------------------------------------------------\n"+getManufacturerTableFactory().getFeatureParameters());}
-                if (skip<=32) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getServiceTypeTable());}
-                if (skip<=33) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getMeterFactors());}
-                if (skip<=34) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getMeterStatus());}
-                if (skip<=35) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getManufacturerTableFactory().getS4Configuration());}
-                if (skip<=36) { skip++;builder.append("------------------------------------------------------------------------------------------------\n"+getObisCodeInfoFactory().toString());}
+                if (skip<=31) {
+                    skip++;
+                    builder.append("----------------------------------------------MANUFACTURER TABLES--------------------------------------------------\n")
+                            .append(getManufacturerTableFactory().getFeatureParameters());}
+                if (skip<=32) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getManufacturerTableFactory().getServiceTypeTable());}
+                if (skip<=33) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getManufacturerTableFactory().getMeterFactors());}
+                if (skip<=34) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getManufacturerTableFactory().getMeterStatus());}
+                if (skip<=35) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getManufacturerTableFactory().getS4Configuration());}
+                if (skip<=36) {
+                    skip++;
+                    builder.append("------------------------------------------------------------------------------------------------\n")
+                            .append(getObisCodeInfoFactory().toString());}
                 break;
             }
             catch(IOException e) {
 //e.printStackTrace();       // KV_DEBUG
-                builder.append("Table not supported! "+e.toString()+"\n");
+                builder.append("Table not supported! ").append(e.toString()).append("\n");
             }
         }
         return builder.toString();

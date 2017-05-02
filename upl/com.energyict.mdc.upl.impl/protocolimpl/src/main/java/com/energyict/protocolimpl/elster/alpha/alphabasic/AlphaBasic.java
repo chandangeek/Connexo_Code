@@ -139,7 +139,7 @@ public class AlphaBasic extends AbstractProtocol implements Alpha, SerialNumberS
     }
 
     @Override
-    protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeout,int maxRetries,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
+    protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeout, int maxRetries, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         alphaConnection = new AlphaConnection(inputStream, outputStream, timeout, maxRetries, forcedDelay, echoCancelling, halfDuplexController, whoAreYouTimeout);
         commandFactory = new CommandFactory(alphaConnection);
         classFactory = new ClassFactory(this);

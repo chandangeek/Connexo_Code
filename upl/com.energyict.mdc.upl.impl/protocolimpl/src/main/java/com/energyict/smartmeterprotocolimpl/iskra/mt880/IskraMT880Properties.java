@@ -1,11 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.iskra.mt880;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
@@ -13,7 +13,6 @@ import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
 import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY;
@@ -24,23 +23,18 @@ import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRA
  */
 class IskraMT880Properties extends DlmsProtocolProperties {
 
-    private static final String DEFAULT_BULK_REQUEST = "1";  // By default, bulk request is enabled
-    private static final String DEFAULT_CLIENT_MAC_ADDRESS = "1";    // Management client
+    private static final boolean DEFAULT_BULK_REQUEST = true;  // By default, bulk request is enabled
+    private static final int DEFAULT_CLIENT_MAC_ADDRESS = 1;    // Management client
     private static final String DEFAULT_SERVER_MAC_ADDRESS_TCPIP = "1:45"; // Address for TCP/IP connection
     private static final String DEFAULT_SERVER_MAC_ADDRESS_HDLC = "1:17"; // Address for HDLC connection
     private static final int DEFAULT_UPPER_HDLC_ADDRESS = 1;
     private static final int DEFAULT_LOWER_HDLC_ADDRESS_TCPIP = 45;
     private static final int DEFAULT_LOWER_HDLC_ADDRESS_HDLC = 17;
-    public static final String DEFAULT_VALIDATE_INVOKE_ID = "1";
+    public static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
 
     private final PropertySpecService propertySpecService;
 
-    public IskraMT880Properties(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    public IskraMT880Properties(Properties properties, PropertySpecService propertySpecService) {
-        super(properties);
+    IskraMT880Properties(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
@@ -96,6 +90,7 @@ class IskraMT880Properties extends DlmsProtocolProperties {
             try {
                 return Integer.parseInt(macAddress[0]);
             } catch (NumberFormatException e) {
+                return DEFAULT_UPPER_HDLC_ADDRESS;
             }
         }
         return DEFAULT_UPPER_HDLC_ADDRESS;
@@ -108,6 +103,7 @@ class IskraMT880Properties extends DlmsProtocolProperties {
             try {
                 return Integer.parseInt(macAddress[1]);
             } catch (NumberFormatException e) {
+                return defaultLowerHdlcAddress();
             }
         }
         // If not specified, return the default one

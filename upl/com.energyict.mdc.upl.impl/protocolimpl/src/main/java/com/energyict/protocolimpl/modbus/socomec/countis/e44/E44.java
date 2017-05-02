@@ -63,8 +63,8 @@ public class E44 extends Modbus {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        setInfoTypeResponseTimeout(Integer.parseInt(properties.getTypedProperty(PK_RESPONSE_TIMEOUT, "400").trim()));
-        applyCtRatio = Integer.parseInt(properties.getTypedProperty(APPLY_CTRATIO, "0").trim()) == 1;
+        setInfoTypeResponseTimeout(properties.getTypedProperty(PK_RESPONSE_TIMEOUT, 400));
+        applyCtRatio = properties.getTypedProperty(APPLY_CTRATIO, 0) == 1;
     }
 
     @Override

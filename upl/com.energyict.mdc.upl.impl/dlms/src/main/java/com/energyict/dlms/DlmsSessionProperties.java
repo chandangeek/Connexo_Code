@@ -1,9 +1,9 @@
 package com.energyict.dlms;
 
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
-
-import java.util.Properties;
 
 /**
  * Copyrights EnergyICT
@@ -92,7 +92,7 @@ public interface DlmsSessionProperties {
 
     int getDelayAfterError();
 
-    Properties getProtocolProperties();
+    TypedProperties getProtocolProperties();
 
     int getDeviceBufferSize();
 

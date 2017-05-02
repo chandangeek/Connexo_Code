@@ -1,10 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.kaifa;
 
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RRespondingFrameCounterHandler;
-
-import java.util.Properties;
-
 
 public class KaifaSecurityProvider extends NTASecurityProvider {
 
@@ -13,14 +12,14 @@ public class KaifaSecurityProvider extends NTASecurityProvider {
      *
      * @param properties - contains the keys for the authentication/encryption
      */
-    public KaifaSecurityProvider(Properties properties) {
+    public KaifaSecurityProvider(TypedProperties properties) {
         super(properties);
         setRespondingFrameCounterHandling(new AM110RRespondingFrameCounterHandler());
     }
 
     @Override
     public byte[] getHLSSecret() {
-        String hexPassword = getProperties().getProperty("Password");
+        String hexPassword = getProperties().getTypedProperty("Password");
         if (hexPassword != null) {
             return com.energyict.dlms.DLMSUtils.hexStringToByteArray(hexPassword);
         }

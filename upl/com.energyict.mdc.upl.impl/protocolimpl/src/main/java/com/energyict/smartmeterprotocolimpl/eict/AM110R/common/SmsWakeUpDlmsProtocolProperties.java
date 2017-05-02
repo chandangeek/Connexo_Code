@@ -29,7 +29,7 @@ public abstract class SmsWakeUpDlmsProtocolProperties extends DlmsProtocolProper
 
     private static final String WAKEUP_POLLING_TIMEOUT = "PollTimeOut";
     private static final String WAKEUP_POLLING_FREQUENCY = "PollFrequency";
-    private static final String DEFAULT_WAKEUP_POLLING_TIMEOUT = "300";
+    private static final int DEFAULT_WAKEUP_POLLING_TIMEOUT = 300;
     private static final String DEFAULT_WAKEUP_POLLING_FREQUENCY = "20:5";
     private static final int DEFAULT_FIRST_POLL_DELAY = 20;
     private static final int DEFAULT_SECOND_POLL_DELAY = 5;

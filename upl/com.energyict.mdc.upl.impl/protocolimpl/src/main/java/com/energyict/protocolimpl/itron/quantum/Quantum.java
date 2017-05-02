@@ -39,7 +39,6 @@ public class Quantum extends SchlumbergerProtocol {
     private BasePagesFactory basePagesFactory = null;
     private RegisterFactory registerFactory = null;
     private QuantumProfile quantumProfile = null;
-    private boolean allowClockSet;
     private int loadProfileUnitScale;
 
     public Quantum(PropertySpecService propertySpecService, NlsService nlsService) {
@@ -87,9 +86,8 @@ public class Quantum extends SchlumbergerProtocol {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        allowClockSet = Integer.parseInt(properties.getTypedProperty(ALLOW_CLOCK_SET, "0").trim()) == 1;
-        setDelayAfterConnect(Integer.parseInt(properties.getTypedProperty(DELAY_AFTER_CONNECT, "2000").trim()));
-        setLoadProfileUnitScale(Integer.parseInt(properties.getTypedProperty("LoadProfileUnitScale", "3").trim()));
+        setDelayAfterConnect(properties.getTypedProperty(DELAY_AFTER_CONNECT, 2000));
+        setLoadProfileUnitScale(properties.getTypedProperty("LoadProfileUnitScale", 3));
     }
 
     @Override

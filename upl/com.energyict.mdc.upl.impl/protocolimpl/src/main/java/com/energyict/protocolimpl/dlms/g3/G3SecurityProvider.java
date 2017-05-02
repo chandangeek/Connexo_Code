@@ -1,12 +1,11 @@
 package com.energyict.protocolimpl.dlms.g3;
 
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40SecurityProvider;
-
-import java.util.Properties;
 
 /**
  * Extension on the Dsmr40SecurityProvider, with extra functionality for immediate key changing.
@@ -28,7 +27,7 @@ public class G3SecurityProvider extends Dsmr40SecurityProvider {
      *
      * @param properties - contains the keys for the authentication/encryption
      */
-    public G3SecurityProvider(PropertySpecService propertySpecService, Properties properties) {
+    public G3SecurityProvider(PropertySpecService propertySpecService, TypedProperties properties) {
         super(properties);
         this.g3Properties = new G3Properties(properties, propertySpecService);
     }
@@ -50,7 +49,7 @@ public class G3SecurityProvider extends Dsmr40SecurityProvider {
 
     @Override
     public byte[] getHLSSecret() {
-        String hexPassword = getProperties().getProperty(Dsmr40Properties.DSMR_40_HEX_PASSWORD);
+        String hexPassword = getProperties().getTypedProperty(Dsmr40Properties.DSMR_40_HEX_PASSWORD);
         if (hexPassword != null) {
             return com.energyict.dlms.DLMSUtils.hexStringToByteArray(hexPassword);
         }

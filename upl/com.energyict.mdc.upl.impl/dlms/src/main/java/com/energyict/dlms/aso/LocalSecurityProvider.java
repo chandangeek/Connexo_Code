@@ -1,14 +1,17 @@
 package com.energyict.dlms.aso;
 
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSessionProperties;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
-import com.energyict.mdc.upl.UnsupportedException;
 
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.Properties;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 
 /**
  * Default implementation of the securityProvider.
@@ -38,7 +41,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 	private byte[] dedicatedKey;
 	private byte[] masterKey;
 	private String hlsSecret;
-	private Properties properties;
+	private TypedProperties properties;
     private Long initialFrameCounter;
     private RespondingFrameCounterHandler respondingFrameCounterHandler = new DefaultRespondingFrameCounterHandler();
 
@@ -46,19 +49,19 @@ public class LocalSecurityProvider implements SecurityProvider {
 	 * Create a new instance of LocalSecurityProvider
 	 * @param properties - contains the keys for the authentication/encryption
 	 */
-	public LocalSecurityProvider(Properties properties){
-		this.properties = properties;
-		String sl = properties.getProperty("SecurityLevel", "0");
-		if(sl.indexOf(":") != -1){
+	public LocalSecurityProvider(TypedProperties properties){
+		this.properties = com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties);
+		String sl = properties.getTypedProperty("SecurityLevel", "0");
+		if(sl.contains(":")){
 			this.securityLevel = Integer.parseInt(sl.substring(0, sl.indexOf(":")));
 		} else {
 			this.securityLevel = Integer.parseInt(sl);
 		}
-		this.dataTransportPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORTKEY, ""));
-		this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty(MASTERKEY, ""));
-		this.authenticationPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORT_AUTHENTICATIONKEY,""));
-		this.hlsSecret = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "");
-		this.initialFrameCounter = properties.getProperty(INITIAL_FRAME_COUNTER) != null ? Long.parseLong(properties.getProperty(INITIAL_FRAME_COUNTER)) : null;
+		this.dataTransportPassword = DLMSUtils.hexStringToByteArray(properties.getTypedProperty(DATATRANSPORTKEY, ""));
+		this.masterKey = DLMSUtils.hexStringToByteArray(properties.getTypedProperty(MASTERKEY, ""));
+		this.authenticationPassword = DLMSUtils.hexStringToByteArray(properties.getTypedProperty(DATATRANSPORT_AUTHENTICATIONKEY,""));
+		this.hlsSecret = properties.getTypedProperty(PASSWORD.getName(), "");
+		this.initialFrameCounter = properties.getTypedProperty(INITIAL_FRAME_COUNTER) != null ? properties.getTypedProperty(INITIAL_FRAME_COUNTER) : null;
 	}
 
 	/**
@@ -69,11 +72,11 @@ public class LocalSecurityProvider implements SecurityProvider {
     public LocalSecurityProvider(DlmsSessionProperties sessionProperties) {
         this.properties = sessionProperties.getProtocolProperties();
         this.securityLevel = sessionProperties.getAuthenticationSecurityLevel();
-        this.dataTransportPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORTKEY, ""));
-        this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty(MASTERKEY, ""));
-        this.authenticationPassword = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORT_AUTHENTICATIONKEY, ""));
-        this.hlsSecret = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "");
-        this.initialFrameCounter = properties.getProperty(INITIAL_FRAME_COUNTER) != null ? Long.parseLong(properties.getProperty(INITIAL_FRAME_COUNTER)) : null;
+        this.dataTransportPassword = DLMSUtils.hexStringToByteArray(properties.getTypedProperty(DATATRANSPORTKEY, ""));
+        this.masterKey = DLMSUtils.hexStringToByteArray(properties.getTypedProperty(MASTERKEY, ""));
+        this.authenticationPassword = DLMSUtils.hexStringToByteArray(properties.getTypedProperty(DATATRANSPORT_AUTHENTICATIONKEY, ""));
+        this.hlsSecret = properties.getTypedProperty(PASSWORD.getName(), "");
+        this.initialFrameCounter = properties.getTypedProperty(INITIAL_FRAME_COUNTER) != null ? properties.getTypedProperty(INITIAL_FRAME_COUNTER) : null;
     }
 
     /**

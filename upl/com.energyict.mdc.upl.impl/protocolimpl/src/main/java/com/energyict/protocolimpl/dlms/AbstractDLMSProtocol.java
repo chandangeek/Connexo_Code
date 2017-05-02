@@ -45,7 +45,6 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -101,7 +100,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     protected CosemObjectFactory cosemObjectFactory;
     protected DLMSConnection dlmsConnection;
     protected DLMSMeterConfig dlmsMeterConfig;
-    protected Properties properties;
+    protected TypedProperties properties;
     protected Logger logger;
     protected TimeZone timeZone = null;
     protected SecurityContext securityContext;
@@ -368,17 +367,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        this.properties = properties.toStringProperties();
-        String securityLevelPropertyValue = properties.getTypedProperty(SECURITYLEVEL.getName(), "0");
-        String[] securityLevel = securityLevelPropertyValue.split(":");
-        this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
-        if (securityLevel.length == 2) {
-            this.datatransportSecurityLevel = Integer.parseInt(securityLevel[1]);
-        } else if (securityLevel.length == 1) {
-            this.datatransportSecurityLevel = 0;
-        } else {
-            throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + securityLevelPropertyValue);
-        }
+        this.properties = properties;
 
         nodeId = properties.getTypedProperty(NODEID.getName(), "");
         deviceId = properties.getTypedProperty(ADDRESS.getName(), "");
@@ -403,6 +392,20 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         this.maxRecPduSize = properties.getTypedProperty(MAX_REC_PDU_SIZE, MAX_PDU_SIZE);
         this.iskraWrapper = properties.getTypedProperty(ISKRA_WRAPPER, ISKRA_WRAPPER_DEFAULT);
         this.incrementFrameCounterForRetries = Boolean.parseBoolean(properties.getTypedProperty(INCREMENT_FRAMECOUNTER_FOR_RETRIES, INCREMENT_FRAMECOUNTER_FOR_RETRIES_DEFAULT));
+    }
+
+    @Override
+    protected void setSecurityLevelFrom(TypedProperties properties) {
+        String securityLevelPropertyValue = properties.getTypedProperty(SECURITYLEVEL.getName(), "0");
+        String[] securityLevel = securityLevelPropertyValue.split(":");
+        this.authenticationSecurityLevel = Integer.parseInt(securityLevel[0]);
+        if (securityLevel.length == 2) {
+            this.datatransportSecurityLevel = Integer.parseInt(securityLevel[1]);
+        } else if (securityLevel.length == 1) {
+            this.datatransportSecurityLevel = 0;
+        } else {
+            throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + securityLevelPropertyValue);
+        }
     }
 
     @Override

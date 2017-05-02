@@ -10,7 +10,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
  */
 class SagemComG3Properties extends G3Properties {
 
-    public static final String DEFAULT_VALIDATE_INVOKE_ID = "0";
+    public static final boolean DEFAULT_VALIDATE_INVOKE_ID = false;
 
     SagemComG3Properties(PropertySpecService propertySpecService) {
         super(propertySpecService);

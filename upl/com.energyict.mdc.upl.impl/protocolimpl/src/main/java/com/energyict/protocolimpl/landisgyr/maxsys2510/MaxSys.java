@@ -242,23 +242,23 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
         }
 
         if (properties.getTypedProperty(PK_TIMEOUT) != null) {
-            pTimeout = Integer.parseInt(properties.getTypedProperty(PK_TIMEOUT));
+            pTimeout = properties.getTypedProperty(PK_TIMEOUT);
         }
 
         if (properties.getTypedProperty(PK_RETRIES) != null) {
-            pRetries = Integer.parseInt(properties.getTypedProperty(PK_RETRIES));
+            pRetries = properties.getTypedProperty(PK_RETRIES);
         }
 
         if (properties.getTypedProperty(PK_ROUNDTRIPCORRECTION) != null) {
-            pRountTripCorrection = Integer.parseInt(properties.getTypedProperty(PK_ROUNDTRIPCORRECTION));
+            pRountTripCorrection = properties.getTypedProperty(PK_ROUNDTRIPCORRECTION);
         }
 
         if (properties.getTypedProperty(PK_CORRECTTIME) != null) {
-            pCorrectTime = Integer.parseInt(properties.getTypedProperty(PK_CORRECTTIME));
+            pCorrectTime = properties.getTypedProperty(PK_CORRECTTIME);
         }
 
         if (properties.getTypedProperty(PK_FORCE_DELAY) != null) {
-            pForceDelay = Integer.parseInt(properties.getTypedProperty(PK_FORCE_DELAY));
+            pForceDelay = properties.getTypedProperty(PK_FORCE_DELAY);
         }
 
         if (properties.getTypedProperty(PK_EXTENDED_LOGGING) != null) {
@@ -466,12 +466,6 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
         return getTable1().getTypeMaximumValues().getClockCalendar().toDate();
     }
 
-    /**
-     * Send the time delta in milliseconds.
-     * (non-Javadoc)
-     *
-     * @see com.energyict.protocol.MeterProtocol#setTime()
-     */
     @Override
     public void setTime() throws IOException {
         Calendar calendar = ProtocolUtils.getCalendar(timeZone);

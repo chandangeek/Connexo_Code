@@ -193,32 +193,28 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
         int liDelayAfterFailProperty;
         int liRtuPlusBusProtocolVersion;
 
-        try {
-            halfDuplex = Integer.parseInt(properties.getTypedProperty("HalfDuplex", "0").trim());
-            if (halfDuplex > 0) {
-                RtuPlusBusFrame.setForcedDelay(Integer.parseInt(properties.getTypedProperty("ForcedDelay", "150").trim()));
-            } else {
-                RtuPlusBusFrame.setForcedDelay(Integer.parseInt(properties.getTypedProperty("ForcedDelay", "0").trim()));
-            }
-
-            // Node ID or Address
-            liNodeID = Integer.parseInt(properties.getTypedProperty(NODEID.getName()));
-            // The Password is an unsigned 32 bits integer
-            llPassword = Long.parseLong(properties.getTypedProperty(PASSWORD.getName()));
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        halfDuplex = properties.getTypedProperty("HalfDuplex", 0);
+        if (halfDuplex > 0) {
+            RtuPlusBusFrame.setForcedDelay(properties.getTypedProperty("ForcedDelay", 150));
+        } else {
+            RtuPlusBusFrame.setForcedDelay(properties.getTypedProperty("ForcedDelay", 0));
         }
+
+        // Node ID or Address
+        liNodeID = properties.getTypedProperty(NODEID.getName());
+        // The Password is an unsigned 32 bits integer
+        llPassword = properties.getTypedProperty(PASSWORD.getName());
 
         // Other Communication settings
         // KV 03062003 changed
-        liProtocolTimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "4500").trim()); // was 3000
-        liProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim()); // was 2
+        liProtocolTimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 4500);
+        liProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 5);
 
-        liDelayAfterFailProperty = Integer.parseInt(properties.getTypedProperty("DelayAfterFail", "3000").trim());
-        liRtuPlusBusProtocolVersion = Integer.parseInt(properties.getTypedProperty("RtuPlusBusProtocolVersion", "2").trim());
-        iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "350").trim());
-        iMaximumNumberOfRecords = Integer.parseInt(properties.getTypedProperty("MaximumNumberOfRecords", "5500").trim());
-        profileInterval = Integer.parseInt(properties.getTypedProperty(PROFILEINTERVAL.getName(), "900").trim());
+        liDelayAfterFailProperty = properties.getTypedProperty("DelayAfterFail", 3000);
+        liRtuPlusBusProtocolVersion = properties.getTypedProperty("RtuPlusBusProtocolVersion", 2);
+        iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 350);
+        iMaximumNumberOfRecords = properties.getTypedProperty("MaximumNumberOfRecords", 5500);
+        profileInterval = properties.getTypedProperty(PROFILEINTERVAL.getName(), 900);
 
         // Set all Properties now..
         RtuPlusBusFrame.setProtocolProperties(liProtocolTimeoutProperty, liProtocolRetriesProperty, liDelayAfterFailProperty, liRtuPlusBusProtocolVersion);

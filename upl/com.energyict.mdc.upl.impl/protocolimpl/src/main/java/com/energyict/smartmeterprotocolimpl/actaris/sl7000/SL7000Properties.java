@@ -25,13 +25,13 @@ class SL7000Properties extends DlmsProtocolProperties {
     private static final String USE_LEGACY_HDLC_CONNECTION = "UseLegacyHDLCConnection";
 
     private static final String DEFAULT_SECURITY_LEVEL = "1:0";
-    private static final String DEFAULT_ADDRESSING_MODE = "-1";
-    private static final String DEFAULT_CLIENT_MAC_ADDRESS = "1";
+    private static final int DEFAULT_ADDRESSING_MODE = -1;
+    private static final int DEFAULT_CLIENT_MAC_ADDRESS = 1;
     private static final String DEFAULT_SERVER_MAC_ADDRESS = "1:17";
-    public static final String DEFAULT_MAX_REC_PDU_SIZE = "0";
-    private static final String DEFAULT_USE_REGISTER_PROFILE = "0";
-    private static final String DEFAULT_LIMIT_MAX_NR_OF_DAYS = "0";
-    private static final String DEFAULT_USE_LEGACY_HDLC_CONNECTION = "0";
+    public static final int DEFAULT_MAX_REC_PDU_SIZE = 0;
+    private static final boolean DEFAULT_USE_REGISTER_PROFILE = false;
+    private static final int DEFAULT_LIMIT_MAX_NR_OF_DAYS = 0;
+    private static final int DEFAULT_USE_LEGACY_HDLC_CONNECTION = 0;
 
     private final PropertySpecService propertySpecService;
 
@@ -110,7 +110,7 @@ class SL7000Properties extends DlmsProtocolProperties {
 
     @ProtocolProperty
     public int getRequestTimeZone() {
-        return getIntProperty("RequestTimeZone", "0");
+        return getIntProperty("RequestTimeZone", 0);
     }
 
     @Override

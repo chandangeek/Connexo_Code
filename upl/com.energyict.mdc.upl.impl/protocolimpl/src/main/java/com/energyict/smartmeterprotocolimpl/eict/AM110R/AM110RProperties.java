@@ -25,14 +25,14 @@ import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRA
  */
 public class AM110RProperties extends SmsWakeUpDlmsProtocolProperties {
 
-    private static final String DEFAULT_UK_HUB_CLIENT_MAC_ADDRESS = "64";
+    private static final int DEFAULT_UK_HUB_CLIENT_MAC_ADDRESS = 64;
     private static final String DEFAULT_AM110R_HUB_LOGICAL_DEVICE_ADDRESS = "1";
-    private static final String MaxReceivePduSize = "4096";
-    private static final String DefaultZ3BulkRequesSupport = "1";
+    private static final int MAX_RECEIVE_PDU_SIZE = 4096;
+    private static final boolean DEFAULT_Z_3_BULK_REQUES_SUPPORT = true;
     private static final String VERIFY_FIRMWARE_VERSION = "VerifyFirmwareVersion";
-    private static final String DEFAULT_VERIFY_FIRMWARE_VERSION = "0";
+    private static final boolean DEFAULT_VERIFY_FIRMWARE_VERSION = false;
     private static final String LOGBOOK_SELECTOR = "LogbookSelector";
-    private static final String DEFAULT_LOGBOOK_SELECTOR = "-1";
+    private static final int DEFAULT_LOGBOOK_SELECTOR = -1;
 
     protected SecurityProvider securityProvider;
 
@@ -79,7 +79,7 @@ public class AM110RProperties extends SmsWakeUpDlmsProtocolProperties {
 
     @ProtocolProperty
     public int getMaxRecPDUSize() {
-        return getIntProperty(MAX_REC_PDU_SIZE, MaxReceivePduSize);
+        return getIntProperty(MAX_REC_PDU_SIZE, MAX_RECEIVE_PDU_SIZE);
     }
 
     public boolean verifyFirmwareVersion() {
@@ -92,7 +92,7 @@ public class AM110RProperties extends SmsWakeUpDlmsProtocolProperties {
 
     @ProtocolProperty
     public boolean isBulkRequest() {
-        return getBooleanProperty(BULK_REQUEST, DefaultZ3BulkRequesSupport);
+        return getBooleanProperty(BULK_REQUEST, DEFAULT_Z_3_BULK_REQUES_SUPPORT);
     }
 
     public boolean isFirmwareUpdateSession() {

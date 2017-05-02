@@ -52,7 +52,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -158,7 +157,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
     private int dstFlag; // -1=unknown, 0=not set, 1=set
     private int addressingMode;
     private int connectionMode;
-    private Properties properties;
+    private TypedProperties properties;
     private int iForcedDelay;
     private int limitMaxNrOfDays;
     private boolean readPlcLogbook;
@@ -521,7 +520,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
-        this.properties = properties.toStringProperties();
+        this.properties = properties;
     }
 
     @Override

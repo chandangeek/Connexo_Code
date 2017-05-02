@@ -42,8 +42,8 @@ public abstract class RecDigitCdt extends Modbus {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-    	setInfoTypePhysicalLayer(Integer.parseInt(properties.getTypedProperty(PK_PHYSICAL_LAYER, "1").trim()));
-    	setInfoTypeInterframeTimeout(Integer.parseInt(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, "100").trim()));
+    	setInfoTypePhysicalLayer(properties.getTypedProperty(PK_PHYSICAL_LAYER, 1));
+    	setInfoTypeInterframeTimeout(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, 100));
     }
 
     @Override
@@ -57,18 +57,14 @@ public abstract class RecDigitCdt extends Modbus {
      * @return          int[] 2 bytes per int
      */
     int[] readRawValue(int address, int length)  throws IOException {
-
         HoldingRegister r = new HoldingRegister(address, length);
         r.setRegisterFactory(getRegisterFactory());
         return r.getReadHoldingRegistersRequest().getRegisters();
-
     }
 
     BigDecimal readValue(int address, Type type) throws IOException {
-
         int [] values = readRawValue( address, type.wordSize() );
         return getRecFactory().toBigDecimal(type, values);
-
     }
 
     @Override

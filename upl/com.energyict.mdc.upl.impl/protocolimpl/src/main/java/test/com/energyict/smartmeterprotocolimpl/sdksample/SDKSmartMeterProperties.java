@@ -5,8 +5,8 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
-import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +20,7 @@ public class SDKSmartMeterProperties extends AbstractProtocolProperties {
 
     private static final String SIMULATE_REAL_COMMUNICATION = "SimulateRealCommunication";
 
-    private static final String DEFAULT_SIMULATE_REAL_COMMUNICATION = "0";
+    private static final boolean DEFAULT_SIMULATE_REAL_COMMUNICATION = false;
 
     private final PropertySpecService propertySpecService;
 

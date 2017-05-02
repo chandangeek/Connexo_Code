@@ -116,8 +116,8 @@ public class S4 extends AbstractProtocol implements SerialNumberSupport {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "0").trim()));
-        setInfoTypeSecurityLevel(Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "0").trim()));
+        setForcedDelay(properties.getTypedProperty(PROP_FORCED_DELAY, 0));
+        setInfoTypeSecurityLevel(properties.getTypedProperty(SECURITYLEVEL.getName(), 0));
         modemPassword = properties.getTypedProperty("ModemPassword");
     }
 
@@ -127,7 +127,7 @@ public class S4 extends AbstractProtocol implements SerialNumberSupport {
     }
 
     @Override
-    protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
+    protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         setDgcomConnection(new DGCOMConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber(),getInfoTypeSecurityLevel()));
         setCommandFactory(new CommandFactory(this));
         s4Profile = new S4Profile(this);

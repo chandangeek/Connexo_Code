@@ -18,7 +18,7 @@ public enum ConnectionMode {
     private final int mode;
     private final String description;
 
-    private ConnectionMode(int mode, String description) {
+    ConnectionMode(int mode, String description) {
         this.mode = mode;
         this.description = description;
     }
@@ -29,10 +29,6 @@ public enum ConnectionMode {
 
     public int getMode() {
         return mode;
-    }
-
-    public String getModeAsString() {
-        return "" + getMode();
     }
 
     public boolean isInvalid() {

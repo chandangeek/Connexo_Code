@@ -86,7 +86,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -176,7 +175,7 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
     // Added for MeterProtocol interface implementation
     private Logger logger = null;
     private TimeZone timeZone = null;
-    private Properties properties = null;
+    private TypedProperties properties = null;
 
     // filled in when getTime is invoked!
     private int dstFlag; // -1=unknown, 0=not set, 1=set
@@ -760,7 +759,7 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         try {
             this.doSetProperties(properties);
-            this.properties = properties.toStringProperties();
+            this.properties = properties;
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
@@ -974,7 +973,7 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
         this.dlmsConnection = connection;
     }
 
-    public Properties getProperties() {
+    public TypedProperties getProperties() {
         return this.properties;
     }
 

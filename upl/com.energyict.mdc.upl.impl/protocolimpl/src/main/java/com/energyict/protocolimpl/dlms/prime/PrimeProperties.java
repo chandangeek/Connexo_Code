@@ -19,7 +19,6 @@ import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.function.Supplier;
 
 import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
@@ -44,19 +43,15 @@ public class PrimeProperties extends DlmsProtocolProperties {
     private static final String READ_SERIAL_NUMBER = "ReadSerialNumber";
     public static final String EVENTS_ONLY = "EventsOnly";
 
-    private static final String DEFAULT_EVENTS_ONLY = "0";
+    private static final boolean DEFAULT_EVENTS_ONLY = false;
     private static final int FIRMWARE_CLIENT_ADDRESS = 3;
     private static final String DOT = ".";
 
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
 
-    PrimeProperties(PropertySpecService propertySpecService, NlsService nlsService) {
-        this(new Properties(), propertySpecService, nlsService);
-    }
-
-    private PrimeProperties(Properties properties, PropertySpecService propertySpecService, NlsService nlsService) {
-        super(properties);
+    public PrimeProperties(PropertySpecService propertySpecService, NlsService nlsService) {
+        super();
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
     }
@@ -109,7 +104,7 @@ public class PrimeProperties extends DlmsProtocolProperties {
 
     @Override
     public int getClientMacAddress() {
-        return getIntProperty(CLIENT_MAC_ADDRESS, "1");
+        return getIntProperty(CLIENT_MAC_ADDRESS, 1);
     }
 
     @Override
@@ -158,12 +153,12 @@ public class PrimeProperties extends DlmsProtocolProperties {
 
     @ProtocolProperty
     public final int getPollingDelay() {
-        return getIntProperty(FW_UPGRADE_POLLING_DELAY, "10000");
+        return getIntProperty(FW_UPGRADE_POLLING_DELAY, 10000);
     }
 
     @ProtocolProperty
     public final int getPollingRetries() {
-        return getIntProperty(FW_UPGRADE_POLLING_RETRIES, "20");
+        return getIntProperty(FW_UPGRADE_POLLING_RETRIES, 20);
     }
 
     @ProtocolProperty
@@ -173,7 +168,7 @@ public class PrimeProperties extends DlmsProtocolProperties {
 
     @ProtocolProperty
     public final boolean isReadSerialNumber() {
-        return getBooleanProperty(READ_SERIAL_NUMBER, "0");
+        return getBooleanProperty(READ_SERIAL_NUMBER, false);
     }
 
     public final String getFWImageNameWithoutExtension() {

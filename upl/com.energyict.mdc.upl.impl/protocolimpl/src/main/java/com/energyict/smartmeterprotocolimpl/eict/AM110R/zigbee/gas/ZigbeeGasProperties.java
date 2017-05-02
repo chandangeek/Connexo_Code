@@ -24,14 +24,14 @@ import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRA
  */
 public class ZigbeeGasProperties extends SmsWakeUpDlmsProtocolProperties {
 
-    private static final String DEFAULT_ZIGBEE_GAS_CLIENT_MAC_ADDRESS = "64";
+    private static final int DEFAULT_ZIGBEE_GAS_CLIENT_MAC_ADDRESS = 64;
     public static final int FIRMWARE_CLIENT = 0x50;
 
     private static final String LOGBOOK_SELECTOR = "LogbookSelector";
-    private static final String DEFAULT_LOGBOOK_SELECTOR = "-1";
+    private static final int DEFAULT_LOGBOOK_SELECTOR = -1;
 
     private static final String VERIFY_FIRMWARE_VERSION = "VerifyFirmwareVersion";
-    private static final String DEFAULT_VERIFY_FIRMWARE_VERSION = "0";
+    private static final boolean DEFAULT_VERIFY_FIRMWARE_VERSION = false;
 
     private static final String ZIGBEE_MAC = "ZigbeeMAC";
     private static final String ZIGBEE_PCLK = "ZigbeePCLK";

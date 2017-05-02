@@ -10,7 +10,6 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
-import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.messages.legacy.Message;
@@ -28,6 +27,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
@@ -152,22 +153,22 @@ public abstract class Modbus extends AbstractProtocol implements MessageProtocol
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "10").trim()));
-        setInfoTypeInterframeTimeout(Integer.parseInt(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, "15").trim()));
+        setForcedDelay(properties.getTypedProperty(PROP_FORCED_DELAY, 10));
+        setInfoTypeInterframeTimeout(properties.getTypedProperty(PK_INTERFRAME_TIMEOUT, 15));
         setNetworkId(properties.getTypedProperty("NetworkId", ""));
-        setVirtualLoadProfile(Integer.parseInt(properties.getTypedProperty("VirtualLoadProfile", "0").trim())==1);
+        setVirtualLoadProfile(properties.getTypedProperty("VirtualLoadProfile", 0) == 1);
 
-        physicalLayer = Integer.parseInt(properties.getTypedProperty(PK_PHYSICAL_LAYER, "0").trim());
-        responseTimeout = Integer.parseInt(properties.getTypedProperty(PK_RESPONSE_TIMEOUT, "200").trim());
+        physicalLayer = properties.getTypedProperty(PK_PHYSICAL_LAYER, 0);
+        responseTimeout = properties.getTypedProperty(PK_RESPONSE_TIMEOUT, 20);
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(PROP_TIMEOUT, "2000").trim()));
-        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getTypedProperty(PROP_RETRIES, "2").trim()));
+        setInfoTypeProtocolRetriesProperty(properties.getTypedProperty(PROP_RETRIES, 2));
 
-        setRegisterOrderFixedPoint(Integer.parseInt(properties.getTypedProperty("RegisterOrderFixedPoint", "1").trim()));
-        setRegisterOrderFloatingPoint(Integer.parseInt(properties.getTypedProperty("RegisterOrderFloatingPoint", "1").trim()));
-        firstTimeDelay = Integer.parseInt(properties.getTypedProperty(PK_FIRST_TIME_DELAY, "0").trim());
+        setRegisterOrderFixedPoint(properties.getTypedProperty("RegisterOrderFixedPoint", 1));
+        setRegisterOrderFloatingPoint(properties.getTypedProperty("RegisterOrderFloatingPoint", 1));
+        firstTimeDelay = properties.getTypedProperty(PK_FIRST_TIME_DELAY, 0);
         meterFirmwareVersion = properties.getTypedProperty(PK_METER_FIRMWARE_VERSION, "");
-        connection = Integer.parseInt(properties.getTypedProperty("Connection", "0").trim());
-        nodeAddress = Integer.parseInt(properties.getTypedProperty("NodeAddress", "255").trim());    // Only used in Modbus TCP/IP mode
+        connection = properties.getTypedProperty("Connection", 0);
+        nodeAddress = properties.getTypedProperty("NodeAddress", 255);    // Only used in Modbus TCP/IP mode
     }
 
     @Override

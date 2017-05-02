@@ -1,16 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties;
 
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Copyrights EnergyICT
@@ -27,7 +27,7 @@ public class Dsmr40Properties extends Dsmr23Properties {
         super(propertySpecService);
     }
 
-    public Dsmr40Properties(Properties properties, PropertySpecService propertySpecService) {
+    public Dsmr40Properties(TypedProperties properties, PropertySpecService propertySpecService) {
         super(properties, propertySpecService);
     }
 
@@ -51,16 +51,16 @@ public class Dsmr40Properties extends Dsmr23Properties {
     }
 
     public boolean getCumulativeCaptureTimeChannel() {
-        return getBooleanProperty(CumulativeCaptureTimeChannel, "0");
+        return getBooleanProperty(CumulativeCaptureTimeChannel, false);
     }
 
     @ProtocolProperty
     public boolean isForcedToReadCache() {
-        return getBooleanProperty(PROPERTY_FORCED_TO_READ_CACHE, "0");
+        return getBooleanProperty(PROPERTY_FORCED_TO_READ_CACHE, false);
     }
 
     public int getForcedToReadCache() {
-        return getIntProperty(PROPERTY_FORCED_TO_READ_CACHE, "0");
+        return getIntProperty(PROPERTY_FORCED_TO_READ_CACHE, 0);
     }
 
 }

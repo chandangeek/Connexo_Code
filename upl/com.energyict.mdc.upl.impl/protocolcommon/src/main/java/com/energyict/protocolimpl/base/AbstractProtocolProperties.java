@@ -7,7 +7,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Properties;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
@@ -24,7 +23,7 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
  */
 public abstract class AbstractProtocolProperties implements ProtocolProperties {
 
-    private final Properties protocolProperties;
+    private final TypedProperties protocolProperties;
 
     private static final String PK_SERIALNUMBER = SERIALNUMBER.getName();
     private static final String PK_NODEID = NODEID.getName();
@@ -36,18 +35,18 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
     public static final String PK_DELAY_AFTER_ERROR = "DelayAfterError";
     private static final String PK_PROFILE_INTERVAL = PROFILEINTERVAL.getName();
 
-    public static final String DEFAULT_TIMEOUT = "10000";
-    public static final String DEFAULT_RETRIES = "3";
-    public static final String DEFAULT_FORCED_DELAY = "0";
-    public static final String DEFAULT_DELAY_AFTER_ERROR = "100";
-    private static final String DEFAULT_PROFILE_INTERVAL = "900";
+    public static final int DEFAULT_TIMEOUT = 10000;
+    public static final int DEFAULT_RETRIES = 3;
+    public static final int DEFAULT_FORCED_DELAY = 0;
+    public static final int DEFAULT_DELAY_AFTER_ERROR = 100;
+    private static final int DEFAULT_PROFILE_INTERVAL = 900;
 
-    public AbstractProtocolProperties(Properties properties) {
-        this.protocolProperties = properties;
+    public AbstractProtocolProperties(TypedProperties properties) {
+        this.protocolProperties = com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties);
     }
 
     public AbstractProtocolProperties() {
-        this(new Properties());
+        this(com.energyict.protocolimpl.properties.TypedProperties.empty());
     }
 
     @ProtocolProperty
@@ -95,24 +94,20 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
         return getIntProperty(PK_PROFILE_INTERVAL, DEFAULT_PROFILE_INTERVAL);
     }
 
-    protected int getIntProperty(String propertyName, String defaultValue) {
-        return Integer.parseInt(getStringValue(propertyName, defaultValue));
+    protected int getIntProperty(String propertyName, int defaultValue) {
+        return this.getProtocolProperties().getTypedProperty(propertyName, defaultValue);
     }
 
-    protected long getLongProperty(String propertyName, String defaultValue) {
-        return Long.parseLong(getStringValue(propertyName, defaultValue));
+    protected long getLongProperty(String propertyName, long defaultValue) {
+        return this.getProtocolProperties().getTypedProperty(propertyName, defaultValue);
     }
 
-    protected double getDoubleProperty(String propertyName, String defaultValue) {
-        return Double.parseDouble(getStringValue(propertyName, defaultValue));
-    }
-
-    protected boolean getBooleanProperty(String propertyName, String defaultValue) {
-        return getIntProperty(propertyName, defaultValue) == 1;
+    protected boolean getBooleanProperty(String propertyName, boolean defaultValue) {
+        return this.getProtocolProperties().getTypedProperty(propertyName, defaultValue);
     }
 
     protected String getStringValue(String propertyName, String defaultValue) {
-        return getProtocolProperties().getProperty(propertyName, defaultValue);
+        return getProtocolProperties().getTypedProperty(propertyName, defaultValue);
     }
 
     protected byte[] getByteValue(String propertyName, String defaultValue) {
@@ -123,13 +118,13 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
         return ProtocolTools.getBytesFromHexString(value, "");
     }
 
-    public Properties getProtocolProperties() {
+    public TypedProperties getProtocolProperties() {
         return protocolProperties;
     }
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
-        getProtocolProperties().putAll(properties.toStringProperties());
+        this.protocolProperties.setAllProperties(properties);
     }
 
     @Override

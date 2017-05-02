@@ -15,6 +15,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -39,7 +40,6 @@ public class Vectron extends SchlumbergerProtocol {
     private BasePagesFactory basePagesFactory = null;
     RegisterFactory registerFactory = null;
     private VectronProfile vectronProfile = null;
-    boolean allowClockSet;
     boolean waitUntilTimeValid;
     private int waitingTime = 5;
 
@@ -77,19 +77,18 @@ public class Vectron extends SchlumbergerProtocol {
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        ArrayList<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec(WAIT_UNTIL_TIME_VALID, PropertyTranslationKeys.WAIT_UNTIL_TIME_VALID, false));
-        propertySpecs.add(this.stringSpec(WAITING_TIME, PropertyTranslationKeys.WAITING_TIME, false));
+        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
+        propertySpecs.add(this.integerSpec(WAIT_UNTIL_TIME_VALID, PropertyTranslationKeys.WAIT_UNTIL_TIME_VALID, false));
+        propertySpecs.add(this.integerSpec(WAITING_TIME, PropertyTranslationKeys.WAITING_TIME, false));
         return propertySpecs;
     }
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        allowClockSet = Integer.parseInt(properties.getTypedProperty(ALLOW_CLOCK_SET, "0").trim()) == 1;
-        setDelayAfterConnect(Integer.parseInt(properties.getTypedProperty(DELAY_AFTER_CONNECT, "2000").trim()));
-        waitUntilTimeValid = Integer.parseInt(properties.getTypedProperty(WAIT_UNTIL_TIME_VALID, "1")) == 1;
-        waitingTime = Integer.parseInt(properties.getTypedProperty(WAITING_TIME, "5").trim());
+        setDelayAfterConnect(properties.getTypedProperty(DELAY_AFTER_CONNECT, 2000));
+        waitUntilTimeValid = properties.getTypedProperty(WAIT_UNTIL_TIME_VALID, 1) == 1;
+        waitingTime = properties.getTypedProperty(WAITING_TIME, 5);
     }
 
     public int getProfileInterval() throws IOException {
@@ -105,7 +104,7 @@ public class Vectron extends SchlumbergerProtocol {
     }
 
     public void setTime() throws IOException {
-//        if (allowClockSet) {
+//        if (getAllowClockSet()) {
 //            getBasePagesFactory().writeBasePage(0x2113, new byte[]{(byte)0xFF});
 //            getBasePagesFactory().writeBasePage(0x2118, new byte[]{0});
 //            getBasePagesFactory().setRealTimeBasePage();

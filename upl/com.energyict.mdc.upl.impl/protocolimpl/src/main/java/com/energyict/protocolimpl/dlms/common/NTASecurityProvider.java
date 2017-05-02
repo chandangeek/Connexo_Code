@@ -1,14 +1,17 @@
 package com.energyict.protocolimpl.dlms.common;
 
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
-import com.energyict.mdc.upl.UnsupportedException;
 
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.Properties;
+
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 
 /**
  * Default implementation of the securityProvider.
@@ -52,7 +55,7 @@ public class NTASecurityProvider implements SecurityProvider {
     protected int securityLevel = -1;
     protected byte[] cTOs;
     protected byte[] dedicatedKey;
-    protected Properties properties;
+    protected TypedProperties properties;
     protected Long initialFrameCounter;
     private byte[] authenticationKey;
     private byte[] encryptionKey;
@@ -66,13 +69,13 @@ public class NTASecurityProvider implements SecurityProvider {
      *
      * @param properties - contains the keys for the authentication/encryption
      */
-    public NTASecurityProvider(Properties properties) {
-        this.properties = properties;
+    public NTASecurityProvider(TypedProperties properties) {
+        this.properties = com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties);
     }
 
     protected int getSecurityLevel() {
         if (securityLevel == -1) {
-            String sl = properties.getProperty("SecurityLevel", "0");
+            String sl = properties.getTypedProperty("SecurityLevel", "0");
             if (sl.contains(":")) {
                 this.securityLevel = Integer.parseInt(sl.substring(0, sl.indexOf(":")));
             } else {
@@ -102,7 +105,7 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] getAuthenticationKey() {
         if (this.authenticationKey == null) {
-            this.authenticationKey = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORT_AUTHENTICATIONKEY, ""));
+            this.authenticationKey = DLMSUtils.hexStringToByteArray(properties.getTypedProperty(DATATRANSPORT_AUTHENTICATIONKEY, ""));
         }
         return this.authenticationKey;
     }
@@ -151,7 +154,7 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] getGlobalKey() {
         if (this.encryptionKey == null) {
-            this.encryptionKey = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORT_ENCRYPTIONKEY, ""));
+            this.encryptionKey = DLMSUtils.hexStringToByteArray(properties.getTypedProperty(DATATRANSPORT_ENCRYPTIONKEY, ""));
         }
         return this.encryptionKey;
     }
@@ -163,7 +166,7 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] getHLSSecret() {
         if (this.hlsSecret == null) {
-            this.hlsSecret = properties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), "");
+            this.hlsSecret = properties.getTypedProperty(PASSWORD.getName(), "");
         }
         byte[] byteWord = new byte[this.hlsSecret.length()];
         for (int i = 0; i < this.hlsSecret.length(); i++) {
@@ -186,7 +189,7 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] getMasterKey(){
         if (this.masterKey == null) {
-            this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty(MASTERKEY, ""));
+            this.masterKey = DLMSUtils.hexStringToByteArray(properties.getTypedProperty(MASTERKEY, ""));
         }
         return this.masterKey;
     }
@@ -275,7 +278,7 @@ public class NTASecurityProvider implements SecurityProvider {
 
     public int getClientToServerChallengeLength() {
         if (this.challengeLength == 0) {
-            this.challengeLength = Integer.parseInt(this.properties.getProperty(CLIENT_TO_SERVER_CHALLENGE_LENGTH, Integer.toString(ChallengeLength.LENGTH_16_BYTE.length)));
+            this.challengeLength = this.properties.getTypedProperty(CLIENT_TO_SERVER_CHALLENGE_LENGTH, ChallengeLength.LENGTH_16_BYTE.length);
         }
         return this.challengeLength;
     }
@@ -284,7 +287,7 @@ public class NTASecurityProvider implements SecurityProvider {
         this.challengeLength = length.getLength();
     }
 
-    protected Properties getProperties() {
+    protected TypedProperties getProperties() {
         return this.properties;
     }
 
@@ -302,4 +305,5 @@ public class NTASecurityProvider implements SecurityProvider {
             return length;
         }
     }
+
 }

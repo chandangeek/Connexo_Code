@@ -28,13 +28,13 @@ import java.util.function.Supplier;
  */
 public class IskraMX372Properties extends DlmsProtocolProperties {
 
-    private static final String DEFAULT_TIMEOUT = "5000";
-    private static final String DEFAULT_RETRIES = "10";
+    private static final int DEFAULT_TIMEOUT = 5000;
+    private static final int DEFAULT_RETRIES = 10;
     private static final String DEFAULT_SECURITY_LEVEL = "1";
     private static final int DEFAULT_LOWER_HDLC_ADDRESS = 1;
-    private static final String DEFAULT_IP_PORT_NUMBER = "2048";
+    private static final int DEFAULT_IP_PORT_NUMBER = 2048;
     private static final String DEFAULT_SERVER_MAC_ADDRESS = "1:1";
-    private static final String DEFAULT_CLIENT_MAC_ADDRESS = "100";
+    private static final int DEFAULT_CLIENT_MAC_ADDRESS = 100;
     private static final String NEW_LLS_SECRET = "NewLLSSecret";
     private static final String DEFAULT_MANUFACTURER = "ISK";
 
@@ -52,7 +52,7 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        getProtocolProperties().put(DlmsProtocolProperties.SECURITY_LEVEL, getSecurityLevel());
+        getProtocolProperties().setProperty(DlmsProtocolProperties.SECURITY_LEVEL, getSecurityLevel());
     }
 
     @Override
@@ -73,7 +73,7 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
                 this.spec("TestLogging", PropertyTranslationKeys.PRENTA_TEST_LOGGING, this.propertySpecService::integerSpec),
                 this.spec("FolderExtName", PropertyTranslationKeys.PRENTA_FOLDER_EXTERNAL_NAME, this.propertySpecService::stringSpec),
                 this.spec("CsdCall", PropertyTranslationKeys.PRENTA_CSD_CALL, this.propertySpecService::integerSpec),          // enable the csd call functionality
-                this.spec("IpPortNumber", PropertyTranslationKeys.PRENTA_IP_PORTNUMBER, this.propertySpecService::integerSpec),     // portnumber for iskra meter (default 2048)
+                this.spec(IP_PORT_NUMBER, PropertyTranslationKeys.PRENTA_IP_PORTNUMBER, this.propertySpecService::integerSpec),     // portnumber for iskra meter (default 2048)
                 this.spec("PollTimeOut", PropertyTranslationKeys.PRENTA_POLL_TIMEOUT, this.propertySpecService::integerSpec),      // timeout for polling the radius database
                 this.spec("CsdCallTimeOut", PropertyTranslationKeys.PRENTA_CSD_CALL_TIMEOUT, this.propertySpecService::integerSpec),   // timeout between triggering the csd schedule and actually doing the schedule
                 this.spec("CsdPollFrequency", PropertyTranslationKeys.PRENTA_CSD_POLL_FREQUENCY, this.propertySpecService::stringSpec), // seconds between 2 request to the radius server
@@ -99,7 +99,7 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
 
     @ProtocolProperty
     public int getRequestTimeZone() {
-        return getIntProperty("RequestTimeZone", "0");
+        return getIntProperty("RequestTimeZone", 0);
     }
 
     @ProtocolProperty
@@ -141,6 +141,7 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
             try {
                 return Integer.parseInt(macAddress[0]);
             } catch (NumberFormatException e) {
+                return INVALID;
             }
         }
         return INVALID;
@@ -154,6 +155,7 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
             try {
                 return Integer.parseInt(macAddress[1]);
             } catch (NumberFormatException e) {
+                return DEFAULT_LOWER_HDLC_ADDRESS;
             }
         }
         return DEFAULT_LOWER_HDLC_ADDRESS;
@@ -161,7 +163,7 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
 
     @ProtocolProperty
     public int getExtendedLogging() {
-        return getIntProperty("ExtendedLogging", "0");
+        return getIntProperty("ExtendedLogging", 0);
     }
 
     @ProtocolProperty
@@ -171,7 +173,7 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
 
     @ProtocolProperty
     public int getTestLogging() {
-        return getIntProperty("TestLogging", "0");
+        return getIntProperty("TestLogging", 0);
     }
 
     @ProtocolProperty
@@ -181,7 +183,7 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
 
     @ProtocolProperty
     public int getCsdCall() {
-        return getIntProperty("CsdCall", "0");
+        return getIntProperty("CsdCall", 0);
     }
 
     /**
@@ -196,7 +198,7 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
         if (port != 0) {
             return port;
         } else {
-            return 2048;    // default port number
+            return DEFAULT_IP_PORT_NUMBER;
         }
     }
 

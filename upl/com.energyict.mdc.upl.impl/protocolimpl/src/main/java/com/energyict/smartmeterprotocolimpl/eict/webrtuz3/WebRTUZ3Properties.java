@@ -1,10 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
@@ -13,7 +13,6 @@ import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
 import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY;
@@ -25,17 +24,12 @@ import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRA
  */
 class WebRTUZ3Properties extends DlmsProtocolProperties {
 
-    private static final String MaxReceivePduSize = "4096";
-    private static final String DefaultZ3BulkRequesSupport = "1";
+    private static final int MAX_RECEIVE_PDU_SIZE = 4096;
+    private static final boolean DEFAULT_Z_3_BULK_REQUES_SUPPORT = true;
 
     private final PropertySpecService propertySpecService;
 
-    public WebRTUZ3Properties(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    public WebRTUZ3Properties(Properties properties, PropertySpecService propertySpecService) {
-        super(properties);
+    WebRTUZ3Properties(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
@@ -62,13 +56,13 @@ class WebRTUZ3Properties extends DlmsProtocolProperties {
     @ProtocolProperty
     @Override
     public int getMaxRecPDUSize() {
-        return getIntProperty(MAX_REC_PDU_SIZE, MaxReceivePduSize);
+        return getIntProperty(MAX_REC_PDU_SIZE, MAX_RECEIVE_PDU_SIZE);
     }
 
     @ProtocolProperty
     @Override
     public boolean isBulkRequest() {
-        return getBooleanProperty(BULK_REQUEST, DefaultZ3BulkRequesSupport);
+        return getBooleanProperty(BULK_REQUEST, DEFAULT_Z_3_BULK_REQUES_SUPPORT);
     }
 
     public DLMSReference getReference() {

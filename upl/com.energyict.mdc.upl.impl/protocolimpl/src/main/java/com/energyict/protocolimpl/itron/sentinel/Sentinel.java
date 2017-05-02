@@ -10,16 +10,16 @@
 
 package com.energyict.protocolimpl.itron.sentinel;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -178,24 +178,20 @@ public class Sentinel extends AbstractProtocol implements C12ProtocolLink, Seria
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        try {
-            setForcedDelay(Integer.parseInt(properties.getTypedProperty(PROP_FORCED_DELAY, "10").trim()));
-            setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "0"));
-            c12User = properties.getTypedProperty("C12User", "");
-            c12UserId = Integer.parseInt(properties.getTypedProperty("C12UserId", "0").trim());
-            maxNrPackets = Integer.parseInt(properties.getTypedProperty("MaxNrPackets", "1"), 16);
-            readLoadProfilesChunked = Boolean.parseBoolean(properties.getTypedProperty("ReadLoadProfilesChunked", "false"));
-            chunkSize = Integer.parseInt(properties.getTypedProperty("ChunkSize", "19"));
-            convertRegisterReadsToKiloUnits = Boolean.parseBoolean(properties.getTypedProperty("ConvertRegisterReadsToKiloUnits", "false"));
-            readDemandsAndCoincidents = Boolean.parseBoolean(properties.getTypedProperty("ReadDemandsAndCoincidents", "true"));
-            readTiers = Boolean.parseBoolean(properties.getTypedProperty("ReadTiers", "true"));
-            limitRegisterReadSize = Boolean.parseBoolean(properties.getTypedProperty("LimitRegisterReadSize", "false"));
-            reduceMaxNumberOfUomEntryBy = Integer.parseInt(properties.getTypedProperty("ReduceMaxNumberOfUomEntryBy", "0"));
-            this.controlToggleBitMode = Integer.parseInt(properties.getTypedProperty("FrameControlToggleBitMode", "1"));
-            this.eventChunkSize = Integer.parseInt(properties.getTypedProperty("EventChunkSize", "5"));
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
-        }
+        setForcedDelay(properties.getTypedProperty(PROP_FORCED_DELAY, 10));
+        setInfoTypeNodeAddress(properties.getTypedProperty(NODEID.getName(), "0"));
+        c12User = properties.getTypedProperty("C12User", "");
+        c12UserId = properties.getTypedProperty("C12UserId", 0);
+        maxNrPackets = properties.getTypedProperty("MaxNrPackets", 1);
+        readLoadProfilesChunked = Boolean.parseBoolean(properties.getTypedProperty("ReadLoadProfilesChunked", "false"));
+        chunkSize = properties.getTypedProperty("ChunkSize", 19);
+        convertRegisterReadsToKiloUnits = Boolean.parseBoolean(properties.getTypedProperty("ConvertRegisterReadsToKiloUnits", "false"));
+        readDemandsAndCoincidents = Boolean.parseBoolean(properties.getTypedProperty("ReadDemandsAndCoincidents", "true"));
+        readTiers = Boolean.parseBoolean(properties.getTypedProperty("ReadTiers", "true"));
+        limitRegisterReadSize = Boolean.parseBoolean(properties.getTypedProperty("LimitRegisterReadSize", "false"));
+        this.reduceMaxNumberOfUomEntryBy = properties.getTypedProperty("ReduceMaxNumberOfUomEntryBy", 0);
+        this.controlToggleBitMode = properties.getTypedProperty("FrameControlToggleBitMode", 1);
+        this.eventChunkSize = properties.getTypedProperty("EventChunkSize", 5);
     }
 
     @Override

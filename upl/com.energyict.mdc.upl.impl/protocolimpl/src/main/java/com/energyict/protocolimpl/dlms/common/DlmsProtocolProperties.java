@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.dlms.common;
 
 import com.energyict.mdc.upl.MeterProtocol;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.ConnectionMode;
@@ -14,8 +15,6 @@ import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
-
-import java.util.Properties;
 
 /**
  * Copyrights EnergyICT
@@ -55,39 +54,39 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String DEVICE_BUFFER_SIZE = "DeviceBufferSize";
     public static final String INCREMENT_FRAMECOUNTER_FOR_RETRIES = "IncrementFrameCounterForRetries";
 
-    public static final String DEFAULT_CONNECTION = ConnectionMode.TCPIP.getModeAsString();
+    public static final int DEFAULT_CONNECTION = ConnectionMode.TCPIP.getMode();
     public static final String DEFAULT_SECURITY_LEVEL = DEFAULT_AUTHENTICATION_SECURITY_LEVEL + ":" + DEFAULT_DATA_TRANSPORT_SECURITY_LEVEL;
-    public static final String DEFAULT_CLIENT_MAC_ADDRESS = "16";
+    public static final int DEFAULT_CLIENT_MAC_ADDRESS = 16;
     public static final String DEFAULT_SERVER_MAC_ADDRESS = "1";
-    public static final String DEFAULT_ADDRESSING_MODE = "2";
+    public static final int DEFAULT_ADDRESSING_MODE = 2;
     public static final String DEFAULT_MANUFACTURER = "WKP";
-    public static final String DEFAULT_INFORMATION_FIELD_SIZE = "-1";
-    public static final String DEFAULT_WAKE_UP = "0";
-    public static final String DEFAULT_IP_PORT_NUMBER = "4059";
-    public static final String DEFAULT_CIPHERING_TYPE = CipheringType.GLOBAL.getTypeString();
-    public static final String DEFAULT_NTA_SIMULATION_TOOL = "0";
-    public static final String DEFAULT_BULK_REQUEST = "0";
-    public static final String DEFAULT_CONFORMANCE_BLOCK_VALUE_LN = "" + ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK;
-    public static final String DEFAULT_CONFORMANCE_BLOCK_VALUE_SN = "" + ConformanceBlock.DEFAULT_SN_CONFORMANCE_BLOCK;
+    public static final int DEFAULT_INFORMATION_FIELD_SIZE = -1;
+    public static final boolean DEFAULT_WAKE_UP = false;
+    public static final int DEFAULT_IP_PORT_NUMBER = 4059;
+    public static final int DEFAULT_CIPHERING_TYPE = CipheringType.GLOBAL.getType();
+    public static final boolean DEFAULT_NTA_SIMULATION_TOOL = false;
+    public static final boolean DEFAULT_BULK_REQUEST = false;
+    public static final long DEFAULT_CONFORMANCE_BLOCK_VALUE_LN = ConformanceBlock.DEFAULT_LN_CONFORMANCE_BLOCK;
+    public static final long DEFAULT_CONFORMANCE_BLOCK_VALUE_SN = ConformanceBlock.DEFAULT_SN_CONFORMANCE_BLOCK;
     public static final String DEFAULT_SYSTEM_IDENTIFIER = "EICTCOMM";
-    public static final String DEFAULT_INVOKE_ID_AND_PRIORITY = "66"; // 0x41, 0b01000001 -> [invoke-id = 1, service_class = 1 (confirmed), priority = 0 (normal)]
-    public static final String DEFAULT_VALIDATE_INVOKE_ID = "0";
-    public static final String DEFAULT_MAX_REC_PDU_SIZE = "4096";
-    public static final String DEFAULT_PROPOSED_DLMS_VERSION = "6";
-    public static final String DEFAULT_PROPOSED_QOS = "-1";
-    public static final String DEFAULT_REQUEST_TIMEZONE = "0";
-    public static final String DEFAULT_ROUND_TRIP_CORRECTION = "0";
-    public static final String DEFAULT_ISKRA_WRAPPER = "1";
-    public static final String DEFAULT_DEVICE_BUFFER_SIZE = "-1";
-    public static final String DEFAULT_INCREMENT_FRAMECOUNTER_FOR_RETRIES = "1";
+    public static final int DEFAULT_INVOKE_ID_AND_PRIORITY = 66; // 0x41, 0b01000001 -> [invoke-id = 1, service_class = 1 (confirmed), priority = 0 (normal)]
+    public static final boolean DEFAULT_VALIDATE_INVOKE_ID = false;
+    public static final int DEFAULT_MAX_REC_PDU_SIZE = 4096;
+    public static final int DEFAULT_PROPOSED_DLMS_VERSION = 6;
+    public static final int DEFAULT_PROPOSED_QOS = -1;
+    public static final boolean DEFAULT_REQUEST_TIMEZONE = false;
+    public static final int DEFAULT_ROUND_TRIP_CORRECTION = 0;
+    public static final int DEFAULT_ISKRA_WRAPPER = 1;
+    public static final int DEFAULT_DEVICE_BUFFER_SIZE = -1;
+    public static final boolean DEFAULT_INCREMENT_FRAMECOUNTER_FOR_RETRIES = true;
 
     protected SecurityProvider securityProvider;
 
     public DlmsProtocolProperties() {
-        super(new Properties());
+        super();
     }
 
-    public DlmsProtocolProperties(Properties properties) {
+    public DlmsProtocolProperties(TypedProperties properties) {
         super(properties);
     }
 
@@ -111,6 +110,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
             try {
                 return Integer.parseInt(secLevel[0]);
             } catch (NumberFormatException e) {
+                return DEFAULT_AUTHENTICATION_SECURITY_LEVEL;
             }
         }
         return DEFAULT_AUTHENTICATION_SECURITY_LEVEL;
@@ -123,6 +123,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
             try {
                 return Integer.parseInt(secLevel[1]);
             } catch (NumberFormatException e) {
+                return DEFAULT_DATA_TRANSPORT_SECURITY_LEVEL;
             }
         }
         return DEFAULT_DATA_TRANSPORT_SECURITY_LEVEL;
@@ -145,6 +146,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
             try {
                 return Integer.parseInt(macAddress[0]);
             } catch (NumberFormatException e) {
+                return INVALID;
             }
         }
         return INVALID;
@@ -157,6 +159,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
             try {
                 return Integer.parseInt(macAddress[1]);
             } catch (NumberFormatException e) {
+                return DEFAULT_LOWER_HDLC_ADDRESS;
             }
         }
         return DEFAULT_LOWER_HDLC_ADDRESS;
@@ -169,6 +172,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
             try {
                 return Integer.parseInt(macAddress[0]);
             } catch (NumberFormatException e) {
+                return DEFAULT_DEST_WPDU_PORT;
             }
         }
         return DEFAULT_DEST_WPDU_PORT;

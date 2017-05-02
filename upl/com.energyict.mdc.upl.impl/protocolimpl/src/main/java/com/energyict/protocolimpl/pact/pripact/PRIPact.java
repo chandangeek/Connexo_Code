@@ -267,7 +267,7 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.PACT_ROUNDTRIPCORRECTION),
                 this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.PACT_SECURITYLEVEL),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.PACT_NODEID),
-                this.stringSpec("EchoCancelling", PropertyTranslationKeys.PACT_ECHOCANCELLING),
+                this.integerSpec("EchoCancelling", PropertyTranslationKeys.PACT_ECHOCANCELLING),
                 this.stringSpec("ChannelMap", PropertyTranslationKeys.PACT_CHANNEL_MAP),
                 this.stringSpec("HighKey", PropertyTranslationKeys.PACT_HIGH_KEY),
                 this.stringSpec("HighKeyRef", PropertyTranslationKeys.PACT_HIGH_KEY_REF),
@@ -297,48 +297,43 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
+        strID = properties.getTypedProperty(ADDRESS.getName());
+        strPassword = properties.getTypedProperty(PASSWORD.getName());
+        serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
+        protocolTimeout = properties.getTypedProperty(TIMEOUT.getName(), 30000);
+        maxRetries = properties.getTypedProperty(RETRIES.getName(), 10);
+        roundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
+        securityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), 2);
+        nodeId = properties.getTypedProperty(NODEID.getName(), "001");
+        echoCancelling = properties.getTypedProperty("EchoCancelling", 0);
         try {
-            strID = properties.getTypedProperty(ADDRESS.getName());
-            strPassword = properties.getTypedProperty(PASSWORD.getName());
-            serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
-            protocolTimeout = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "30000").trim());
-            maxRetries = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "10").trim());
-            roundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            securityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "2").trim());
-            nodeId = properties.getTypedProperty(NODEID.getName(), "001");
-            echoCancelling = Integer.parseInt(properties.getTypedProperty("EchoCancelling", "0").trim());
-            try {
-                channelMap = new ChannelMap(properties.getTypedProperty("ChannelMap"));
-            } catch (IOException e) {
-                throw new InvalidPropertyException(e, "PRIPremier, setProperties");
-            }
+            channelMap = new ChannelMap(properties.getTypedProperty("ChannelMap"));
+        } catch (IOException e) {
+            throw new InvalidPropertyException(e, "PRIPremier, setProperties");
+        }
 
-            highKey = properties.getTypedProperty("HighKey");
-            highKeyRef = properties.getTypedProperty("HighKeyRef");
-            lowKey = properties.getTypedProperty("LowKey");
+        highKey = properties.getTypedProperty("HighKey");
+        highKeyRef = properties.getTypedProperty("HighKeyRef");
+        lowKey = properties.getTypedProperty("LowKey");
 
-            pactMode = new PACTMode(
-                    Integer.parseInt(properties.getTypedProperty("PAKNET", "0")),
-                    Integer.parseInt(properties.getTypedProperty("PACTLAN", "0")));
-            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0"));
-            if (properties.getTypedProperty("RegisterTimeZone") == null) {
-                registerTimeZone = null;
-            } else {
-                registerTimeZone = TimeZone.getTimeZone(((String) properties.getTypedProperty("RegisterTimeZone")));
-            }
+        pactMode = new PACTMode(
+                properties.getTypedProperty("PAKNET", 0),
+                properties.getTypedProperty("PACTLAN", 0));
+        extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+        if (properties.getTypedProperty("RegisterTimeZone") == null) {
+            registerTimeZone = null;
+        } else {
+            registerTimeZone = TimeZone.getTimeZone(((String) properties.getTypedProperty("RegisterTimeZone")));
+        }
 
-            statusFlagChannel = Integer.parseInt(properties.getTypedProperty("StatusFlagChannel", "0"));
-            keyInfoRequired = Integer.parseInt(properties.getTypedProperty("KeyInfoRequired", "1"));
-            forcedRequestExtraDays = Integer.parseInt(properties.getTypedProperty("ForcedRequestExtraDays", "0"));
-            modulo = Integer.parseInt(properties.getTypedProperty("Modulo", "10000000"));
-            setMeterType(Integer.parseInt(properties.getTypedProperty("MeterType", "0")));
+        statusFlagChannel = properties.getTypedProperty("StatusFlagChannel", 0);
+        keyInfoRequired = properties.getTypedProperty("KeyInfoRequired", 1);
+        forcedRequestExtraDays = properties.getTypedProperty("ForcedRequestExtraDays", 0);
+        modulo = properties.getTypedProperty("Modulo", 10000000);
+        setMeterType(properties.getTypedProperty("MeterType", 0));
 
-            if (pactMode.isPAKNET()) {
-                channelMap.reverse();
-            }
-
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
+        if (pactMode.isPAKNET()) {
+            channelMap.reverse();
         }
     }
 

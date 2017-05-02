@@ -232,7 +232,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
                 new VariableBaseIntegerPropertySpec(USEMODEE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_USEMODEE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_USEMODEE_DESCRIPTION).format()),
                 new VariableBaseIntegerPropertySpec(RETRIEVEOFFSET, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_RETRIEVEOFFSET).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_RETRIEVEOFFSET_DESCRIPTION).format()),
                 UPLPropertySpecFactory.specBuilder(ARCHIVESTRUCTURE, false, PropertyTranslationKeys.DLMS_ARCHIVESTRUCTURE, this.propertySpecService::stringSpec).finish(),
-                new ObisCodePropertySpec(LOGSTRUCTURE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOGSTRUCTURE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOGSTRUCTURE_DESCRIPTION).format()),
+                UPLPropertySpecFactory.specBuilder(LOGSTRUCTURE, false, PropertyTranslationKeys.DLMS_LOGSTRUCTURE, this.propertySpecService::stringSpec).finish(),
                 new ObisCodePropertySpec(OC_INTERVALPROFILE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_OC_INTERVALPROFILE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_OC_INTERVALPROFILE_DESCRIPTION).format()),
                 new VariableBaseIntegerPropertySpec(MAXPDUSIZE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_MAX_PDU_SIZE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_MAX_PDU_SIZE_DESCRIPTION).format()));
     }
@@ -241,14 +241,14 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         try {
             strPassword = properties.getTypedProperty(PASSWORD.getName());
-            protocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
+            protocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 5);
             serialNumber = properties.getTypedProperty(Property.SERIALNUMBER.getName());
 
-            clientID = getPropertyAsInteger(properties.getTypedProperty(Dlms.CLIENTID));
-            serverAddress = getPropertyAsInteger(properties.getTypedProperty(Dlms.SERVERADDRESS, "5959"));
-            logicalDevice = getPropertyAsInteger(properties.getTypedProperty(Dlms.LOGICALDEVICE, "0"));
+            clientID = properties.getTypedProperty(Dlms.CLIENTID);
+            serverAddress = properties.getTypedProperty(Dlms.SERVERADDRESS, 5959);
+            logicalDevice = properties.getTypedProperty(Dlms.LOGICALDEVICE, 0);
 
-            timeout = getPropertyAsInteger(properties.getTypedProperty("Timeout", "-1"));
+            timeout = properties.getTypedProperty("Timeout", -1);
 
             String dsl = properties.getTypedProperty(Dlms.DLMSSECURITYLEVEL);
             securityData = new SecurityData(dsl);
@@ -259,10 +259,10 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
                 throw new InvalidPropertyException("Security data: " + msg);
             }
 
-            useModeE = getPropertyAsInteger(properties.getTypedProperty(Dlms.USEMODEE, "0")) == 1;
+            useModeE = properties.getTypedProperty(Dlms.USEMODEE, 0) == 1;
 
             // debugging tools...
-            retrieveOffset = getPropertyAsInteger(properties.getTypedProperty(Dlms.RETRIEVEOFFSET, "0"));
+            retrieveOffset = properties.getTypedProperty(Dlms.RETRIEVEOFFSET, 0);
 
             String archiveStructurePropertyValue = properties.getTypedProperty(Dlms.ARCHIVESTRUCTURE);
             if ((archiveStructurePropertyValue != null) && (!archiveStructurePropertyValue.isEmpty())) {
@@ -287,7 +287,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
                 throw new InvalidPropertyException(" validateProperties, no obis code for interval profile defined");
             }
 
-            clientMaxReceivePduSize = getPropertyAsInteger(properties.getTypedProperty(Dlms.MAXPDUSIZE, "0"));
+            clientMaxReceivePduSize = properties.getTypedProperty(Dlms.MAXPDUSIZE, 0);
 
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
@@ -531,15 +531,6 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
 
     @Override
     public void release() throws IOException {
-    }
-
-    private int getPropertyAsInteger(String value) {
-        int base = 10;
-        if (value.toUpperCase().startsWith("0X")) {
-            base = 16;
-            value = value.substring(2);
-        }
-        return Integer.parseInt(value, base);
     }
 
     /**

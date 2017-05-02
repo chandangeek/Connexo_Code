@@ -185,19 +185,19 @@ public abstract class SchlumbergerProtocol extends AbstractProtocol implements P
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        setForcedDelay(Integer.parseInt(properties.getTypedProperty(FORCED_DELAY,"0").trim()));
-        setInfoTypeSecurityLevel(Integer.parseInt(properties.getTypedProperty(SECURITY_LEVEL, "1").trim()));
+        setForcedDelay(properties.getTypedProperty(FORCED_DELAY, 0));
+        setInfoTypeSecurityLevel(properties.getTypedProperty(SECURITY_LEVEL, 1));
         setUnitType(properties.getTypedProperty(UNIT_TYPE));
         setUnitId(properties.getTypedProperty(UNIT_ID));
         setInfoTypeNodeAddress(properties.getTypedProperty(NODE_ADDRESS));
         setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "7000").trim()));
-        setDelayAfterConnect(Integer.parseInt(properties.getTypedProperty(DELAY_AFTER_CONNECT, "0").trim()));
-        setBlockSize(Integer.parseInt(properties.getTypedProperty(BLOCK_SIZE, "128").trim()));
-        setDaisyChain(Integer.parseInt(properties.getTypedProperty(DAISY_CHAIN, "0").trim()));
-        setAllowClockSet(Integer.parseInt(properties.getTypedProperty(ALLOW_CLOCK_SET,"0").trim()) == 1);
+        setDelayAfterConnect(properties.getTypedProperty(DELAY_AFTER_CONNECT, 0));
+        setBlockSize(properties.getTypedProperty(BLOCK_SIZE, 128));
+        setDaisyChain(properties.getTypedProperty(DAISY_CHAIN, 0));
+        setAllowClockSet(properties.getTypedProperty(ALLOW_CLOCK_SET, 0) == 1);
 
         setUnitIdMaster(properties.getTypedProperty(UNIT_ID_MASTER));
-        setSecurityLevelMaster(Integer.parseInt(properties.getTypedProperty(SECURITY_LEVEL_MASTER, "1")));
+        setSecurityLevelMaster(properties.getTypedProperty(SECURITY_LEVEL_MASTER, 1));
         setPasswordMaster(properties.getTypedProperty(PASSWORD_MASTER, ""));
     }
 

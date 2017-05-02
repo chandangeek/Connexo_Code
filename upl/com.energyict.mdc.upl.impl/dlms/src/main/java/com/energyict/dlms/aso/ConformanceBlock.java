@@ -28,7 +28,8 @@ public class ConformanceBlock{
 	 * - selective access is supported (bit21)
 	 * </pre>
 	 */
-	public static final long DEFAULT_LN_CONFORMANCE_BLOCK = 32287;
+	public static final long DEFAULT_LN_CONFORMANCE_BLOCK = 32287L;
+
 	/**
 	 * Default conformance block with ShortName referencing:
 	 * <pre>
@@ -39,7 +40,7 @@ public class ConformanceBlock{
 	 * - parameterized_access is supported (bit18)
 	 * </pre>
 	 */
-	public static long DEFAULT_SN_CONFORMANCE_BLOCK = 1835808;
+	public static final long DEFAULT_SN_CONFORMANCE_BLOCK = 1835808L;
 
 	/**
 	 * These bits can be used to set or clear a bit in the conformance block

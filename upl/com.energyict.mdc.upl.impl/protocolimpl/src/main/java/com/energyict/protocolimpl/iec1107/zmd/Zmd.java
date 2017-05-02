@@ -200,16 +200,16 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         try {
             strID = properties.getTypedProperty(ADDRESS.getName());
             strPassword = properties.getTypedProperty(PASSWORD.getName());
-            iIEC1107TimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "20000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "5").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            iSecurityLevel = Integer.parseInt(properties.getTypedProperty(SECURITYLEVEL.getName(), "1").trim());
+            iIEC1107TimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 20000);
+            iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 5);
+            iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
+            iSecurityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), 1);
             nodeId = properties.getTypedProperty(NODEID.getName(), "");
-            iEchoCancelling = Integer.parseInt(properties.getTypedProperty("EchoCancelling", "0").trim());
-            iIEC1107Compatible = Integer.parseInt(properties.getTypedProperty("IEC1107Compatible", "1").trim());
-            profileInterval = Integer.parseInt(properties.getTypedProperty(PROFILEINTERVAL.getName(), "3600").trim());
-            protocolChannelMap = new ProtocolChannelMap(properties.getTypedProperty("ChannelMap", "0,0,0,0"));
-            extendedLogging = Integer.parseInt(properties.getTypedProperty("ExtendedLogging", "0").trim());
+            iEchoCancelling = properties.getTypedProperty("EchoCancelling", 0);
+            iIEC1107Compatible = properties.getTypedProperty("IEC1107Compatible", 1);
+            profileInterval = properties.getTypedProperty(PROFILEINTERVAL.getName(), 3600);
+            protocolChannelMap = properties.getTypedProperty("ChannelMap", new ProtocolChannelMap("0,0,0,0"));
+            extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
             serialNumber = properties.getTypedProperty(SERIALNUMBER.getName());
             this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
         } catch (NumberFormatException e) {

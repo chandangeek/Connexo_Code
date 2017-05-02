@@ -52,10 +52,10 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
         setTimeZone(properties.getTypedProperty(LegacyProtocolProperties.DEVICE_TIMEZONE_PROPERTY_NAME, "UTC"));
-        setConnectionMode(Integer.parseInt(properties.getTypedProperty("Connection", "1").trim()));
-        setInfoTypePhysicalLayer(Integer.parseInt(properties.getTypedProperty("PhysicalLayer", "1").trim()));
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty("Timeout","10000").trim()));
-        setForcedDelay(Integer.parseInt(properties.getTypedProperty("ForcedDelay","30").trim()));
+        setConnectionMode(properties.getTypedProperty("Connection", 1));
+        setInfoTypePhysicalLayer(properties.getTypedProperty("PhysicalLayer", 1));
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getTypedProperty("Timeout", "10000").trim()));
+        setForcedDelay(properties.getTypedProperty("ForcedDelay", 30));
     }
 
     private void setTimeZone(String timeZone) {

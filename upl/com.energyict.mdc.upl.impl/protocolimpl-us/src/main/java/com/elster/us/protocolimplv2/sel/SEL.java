@@ -1,10 +1,5 @@
 package com.elster.us.protocolimplv2.sel;
 
-import com.elster.us.protocolimplv2.sel.frame.ResponseFrame;
-import com.elster.us.protocolimplv2.sel.frame.data.DeviceIDReadResponseData;
-import com.elster.us.protocolimplv2.sel.frame.data.SingleReadResponseData;
-import com.elster.us.protocolimplv2.sel.frame.data.TimeReadResponseData;
-import com.elster.us.protocolimplv2.sel.profiles.LoadProfileBuilder;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -38,6 +33,12 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
+import com.elster.us.protocolimplv2.sel.frame.ResponseFrame;
+import com.elster.us.protocolimplv2.sel.frame.data.DeviceIDReadResponseData;
+import com.elster.us.protocolimplv2.sel.frame.data.SingleReadResponseData;
+import com.elster.us.protocolimplv2.sel.frame.data.TimeReadResponseData;
+import com.elster.us.protocolimplv2.sel.profiles.LoadProfileBuilder;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
@@ -48,7 +49,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -96,23 +96,22 @@ public class SEL implements DeviceProtocol {
     }
 
     private TimeZone getTimeZone() {
-        if (getProperties().getTimezone() != null)
+        if (getProperties().getTimezone() != null) {
             return TimeZone.getTimeZone(getProperties().getTimezone());
-        else
+        } else {
             return null;
+        }
     }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         connection = new SELConnection((SerialPortComChannel) comChannel, getProperties(), logger, collectedDataFactory);
-
     }
 
     @Override
     public void terminate() {
         // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -196,12 +195,12 @@ public class SEL implements DeviceProtocol {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getProperties().getDeviceTimezone()));
         cal.setTime(d1);
         TimeZone tz = getTimeZone(); //Get the timezone that we are running in
-        if (tz != null)
+        if (tz != null) {
             cal.setTimeZone(tz);
-        else
+        } else {
             cal.setTimeZone(TimeZone.getDefault());
+        }
 
-        Date meterTime = cal.getTime();
         return cal.getTime();
     }
 
@@ -213,8 +212,7 @@ public class SEL implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(
-                new NoParamsDeviceProtocolDialect());
+        return Collections.<DeviceProtocolDialect>singletonList(new NoParamsDeviceProtocolDialect());
     }
 
     @Override

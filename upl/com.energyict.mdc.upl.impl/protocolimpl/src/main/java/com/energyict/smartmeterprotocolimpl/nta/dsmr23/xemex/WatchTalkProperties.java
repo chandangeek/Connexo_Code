@@ -1,9 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
@@ -22,8 +22,8 @@ public class WatchTalkProperties extends Dsmr23Properties {
     private static final String PROPERTY_IGNORE_DST_STATUS_CODE = "IgnoreDstStatusCode";
     private static final String PROPERTY_FORCED_TO_READ_CACHE = "ForcedToReadCache";
 
-    public static final String DEFAULT_VALIDATE_INVOKE_ID = "1";
-    private static final String DEFAULT_IGNORE_DST_STATUS_CODE = "1";
+    public static final boolean DEFAULT_VALIDATE_INVOKE_ID = true;
+    private static final boolean DEFAULT_IGNORE_DST_STATUS_CODE = true;
 
     public WatchTalkProperties(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -47,7 +47,7 @@ public class WatchTalkProperties extends Dsmr23Properties {
 
     @ProtocolProperty
     public boolean getForcedToReadCache() {
-        return getBooleanProperty(PROPERTY_FORCED_TO_READ_CACHE, "0");
+        return getBooleanProperty(PROPERTY_FORCED_TO_READ_CACHE, false);
     }
 
     protected boolean validateInvokeId() {

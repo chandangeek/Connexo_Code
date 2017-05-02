@@ -222,7 +222,7 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.IEC870_TIMEOUT),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.IEC870_RETRIES),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC870_ROUNDTRIPCORRECTION),
-                this.stringSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.IEC870_PROFILEINTERVAL),
+                this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.IEC870_PROFILEINTERVAL),
                 this.stringSpec("ChannelMap", PropertyTranslationKeys.IEC870_CHANNEL_MAP),
                 this.integerSpec("MeterType", PropertyTranslationKeys.IEC870_METER_TYPE),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC870_SERIALNUMBER),
@@ -247,12 +247,12 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
         try {
             strID = properties.getTypedProperty(ADDRESS.getName());
             strPassword = properties.getTypedProperty(PASSWORD.getName());
-            iIEC870TimeoutProperty = Integer.parseInt(properties.getTypedProperty(TIMEOUT.getName(), "25000").trim());
-            iProtocolRetriesProperty = Integer.parseInt(properties.getTypedProperty(RETRIES.getName(), "3").trim());
-            iRoundtripCorrection = Integer.parseInt(properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), "0").trim());
-            iProfileInterval = Integer.parseInt(properties.getTypedProperty(PROFILEINTERVAL.getName(), "3600").trim());
-            channelMap = new ChannelMap(properties.getTypedProperty("ChannelMap", ""));
-            iMeterType = Integer.parseInt(properties.getTypedProperty("MeterType", "0").trim());
+            iIEC870TimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 25000);
+            iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 3);
+            iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
+            iProfileInterval = properties.getTypedProperty(PROFILEINTERVAL.getName(), 3600);
+            channelMap = properties.getTypedProperty("ChannelMap", new ChannelMap(""));
+            iMeterType = properties.getTypedProperty("MeterType", 0);
         } catch (NumberFormatException | IOException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }

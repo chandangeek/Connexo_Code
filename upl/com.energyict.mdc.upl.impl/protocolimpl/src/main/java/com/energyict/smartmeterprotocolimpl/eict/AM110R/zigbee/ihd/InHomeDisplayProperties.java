@@ -29,7 +29,7 @@ public class InHomeDisplayProperties extends SmsWakeUpDlmsProtocolProperties {
     private static final String ZIGBEE_MAC = "ZigbeeMAC";
     private static final String ZIGBEE_PCLK = "ZigbeePCLK";
 
-    private static final String DEFAULT_IHD_CLIENT_MAC_ADDRESS = "64";
+    private static final int DEFAULT_IHD_CLIENT_MAC_ADDRESS = 64;
 
     /**
      * Uses the same logical device address as the HUB!!
