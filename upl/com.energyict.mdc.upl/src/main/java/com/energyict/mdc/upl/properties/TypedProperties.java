@@ -1,6 +1,5 @@
 package com.energyict.mdc.upl.properties;
 
-import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -193,10 +192,5 @@ public interface TypedProperties {
      * @return A flag that indicates if there is a value for the property
      */
     boolean isValueFor(Object value, String propertyName);
-
-    /**
-     * Return a list of all properties (inlcuding the inherited ones) in string format
-     */
-    Properties toStringProperties();
 
 }
