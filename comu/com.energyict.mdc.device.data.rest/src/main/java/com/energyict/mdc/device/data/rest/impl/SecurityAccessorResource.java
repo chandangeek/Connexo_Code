@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
@@ -84,6 +85,7 @@ public class SecurityAccessorResource {
     private final MdcPropertyUtils mdcPropertyUtils;
     private final DeviceService deviceService;
     private final TrustStoreValuesProvider trustStoreValuesProvider;
+    private final Thesaurus thesaurus;
 
     @Inject
     public SecurityAccessorResource(ResourceHelper resourceHelper,
@@ -91,7 +93,7 @@ public class SecurityAccessorResource {
                                     PkiService pkiService,
                                     Provider<KeyAccessorPlaceHolder> keyAccessorPlaceHolderProvider,
                                     ExceptionFactory exceptionFactory,
-                                    MdcPropertyUtils mdcPropertyUtils, DeviceService deviceService) {
+                                    MdcPropertyUtils mdcPropertyUtils, DeviceService deviceService, Thesaurus thesaurus) {
         this.securityAccessorInfoFactory = securityAccessorInfoFactory;
         this.resourceHelper = resourceHelper;
         this.pkiService = pkiService;
@@ -99,6 +101,7 @@ public class SecurityAccessorResource {
         this.exceptionFactory = exceptionFactory;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.deviceService = deviceService;
+        this.thesaurus = thesaurus;
         this.trustStoreValuesProvider =  new TrustStoreValuesProvider();
     }
 
@@ -389,7 +392,7 @@ public class SecurityAccessorResource {
                 keyAccessor.save();
             }
         } catch (ConstraintViolationException e) {
-            throw new PathPrependingConstraintViolationException(e, TEMP_PROPERTIES);
+            throw new PathPrependingConstraintViolationException(thesaurus, e, TEMP_PROPERTIES);
         } catch (LocalizedFieldValidationException e) {
             throw e.fromSubField(TEMP_PROPERTIES);
         }
@@ -403,7 +406,7 @@ public class SecurityAccessorResource {
                 keyAccessor.save();
             }
         } catch (ConstraintViolationException e) {
-            throw new PathPrependingConstraintViolationException(e, CURRENT_PROPERTIES);
+            throw new PathPrependingConstraintViolationException(thesaurus, e, CURRENT_PROPERTIES);
         } catch (LocalizedFieldValidationException e) {
             throw e.fromSubField(CURRENT_PROPERTIES);
         }
@@ -438,7 +441,7 @@ public class SecurityAccessorResource {
                 return createActualValueOnKeyAccessor(keyAccessor, properties, valueCreator);
             }
         } catch (ConstraintViolationException e) {
-            throw new PathPrependingConstraintViolationException(e, CURRENT_PROPERTIES);
+            throw new PathPrependingConstraintViolationException(thesaurus, e, CURRENT_PROPERTIES);
         } catch (LocalizedFieldValidationException e) {
             throw e.fromSubField(CURRENT_PROPERTIES);
         }
@@ -501,7 +504,7 @@ public class SecurityAccessorResource {
                 keyAccessor.save();
             }
         } catch (ConstraintViolationException e) {
-            throw new PathPrependingConstraintViolationException(e, TEMP_PROPERTIES);
+            throw new PathPrependingConstraintViolationException(thesaurus, e, TEMP_PROPERTIES);
         } catch (LocalizedFieldValidationException e) {
             throw e.fromSubField(TEMP_PROPERTIES);
         }
