@@ -82,6 +82,14 @@ public abstract class AbstractVDEWRegistry {
         return getRegister(name, register.isCached());
     }
 
+    public Object getRegister(String name, Object requestParameter) throws IOException {
+        try {
+            VDEWRegister register = findRegister(name);
+            return (register.parse(register.readRegister(requestParameter)));
+        } catch (FlagIEC1107ConnectionException e) {
+            throw new IOException("AbstractVDEWRegistry, getRegister, " + e.getMessage());
+        }
+    }
 
     public Object getRegister(String name, boolean cached) throws IOException {
         try {
