@@ -30,17 +30,6 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
     },
 
     initComponent: function () {
-        var me = this;
-
-        me.loadFilterStores(me.onFilterStoresLoad());
-        me.callParent(arguments);
-        me.bindStore(me.store || 'ext-empty-store', true);
-        me.on('beforedestroy', me.onBeforeDestroy, me);
-
-    },
-
-
-    onFilterStoresLoad: function () {
         var me = this,
             output = me.output,
             emptyComponent,
@@ -158,7 +147,7 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
                         options: [
                             {
                                 display: Uni.I18n.translate('purpose.summary.includeBulkValues', 'IMT', 'Include bulk values'),
-                                value: 'true',
+                                value: true,
                                 itemId: 'purpose-data-topfilter-bulk'
                             }
                         ]
@@ -191,6 +180,10 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
                 outputs: me.outputs
             }
         );
+
+        me.callParent(arguments);
+        me.bindStore(me.store || 'ext-empty-store', true);
+        me.on('beforedestroy', me.onBeforeDestroy, me);
     },
 
     getStoreListeners: function () {
@@ -198,26 +191,6 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
             beforeload: this.onBeforeLoad,
             load: this.onLoad
         };
-    },
-
-    loadFilterStores: function(callback){
-        var me = this,
-            _store,
-            storesCount = me.filterStores.length;
-        Ext.Array.each(me.filterStores, function(store){
-            _store = Ext.getStore(store);
-            _store.getProxy().extraParams = {
-                usagePointId: me.usagePoint.get('name'),
-                purposeId: me.purpose.getId()
-            };
-            _store.load(function(){
-                storesCount--;
-                if(!storesCount){
-                    callback && callback();
-                }
-            })
-        });
-
     },
 
     onBeforeLoad: function (store, operation, eOpts) {

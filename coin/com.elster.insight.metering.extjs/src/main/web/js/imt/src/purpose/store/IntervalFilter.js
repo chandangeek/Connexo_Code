@@ -10,7 +10,7 @@ Ext.define('Imt.purpose.store.IntervalFilter', {
         url: '/api/udr/usagepoints/{usagePointId}/purposes/{purposeId}/outputs/intervals',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'intervals'
         },
         pageParam: false,
         startParam: false,

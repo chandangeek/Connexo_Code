@@ -10,7 +10,7 @@ Ext.define('Imt.purpose.store.UnitFilter', {
         url: '/api/udr/usagepoints/{usagePointId}/purposes/{purposeId}/outputs/units',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'units'
         },
         pageParam: false,
         startParam: false,

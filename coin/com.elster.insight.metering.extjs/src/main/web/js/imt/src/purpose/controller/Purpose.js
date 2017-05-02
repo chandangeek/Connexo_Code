@@ -92,13 +92,15 @@ Ext.define('Imt.purpose.controller.Purpose', {
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
             periodsStore = me.getStore('Imt.usagepointmanagement.store.Periods'),
+            intervalsStore = me.getStore('Imt.purpose.store.IntervalFilter'),
+            unitsStore = me.getStore('Imt.purpose.store.UnitFilter'),
             purposesStore = me.getStore('Imt.usagepointmanagement.store.Purposes'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             extraParams = {
                 usagePointId: usagePointId,
                 purposeId: purposeId
             },
-            dependenciesCounter = 4,
+            dependenciesCounter = 6,
             defaultPeriod,
             usagePoint,
             outputs,
@@ -112,6 +114,16 @@ Ext.define('Imt.purpose.controller.Purpose', {
             me.getStore('Imt.purpose.store.ValidationTasks').getProxy().extraParams = extraParams;
             me.getStore('Imt.purpose.store.EstimationTasks').getProxy().extraParams = extraParams;
             me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(onDependenciesLoad);
+
+            intervalsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
+            intervalsStore.load(function (records) {
+                onDependenciesLoad();
+            });
+
+            unitsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
+            unitsStore.load(function (records) {
+                onDependenciesLoad();
+            });
 
             periodsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
             periodsStore.load(function (records) {
