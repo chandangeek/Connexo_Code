@@ -398,12 +398,13 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                 var propStore = me.deviceCertificateRecord.currentProperties(),
                     attrCount = propStore.getCount(),
                     propRecord = undefined,
-                    activeAliasCombo = undefined;
+                    activeAliasCombo = undefined,
+                    aliasesStore = undefined;
                 if (attrCount>0) {
                     for (var i=0; i<attrCount; i++) {
                         propRecord = propStore.getAt(i);
                         if (propRecord.raw.key === 'alias') {
-                            var aliasesStore = Ext.getStore('Mdc.securityaccessors.store.CertificateAliases') || Ext.create('Mdc.securityaccessors.store.CertificateAliases');
+                            aliasesStore = Ext.getStore('Mdc.securityaccessors.store.CertificateAliases') || Ext.create('Mdc.securityaccessors.store.CertificateAliases');
                             aliasesStore.getProxy().setUrl(propRecord.raw.propertyTypeInfo.propertyValuesResource.possibleValuesURI);
 
                             activeAliasCombo = {
@@ -434,12 +435,11 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                                     }
                                 }
                             };
-                            me.getEditActiveCertificateAttributesContainer().add(activeAliasCombo);
-
                         } else if (propRecord.raw.key === 'trustStore') {
-
+                            aliasesStore.getProxy().setExtraParam('trustStore', propRecord.raw.propertyValueInfo.value.id);
                         }
                     }
+                    me.getEditActiveCertificateAttributesContainer().add(activeAliasCombo);
                 }
 
                 propStore = me.deviceCertificateRecord.tempProperties();
