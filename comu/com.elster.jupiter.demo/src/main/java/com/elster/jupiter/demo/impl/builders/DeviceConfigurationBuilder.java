@@ -30,6 +30,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
     private boolean canActAsGateway = false;
     private boolean directlyAddressable = true;
     private boolean dataLoggerEnabled = false;
+    private boolean multiElementEnabled = false;
     private List<RegisterType> registerTypes;
     private List<LoadProfileType> loadProfileTypes;
     private List<LogBookType> logBookTypes;
@@ -64,6 +65,11 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
 
     public DeviceConfigurationBuilder withDataLoggerEnabled(boolean dataLoggerEnabled) {
         this.dataLoggerEnabled = dataLoggerEnabled;
+        return this;
+    }
+
+    public DeviceConfigurationBuilder withMultiElementEnabled(boolean multiElementEnabled) {
+        this.multiElementEnabled = multiElementEnabled;
         return this;
     }
 
@@ -108,6 +114,7 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         configBuilder.gatewayType(this.gatewayType);
         configBuilder.isDirectlyAddressable(directlyAddressable);
         configBuilder.dataloggerEnabled(dataLoggerEnabled);
+        configBuilder.multiElementEnabled(multiElementEnabled);
         configBuilder.validateOnStore(true);
         addRegisters(configBuilder);
         addLoadProfiles(configBuilder);

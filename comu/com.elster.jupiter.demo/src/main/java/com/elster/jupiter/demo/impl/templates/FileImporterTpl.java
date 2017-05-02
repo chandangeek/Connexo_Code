@@ -88,6 +88,11 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
         protected Map<String, Object> getImporterProperties() {
             return Collections.emptyMap();
         }
+
+        @Override
+        protected String pathMatcher() {
+            return "*.xml";
+        }
     };
 
     public static final String DATE_AND_TIME_PATTERN = "yyyy-MM-dd HH:mm";
@@ -123,7 +128,7 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
     public ImportScheduleBuilder get(ImportScheduleBuilder builder) {
         builder.withName(importerName)
                .withFileImporterFactoryName(factoryName)
-               .withPathMatcher(DEFAULT_PATH_MATCHER)
+               .withPathMatcher(this.pathMatcher())
                .withScheduleExpression(DEFAULT_SCHEDULED_EXPRESSION)
                .withImportDirectory(importBasePath.toString())
                .withInProcessDirectory(importBasePath.resolve(DEFAULT_PROCESSING_DIRECTORY).toString())
@@ -131,6 +136,10 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
                .withFailureDirectory(importBasePath.resolve(DEFAULT_FAILURE_DIRECTORY).toString())
                .withProperties(getImporterProperties());
         return builder;
+    }
+
+    protected String pathMatcher() {
+        return DEFAULT_PATH_MATCHER;
     }
 
     private static String defaultTimeZoneNotation() {
@@ -153,6 +162,5 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
                         }
                     };
     }
-
 
 }
