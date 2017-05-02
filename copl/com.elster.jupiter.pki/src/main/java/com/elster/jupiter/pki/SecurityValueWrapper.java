@@ -12,8 +12,8 @@ import java.util.Optional;
  */
 public interface SecurityValueWrapper extends HasDynamicPropertiesWithUpdatableValues {
     /**
-     * The expiration time is the {@link java.time.Instant) after which this entity expires.
-     * @return {@link java.time.Instant) after which this entity is no longer valid, or Optional.empty() if expiration
+     * The expiration time is the {@link java.time.Instant} after which this entity expires.
+     * @return {@link java.time.Instant} after which this entity is no longer valid, or Optional.empty() if expiration
      * is not applicable, e.g. if no key or certificate is present in the wrapper.
      */
     Optional<Instant> getExpirationTime();
