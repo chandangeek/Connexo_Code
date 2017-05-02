@@ -11,13 +11,12 @@ Ext.define('Uni.form.field.EditedDisplay', {
     name: 'editedDate',
     emptyText: '',
 
-    renderer: function (value) {
+    renderer: function (value, cell, record) {
         var result,
             date,
             formattedDate,
             iconClass,
-            tooltipText,
-            app = value && value.app ? value.app.name : undefined;
+            tooltipText;
 
         if (value) {
             date = Ext.isDate(value.date) ? value.date : new Date(value.date);
@@ -27,32 +26,59 @@ Ext.define('Uni.form.field.EditedDisplay', {
             switch (value.flag) {
                 case 'ADDED':
                     iconClass = 'icon-pencil4';
-                    tooltipText = app
-                        ? Uni.I18n.translate('general.addedOnXApp', 'UNI', 'Added in {0} on {1}', [app, formattedDate])
+                    tooltipText = value.date === null
+                        ? Uni.I18n.translate('general.addedOnXx', 'UNI', 'Added')
                         : Uni.I18n.translate('general.addedOnX', 'UNI', 'Added on {0}', formattedDate);
                     break;
                 case 'EDITED':
                     iconClass = 'icon-pencil4';
-                    tooltipText = app
-                        ? Uni.I18n.translate('general.editedOnXApp', 'UNI', 'Edited in {0} on {1}', [app, formattedDate])
+                    tooltipText = value.date === null
+                        ? Uni.I18n.translate('general.editedOnXx', 'UNI', 'Edited')
                         : Uni.I18n.translate('general.editedOnX', 'UNI', 'Edited on {0}', formattedDate);
+                    if (record) {
+                        tooltipText += record.get('commentValue')
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
+                            : cell.column.dataIndex === 'mainModificationState' && record.get('mainValidationInfo') && record.get('mainValidationInfo').commentValue
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('mainValidationInfo').commentValue)
+                            : cell.column.dataIndex === 'bulkModificationState' && record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentValue
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('bulkValidationInfo').commentValue)
+                            : '';
+                    }
                     break;
                 case 'ESTIMATED':
                     iconClass = 'icon-pencil4';
-                    tooltipText = app
-                        ? Uni.I18n.translate('general.estimatedOnXApp', 'UNI', 'Estimated in {0} on {1}', [app, formattedDate])
+                    tooltipText = value.date === null
+                        ? Uni.I18n.translate('general.estimatedOnXx', 'UNI', 'Estimated')
                         : Uni.I18n.translate('general.estimatedOnX', 'UNI', 'Estimated on {0}', formattedDate);
+                    if (record) {
+                        tooltipText += record.get('commentValue')
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
+                            : cell.column.dataIndex === 'mainModificationState' && record.get('mainValidationInfo') && record.get('mainValidationInfo').commentValue
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('mainValidationInfo').commentValue)
+                            : cell.column.dataIndex === 'bulkModificationState' && record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentValue
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('bulkValidationInfo').commentValue)
+                            : '';
+                    }
                     break;
                 case 'REMOVED':
                     iconClass = 'icon-cancel-circle';
-                    tooltipText = app
-                        ? Uni.I18n.translate('general.removedOnXApp', 'UNI', 'Removed in {0} on {1}', [app, formattedDate])
+                    tooltipText = value.date === null
+                        ? Uni.I18n.translate('general.removedOnXx', 'UNI', 'Removed')
                         : Uni.I18n.translate('general.removedOnX', 'UNI', 'Removed on {0}', formattedDate);
+                    if (record) {
+                        tooltipText += record.get('commentValue')
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('commentValue'))
+                            : cell.column.dataIndex === 'mainModificationState' && record.get('mainValidationInfo') && record.get('mainValidationInfo').commentValue
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('mainValidationInfo').commentValue)
+                            : cell.column.dataIndex === 'bulkModificationState' && record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentValue
+                            ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'UNI', 'Estimation comment: {0}', record.get('bulkValidationInfo').commentValue)
+                            : '';
+                    }
                     break;
                 case 'RESET':
                     iconClass = 'icon-cancel-circle';
-                    tooltipText = app
-                        ? Uni.I18n.translate('general.restoredOnXApp', 'UNI', 'Restored in {0} on {1}', [app, formattedDate])
+                    tooltipText = value.date === null
+                        ? Uni.I18n.translate('general.restoredOnXx', 'UNI', 'Restored')
                         : Uni.I18n.translate('general.restoredOnX', 'UNI', 'Restored on {0}', formattedDate);
                     break;
             }
