@@ -20,6 +20,8 @@ public interface DeviceBuilderForTesting {
     DeviceBuilderForTesting deviceTypeName(String deviceTypeName);
     DeviceBuilderForTesting deviceConfigName(String deviceConfigName);
     DeviceBuilderForTesting dataLoggerEnabled(boolean enabled);
+    DeviceBuilderForTesting multiElementEnabled(boolean enabled);
     DeviceBuilderForTesting dataLoggerSlaveDevice();
+    DeviceBuilderForTesting multiElementSlaveDevice();
     Device create(Instant when);
 }
