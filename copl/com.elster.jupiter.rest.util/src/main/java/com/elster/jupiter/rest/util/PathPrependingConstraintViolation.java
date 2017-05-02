@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.rest.util;
 
+import com.elster.jupiter.nls.Thesaurus;
+
 import com.google.common.base.Joiner;
 
 import javax.validation.ConstraintViolation;
@@ -16,10 +18,12 @@ import java.util.ArrayList;
  * This class wraps the original ConstrainViolation with one purpose: prepend a value to the propertyPath
  **/
 class PathPrependingConstraintViolation<T> implements ConstraintViolation<T> {
+    private final Thesaurus thesaurus;
     private final ConstraintViolation<T> violation;
     private final Path rewrittenPath;
 
-    public PathPrependingConstraintViolation(ConstraintViolation<T> violation, String ... node) {
+    public PathPrependingConstraintViolation(Thesaurus thesaurus, ConstraintViolation<T> violation, String ... node) {
+        this.thesaurus = thesaurus;
         this.violation = violation;
 
         RewrittenPath nodes = new RewrittenPath();
@@ -71,12 +75,11 @@ class PathPrependingConstraintViolation<T> implements ConstraintViolation<T> {
         public String toString() {
             return Joiner.on(".").join(this);
         }
-
     }
 
     @Override
     public String getMessage() {
-        return violation.getMessage();
+        return thesaurus.getString(violation.getMessage(),violation.getMessage()); // why does this need explicit translation?
     }
 
     @Override
