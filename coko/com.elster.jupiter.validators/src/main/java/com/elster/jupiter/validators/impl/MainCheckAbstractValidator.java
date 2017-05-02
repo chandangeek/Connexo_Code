@@ -250,7 +250,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
         Optional<ChannelsContainer> channelsContainerWithCheckChannel = effectiveMC.getChannelsContainer(metrologyContract
                 .get());
         if (channelsContainerWithCheckChannel.isPresent()) {
-            Optional<Channel> checkChannel = channelsContainerWithCheckChannel.get().getChannel(readingType);
+            Optional<Channel> checkChannel = channelsContainerWithCheckChannel.get().getChannel(referenceReadingType);
             if (checkChannel.isPresent()) {
                 checkOutputExistOnPurpose = true;
                 // 3. prepare map of interval readings from check channel

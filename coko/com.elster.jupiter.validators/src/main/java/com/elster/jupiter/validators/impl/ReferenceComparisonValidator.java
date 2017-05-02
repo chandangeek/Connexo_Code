@@ -210,8 +210,8 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
     protected ComparingValues calculateComparingValues(IntervalReadingRecord mainReading, IntervalReadingRecord checkReading) {
         BigDecimal mainValue = mainReading.getValue();
         BigDecimal referenceValue = checkReading.getValue()
-                .scaleByPowerOfTen(checkReading.getReadingType().getMultiplier().getMultiplier())
-                .scaleByPowerOfTen(-mainReading.getReadingType().getMultiplier().getMultiplier());
+                .scaleByPowerOfTen(mainReading.getReadingType().getMultiplier().getMultiplier())
+                .scaleByPowerOfTen(-checkReading.getReadingType().getMultiplier().getMultiplier());
         return new ComparingValues(mainValue, referenceValue);
     }
 

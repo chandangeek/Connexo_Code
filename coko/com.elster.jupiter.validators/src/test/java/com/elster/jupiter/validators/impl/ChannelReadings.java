@@ -6,6 +6,7 @@ package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 
 import com.google.common.collect.Range;
 
@@ -44,5 +45,8 @@ class ChannelReadings {
         return channel;
     }
 
+    void applyReadingType(ReadingType readingType){
+        readings.forEach(r -> when(r.getReadingType()).thenReturn(readingType));
+    }
 }
 

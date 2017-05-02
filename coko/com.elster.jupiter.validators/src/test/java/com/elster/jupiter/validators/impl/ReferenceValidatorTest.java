@@ -31,6 +31,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
+import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 
 import com.google.common.collect.ImmutableMap;
@@ -68,6 +69,8 @@ abstract public class ReferenceValidatorTest {
 
     @Mock
     ReadingType VALIDATING_READING_TYPE, REFERENCE_READING_TYPE_COMPARABLE, REFERENCE_READING_TYPE_NOT_COMPARABLE;
+
+    BigDecimal COMPARABLE_READING_TYPE_MULTIPIER = BigDecimal.valueOf(0.001D);
 
     @Before
     public void mockBefore() {
@@ -266,7 +269,15 @@ abstract public class ReferenceValidatorTest {
             when(validatingChannel.getChannelsContainer()).thenReturn(validatingChannelsContainer);
             when(validatingChannelsContainer.getUsagePoint()).thenReturn(Optional.of(VALIDATING_USAGE_POINT));
 
+            validationService = mock(ValidationService.class);
+            ValidationEvaluator validationEvaluator = referenceChannelReadings.mockEvaluator();
+            when(validationService.getEvaluator()).thenReturn(validationEvaluator);
+
             if (rule.referenceUsagePoint != null) {
+
+                validatingChannelReadings.applyReadingType(rule.validatingReadingType);
+                referenceChannelReadings.applyReadingType(rule.referenceReadingType.getReadingType());
+
                 UsagePoint referenceUsagePoint = rule.referenceUsagePoint.getUsagePoint();
 
                 MetrologyContract referenceMetrologyContract = mock(MetrologyContract.class);
@@ -276,6 +287,17 @@ abstract public class ReferenceValidatorTest {
                 EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnReferenceUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
                 when(referenceUsagePoint.getEffectiveMetrologyConfigurations(range)).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnReferenceUsagePoint));
                 when(effectiveMetrologyConfigurationOnReferenceUsagePoint.getMetrologyConfiguration()).thenReturn(referenceMetrologyConfiguration);
+
+                MetrologyContractChannelsContainer referenceChannelsContainer = mock(MetrologyContractChannelsContainer.class);
+
+                Channel referenceChannel = referenceChannelReadings.mockChannel(range);
+                when(referenceChannel.getChannelsContainer()).thenReturn(referenceChannelsContainer);
+                when(effectiveMetrologyConfigurationOnReferenceUsagePoint.getChannelsContainer(referenceMetrologyContract))
+                        .thenReturn(Optional
+                                .of(referenceChannelsContainer));
+                when(referenceChannelsContainer.getChannel(rule.referenceReadingType.getReadingType())).thenReturn(rule.noCheckChannel ? Optional
+                        .empty() : Optional.of(referenceChannel));
+
             }
         }
     }

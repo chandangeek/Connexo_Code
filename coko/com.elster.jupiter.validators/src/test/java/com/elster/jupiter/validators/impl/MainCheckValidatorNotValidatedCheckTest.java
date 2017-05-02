@@ -45,14 +45,14 @@ public class MainCheckValidatorNotValidatedCheckTest extends MainCheckValidatorT
                 .withNoMinThreshold());
     }
 
-    private void validateWithIdenticalReadings(ValidatorRule rule){
+    private void validateWithIdenticalReadings(ValidatorRule rule) {
         ChannelReadings mainChannelReadings = new ChannelReadings(3);
         mainChannelReadings.setReadingValue(0, BIG_DECIMAL_10, INSTANT_2016_FEB_01);
         mainChannelReadings.setReadingValue(1, BIG_DECIMAL_20, INSTANT_2016_FEB_02);
         mainChannelReadings.setReadingValue(2, BIG_DECIMAL_30, INSTANT_2016_FEB_03);
 
         ValidatedChannelReadings checkReadings = new ValidatedChannelReadings(3);
-        checkReadings.setReadingValue(0, BIG_DECIMAL_10, INSTANT_2016_FEB_01,ValidationResult.SUSPECT);
+        checkReadings.setReadingValue(0, BIG_DECIMAL_10, INSTANT_2016_FEB_01, ValidationResult.SUSPECT);
         checkReadings.setReadingValue(1, BIG_DECIMAL_20, INSTANT_2016_FEB_02);
         checkReadings.setReadingValue(2, BIG_DECIMAL_30, INSTANT_2016_FEB_03);
 
