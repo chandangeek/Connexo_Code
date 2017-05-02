@@ -148,6 +148,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.issue.datacollection</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pki</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
