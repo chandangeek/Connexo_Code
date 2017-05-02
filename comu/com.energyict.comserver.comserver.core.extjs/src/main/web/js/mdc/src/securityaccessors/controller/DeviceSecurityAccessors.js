@@ -399,7 +399,11 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                     attrCount = propStore.getCount(),
                     propRecord = undefined,
                     activeAliasCombo = undefined,
-                    aliasesStore = undefined;
+                    aliasesStore = undefined,
+                    trustStoreField = undefined,
+                    trustStoreId = undefined,
+                    trustStoreName = undefined;
+
                 if (attrCount>0) {
                     for (var i=0; i<attrCount; i++) {
                         propRecord = propStore.getAt(i);
@@ -437,9 +441,19 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                             };
                         } else if (propRecord.raw.key === 'trustStore') {
                             aliasesStore.getProxy().setExtraParam('trustStore', propRecord.raw.propertyValueInfo.value.id);
+                            trustStoreField = {
+                                xtype: 'displayfield',
+                                fieldLabel: propRecord.raw.name,
+                                value: propRecord.raw.propertyValueInfo.value ? propRecord.raw.propertyValueInfo.value.name : '-'
+                            };
+                            trustStoreId = propRecord.raw.propertyValueInfo.value ? propRecord.raw.propertyValueInfo.value.id : undefined;
+                            trustStoreName = propRecord.raw.propertyValueInfo.value ? propRecord.raw.propertyValueInfo.value.name : undefined;
                         }
                     }
                     me.getEditActiveCertificateAttributesContainer().add(activeAliasCombo);
+                    if (trustStoreField) {
+                        me.getEditActiveCertificateAttributesContainer().add(trustStoreField);
+                    }
                 }
 
                 propStore = me.deviceCertificateRecord.tempProperties();
@@ -481,7 +495,20 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                                 }
                             });
                         } else if (propRecord.raw.key === 'trustStore') {
-
+                            if (trustStoreId && trustStoreName) {
+                                if (!propRecord.raw.propertyValueInfo.value) {
+                                    propRecord.raw.propertyValueInfo.value = {};
+                                }
+                                if (propRecord.raw.propertyValueInfo.value) {
+                                    propRecord.raw.propertyValueInfo.value.id = trustStoreId;
+                                    propRecord.raw.propertyValueInfo.value.name = trustStoreName;
+                                }
+                            }
+                            me.getEditPassiveCertificateAttributesContainer().add({
+                                xtype: 'displayfield',
+                                fieldLabel: propRecord.raw.name,
+                                value: propRecord.raw.propertyValueInfo.value ? propRecord.raw.propertyValueInfo.value.name : '-'
+                            });
                         }
                     }
                 }
@@ -607,15 +634,15 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                         var parts = error.id.split('.');
                         if (parts[0] === 'currentProperties') {
                             me.deviceCertificateRecord.currentProperties().each(function (property) {
-                                if (parts[1] === property.get('key')) {
-                                    activePropsForm.down('[fieldLabel=' + property.name + ']').markInvalid(error.msg);
+                                if (parts[1] === 'alias') {
+                                    activeAliasCombo.markInvalid(error.msg);
                                     return false;
                                 }
                             });
                         } else if (parts[0] === 'tempProperties') {
                             me.deviceCertificateRecord.tempProperties().each(function (property) {
-                                if (parts[1] === property.get('key')) {
-                                    passivePropsForm.down('[fieldLabel='+property.name+']').markInvalid(error.msg);
+                                if (parts[1] === 'alias') {
+                                    passiveAliasCombo.markInvalid(error.msg);
                                     return false;
                                 }
                             });
