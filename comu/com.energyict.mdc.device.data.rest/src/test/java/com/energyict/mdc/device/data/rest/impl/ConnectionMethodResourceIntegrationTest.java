@@ -264,7 +264,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
                     addProperty("ipAddress", IP_ADDRESS_FROM_PARTIAL).
                     addProperty("port", PORT_FROM_PARTIAL).
                     build();
-            deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(deviceConfiguration::createDeviceMessageEnablement);
+            deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::from).forEach(deviceConfiguration::createDeviceMessageEnablement);
             deviceConfiguration.activate();
             whirlpool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool("Whirlpool", ComPortType.TCP, TimeDuration.minutes(1));
             resetClock();
