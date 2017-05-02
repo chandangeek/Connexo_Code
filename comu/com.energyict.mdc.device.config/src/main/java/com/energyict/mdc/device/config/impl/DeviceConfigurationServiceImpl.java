@@ -32,7 +32,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
@@ -92,7 +91,6 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
-import com.github.oxo42.stateless4j.delegates.Func;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multiset;
@@ -956,7 +954,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         Set<ProtocolSupportedCalendarOptions> protocolSupportedCalendarOptions = deviceType.getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(DeviceMessageSpec::getId)
-                        .map(DeviceMessageId::havingId)
+                        .map(DeviceMessageId::from)
                         .collect(Collectors.toList()))
                 .orElse(Collections.<DeviceMessageId>emptyList())
                 .stream()
