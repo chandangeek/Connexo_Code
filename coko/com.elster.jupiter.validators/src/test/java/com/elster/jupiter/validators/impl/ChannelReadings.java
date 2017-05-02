@@ -26,7 +26,7 @@ class ChannelReadings {
     List<IntervalReadingRecord> readings = new ArrayList<>();
 
     ChannelReadings(int readingsCount) {
-        IntStream.rangeClosed(1,readingsCount).forEach(c -> readings.add(null));
+        IntStream.rangeClosed(1, readingsCount).forEach(c -> readings.add(null));
     }
 
     void setReadingValue(int index, BigDecimal value, Instant readingTime) {
@@ -45,8 +45,12 @@ class ChannelReadings {
         return channel;
     }
 
-    void applyReadingType(ReadingType readingType){
-        readings.forEach(r -> when(r.getReadingType()).thenReturn(readingType));
+    void applyReadingType(ReadingType readingType) {
+        readings.forEach(r -> {
+            if (r != null) {
+                when(r.getReadingType()).thenReturn(readingType);
+            }
+        });
     }
 }
 

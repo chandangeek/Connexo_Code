@@ -68,6 +68,34 @@ public class ReferenceValidatorMiscTest extends ReferenceValidatorTest {
                 .withNoMinThreshold(),"WARNING: Failed to validate period \"Mon, 1 Feb 2016 12:00 AM until Fri, 5 Feb 2016 12:00 AM\" using method \"Reference comparison\" on Validating usage point/Purpose 1/[Daily] Secondary Delta A+ (kWh) since the specified purpose/reading type doesnt exist on the Reference usage point");
     }
 
+    @Test
+    public void testChannelWithMissingDataPass() {
+        validateWithReadings(new ReferenceValidatorRule()
+                .withCheckPurpose(VALIDATING_PURPOSE)
+                .withReferencePurpose(REFERENCE_PURPOSE)
+                .withValidatingReadingType(VALIDATING_READING_TYPE)
+                .withReferenceReadingType(VALIDATING_READING_TYPE)
+                .withReferenceUsagePoint(REFERENCE_USAGE_POINT)
+                .withValuedDifference(BIG_DECIMAL_100)
+                .passIfNoRefData(false)
+                .useValidatedData(false)
+                .withNoMinThreshold(), "WARNING: Failed to validate period \"Mon, 1 Feb 2016 12:00 AM until Fri, 5 Feb 2016 12:00 AM\" using method \"Reference comparison\" on Validating usage point/Purpose 1/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
+    }
+
+    @Test
+    public void testChannelWithMissingDataNotPass() {
+        validateWithReadings(new ReferenceValidatorRule()
+                .withCheckPurpose(VALIDATING_PURPOSE)
+                .withReferencePurpose(REFERENCE_PURPOSE)
+                .withValidatingReadingType(VALIDATING_READING_TYPE)
+                .withReferenceReadingType(VALIDATING_READING_TYPE)
+                .withReferenceUsagePoint(REFERENCE_USAGE_POINT)
+                .withValuedDifference(BIG_DECIMAL_100)
+                .passIfNoRefData(true)
+                .useValidatedData(false)
+                .withNoMinThreshold(), "WARNING: Failed to validate period \"Mon, 1 Feb 2016 12:00 AM until Fri, 5 Feb 2016 12:00 AM\" using method \"Reference comparison\" on Validating usage point/Purpose 1/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
+    }
+
     private void mockLogger(ReferenceComparisonValidator validator) {
         logs = new StringBuffer();
         doAnswer(invocationOnMock -> {
@@ -89,7 +117,11 @@ public class ReferenceValidatorMiscTest extends ReferenceValidatorTest {
         return validator;
     }
 
-    private void validateWithReadings(ReferenceValidatorRule rule, String warning) {
+    private void validateWithReadings(ReferenceValidatorRule rule, String warning){
+        validateWithReadings(rule,warning,false);
+    }
+
+    private void validateWithReadings(ReferenceValidatorRule rule, String warning, boolean missingData) {
         ChannelReadings validatingChannelReadings = new ChannelReadings(3);
         validatingChannelReadings.setReadingValue(0, BIG_DECIMAL_10, INSTANT_2016_FEB_01);
         validatingChannelReadings.setReadingValue(1, BIG_DECIMAL_20, INSTANT_2016_FEB_02);
@@ -97,13 +129,15 @@ public class ReferenceValidatorMiscTest extends ReferenceValidatorTest {
 
         ValidatedChannelReadings referenceReadings = new ValidatedChannelReadings(3);
         referenceReadings.setReadingValue(0, BIG_DECIMAL_10, INSTANT_2016_FEB_01);
-        referenceReadings.setReadingValue(1, BIG_DECIMAL_20, INSTANT_2016_FEB_02);
+        if (!missingData) {
+            referenceReadings.setReadingValue(1, BIG_DECIMAL_20, INSTANT_2016_FEB_02);
+        }
         referenceReadings.setReadingValue(2, BIG_DECIMAL_30, INSTANT_2016_FEB_03);
 
         ValidationConfiguration validationConfiguration = new ValidationConfiguration(rule, validatingChannelReadings, referenceReadings);
         ReferenceComparisonValidator validator = initValidator(validationConfiguration);
         assertThat(validationConfiguration.validatingChannelReadings.readings.size()).isEqualTo(3);
-        long validReadingsCount = 3l;
+        long validReadingsCount = missingData?(rule.passIfNoData?0L:2L):3l;
         assertThat(validationConfiguration.validatingChannelReadings.readings.stream()
                 .map(validator::validate)
                 .filter((c -> c.equals(ValidationResult.NOT_VALIDATED))).count()).isEqualTo(validReadingsCount);

@@ -296,6 +296,12 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
                                         props.readingType.getFullAliasName(),
                                         validatingUsagePointName));
                 break;
+            case REFERENCE_OUPUT_MISSING_OR_NOT_VALID:
+                LoggingContext.get()
+                        .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID)
+                                .format(rangeToString(failedValidatonInterval), getDisplayName(), validatingUsagePointName, validatingPurpose
+                                        .getName(), props.readingType.getFullAliasName()));
+                break;
         }
     }
 }
