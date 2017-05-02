@@ -69,7 +69,6 @@ import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
@@ -122,7 +121,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -146,9 +144,6 @@ public class DataCollectionKpiImplTest {
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
     @Rule
     public TestRule transactionalRule = new TransactionalRule(transactionService);
-
-    @Mock
-    private static SecurityPropertyService securityPropertyService;
 
     private static LicenseService licenseService;
     private static TransactionService transactionService;

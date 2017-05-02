@@ -53,7 +53,6 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CustomPropertySetsTran
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
@@ -136,7 +135,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile SchedulingService schedulingService;
     private volatile TaskService mdcTaskService;
-    private volatile SecurityPropertyService securityPropertyService;
     private volatile QueryService queryService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
@@ -180,7 +178,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             EngineConfigurationService engineConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DeviceConfigurationService deviceConfigurationService,
             MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
             SchedulingService schedulingService, MessageService messageService,
-            SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
+            UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
             TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService,
             UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService,
@@ -206,7 +204,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setSchedulingService(schedulingService);
         setMdcTaskService(mdcTaskService);
         setMessagingService(messageService);
-        setSecurityPropertyService(securityPropertyService);
         setUserService(userService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setMeteringGroupsService(meteringGroupsService);
@@ -398,11 +395,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     }
 
     @Reference
-    public void setSecurityPropertyService(SecurityPropertyService securityPropertyService) {
-        this.securityPropertyService = securityPropertyService;
-    }
-
-    @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
@@ -538,7 +530,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             public void configure() {
                 bind(DeviceDataModelService.class).toInstance(DeviceDataModelServiceImpl.this);
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
-                bind(SecurityPropertyService.class).toInstance(securityPropertyService);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);

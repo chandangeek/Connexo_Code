@@ -34,7 +34,6 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
@@ -51,7 +50,6 @@ import com.energyict.mdc.protocol.api.device.data.CollectedCalendarInformation;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import aQute.bnd.annotation.ProviderType;
@@ -180,53 +178,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     void setProtocolProperty(String name, Object value);
 
     void removeProtocolProperty(String name);
-
-    /**
-     * Indicates if there are properties for the device and the specified {@link SecurityPropertySet}.
-     *
-     * @param securityPropertySet The SecurityPropertySet
-     * @return A flag that indicates if this Device has properties for the SecurityPropertySet
-     */
-    boolean hasSecurityProperties(SecurityPropertySet securityPropertySet);
-
-    /**
-     * Tests if all the security properties that are define in the configuration level
-     * are valid for this specified Device.
-     * Security properties for a SecurityPropertySet can be invalid for the following reasons:
-     * <ul>
-     * <li>No properties have been defined</li>
-     * <li>Some or all of the required properties have not been specified yet</li>
-     * </ul>
-     *
-     * @return A flag that indicates if all security properties are valid for this Device
-     * @see DeviceConfiguration#getSecurityPropertySets()
-     * @see SecurityProperty#isComplete()
-     */
-    boolean securityPropertiesAreValid();
-
-    /**
-     * Tests if the properties of the specified {@link SecurityPropertySet}
-     * are complete for this Device.
-     * Security properties for a SecurityPropertySet can be invalid for the following reasons:
-     * <ul>
-     * <li>No properties have been defined</li>
-     * <li>Some or all of the required properties have not been specified yet</li>
-     * </ul>
-     *
-     * @param securityPropertySet The SecurityPropertySet
-     * @return A flag that indicates if all security properties are valid for this Device
-     * @see DeviceConfiguration#getSecurityPropertySets()
-     * @see SecurityProperty#isComplete()
-     */
-    boolean securityPropertiesAreValid(SecurityPropertySet securityPropertySet);
-
-    List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
-
-    /**
-     * Note that this setter does not yet persist the given security properties.
-     * This is done in the save method of this device.
-     */
-    void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties);
 
     List<ProtocolDialectProperties> getProtocolDialectPropertiesList();
 

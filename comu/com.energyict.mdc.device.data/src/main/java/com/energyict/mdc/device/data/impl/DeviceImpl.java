@@ -98,7 +98,6 @@ import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
@@ -131,18 +130,14 @@ import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationProp
 import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
 import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
-import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
-import com.energyict.mdc.device.data.impl.constraintvalidators.ValidSecurityProperties;
 import com.energyict.mdc.device.data.impl.pki.CertificateAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.PassphraseAccessorImpl;
 import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.security.ServerDeviceForValidation;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForActivation;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForInfo;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForMultiplierChange;
@@ -172,7 +167,6 @@ import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
@@ -244,9 +238,8 @@ import static java.util.stream.Collectors.toList;
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_NAME + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}")
 @DeviceImpl.HasValidShipmentDate(groups = {Save.Create.class})
-@ValidSecurityProperties(groups = {Save.Update.class})
 @ValidOverruledAttributes(groups = {Save.Update.class})
-public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDeviceForValidation, ServerDevice {
+public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDevice {
 
     private static final BigDecimal maxMultiplier = BigDecimal.valueOf(Integer.MAX_VALUE);
 
@@ -257,7 +250,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final Clock clock;
     private final MeteringService meteringService;
     private final ValidationService validationService;
-    private final SecurityPropertyService securityPropertyService;
     private final MeteringGroupsService meteringGroupsService;
     private final CustomPropertySetService customPropertySetService;
     private final ServerDeviceService deviceService;
@@ -320,8 +312,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private Reference<PassiveCalendar> plannedPassiveCalendar = ValueReference.absent();
     private TemporalReference<ServerActiveEffectiveCalendar> activeCalendar = Temporals.absent();
 
-    private Map<SecurityPropertySet, TypedProperties> dirtySecurityProperties = new HashMap<>();
-
     private final Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
     private final Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
     private final Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
@@ -348,7 +338,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Clock clock,
             MeteringService meteringService,
             ValidationService validationService,
-            SecurityPropertyService securityPropertyService,
             Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
             Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
             Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
@@ -369,7 +358,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.clock = clock;
         this.meteringService = meteringService;
         this.validationService = validationService;
-        this.securityPropertyService = securityPropertyService;
         this.scheduledConnectionTaskProvider = scheduledConnectionTaskProvider;
         this.inboundConnectionTaskProvider = inboundConnectionTaskProvider;
         this.connectionInitiationTaskProvider = connectionInitiationTaskProvider;
@@ -459,7 +447,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             this.meter.get().setName(getName());
             this.meter.get().update();
         }
-        this.saveDirtySecurityProperties();
         this.saveDirtyConnectionProperties();
         this.saveNewAndDirtyDialectProperties();
         this.notifyUpdated();
@@ -591,18 +578,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.dirtyDialectProperties = new ArrayList<>();
     }
 
-    private void saveDirtySecurityProperties() {
-        for (SecurityPropertySet securityPropertySet : dirtySecurityProperties.keySet()) {
-            //Persist the dirty values
-            this.securityPropertyService.setSecurityProperties(this, securityPropertySet, dirtySecurityProperties.get(securityPropertySet));
-        }
-        this.dirtySecurityProperties.clear();
-    }
-
-    public Map<SecurityPropertySet, TypedProperties> getDirtySecurityProperties() {
-        return dirtySecurityProperties;
-    }
-
     private void saveDialectProperties(List<ProtocolDialectPropertiesImpl> dialectProperties) {
         dialectProperties.forEach(ProtocolDialectPropertiesImpl::save);
     }
@@ -643,7 +618,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         deleteComTaskExecutions();
         deleteConnectionTasks();
         deleteDeviceMessages();
-        deleteSecuritySettings();
         removeDeviceFromStaticGroups();
         new SyncDeviceWithKoreForRemoval(this, deviceService, readingTypeUtilService, clock, eventService).syncWithKore(this);
         koreHelper.deactivateMeter(clock.instant());
@@ -711,10 +685,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private void wontFixOpenIssues(IssueStatus issueStatus) {
         this.getOpenIssues().forEach(openIssue -> openIssue.close(issueStatus));
-    }
-
-    private void deleteSecuritySettings() {
-        this.securityPropertyService.deleteSecurityPropertiesFor(this);
     }
 
     private void deleteComTaskExecutions() {
@@ -1143,16 +1113,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         .collect(Collectors.toList()));
     }
 
-    @Override
-    public void updateSecurityProperties(SecurityPropertySet origin, SecurityPropertySet destination) {
-        ((ServerSecurityPropertyServiceForConfigChange) securityPropertyService).updateSecurityPropertiesWithNewSecurityPropertySet(this, origin, destination);
-    }
-
-    @Override
-    public void deleteSecurityPropertiesFor(SecurityPropertySet securityPropertySet) {
-        ((ServerSecurityPropertyServiceForConfigChange) securityPropertyService).deleteSecurityPropertiesFor(this, securityPropertySet);
-    }
-
     Optional<ReadingType> getCalculatedReadingTypeFromMeterConfiguration(ReadingType readingType, Instant timeStamp) {
         Optional<MeterConfiguration> configuration = Optional.empty();
         if (this.meter.isPresent()) {
@@ -1257,13 +1217,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                     .get()
                     .getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
         }
-    }
-
-    @Override
-    public void
-    setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties typedProperties) {
-        dirtySecurityProperties.put(securityPropertySet, typedProperties);
-        //Don't persist yet, need to be validated (done in the save step of this device)
     }
 
     @Override
@@ -2304,36 +2257,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet) {
-        return this.getSecurityProperties(clock.instant(), securityPropertySet);
-    }
-
-    @Override
     public List<ProtocolDialectConfigurationProperties> getProtocolDialects() {
         return this.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
-    }
-
-    private List<SecurityProperty> getSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
-        return this.securityPropertyService.getSecurityProperties(this, when, securityPropertySet);
-    }
-
-    @Override
-    public boolean hasSecurityProperties(SecurityPropertySet securityPropertySet) {
-        return this.hasSecurityProperties(clock.instant(), securityPropertySet);
-    }
-
-    private boolean hasSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
-        return this.securityPropertyService.hasSecurityProperties(this, when, securityPropertySet);
-    }
-
-    @Override
-    public boolean securityPropertiesAreValid() {
-        return this.securityPropertyService.securityPropertiesAreValid(this);
-    }
-
-    @Override
-    public boolean securityPropertiesAreValid(SecurityPropertySet securityPropertySet) {
-        return this.securityPropertyService.securityPropertiesAreValid(this, securityPropertySet);
     }
 
     @Override
