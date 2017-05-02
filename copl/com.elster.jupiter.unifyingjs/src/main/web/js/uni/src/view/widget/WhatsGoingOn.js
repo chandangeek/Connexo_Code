@@ -95,6 +95,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
 
     buildWidget: function (type) {
         var me = this;
+        me.setLoading(true);
         if (Ext.isEmpty(type) && !Ext.isEmpty(me.down('#uni-whatsgoingon-combo'))) {
             type = me.down('#uni-whatsgoingon-combo').getValue();
         }
