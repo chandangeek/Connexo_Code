@@ -205,7 +205,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
             this.iServerLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 0);
             if (DEBUG >= 1) {
                 System.out.println();
-                properties.toStringProperties().list(System.out);
+                System.out.println(properties.toString());
                 System.out.println();
             }
         } catch (NumberFormatException e) {

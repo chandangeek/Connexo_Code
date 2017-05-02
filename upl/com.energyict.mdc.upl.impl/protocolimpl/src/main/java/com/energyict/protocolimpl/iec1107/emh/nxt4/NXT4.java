@@ -269,7 +269,7 @@ public class NXT4 extends PluggableMeterProtocol implements MeterProtocol, Meter
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws InvalidPropertyException, MissingPropertyException {
-        getProperties().setProperties(properties.toStringProperties());
+        getProperties().setProperties(properties);
     }
 
     @Override

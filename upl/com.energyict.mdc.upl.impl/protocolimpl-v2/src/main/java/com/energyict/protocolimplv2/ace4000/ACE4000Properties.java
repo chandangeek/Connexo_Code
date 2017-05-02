@@ -13,7 +13,6 @@ import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Copyrights EnergyICT
@@ -28,24 +27,16 @@ public class ACE4000Properties {
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal("3");
 
     private final PropertySpecService propertySpecService;
-    public Properties properties;
+    public TypedProperties properties;
 
     ACE4000Properties(PropertySpecService propertySpecService) {
         super();
         this.propertySpecService = propertySpecService;
-        this.properties = new Properties();
+        this.properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
     }
 
     private void copyProperties(TypedProperties properties) {
-        this.copyPropertyValue(properties, TIMEOUT);
-        this.copyPropertyValue(properties, RETRIES);
-    }
-
-    private void copyPropertyValue(TypedProperties properties, String propertyName) {
-        Object propertyValue = properties.getProperty(propertyName);
-        if (propertyValue != null) {
-            this.properties.put(propertyName, propertyValue);
-        }
+        this.properties = com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties);
     }
 
     void setAllProperties(TypedProperties properties) {
@@ -75,7 +66,7 @@ public class ACE4000Properties {
     }
 
     private int getIntegerProperty(String name, BigDecimal defaultValue) {
-        Object value = this.properties.get(name);
+        Object value = this.properties.getProperty(name);
         if (value == null) {
             return defaultValue.intValue();
         } else {

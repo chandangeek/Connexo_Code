@@ -5,6 +5,8 @@ import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -12,9 +14,13 @@ import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.*;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * @author sva
@@ -23,7 +29,7 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.*;
 public class NXT4Properties {
 
     private final NXT4 meterProtocol;
-    private Properties protocolProperties;
+    private TypedProperties protocolProperties;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
 
@@ -33,60 +39,60 @@ public class NXT4Properties {
         this.nlsService = nlsService;
     }
 
-    public void setProperties(Properties properties) {
+    public void setProperties(TypedProperties properties) {
         this.protocolProperties = properties;
     }
 
     public String getDeviceId() {
-        return protocolProperties.getProperty(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName());
+        return protocolProperties.getTypedProperty(ADDRESS.getName());
     }
 
     public String getNodeAddress() {
-        return getProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), "");
+        return getProperty(NODEID.getName(), "");
     }
 
     public String getPassword() {
-        return getProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName());
+        return getProperty(PASSWORD.getName());
     }
 
     public int getIEC1107TimeOut() {
-        return getIntProperty("Timeout", "10000");
+        return getIntProperty("Timeout", 10000);
     }
 
     public int getRetries() {
-        return getIntProperty("Retries", "3");
+        return getIntProperty("Retries", 3);
     }
 
     public int getRoundTripCorrection() {
-        return getIntProperty("RoundTripCorrection", "0");
+        return getIntProperty("RoundTripCorrection", 0);
     }
 
     public int getSecurityLevel() {
-        return getIntProperty("SecurityLevel", "1");
+        return getIntProperty("SecurityLevel", 1);
     }
 
     public int getEchoCancelling() {
-        return getIntProperty("EchoCancelling", "0");
+        return getIntProperty("EchoCancelling", 0);
     }
 
     public int getForcedDelay() {
-        return getIntProperty("ForcedDelay", "300");
+        return getIntProperty("ForcedDelay", 300);
     }
 
     public int getIEC1107Compatible() {
-        return getIntProperty("IEC1107Compatible", "1");
+        return getIntProperty("IEC1107Compatible", 1);
     }
 
     public int getProfileInterval() {
-        return getIntProperty("ProfileInterval", "900");
+        return getIntProperty("ProfileInterval", 900);
     }
 
     public boolean isRequestHeader() {
-        return getBooleanProperty("RequestHeader", "0");
+        return getBooleanProperty("RequestHeader", false);
     }
 
     public boolean isDataReadout() {
-        return getBooleanProperty("DataReadout", "1");
+        return getBooleanProperty("DataReadout", true);
     }
 
     protected void setDataReadout(boolean useDataReadout) {
@@ -94,19 +100,19 @@ public class NXT4Properties {
     }
 
     public boolean useExtendedLogging() {
-        return getBooleanProperty("ExtendedLogging", "0");
+        return getBooleanProperty("ExtendedLogging", false);
     }
 
     public boolean useSoftware7E1() {
-        return getBooleanProperty("Software7E1", "0");
+        return getBooleanProperty("Software7E1", false);
     }
 
     public boolean readUserLogBook() {
-        return getBooleanProperty("ReadUserLogBook", "0");
+        return getBooleanProperty("ReadUserLogBook", false);
     }
 
     public boolean reconnectAfterR6Read() {
-        return getBooleanProperty("ReconnectAfterR6Read", "1");
+        return getBooleanProperty("ReconnectAfterR6Read", true);
     }
 
     public ProtocolChannelMap getProtocolChannelMap() {
@@ -121,12 +127,12 @@ public class NXT4Properties {
         return getProperty("DateFormat", "yyMMddHHmmsswwnz");
     }
 
-    private boolean getBooleanProperty(String propertyName, String defaultValue) {
-        return getIntProperty(propertyName, defaultValue) == 1;
+    private boolean getBooleanProperty(String propertyName, boolean defaultValue) {
+        return getIntProperty(propertyName, defaultValue ? 1 : 0) == 1;
     }
 
-    private int getIntProperty(String propertyName, String defaultValue) {
-        return Integer.parseInt(protocolProperties.getProperty(propertyName, defaultValue));
+    private int getIntProperty(String propertyName, int defaultValue) {
+        return protocolProperties.getTypedProperty(propertyName, defaultValue);
     }
 
     private String getProperty(String propertyName) {
@@ -134,10 +140,10 @@ public class NXT4Properties {
     }
 
     private String getProperty(String propertyName, String defaultValue) {
-        return getProtocolProperties().getProperty(propertyName, defaultValue);
+        return this.protocolProperties.getTypedProperty(propertyName, defaultValue);
     }
 
-    public Properties getProtocolProperties() {
+    public TypedProperties getProtocolProperties() {
         return protocolProperties;
     }
 

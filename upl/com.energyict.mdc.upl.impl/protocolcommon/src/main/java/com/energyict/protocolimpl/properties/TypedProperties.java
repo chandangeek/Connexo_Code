@@ -297,8 +297,7 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
         return this.isLocalValueFor(value, propertyName) || this.isInheritedValueFor(value, propertyName);
     }
 
-    @Override
-    public Properties toStringProperties() {
+    private Properties toStringProperties() {
         Properties newProps = new Properties();
         for (String propertyName : this.propertyNames()) {
             Object value = this.getProperty(propertyName);

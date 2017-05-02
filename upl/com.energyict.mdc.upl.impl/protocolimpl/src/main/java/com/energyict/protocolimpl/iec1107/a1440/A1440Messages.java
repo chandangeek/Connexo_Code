@@ -5,7 +5,6 @@
  */
 package com.energyict.protocolimpl.iec1107.a1440;
 
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
@@ -17,6 +16,8 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
+import com.energyict.cbo.Unit;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.base.ContactorController;
@@ -67,7 +68,7 @@ public class A1440Messages implements MessageProtocol {
         this.a1440 = a1440;
     }
 
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         List<MessageCategorySpec> theCategories = new ArrayList<>();
 
         MessageCategorySpec catContactor = new MessageCategorySpec("'Contacor' Messages");

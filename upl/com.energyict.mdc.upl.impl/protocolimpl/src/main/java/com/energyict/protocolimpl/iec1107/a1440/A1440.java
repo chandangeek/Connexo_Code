@@ -1,16 +1,9 @@
 package com.energyict.protocolimpl.iec1107.a1440;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connections.IEC1107HHUConnection;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
@@ -23,6 +16,15 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.IEC1107HHUConnection;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.HalfDuplexEnabler;
@@ -67,7 +69,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -295,34 +296,33 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     @Override
-    public void setUPLProperties(TypedProperties typedProperties) throws MissingPropertyException, InvalidPropertyException {
-        Properties properties = typedProperties.toStringProperties();
-        this.strID = properties.getProperty(ADDRESS.getName(), "");
-        this.strPassword = properties.getProperty(PASSWORD.getName());
-        this.iIEC1107TimeoutProperty = typedProperties.getTypedProperty(TIMEOUT.getName(), 20000);
-        this.iProtocolRetriesProperty = typedProperties.getTypedProperty(RETRIES.getName(), 5);
-        this.iRoundtripCorrection = typedProperties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
-        this.iSecurityLevel = typedProperties.getTypedProperty(SECURITYLEVEL.getName(), 1);
-        this.nodeId = properties.getProperty(NODEID.getName(), "");
-        this.iEchoCancelling = typedProperties.getTypedProperty("EchoCancelling", 0);
-        this.iForceDelay = typedProperties.getTypedProperty("ForceDelay", 0);
-        this.profileInterval = typedProperties.getTypedProperty(PROFILEINTERVAL.getName(), 3600);
-        this.dateFormat = properties.getProperty(PROPERTY_DATE_FORMAT, DEFAULT_DATE_FORMAT);
-        this.billingDateFormat = properties.getProperty(PROPERTY_BILLING_DATE_FORMAT);
-        this.requestHeader = typedProperties.getTypedProperty("RequestHeader", 1);
+    public void setUPLProperties(TypedProperties properties) throws MissingPropertyException, InvalidPropertyException {
+        this.strID = properties.getTypedProperty(ADDRESS.getName(), "");
+        this.strPassword = properties.getTypedProperty(PASSWORD.getName());
+        this.iIEC1107TimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 20000);
+        this.iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 5);
+        this.iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
+        this.iSecurityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), 1);
+        this.nodeId = properties.getTypedProperty(NODEID.getName(), "");
+        this.iEchoCancelling = properties.getTypedProperty("EchoCancelling", 0);
+        this.iForceDelay = properties.getTypedProperty("ForceDelay", 0);
+        this.profileInterval = properties.getTypedProperty(PROFILEINTERVAL.getName(), 3600);
+        this.dateFormat = properties.getTypedProperty(PROPERTY_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+        this.billingDateFormat = properties.getTypedProperty(PROPERTY_BILLING_DATE_FORMAT);
+        this.requestHeader = properties.getTypedProperty("RequestHeader", 1);
         // Todo: next to property parse instructions are in conflict
-        this.channelMap = new ChannelMap(properties.getProperty("ChannelMap", "0"));
-        this.protocolChannelMap = typedProperties.getTypedProperty("ChannelMap", new ProtocolChannelMap("0:0:0:0:0:0"));
-        this.scaler = typedProperties.getTypedProperty("Scaler", 0);
-        this.dataReadoutRequest = typedProperties.getTypedProperty("DataReadout", 0);
-        this.extendedLogging = typedProperties.getTypedProperty("ExtendedLogging", 0);
-        this.vdewCompatible = typedProperties.getTypedProperty("VDEWCompatible", 0);
-        this.loadProfileNumber = typedProperties.getTypedProperty("LoadProfileNumber", 1);
-        this.software7E1 = !"0".equalsIgnoreCase(properties.getProperty("Software7E1", "0"));
-        this.failOnUnitMismatch = typedProperties.getTypedProperty("FailOnUnitMismatch", 0);
-        this.halfDuplex = typedProperties.getTypedProperty("HalfDuplex", 0);
-        this.rs485RtuPlusServer = typedProperties.getTypedProperty("RS485RtuPlusServer", 0);
-        this.limitMaxNrOfDays = typedProperties.getTypedProperty(PR_LIMIT_MAX_NR_OF_DAYS, 0);
+        this.channelMap = properties.getTypedProperty("ChannelMap", new ChannelMap("0"));
+        this.protocolChannelMap = properties.getTypedProperty("ChannelMap", new ProtocolChannelMap("0:0:0:0:0:0"));
+        this.scaler = properties.getTypedProperty("Scaler", 0);
+        this.dataReadoutRequest = properties.getTypedProperty("DataReadout", 0);
+        this.extendedLogging = properties.getTypedProperty("ExtendedLogging", 0);
+        this.vdewCompatible = properties.getTypedProperty("VDEWCompatible", 0);
+        this.loadProfileNumber = properties.getTypedProperty("LoadProfileNumber", 1);
+        this.software7E1 = !"0".equalsIgnoreCase(properties.getTypedProperty("Software7E1", "0"));
+        this.failOnUnitMismatch = properties.getTypedProperty("FailOnUnitMismatch", 0);
+        this.halfDuplex = properties.getTypedProperty("HalfDuplex", 0);
+        this.rs485RtuPlusServer = properties.getTypedProperty("RS485RtuPlusServer", 0);
+        this.limitMaxNrOfDays = properties.getTypedProperty(PR_LIMIT_MAX_NR_OF_DAYS, 0);
         this.invertBillingOrder = getBooleanProperty(properties, INVERT_BILLING_ORDER);
         this.useEquipmentIdentifierAsSerial = getBooleanProperty(properties, USE_EQUIPMENT_IDENTIFIER_AS_SERIAL);
     }
@@ -331,8 +331,8 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return (this.dataReadoutRequest == 1);
     }
 
-    private boolean getBooleanProperty(Properties properties, String propertyName) {
-        return "1".equals(properties.getProperty(propertyName, "0").trim());
+    private boolean getBooleanProperty(TypedProperties properties, String propertyName) {
+        return "1".equals(properties.getTypedProperty(propertyName, "0").trim());
     }
 
     @Override
@@ -546,7 +546,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         Date eventTime = null;
         Date toTime = null;
         String fs = "";
-        String toTimeString = "";
+        String toTimeString;
         byte[] data;
         byte[] timeStampData;
 
@@ -632,7 +632,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
                 // try to read the time stamp, and us it as the register toTime.
                 try {
-                    String billingPoint = "";
+                    String billingPoint;
                     if ("1.1.0.1.0.255".equalsIgnoreCase(obis.toString())) {
                         billingPoint = "*" + ProtocolUtils.buildStringDecimal(invertBillingOrder ? 0 : getBillingCount(), 2);
                     } else {
@@ -723,7 +723,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
             return postProcessRegisterValue(obis, eventTime, toTime, q);
 
-        } catch (NoSuchRegisterException e) {
+        } catch (NoSuchRegisterException | NumberFormatException e) {
             String m = "getMeterReading() error, " + e.getMessage();
             throw new NoSuchRegisterException(m);
         } catch (InvalidPropertyException e) {
@@ -735,9 +735,6 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         } catch (IOException e) {
             String m = "getMeterReading() error, " + e.getMessage();
             throw new IOException(m);
-        } catch (NumberFormatException e) {
-            String m = "getMeterReading() error, " + e.getMessage();
-            throw new NoSuchRegisterException(m);
         }
     }
 
@@ -951,7 +948,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     @Override
-    public List getMessageCategories() {
+    public List<MessageCategorySpec> getMessageCategories() {
         return this.a1440Messages.getMessageCategories();
     }
 
