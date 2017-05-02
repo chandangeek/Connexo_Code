@@ -180,6 +180,13 @@ var factory = function (signals) {
                 cur;
 
             if (n) {
+                if(this._routes.length < 5 && request == '/error/notfound'){
+                    request = '/error/notvisible';
+                    routes = this._getMatchedRoutes(request),
+                        i = 0,
+                        n = routes.length,
+                        cur;
+                }
                 this._prevMatchedRequest = request;
 
                 this._notifyPrevRoutes(routes, request);
