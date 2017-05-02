@@ -4,12 +4,11 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,6 +19,10 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -47,9 +50,9 @@ public class LZQJProfileTest {
             logger = Logger.getLogger("global");
             lzqj = new LZQJ(propertySpecService, nlsService);
             properties = TypedProperties.empty();
-            properties.setProperty("ChannelMap", "0+8,0+8,0+8,0+8");
-            properties.setProperty("FixedProfileTimeZone", "0");
-            properties.setProperty("ProfileInterval", "300");
+            properties.setProperty("ChannelMap", new ProtocolChannelMap("0+8,0+8,0+8,0+8"));
+            properties.setProperty("FixedProfileTimeZone", 0);
+            properties.setProperty("ProfileInterval", 300);
             lzqj.setUPLProperties(properties);
             lzqj.setTimeZone(TimeZone.getTimeZone("Europe/Brussels"));
             lzqjRegistry = new LZQJRegistry(lzqj, lzqj);

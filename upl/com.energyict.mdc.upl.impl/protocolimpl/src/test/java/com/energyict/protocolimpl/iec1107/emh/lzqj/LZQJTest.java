@@ -2,15 +2,17 @@ package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.properties.TypedProperties;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -33,7 +35,7 @@ public class LZQJTest {
         try {
             LZQJ protocol = new LZQJ(propertySpecService, nlsService);
             TypedProperties props = TypedProperties.empty();
-            props.setProperty("DataReadout", "1");
+            props.setProperty("DataReadout", 1);
             protocol.setUPLProperties(props);
             DummyFlagConnection dConnection = new DummyFlagConnection(null, null, 1, 1, 1, 1, 1, true);
             protocol.setConnection(dConnection);
@@ -87,7 +89,7 @@ public class LZQJTest {
         try {
             LZQJ protocol = new LZQJ(propertySpecService, nlsService);
             TypedProperties props = TypedProperties.empty();
-            props.setProperty("DataReadout", "1");
+            props.setProperty("DataReadout", 1);
             protocol.setUPLProperties(props);
             DummyFlagConnection dConnection = new DummyFlagConnection(null, null, 1, 1, 1, 1, 1, true);
             protocol.setConnection(dConnection);

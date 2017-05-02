@@ -71,7 +71,7 @@ public class InHomeDisplayProperties extends SmsWakeUpDlmsProtocolProperties {
                 this.stringSpec(ZIGBEE_PCLK, false, PropertyTranslationKeys.EICT_ZIGBEE_PCLK),
                 this.integerSpec(NTA_SIMULATION_TOOL, false, PropertyTranslationKeys.EICT_NTA_SIMULATION_TOOL),
                 this.integerSpec(CIPHERING_TYPE, false, PropertyTranslationKeys.EICT_CIPHERING_TYPE),
-                this.integerSpec(BULK_REQUEST, false, PropertyTranslationKeys.EICT_BULK_REQUEST))
+                this.booleanSpec(BULK_REQUEST, false, PropertyTranslationKeys.EICT_BULK_REQUEST))
             .forEach(propertySpecs::add);
         return propertySpecs;
     }

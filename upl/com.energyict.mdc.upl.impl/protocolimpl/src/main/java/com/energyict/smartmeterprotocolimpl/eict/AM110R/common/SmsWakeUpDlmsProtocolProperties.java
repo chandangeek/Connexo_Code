@@ -168,6 +168,10 @@ public abstract class SmsWakeUpDlmsProtocolProperties extends DlmsProtocolProper
         return this.spec(name, required, translationKey, this.propertySpecService::integerSpec);
     }
 
+    protected PropertySpec booleanSpec(String name, boolean required, TranslationKey translationKey) {
+        return this.spec(name, required, translationKey, this.propertySpecService::booleanSpec);
+    }
+
     private PropertySpec longSpec(String name, boolean required, TranslationKey translationKey) {
         return this.spec(name, required, translationKey, this.propertySpecService::longSpec);
     }
