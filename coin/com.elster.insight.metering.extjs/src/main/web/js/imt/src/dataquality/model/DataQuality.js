@@ -16,6 +16,7 @@ Ext.define('Imt.dataquality.model.DataQuality', {
         'amountOfRemoved',
         'amountOfSuspects',
         'amountOfTotalEdited',
+        'amountOfProjected',
         'channelSuspects',
         'isEffectiveConfiguration',
         'lastSuspect',
