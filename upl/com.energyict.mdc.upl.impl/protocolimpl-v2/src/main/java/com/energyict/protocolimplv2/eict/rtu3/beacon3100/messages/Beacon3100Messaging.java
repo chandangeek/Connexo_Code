@@ -249,7 +249,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        List<DeviceMessageSpec> standardMessages = Arrays.asList(
+        List<DeviceMessageSpec> standardMessages = new ArrayList<>(Arrays.asList(
                 NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.get(this.propertySpecService, this.nlsService, this.converter),
 
                 DeviceActionMessage.SyncMasterdataForDC.get(this.propertySpecService, this.nlsService, this.converter),
@@ -377,7 +377,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 AlarmConfigurationMessage.WRITE_FILTER_FOR_SINGLE_ALARM_REGISTER.get(this.propertySpecService, this.nlsService, this.converter),
                 AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION_CIPHERING.get(this.propertySpecService, this.nlsService, this.converter),
                 AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_SEND_TEST_NOTIFICATION.get(this.propertySpecService, this.nlsService, this.converter)
-        );
+        ));
 
         if (!readOldObisCodes()) {
             standardMessages.add(DeviceActionMessage.SyncAllDevicesWithDC.get(this.propertySpecService, this.nlsService, this.converter));
