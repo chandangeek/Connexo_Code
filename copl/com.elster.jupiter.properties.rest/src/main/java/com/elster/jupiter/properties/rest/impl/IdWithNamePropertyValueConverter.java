@@ -51,7 +51,9 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
 
     @Override
     public Object convertInfoToValue(PropertySpec propertySpec, Object infoValue) {
-        if (infoValue instanceof List) {
+        if (infoValue instanceof Map) {
+            propertySpec.getValueFactory().fromStringValue((((Map)infoValue).get("id").toString()));
+        } else if (infoValue instanceof List) {
             List<HasName> listValue = new ArrayList<>();
             List<?> list = (List<?>) infoValue;
             for (Object listItem : list) {
