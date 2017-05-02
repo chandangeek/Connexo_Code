@@ -53,6 +53,8 @@ public interface UsagePointDataQualityService {
 
         MetricSpecificationBuilder withEditedAmount();
 
+        MetricSpecificationBuilder withProjectedAmount();
+
         DataQualityOverviews paged(int from, int to);
     }
 
