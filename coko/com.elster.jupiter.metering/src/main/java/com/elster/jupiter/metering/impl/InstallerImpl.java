@@ -363,7 +363,6 @@ public class InstallerImpl implements FullInstaller {
 
     private void createQueues() {
         this.createQueue(SwitchStateMachineEvent.DESTINATION, DefaultTranslationKey.SWITCH_STATE_MACHINE_SUBSCRIBER);
-        this.createQueue(CalendarTimeSeriesCacheHandlerFactory.TASK_DESTINATION, DefaultTranslationKey.CALENDAR_TIMESERIES_CACHE_HANDLER_SUBSCRIBER);
     }
 
     private void createQueue(String queueDestination, TranslationKey queueSubscriber) {
