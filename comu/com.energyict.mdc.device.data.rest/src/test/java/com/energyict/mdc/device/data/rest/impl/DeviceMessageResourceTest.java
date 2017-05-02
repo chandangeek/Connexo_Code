@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.TranslationKey;
@@ -45,7 +43,6 @@ import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.TrackingCategory;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
@@ -724,11 +721,6 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
         private EnumSet<DeviceMessageId> deviceMessageIds =
                 EnumSet.of(DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN);
-
-        @Override
-        public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
-            return Optional.empty();
-        }
 
         @Override
         public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {

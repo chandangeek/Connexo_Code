@@ -199,11 +199,6 @@ public class TestProtocol implements DeviceProtocol {
 
     }
 
-    @Override
-    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
-        return Optional.of(getCustomPropertySet(this.propertySpecService));
-    }
-
     public static CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> getCustomPropertySet(PropertySpecService propertySpecService) {
         return new BasicAuthenticationCustomPropertySet(propertySpecService);
     }

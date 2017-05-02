@@ -42,7 +42,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -184,11 +183,6 @@ public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
 
-    }
-
-    @Override
-    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
-        return Optional.of(getCustomPropertySet(this.propertySpecService));
     }
 
     public static CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> getCustomPropertySet(PropertySpecService propertySpecService) {
