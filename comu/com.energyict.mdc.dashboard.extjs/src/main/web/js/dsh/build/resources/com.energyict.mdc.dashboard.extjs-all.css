@@ -1985,7 +1985,7 @@
     text-align: right;
     line-height: 15px;
     margin-right: 8px;
-    width: 80px
+    width: 100%;
 }
 
 .x-bar .x-bar-container, .x-bar .x-bar-fill, .x-bar .x-bar-track {
