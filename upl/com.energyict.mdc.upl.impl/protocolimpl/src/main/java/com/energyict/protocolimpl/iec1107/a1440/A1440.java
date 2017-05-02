@@ -1,5 +1,13 @@
 package com.energyict.protocolimpl.iec1107.a1440;
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.IEC1107HHUConnection;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.messages.legacy.Message;
@@ -15,15 +23,6 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connections.IEC1107HHUConnection;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.HalfDuplexEnabler;
@@ -100,6 +99,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     private static final int MIN_LOADPROFILE = 1;
     private static final int MAX_LOADPROFILE = 2;
+    private static final int ACTION_DELAY_PER_5_SEC = 5;
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
 
@@ -148,7 +148,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     private int rs485RtuPlusServer = 0;
     private int limitMaxNrOfDays = 0;
-	private boolean invertBillingOrder;
+    private boolean invertBillingOrder;
     private boolean useEquipmentIdentifierAsSerial;
 
     public A1440(PropertySpecService propertySpecService, NlsService nlsService) {
@@ -331,9 +331,9 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return (this.dataReadoutRequest == 1);
     }
 
-	private boolean getBooleanProperty(Properties properties, String propertyName) {
-		return "1".equals(properties.getProperty(propertyName, "0").trim());
-	}
+    private boolean getBooleanProperty(Properties properties, String propertyName) {
+        return "1".equals(properties.getProperty(propertyName, "0").trim());
+    }
 
     @Override
     public String getRegister(String name) throws IOException {
@@ -564,6 +564,28 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 return new RegisterValue(obis, getFirmwareVersion());
             }
 
+            if (ProtocolTools.setObisCodeField(obis, 2, (byte) 0).equals(ObisCode.fromString("1.1.0.0.11.255"))) {
+                return readLoadControlThresholdRegister(obis, obis.getC());
+            }
+            if ("1.1.0.0.12.255".equals(obis.toString())) {
+                try {
+                    BigDecimal actionDelay = new BigDecimal(Integer.parseInt((String) getA1440Registry().getRegister(A1440Registry.LOAD_CONTROL_ACTION_DELAY_REGISTER)) * ACTION_DELAY_PER_5_SEC);
+                    return new RegisterValue(obis, new Quantity(actionDelay, Unit.get(BaseUnit.SECOND)));
+                } catch (NumberFormatException e) {
+                    throw new NoSuchRegisterException(e.getMessage());
+                }
+            }
+            if ("1.1.0.0.13.255".equals(obis.toString())) {
+                try {
+                    LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantityForQuantityCode(
+                            (String) getA1440Registry().getRegister(A1440Registry.LOAD_CONTROL_MEASUREMENT_QUANTITY_REGISTER)
+                    );
+                    return new RegisterValue(obis, measurementQuantity.getDescription());
+                } catch (NumberFormatException e) {
+                    throw new NoSuchRegisterException(e.getMessage());
+                }
+            }
+
             if ("1.1.0.0.1.255".equals(obis.toString())) {
                 return new RegisterValue(obis, readSpecialRegister(this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
             }
@@ -599,13 +621,13 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             }
 
             if (obis.getF() != 255) {
-				if (getBillingCount() < (Math.abs(obis.getF()) + 1)) {
-					throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
-				}
+                if (getBillingCount() < (Math.abs(obis.getF()) + 1)) {
+                    throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
+                }
 
-				int f = invertBillingOrder
-					? Math.abs(obis.getF())
-					: getBillingCount() - Math.abs(obis.getF());
+                int f = invertBillingOrder
+                        ? Math.abs(obis.getF())
+                        : getBillingCount() - Math.abs(obis.getF());
                 fs = "*" + ProtocolUtils.buildStringDecimal(f, 2);
 
                 // try to read the time stamp, and us it as the register toTime.
@@ -717,6 +739,25 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             String m = "getMeterReading() error, " + e.getMessage();
             throw new NoSuchRegisterException(m);
         }
+    }
+
+    private RegisterValue readLoadControlThresholdRegister(ObisCode obis, int tariff) throws IOException {
+        try {
+            LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantityForQuantityCode(
+                    (String) getA1440Registry().getRegister(A1440Registry.LOAD_CONTROL_MEASUREMENT_QUANTITY_REGISTER)
+            );
+            float loadControlThreshold = measurementQuantity.format((String) getA1440Registry().getRegister(A1440Registry.LOAD_CONTROL_THRESHOLD_REGISTER, getTariffCode(tariff)));
+            return new RegisterValue(obis, new Quantity(loadControlThreshold, measurementQuantity.getUnit()));
+        } catch (NumberFormatException e) {
+            throw new NoSuchRegisterException(e.getMessage());
+        }
+    }
+
+    private String getTariffCode(int tariff) {
+        if (tariff == 0) {
+            return "";
+        }
+        return String.format("%02X", 1 << (tariff - 1));
     }
 
     private String convertToEdis(int obisCodeField) {
@@ -888,11 +929,11 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         if (this.meterSerial == null) {
             this.meterSerial = (String) getA1440Registry().getRegister(
                     this.useEquipmentIdentifierAsSerial
-                    ? A1440Registry.IEC1107_ADDRESS_EL
-                    : A1440Registry.SERIAL
+                            ? A1440Registry.IEC1107_ADDRESS_EL
+                            : A1440Registry.SERIAL
             );
         }
-        if(useEquipmentIdentifierAsSerial){
+        if (useEquipmentIdentifierAsSerial) {
             byte[] bytesFromHexString = ProtocolTools.getBytesFromHexString(meterSerial, "");
             return ProtocolTools.getAsciiFromBytes(bytesFromHexString);
         }

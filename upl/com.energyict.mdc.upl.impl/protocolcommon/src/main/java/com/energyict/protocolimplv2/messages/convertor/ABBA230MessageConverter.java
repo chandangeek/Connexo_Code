@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
-import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
@@ -14,7 +13,9 @@ import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ABBA230UserFileMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.google.common.collect.ImmutableMap;
 
@@ -67,6 +68,12 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry(BILLING_RESET, false))
                 .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new ABBA230UserFileMessageEntry(UPGRADE_METER_FIRMWARE))
                 .put(messageSpec(ConfigurationChangeDeviceMessage.UploadMeterScheme), new ABBA230UserFileMessageEntry(UPGRADE_METER_SCHEME))
+
+                .put(messageSpec(LoadBalanceDeviceMessage.DISABLE_LOAD_LIMITING), new MultipleAttributeMessageEntry("DISABLE_LOAD_LIMITING"))
+                .put(messageSpec(LoadBalanceDeviceMessage.SET_LOAD_LIMIT_DURATION), new MultipleAttributeMessageEntry("SET_LOAD_LIMIT_DURATION", "Duration"))
+                .put(messageSpec(LoadBalanceDeviceMessage.SET_LOAD_LIMIT_THRESHOLD), new MultipleAttributeMessageEntry("SET_LOAD_LIMIT_TRESHOLD", "Threshold", "Unit"))
+                .put(messageSpec(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION), new MultipleAttributeMessageEntry("CONFIGURE_LOAD_LIMIT", "Threshold", "Unit", "Duration"))
+
                 .build();
     }
 }

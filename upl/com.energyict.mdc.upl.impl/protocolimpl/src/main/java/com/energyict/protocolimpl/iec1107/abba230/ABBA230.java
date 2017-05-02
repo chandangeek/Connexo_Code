@@ -17,12 +17,18 @@ entries occur twice or more they need an SL flag.
 
 package com.energyict.protocolimpl.iec1107.abba230;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.cache.CacheMechanism;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageAttributeSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageElement;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
@@ -30,17 +36,13 @@ import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connections.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.EventMapper;
 import com.energyict.protocol.HHUEnabler;
@@ -110,6 +112,8 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo,
         RegisterProtocol, MessageProtocol, EventMapper, SerialNumberSupport, CachingProtocol {
 
+    private LoadLimitingController loadLimitingController;
+
     private static final int DEBUG = 0;
     private static final String CONNECT = "ConnectLoad";
     private static final String DISCONNECT = "DisconnectLoad";
@@ -123,6 +127,11 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     private static final String TARIFFPROGRAM_DISPLAY = "Upload Meter Scheme";
     private static final String FIRMWAREPROGRAM_DISPLAY = "Upgrade Meter Firmware";
     private static final String BILLINGRESET_DISPLAY = "Billing reset";
+
+    protected static final String DURATION_ATTRIBUTE = "Duration";
+    protected static final String THRESHOLD_ATTRIBUTE = "Threshold";
+    protected static final String UNIT_ATTRIBUTE = "Unit";
+
     /**
      * Property keys specific for AS230 protocol.
      */
@@ -920,6 +929,14 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         cat.addMessageSpec(addBasicMsg(TARIFFPROGRAM_DISPLAY, TARIFFPROGRAM, false));
         cat.addMessageSpec(addBasicMsg(BILLINGRESET_DISPLAY, BILLINGRESET, false));
         cat.addMessageSpec(addBasicMsg(FIRMWAREPROGRAM_DISPLAY, FIRMWAREPROGRAM, true));
+
+
+        cat.addMessageSpec(addBasicMsg("Disable load limiting", "DISABLE_LOAD_LIMITING", false));
+        cat.addMessageSpec(addBasicMsgWithAttributes("Set load limit duration", "SET_LOAD_LIMIT_DURATION", false, DURATION_ATTRIBUTE));
+        cat.addMessageSpec(addBasicMsgWithAttributes("Set load limit threshold", "SET_LOAD_LIMIT_TRESHOLD", false, THRESHOLD_ATTRIBUTE, UNIT_ATTRIBUTE));
+        cat.addMessageSpec(addBasicMsgWithAttributes("Configure the load limit settings", "CONFIGURE_LOAD_LIMIT", false, THRESHOLD_ATTRIBUTE, UNIT_ATTRIBUTE, DURATION_ATTRIBUTE));
+
+
         theCategories.add(cat);
         return theCategories;
     }
@@ -927,6 +944,19 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    private static MessageSpec addBasicMsgWithAttributes(String displayName, String tagName, boolean advanced, String... attributes) {
+        MessageSpec msgSpec = new MessageSpec(displayName, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+
+        for (String attribute : attributes) {
+            tagSpec.add(new MessageAttributeSpec(attribute, true));
+        }
+        MessageValueSpec msgVal = new MessageValueSpec(" ");
+        tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -1036,11 +1066,40 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
                     return MessageResult.createFailed(messageEntry);
                 }
 
+            } else if (isThisMessage(messageEntry, "DISABLE_LOAD_LIMITING")) {
+                checkSecurityLevelSufficient("Disable load limiting");
+                getLoadLimitingController().disableLoadLimiting(messageEntry);
+            } else if (isThisMessage(messageEntry, "SET_LOAD_LIMIT_DURATION")) {
+                checkSecurityLevelSufficient("Set load limit duration");
+                getLoadLimitingController().setLoadLimitDuration(messageEntry);
+            } else if (isThisMessage(messageEntry, "SET_LOAD_LIMIT_TRESHOLD")) {
+                checkSecurityLevelSufficient("Set load limit threshold");
+                getLoadLimitingController().setLoadLimitThreshold(messageEntry);
+            } else if (isThisMessage(messageEntry, "CONFIGURE_LOAD_LIMIT")) {
+                checkSecurityLevelSufficient("Configure the load limit settings");
+                getLoadLimitingController().configureLoadLimitSettings(messageEntry);
             }
             return MessageResult.createSuccess(messageEntry);
         } catch (IOException e) {
             return MessageResult.createFailed(messageEntry);
         }
+    }
+
+    private void checkSecurityLevelSufficient(String message) throws IOException {
+        if (pSecurityLevel < 3) {
+            throw new IOException("Message '" + message + "' needs at least security level 3. Current level: " + pSecurityLevel);
+        }
+    }
+
+    private LoadLimitingController getLoadLimitingController() {
+        if (loadLimitingController == null) {
+            loadLimitingController = new LoadLimitingController(this);
+        }
+        return loadLimitingController;
+    }
+
+    private static boolean isThisMessage(MessageEntry messageEntry, String messagetype) {
+        return messageEntry.getContent().contains(messagetype);
     }
 
     private void executeDefaultScript() {
