@@ -712,9 +712,9 @@ Ext.define('Imt.purpose.controller.Readings', {
             app = me.getApplication(),
             usagePointsController = me.getController('Imt.usagepointmanagement.controller.View'),
             outputModel = me.getModel('Imt.purpose.model.Output'),
-            historyStore = me.getStore('Imt.purpose.store.HistoricalChannelReadings'),
             intervalStore = me.getStore('Uni.store.DataIntervalAndZoomLevels'),
             isBulk = router.queryParams.changedDataOnly === 'yes',
+            historyStore,
             widget,
             usagePoint,
             purposes,
@@ -723,6 +723,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             durations,
             filterDefault,
             displayPage = function () {
+                dependenciesCounter--;
                 if (!dependenciesCounter) {
                     app.fireEvent('output-loaded', output);
                     if (isBulk) {
@@ -753,7 +754,9 @@ Ext.define('Imt.purpose.controller.Readings', {
                         store: historyStore
                     });
                     app.fireEvent('changecontentevent', widget);
-                    mainView.setLoading(false);
+                    historyStore.load(function () {
+                        mainView.setLoading(false);
+                    });
                 }
             };
 
@@ -776,7 +779,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                     historyStore = me.getStore('Imt.purpose.store.HistoricalRegisterReadings');
                 }
                 historyStore.getProxy().setUrl(usagePointId, purposeId, outputId);
-                historyStore.load(displayPage);
+                displayPage();
             }
         });
     },
