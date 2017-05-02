@@ -20,8 +20,13 @@ public enum DueInType {
         this.multiplier = multiplier;
     }
 
+    @Deprecated
     public long dueValueFor(long value){
         return System.currentTimeMillis() + value * this.multiplier;
+    }
+
+    public long dueValueFor(long value, long currentTime){
+        return currentTime + value * this.multiplier;
     }
 
     public String getName() {
