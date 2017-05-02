@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.SecurityValueWrapper;
@@ -15,6 +16,7 @@ import com.energyict.mdc.device.data.KeyAccessorStatus;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -68,7 +70,11 @@ public class KeyAccessorPlaceHolder implements KeyAccessor {
 
             @Override
             public Map<String, Object> getProperties() {
-                return Collections.emptyMap();
+                Map<String, Object> properties = new HashMap<>();
+                if (getKeyAccessorType().getKeyType().getCryptographicType().equals(CryptographicType.TrustedCertificate)) {
+                    getKeyAccessorType().getTrustStore().ifPresent(ts -> properties.put("trustStore", ts));
+                }
+                return properties;
             }
 
             @Override
