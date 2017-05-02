@@ -311,7 +311,7 @@ public class Quantity extends Number implements Comparable<Quantity>, Serializab
         return getUnit().isUndefined();
     }
 
-    static class UnitConversion {
+    public static class UnitConversion {
 
         private final BigDecimal multiplier;
         private final BigDecimal constant;
@@ -342,7 +342,7 @@ public class Quantity extends Number implements Comparable<Quantity>, Serializab
             this.constant = constant;
         }
 
-        static Quantity convertQuantity(Quantity quantity, Unit destinationUnit) {
+        public static Quantity convertQuantity(Quantity quantity, Unit destinationUnit) {
             // Check for conversion to same Unit
             if (quantity.getBaseUnit().equals(destinationUnit.getBaseUnit())) {
                 return rescaleQuantity(quantity, destinationUnit);
