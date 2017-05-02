@@ -71,7 +71,7 @@ public class DeviceMessagesResource {
         List<DeviceMessageId> supportedMessages = deviceType.getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
-                        .map(DeviceMessageId::havingId)
+                        .map(DeviceMessageId::from)
                         .collect(Collectors.toList())).orElse(Collections.emptyList());
 
         if (supportedMessages.isEmpty()) {

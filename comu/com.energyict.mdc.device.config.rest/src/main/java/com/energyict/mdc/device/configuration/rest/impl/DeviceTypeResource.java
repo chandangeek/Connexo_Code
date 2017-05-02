@@ -172,16 +172,22 @@ public class DeviceTypeResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceTypeInfo.deviceProtocolPluggableClassName);
-        Optional<DeviceLifeCycle> deviceLifeCycleRef = deviceTypeInfo.deviceLifeCycleId != null ? resourceHelper.findDeviceLifeCycleById(deviceTypeInfo.deviceLifeCycleId) : Optional
-                .empty();
+        Optional<DeviceLifeCycle> deviceLifeCycle;
+        if (deviceTypeInfo.deviceLifeCycleId != null) {
+            deviceLifeCycle = resourceHelper.findDeviceLifeCycleById(deviceTypeInfo.deviceLifeCycleId);
+        } else {
+            deviceLifeCycle = Optional.empty();
+        }
         DeviceType deviceType;
         if (deviceTypeInfo.deviceTypePurpose.equals(DeviceTypePurposeTranslationKeys.DATALOGGER_SLAVE.getKey())) {
-            deviceType = deviceConfigurationService.newDataloggerSlaveDeviceTypeBuilder(deviceTypeInfo.name, deviceLifeCycleRef
-                    .isPresent() ? deviceLifeCycleRef.get() : null).create();
+            deviceType = deviceConfigurationService.newDataloggerSlaveDeviceTypeBuilder(deviceTypeInfo.name, deviceLifeCycle.orElse(null)).create();
         } else {
-            deviceType = deviceConfigurationService.newDeviceTypeBuilder(deviceTypeInfo.name,
-                    deviceProtocolPluggableClass.isPresent() ? deviceProtocolPluggableClass.get() : null,
-                    deviceLifeCycleRef.isPresent() ? deviceLifeCycleRef.get() : null).create();
+            deviceType = deviceConfigurationService
+                    .newDeviceTypeBuilder(
+                        deviceTypeInfo.name,
+                        deviceProtocolPluggableClass.orElse(null),  // Avoid NoSuchElementException but expect a backend validation error as this is a required parameter to create a device type
+                        deviceLifeCycle.orElse(null))               // Avoid NoSuchElementException but expect a backend validation error as this is a required parameter to create a device type
+                    .create();
         }
         return DeviceTypeInfo.from(deviceType);
     }
