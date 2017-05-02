@@ -3,7 +3,7 @@
  */
 
 Ext.define('Uni.property.view.property.RegularReadingType', {
-    extend: 'Uni.property.view.property.IrregularReadingType',
+    extend: 'Uni.property.view.property.BaseCombo',
 
     getEditCmp: function () {
         var me = this;
@@ -73,11 +73,7 @@ Ext.define('Uni.property.view.property.RegularReadingType', {
             combo.resumeEvent('change');
             me.setDefaultFilter(value);
         } else {
-            if (value) {
-                me.callParent([value.fullAliasName]);
-            } else {
-                me.callParent(['']);
-            }
+            me.callParent([value.fullAliasName]);
         }
     },
 
