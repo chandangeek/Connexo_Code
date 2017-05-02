@@ -42,7 +42,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 
 import com.google.common.collect.Range;
 
@@ -585,8 +585,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public List<SecurityProperty> getDeviceProtocolSecurityProperties (DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
-            // No implementation required
+        public DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
             return null;
         }
 
@@ -708,8 +707,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public List<SecurityProperty> getDeviceProtocolSecurityProperties (DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
-        // No support for inbound communication in monitoring mode
+    public DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
         return null;
     }
 

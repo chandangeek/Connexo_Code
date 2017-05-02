@@ -64,7 +64,6 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -77,7 +76,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -715,8 +713,7 @@ public class MultiThreadedScheduledComPortTest {
 
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
-        when(comServerDAOMock.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), any(InboundComPort.class))).thenReturn(Collections.<SecurityProperty>emptyList());
-
+        when(comServerDAOMock.getDeviceProtocolSecurityPropertySet(Matchers.any(), any(InboundComPort.class))).thenReturn(null);
         try {
             // Business method
             scheduledComPort.start();
@@ -782,7 +779,7 @@ public class MultiThreadedScheduledComPortTest {
 
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
-        when(comServerDAOMock.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), any(InboundComPort.class))).thenReturn(Collections.<SecurityProperty>emptyList());
+        when(comServerDAOMock.getDeviceProtocolSecurityPropertySet(Matchers.any(), any(InboundComPort.class))).thenReturn(null);
 
         try {
             // Business method
@@ -837,7 +834,7 @@ public class MultiThreadedScheduledComPortTest {
 
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
-        when(comServerDAOMock.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), any(InboundComPort.class))).thenReturn(Collections.<SecurityProperty>emptyList());
+        when(comServerDAOMock.getDeviceProtocolSecurityPropertySet(Matchers.any(), any(InboundComPort.class))).thenReturn(null);
 
         when(this.deviceCommandExecutor.execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class))).thenAnswer(
                 invocationOnMock -> {
@@ -901,7 +898,7 @@ public class MultiThreadedScheduledComPortTest {
 
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
-        when(comServerDAOMock.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), any(InboundComPort.class))).thenReturn(Collections.<SecurityProperty>emptyList());
+        when(comServerDAOMock.getDeviceProtocolSecurityPropertySet(Matchers.any(), any(InboundComPort.class))).thenReturn(null);
 
 
         try {
@@ -1153,8 +1150,7 @@ public class MultiThreadedScheduledComPortTest {
 
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
-        when(comServerDAOMock.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), any(InboundComPort.class))).thenReturn(Collections.<SecurityProperty>emptyList());
-
+        when(comServerDAOMock.getDeviceProtocolSecurityPropertySet(Matchers.any(), any(InboundComPort.class))).thenReturn(null);
 
         try {
             // Business method

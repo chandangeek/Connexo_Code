@@ -445,7 +445,7 @@ public abstract class JobExecution implements ScheduledJob {
             CommandRoot result = commandRoot != null ? commandRoot : new CommandRootImpl(getExecutionContext(), getComCommandServiceProvider());
 
             try {
-                ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.topologyService());
+                ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.topologyService(), serviceProvider.identificationService());
 
                 final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = organizer.defineComTaskExecutionOrders(this.comTaskExecutions);
                 for (DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution : deviceOrganizedComTaskExecutions) {

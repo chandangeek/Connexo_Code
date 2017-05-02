@@ -20,7 +20,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -171,8 +171,8 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     }
 
     @Override
-    public List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier) {
-        return this.getInboundDAO().getDeviceProtocolSecurityProperties(deviceIdentifier, this.getComPort());
+    public DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier) {
+        return this.getInboundDAO().getDeviceProtocolSecurityPropertySet(deviceIdentifier, this.getComPort());
     }
 
     @Override

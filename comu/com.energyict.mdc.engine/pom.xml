@@ -187,6 +187,10 @@
             <artifactId>org.osgi.compendium</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pki</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -326,11 +330,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>usagepoint.lifecycle.config</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>pki</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

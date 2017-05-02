@@ -52,7 +52,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 
 import com.google.common.collect.Range;
 import org.eclipse.jetty.websocket.WebSocket;
@@ -429,7 +429,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public List<SecurityProperty> getDeviceProtocolSecurityProperties (DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+    public DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
         /* Todo: do not forget to take into account that DeviceIdentifier implementation classes
          * throw a NotFoundException when the device does not exist. */
         return null;

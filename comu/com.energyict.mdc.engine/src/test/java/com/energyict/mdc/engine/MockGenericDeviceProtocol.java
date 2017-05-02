@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.engine;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
@@ -23,7 +21,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
@@ -46,7 +43,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
@@ -176,11 +172,6 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
     @Override
     public void daisyChainedLogOff() {
         //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
-        return Optional.empty();
     }
 
     @Override

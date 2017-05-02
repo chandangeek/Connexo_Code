@@ -31,6 +31,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -200,7 +201,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new TopologyModule(),
                 new FirmwareModule(),
                 new CalendarModule(),
-                new TopologyModule());
+                new TopologyModule(),
+                new PkiModule());
         initializeTopModuleInATransaction();
     }
 

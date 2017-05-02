@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.MacException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
@@ -29,6 +30,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineCalendar;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -135,6 +137,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
     private boolean firmwareManagementAllowed = false;
     private boolean touCalendarAllowed = false;
     private MacException macException;
+    private List<OfflineKeyAccessor> keyAccessors = Collections.emptyList();
 
     public interface ServiceProvider {
 
@@ -192,6 +195,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
         if (context.needsRegisters()) {
             setAllRegisters(convertToOfflineRegister(createCompleteRegisterList()));
         }
+        setAllKeyAccessors(convertToOfflineKeyAccessors(this.device.getKeyAccessors()));
         if (context.needsPendingMessages()) {
             try {
                 serviceProvider.eventService().postEvent(EventType.COMMANDS_WILL_BE_SENT.topic(), null);
@@ -346,6 +350,12 @@ public class OfflineDeviceImpl implements OfflineDevice {
         List<OfflineRegister> offlineRegisters = new ArrayList<>(registers.size());
         offlineRegisters.addAll(registers.stream().map(register -> new OfflineRegisterImpl(register, serviceProvider.identificationService())).collect(Collectors.toList()));
         return offlineRegisters;
+    }
+
+    private List<OfflineKeyAccessor> convertToOfflineKeyAccessors(final List<KeyAccessor> keyAccessors) {
+        List<OfflineKeyAccessor> offlineKeyAccesssors = new ArrayList<>(keyAccessors.size());
+        offlineKeyAccesssors.addAll(keyAccessors.stream().map(keyAccessor -> new OfflineKeyAccessorImpl(keyAccessor, serviceProvider.identificationService())).collect(Collectors.toList()));
+        return offlineKeyAccesssors;
     }
 
     @Override
@@ -574,6 +584,15 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
     private void setCalendars() {
         this.calendars = this.device.getDeviceType().getAllowedCalendars().stream().map(OfflineCalendarImpl::from).collect(Collectors.toList());
+    }
+
+    private void setAllKeyAccessors(final List<OfflineKeyAccessor> allKeyAccessors) {
+        this.keyAccessors = allKeyAccessors;
+    }
+
+    @Override
+    public List<OfflineKeyAccessor> getAllOfflineKeyAccessors() {
+        return Collections.unmodifiableList(this.keyAccessors);
     }
 
 }

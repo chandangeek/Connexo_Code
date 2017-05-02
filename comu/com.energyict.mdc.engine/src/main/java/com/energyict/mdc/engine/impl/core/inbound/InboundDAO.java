@@ -11,7 +11,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,15 +47,15 @@ public interface InboundDAO {
     List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(DeviceIdentifier<Device> deviceIdentifier, int confirmationCount);
 
     /**
-     * Gets the {@link SecurityProperty security properties} that have been
+     * Gets the {@link DeviceProtocolSecurityPropertySet} that has been
      * created against the Device that is currently connected to the ComServer
      * via the specified {@link InboundComPort}.
      *
      * @param deviceIdentifier The object that uniquely identifies the Device
      * @param inboundComPort The InboundComPort
-     * @return The List of SecurityProperty or null if the Device is not ready for inbound communication
+     * @return The DeviceProtocolSecurityPropertySet or null if the Device is not ready for inbound communication
      */
-    List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
+    DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
 
     /**
      * Gets the {@link TypedProperties} that have been
