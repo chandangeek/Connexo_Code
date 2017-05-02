@@ -61,6 +61,7 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -167,7 +168,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return deviceType.getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(DeviceMessageSpec::getId)
-                        .map(DeviceMessageId::havingId)
+                        .map(DeviceMessageId::from)
                         .map(this.deviceMessageSpecificationService::getProtocolSupportedFirmwareOptionFor)
                         .filter(Optional::isPresent)
                         .map(Optional::get)

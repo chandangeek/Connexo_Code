@@ -82,6 +82,7 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -260,7 +261,7 @@ public class InMemoryPersistence {
 
                     @Override
                     public DeviceMessageId getId() {
-                        return DeviceMessageId.havingId(id);
+                        return DeviceMessageId.from(id);
                     }
 
                     @Override
