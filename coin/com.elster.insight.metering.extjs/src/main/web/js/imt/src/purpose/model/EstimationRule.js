@@ -14,7 +14,9 @@ Ext.define('Imt.purpose.model.EstimationRule', {
         {name: 'name', type: 'string'},
         {name: 'estimatorImpl', type: 'string'},
         {name: 'properties', type: 'auto', defaultValue: null},
-        {name: 'markProjected', type: 'boolean', defaultValue: false},
+        {name: 'commentId', type: 'auto', defaultValue: null},
+        {name: 'commentValue', type: 'auto', persist: false, defaultValue: null},
+        {name: 'markProjected', type: 'boolean', defaultValue: false}
     ],
 
     associations: [
