@@ -28,7 +28,7 @@ public class DeviceMessageIdValidator implements ConstraintValidator<ValidDevice
                 .getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
-                        .map(DeviceMessageId::havingId)
+                        .map(DeviceMessageId::from)
                         .collect(Collectors.toList())).orElse(Collections.emptyList())
                 .stream()
                 .filter(deviceMessageId -> deviceMessageId.equals(deviceMessage.getDeviceMessageId()))

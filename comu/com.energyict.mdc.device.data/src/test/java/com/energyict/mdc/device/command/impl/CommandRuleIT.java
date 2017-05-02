@@ -138,12 +138,12 @@ public class CommandRuleIT {
 
                     @Override
                     public String getName() {
-                        return DeviceMessageId.havingId(id).name();
+                        return DeviceMessageId.from(id).name();
                     }
 
                     @Override
                     public DeviceMessageId getId() {
-                        return DeviceMessageId.havingId(id);
+                        return DeviceMessageId.from(id);
                     }
 
                     @Override

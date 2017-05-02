@@ -107,7 +107,7 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
         List<DeviceMessageId> supportedMessages = findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
-                        .map(DeviceMessageId::havingId)
+                        .map(DeviceMessageId::from)
                         .collect(Collectors.toList())).orElse(Collections.emptyList());
 
         return endDeviceControlTypeMapping.getPossibleDeviceMessageIdGroups().stream().anyMatch(supportedMessages::containsAll);
