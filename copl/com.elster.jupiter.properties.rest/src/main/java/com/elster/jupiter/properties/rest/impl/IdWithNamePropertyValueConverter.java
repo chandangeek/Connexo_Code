@@ -17,7 +17,9 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mbarinov on 22.08.2016.
@@ -68,12 +70,19 @@ public class IdWithNamePropertyValueConverter implements PropertyValueConverter 
             if (domainValue instanceof HasIdAndName){
                 return ((HasIdAndName) domainValue).getId();
             } else if (domainValue instanceof HasId && domainValue instanceof HasName) {
-                return ((HasId) domainValue).getId();
+                return this.asInfo(((HasId) domainValue).getId(), ((HasName) domainValue).getName());
             } else {
                 return ((HasId) domainValue).getId();
             }
         }
         return null;
+    }
+
+    private Object asInfo(long id, String name) {
+        Map<String, Object> info = new LinkedHashMap<>();
+        info.put("id", id);
+        info.put("name", name);
+        return info;
     }
 
 }
