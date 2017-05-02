@@ -808,7 +808,7 @@ public enum DeviceMessageId {
         return this.dbId;
     }
 
-    public static DeviceMessageId havingId(long dbId) {
+    public static DeviceMessageId from(long dbId) {
         for (DeviceMessageId messageId : DeviceMessageId.values()) {
             if (messageId.dbValue() == dbId) {
                 return messageId;
