@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             if (me.channels) {
                 dataQualitiesForChannels = false;
                 Ext.Array.each(me.channels, function (channel) {
-                    debugger;
+                    // debugger;
                     var mainValidationInfoField = me.down('#mainValidationInfo' + channel.id),
                         channelBulkValueField = me.down('#channelBulkValue' + channel.id),
                         containter = me.down("#channelFieldContainer" + channel.id);
