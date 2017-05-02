@@ -1,15 +1,14 @@
 package com.energyict.encryption;
 
-import java.security.GeneralSecurityException;
-import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Implementation of Galois/Counter mode of Operation(GCM)
@@ -35,7 +34,7 @@ import javax.crypto.spec.SecretKeySpec;
  *
  */
 public class AesGcm {
-	
+
 	/** Logger instance. */
 	private static final Logger logger = Logger.getLogger(AesGcm.class.getName());
 	/** The key algo. */
@@ -50,34 +49,34 @@ public class AesGcm {
 	private static final boolean JVM_SUPPORTS_AES_GCM = haveNativeSupportForAESGCM();
 	/** Internally used by GCM, we use it when decrypting stuff that has no tag (GCM without the GMAC). */
 	private static final String CIPHER_AES_CTR = "AES/CTR/NoPadding";
-	
+
 	/** Default tag size, in bytes. */
 	private static final int DEFAULT_TAG_SIZE = 16;
 
 	/** The encryption key. */
 	private SecretKey key;
-	
+
 	/** The tag size, in bytes. */
 	private int tagSize;
-	
+
 	/** The IV for GCM/CTR. */
 	private byte[] iv;
-	
+
 	/** Additional auth data for GCM. */
 	private byte[] aad;
-	
+
 	/** The plain text. */
 	private byte[] plainText;
-	
+
 	/** The cipher text. */
 	private byte[] cipherText;
-	
+
 	/** The authentication tag. */
 	private byte[] tag;
 
 	/**
 	 * Create a new instance.
-	 * 
+	 *
 	 * @param 	key				Key to be used.
 	 * @param 	iv				IV to be used.
 	 * @param 	plainText		Plain text.
@@ -95,7 +94,7 @@ public class AesGcm {
 		this.tag = tag;
 		this.tagSize = tagSize;
 	}
-	
+
 	/**
 	 * Creates a new instance of the AES Galois/Counter mode with an empty global encryption key
 	 */
@@ -125,7 +124,7 @@ public class AesGcm {
 	 *
 	 * @param gcmIV The original (GCM) IV.
 	 */
-	private static final byte[] getCTRIV(final byte[] gcmIV) {
+	private static byte[] getCTRIV(final byte[] gcmIV) {
 		final byte[] paddedIV = new byte[16];
 		System.arraycopy(gcmIV, 0, paddedIV, 0, gcmIV.length);
 		paddedIV[15] = 1;
@@ -145,10 +144,9 @@ public class AesGcm {
 	 *
 	 * @return    <code>true</code> if the JDK supports AES/GCM/NoPadding, <code>false</code> if it does not.
 	 */
-	private static final boolean haveNativeSupportForAESGCM() {
+	private static boolean haveNativeSupportForAESGCM() {
 		try {
 			Cipher.getInstance(CIPHER_AES_GCM);
-
 			return true;
 		} catch (GeneralSecurityException e) {
 			return false;
@@ -174,7 +172,7 @@ public class AesGcm {
 			throw new IllegalStateException("Error encrypting block of data : [" + e.getMessage() + "]", e);
 		}
 	}
-	
+
 	public final void encrypt() {
 		if (JVM_SUPPORTS_AES_GCM) {
 			this.encryptNative();
@@ -182,20 +180,20 @@ public class AesGcm {
 			this.encryptLegacy();
 		}
 	}
-	
+
 	/**
 	 * Encrypts the plainText according to the Galois/Counter mode of Operation,
 	 * using the provided input parameters.
 	 */
-	private final void encryptLegacy() {
+	private void encryptLegacy() {
 
 		// y0 = iv||0000 0000 0000 0000 0000 0000 0000 0001
 		final BitVector p = new BitVector(this.plainText);
 		final BitVector a = new BitVector(this.aad);
 		final BitVector iv = new BitVector(this.iv);
 		final BitVector h = aesEncrypt(new BitVector(16));
-		BitVector c = null;
-		BitVector t = null;
+		BitVector c;
+		BitVector t;
 
 		int counter = 1;
 		BitVector y0 = BitVector.concatenate(iv, BitVector.convertFromInt(counter, 4));
@@ -233,12 +231,12 @@ public class AesGcm {
 		this.tag = t.getValue();
 		this.cipherText = c.getValue();
 	}
-	
+
 	/**
 	 * Encrypts the plainText according to the Galois/Counter mode of Operation,
 	 * using the provided input parameters.
 	 */
-	private final void encryptNative() {
+	private void encryptNative() {
 		try {
 			final GCMParameterSpec parameterSpec = new GCMParameterSpec(DEFAULT_TAG_SIZE * 8, this.iv);
 			final Cipher aesGCMCipher = Cipher.getInstance(CIPHER_AES_GCM);
@@ -258,7 +256,7 @@ public class AesGcm {
 			throw new IllegalStateException("Error encrypting : [" + e.getMessage() + "]", e);
 		}
 	}
-	
+
 	/**
 	 * Decrypts the cipherText. Will also check validity of the data.
 	 * @return true if it's a valid encrypted frame, false otherwise
@@ -270,12 +268,12 @@ public class AesGcm {
 			return this.decryptLegacy();
 		}
 	}
-	
+
 	/**
 	 * Decrypts the cipherText. Will also check validity of the data.
 	 * @return true if it's a valid encrypted frame, false otherwise
 	 */
-	private final boolean decryptNative() {
+	private boolean decryptNative() {
 		if (this.tag == null || this.tag.length == 0) {
 			// Use CTR here.
 			try {
@@ -337,13 +335,13 @@ public class AesGcm {
 	 * Decrypts the cipherText. Will also check validity of the data.
 	 * @return true if it's a valid encrypted frame, false otherwise
 	 */
-	private final boolean decryptLegacy(){
+	private boolean decryptLegacy(){
 		int counter = 1;
 
 		final BitVector c = new BitVector(this.cipherText);
 		final BitVector a = new BitVector(this.aad);
 		final BitVector h = aesEncrypt(new BitVector(16));
-		BitVector p = null;
+		BitVector p;
 
 		BitVector y0 = BitVector.concatenate(new BitVector(iv), BitVector.convertFromInt(counter, 4));
 		int n = c.length()/16 + ((c.length()%16 > 0) ? 1 : 0);
@@ -484,7 +482,7 @@ public class AesGcm {
 	public final void setTag(final BitVector t) {
 		this.tag = t.getValue();
 	}
-	
+
 	/**
 	 * Setter for the size of the authenticationTag.
 	 * Most common tagSizes are : 128, 120, 112, 104, or 96 bits
