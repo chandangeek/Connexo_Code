@@ -11,7 +11,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -58,13 +58,13 @@ public interface InboundDiscoveryContext {
     public List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(DeviceIdentifier deviceIdentifier, int confirmationCount);
 
     /**
-     * Gets the {@link SecurityProperty security properties} that have been
+     * Gets the {@link DeviceProtocolSecurityPropertySet} that has been
      * created against the Device that is currently connected to the ComServer.
      *
      * @param deviceIdentifier The object that uniquely identifies the Device
-     * @return The List of SecurityProperty or null if the Device is not ready for inbound communication
+     * @return The DeviceProtocolSecurityPropertySet or null if the Device is not ready for inbound communication
      */
-    public List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier);
+    public DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier);
 
     /**
      * Gets the {@link TypedProperties} that have been

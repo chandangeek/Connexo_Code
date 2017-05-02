@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public interface DeviceProtocolSecurityCapabilities {
+public interface DeviceProtocolSecurityCapabilities {   //TODO: still needs rework
 
     /**
      * Returns the {@link CustomPropertySet} that provides the storage area
@@ -41,9 +41,11 @@ public interface DeviceProtocolSecurityCapabilities {
      *
      * @return The CustomPropertySet
      */
-    Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet();
+    default Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {   //TODO: all implementations should be removed
+            return Optional.empty();
+    }
 
-    default List<PropertySpec> getSecurityPropertySpecs() {
+    default List<PropertySpec> getSecurityPropertySpecs() { //TODO: all implementations should be removed
         return this.getCustomPropertySet()
                 .map(CustomPropertySet::getPropertySpecs)
                 .orElseGet(Collections::emptyList);
@@ -56,7 +58,7 @@ public interface DeviceProtocolSecurityCapabilities {
      * @param name The name of the security property specification
      * @return The PropertySpec or an empty Optional if no such PropertySpec exists
      */
-    default Optional<PropertySpec> getSecurityPropertySpec(String name) {
+    default Optional<PropertySpec> getSecurityPropertySpec(String name) {  //TODO: all implementations should be removed
         return getSecurityPropertySpecs()
                 .stream()
                 .filter(propertySpec -> propertySpec.getName().equals(name))
