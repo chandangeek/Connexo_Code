@@ -34,6 +34,11 @@ public class MainCheckEstimator extends AbstractMainCheckEstimator {
     }
 
     @Override
+    TranslationKey getEstimatorNameKey() {
+        return TranslationKeys.ESTIMATOR_NAME;
+    }
+
+    @Override
     String getMessage(ReferenceReadingQuality referenceReadingQuality, EstimationBlock estimationBlock) {
         String message;
         switch (referenceReadingQuality){
@@ -63,7 +68,7 @@ public class MainCheckEstimator extends AbstractMainCheckEstimator {
                                 .getFullAliasName());
                 break;
                 default:
-                    message = getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_INTERNAL_ERROR)
+                    message = getThesaurus().getFormat(MessageSeeds.ESTIMATOR_FAIL_INTERNAL_ERROR)
                             .format(blockToString(estimationBlock), getThesaurus().getFormat(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME)
                                     .format(), validatingUsagePoint.getName(), checkPurpose.getName(), estimationBlock.getReadingType()
                                     .getFullAliasName());

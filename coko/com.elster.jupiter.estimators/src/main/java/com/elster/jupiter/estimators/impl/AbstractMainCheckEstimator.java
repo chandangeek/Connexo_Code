@@ -133,6 +133,8 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
     }
 
 
+    abstract TranslationKey getEstimatorNameKey();
+
     @Override
     public EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system) {
 
@@ -147,8 +149,8 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
         if (!usagePoint.isPresent()) {
             // no usage point found
             LoggingContext.get()
-                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_NO_UP)
-                            .format(getThesaurus().getFormat(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME)
+                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.ESTIMATOR_FAIL_NO_UP)
+                            .format(getThesaurus().getFormat(getEstimatorNameKey())
                                     .format()));
             return SimpleEstimationResult.of(estimationBlocks, Collections.emptyList());
         } else {
@@ -189,8 +191,8 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
             }
             if (message == null) {
                 // should not happens
-                message = getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_INTERNAL_ERROR)
-                        .format(blockToString(estimationBlock), getThesaurus().getFormat(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME)
+                message = getThesaurus().getFormat(MessageSeeds.ESTIMATOR_FAIL_INTERNAL_ERROR)
+                        .format(blockToString(estimationBlock), getThesaurus().getFormat(getEstimatorNameKey())
                                 .format(), validatingUsagePoint.getName(), checkPurpose.getName(), estimationBlock.getReadingType()
                                 .getFullAliasName());
             }
@@ -294,6 +296,8 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
         return new ReferenceReading(REFERENCE_DATA_SUSPECT);
     }
 
+    protected class InitCancelException extends Exception {
+    }
 
     public enum TranslationKeys implements TranslationKey {
 
