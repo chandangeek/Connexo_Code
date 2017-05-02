@@ -73,7 +73,11 @@ Ext.define('Uni.property.view.property.RegularReadingType', {
             combo.resumeEvent('change');
             me.setDefaultFilter(value);
         } else {
-            me.callParent([value.fullAliasName]);
+            if (value) {
+                me.callParent([value.fullAliasName]);
+            } else {
+                me.callParent(['']);
+            }
         }
     },
 
