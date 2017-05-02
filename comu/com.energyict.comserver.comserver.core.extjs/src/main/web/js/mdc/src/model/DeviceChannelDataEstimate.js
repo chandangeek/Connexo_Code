@@ -11,7 +11,6 @@ Ext.define('Mdc.model.DeviceChannelDataEstimate', {
     fields: [
         'estimatorImpl',
         'estimateBulk',
-        'commentId',
         'intervals'
     ],
 

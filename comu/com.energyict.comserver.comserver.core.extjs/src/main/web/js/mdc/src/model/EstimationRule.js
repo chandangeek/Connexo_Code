@@ -14,7 +14,6 @@ Ext.define('Mdc.model.EstimationRule', {
         {name: 'active', type: 'boolean'},
         {name: 'deleted', type: 'boolean'},
         {name: 'implementation', type: 'string', defaultValue: null, useNull: true},
-        {name: 'commentValue', type: 'string', defaultValue: null, useNull: true},
         {name: 'displayName', type: 'string'},
         {name: 'name', type: 'string', defaultValue: null, useNull: true, convert: function (value) {return value === '' ? null : value}},
         {name: 'properties', type: 'auto', defaultValue: null},

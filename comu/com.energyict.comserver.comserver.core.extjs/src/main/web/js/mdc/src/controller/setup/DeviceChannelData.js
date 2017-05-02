@@ -649,7 +649,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             conteinerStyle;
 
 
-
         viewport.setLoading();
         confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
             itemId: 'validateNowConfirmationWindow',
@@ -915,7 +914,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     editEstimationComment: function (records) {
         var modificationState = 'bulkModificationState',
             readings = [];
-
+debugger;
         if (!Array.isArray(records)) {
             readings.push(records);
         } else {
@@ -953,13 +952,19 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         if (radioValue) {
             _.each(readings, function (reading) {
-                reading.get('bulkValidationInfo').commentId = commentId;
-                reading.get('bulkValidationInfo').commentValue = commentValue;
+                if (reading.get('bulkModificationState') && reading.get('bulkModificationState').flag) {
+                    reading.get('bulkValidationInfo').commentId = commentId;
+                    reading.get('bulkValidationInfo').commentValue = commentValue;
+                    reading.set(button.modificationState, Uni.util.ReadingEditor.modificationState(reading.get('bulkModificationState').flag));
+                }
             });
         } else {
             _.each(readings, function (reading) {
-                reading.get('mainValidationInfo').commentId = commentId;
-                reading.get('mainValidationInfo').commentValue = commentValue;
+                if (reading.get('mainModificationState') && reading.get('mainModificationState').flag) {
+                    reading.get('mainValidationInfo').commentId = commentId;
+                    reading.get('mainValidationInfo').commentValue = commentValue;
+                    reading.set(button.modificationState, Uni.util.ReadingEditor.modificationState(reading.get('mainModificationState').flag));
+                }
             });
         }
         me.showButtons();
@@ -1040,17 +1045,14 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
                 if (response[0]) {
                     Ext.suspendLayouts();
-                        _.each(readings, function (reading) {
-                            item = reading.get('interval').end;
-                            item = _.find(response, function (rec) {
-                                return rec.interval.end === item;
-                            });
-                            if (item && reading.get('value') !== item.value) {
-                                reading.set('value', item.value);
-                                reading.set('isProjected', model.get('projectedValue'));
-                                reading.set('mainValidationInfo', Ext.merge(item.mainValidationInfo, comment));
-                            }
+                    _.each(readings, function (reading) {
+                        item = reading.get('interval').end;
+                        item = _.find(response, function (rec) {
+                            return rec.interval.end === item;
                         });
+                        reading.set('value', item.value);
+                        reading.set('mainValidationInfo', Ext.merge(item.mainValidationInfo, comment));
+                    });
                     me.showButtons();
                     Ext.resumeLayouts(true);
                 }

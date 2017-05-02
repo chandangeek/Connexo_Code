@@ -281,7 +281,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             generalItems = [],
             valuesItems = [],
             qualityItems = [];
-debugger;
+
         generalItems.push(
             {
                 fieldLabel: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
@@ -635,6 +635,7 @@ debugger;
                 }
             }
         ];
+        debugger;
         me.callParent(arguments);
     }
 });
