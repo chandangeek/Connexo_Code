@@ -17,7 +17,9 @@ Ext.define('Mdc.model.EstimationRuleOnChannel', {
         {name: 'displayName', type: 'string'},
         {name: 'name', type: 'string', defaultValue: null, useNull: true, convert: function (value) {return value === '' ? null : value}},
         {name: 'properties', type: 'auto', defaultValue: null},
-        {name: 'ruleSetId', type: 'auto'}
+        {name: 'ruleSetId', type: 'auto'},
+        {name: 'commentId', type: 'int', persist: false},
+        {name: 'commentValue', type: 'string', persist: false}
     ],
 
     associations: [

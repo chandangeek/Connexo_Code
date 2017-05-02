@@ -605,12 +605,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             bulkStatus = validationResult.bulk === 'suspect';
         }
 
-        if (menu.record.get('mainModificationState') && menu.record.get('mainModificationState').flag ||
-            menu.record.get('bulkModificationState') && menu.record.get('bulkModificationState').flag) {
+        if (menu.record.get('mainModificationState') && menu.record.get('mainModificationState').flag) {
             canEditingComment = flagForComment(menu.record.get('mainModificationState').flag);
-            if (!canEditingComment) {
-                canEditingComment = flagForComment(menu.record.get('bulkModificationState').flag);
-            }
+        }
+        if (!canEditingComment && menu.record.get('bulkModificationState') && menu.record.get('bulkModificationState').flag) {
+            canEditingComment = flagForComment(menu.record.get('bulkModificationState').flag);
         }
 
         menu.down('#estimate-value').setVisible(mainStatus || bulkStatus || menu.record.get('estimatedNotSaved') === true);
@@ -914,7 +913,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     editEstimationComment: function (records) {
         var modificationState = 'bulkModificationState',
             readings = [];
-debugger;
+
         if (!Array.isArray(records)) {
             readings.push(records);
         } else {
@@ -1222,7 +1221,7 @@ debugger;
             propertyForm = window.down('#property-form'),
             estimationRuleId = window.down('#estimator-field').getValue(),
             model = Ext.create('Mdc.model.DeviceChannelDataEstimate'),
-            commentCombo = window.down('#estimation-comment-box'),
+            commentCombo = window.down('#estimation-comment'),
             commentValue = commentCombo.getRawValue(),
             commentId = commentCombo.getValue(),
             estimateBulk = false,
@@ -1350,7 +1349,7 @@ debugger;
     updateEstimatedValues: function (record, reading, estimatedReading, ruleId, action) {
         var me = this,
             grid = me.getPage().down('deviceLoadProfileChannelDataGrid');
-
+        debugger;
         if (record.get('estimateBulk')) {
             reading.set('collectedValue', estimatedReading.collectedValue);
             if (ruleId) {
@@ -1539,13 +1538,15 @@ debugger;
             menu.down('#edit-estimation-comment').setVisible(
                 _.find(selectedRecords, function (record) {
                     var canEditingComment;
-                    if (record.get('mainModificationState') && record.get('mainModificationState').flag ||
-                        record.get('bulkModificationState') && record.get('bulkModificationState').flag) {
-                        canEditingComment = flagForComment(record.get('mainModificationState').flag);
-                        if (!canEditingComment) {
+                    if (!canEditingComment) {
+                        if (record.get('mainModificationState') && record.get('mainModificationState').flag) {
+                            canEditingComment = flagForComment(record.get('mainModificationState').flag);
+                        }
+                        if (!canEditingComment && record.get('bulkModificationState') && record.get('bulkModificationState').flag) {
                             canEditingComment = flagForComment(record.get('bulkModificationState').flag);
                         }
                     }
+
                     return canEditingComment;
                 })
             );
@@ -1833,6 +1834,7 @@ debugger;
         reading.beginEdit();
         reading.set('value', correctedInterval.value);
         reading.set('mainModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+        reading.get('mainModificationState').estimatedByRule = false;
         reading.get('mainValidationInfo').validationResult = 'validationStatus.ok';
         reading.endEdit(true);
 
