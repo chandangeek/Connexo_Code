@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.messages.enums.ActivityCalendarType;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
@@ -264,7 +265,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.stringSpec(service, activityCalendarNameAttributeName, activityCalendarNameAttributeDefaultTranslation),
-                    this.stringSpec(service, activityCalendarObiscodeAttributeName, activityCalendarObiscodeAttributeDefaultTranslation),
+                    this.obisCodeSpecBuilder(service, activityCalendarObiscodeAttributeName, activityCalendarObiscodeAttributeDefaultTranslation).finish(),
                     this.deviceMessageFileSpec(service, dayProfileXmlUserFileAttributeName, dayProfileXmlUserFileAttributeDefaultTranslation),
                     this.deviceMessageFileSpec(service, weekProfileXmlUserFileAttributeName, weekProfileXmlUserFileAttributeDefaultTranslation),
                     this.deviceMessageFileSpec(service, seasonProfileXmlUserFileAttributeName, seasonProfileXmlUserFileAttributeDefaultTranslation),
@@ -359,6 +360,15 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
                 .addValues(possibleValues)
                 .markExhaustive()
                 .finish();
+    }
+
+    protected PropertySpecBuilder<ObisCode> obisCodeSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .obisCodeSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired();
     }
 
     protected PropertySpec dateTimeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
