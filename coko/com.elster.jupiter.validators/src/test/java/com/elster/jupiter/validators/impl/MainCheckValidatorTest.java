@@ -78,27 +78,11 @@ abstract public class MainCheckValidatorTest {
     protected Range<Instant> range = Range.closed(instant("20160101000000"),instant("20160207000000"));
 
     MainCheckValidator initValidator(ValidationConfiguration validationConfiguration) {
-        /*
-        when(thesaurus.getString(anyString(),anyString())).thenReturn("Main/check comparison");
-        Arrays.stream(MessageSeeds.values()).forEach(messageSeeds -> {
-            NlsMessageFormat nlsMessageFormat = createNlsMessageFormat(messageSeeds);
-            when(thesaurus.getFormat(messageSeeds)).thenReturn(nlsMessageFormat);
-        });
-        */
         MainCheckValidator validator = new MainCheckValidator(thesaurus, propertySpecService, validationConfiguration.rule
                 .createProperties(), validationConfiguration.metrologyConfigurationService, validationConfiguration.validationService);
         validator.init(validationConfiguration.checkChannel, validationConfiguration.readingType, range);
         return validator;
     }
-
-    NlsMessageFormat createNlsMessageFormat(MessageSeeds messageSeeds){
-        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
-        when(nlsMessageFormat.format(anyVararg())).thenAnswer(invocationOnMock -> {
-            return String.format(messageSeeds.getDefaultFormat().replaceAll("\\{.}","%s"),invocationOnMock.getArguments());
-        });
-        return nlsMessageFormat;
-    }
-
 
     BigDecimal bigDecimal(Double value) {
         return BigDecimal.valueOf(value);

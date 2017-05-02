@@ -184,7 +184,6 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
             initOverridenProperties();
             ReadingType referenceReadingType = referenceReadingTypeProperty.getReadingType();
             validateReferenceReadingType(readingType, referenceReadingType);
-            validateReferenceUsagePoint();
             initValidatingPurpose();
             initUsagePointName(channel);
             initCheckData(referenceUsagePoint.getUsagePoint(), referenceReadingType);
@@ -204,10 +203,6 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
                                     .getName(), validatingUsagePointName));
             throw new InitCancelException(ValidationResult.NOT_VALIDATED);
         }
-    }
-
-    private void validateReferenceUsagePoint() throws InitCancelException {
-        // TODO: verify check usage point exists
     }
 
     @Override
