@@ -99,7 +99,9 @@ Ext.define('Usr.controller.GroupEdit', {
     },
 
     showOverview: function (record, title) {
-        var me = this;
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+        viewport.setLoading();
         me.getStore('Usr.store.Resources').clearFilter();
         me.getStore('Usr.store.Resources').load({
             callback: function () {
@@ -109,7 +111,6 @@ Ext.define('Usr.controller.GroupEdit', {
                     name = '',
                     previousPermissions = '';
                 me.widget = widget;
-                widget.setLoading(true);
                 panel.setTitle(title);
                 if (record.get('id') == 1) {
                     panel.down('[itemId=alertmessagerole]').hidden = false;
@@ -148,7 +149,7 @@ Ext.define('Usr.controller.GroupEdit', {
                 me.onPrivilegesStoreLoad();
                 this.commitChanges();
 
-                widget.setLoading(false);
+                viewport.setLoading(false);
                 me.getApplication().getController('Usr.controller.Main').showContent(widget);
             }});
     },
