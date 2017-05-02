@@ -795,7 +795,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         builder.securitySuite(securitySuiteId);
         builder.requestSecurityLevel(requestSecurityLevelId);
         builder.responseSecurityLevel(responseSecurityLevelId);
-        getConfigurationSecurityProperties().stream().forEach(each -> builder.addConfigurationSecurityProperty(each.getName(), each.getKeyAccessor()));
+        getConfigurationSecurityProperties().forEach(each -> builder.addConfigurationSecurityProperty(each.getName(), each.getKeyAccessorType()));
         return builder.build();
     }
 

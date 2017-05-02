@@ -72,7 +72,7 @@ public class ValidConfigurationSecurityPropertiesValidator implements Constraint
                 .stream()
                 .filter(property -> property.getName().equals(propertyName))
                 .findFirst();
-        return securityPropertyOptional.isPresent() && securityPropertyOptional.get().getKeyAccessor() != null;
+        return securityPropertyOptional.isPresent() && securityPropertyOptional.get().getKeyAccessorType() != null;
     }
 
     private List<PropertySpec> getRequiredPropertySpecs(Set<PropertySpec> propertySpecs) {
@@ -98,7 +98,7 @@ public class ValidConfigurationSecurityPropertiesValidator implements Constraint
     private void validatePropertyValue(Optional<PropertySpec> propertySpec, ConfigurationSecurityProperty configurationSecurityProperty, ConstraintValidatorContext context) {
         if (propertySpec.isPresent()) {
             try {
-                propertySpec.get().validateValue(configurationSecurityProperty.getKeyAccessor());
+                propertySpec.get().validateValue(configurationSecurityProperty.getKeyAccessorType());
             } catch (InvalidValueException e) {
                 context.disableDefaultConstraintViolation();
                 context

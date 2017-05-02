@@ -26,7 +26,7 @@ public interface ConfigurationSecurityProperty {
      *
      * @return Gets the {@link KeyAccessorType} of this {@link ConfigurationSecurityProperty}
      */
-    KeyAccessorType getKeyAccessor();
+    KeyAccessorType getKeyAccessorType();
 
     /**
      * Gets the {@link SecurityPropertySet} who owns this {@link ConfigurationSecurityProperty}

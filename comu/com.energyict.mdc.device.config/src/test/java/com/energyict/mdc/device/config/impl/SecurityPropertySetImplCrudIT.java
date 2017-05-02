@@ -535,7 +535,7 @@ public class SecurityPropertySetImplCrudIT {
     private boolean hasMatchingConfigurationSecurityProperty(List<ConfigurationSecurityProperty> configurationSecurityProperties, String name, KeyAccessorType keyAccessorType) {
         return configurationSecurityProperties
                 .stream()
-                .anyMatch(property -> property.getName().equals(name) && property.getKeyAccessor().equals(keyAccessorType));
+                .anyMatch(property -> property.getName().equals(name) && property.getKeyAccessorType().equals(keyAccessorType));
     }
 
     @Test

@@ -30,17 +30,17 @@ public class ConfigurationSecurityPropertyImpl implements ConfigurationSecurityP
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<SecurityPropertySet> securityPropertySet = Reference.empty();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<KeyAccessorType> keyAccessor = Reference.empty();
+    private Reference<KeyAccessorType> keyAccessorType = Reference.empty();
 
     @Inject
     public ConfigurationSecurityPropertyImpl() {
     }
 
-    public ConfigurationSecurityPropertyImpl(SecurityPropertySet securityPropertySet, String name, KeyAccessorType keyAccessor) {
+    public ConfigurationSecurityPropertyImpl(SecurityPropertySet securityPropertySet, String name, KeyAccessorType keyAccessorType) {
         super();
         this.securityPropertySet.set(securityPropertySet);
         this.name = name;
-        this.keyAccessor.set(keyAccessor);
+        this.keyAccessorType.set(keyAccessorType);
     }
 
     @Override
@@ -52,16 +52,16 @@ public class ConfigurationSecurityPropertyImpl implements ConfigurationSecurityP
         return securityPropertySet.get();
     }
 
-    public KeyAccessorType getKeyAccessor() {
-        return keyAccessor.orNull();
+    public KeyAccessorType getKeyAccessorType() {
+        return keyAccessorType.orNull();
     }
 
     protected void setName(String name) {
         this.name = name;
     }
 
-    protected void setKeyAccessor(KeyAccessorType keyAccessor) {
-        this.keyAccessor.set(keyAccessor);
+    protected void setKeyAccessorType(KeyAccessorType keyAccessorType) {
+        this.keyAccessorType.set(keyAccessorType);
     }
 
     protected void setSecurityPropertySet(SecurityPropertySet securityPropertySet) {
