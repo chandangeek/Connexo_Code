@@ -23,8 +23,10 @@ public class Base64Validator implements ConstraintValidator<Base64EncodedKey, St
         try {
             Base64.getDecoder().decode(string);
         } catch (IllegalArgumentException e) {
-            constraintValidatorContext.buildConstraintViolationWithTemplate(message)
-                    .addConstraintViolation().disableDefaultConstraintViolation();
+            constraintValidatorContext
+                    .buildConstraintViolationWithTemplate(message)
+                    .addConstraintViolation()
+                    .disableDefaultConstraintViolation();
             return false;
         }
         return true;

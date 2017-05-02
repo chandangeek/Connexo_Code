@@ -39,7 +39,7 @@ public enum MessageSeeds implements MessageSeed {
     CERTIFICATE_SUBJECT_DN_MISMATCH(1023, "SubjectMismatchCSR", "The certificate's subject distinguished name does not match the CSR"),
     CERTIFICATE_KEY_USAGE_MISMATCH(1024, "KeyUsagesMismatchCSR", "The certificate's key usage extension does not match the CSR"),
     CERTIFICATE_EXTENDED_KEY_USAGES_MISMATCH(1025, "ExtendedKeyUsagesMismatchCSR", "The certificate's extended key usage extension does not match the CSR"),
-    INVALID_VALUE(1026, "InvalidValue", "This value is invalid"),
+    INVALID_VALUE(1026,Keys.INVALID_VALUE, "This value is invalid"),
     NO_POSSIBLE_CHARS_IN_PASSWORD(1027, Keys.NOVALIDCHARACTERS, "The passphrase type has no characters sets to choose from"),
     INVALID_PASSWORD_LENGTH(1028, Keys.INVALIDPASSPHRASELENGTH, "Invalid passphrase length"),
     INVALID_KEY_SIZE(1029, Keys.INVALID_KEY_SIZE, "Invalid key size");
