@@ -16,7 +16,7 @@ Ext.define('Uni.property.view.property.RegularReadingType', {
             width: me.width,
             readOnly: me.isReadOnly,
             blankText: me.blankText,
-            emptyText: Uni.I18n.translate('property.regularReadingType.emptyText', 'UNI', 'Select a reading type'),
+            emptyText: Uni.I18n.translate('property.readingType.emptyText', 'UNI', 'Start typing to select a reading type'),
             displayField: 'fullAliasName',
             valueField: 'mRID',
             anyMatch: true,
@@ -54,6 +54,32 @@ Ext.define('Uni.property.view.property.RegularReadingType', {
             }
         };
     },
+
+    getField: function () {
+        return this.down('combobox');
+    },
+
+    comboLimitNotification: function (combo) {
+        var picker = combo.getPicker(),
+            fn = function (view) {
+                var store = view.getStore(),
+                    el = view.getEl().down('.' + Ext.baseCSSPrefix + 'list-plain');
+
+                if (store.getTotalCount() > store.getCount()) {
+                    el.appendChild({
+                        tag: 'li',
+                        html: Uni.I18n.translate('property.readingType.keepTyping', 'UNI', 'Keep typing to narrow down'),
+                        cls: Ext.baseCSSPrefix + 'boundlist-item combo-limit-notification'
+                    });
+                }
+            };
+
+        picker.on('refresh', fn);
+        picker.on('beforehide', function () {
+            picker.un('refresh', fn);
+        }, combo, {single: true});
+    },
+
     getValue: function () {
         var me = this;
         return {
@@ -73,7 +99,11 @@ Ext.define('Uni.property.view.property.RegularReadingType', {
             combo.resumeEvent('change');
             me.setDefaultFilter(value);
         } else {
-            me.callParent([value.fullAliasName]);
+            if (value) {
+                me.callParent([value.fullAliasName]);
+            } else {
+                me.callParent([value]);
+            }
         }
     },
 
@@ -87,7 +117,7 @@ Ext.define('Uni.property.view.property.RegularReadingType', {
                 },
                 {
                     property: 'equidistant',
-                    value: false
+                    value: true
                 }
             ];
 
