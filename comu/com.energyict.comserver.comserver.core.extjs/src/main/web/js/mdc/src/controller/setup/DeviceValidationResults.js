@@ -271,37 +271,6 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             isFromNewValidation = confWindow.down('#rdg-validation-run').getValue().validation === 'newValidation';
 
         me.confirmationWindowButtonsDisable(true);
-<<<<<<< Updated upstream
-        confWindow.down('#pnl-validation-progress').add(Ext.create('Ext.ProgressBar', {
-                margin: '5 0 15 0'
-            })).wait({
-                text: Uni.I18n.translate('device.dataValidation.isInProgress', 'MDC', 'Data validation is in progress. Please wait...'),
-                fn: function () {
-                    me.destroyConfirmationWindow();
-                    Ext.widget('messagebox', {
-                        buttons: [
-                            {
-                                text: Uni.I18n.translate('general.close', 'MDC', 'Close'),
-                                ui: 'remove',
-                                handler: function () {
-                                    this.up('window').close();
-                                }
-                            }
-                        ],
-                        listeners: {
-                            close: function () {
-                                this.destroy();
-                            }
-                        }
-                    }).show({
-                            ui: 'notification-error',
-                            title: Uni.I18n.translate('device.dataValidation.timeout.title1', 'MDC', 'Data validation takes longer than expected'),
-                            msg: Uni.I18n.translate('device.dataValidation.timeout.message', 'MDC', 'Data validation takes longer than expected and will continue in the background.'),
-                            icon: Ext.MessageBox.ERROR
-                        });
-                }
-            });
-=======
 
         confWindow.down('#pnl-validation-progress').add(Ext.create('Ext.ProgressBar', {
             margin: '5 0 15 0'
@@ -334,7 +303,6 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             }
         });
 
->>>>>>> Stashed changes
 
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/validationrulesets/validationstatus',
@@ -352,10 +320,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             },
             failure: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
                 confWindow.down('#pnl-validation-progress').removeAll(true);
                 if (response.status === 400) {
                     me.showValidationActivationErrors(res.errors[0].msg);
