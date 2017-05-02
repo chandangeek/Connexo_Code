@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
@@ -39,6 +40,8 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.ReadingTypeInValidationRule;
+import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
@@ -75,6 +78,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     private volatile DataModel dataModel;
     private volatile Clock clock;
+    private volatile CalendarService calendarService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile MeteringService meteringService;
     private volatile EventService eventService;
@@ -93,10 +97,12 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Inject
     public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, EventService eventService, UserService userService,
                                               ValidationService validationService, EstimationService estimationService, NlsService nlsService,
+                                              CalendarService calendarService,
                                               MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService, UpgradeService upgradeService) {
         this();
         setClock(clock);
         setOrmService(ormService);
+        setCalendarService(calendarService);
         setMetrologyConfigurationService(metrologyConfigurationService);
         setMeteringService(meteringService);
         setEventService(eventService);
@@ -120,6 +126,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(CalendarService.class).toInstance(calendarService);
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(UsagePointConfigurationService.class).toInstance(UsagePointConfigurationServiceImpl.this);
             }
@@ -143,6 +150,11 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setCalendarService(CalendarService calendarService) {
+        this.calendarService = calendarService;
     }
 
     @Reference
@@ -242,7 +254,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Override
     public List<ValidationRuleSet> getValidationRuleSets(MetrologyContract metrologyContract) {
         return this.dataModel
-                .query(MetrologyContractValidationRuleSetUsage.class)
+                .query(MetrologyContractValidationRuleSetUsage.class, ValidationRuleSet.class, ValidationRuleSetVersion.class, ValidationRule.class, ReadingTypeInValidationRule.class)
                 .select(where(MetrologyContractValidationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName())
                         .isEqualTo(metrologyContract))
                 .stream()

@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import static java.util.logging.Level.SEVERE;
 
 public enum MessageSeeds implements MessageSeed {
+    REQUIRED(1000, Keys.REQUIRED, "This field is required"),
     DUPLICATE_VALIDATION_RULE_USAGE(1001, Keys.DUPLICATE_VALIDATION_RULE_USAGE, "Rule set is already linked to metrology configuration"),;
     private final int number;
     private final String key;
@@ -54,6 +55,7 @@ public enum MessageSeeds implements MessageSeed {
     }
 
     public static class Keys {
+        public static final String REQUIRED = "isRequired";
         public static final String DUPLICATE_VALIDATION_RULE_USAGE = "duplicateValidationRuleUsage";
 
     }
