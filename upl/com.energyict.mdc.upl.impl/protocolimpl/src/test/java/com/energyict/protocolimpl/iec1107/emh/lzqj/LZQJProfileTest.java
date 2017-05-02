@@ -40,29 +40,22 @@ public class LZQJProfileTest {
 
     private static Logger logger;
     private static LZQJ lzqj;
-    private static LZQJRegistry lzqjRegistry;
     private static LZQJProfile lzqjProfile;
-    private static TypedProperties properties;
 
     @BeforeClass
     public static void setUpOnce() {
         try {
             logger = Logger.getLogger("global");
             lzqj = new LZQJ(propertySpecService, nlsService);
-            properties = TypedProperties.empty();
+            TypedProperties properties = TypedProperties.empty();
             properties.setProperty("ChannelMap", new ProtocolChannelMap("0+8,0+8,0+8,0+8"));
             properties.setProperty("FixedProfileTimeZone", 0);
             properties.setProperty("ProfileInterval", 300);
             lzqj.setUPLProperties(properties);
             lzqj.setTimeZone(TimeZone.getTimeZone("Europe/Brussels"));
-            lzqjRegistry = new LZQJRegistry(lzqj, lzqj);
+            LZQJRegistry lzqjRegistry = new LZQJRegistry(lzqj, lzqj);
             lzqjProfile = new LZQJProfile(lzqj, lzqj, lzqjRegistry);
-        } catch (MissingPropertyException e) {
-            if (logger != null) {
-                logger.log(Level.INFO, e.getMessage());
-            }
-            fail();
-        } catch (InvalidPropertyException e) {
+        } catch (MissingPropertyException | InvalidPropertyException e) {
             if (logger != null) {
                 logger.log(Level.INFO, e.getMessage());
             }
@@ -127,4 +120,5 @@ public class LZQJProfileTest {
             fail();
         }
     }
+
 }
