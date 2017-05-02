@@ -272,7 +272,7 @@ public class ServiceCallCommands {
                     .orElseThrow(() -> new IllegalArgumentException("No device known with name " + deviceName));
 
 
-            device.newDeviceMessage(DeviceMessageId.havingId(deviceMessageId), TrackingCategory.serviceCall)
+            device.newDeviceMessage(DeviceMessageId.from(deviceMessageId), TrackingCategory.serviceCall)
                     .setTrackingId("" + serviceCallId)
                     .setReleaseDate(Instant.now())
                     .add();
