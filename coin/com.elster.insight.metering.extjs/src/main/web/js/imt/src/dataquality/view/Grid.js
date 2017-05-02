@@ -96,6 +96,13 @@ Ext.define('Imt.dataquality.view.Grid', {
                 dataIndex: 'amountOfTotalEdited',
                 align: 'right',
                 flex: 1
+            },
+            {
+                header: '<span class="white-circle-grid-header" style="font-weight:bold; cursor: default" data-qtip="' + Uni.I18n.translate('general.projected', 'IMT', 'Projected') + '">P</span>',
+                exportText: Uni.I18n.translate('general.projected', 'IMT', 'Projected'),
+                dataIndex: 'amountOfProjected',
+                align: 'right',
+                flex: 1
             }
         ];
 
