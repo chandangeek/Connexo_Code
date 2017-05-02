@@ -184,7 +184,7 @@ public class DeviceMessageResource {
 
         Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mRID, deviceMessageInfo.device.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
-        DeviceMessageId deviceMessageId = DeviceMessageId.havingId(deviceMessageInfo.messageSpecification.id);
+        DeviceMessageId deviceMessageId = DeviceMessageId.from(deviceMessageInfo.messageSpecification.id);
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(deviceMessageId).setReleaseDate(deviceMessageInfo.releaseDate);
         DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService
                 .findMessageSpecById(deviceMessageId.dbValue())
