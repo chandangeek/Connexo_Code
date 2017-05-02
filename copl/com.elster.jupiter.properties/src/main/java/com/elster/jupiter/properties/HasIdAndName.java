@@ -10,9 +10,9 @@ import aQute.bnd.annotation.ConsumerType;
 
 @ConsumerType
 public abstract class HasIdAndName implements HasName {
-    
+
     public abstract Object getId();
-    
+
     public abstract String getName();
 
     public boolean equals(Object obj) {
@@ -25,9 +25,10 @@ public abstract class HasIdAndName implements HasName {
         HasIdAndName o = (HasIdAndName) obj;
         return getId() != null ? getId().equals(o.getId()) : o.getId() == null;
     }
-    
+
     @Override
     public int hashCode() {
         return getId().hashCode();
     }
+
 }
