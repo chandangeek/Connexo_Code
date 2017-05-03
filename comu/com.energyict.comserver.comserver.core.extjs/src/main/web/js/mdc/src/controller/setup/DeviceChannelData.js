@@ -1834,7 +1834,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         reading.beginEdit();
         reading.set('value', correctedInterval.value);
         reading.set('mainModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
-        reading.get('mainModificationState').estimatedByRule = false;
+        reading.get('mainValidationInfo').estimatedByRule = false;
         reading.get('mainValidationInfo').validationResult = 'validationStatus.ok';
         reading.endEdit(true);
 
