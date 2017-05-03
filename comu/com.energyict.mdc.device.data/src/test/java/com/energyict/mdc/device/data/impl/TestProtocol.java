@@ -4,14 +4,10 @@
 
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.data.impl.security.BasicAuthenticationCustomPropertySet;
-import com.energyict.mdc.device.data.impl.security.BasicAuthenticationSecurityProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -23,7 +19,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
@@ -47,7 +42,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 public class TestProtocol implements DeviceProtocol {
@@ -55,7 +49,6 @@ public class TestProtocol implements DeviceProtocol {
     private final PropertySpecService propertySpecService;
 
     public static final String MYOPTIONALPROPERTY = "MyOptionalProperty";
-
 
     @Inject
     public TestProtocol(PropertySpecService propertySpecService) {
@@ -190,24 +183,15 @@ public class TestProtocol implements DeviceProtocol {
 
     }
 
-    @Override
-    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
-        return Optional.of(getCustomPropertySet(this.propertySpecService));
-    }
-
-    public static CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> getCustomPropertySet(PropertySpecService propertySpecService) {
-        return new BasicAuthenticationCustomPropertySet(propertySpecService);
-    }
-
     private PropertySpec getUserNamePropertySpec() {
         BasicPropertySpec propertySpec = new BasicPropertySpec(new StringFactory());
-        propertySpec.setName(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName());
+        propertySpec.setName("usrName");
         return propertySpec;
     }
 
     private PropertySpec getPasswordPropertySpec() {
         BasicPropertySpec propertySpec = new BasicPropertySpec(new StringFactory());
-        propertySpec.setName(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName());
+        propertySpec.setName("password");
         return propertySpec;
     }
 
@@ -281,7 +265,7 @@ public class TestProtocol implements DeviceProtocol {
         return Collections.singletonList(getOptionalPropertySpec());
     }
 
-    public PropertySpec getOptionalPropertySpec(){
+    public PropertySpec getOptionalPropertySpec() {
         BasicPropertySpec propertySpec = new BasicPropertySpec(new StringFactory());
         propertySpec.setName(MYOPTIONALPROPERTY);
         return propertySpec;

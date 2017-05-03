@@ -16,17 +16,14 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
@@ -37,7 +34,6 @@ import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
-import com.energyict.mdc.device.data.impl.security.BasicAuthenticationSecurityProperties;
 import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -856,210 +852,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         assertThat(modifiedDevice.getConnectionTasks().get(0).getPartialConnectionTask().getId()).isEqualTo(mySecondConnectionTask.getId());
         assertThat(modifiedDevice.getConnectionTasks().get(0).getProperty(ipAddressPropertyName).getValue()).isEqualTo(ipAddressValue);
         assertThat(modifiedDevice.getConnectionTasks().get(0).getProperty(portNumberPropertyName).getValue()).isEqualTo(portNumberValue);
-    }
-
-
-    @Test(expected = CannotChangeDeviceConfigStillUnresolvedConflicts.class)
-    public void changeConfigWhileThereAreStillSecuritySetConflictingMappingsTest() {
-        Device device;
-        final DeviceConfiguration secondDeviceConfiguration;
-        try (TransactionContext context = getTransactionService().getContext()) {
-            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-            final SecurityPropertySet firstSecurityPropertySet = firstDeviceConfiguration.createSecurityPropertySet("NoSecurity").encryptionLevel(0).authenticationLevel(0).build();
-            firstDeviceConfiguration.activate();
-            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-            final SecurityPropertySet secondSecurityPropertySet = secondDeviceConfiguration.createSecurityPropertySet("None").encryptionLevel(0).authenticationLevel(0).build();
-            secondDeviceConfiguration.activate();
-
-            updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
-
-            assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2);
-
-            device = inMemoryPersistence.getDeviceService()
-                    .newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID", Instant.now());
-            device.save();
-            context.commit();
-        }
-        inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
-    }
-
-    @Test
-    public void changeConfigWithNoConflictingSecurityPropertySetsAndValidPropertiesTest() {
-        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
-        final SecurityPropertySet firstSecurityPropertySet;
-        final SecurityPropertySet secondSecurityPropertySet;
-        Device device;
-        final DeviceConfiguration secondDeviceConfiguration;
-
-        try (TransactionContext context = getTransactionService().getContext()) {
-            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-            final String securityPropertySetName = "NoSecurity";
-            firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, securityPropertySetName);
-            firstDeviceConfiguration.activate();
-            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-            secondSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, securityPropertySetName);
-            secondDeviceConfiguration.activate();
-
-            updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
-            assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
-
-            device = inMemoryPersistence.getDeviceService()
-                    .newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID", Instant.now());
-            device.save();
-            TypedProperties securityProperties = TypedProperties.empty();
-            securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName(), "12345678");
-            securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName(), "C3P0");
-            device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
-            device.save();
-            context.commit();
-        }
-        Device modifiedDevice = inMemoryPersistence.getDeviceService()
-                .changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion(), secondDeviceConfiguration
-                        .getId(), secondDeviceConfiguration.getVersion());
-
-        try (TransactionContext context = getTransactionService().getContext()) {
-            assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
-            assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet).get(0).getName()).isEqualTo(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName());
-            assertThat(modifiedDevice.getSecurityProperties(firstSecurityPropertySet)).isEmpty();
-            context.commit();
-        }
-    }
-
-    @Test
-    public void changeConfigWithNoConflictingSecurityPropertySetsAndValidPropertiesRemoveAndMapTest() {
-        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
-        final SecurityPropertySet firstSecurityPropertySet;
-        final SecurityPropertySet secondSecurityPropertySet;
-        final SecurityPropertySet otherSecurityPropertySet;
-        Device device;
-        final DeviceConfiguration secondDeviceConfiguration;
-
-        try (TransactionContext context = getTransactionService().getContext()) {
-            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-            final String firstSecurityPropertySetName = "NoSecurity";
-            final String secondSecurityPropertySetName = "OtherSecurity";
-            firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, firstSecurityPropertySetName);
-            secondSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, secondSecurityPropertySetName);
-            firstDeviceConfiguration.activate();
-            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-            otherSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, firstSecurityPropertySetName);
-            secondDeviceConfiguration.activate();
-
-            updateConflictsFor(otherSecurityPropertySet, securitySetCreatedTopic);
-            assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
-
-            device = inMemoryPersistence.getDeviceService()
-                    .newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID", Instant.now());
-            device.save();
-            TypedProperties securityProperties = TypedProperties.empty();
-            securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName(), "12345678");
-            securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName(), "C3P0");
-            device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
-            device.setSecurityProperties(secondSecurityPropertySet, securityProperties);
-            device.save();
-
-            context.commit();
-        }
-        Device modifiedDevice = inMemoryPersistence.getDeviceService()
-                .changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion(), secondDeviceConfiguration
-                        .getId(), secondDeviceConfiguration.getVersion());
-
-        try (TransactionContext context = getTransactionService().getContext()) {
-            assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
-            assertThat(modifiedDevice.getSecurityProperties(otherSecurityPropertySet).get(0).getName()).isEqualTo(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName());
-            assertThat(modifiedDevice.getSecurityProperties(firstSecurityPropertySet)).isEmpty();
-            assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet)).isEmpty();
-            context.commit();
-        }
-    }
-
-    @Test
-    public void changeConfigWithConflictingSecurityPropertySetsAndMapSolutionTest() {
-        when(inMemoryPersistence.getClock().instant()).thenAnswer(invocationOnMock -> Instant.now());
-
-        Device device;
-        final DeviceConfiguration secondDeviceConfiguration;
-        final SecurityPropertySet secondSecurityPropertySet;
-        final SecurityPropertySet firstSecurityPropertySet;
-        try (TransactionContext context = getTransactionService().getContext()) {
-            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-            final String firstSecurityPropertySetName = "NoSecurity";
-            final String secondSecurityPropertySetName = "AnotherSecurityPropertySetName";
-            firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, firstSecurityPropertySetName);
-            firstDeviceConfiguration.activate();
-            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-            secondSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, secondSecurityPropertySetName);
-            secondDeviceConfiguration.activate();
-
-            updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
-            final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
-            deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).markSolutionAsMap(secondSecurityPropertySet);
-
-            device = inMemoryPersistence.getDeviceService()
-                    .newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID", Instant.now());
-            device.save();
-            TypedProperties securityProperties = TypedProperties.empty();
-            securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName(), "12345678");
-            securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName(), "C3P0");
-            device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
-            device.getSecurityProperties(firstSecurityPropertySet);
-            device.save();
-            context.commit();
-        }
-
-
-        Device modifiedDevice = inMemoryPersistence.getDeviceService()
-                .changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion(), secondDeviceConfiguration
-                        .getId(), secondDeviceConfiguration.getVersion());
-
-        try (TransactionContext context = getTransactionService().getContext()) {
-            assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
-            assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet).get(0).getName()).isEqualTo(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName());
-            assertThat(modifiedDevice.getSecurityProperties(firstSecurityPropertySet)).isEmpty();
-            context.commit();
-        }
-    }
-
-    @Test
-    public void changeConfigWithConflictingSecurityPropertySetsAndRemoveSolutionTest() {
-        Device device;
-        final SecurityPropertySet secondSecurityPropertySet;
-        final DeviceConfiguration secondDeviceConfiguration;
-        final SecurityPropertySet firstSecurityPropertySet;
-        try (TransactionContext context = getTransactionService().getContext()) {
-            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-            final String firstSecurityPropertySetName = "NoSecurity";
-            final String secondSecurityPropertySetName = "AnotherSecurityPropertySetName";
-            firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, firstSecurityPropertySetName);
-            firstDeviceConfiguration.activate();
-            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-            secondSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, secondSecurityPropertySetName);
-            secondDeviceConfiguration.activate();
-
-            updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
-            final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
-            deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).markSolutionAsRemove();
-
-            device = inMemoryPersistence.getDeviceService()
-                    .newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID", Instant.now());
-            device.save();
-            TypedProperties securityProperties = TypedProperties.empty();
-            securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName(), "12345678");
-            securityProperties.setProperty(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName(), "C3P0");
-            device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
-            device.save();
-            context.commit();
-        }
-        Device modifiedDevice = inMemoryPersistence.getDeviceService()
-                .changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion(), secondDeviceConfiguration
-                        .getId(), secondDeviceConfiguration.getVersion());
-
-        try (TransactionContext context = getTransactionService().getContext()) {
-            assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
-            assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet)).isEmpty();
-            assertThat(modifiedDevice.getSecurityProperties(firstSecurityPropertySet)).isEmpty();
-            context.commit();
-        }
     }
 
     @Test

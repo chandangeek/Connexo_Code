@@ -43,7 +43,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -107,8 +106,6 @@ public class DeviceDeleteTest {
     private ServerConnectionTaskService connectionTaskService;
     @Mock
     private ServerCommunicationTaskService communicationTaskService;
-    @Mock
-    private SecurityPropertyService securityPropertyService;
     @Mock
     private Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
     @Mock
@@ -252,7 +249,6 @@ public class DeviceDeleteTest {
         device.delete();
 
         verify(eventService).postEvent(EventType.DEVICE_BEFORE_DELETE.topic(), device);
-        verify(securityPropertyService).deleteSecurityPropertiesFor(device);
         verify(meter).makeObsolete();
         verify(dataMapper).remove(device);
     }
@@ -349,7 +345,7 @@ public class DeviceDeleteTest {
     }
 
     private DeviceImpl getNewDeviceWithMockedServices() {
-        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService, pkiService);
+        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService, pkiService);
         device.initialize(this.deviceConfiguration, "For testing purposes", Instant.now());
         device.save();
         return device;

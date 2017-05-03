@@ -84,8 +84,6 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertyS
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
@@ -372,7 +370,6 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 this.deviceConfigurationService,
                                 this.meteringService, this.validationService, this.estimationService, this.schedulingService,
                                 injector.getInstance(MessageService.class),
-                                injector.getInstance(SecurityPropertyService.class),
                                 injector.getInstance(UserService.class),
                                 injector.getInstance(DeviceMessageSpecificationService.class),
                                 injector.getInstance(MeteringGroupsService.class),
@@ -460,7 +457,6 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(LogService.class).toInstance(mock(LogService.class));
                 bind(DeviceMessageService.class).toInstance(mock(DeviceMessageService.class));
 
-                bind(SecurityPropertyService.class).to(SecurityPropertyServiceImpl.class).in(Scopes.SINGLETON);
                 bind(ConnectionTaskService.class).to(ConnectionTaskServiceImpl.class).in(Scopes.SINGLETON);
                 bind(CommunicationTaskService.class).to(CommunicationTaskServiceImpl.class).in(Scopes.SINGLETON);
                 bind(LoadProfileService.class).to(LoadProfileServiceImpl.class).in(Scopes.SINGLETON);

@@ -32,7 +32,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
@@ -107,8 +106,6 @@ public class DeviceLifeCycleChangeEventsTest {
     private ServerConnectionTaskService connectionTaskService;
     @Mock
     private ServerCommunicationTaskService communicationTaskService;
-    @Mock
-    private SecurityPropertyService securityPropertyService;
     @Mock
     private DeviceLifeCycle deviceLifeCycle;
     @Mock
@@ -353,7 +350,6 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.clock,
                 this.meteringService,
                 this.validationService,
-                this.securityPropertyService,
                 this.scheduledConnectionTaskProvider,
                 this.inboundConnectionTaskProvider,
                 this.connectionInitiationTaskProvider,
