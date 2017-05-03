@@ -75,10 +75,10 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
         assertThat(model.<Number>get("$.keyType.id")).isEqualTo(1);
         assertThat(model.<String>get("$.keyType.name")).isEqualTo("Name of the keytype");
         assertThat(model.<Boolean>get("$.keyType.requiresDuration")).isEqualTo(true);
-        assertThat(model.<Number>get("$.validityPeriod.count")).isEqualTo(2);
-        assertThat(model.<Number>get("$.validityPeriod.asSeconds")).isEqualTo(5356800);
-        assertThat(model.<String>get("$.validityPeriod.localizedTimeUnit")).isEqualTo("months");
-        assertThat(model.<String>get("$.validityPeriod.timeUnit")).isEqualTo("months");
+        assertThat(model.<Number>get("$.duration.count")).isEqualTo(2);
+        assertThat(model.<Number>get("$.duration.asSeconds")).isEqualTo(5356800);
+        assertThat(model.<String>get("$.duration.localizedTimeUnit")).isEqualTo("months");
+        assertThat(model.<String>get("$.duration.timeUnit")).isEqualTo("months");
         assertThat(model.<String>get("$.parent.id")).isEqualTo("device type 1");
         assertThat(model.<Number>get("$.parent.version")).isEqualTo(toIntExact(OK_VERSION));
     }
@@ -91,7 +91,7 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
         info.id = 1;
         info.description = DESCRIPTION;
         info.name = NAME;
-        info.validityPeriod = new TimeDurationInfo(new TimeDuration(1, TimeDuration.TimeUnit.YEARS));
+        info.duration = new TimeDurationInfo(new TimeDuration(1, TimeDuration.TimeUnit.YEARS));
         info.parent = new VersionInfo<>("device type 1", 1L);
 
         KeyType keyType = mock(KeyType.class);
@@ -116,7 +116,7 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
         target("/devicetypes/66/securityaccessors").request().post(Entity.json(info));
         verify(deviceType).addKeyAccessorType(NAME, keyType);
         verify(builder).description(DESCRIPTION);
-        verify(builder).duration(info.validityPeriod.asTimeDuration());
+        verify(builder).duration(info.duration.asTimeDuration());
         verify(builder).add();
     }
 
@@ -130,7 +130,7 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
         info.id = 1;
         info.description = "New Description";
         info.name = "New name";
-        info.validityPeriod = new TimeDurationInfo(new TimeDuration(1, TimeDuration.TimeUnit.YEARS));
+        info.duration = new TimeDurationInfo(new TimeDuration(1, TimeDuration.TimeUnit.YEARS));
         info.parent = new VersionInfo<>("device type 1", 1L);
         ExecutionLevelInfo executionLevelInfo = new ExecutionLevelInfo();
         executionLevelInfo.id = "edit.device.security.properties.level1";
@@ -143,7 +143,7 @@ public class SecurityAcccessorResourceTest extends DeviceConfigurationApplicatio
         verify(deviceType).getKeyAccessorTypeUpdater(keyFunctionType);
         verify(updater).description(info.description);
         verify(updater).name(info.name);
-        verify(updater).duration(info.validityPeriod.asTimeDuration());
+        verify(updater).duration(info.duration.asTimeDuration());
         verify(updater).addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
     }
 

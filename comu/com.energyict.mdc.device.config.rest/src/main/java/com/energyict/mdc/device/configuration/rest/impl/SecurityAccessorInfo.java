@@ -6,7 +6,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
-
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -22,7 +21,7 @@ public class SecurityAccessorInfo {
     public KeyTypeInfo keyType;
     public String storageMethod;
     public long trustStoreId;
-    public TimeDurationInfo validityPeriod;
+    public TimeDurationInfo duration;
     public VersionInfo<String> parent;
     public List<ExecutionLevelInfo> editLevels = new ArrayList<>();
     public List<ExecutionLevelInfo> defaultEditLevels = new ArrayList<>();

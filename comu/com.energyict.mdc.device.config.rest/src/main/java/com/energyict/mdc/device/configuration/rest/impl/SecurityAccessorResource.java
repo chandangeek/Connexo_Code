@@ -135,9 +135,9 @@ public class SecurityAccessorResource {
                     .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_TRUST_STORE_FOUND, securityAccessorInfo.trustStoreId));
             keyFunctionTypeBuilder.trustStore(trustStore);
         }
-        if(securityAccessorInfo.validityPeriod != null && keyType.getCryptographicType().requiresDuration()) {
-            checkValidDurationOrThrowException(securityAccessorInfo.validityPeriod);
-            keyFunctionTypeBuilder.duration(securityAccessorInfo.validityPeriod.asTimeDuration());
+        if(securityAccessorInfo.duration != null && keyType.getCryptographicType().requiresDuration()) {
+            checkValidDurationOrThrowException(securityAccessorInfo.duration);
+            keyFunctionTypeBuilder.duration(securityAccessorInfo.duration.asTimeDuration());
         } else {
             keyFunctionTypeBuilder.duration(null);
         }
@@ -160,9 +160,9 @@ public class SecurityAccessorResource {
         KeyAccessorTypeUpdater updater = deviceType.getKeyAccessorTypeUpdater(keyAccessorType).get();
         updater.name(securityAccessorInfo.name);
         updater.description(securityAccessorInfo.description);
-        if(securityAccessorInfo.validityPeriod != null && keyAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
-            checkValidDurationOrThrowException(securityAccessorInfo.validityPeriod);
-            updater.duration(securityAccessorInfo.validityPeriod.asTimeDuration());
+        if(securityAccessorInfo.duration != null && keyAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
+            checkValidDurationOrThrowException(securityAccessorInfo.duration);
+            updater.duration(securityAccessorInfo.duration.asTimeDuration());
         } else {
             updater.duration(null);
         }
