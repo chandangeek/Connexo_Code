@@ -10,8 +10,6 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 
-import com.energyict.mdc.device.config.ComTaskEnablement;
-
 import javax.inject.Inject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -37,6 +35,7 @@ class UpgraderV10_3 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 3));
         initiateSimultaneousConnectionsForPartialConnectionTasks();
         moveProtocolDialectProperties();
+        migrateDialectNames();
     }
 
     // Initiate Partial Connection Tasks: set simultaneousconnections to 1
@@ -44,6 +43,21 @@ class UpgraderV10_3 implements Upgrader {
         logger.fine("Updating partial connection tasks");
         List<String> sql = new ArrayList<>();
         sql.add("UPDATE DTC_PARTIALCONNECTIONTASK SET simultaneousconnections=1 where simultaneousconnections = 0");
+        dataModel.useConnectionRequiringTransaction(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                sql.forEach(sqlCommand -> execute(statement, sqlCommand));
+            }
+        });
+    }
+
+    // Migrate the old names of the dialects to the new names (due to UPL)
+    private void migrateDialectNames() {
+        logger.fine("Migrating dialect names (due to universal protocol layer feature)");
+        List<String> sql = new ArrayList<>();
+        sql.add("UPDATE DTC_DIALECTCONFIGPROPERTIES SET NAME = 'SerialDlmsDialect' WHERE NAME = 'SerialDialect'");
+        sql.add("UPDATE DTC_DIALECTCONFIGPROPERTIES SET DEVICEPROTOCOLDIALECT = 'SerialDlmsDialect' WHERE DEVICEPROTOCOLDIALECT = 'SerialDialect'");
+        sql.add("UPDATE DTC_DIALECTCONFIGPROPERTIES SET NAME = 'TcpDlmsDialect' WHERE NAME = 'TcpDialect'");
+        sql.add("UPDATE DTC_DIALECTCONFIGPROPERTIES SET DEVICEPROTOCOLDIALECT = 'TcpDlmsDialect' WHERE DEVICEPROTOCOLDIALECT = 'TcpDialect'");
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()) {
                 sql.forEach(sqlCommand -> execute(statement, sqlCommand));
