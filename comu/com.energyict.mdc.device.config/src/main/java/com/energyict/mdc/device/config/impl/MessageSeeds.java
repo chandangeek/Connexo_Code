@@ -170,8 +170,10 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT(15018, Keys.CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT, "You can''t remove the connection method because it is used by a communication task"),
     TIME_OF_USE_CALENDAR_ONLY(15019, Keys.TIME_OF_USE_CALENDAR_ONLY, "You can only add Time of Use calendars to a device type"),
     INVALID_VALUE(15020, Keys.INVALID_VALUE, "Invalid value"),
-    SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC(13010, Keys.SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC, "The security setting does not contain a specification for this attribute", Level.SEVERE),
-    SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING(13012, Keys.SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING, "This field is required", Level.SEVERE),
+    SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC(15021, Keys.SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC, "The security setting does not contain a specification for this attribute", Level.SEVERE),
+    SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING(15022, Keys.SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING, "This field is required", Level.SEVERE),
+    KEY_ACCESSOR_CAN_NOT_BE_DELETED(15023, "CanNotDeleteKeyAccessor", "Security accessor could not be removed because the device type still has active device configurations"),
+    EXCESSIVE_TIME_DURATION(15024, Keys.EXCESSIVE_TIME_DURATION, "Duration is too long");
     ;
 
     private final int number;
@@ -296,7 +298,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_VALUE = "securityPropertySet.unsupportedClient";
         public static final String SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC = "securityPropertySet.property.not.in.spec";
         public static final String SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING = "securityPropertySet.required.property.missing";
-
+        public static final String EXCESSIVE_TIME_DURATION = "excessiveTimeDuration";
     }
 
 }

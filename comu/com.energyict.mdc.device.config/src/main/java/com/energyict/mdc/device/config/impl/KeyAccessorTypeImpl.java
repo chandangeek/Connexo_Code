@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -13,6 +14,8 @@ import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceKeyAccessorType;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.KeyAccessorTypeUpdater;
@@ -35,13 +38,14 @@ import static java.util.stream.Collectors.toList;
 @KeyEncryptionMethodValid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 @DurationPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 @TrustStorePresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
+public class KeyAccessorTypeImpl implements DeviceKeyAccessorType, PersistenceAware {
     private long id;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private String name;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
+    @MaxTimeDuration(max = 946080000L, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.EXCESSIVE_TIME_DURATION + "}")
     private TimeDuration duration;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String keyEncryptionMethod;
@@ -50,8 +54,6 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
     private Reference<TrustStore> trustStore = Reference.empty();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private Reference<DeviceType> deviceType = Reference.empty();
-    private DataModel dataModel;
-    private final ThreadPrincipalService threadPrincipalService;
     private Set<DeviceSecurityUserAction> userActions = EnumSet.noneOf(DeviceSecurityUserAction.class);
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
     @SuppressWarnings("unused")
@@ -62,6 +64,10 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
+
+    private final Thesaurus thesaurus;
+    private final DataModel dataModel;
+    private final ThreadPrincipalService threadPrincipalService;
 
     enum Fields {
         ID("id"),
@@ -84,9 +90,10 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
 
     }
     @Inject
-    public KeyAccessorTypeImpl(DataModel dataModel, ThreadPrincipalService threadPrincipalService) {
+    public KeyAccessorTypeImpl(DataModel dataModel, ThreadPrincipalService threadPrincipalService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.threadPrincipalService = threadPrincipalService;
+        this.thesaurus = thesaurus;
     }
 
     public long getId() {
@@ -142,6 +149,7 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
     }
 
     void preDelete() {
+        validateDelete();
         userActionRecords.clear();
         this.save();
     }
@@ -149,6 +157,12 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
     protected void save() {
         Save.UPDATE.save(dataModel, this);
         dataModel.touch(deviceType.get());
+    }
+
+    private void validateDelete() {
+        if (getDeviceType().getConfigurations().stream().anyMatch(DeviceConfiguration::isActive)) { // TODO provide better check
+            throw new KeyAccessorTypeCanNotBeDeletedException(thesaurus);
+        }
     }
 
     public void setKeyEncryptionMethod(String keyEncryptionMethod) {
@@ -199,6 +213,7 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
         }
     }
 
+    @Override
     public boolean currentUserIsAllowedToEditDeviceProperties() {
         Principal principal = threadPrincipalService.getPrincipal();
         if (!(principal instanceof User)) {
@@ -214,6 +229,7 @@ public class KeyAccessorTypeImpl implements KeyAccessorType, PersistenceAware {
         return false;
     }
 
+    @Override
     public boolean currentUserIsAllowedToViewDeviceProperties() {
         Principal principal = threadPrincipalService.getPrincipal();
         if (!(principal instanceof User)) {
