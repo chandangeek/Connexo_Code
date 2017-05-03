@@ -68,6 +68,7 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                     },
                     {
                         xtype: 'checkbox',
+                        itemId: 'revalidate-field',
                         fieldLabel: Uni.I18n.translate('general.reValidate', 'EST', 'Re-validate estimated data'),
                         name: 'revalidate'
                     },

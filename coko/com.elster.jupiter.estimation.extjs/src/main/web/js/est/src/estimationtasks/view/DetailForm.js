@@ -27,6 +27,7 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
             },
             {
                 xtype: 'displayfield',
+                itemId: 'revalidate-field',
                 fieldLabel: Uni.I18n.translate('general.reValidate', 'EST', 'Re-validate estimated data'),
                 name: 'revalidate',
                 labelWidth: 250,
