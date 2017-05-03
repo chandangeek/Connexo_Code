@@ -11,7 +11,6 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -67,7 +66,6 @@ public class InMemoryPersistence {
     private DataModel dataModel;
     private FiniteStateMachineServiceImpl finiteStateMachineService;
     private ThreadPrincipalService threadPrincipalService;
-    private HttpAuthenticationService httpAuthenticationService;
 
     /**
      * Returns a new InMemoryPersistence that uses all the defaults
@@ -103,7 +101,6 @@ public class InMemoryPersistence {
     public void initializeDatabase(String testName) {
         this.initializeMocks(testName);
         this.threadSecurityModule = new ThreadSecurityModule(this.principal);
-        this.httpAuthenticationService = mock(HttpAuthenticationService.class);
         this.injector = Guice.createInjector(this.guiceModules());
         this.transactionService = this.injector.getInstance(TransactionService.class);
 
@@ -114,7 +111,6 @@ public class InMemoryPersistence {
             this.injector.getInstance(NlsService.class);
             this.injector.getInstance(EventService.class);
             this.injector.getInstance(BpmService.class);
-            this.injector.getInstance(HttpAuthenticationService.class);
             this.finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
             this.dataModel = this.finiteStateMachineService.getDataModel();
             ctx.commit();
@@ -166,7 +162,6 @@ public class InMemoryPersistence {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(DataModel.class).toProvider(() -> dataModel);
-            bind(HttpAuthenticationService.class).toInstance(httpAuthenticationService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }

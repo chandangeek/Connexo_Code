@@ -16,7 +16,6 @@ import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
-import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -57,8 +56,6 @@ public class StateTransitionTriggerEventTopicHandlerTest {
     private EventService eventService;
     @Mock
     private BpmService bpmService;
-    @Mock
-    private HttpAuthenticationService httpAuthenticationService;
     @Mock
     private StateTransitionPropertiesProvider usagePointProvider;
     @Mock
@@ -167,7 +164,7 @@ public class StateTransitionTriggerEventTopicHandlerTest {
 
     @Test
     public void handleStateChange() {
-        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider, httpAuthenticationService);
+        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider);
         this.eventProperties.put("Prop1", BigDecimal.TEN);
         this.eventProperties.put("Prop2", "some value");
         String currentStateName = this.active.getName();
@@ -192,7 +189,7 @@ public class StateTransitionTriggerEventTopicHandlerTest {
 
     @Test
     public void handleIllegalStateChange() {
-        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider, httpAuthenticationService);
+        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider);
         String currentStateName = this.inStock.getName();
         when(this.triggerEvent.getSourceCurrentStateName()).thenReturn(currentStateName);
         when(this.triggerEvent.getType()).thenReturn(this.deactivated);
@@ -206,7 +203,7 @@ public class StateTransitionTriggerEventTopicHandlerTest {
 
     @Test
     public void handleNonExistingCurrentState() {
-        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider, httpAuthenticationService);
+        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider);
         when(this.triggerEvent.getSourceCurrentStateName()).thenReturn("currentStateName");
         when(this.triggerEvent.getType()).thenReturn(this.deactivated);
 
@@ -219,7 +216,7 @@ public class StateTransitionTriggerEventTopicHandlerTest {
 
     @Test
     public void handleNoStateChange() {
-        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider, httpAuthenticationService);
+        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider);
         String currentStateName = this.active.getName();
         when(this.triggerEvent.getSourceCurrentStateName()).thenReturn(currentStateName);
         when(this.triggerEvent.getType()).thenReturn(this.dataCollected);
@@ -237,7 +234,7 @@ public class StateTransitionTriggerEventTopicHandlerTest {
         BpmProcessDefinition process = mock(BpmProcessDefinition.class);
         when(processReference.getStateChangeBusinessProcess()).thenReturn(process);
         when(this.inactive.getOnEntryProcesses()).thenReturn(Arrays.asList(processReference));
-        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider, httpAuthenticationService);
+        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider);
         this.eventProperties.put("Prop1", BigDecimal.TEN);
         this.eventProperties.put("Prop2", "some value");
         String currentStateName = this.active.getName();
@@ -259,7 +256,7 @@ public class StateTransitionTriggerEventTopicHandlerTest {
         BpmProcessDefinition process = mock(BpmProcessDefinition.class);
         when(processReference.getStateChangeBusinessProcess()).thenReturn(process);
         when(this.active.getOnExitProcesses()).thenReturn(Arrays.asList(processReference));
-        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider, httpAuthenticationService);
+        StateTransitionTriggerEventTopicHandler handler = new StateTransitionTriggerEventTopicHandler(this.eventService, bpmService, usagePointProvider);
         this.eventProperties.put("Prop1", BigDecimal.TEN);
         this.eventProperties.put("Prop2", "some value");
         String currentStateName = this.active.getName();
