@@ -97,7 +97,11 @@ public class ReadingTypeInfo {
             } else if (this.recurringMacroPeriods().contains(readingType.getMacroPeriod())) {
                 this.timeAttribute = readingType.getMacroPeriod().getDescription();
             }
-    		this.unitOfMeasure = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
+            if (!readingType.getUnit().getSymbol().isEmpty()) {
+                this.unitOfMeasure = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
+            } else {
+                this.unitOfMeasure = "";
+            }
             if (!readingType.getPhases().equals(Phase.NOTAPPLICABLE)) {
                 this.phase = readingType.getPhases().getDescription();
             } else {

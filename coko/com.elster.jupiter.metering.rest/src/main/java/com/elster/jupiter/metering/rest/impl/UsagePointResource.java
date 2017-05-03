@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationService;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -23,8 +22,8 @@ import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersio
 import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionStart;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDateInThePast;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd;
-import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart;
 import com.elster.jupiter.metering.config.UnsatisfiedMetrologyConfigurationEndDate;
+import com.elster.jupiter.metering.config.UnsatisfiedMetrologyConfigurationStartDateRelativelyLatestStart;
 import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
@@ -362,10 +361,10 @@ public class UsagePointResource {
             usagePoint.update();
         } catch (UnsatisfiedReadingTypeRequirements ex) {
             throw new FormValidationException().addException("metrologyConfiguration",
-                    MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE.getDefaultFormat());
+                    com.elster.jupiter.metering.rest.impl.MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE.getDefaultFormat());
         } catch (UnsatisfiedMetrologyConfigurationEndDate ex) {
             throw new FormValidationException().addException("end", ex.getMessage());
-        } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex) {
+        } catch (UnsatisfiedMetrologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex) {
             throw new FormValidationException().addException("start", ex.getMessage());
         }
         info.metrologyConfigurationVersion = usagePoint.getEffectiveMetrologyConfiguration(start)
@@ -400,7 +399,7 @@ public class UsagePointResource {
             usagePoint.updateWithInterval(version, metrologyConfiguration, startTime, endTime);
         } catch (UnsatisfiedReadingTypeRequirements ex) {
             throw new FormValidationException().addException("metrologyConfiguration",
-                    MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE.getDefaultFormat());
+                    com.elster.jupiter.metering.rest.impl.MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE.getDefaultFormat());
         } catch (OverlapsOnMetrologyConfigurationVersionEnd | UnsatisfiedMerologyConfigurationEndDateInThePast | UnsatisfiedMetrologyConfigurationEndDate ex) {
             throw new FormValidationException().addException("end", ex.getMessage());
         } catch (OverlapsOnMetrologyConfigurationVersionStart ex) {
@@ -412,7 +411,7 @@ public class UsagePointResource {
     }
 
     // TODO: delete implementation must not depend on a request body! And path param name is ignored...
-    // See as well other 'metrologyconfigurationversion' methods
+    // See also other 'metrologyconfigurationversion' methods
     @DELETE
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Path("/{name}/metrologyconfigurationversion/{configVersionId}")
@@ -480,14 +479,14 @@ public class UsagePointResource {
         }
 
         if (parts.length != 3) {
-            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(com.elster.jupiter.metering.MessageSeeds.INVALID_COORDINATES, fieldName));
             return;
         }
 
         if (Arrays.stream(parts)
                 .anyMatch(element -> element.split(",").length > 2
                         || element.split(".").length > 2)) {
-            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(com.elster.jupiter.metering.MessageSeeds.INVALID_COORDINATES, fieldName));
             return;
         }
 
@@ -498,10 +497,10 @@ public class UsagePointResource {
                     || numericLatitude.compareTo(BigDecimal.valueOf(90)) > 0
                     || numericLongitude.compareTo(BigDecimal.valueOf(-180)) < 0
                     || numericLongitude.compareTo(BigDecimal.valueOf(180)) > 0) {
-                validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
+                validationBuilder.addValidationError(new LocalizedFieldValidationException(com.elster.jupiter.metering.MessageSeeds.INVALID_COORDINATES, fieldName));
             }
         } catch (Exception e) {
-            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(com.elster.jupiter.metering.MessageSeeds.INVALID_COORDINATES, fieldName));
         }
     }
 
