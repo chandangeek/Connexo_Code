@@ -117,7 +117,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
                 bind(BpmService.class).toInstance(BpmServiceImpl.this);
             }
         });
-        bpmServer = new BpmServerImpl(context, threadPrincipalService, context.getProperty(TOKEN_AUTH));
+        bpmServer = new BpmServerImpl(context, threadPrincipalService, context != null ? context.getProperty(TOKEN_AUTH) : null);
         upgradeService.register(
                 identifier("Pulse", COMPONENTNAME),
                 dataModel,
