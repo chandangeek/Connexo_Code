@@ -727,7 +727,7 @@ public enum TableSpecs {
                     .on(keyAccessorType)
                     .references(DTC_KEYACCESSORTYPE.name())
                     .composition()
-                    .map("keyAccessor")
+                    .map("keyAccessorType")
                     .add();
             table.primaryKey("PK_DTC_SECURITYPROPERTY").on(securityPropertySetId, name).add();
         }
