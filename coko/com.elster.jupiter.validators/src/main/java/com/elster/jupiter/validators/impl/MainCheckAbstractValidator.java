@@ -51,9 +51,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Created by dantonov on 23.04.2017.
- */
 public abstract class MainCheckAbstractValidator extends AbstractValidator {
 
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDM);
@@ -74,36 +71,36 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
     protected MetrologyConfigurationService metrologyConfigurationService;
     protected ValidationService validationService;
 
-    protected MetrologyPurpose checkChannelPurpose;
-    protected TwoValuesDifference maxAbsoluteDifference;
-    protected Boolean passIfNoRefData;
-    protected Boolean useValidatedData;
-    protected NoneOrBigDecimal minThreshold;
+    MetrologyPurpose checkChannelPurpose;
+    private TwoValuesDifference maxAbsoluteDifference;
+    Boolean passIfNoRefData;
+    Boolean useValidatedData;
+    private NoneOrBigDecimal minThreshold;
 
-    protected ReadingType readingType;
+    ReadingType readingType;
     // interval to log failed validation
-    protected Range<Instant> failedValidatonInterval;
+    Range<Instant> failedValidatonInterval;
 
-    protected UsagePoint validatingUsagePoint;
-    protected String validatingUsagePointName;
+    UsagePoint validatingUsagePoint;
+    String validatingUsagePointName;
 
     private Channel validatingChannel;
-    protected MetrologyPurpose validatingPurpose;
+    MetrologyPurpose validatingPurpose;
 
-    protected ValidationResult preparedValidationResult;
+    ValidationResult preparedValidationResult;
 
-    protected Map<Instant, IntervalReadingRecord> checkReadingRecords;
-    protected Map<Instant, ValidationResult> checkReadingRecordValidations;
+    private Map<Instant, IntervalReadingRecord> checkReadingRecords;
+    private Map<Instant, ValidationResult> checkReadingRecordValidations;
 
     private Logger logger;
 
-    public MainCheckAbstractValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService) {
+    MainCheckAbstractValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService) {
         super(thesaurus, propertySpecService);
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.validationService = validationService;
     }
 
-    public MainCheckAbstractValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, Map<String, Object> properties) {
+    MainCheckAbstractValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.validationService = validationService;
@@ -206,7 +203,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
 
     }
 
-    protected void initValidatingPurpose() {
+    void initValidatingPurpose() {
         // find validating purpose
             if (validatingChannel.getChannelsContainer() instanceof MetrologyContractChannelsContainer){
                 validatingPurpose = ((MetrologyContractChannelsContainer)validatingChannel.getChannelsContainer()).getMetrologyContract().getMetrologyPurpose();
@@ -215,7 +212,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
             }
     }
 
-    protected void initCheckData(UsagePoint referenceUsagePoint, ReadingType referenceReadingType) throws
+    void initCheckData(UsagePoint referenceUsagePoint, ReadingType referenceReadingType) throws
             InitCancelException {
 
         List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMCList = referenceUsagePoint
@@ -288,7 +285,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
         throw new InitCancelException(ValidationResult.NOT_VALIDATED);
     }
 
-    protected void initUsagePointName(Channel channel) throws InitCancelException {
+    void initUsagePointName(Channel channel) throws InitCancelException {
         Optional<UsagePoint> usagePoint = channel.getChannelsContainer()
                 .getUsagePoint();
 
@@ -304,7 +301,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
     }
 
 
-    protected String rangeToString(Range<Instant> range) {
+    String rangeToString(Range<Instant> range) {
         Instant lowerBound = null;
         if (range.hasLowerBound()) {
             lowerBound = range.lowerEndpoint();
@@ -330,7 +327,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
                 .finish();
     }
 
-    TwoValuesDifference getMaxAbsoluteDiffProperty() {
+    private TwoValuesDifference getMaxAbsoluteDiffProperty() {
         TwoValuesDifference value = (TwoValuesDifference) properties.get(MAX_ABSOLUTE_DIFF);
         if (value == null) {
             throw new MissingRequiredProperty(getThesaurus(), MAX_ABSOLUTE_DIFF);
@@ -348,7 +345,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
                 .finish();
     }
 
-    NoneOrBigDecimal getMinThresholdProperty() {
+    private NoneOrBigDecimal getMinThresholdProperty() {
         NoneOrBigDecimal value = (NoneOrBigDecimal) properties.get(MIN_THRESHOLD);
         if (value == null) {
             throw new MissingRequiredProperty(getThesaurus(), MIN_THRESHOLD);
@@ -364,7 +361,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
                 .finish();
     }
 
-    boolean getPassIfNoRefDataProperty() {
+    private boolean getPassIfNoRefDataProperty() {
         Boolean value = (Boolean) properties.get(PASS_IF_NO_REF_DATA);
         if (value == null) {
             throw new MissingRequiredProperty(getThesaurus(), PASS_IF_NO_REF_DATA);
@@ -380,7 +377,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
                 .finish();
     }
 
-    boolean getUseValidatedDataProperty() {
+    private boolean getUseValidatedDataProperty() {
         Boolean value = (Boolean) properties.get(USE_VALIDATED_DATA);
         if (value == null) {
             throw new MissingRequiredProperty(getThesaurus(), USE_VALIDATED_DATA);
@@ -488,14 +485,14 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
         }
     }
 
-    protected class InitCancelException extends Exception {
+    class InitCancelException extends Exception {
         ValidationResult validationResult;
 
-        public InitCancelException(ValidationResult validationResult) {
+        InitCancelException(ValidationResult validationResult) {
             this.validationResult = validationResult;
         }
 
-        public ValidationResult getValidationResult() {
+        ValidationResult getValidationResult() {
             return validationResult;
         }
     }
@@ -546,11 +543,11 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
 
     abstract void logFailure(InitCancelProps props);
 
-    protected class ComparingValues {
+    class ComparingValues {
         BigDecimal mainValue;
         BigDecimal checkValue;
 
-        public ComparingValues(BigDecimal mainValue, BigDecimal checkValue) {
+        ComparingValues(BigDecimal mainValue, BigDecimal checkValue) {
             this.mainValue = mainValue;
             this.checkValue = checkValue;
         }

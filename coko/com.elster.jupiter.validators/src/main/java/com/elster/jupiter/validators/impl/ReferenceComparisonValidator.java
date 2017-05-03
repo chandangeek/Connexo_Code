@@ -11,7 +11,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeComparator;
 import com.elster.jupiter.metering.ReadingTypeValueFactory;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointValueFactory;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -27,7 +26,6 @@ import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validators.MissingRequiredProperty;
 
 import com.google.common.collect.Range;
 
@@ -160,7 +158,7 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
                 .finish();
     }
 
-    UsagePointValueFactory.UsagePointReference getCheckUsagePointProperty() {
+    private UsagePointValueFactory.UsagePointReference getCheckUsagePointProperty() {
         return (UsagePointValueFactory.UsagePointReference) properties.get(CHECK_USAGE_POINT);
     }
 
@@ -272,7 +270,6 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
 
     @Override
     void logFailure(InitCancelProps props) {
-        // FIXME: verify messages
         InitCancelReason reason = props.reason;
         switch (reason) {
             case NO_REFERENCE_PURPOSE_FOUND_ON_REFERENCE_USAGE_POINT:

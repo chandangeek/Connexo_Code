@@ -5,21 +5,17 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.TwoValuesDifference;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
-import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationService;
 
 import com.google.common.collect.Range;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
