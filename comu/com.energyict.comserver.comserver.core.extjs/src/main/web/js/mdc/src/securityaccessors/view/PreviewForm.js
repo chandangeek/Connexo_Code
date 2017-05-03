@@ -76,7 +76,7 @@ Ext.define('Mdc.securityaccessors.view.PreviewForm', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.validityPeriod', 'MDC', 'Validity period'),
-                        name: 'validityPeriod',
+                        name: 'duration',
                         renderer: function (val) {
                             return Ext.isEmpty(val) ? '-' : val.count + ' ' + val.localizedTimeUnit;
                         }

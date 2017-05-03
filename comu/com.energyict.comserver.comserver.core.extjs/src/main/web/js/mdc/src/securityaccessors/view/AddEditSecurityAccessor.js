@@ -161,7 +161,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                                 {
                                     xtype: 'numberfield',
                                     itemId: 'num-security-accessor-validity-period',
-                                    name: 'validityPeriod[count]',
+                                    name: 'duration[count]',
                                     maskRe: /[0-9]+/,
                                     width: 70,
                                     margin: '0 10 0 0',
@@ -170,7 +170,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                                 },
                                 {
                                     xtype: 'combobox',
-                                    name: 'validityPeriod[timeUnit]',
+                                    name: 'duration[timeUnit]',
                                     itemId: 'cbo-security-accessor-validity-period-delay',
                                     store: 'Mdc.store.TimeUnitsYearsSeconds',
                                     queryMode: 'local',

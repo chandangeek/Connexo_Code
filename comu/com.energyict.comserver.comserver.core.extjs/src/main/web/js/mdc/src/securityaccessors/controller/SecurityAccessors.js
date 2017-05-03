@@ -218,12 +218,12 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         record.getProxy().setUrl(me.deviceTypeId);
         record.beginEdit();
         if(record.get('keyType') && record.get('keyType').requiresDuration) {
-            record.set('validityPeriod', {
+            record.set('duration', {
                 count: form.down('#num-security-accessor-validity-period').getValue(),
                 timeUnit: form.down('#cbo-security-accessor-validity-period-delay').getValue()
             });
         } else {
-            record.set('validityPeriod', null);
+            record.set('duration', null);
         }
         record.set('parent', {
             id: me.deviceType.get('name'),
@@ -308,9 +308,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                             view.down('#mdc-security-accessor-certificate').setValue(true);
                         }
                         view.down('#mdc-security-accessor-key-type-combobox').setValue(record.get('keyType').id);
-                        if(record.get('validityPeriod')) {
-                            view.down('#num-security-accessor-validity-period').setValue(record.get('validityPeriod').count);
-                            view.down('#cbo-security-accessor-validity-period-delay').select(record.get('validityPeriod').timeUnit);
+                        if(record.get('duration')) {
+                            view.down('#num-security-accessor-validity-period').setValue(record.get('duration').count);
+                            view.down('#cbo-security-accessor-validity-period-delay').select(record.get('duration').timeUnit);
                         }
                         view.down('#mdc-security-accessor-storage-method-combobox').setDisabled(true);
                         me.deviceTypeId = deviceTypeId;

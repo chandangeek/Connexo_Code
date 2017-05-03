@@ -41,7 +41,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
             },
             {
                 header: Uni.I18n.translate('general.validityPeriod', 'MDC', 'Validity period'),
-                dataIndex: 'validityPeriod',
+                dataIndex: 'duration',
                 flex: 1,
                 renderer: function (val) {
                     return Ext.isEmpty(val) ? '-' : val.count + ' ' + val.timeUnit;
