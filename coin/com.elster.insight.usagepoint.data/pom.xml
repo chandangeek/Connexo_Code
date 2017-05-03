@@ -123,6 +123,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>usagepoint.calendar</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fsm</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -132,11 +140,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>ids</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>fsm</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
