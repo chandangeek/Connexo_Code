@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound;
 
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -17,6 +16,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
 import com.energyict.protocol.ChannelInfo;
 
 import java.text.MessageFormat;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Optional;
 
 public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandImpl {
 
@@ -44,11 +46,24 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         for (ServerCollectedData dataItem : collectedData) {
             if (dataItem instanceof CollectedLoadProfile) {
+                CollectedLoadProfile collectedLoadProfile = (CollectedLoadProfile) dataItem;
 
-                //Add the proper reading types to the channel infos, based on the given obiscode and unit.
-                for (ChannelInfo channelInfo : ((CollectedLoadProfile) dataItem).getChannelInfo()) {
-                    ReadingType readingType = getMdcReadingTypeUtilService().getReadingTypeFrom(channelInfo.getChannelObisCode(), channelInfo.getUnit());
-                    channelInfo.setReadingTypeMRID(readingType.getMRID());
+                List<OfflineLoadProfile> allOfflineLoadProfiles = getGroupedDeviceCommand().getOfflineDevice().getAllOfflineLoadProfiles();
+                Optional<OfflineLoadProfile> offlineLoadProfile = allOfflineLoadProfiles
+                        .stream()
+                        .filter(lp -> lp.getObisCode().equals(collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode()))
+                        .findAny();
+
+                if (offlineLoadProfile.isPresent()) {
+                    //Add the proper reading types to the channel infos, based on the given obiscode and unit.
+                    for (ChannelInfo channelInfo : collectedLoadProfile.getChannelInfo()) {
+                        Optional<OfflineLoadProfileChannel> offlineLoadProfileChannel = offlineLoadProfile.get()
+                                .getAllOfflineChannels()
+                                .stream()
+                                .filter(channel -> channel.getObisCode().equals(channelInfo.getChannelObisCode()))
+                                .findAny();
+                        offlineLoadProfileChannel.ifPresent(offlineLoadProfileChannel1 -> channelInfo.setReadingTypeMRID(offlineLoadProfileChannel1.getReadingTypeMRID()));
+                    }
                 }
 
                 this.addCollectedDataItem(dataItem);

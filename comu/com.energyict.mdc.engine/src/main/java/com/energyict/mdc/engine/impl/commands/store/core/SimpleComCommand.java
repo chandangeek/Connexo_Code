@@ -22,7 +22,6 @@ import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
@@ -442,10 +441,6 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
         }
 
         return false;
-    }
-
-    protected MdcReadingTypeUtilService getMdcReadingTypeUtilService() {
-        return getServiceProvider().mdcReadingTypeUtilService();
     }
 
     protected IssueService getIssueService() {
