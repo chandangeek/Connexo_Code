@@ -30,7 +30,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validators.impl.ValidatorInMemoryBootstrapModule;
-import com.elster.jupiter.validators.impl.properties.ReadingTypeReference;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
