@@ -29,7 +29,8 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_FOUND(109, "duplicateFound", "A duplicate ''{0}'' was found when a unique result was expected for ''{1}''", Level.SEVERE),
     COMTASK_NOT_ENABLED_ON_CONFIGURATION(110, "comTaskNotEnabled", "The communication task ''{0}'' is not enabled for execution on devices of configuration ''{1}''", Level.SEVERE),
     UNKNOWN_CLOCKTASK_TYPE(111, "unknownclocktasktype", "Clock action can not be performed due to an unknown type({0}) of the Clock action", Level.SEVERE),
-    LOG_ON_FAILED(112, "logOnCommandFailed", "Could not log on the device", Level.SEVERE);
+    LOG_ON_FAILED(112, "logOnCommandFailed", "Could not log on the device", Level.SEVERE),
+    INVALID_INBOUND_SERVLET_PROTOCOL(113, "invalidInboundServletProtocol", "Inbound protocol '{0}', that is linked to the inbound servlet port, should support servlet communication", Level.SEVERE);
 
     private final int number;
     private final String key;

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -13,10 +14,10 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.protocol.ChannelInfo;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -43,6 +44,13 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         for (ServerCollectedData dataItem : collectedData) {
             if (dataItem instanceof CollectedLoadProfile) {
+
+                //Add the proper reading types to the channel infos, based on the given obiscode and unit.
+                for (ChannelInfo channelInfo : ((CollectedLoadProfile) dataItem).getChannelInfo()) {
+                    ReadingType readingType = getMdcReadingTypeUtilService().getReadingTypeFrom(channelInfo.getChannelObisCode(), channelInfo.getUnit());
+                    channelInfo.setReadingTypeMRID(readingType.getMRID());
+                }
+
                 this.addCollectedDataItem(dataItem);
             }
         }
