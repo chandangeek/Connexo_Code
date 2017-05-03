@@ -22,9 +22,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         switch (me.output.get('outputType')) {
             case 'channel':
             {
-                title = Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}',
-                    [Uni.DateTime.formatDateLong(intervalEnd), Uni.DateTime.formatTimeShort(intervalEnd)],
-                    false);
+                title = Uni.DateTime.formatDateTime(intervalEnd,'long','short')
             }
                 break;
             case 'register':
@@ -241,9 +239,9 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     itemId: 'interval-field',
                     renderer: function (value) {
                         return value
-                            ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.start)), Uni.DateTime.formatTimeLong(new Date(value.start))])
+                            ? Uni.DateTime.formatDateTimeLong(new Date(value.start))
                         + ' - ' +
-                        Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.end)), Uni.DateTime.formatTimeLong(new Date(value.end))])
+                        Uni.DateTime.formatDateTimeLong(new Date(value.end))
                             : '-';
                     },
                     htmlEncode: false
@@ -258,9 +256,9 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                         renderer: function (value) {
                             if (!Ext.isEmpty(value) && !!value.start) {
                                 return value
-                                    ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.start)), Uni.DateTime.formatTimeLong(new Date(value.start))])
+                                    ? Uni.DateTime.formatDateTimeLong(new Date(value.start))
                                 + ' - ' +
-                                Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.end)), Uni.DateTime.formatTimeLong(new Date(value.end))])
+                                Uni.DateTime.formatDateTimeLong(new Date(value.end))
                                     : '-';
                             } else if (!Ext.isEmpty(value) && !!value.end){
                                 return Uni.DateTime.formatDateLong(new Date(value.end))
@@ -308,7 +306,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 name: 'reportedDateTime',
                 itemId: 'reading-time-field',
                 renderer: function (value) {
-                    return value ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]) : '-';
+                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
                 }
             },
             {
