@@ -55,6 +55,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -120,6 +121,7 @@ public class DeviceResource {
 
     private final DeviceService deviceService;
     private final TopologyService topologyService;
+    private final MultiElementDeviceService multiElementDeviceService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final ResourceHelper resourceHelper;
@@ -167,6 +169,7 @@ public class DeviceResource {
             ExceptionFactory exceptionFactory,
             DeviceService deviceService,
             TopologyService topologyService,
+            MultiElementDeviceService multiElementDeviceService,
             DeviceConfigurationService deviceConfigurationService,
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
             Provider<LoadProfileResource> loadProfileResourceProvider,
@@ -209,6 +212,7 @@ public class DeviceResource {
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
         this.topologyService = topologyService;
+        this.multiElementDeviceService = multiElementDeviceService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
         this.loadProfileResourceProvider = loadProfileResourceProvider;
@@ -297,12 +301,15 @@ public class DeviceResource {
         } else {
             newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), name, shipmentDate);
         }
-        newDevice.setSerialNumber(serialNumber);
-        newDevice.setManufacturer(manufacturer);
-        newDevice.setModelNumber(modelNbr);
-        newDevice.setModelVersion(modelVersion);
-        newDevice.setYearOfCertification(yearOfCertification);
-        newDevice.save();
+        if (!newDevice.getDeviceType().isMultiElementSlave()){
+            newDevice.setSerialNumber(serialNumber);
+            newDevice.setManufacturer(manufacturer);
+            newDevice.setModelNumber(modelNbr);
+            newDevice.setModelVersion(modelVersion);
+            newDevice.setYearOfCertification(yearOfCertification);
+            newDevice.save();
+        }
+
         newDevice.getCurrentMeterActivation().ifPresent(meterActivation -> newDevice.getLifecycleDates().setReceivedDate(meterActivation.getStart()).save());
         return newDevice;
     }
@@ -360,6 +367,8 @@ public class DeviceResource {
                 updateDataLoggerChannels(info, device);
                 device.save();
                 context.commit();
+            }catch(IllegalArgumentException e){
+                throw exceptionFactory.newExceptionSupplier(Response.Status.NOT_ACCEPTABLE, MessageSeeds.UPDATE_OF_DEVICE_FAILED).get();
             }
         }
         return Response.ok().entity(deviceInfoFactory.from(device, getSlaveDevicesForDevice(device))).build();
@@ -378,13 +387,20 @@ public class DeviceResource {
     }
 
     private void updateDataLoggerChannels(DeviceInfo info, Device dataLogger) {
-        if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()) {
-            List<Device> currentSlaves = topologyService.findDataLoggerSlaves(dataLogger);
-
+        boolean masterIsDataLogger = dataLogger.getDeviceConfiguration().isDataloggerEnabled();
+        boolean masterIsMultiElementDevice = dataLogger.getDeviceConfiguration().isMultiElementEnabled();
+        if (masterIsDataLogger || masterIsMultiElementDevice) {
+            final List<Device> currentDataLoggerSlaves = topologyService.findDataLoggerSlaves(dataLogger);;
+            final List<Device>currentMultiElementSlaves = multiElementDeviceService.findMultiElementSlaves(dataLogger);
             info.dataLoggerSlaveDevices.stream()
                     .filter(DataLoggerSlaveDeviceInfo::unlinked)
-                    .forEach(dataLoggerSlaveDeviceInfo -> currentSlaves.stream().filter(slave -> slave.getId() == dataLoggerSlaveDeviceInfo.id).findAny()
+                    .forEach(dataLoggerSlaveDeviceInfo -> currentDataLoggerSlaves.stream().filter(slave -> slave.getId() == dataLoggerSlaveDeviceInfo.id).findAny()
                             .ifPresent(slaveToRemove -> topologyService.clearDataLogger(slaveToRemove, Instant.ofEpochMilli(dataLoggerSlaveDeviceInfo.unlinkingTimeStamp))));
+            info.dataLoggerSlaveDevices.stream()
+                    .filter(DataLoggerSlaveDeviceInfo::unlinked)
+                    .forEach(dataLoggerSlaveDeviceInfo -> currentMultiElementSlaves.stream().filter(slave -> slave.getId() == dataLoggerSlaveDeviceInfo.id).findAny()
+                            .ifPresent(slaveToRemove -> multiElementDeviceService.removeSlave(slaveToRemove, Instant.ofEpochMilli(dataLoggerSlaveDeviceInfo.unlinkingTimeStamp))));
+
             info.dataLoggerSlaveDevices.stream().filter(((Predicate<DataLoggerSlaveDeviceInfo>) DataLoggerSlaveDeviceInfo::unlinked).negate()).forEach((slaveDeviceInfo) -> setDataLogger(slaveDeviceInfo, dataLogger));
         }
     }
@@ -396,6 +412,9 @@ public class DeviceResource {
                 validateBeforeCreatingNewSlaveViaWizard(slaveDeviceInfo.name);
                 slave = newDevice(slaveDeviceInfo.deviceConfigurationId, slaveDeviceInfo.batch, slaveDeviceInfo.name,
                         slaveDeviceInfo.serialNumber, slaveDeviceInfo.manufacturer, slaveDeviceInfo.modelNbr, slaveDeviceInfo.modelVersion, slaveDeviceInfo.yearOfCertification, Instant.ofEpochMilli(slaveDeviceInfo.shipmentDate));
+                if (slave.getDeviceType().isMultiElementSlave()){
+                    multiElementDeviceService.syncSlaves(dataLogger);
+                }
             } else {
                 if (slaveDeviceInfo.isFromExistingLink()) {
                     // No new link, came along with deviceinfo
@@ -417,7 +436,12 @@ public class DeviceResource {
                         .forEach((pair) -> registerMap.put(pair.getFirst(), pair.getLast()));
             }
             if (channelMap.size() + registerMap.size() > 0) {
-                topologyService.setDataLogger(slave, dataLogger, Instant.ofEpochMilli(slaveDeviceInfo.linkingTimeStamp), channelMap, registerMap);
+                if (slave.getDeviceType().isDataloggerSlave()) {
+                    topologyService.setDataLogger(slave, dataLogger, Instant.ofEpochMilli(slaveDeviceInfo.linkingTimeStamp), channelMap, registerMap);
+                }
+                if (slave.getDeviceType().isMultiElementSlave()) {
+                    multiElementDeviceService.addSlave(slave, dataLogger, Instant.ofEpochMilli(slaveDeviceInfo.linkingTimeStamp) , channelMap, registerMap);
+                }
             }
         }
     }
@@ -943,9 +967,9 @@ public class DeviceResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         return PagedInfoList.fromCompleteList("dataLoggerSlaveDevices", getDataLoggerSlavesForDevice(device), queryParameters);
     }
-
+    // Returns all data logger slaves and multi-element slaves for a device
     private List<DeviceTopologyInfo> getDataLoggerSlavesForDevice(Device device) {
-        return (device.getDeviceConfiguration().isDataloggerEnabled() ? resourceHelper.getDataLoggerSlaves(device) : Collections.emptyList());
+        return (device.getDeviceConfiguration().isDataloggerEnabled() || device.getDeviceConfiguration().isMultiElementEnabled() ? resourceHelper.getDataLoggerSlaves(device) : Collections.emptyList());
     }
 
     @GET

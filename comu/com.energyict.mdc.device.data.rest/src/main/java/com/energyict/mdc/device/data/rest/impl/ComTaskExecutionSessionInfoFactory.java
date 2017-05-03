@@ -10,6 +10,7 @@ import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
@@ -18,6 +19,7 @@ import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Created by bvn on 10/6/14.
@@ -25,10 +27,12 @@ import java.util.Optional;
 public class ComTaskExecutionSessionInfoFactory {
 
     private final Thesaurus thesaurus;
+    private final JournalEntryInfoFactory journalEntryInfoFactory;
 
     @Inject
-    public ComTaskExecutionSessionInfoFactory(Thesaurus thesaurus) {
+    public ComTaskExecutionSessionInfoFactory(Thesaurus thesaurus, JournalEntryInfoFactory journalEntryInfoFactory) {
         this.thesaurus = thesaurus;
+        this.journalEntryInfoFactory = journalEntryInfoFactory;
     }
 
     public ComTaskExecutionSessionInfo from(ComTaskExecutionSession comTaskExecutionSession) {
@@ -64,7 +68,14 @@ public class ComTaskExecutionSessionInfoFactory {
         info.finishTime =comTaskExecutionSession.getStopDate();
         info.durationInSeconds = info.startTime.until(info.finishTime, ChronoUnit.SECONDS);
         info.alwaysExecuteOnInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
-
+        info.errors = comTaskExecutionSession.getComTaskExecutionJournalEntries().stream()
+                .filter(journalEntry -> journalEntry.getLogLevel().equals(ComServer.LogLevel.ERROR))
+                .map(journalEntryInfoFactory::asInfo)
+                .collect(Collectors.toList());
+        info.warnings = comTaskExecutionSession.getComTaskExecutionJournalEntries().stream()
+                .filter(journalEntry -> journalEntry.getLogLevel().equals(ComServer.LogLevel.WARN))
+                .map(journalEntryInfoFactory::asInfo)
+                .collect(Collectors.toList());
         return info;
     }
 

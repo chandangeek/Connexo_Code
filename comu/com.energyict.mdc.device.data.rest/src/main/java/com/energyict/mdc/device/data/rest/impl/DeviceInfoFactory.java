@@ -20,6 +20,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -40,6 +41,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
     private volatile Thesaurus thesaurus;
     private volatile BatchService batchService;
+    private volatile MultiElementDeviceService multiElementDeviceService;
     private volatile TopologyService topologyService;
     private volatile IssueService issueService;
     private volatile DeviceService deviceService;
@@ -51,11 +53,12 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     }
 
     @Inject
-    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, DeviceService deviceService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, Clock clock) {
+    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, MultiElementDeviceService multiElementDeviceService, IssueService issueService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, DeviceService deviceService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, Clock clock) {
         this();
         this.thesaurus = thesaurus;
         this.setBatchService(batchService);
         this.setTopologyService(topologyService);
+        this.setMultiElementDeviceService(multiElementDeviceService);
         this.setIssueService(issueService);
         this.dataLoggerSlaveDeviceInfoFactory = dataLoggerSlaveDeviceInfoFactory;
         this.setDeviceService(deviceService);
@@ -77,6 +80,11 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     @Reference
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
+    }
+
+    @Reference
+    public void setMultiElementDeviceService(MultiElementDeviceService multiElementDeviceService) {
+        this.multiElementDeviceService = multiElementDeviceService;
     }
 
     @Reference
@@ -136,7 +144,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                     .flatMap(List::stream).filter(Objects::nonNull)
                     .collect(Collectors.joining(", "));
         }
-        return DeviceInfo.from(device, slaveDevices, topologyService, new IssueRetriever(issueService), deviceLifeCycleConfigurationService,
+        return DeviceInfo.from(device, slaveDevices, topologyService, multiElementDeviceService, new IssueRetriever(issueService), deviceLifeCycleConfigurationService,
                 dataLoggerSlaveDeviceInfoFactory, formattedLocation, spatialCoordinates.map(SpatialCoordinates::toString).orElse(null), clock);
     }
 

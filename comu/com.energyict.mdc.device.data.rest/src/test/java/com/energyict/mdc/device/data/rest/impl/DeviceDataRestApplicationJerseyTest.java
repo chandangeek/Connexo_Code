@@ -67,6 +67,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
@@ -124,6 +125,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     DeviceService deviceService;
     @Mock
     TopologyService topologyService;
+    @Mock
+    MultiElementDeviceService multiElementDeviceService;
     @Mock
     BatchService batchService;
     @Mock
@@ -244,6 +247,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(topologyService.availabilityDate(any(Register.class))).thenReturn(Optional.empty());
         when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.findLastDataloggerReference(any(Device.class))).thenReturn(Optional.empty());
+        when(multiElementDeviceService.findMultiElementDeviceReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
     }
 
     protected void setupTranslations() {
@@ -251,6 +255,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
         doReturn(messageFormat).when(thesaurus).getFormat(any(MessageSeed.class));
         doReturn(messageFormat).when(thesaurus).getFormat(any(TranslationKey.class));
+        doReturn(messageFormat).when(thesaurus).getSimpleFormat(any(MessageSeed.class));
     }
 
     protected boolean disableDeviceConstraintsBasedOnDeviceState() {
@@ -280,6 +285,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setConnectionTaskService(connectionTaskService);
         application.setDeviceService(deviceService);
         application.setTopologyService(topologyService);
+        application.setMultiElementDeviceService(multiElementDeviceService);
         application.setBatchService(batchService);
         application.setEngineConfigurationService(engineConfigurationService);
         application.setIssueService(issueService);
