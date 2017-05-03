@@ -482,7 +482,7 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
                 formatter: function () {
                     var s = '<b style=" color: #74af74; font-size: 14px; fontFamily: Lato, Helvetica, Arial, Verdana, Sans-serif;">' + Highcharts.dateFormat('%A, %e %B %Y', this.x) ;
                     if (intervalLength < 86400000) {
-                        s += '<br/>' + Uni.I18n.translate('general.interval', 'MDC', 'Interval') + ' ' + Highcharts.dateFormat('%H:%M', this.x);
+                        s += '<br/>' + Uni.I18n.translate('general.interval', 'IMT', 'Interval') + ' ' + Highcharts.dateFormat('%H:%M', this.x);
                         s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + intervalLength)+ '</b>';
                     } else {
                         s += ' - ' + Highcharts.dateFormat('%A, %e %B %Y', this.x + intervalLength) + '</b>';

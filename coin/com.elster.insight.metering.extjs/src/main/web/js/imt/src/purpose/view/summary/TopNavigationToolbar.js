@@ -11,7 +11,7 @@ Ext.define('Imt.purpose.view.summary.TopNavigationToolbar', {
         pack: 'end'
     },
 
-    displayMsg: Uni.I18n.translate('general.displayMsgItems', 'UNI', '{0} - {1} of {2} items'),
+    displayMsg: Uni.I18n.translate('general.displayMsgItems', 'IMT', '{0} - {1} of {2} items'),
 
     store: null,
 
@@ -26,7 +26,7 @@ Ext.define('Imt.purpose.view.summary.TopNavigationToolbar', {
             {
                 xtype: 'tbtext',
                 itemId: 'displayItem',
-                text: Uni.I18n.translate('general.displayMsgOutputs', 'UNI', '{0} - {1} of {2} outputs', ['1', storeCount, storeTotal])
+                text: Uni.I18n.translate('general.displayMsgOutputs', 'IMT', '{0} - {1} of {2} outputs', ['1', storeCount, storeTotal])
             },
             {
                 itemId: 'previous-next-navigation-toolbar-previous-link',
@@ -92,12 +92,12 @@ Ext.define('Imt.purpose.view.summary.TopNavigationToolbar', {
     //     }
     //
     //     if(storeCount <= 1){
-    //         itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgItems', 'UNI', '{0} of {1}'), 1, 1 + ' ' + me.itemsName);
+    //         itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgItems', 'IMT', '{0} of {1}'), 1, 1 + ' ' + me.itemsName);
     //     }
     //     else if (queryParams[me.totalProperty] < 0) {
-    //         itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgMoreItems', 'UNI', '{0} of more than {1}'), storePageSize * (storeCurrentPage - 1) + currentIndex + 1, -queryParams[me.totalProperty]) + ' ' + me.itemsName;
+    //         itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgMoreItems', 'IMT', '{0} of more than {1}'), storePageSize * (storeCurrentPage - 1) + currentIndex + 1, -queryParams[me.totalProperty]) + ' ' + me.itemsName;
     //     } else {
-    //         itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgItems', 'UNI', '{0} of {1}'), storePageSize * (storeCurrentPage - 1) + currentIndex + 1, queryParams[me.totalProperty]) + ' ' + me.itemsName;
+    //         itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgItems', 'IMT', '{0} of {1}'), storePageSize * (storeCurrentPage - 1) + currentIndex + 1, queryParams[me.totalProperty]) + ' ' + me.itemsName;
     //     }
     //
     //     if (currentIndex - 1 >= 0) {
