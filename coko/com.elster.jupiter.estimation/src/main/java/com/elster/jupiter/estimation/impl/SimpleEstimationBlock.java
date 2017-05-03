@@ -8,6 +8,7 @@ import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 
@@ -15,7 +16,9 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class SimpleEstimationBlock implements EstimationBlock {
 
@@ -23,6 +26,7 @@ class SimpleEstimationBlock implements EstimationBlock {
     private final Channel channel;
     private final ReadingType readingType;
     private List<ReadingQualityType> readingQualityTypes = new ArrayList<>();
+    private Map<ReadingQualityType, ReadingQualityComment> readingQualityTypeWithComment = new HashMap<>();
 
     private SimpleEstimationBlock(Channel channel, ReadingType readingType, List<? extends Estimatable> estimatables) {
         this.channel = channel;
@@ -54,12 +58,17 @@ class SimpleEstimationBlock implements EstimationBlock {
         return estimatables;
     }
 
-    protected void addReadingQualityType(ReadingQualityType readingQualityType) {
-        readingQualityTypes.add(readingQualityType);
+    void addReadingQualityType(ReadingQualityType readingQualityType, ReadingQualityComment readingQualityComment) {
+        readingQualityTypeWithComment.put(readingQualityType, readingQualityComment);
     }
 
     @Override
     public List<ReadingQualityType> getReadingQualityTypes() {
         return Collections.unmodifiableList(readingQualityTypes);
+    }
+
+    @Override
+    public Map<ReadingQualityType, ReadingQualityComment> getReadingQualityTypesWithComments() {
+        return Collections.unmodifiableMap(readingQualityTypeWithComment);
     }
 }

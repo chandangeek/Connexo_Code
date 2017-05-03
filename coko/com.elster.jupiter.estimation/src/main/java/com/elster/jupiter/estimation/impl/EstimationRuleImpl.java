@@ -16,7 +16,6 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingQualityComment;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -380,7 +379,7 @@ class EstimationRuleImpl implements IEstimationRule {
 
     @Override
     public Estimator createNewEstimator() {
-        return new RuleTypedEstimator(createBaseEstimator(getProps()), (int)getId(), markProjected);
+        return new RuleTypedEstimator(this, createBaseEstimator(getProps()), markProjected);
     }
 
     private Estimator createBaseEstimator(Map<String, Object> properties) {
@@ -391,7 +390,7 @@ class EstimationRuleImpl implements IEstimationRule {
     public Estimator createNewEstimator(ChannelsContainer channelsContainer, ReadingType readingType) {
         Map<String, Object> properties = getPropsWithOverriddenValues(channelsContainer, readingType);
         Estimator createdEstimator = createBaseEstimator(properties);
-        return new RuleTypedEstimator(createdEstimator, (int) getId(), markProjected);
+        return new RuleTypedEstimator(this, createdEstimator, markProjected);
     }
 
     private Map<String, Object> getPropsWithOverriddenValues(ChannelsContainer channelsContainer, ReadingType readingType) {

@@ -135,6 +135,8 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
                         Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK,
                         Privileges.Constants.RUN_ESTIMATION_TASK,
                         Privileges.Constants.VIEW_ESTIMATION_TASK,
+                        Privileges.Constants.ESTIMATE_WITH_RULE,
+                        Privileges.Constants.EDIT_WITH_ESTIMATOR,
                         Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK,
                         Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE,
                         Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION,

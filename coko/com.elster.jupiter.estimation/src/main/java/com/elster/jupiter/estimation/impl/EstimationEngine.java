@@ -11,7 +11,9 @@ import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
@@ -120,10 +122,14 @@ class EstimationEngine {
         }
 
         private Stream<? extends BaseReading> getReadings() {
+            Map<ReadingQualityType, ReadingQualityComment> readingQualityTypeWithComments = estimationBlock.getReadingQualityTypesWithComments();
+            Set<ReadingQualityType> readingQualityTypes = readingQualityTypeWithComments.keySet();
             return estimationBlock.estimatables().stream()
                     .map(estimatable -> ReadingImpl.of(estimationBlock.getReadingType().getMRID(), estimatable.getEstimation(), estimatable.getTimestamp()))
-                    .peek(reading ->estimationBlock.getReadingQualityTypes().stream()
-                                    .forEach(quality -> reading.addQuality(quality.getCode())));
+                    .peek(reading -> readingQualityTypes.forEach(quality -> {
+                        ReadingQualityComment readingQualityComment = readingQualityTypeWithComments.get(quality);
+                        reading.addQuality(quality.getCode(), readingQualityComment != null ? readingQualityComment.getComment() : null);
+                    }));
         }
     }
 

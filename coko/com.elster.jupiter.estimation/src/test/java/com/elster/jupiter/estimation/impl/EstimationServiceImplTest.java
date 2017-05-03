@@ -216,6 +216,8 @@ public class EstimationServiceImplTest {
         when(factory.available()).thenReturn(Arrays.asList(estimator1Name, estimator2Name));
         when(factory.createTemplate(estimator1Name)).thenReturn(estimator1);
         when(factory.createTemplate(estimator2Name)).thenReturn(estimator2);
+        when(rule1.getComment()).thenReturn(Optional.empty());
+        when(rule2.getComment()).thenReturn(Optional.empty());
 
         doReturn(Arrays.asList(readingType1, readingType2)).when(meterActivation).getReadingTypes();
         doReturn(Collections.singletonList(ruleSet)).when(resolver).resolve(channelsContainer);
@@ -258,7 +260,7 @@ public class EstimationServiceImplTest {
             EstimationResultBuilder builder = SimpleEstimationResult.builder();
             estimationBlocks.stream().findFirst().ifPresent((block) -> {
                 builder.addEstimated(block);
-                ((SimpleEstimationBlock) block).addReadingQualityType(readingQualityType1);
+                ((SimpleEstimationBlock) block).addReadingQualityType(readingQualityType1, null);
             });
             estimationBlocks.stream().skip(1).forEach(builder::addRemaining);
             return builder.build();
@@ -268,7 +270,7 @@ public class EstimationServiceImplTest {
             EstimationResultBuilder builder = SimpleEstimationResult.builder();
             estimationBlocks.stream().reduce((a, b) -> b).ifPresent((block) -> {
                 builder.addEstimated(block);
-                ((SimpleEstimationBlock) block).addReadingQualityType(readingQualityType2);
+                ((SimpleEstimationBlock) block).addReadingQualityType(readingQualityType2, null);
             });
             estimationBlocks.subList(0, Math.max(0, estimationBlocks.size() - 1)).stream().forEach(builder::addRemaining);
             return builder.build();
@@ -331,8 +333,8 @@ public class EstimationServiceImplTest {
         EstimationResult estimationResult = report.getResults().get(readingType1);
 
         assertThat(estimationResult.estimated()).hasSize(2);
-        assertThat(estimationResult.estimated().get(0).getReadingQualityTypes()).contains(readingQualityType1);
-        assertThat(estimationResult.estimated().get(1).getReadingQualityTypes()).contains(readingQualityType2);
+        assertThat(estimationResult.estimated().get(0).getReadingQualityTypesWithComments().keySet()).contains(readingQualityType1);
+        assertThat(estimationResult.estimated().get(1).getReadingQualityTypesWithComments().keySet()).contains(readingQualityType2);
         assertThat(estimationResult.remainingToBeEstimated()).hasSize(1);
         assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Successful estimation "));
     }

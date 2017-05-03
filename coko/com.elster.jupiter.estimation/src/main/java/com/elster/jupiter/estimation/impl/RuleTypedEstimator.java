@@ -8,7 +8,9 @@ import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.properties.PropertySpec;
@@ -22,12 +24,12 @@ import java.util.logging.Logger;
  */
 class RuleTypedEstimator implements Estimator {
 
-    private final int ruleId;
+    private final EstimationRule estimationRule;
     private final Estimator decorated;
     private final boolean markProjected;
 
-    RuleTypedEstimator(Estimator decorated, int ruleId, boolean markProjected) {
-        this.ruleId = ruleId;
+    RuleTypedEstimator(EstimationRule estimationRule, Estimator decorated, boolean markProjected) {
+        this.estimationRule = estimationRule;
         this.decorated = decorated;
         this.markProjected = markProjected;
     }
@@ -40,11 +42,12 @@ class RuleTypedEstimator implements Estimator {
     @Override
     public EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system) {
         EstimationResult result = decorated.estimate(estimationBlocks, system);
-        ReadingQualityType readingQualityType = ReadingQualityType.of(system, QualityCodeCategory.ESTIMATED, ruleId);
+        ReadingQualityComment readingQualityComment = estimationRule.getComment().orElse(null);
+        ReadingQualityType readingQualityType = ReadingQualityType.of(system, QualityCodeCategory.ESTIMATED, (int) estimationRule.getId());
         result.estimated().forEach(block -> {
-            ((SimpleEstimationBlock) block).addReadingQualityType(readingQualityType);
-            if(markProjected) {
-                ((SimpleEstimationBlock) block).addReadingQualityType(ReadingQualityType.of(system, QualityCodeCategory.PROJECTED, 0));
+            ((SimpleEstimationBlock) block).addReadingQualityType(readingQualityType, readingQualityComment);
+            if (markProjected) {
+                ((SimpleEstimationBlock) block).addReadingQualityType(ReadingQualityType.of(system, QualityCodeCategory.PROJECTED, 0), readingQualityComment);
             }
         });
         return result;

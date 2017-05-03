@@ -218,9 +218,9 @@ public class EstimationEngineTest {
         when(estimationBlock1.getReadingType()).thenReturn(readingType);
         when(estimationBlock2.getReadingType()).thenReturn(readingType2);
         when(estimationBlock3.getReadingType()).thenReturn(readingType);
-        when(estimationBlock1.getReadingQualityTypes()).thenReturn(Collections.singletonList(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 1)));
-        when(estimationBlock2.getReadingQualityTypes()).thenReturn(Collections.singletonList(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 2)));
-        when(estimationBlock3.getReadingQualityTypes()).thenReturn(Collections.singletonList(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 3)));
+        when(estimationBlock1.getReadingQualityTypesWithComments()).thenReturn(Collections.singletonMap((ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 1)), null));
+        when(estimationBlock2.getReadingQualityTypesWithComments()).thenReturn(Collections.singletonMap((ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 2)), null));
+        when(estimationBlock3.getReadingQualityTypesWithComments()).thenReturn(Collections.singletonMap((ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 3)), null));
         when(estimationBlock1.getChannel()).thenReturn(channel1);
         when(estimationBlock2.getChannel()).thenReturn(channel1);
         when(estimationBlock3.getChannel()).thenReturn(channel1);
