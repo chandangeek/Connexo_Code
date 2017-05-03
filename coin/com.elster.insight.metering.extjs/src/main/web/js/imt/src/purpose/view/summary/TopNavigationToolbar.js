@@ -11,144 +11,73 @@ Ext.define('Imt.purpose.view.summary.TopNavigationToolbar', {
         pack: 'end'
     },
 
-    displayMsg: Uni.I18n.translate('general.displayMsgItems', 'IMT', '{0} - {1} of {2} items'),
-
     store: null,
+    pageSize: 4,
+    page: 0,
 
-
-    initComponent: function(){
-        var me = this,
-            store = Ext.getStore(me.store),
-            storeTotal = store.getTotalCount(),
-            storeCount =  store.getCount();
+    initComponent: function () {
+        var me = this;
 
         me.items = ['->',
             {
                 xtype: 'tbtext',
                 itemId: 'displayItem',
-                text: Uni.I18n.translate('general.displayMsgOutputs', 'IMT', '{0} - {1} of {2} outputs', ['1', storeCount, storeTotal])
+                text: me.makeDisplayValue()
             },
             {
                 itemId: 'previous-next-navigation-toolbar-previous-link',
                 ui: 'plain',
                 iconCls: 'uni-icon-arrow-up',
                 style: 'margin-right: 0 !important;',
-                handler: function(){
-                    store.previousPage();
-                }
+                scope: me,
+                handler: me.previousPage
             },
             {
                 itemId: 'previous-next-navigation-toolbar-next-link',
                 ui: 'plain',
                 iconCls: 'uni-icon-arrow-down',
-                handler: function(){
-                    store.nextPage();
-                }
+                scope: me,
+                handler: me.nextPage
             }];
 
-
-
-        // me.down('#displayItem').setText(me.displayMsg);
-
-
-
         me.callParent(arguments);
+        me.activateButtons();
+    },
 
+    nextPage: function () {
+        var me = this;
+        me.page++;
+        me.down('#displayItem').setText(me.makeDisplayValue());
+        me.activateButtons();
+        me.fireEvent('outputspagechanged', me.page, me.pageSize);
+    },
+
+    previousPage: function () {
+        var me = this;
+        me.page--;
+        me.down('#displayItem').setText(me.makeDisplayValue());
+        me.activateButtons();
+        me.fireEvent('outputspagechanged', me.page, me.pageSize);
+    },
+
+    makeDisplayValue: function () {
+        var me = this,
+            store = Ext.getStore(me.store),
+            storeTotal = store.getTotalCount(),
+            fromCount = 1 + me.page * me.pageSize,
+            toCount = storeTotal <= me.pageSize + me.page * me.pageSize ? storeTotal : me.pageSize + me.page * me.pageSize;
+
+        return Uni.I18n.translate('general.displayMsgOutputs', 'IMT', '{0} - {1} of {2} outputs', [fromCount, toCount, storeTotal])
+    },
+
+    activateButtons: function () {
+        var me = this,
+            store = Ext.getStore(me.store),
+            storeTotal = store.getTotalCount(),
+            fromCount = 1 + me.page * me.pageSize,
+            toCount = me.pageSize + me.page * me.pageSize;
+
+        me.down('#previous-next-navigation-toolbar-next-link').setDisabled(storeTotal <= toCount);
+        me.down('#previous-next-navigation-toolbar-previous-link').setDisabled(1 === fromCount);
     }
-    // @private
-    // initComponent: function (store) {
-    //     var me = this,
-    //         prevBtn =
-    //         nextBtn = {
-    //             itemId: 'previous-next-navigation-toolbar-next-link',
-    //             ui: 'plain',
-    //             iconCls: 'uni-icon-arrow-down'
-    //         },
-    //         itemsCounter = {
-    //             xtype: 'component',
-    //             cls: ' previous-next-navigation-items-counter'
-    //         },
-    //         routeArguments = Ext.clone(me.router.arguments),
-    //         queryParams = Ext.clone(me.router.queryParams),
-    //         indexContainer = me.indexLocation == 'arguments' ? routeArguments : queryParams,
-    //         currentIndex = store.indexOfId(indexContainer[me.routerIdArgument]),
-    //         storeCurrentPage = store.lastOptions ? store.lastOptions.page : 1,
-    //         storePageSize = store.pageSize,
-    //         storeTotal = store.getTotalCount(),
-    //         storeCount =  store.getCount();
-    //
-    //     if (me.clearQueryParams) {
-    //         queryParams = {}
-    //     }
-    //
-    //     if (currentIndex === -1) {
-    //         currentIndex = store.indexOfId(parseInt(indexContainer[me.routerIdArgument]));
-    //     }
-    //
-    //     if (!queryParams[me.totalProperty] && me.isFullTotalCount) {
-    //         queryParams[me.totalProperty] = storeTotal;
-    //     } else if (!queryParams[me.totalProperty] || Math.abs(queryParams[me.totalProperty]) < storeTotal) {
-    //         queryParams[me.totalProperty] = storePageSize * storeCurrentPage >= storeTotal ? storeTotal : -(storeTotal - 1);
-    //     }
-    //
-    //     if(storeCount <= 1){
-    //         itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgItems', 'IMT', '{0} of {1}'), 1, 1 + ' ' + me.itemsName);
-    //     }
-    //     else if (queryParams[me.totalProperty] < 0) {
-    //         itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgMoreItems', 'IMT', '{0} of more than {1}'), storePageSize * (storeCurrentPage - 1) + currentIndex + 1, -queryParams[me.totalProperty]) + ' ' + me.itemsName;
-    //     } else {
-    //         itemsCounter.html = Ext.String.format(Uni.I18n.translate('previousNextNavigation.displayMsgItems', 'IMT', '{0} of {1}'), storePageSize * (storeCurrentPage - 1) + currentIndex + 1, queryParams[me.totalProperty]) + ' ' + me.itemsName;
-    //     }
-    //
-    //     if (currentIndex - 1 >= 0) {
-    //         indexContainer[me.routerIdArgument] = store.getAt(currentIndex - 1).getId();
-    //         prevBtn.href = me.router.getRoute(me.router.currentRoute).buildUrl(routeArguments, queryParams);
-    //     } else if (storeCurrentPage > 1) {
-    //         prevBtn.handler = function () {
-    //             me.up('#contentPanel').setLoading(true);
-    //             store.loadPage(storeCurrentPage - 1, {
-    //                 scope: me,
-    //                 callback: function (records) {
-    //                     me.up('#contentPanel').setLoading(false);
-    //                     if (records.length) {
-    //                         indexContainer[me.routerIdArgument] = store.getAt(records.length - 1).getId();
-    //                         me.router.getRoute(me.router.currentRoute).forward(routeArguments, queryParams);
-    //                     } else {
-    //                         prevBtn.disable();
-    //                     }
-    //                 }
-    //             });
-    //         }
-    //     } else {
-    //         prevBtn.disabled = true;
-    //     }
-    //     if (currentIndex + 1 < storeCount) {
-    //         indexContainer[me.routerIdArgument] = store.getAt(currentIndex + 1).getId();
-    //         nextBtn.href = me.router.getRoute(me.router.currentRoute).buildUrl(routeArguments, queryParams);
-    //     } else if (currentIndex + 1 === storeTotal) {
-    //         nextBtn.disabled = true;
-    //     } else if (storeTotal > storePageSize * storeCurrentPage) {
-    //         nextBtn.handler = function () {
-    //             me.up('#contentPanel').setLoading(true);
-    //             store.loadPage(storeCurrentPage + 1, {
-    //                 scope: me,
-    //                 callback: function (records) {
-    //                     me.up('#contentPanel').setLoading(false);
-    //                     if (records.length) {
-    //                         indexContainer[me.routerIdArgument] = store.getAt(0).getId();
-    //                         me.router.getRoute(me.router.currentRoute).forward(routeArguments, queryParams);
-    //                     } else {
-    //                         nextBtn.disable();
-    //                     }
-    //                 }
-    //             });
-    //         }
-    //     } else {
-    //         nextBtn.disabled = true;
-    //     }
-    //
-    //     me.add(itemsCounter, prevBtn, nextBtn);
-    // }
-
-
 });

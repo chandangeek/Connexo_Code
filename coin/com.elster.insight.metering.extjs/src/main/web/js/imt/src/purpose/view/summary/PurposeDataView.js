@@ -68,14 +68,7 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
         me.items = [
             {
                 xtype: 'purpose-top-navigation-toolbar',
-                disabled: true,
-                // itemId: 'tabbed-device-channels-view-previous-next-navigation-toolbar',
-                store: 'Imt.purpose.store.FilteredOutputs',
-                // router: me.router,
-                // routerIdArgument: 'id',
-                // itemsName: me.prevNextListLink,
-                // indexLocation: 'arguments',
-                // isFullTotalCount: true
+                store: 'Imt.purpose.store.FilteredOutputs'
             },
             {
                 xtype: 'uni-grid-filterpaneltop',
@@ -189,28 +182,56 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
     onLoad: function (store, records, successful, eOpts) {
         var me = this;
         me.graphTitle = Uni.I18n.translate('purpose.summary.intervalData', 'IMT', '{0} data', me.down('#purpose-data-topfilter-interval').getRawValue());
+        me.outputs.clearFilter(true);
         me.outputs.load({
             callback: function (records, operation, success) {
+                me.updateNavigationToolbar();
                 me.showGraphView();
                 me.redrawGrid();
                 me.setLoading(false);
             }
         });
+    },
 
+    onOutputsPageChanged: function (page, pageSize) {
+        var me = this;
+        debugger;
+        me.outputs.clearFilter(true);
+        me.outputs.filterBy(function (record) {
+            return pageSize * page <=  record.index && record.index < pageSize * (page + 1);
+        });
+        me.showGraphView();
+        me.redrawGrid();
     },
 
     onBeforeDestroy: function () {
         this.bindStore('ext-empty-store');
     },
 
-    redrawGrid: function(){
+    redrawGrid: function () {
         var me = this,
             grid = me.down('purpose-data-grid');
+        Ext.suspendLayouts();
         me.remove(grid);
         me.add({
             xtype: 'purpose-data-grid',
             outputs: me.outputs
-        })
+        });
+        Ext.resumeLayouts(true);
+    },
+
+    updateNavigationToolbar: function () {
+        var me = this,
+            toolbar = me.down('purpose-top-navigation-toolbar');
+        Ext.suspendLayouts();
+        toolbar.un('outputspagechanged');
+        me.remove(toolbar);
+        me.insert(0, {
+            xtype: 'purpose-top-navigation-toolbar',
+            store: me.outputs
+        });
+        me.down('purpose-top-navigation-toolbar').on('outputspagechanged', me.onOutputsPageChanged, me);
+        Ext.resumeLayouts(true);
     },
 
     showGraphView: function () {
@@ -218,7 +239,7 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
             graphView = me.down('highstockFixGraphView'),
             dataStore = me.store,
             seriesObject = {},
-            yAxis= [],
+            yAxis = [],
             series = [],
             intervalRecord,
             measurementTypeOrder = [],
@@ -236,11 +257,13 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
 
         seriesObject['data'] = [];
 
-        me.outputs.each( function (channel, index) {
+        me.outputs.each(function (channel, index) {
 
-            var seriesObject = {marker: {
-                enabled: false
-            }};
+            var seriesObject = {
+                marker: {
+                    enabled: false
+                }
+            };
             seriesObject['name'] = channel.get('name');
             channelDataArrays[channel.get('id')] = [];
             seriesObject['data'] = channelDataArrays[channel.get('id')];
@@ -468,10 +491,10 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
                     return {x: xValue, y: yValue}
                 },
                 formatter: function () {
-                    var s = '<b style=" color: #74af74; font-size: 14px; fontFamily: Lato, Helvetica, Arial, Verdana, Sans-serif;">' + Highcharts.dateFormat('%A, %e %B %Y', this.x) ;
+                    var s = '<b style=" color: #74af74; font-size: 14px; fontFamily: Lato, Helvetica, Arial, Verdana, Sans-serif;">' + Highcharts.dateFormat('%A, %e %B %Y', this.x);
                     if (intervalLength < 86400000) {
                         s += '<br/>' + Uni.I18n.translate('general.interval', 'IMT', 'Interval') + ' ' + Highcharts.dateFormat('%H:%M', this.x);
-                        s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + intervalLength)+ '</b>';
+                        s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + intervalLength) + '</b>';
                     } else {
                         s += ' - ' + Highcharts.dateFormat('%A, %e %B %Y', this.x + intervalLength) + '</b>';
                     }
