@@ -46,7 +46,10 @@ public enum MessageSeeds implements MessageSeed {
 
 
     INVALID_NUMBER(1015,"property.error", "This value should be positive"),
-    INVALID_DISCARD_DAY_FIELD(1016, "property.error.discardDaySettings.not.null", "This field is required");
+    REQUIRED_FIELD(1016, "property.error", "This field is required"),
+    // {0} - period, {1} - estimator name, {2} - reading type, {3} - usage point/meter
+    NEAREST_AVG_VALUE_DAY_ESTIMATOR_FAIL_NOT_ENOUGH_SAMPLES(10017,"nearestavgvalueday.estimator.fail.not.enough.samples","Failed to estimate period ''{0}'' using method {1} due to insufficient (valid) number of sample values found on {2} / {3}"),
+    NEAREST_AVG_VALUE_DAY_ESTIMATOR_FAIL_ESTIMATED_DAY_DISCARDED(10018,"nearestavgvalueday.estimator.fail.estimated.day.is.discarded","Failed to estimate period ''{0}'' using method {1} because the values to estimate belong to a day configured to be discarded on {2} / {3}");
     public static final String COMPONENT_NAME = "ESR";
 
     private final int number;

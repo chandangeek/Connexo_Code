@@ -1,8 +1,14 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -25,10 +31,14 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.AllRelativePeriod;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
@@ -39,12 +49,16 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.Year;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -56,7 +70,6 @@ import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -69,13 +82,13 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
 public class NearestAverageValueDayTest {
     private static final Set<QualityCodeSystem> SYSTEMS = Estimator.qualityCodeSystemsToTakeIntoAccount(QualityCodeSystem.MDC);
     private static final Logger LOGGER = Logger.getLogger(NearestAvgValueDayEstimator.class.getName());
@@ -126,11 +139,13 @@ public class NearestAverageValueDayTest {
 
     @Before
     public void setUp() {
+        setUpThesaurus();
         List<Event> eventList = Collections.singletonList(event);
         when(calendar.getId()).thenReturn(1L);
         when(event.getId()).thenReturn(1L);
         when(calendar.getEvents()).thenReturn(eventList);
         when(calendar.forZone(any(), any(), any())).thenReturn(zonedView);
+        when(calendar.getEndYear()).thenReturn(Optional.of(Year.now()));
         when(zonedView.eventFor(ESTIMABLE_TIME.toInstant())).thenReturn(falseEvent);
         when(falseEvent.getId()).thenReturn(2L);
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
@@ -141,6 +156,9 @@ public class NearestAverageValueDayTest {
         doReturn(channel).when(block).getChannel();
         doReturn(deltaCimChannel).when(block).getCimChannel();
         doReturn(channelsContainer).when(channel).getChannelsContainer();
+        doReturn(Optional.empty()).when(channelsContainer).getUsagePoint();
+        doReturn(Optional.of(Duration.ofMinutes(15))).when(readingType).getIntervalLength();
+        doReturn("Mock for reading type").when(readingType).getFullAliasName();
 
         doReturn(Optional.of(meter)).when(channelsContainer).getMeter();
         doReturn(asList(channel, otherChannel)).when(channelsContainer).getChannels();
@@ -152,7 +170,7 @@ public class NearestAverageValueDayTest {
 
         doReturn(START.toInstant()).when(channelsContainer).getStart();
         doReturn(Optional.of(LAST_CHECKED.toInstant())).when(validationService).getLastChecked(channel);
-        doReturn(buildReadings()).when(channel).getReadings(Range.closedOpen(ESTIMABLE_TIME.toInstant().minus(3 * ChronoUnit.WEEKS.getDuration().toDays(), ChronoUnit.DAYS), ESTIMABLE_TIME.toInstant()));
+        doReturn(buildReadings()).when(channel).getReadings(any(Range.class));
         doReturn(TimeZoneNeutral.getMcMurdo()).when(channel).getZoneId();
         doReturn(Optional.of(bulkReadingType)).when(readingType).getBulkReadingType();
         doReturn(TimeAttribute.FIXEDBLOCK15MIN).when(readingType).getMeasuringPeriod();
@@ -231,6 +249,37 @@ public class NearestAverageValueDayTest {
         return reading;
     }
 
+    private void setUpThesaurus() {
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenAnswer(invocationOnMock -> {
+            TranslationKey translationKey = (TranslationKey) invocationOnMock.getArguments()[0];
+            return new NlsMessageFormat() {
+                @Override
+                public String format(Object... args) {
+                    return MessageFormat.format(translationKey.getDefaultFormat(), args);
+                }
+
+                @Override
+                public String format(Locale locale, Object... args) {
+                    return MessageFormat.format(translationKey.getDefaultFormat(), args);
+                }
+            };
+        });
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocationOnMock -> {
+            MessageSeed messageSeed = (MessageSeed) invocationOnMock.getArguments()[0];
+            return new NlsMessageFormat() {
+                @Override
+                public String format(Object... args) {
+                    return MessageFormat.format(messageSeed.getDefaultFormat(), args);
+                }
+
+                @Override
+                public String format(Locale locale, Object... args) {
+                    return MessageFormat.format(messageSeed.getDefaultFormat(), args);
+                }
+            };
+        });
+    }
+
     @After
     public void tearDown() {
         LoggingContext.getCloseableContext().close();
@@ -241,7 +290,11 @@ public class NearestAverageValueDayTest {
     public void testEstimatePasses() {
         when(zonedView.eventFor(any())).thenReturn(falseEvent);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
-
+        DayType dayType = mock(DayType.class);
+        EventOccurrence occurrence = mock(EventOccurrence.class);
+        when(zonedView.dayTypeFor(any(Instant.class))).thenReturn(dayType);
+        when(dayType.getEventOccurrences()).thenReturn(Collections.singletonList(occurrence));
+        when(occurrence.getEvent()).thenReturn(falseEvent);
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(NearestAvgValueDayEstimator.NUMBER_OF_SAMPLES, 2L)
                 .put(NearestAvgValueDayEstimator.MAXIMUM_NUMBER_OF_WEEKS, 3L)
@@ -254,7 +307,7 @@ public class NearestAverageValueDayTest {
         EstimationResult result = estimator.estimate(singletonList(block), QualityCodeSystem.MDC);
 
         assertThat(result.estimated()).contains(block);
-        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(50050));
+        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(54));
     }
 
     @Test
@@ -272,15 +325,19 @@ public class NearestAverageValueDayTest {
         EstimationResult result = estimator.estimate(singletonList(block), QualityCodeSystem.MDC);
 
         assertThat(result.estimated()).contains(block);
-        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(50050));
+        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(54));
     }
 
     @Test
     public void testEstimateFailsIfNotEnoughSamples() {
+        DayType dayType = mock(DayType.class);
+        EventOccurrence occurrence = mock(EventOccurrence.class);
+        when(zonedView.dayTypeFor(any(Instant.class))).thenReturn(dayType);
+        when(dayType.getEventOccurrences()).thenReturn(Collections.singletonList(occurrence));
+        when(occurrence.getEvent()).thenReturn(falseEvent);
         List<BaseReadingRecord> readingRecords = buildReadings();
         readingRecords = readingRecords.subList(0, readingRecords.size() - 10);
-        doReturn(readingRecords).when(channel).getReadings(Range.closedOpen(ESTIMABLE_TIME.toInstant().minus(3 * ChronoUnit.WEEKS.getDuration().toDays(), ChronoUnit.DAYS), ESTIMABLE_TIME.toInstant()));
-        when(zonedView.eventFor(any())).thenReturn(falseEvent);
+        doReturn(readingRecords).when(channel).getReadings(any(Range.class));
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
 
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
@@ -296,13 +353,22 @@ public class NearestAverageValueDayTest {
 
         assertThat(result.estimated()).isEmpty();
         assertThat(result.remainingToBeEstimated()).containsExactly(block);
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("since not enough samples are found")).atLevel(Level.INFO);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed to estimate period ")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith(" due to insufficient (valid) number of sample values found on meter / Mock for reading type")).atLevel(Level.WARNING);
     }
 
     @Test
     public void testEstimateFailsIfEstimableDayIsDiscarded() {
+        UsagePoint usagePoint = mock(UsagePoint.class);
+        doReturn(Optional.of(usagePoint)).when(channelsContainer).getUsagePoint();
+        when(usagePoint.getName()).thenReturn("Usage point mock");
         when(zonedView.eventFor(any())).thenReturn(event);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
+        DayType dayType = mock(DayType.class);
+        EventOccurrence occurrence = mock(EventOccurrence.class);
+        when(zonedView.dayTypeFor(any(Instant.class))).thenReturn(dayType);
+        when(dayType.getEventOccurrences()).thenReturn(Collections.singletonList(occurrence));
+        when(occurrence.getEvent()).thenReturn(event);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
 
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
@@ -318,8 +384,8 @@ public class NearestAverageValueDayTest {
 
         assertThat(result.estimated()).isEmpty();
         assertThat(result.remainingToBeEstimated()).containsExactly(block);
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("since the values to estimate belong to a day configured to be discarded")).atLevel(Level.INFO);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed to estimate period ")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("because the values to estimate belong to a day configured to be discarded on Usage point mock / Mock for reading type")).atLevel(Level.WARNING);
     }
 
     @Test
