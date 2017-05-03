@@ -8,21 +8,7 @@ Ext.define('Imt.purpose.model.Filter', {
     fields: [
         {name: 'name', type: 'auto', useNull: true},
         {name: 'id', type: 'auto', useNull: true},
-        {
-            name: 'display',
-            type: 'auto',
-            useNull: true,
-            mapping: function (data) {
-                return data.name;
-            }
-        },
-        {
-            name: 'value',
-            type: 'auto',
-            useNull: true,
-            mapping: function (data) {
-                return data.id;
-            }
-        },
+        {name: 'count', type: 'auto', useNull: true},
+        {name: 'timeUnit', type: 'auto', useNull: true}
     ]
 });

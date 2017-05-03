@@ -114,6 +114,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
             me.getStore('Imt.purpose.store.ValidationTasks').getProxy().extraParams = extraParams;
             me.getStore('Imt.purpose.store.EstimationTasks').getProxy().extraParams = extraParams;
             me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(onDependenciesLoad);
+            var filteredOutputsStore = me.getStore('Imt.purpose.store.FilteredOutputs');
+            filteredOutputsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
 
             intervalsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
             intervalsStore.load(function (records) {
@@ -159,31 +161,49 @@ Ext.define('Imt.purpose.controller.Purpose', {
                         return p.getId() == purposeId
                     });
 
-                    var filteredOutputsStore = me.getStore('Imt.purpose.store.FilteredOutputs');
-                    filteredOutputsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
-                    filteredOutputsStore.load({
-                        callback: function () {
-                            outputs = filteredOutputsStore;
-                            widget = Ext.widget('purpose-main', {
-                                itemId: 'purpose-main',
-                                router: router,
-                                usagePoint: usagePoint,
-                                outputs: outputs,
-                                purposes: purposes,
-                                purpose: purpose,
-                                defaultPeriod: defaultPeriod,
-                                controller: me,
-                                prevNextListLink: me.makeLinkToOutputs(router),
-                                tab: router.queryParams.purposeTab
-                            });
-
-                            app.fireEvent('changecontentevent', widget);
-                            if (mainView.down('purpose-actions-menu')) {
-                                mainView.down('purpose-actions-menu').record = purpose;
-                            }
-                            mainView.setLoading(false);
-                        }
+                    widget = Ext.widget('purpose-main', {
+                        itemId: 'purpose-main',
+                        router: router,
+                        usagePoint: usagePoint,
+                        outputs: filteredOutputsStore,
+                        purposes: purposes,
+                        purpose: purpose,
+                        defaultPeriod: defaultPeriod,
+                        controller: me,
+                        prevNextListLink: me.makeLinkToOutputs(router),
+                        tab: router.queryParams.purposeTab
                     });
+
+                    app.fireEvent('changecontentevent', widget);
+                    if (mainView.down('purpose-actions-menu')) {
+                        mainView.down('purpose-actions-menu').record = purpose;
+                    }
+                    mainView.setLoading(false);
+                    // var filteredOutputsStore = me.getStore('Imt.purpose.store.FilteredOutputs');
+                    // filteredOutputsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
+                    // filteredOutputsStore.load({
+                    //     callback: function () {
+                    //         outputs = filteredOutputsStore;
+                    //         widget = Ext.widget('purpose-main', {
+                    //             itemId: 'purpose-main',
+                    //             router: router,
+                    //             usagePoint: usagePoint,
+                    //             outputs: outputs,
+                    //             purposes: purposes,
+                    //             purpose: purpose,
+                    //             defaultPeriod: defaultPeriod,
+                    //             controller: me,
+                    //             prevNextListLink: me.makeLinkToOutputs(router),
+                    //             tab: router.queryParams.purposeTab
+                    //         });
+                    //
+                    //         app.fireEvent('changecontentevent', widget);
+                    //         if (mainView.down('purpose-actions-menu')) {
+                    //             mainView.down('purpose-actions-menu').record = purpose;
+                    //         }
+                    //         mainView.setLoading(false);
+                    //     }
+                    // });
 
                     me.loadOutputs(usagePointId, purposeId);
                 }

@@ -45,16 +45,8 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
             itemId: 'readings-empty-panel'
         };
 
-        me.outputs.each( function (channel) {
-            if (intervalLengthInMs < zoomLevelsStore.getIntervalInMs(channel.get('interval'))) {
-                intervalLengthInMs = zoomLevelsStore.getIntervalInMs(channel.get('interval'));
-                me.interval = zoomLevelsStore.getIntervalRecord(channel.get('interval'));
-            }
-        });
 
-
-
-
+        me.interval = zoomLevelsStore.getIntervalRecord(Ext.getStore('Imt.purpose.store.IntervalFilter').getAt(0).getData());
 
         if (me.interval) {
             durations = Ext.create('Uni.store.Durations');
@@ -174,10 +166,6 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
                         }
                     }
                 ]
-            },
-            {
-                xtype: 'purpose-data-grid',
-                outputs: me.outputs
             }
         );
 
