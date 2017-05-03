@@ -61,6 +61,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -83,6 +84,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -227,6 +229,7 @@ public class DataAggregationServiceImplExpertModeIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
+                    new TaskModule(),
                     new CalendarModule(),
                     new CustomPropertySetsModule(),
                     new BasicPropertiesModule(),
@@ -253,9 +256,10 @@ public class DataAggregationServiceImplExpertModeIT {
     private static DataAggregationService getDataAggregationService() {
         ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
         return new DataAggregationServiceImpl(
+                injector.getInstance(Clock.class),
+                meteringService,
                 mock(CalendarService.class),
                 mock(CustomPropertySetService.class),
-                meteringService,
                 new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplExpertModeIT::getSqlBuilderFactory,
                 () -> new VirtualFactoryImpl(dataModelService),
@@ -413,31 +417,35 @@ public class DataAggregationServiceImplExpertModeIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + temperatureRequirementId + ".*" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + temperatureRequirementId + ".*" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(pressureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(volumeWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rod" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rod" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             String deliverableWithClauseSql = this.deliverableWithClauseBuilder.getText().replace("\n", " ");
             assertThat(deliverableWithClauseSql)
-                    .matches("SELECT -1, rid" + volumeRequirementId + "_" + deliverableId + "_1\\.timestamp,.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.readingQuality,.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.localdate\\s*FROM.*");
+                    .matches("SELECT -1 as id, rid" + volumeRequirementId + "_" + deliverableId + "_1\\.timestamp as timestamp.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.localdate as localdate\\s*FROM.*");
+            assertThat(deliverableWithClauseSql)
+                    .matches("SELECT.*[greatest|GREATEST]\\(.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.readingQuality,rid" + temperatureRequirementId + "_" + deliverableId + "_1\\.readingQuality,rid" + pressureRequirementId + "_" + deliverableId + "_1.readingQuality\\) as readingQuality.*FROM.*");
+            assertThat(deliverableWithClauseSql)
+                    .matches("SELECT.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.sourceChannels \\|\\| ',' \\|\\| rid" + temperatureRequirementId + "_" + deliverableId + "_1\\.sourceChannels \\|\\| ',' \\|\\| rid" + pressureRequirementId + "_" + deliverableId + "_1.sourceChannels as sourceChannels.*FROM.*");
             // Assert that the formula is applied to the requirements' value in the select clause
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*\\(\\s*\\?\\s*\\* \\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.value \\* \\(\\(rid" + temperatureRequirementId + "_" + deliverableId + "_1\\.value / rid" + pressureRequirementId + "_" + deliverableId + "_1\\.value\\) \\* \\(\\s*\\?\\s*/\\s*\\?\\s*\\)\\)\\)\\).*");
@@ -535,30 +543,30 @@ public class DataAggregationServiceImplExpertModeIT {
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(pressureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(volumeWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rod" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rod" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             String deliverableWithClauseSql = this.deliverableWithClauseBuilder.getText().replace("\n", " ");
-            assertThat(deliverableWithClauseSql).startsWith("SELECT -1,");
+            assertThat(deliverableWithClauseSql).startsWith("SELECT -1 as id,");
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*[max|MAX]\\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.timestamp\\).*FROM.*");
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*MAX\\(.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.readingQuality.*\\).*FROM.*");
             assertThat(deliverableWithClauseSql)
-                    .matches("SELECT.*[trunc|TRUNC]\\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.localdate, 'DDD'\\)\\s*FROM.*");
+                    .matches("SELECT.*[trunc|TRUNC]\\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.localdate, 'DDD'\\) as localdate\\s*FROM.*");
             // Assert that the formula and the aggregation function is applied to the requirements' value in the select clause
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*[sum|SUM]\\(\\(\\s*\\?\\s*\\*\\s*\\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.value \\* \\(\\(rid" + temperatureRequirementId + "_" + deliverableId + "_1\\.value / rid" + pressureRequirementId + "_" + deliverableId + "_1\\.value\\) \\* \\(\\s*\\?\\s*/\\s*\\?\\s*\\)\\)\\)\\)\\).*FROM.*");
@@ -653,36 +661,36 @@ public class DataAggregationServiceImplExpertModeIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + temperatureRequirementId + ".*" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + temperatureRequirementId + ".*" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(pressureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             assertThat(volumeWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rod" + deliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
+                        matches("rod" + deliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             String deliverableWithClauseSql = this.deliverableWithClauseBuilder.getText().replace("\n", " ");
-            assertThat(deliverableWithClauseSql).startsWith("SELECT -1,");
+            assertThat(deliverableWithClauseSql).startsWith("SELECT -1 as id,");
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*[max|MAX]\\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.timestamp\\).*FROM.*");
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*MAX\\(.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.readingQuality.*\\).*FROM.*");
             assertThat(deliverableWithClauseSql)
-                    .matches("SELECT.*[trunc|TRUNC]\\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.localdate, 'DDD'\\)\\s*FROM.*");
+                    .matches("SELECT.*[trunc|TRUNC]\\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.localdate, 'DDD'\\) as localdate\\s*FROM.*");
             // Assert that the formula and the aggregation function is applied to the requirements' value in the select clause
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*[sum|SUM]\\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.value\\).*FROM.*");

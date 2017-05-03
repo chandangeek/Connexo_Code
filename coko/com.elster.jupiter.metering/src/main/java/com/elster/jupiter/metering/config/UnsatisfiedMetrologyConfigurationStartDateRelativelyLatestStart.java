@@ -8,9 +8,9 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 
-public class UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart extends LocalizedException {
+public class UnsatisfiedMetrologyConfigurationStartDateRelativelyLatestStart extends LocalizedException {
 
-    public UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart(Thesaurus thesaurus) {
+    public UnsatisfiedMetrologyConfigurationStartDateRelativelyLatestStart(Thesaurus thesaurus) {
         super(thesaurus, MessageSeeds.START_DATE_SHOULD_BE_GREATER_THAN_LATEST_START_DATE);
     }
 

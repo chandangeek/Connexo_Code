@@ -20,7 +20,6 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
@@ -333,10 +332,9 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.addUsagePointRequirement(valueBean);
         metrologyConfiguration.addUsagePointRequirement(new SearchablePropertyValue.ValueBean(DEFAULT_SEARCH_PROPERTY, SearchablePropertyOperator.NOT_EQUAL, "ELECTRICITY"));
 
-        metrologyConfiguration = (UsagePointMetrologyConfiguration) getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration
-                .getId()).get();
-        assertThat(metrologyConfiguration.getUsagePointRequirements()).hasSize(1);
-        valueBean = metrologyConfiguration.getUsagePointRequirements().get(0).toValueBean();
+        UsagePointMetrologyConfiguration reloaded = (UsagePointMetrologyConfiguration) getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId()).get();
+        assertThat(reloaded.getUsagePointRequirements()).hasSize(1);
+        valueBean = reloaded.getUsagePointRequirements().get(0).toValueBean();
         assertThat(valueBean.getPropertyName()).isEqualTo(DEFAULT_SEARCH_PROPERTY);
         assertThat(valueBean.getValues()).contains("ELECTRICITY");
         assertThat(valueBean.getOperator()).isEqualTo(SearchablePropertyOperator.NOT_EQUAL);
@@ -531,14 +529,14 @@ public class UsagePointMetrologyConfigurationTestIT {
     /**
      * This test verifies that {@link UsagePointMetrologyConfiguration} created by using
      * {@link com.elster.jupiter.metering.config.UsagePointMetrologyConfigurationBuilder}
-     * will return <code>true</code> on {@link UsagePointMetrologyConfiguration#isGapAllowed()}
+     * will return <code>true</code> on {@link UsagePointMetrologyConfiguration#areGapsAllowed()}
      */
     @Test
     @Transactional
     public void testDefaultGapAllowedFlag() {
         UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService()
                 .newUsagePointMetrologyConfiguration("Name", getServiceCategory()).create();
-        assertThat(metrologyConfiguration.isGapAllowed()).isEqualTo(true);
+        assertThat(metrologyConfiguration.areGapsAllowed()).isEqualTo(true);
     }
 
     /**
@@ -554,13 +552,13 @@ public class UsagePointMetrologyConfigurationTestIT {
     private void verifyGapAllowedFlag(boolean isGapAllowed, String name) {
         UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService()
                 .newUsagePointMetrologyConfiguration(name, getServiceCategory())
-                .withGapAllowed(isGapAllowed)
+                .withGapsAllowed(isGapAllowed)
                 .create();
-        assertThat(metrologyConfiguration.isGapAllowed()).isEqualTo(isGapAllowed);
+        assertThat(metrologyConfiguration.areGapsAllowed()).isEqualTo(isGapAllowed);
 
         // verify flag is saved properly
         MetrologyConfiguration mc = getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration
                 .getId()).get();
-        assertThat(mc.isGapAllowed()).isEqualTo(isGapAllowed);
+        assertThat(mc.areGapsAllowed()).isEqualTo(isGapAllowed);
     }
 }

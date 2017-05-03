@@ -19,4 +19,7 @@ import java.time.Instant;
  */
 public interface ServerCalendarUsage extends UsagePoint.CalendarUsage {
     boolean overlaps(Range<Instant> period);
+    boolean startsOnOrAfter(Instant when);
+    boolean notEnded();
+    void end(Instant endAt);
 }

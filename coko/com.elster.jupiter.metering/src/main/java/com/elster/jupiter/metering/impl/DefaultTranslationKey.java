@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.metering.impl.aggregation.CalendarTimeSeriesCacheHandlerFactory;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum DefaultTranslationKey implements TranslationKey {
@@ -16,8 +17,10 @@ public enum DefaultTranslationKey implements TranslationKey {
     RESOURCE_SERVICE_CATEGORY_DESCRIPTION("metering.serviceCategory.description", "Manage service categories"),
     RESOURCE_METROLOGY_CONFIGURATION("usagePoint.metrologyConfiguration", "Metrology configurations"),
     RESOURCE_METROLOGY_CONFIGURATION_DESCRIPTION("usagePoint.metrologyConfiguration.description", "Manage metrology configurations"),
+    MISSING_EVENT_NAME("event.missing.name", "Missing"),
 
-    SWITCH_STATE_MACHINE_SUBSCRIBER(SwitchStateMachineEvent.SUBSCRIBER, SwitchStateMachineEvent.SUBSCRIBER_TRANSLATION),;
+    SWITCH_STATE_MACHINE_SUBSCRIBER(SwitchStateMachineEvent.SUBSCRIBER, SwitchStateMachineEvent.SUBSCRIBER_TRANSLATION),
+    CALENDAR_TIMESERIES_CACHE_HANDLER_SUBSCRIBER(CalendarTimeSeriesCacheHandlerFactory.TASK_SUBSCRIBER, CalendarTimeSeriesCacheHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME);
 
     private String key;
     private String format;

@@ -167,7 +167,7 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
             assertThat(channelsContainer.get().getRange()).isEqualTo(Range.atLeast(jan1st2016));
         }
 
-        up.getEffectiveMetrologyConfiguration(jan1st2016).get().close(jan31st2016);
+        up.getEffectiveMetrologyConfiguration(jan31st2016).get().close(jan31st2016);
         up.apply(mc2, feb1st2016);
 
         optional = up.getEffectiveMetrologyConfiguration(jan31st2016.minusSeconds(1));

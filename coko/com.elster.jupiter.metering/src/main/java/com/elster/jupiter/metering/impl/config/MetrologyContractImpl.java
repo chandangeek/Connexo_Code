@@ -8,7 +8,6 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -17,13 +16,13 @@ import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -46,7 +45,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class MetrologyContractImpl implements MetrologyContract {
+public class MetrologyContractImpl implements ServerMetrologyContract {
 
     public enum Fields {
         METROLOGY_CONFIG("metrologyConfiguration"),
@@ -69,18 +68,22 @@ public class MetrologyContractImpl implements MetrologyContract {
     private final CustomPropertySetService customPropertySetService;
     private final EventService eventService;
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private final Reference<ServerMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
-    @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @IsPresent(message = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     private final Reference<MetrologyPurpose> metrologyPurpose = ValueReference.absent();
     private boolean mandatory;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
-    private List<ReadingTypeDeliverable> deliverables = new ArrayList<>();
+    private List<ServerReadingTypeDeliverable> deliverables = new ArrayList<>();
 
     @Inject
     public MetrologyContractImpl(ServerMetrologyConfigurationService metrologyConfigurationService, CustomPropertySetService customPropertySetService, EventService eventService) {
@@ -136,11 +139,7 @@ public class MetrologyContractImpl implements MetrologyContract {
     }
 
     @Override
-    public MetrologyContract addDeliverable(ReadingTypeDeliverable deliverable) {
-        return this;
-    }
-
-    ReadingTypeDeliverable addDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula formula) {
+    public ReadingTypeDeliverable addDeliverable(String name, DeliverableType deliverableType, ReadingType readingType, Formula formula) {
         ReadingTypeDeliverableImpl deliverable =
                 this.metrologyConfigurationService.getDataModel()
                         .getInstance(ReadingTypeDeliverableImpl.class)
@@ -153,19 +152,26 @@ public class MetrologyContractImpl implements MetrologyContract {
 
     @Override
     public void removeDeliverable(ReadingTypeDeliverable deliverableForRemove) {
-        if(!metrologyConfigurationService.getDataModel()
+        if (this.doRemoveDeliverable((ServerReadingTypeDeliverable) deliverableForRemove)) {
+            this.touch();
+        }
+    }
+
+    public boolean doRemoveDeliverable(ServerReadingTypeDeliverable deliverableForRemove) {
+        if (!metrologyConfigurationService.getDataModel()
                 .query(ReadingTypeDeliverableNodeImpl.class)
                 .select(where("readingTypeDeliverable").isEqualTo(deliverableForRemove))
                 .isEmpty()){
             throw new CannotDeleteReadingTypeDeliverableException(metrologyConfigurationService.getThesaurus(), deliverableForRemove.getName());
         }
-        if(this.deliverables.contains(deliverableForRemove)) {
-            ((ReadingTypeDeliverableImpl) deliverableForRemove).prepareDelete();
-            if(this.deliverables.remove(deliverableForRemove)) {
+        if (this.deliverables.contains(deliverableForRemove)) {
+            deliverableForRemove.prepareDelete();
+            if (this.deliverables.remove(deliverableForRemove)) {
                 this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_DELETED.topic(), deliverableForRemove);
-                this.touch();
+                return true;
             }
         }
+        return false;
     }
 
     @Override
@@ -206,6 +212,13 @@ public class MetrologyContractImpl implements MetrologyContract {
     }
 
     @Override
+    public void delete() {
+        if (this.getId() > 0) {
+            new ArrayList<>(this.deliverables).forEach(this::doRemoveDeliverable);
+        }
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -241,21 +254,21 @@ public class MetrologyContractImpl implements MetrologyContract {
 
             boolean allMeterRolesHasMeters = true;
             for (MeterRole meterRole : meterRoles) {
-                MeterActivation meterActivation = !usagePoint.getMeterActivations(meterRole)
-                        .isEmpty() ? usagePoint.getMeterActivations(meterRole)
-                        .stream()
-                        .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
-                        .findFirst()
-                        .orElse(null) : null;
+                MeterActivation meterActivation;
+                if (!usagePoint.getMeterActivations(meterRole).isEmpty()) {
+                    meterActivation = usagePoint.getMeterActivations(meterRole)
+                            .stream()
+                            .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
+                            .findFirst()
+                            .orElse(null);
+                } else {
+                    meterActivation = null;
+                }
                 allMeterRolesHasMeters &= meterActivation != null;
             }
             return allMeterRolesHasMeters ? MetrologyContractStatusKey.COMPLETE : MetrologyContractStatusKey.INCOMPLETE;
         }
         return MetrologyContractStatusKey.UNKNOWN;
-    }
-
-    void prepareDelete() {
-        this.deliverables.clear();
     }
 
     private static class StatusImpl implements Status {
@@ -332,4 +345,5 @@ public class MetrologyContractImpl implements MetrologyContract {
     void deliverableUpdated(ReadingTypeDeliverableImpl deliverable) {
         this.touch();
     }
+
 }

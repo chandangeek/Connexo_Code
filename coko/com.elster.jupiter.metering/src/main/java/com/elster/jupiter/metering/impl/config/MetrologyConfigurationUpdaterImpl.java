@@ -30,7 +30,7 @@ public class MetrologyConfigurationUpdaterImpl implements MetrologyConfiguration
 
     @Override
     public MetrologyConfigurationUpdater setGapAllowed(boolean isGapAllowed) {
-        this.underConstruction.setGapAllowed(isGapAllowed);
+        this.underConstruction.setGapsAllowed(isGapAllowed);
         return this;
     }
 

@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.util.sql.SqlBuilder;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -7,9 +9,33 @@ import java.util.Set;
 class SourceChannelSqlNamesCollector implements ServerExpressionNode.Visitor<String> {
 
     private final Set<String> sourceChannelSqlNames = new HashSet<>();
+    private final boolean referenceMode;
 
     Set<String> getSourceChannelSqlNames() {
         return Collections.unmodifiableSet(this.sourceChannelSqlNames);
+    }
+
+    static void appendTo(SqlBuilder sqlBuilder, ServerExpressionNode expressionNode) {
+        appendTo(sqlBuilder, expressionNode, new SourceChannelSqlNamesCollector(true));
+    }
+
+    static void appendLeafsTo(SqlBuilder sqlBuilder, ServerExpressionNode expressionNode) {
+        appendTo(sqlBuilder, expressionNode, new SourceChannelSqlNamesCollector(false));
+    }
+
+    SourceChannelSqlNamesCollector(boolean referenceMode) {
+        super();
+        this.referenceMode = referenceMode;
+    }
+
+    private static void appendTo(SqlBuilder sqlBuilder, ServerExpressionNode expressionNode, SourceChannelSqlNamesCollector collector) {
+        expressionNode.accept(collector);
+        String channels = SourceChannelSetFactory.format(collector.getSourceChannelSqlNames());
+        if (channels.isEmpty()) {
+            sqlBuilder.append("''");
+        } else {
+            sqlBuilder.append(channels);
+        }
     }
 
     @Override
@@ -44,13 +70,21 @@ class SourceChannelSqlNamesCollector implements ServerExpressionNode.Visitor<Str
 
     @Override
     public String visitVirtualRequirement(VirtualRequirementNode requirement) {
-        sourceChannelSqlNames.add(requirement.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS.sqlName());
+        if (this.referenceMode) {
+            this.sourceChannelSqlNames.add(requirement.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS.sqlName());
+        } else {
+            this.sourceChannelSqlNames.add(requirement.sourceChannelValue());
+        }
         return null;
     }
 
     @Override
     public String visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-        sourceChannelSqlNames.add(deliverable.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS.sqlName());
+        if (this.referenceMode) {
+            this.sourceChannelSqlNames.add(deliverable.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS.sqlName());
+        } else {
+            this.sourceChannelSqlNames.addAll(deliverable.sourceChannelValues());
+        }
         return null;
     }
 
@@ -80,4 +114,5 @@ class SourceChannelSqlNamesCollector implements ServerExpressionNode.Visitor<Str
         aggregationNode.getAggregatedExpression().accept(this);
         return null;
     }
+
 }

@@ -4,8 +4,13 @@
 
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +20,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MessageSeedsTest {
+
+    @Test
+    public void noOverlapBetweenPublicAndPrivateMessageSeeds() {
+        Set<Integer> publicIds = Stream.of(MessageSeeds.values()).map(MessageSeed::getNumber).collect(Collectors.toSet());
+        for (PrivateMessageSeeds messageSeed : PrivateMessageSeeds.values()) {
+            assertThat(publicIds)
+                .as(messageSeed.name() + " overlaps with public MessageSeeds enum value " + publicWithNumber(messageSeed.getNumber()))
+                .doesNotContain(messageSeed.getNumber());
+        }
+    }
+
+    private String publicWithNumber(int number) {
+        return Stream.of(MessageSeeds.values()).filter(each -> each.getNumber() == number).findAny().map(MessageSeeds::name).orElse("");
+    }
+
+    @Test
+    public void noOverlapBetweenPrivateAndPublicMessageSeeds() {
+        Set<Integer> privateIds = Stream.of(PrivateMessageSeeds.values()).map(MessageSeed::getNumber).collect(Collectors.toSet());
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+            assertThat(privateIds)
+                .as(messageSeed.name() + " overlaps with private MessageSeeds enum value " + privateWithNumber(messageSeed.getNumber()))
+                .doesNotContain(messageSeed.getNumber());
+        }
+    }
+
+    private String privateWithNumber(int number) {
+        return Stream.of(PrivateMessageSeeds.values()).filter(each -> each.getNumber() == number).findAny().map(PrivateMessageSeeds::name).orElse("");
+    }
 
     @Test
     public void testAllSeedsHaveUniqueNumber() {

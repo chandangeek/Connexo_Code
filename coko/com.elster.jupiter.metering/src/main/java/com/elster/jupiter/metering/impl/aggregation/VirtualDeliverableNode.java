@@ -8,10 +8,10 @@ import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Provides an implementation for the {@link ExpressionNode} interface
@@ -56,7 +56,7 @@ class VirtualDeliverableNode implements ServerExpressionNode {
         return targetReadingType;
     }
 
-    void setTargetReadingType(VirtualReadingType targetReadingType) {
+    private void setTargetReadingType(VirtualReadingType targetReadingType) {
         this.targetReadingType = targetReadingType;
     }
 
@@ -79,7 +79,7 @@ class VirtualDeliverableNode implements ServerExpressionNode {
 
     /**
      * Appends the necessary sql constructs to the specified {@link SqlBuilder}
-     * to get the simple value of this nodes's {@link ReadingTypeRequirement}.
+     * to get the simple value of this nodes's {@link ReadingTypeDeliverable}.
      *
      * @param sqlBuilder The SqlBuilder
      */
@@ -89,7 +89,7 @@ class VirtualDeliverableNode implements ServerExpressionNode {
 
     /**
      * Appends the necessary sql constructs to the specified {@link SqlBuilder}
-     * to get the value of this nodes's {@link ReadingTypeRequirement}
+     * to get the value of this nodes's {@link ReadingTypeDeliverable}
      * and apply unit conversion if necessary.
      *
      * @param sqlBuilder The SqlBuilder
@@ -100,6 +100,10 @@ class VirtualDeliverableNode implements ServerExpressionNode {
 
     String sqlName() {
         return this.deliverable.sqlName();
+    }
+
+    Set<String> sourceChannelValues() {
+        return this.deliverable.sourceChannelValues();
     }
 
     List<VirtualRequirementNode> nestedRequirements(Visitor<List<VirtualRequirementNode>> visitor) {

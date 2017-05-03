@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.events.EventService;
@@ -11,10 +12,8 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.CannotDeleteMeter;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeterAlreadyActive;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
@@ -172,8 +171,8 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     }
 
     @Override
-    public List<? extends BaseReadingRecord> getJournalReadings(Range<Instant> range, ReadingType readingType) {
-        return MeterActivationsImpl.from(meterActivations, range).getJournalReadings(range, readingType);
+    public List<? extends BaseReadingRecord> getJournaledReadings(Range<Instant> range, ReadingType readingType) {
+        return MeterActivationsImpl.from(meterActivations, range).getJournaledReadings(range, readingType);
     }
 
     @Override
@@ -204,8 +203,8 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
 
     @Override
     public void delete() {
-        if (meterActivations.size() > 0) {
-            throw new CannotDeleteMeter(thesaurus, MessageSeeds.CANNOT_DELETE_METER_METER_ACTIVATIONS_EXIST, getName());
+        if (!meterActivations.isEmpty()) {
+            throw new CannotDeleteMeter(thesaurus, PrivateMessageSeeds.CANNOT_DELETE_METER_METER_ACTIVATIONS_EXIST, getName());
         }
         super.delete();
     }
@@ -222,18 +221,18 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     }
 
     @Override
-    public List<JournalEntry<? extends ReadingQualityRecord>> getReadingQualitiesJournal(Range<Instant> range, List<ReadingType> readingTypes, List<Long> channelIds) {
+    public List<JournalEntry<? extends ReadingQualityRecord>> getReadingQualitiesJournal(Range<Instant> range, List<ReadingType> readingTypes, List<Channel> channels) {
         List<JournalEntry<? extends ReadingQualityRecord>> result = new ArrayList<>();
         List<Comparison> comparisons = new ArrayList<>();
 
         comparisons.add(Operator.GREATERTHAN.compare("readingtimestamp", range.lowerEndpoint().toEpochMilli()));
         comparisons.add(Operator.LESSTHANOREQUAL.compare("readingtimestamp", range.upperEndpoint().toEpochMilli()));
         if (readingTypes.size() > 0) {
-            comparisons.add(Operator.IN.compare("readingtype", readingTypes.stream().map(r -> r.getMRID()).collect(Collectors.toList()).toArray()));
+            comparisons.add(Operator.IN.compare("readingtype", readingTypes.stream().map(IdentifiedObject::getMRID).collect(Collectors.toList()).toArray()));
         }
 
-        if (channelIds.size() > 0) {
-            comparisons.add(Operator.IN.compare("channelid", channelIds.toArray()));
+        if (channels.size() > 0) {
+            comparisons.add(Operator.IN.compare("channelid", channels.stream().map(Channel::getId).toArray(Long[]::new)));
         }
 
         List<JournalEntry<ReadingQualityRecord>> journalEntries = getDataModel().mapper(ReadingQualityRecord.class)

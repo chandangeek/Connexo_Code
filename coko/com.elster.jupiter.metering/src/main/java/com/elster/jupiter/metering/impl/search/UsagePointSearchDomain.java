@@ -143,7 +143,6 @@ public class UsagePointSearchDomain implements SearchDomain {
         if (this.isMultisensePropertiesOnly()) {
             return this.getMultisenseProperties();
         }
-
         return this.getInsightProperties();
     }
 
@@ -154,6 +153,7 @@ public class UsagePointSearchDomain implements SearchDomain {
             if (this.isMultisensePropertiesOnly()) {
                 return searchableProperties;
             }
+            searchableProperties = new ArrayList<>(searchableProperties);
             searchableProperties.addAll(getServiceCategoryDynamicProperties(constrictions));
         }
         return searchableProperties;
