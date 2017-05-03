@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -14,8 +15,12 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
+import com.google.common.collect.Range;
+
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -26,6 +31,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -60,6 +66,9 @@ public class DeviceConfigValidationRuleSetResolverTest {
         when(deviceService.findDeviceById(eq(DEVICE_ID))).thenReturn(Optional.of(device));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getValidationRuleSets()).thenReturn(Collections.singletonList(ruleSet));
+        LifecycleDates lifecycleDates = mock(LifecycleDates.class);
+        when(meter.getLifecycleDates()).thenReturn(lifecycleDates);
+        when(lifecycleDates.getReceivedDate()).thenReturn(Optional.of(Instant.EPOCH));
 
     }
 
@@ -68,8 +77,8 @@ public class DeviceConfigValidationRuleSetResolverTest {
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceService(deviceService);
 
-        List<ValidationRuleSet> setList = resolver.resolve(validationContext);
-        assertThat(setList).containsExactly(ruleSet);
+        Map<ValidationRuleSet, List<Range<Instant>>> setMap = resolver.resolve(validationContext);
+        assertThat(setMap).containsOnlyKeys(ruleSet);
     }
 
     @Test
@@ -78,8 +87,8 @@ public class DeviceConfigValidationRuleSetResolverTest {
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceService(deviceService);
 
-        List<ValidationRuleSet> setList = resolver.resolve(validationContext);
-        assertThat(setList).isEmpty();
+        Map<ValidationRuleSet, List<Range<Instant>>> setMap = resolver.resolve(validationContext);
+        assertThat(setMap).isEmpty();
     }
 
     @Test
@@ -88,8 +97,8 @@ public class DeviceConfigValidationRuleSetResolverTest {
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceService(deviceService);
 
-        List<ValidationRuleSet> setList = resolver.resolve(validationContext);
-        assertThat(setList).isEmpty();
+        Map<ValidationRuleSet, List<Range<Instant>>> setMap = resolver.resolve(validationContext);
+        assertThat(setMap).isEmpty();
     }
 
     @Test
@@ -98,7 +107,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceService(deviceService);
 
-        List<ValidationRuleSet> setList = resolver.resolve(validationContext);
-        assertThat(setList).isEmpty();
+        Map<ValidationRuleSet, List<Range<Instant>>> setMap = resolver.resolve(validationContext);
+        assertThat(setMap).isEmpty();
     }
 }
