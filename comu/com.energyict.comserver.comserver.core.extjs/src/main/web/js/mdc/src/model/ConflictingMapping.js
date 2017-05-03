@@ -5,9 +5,8 @@
 Ext.define('Mdc.model.ConflictingMapping', {
     extend: 'Uni.model.ParentVersion',
     requires: [
-        'Mdc.model.ConnectionMethodsAndSecuritySets',
-        'Mdc.model.SolutionConnectionMethod',
-        'Mdc.model.SolutionSecuritySet'
+        'Mdc.model.ConnectionMethodConflictItems',
+        'Mdc.model.SolutionConnectionMethod'
     ],
     fields: [
         {name: 'fromConfiguration', type: "auto"},
@@ -20,16 +19,9 @@ Ext.define('Mdc.model.ConflictingMapping', {
         {
             name: 'connectionMethods',
             type: 'hasMany',
-            model: 'Mdc.model.ConnectionMethodsAndSecuritySets',
+            model: 'Mdc.model.ConnectionMethodConflictItems',
             associationKey: 'connectionMethods',
             foreignKey: 'connectionMethods'
-        },
-        {
-            name: 'securitySets',
-            type: 'hasMany',
-            model: 'Mdc.model.ConnectionMethodsAndSecuritySets',
-            associationKey: 'securitySets',
-            foreignKey: 'securitySets'
         },
         {
             name: 'connectionMethodSolutions',
@@ -37,13 +29,6 @@ Ext.define('Mdc.model.ConflictingMapping', {
             model: 'Mdc.model.SolutionConnectionMethod',
             associationKey: 'connectionMethodSolutions',
             foreignKey: 'connectionMethodSolutions'
-        },
-        {
-            name: 'securitySetSolutions',
-            type: 'hasMany',
-            model: 'Mdc.model.SolutionSecuritySet',
-            associationKey: 'securitySetSolutions',
-            foreignKey: 'securitySetSolutions'
         }
     ],
     proxy: {

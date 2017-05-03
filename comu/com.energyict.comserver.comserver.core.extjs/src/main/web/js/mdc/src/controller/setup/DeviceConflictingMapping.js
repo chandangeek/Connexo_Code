@@ -29,11 +29,9 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
         {ref: 'deviceConflictingActionMenu', selector: 'device-conflicting-mapping-action-menu'},
         {ref: 'conflictingMappingEditPanel', selector: '#conflictingMappingEditPanel'},
         {ref: 'connectionMethodsForm', selector: '#connectionMethodsForm'},
-        {ref: 'securitySettingsForm', selector: '#securitySettingsForm'},
         {ref: 'afterSetsAdds', selector: '#afterSetsAdds'},
         {ref: 'afterConnectionsAdds', selector: '#afterConnectionsAdds'},
         {ref: 'connectionMethodsAddsPanel', selector: '#connectionMethodsAddsPanel'},
-        {ref: 'securitySettingsAddsPanel', selector: '#securitySettingsAddsPanel'},
         {ref: 'deviceConflictingMappingEditPage', selector: 'deviceConflictingMappingEdit'}
     ],
     returnInfo : {from: 'unsolvedConflicts', id: ''},
@@ -181,21 +179,12 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
                         widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
                         me.getApplication().fireEvent('changecontentevent', widget);
 
-                        if (record.securitySets().getCount() > 0) {
-                            me.addConnectionsAndSettings('securitySets', record);
-                        } else {
-                            me.getSecuritySettingsAddsPanel().setVisible(false);
-                        }
-
                         if (record.connectionMethods().getCount() > 0) {
                             me.addConnectionsAndSettings('connectionMethods', record);
                         } else {
                             me.getConnectionMethodsAddsPanel().setVisible(false);
                         }
 
-                        if (record.securitySetSolutions().getCount() > 0) {
-                            me.applySolutions('SecuritySet', record);
-                        }
                         if (record.connectionMethodSolutions().getCount() > 0) {
                             me.applySolutions('ConnectionMethod', record);
                         }
@@ -242,17 +231,6 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
                 store = record.connectionMethods();
                 actualForm = me.getConnectionMethodsForm();
                 actualAddPanel = me.getAfterConnectionsAdds();
-            }
-                break;
-            case('securitySets'):
-            {
-                label = Uni.I18n.translate('general.securitySettings', 'MDC', 'Security settings');
-                tooltipLabel = Uni.I18n.translate('deviceconfiguration.tooltipLabel.securitySetting', 'MDC', 'security setting');
-                noAvailableLabel = Uni.I18n.translate('deviceconfiguration.lowercase.noSecuritySettingAvailable', 'MDC', 'No security setting available');
-
-                store = record.securitySets();
-                actualForm = me.getSecuritySettingsForm();
-                actualAddPanel = me.getAfterSetsAdds();
             }
                 break;
 
@@ -309,11 +287,8 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
     addSolutions: function (record) {
         var me = this, solution = {},
             connectionMethodValues = me.getConnectionMethodsForm().getValues(),
-            securitySettingsValues = me.getSecuritySettingsForm().getValues(),
-            securitySetSolutionsStore = record.securitySetSolutions(),
             connectionMethodSolutionsStore = record.connectionMethodSolutions(),
-            conMethodsStore = record.connectionMethods(),
-            securitySetsStore = record.securitySets();
+            conMethodsStore = record.connectionMethods();
 
         connectionMethodSolutionsStore.removeAll();
         conMethodsStore.each(function (item) {
@@ -327,33 +302,12 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
             }
             connectionMethodSolutionsStore.add(solution);
         });
-
-        securitySetSolutionsStore.removeAll();
-        securitySetsStore.each(function (item) {
-            solution.from = item.get('from');
-            if (securitySettingsValues[item.get('from').id] == 'remove') {
-                solution.action = 'REMOVE';
-                solution.to = {};
-            } else {
-                solution.action = "MAP";
-                solution.to = item.to().getById(securitySettingsValues[item.get('from').id][1]).data;
-            }
-            securitySetSolutionsStore.add(solution);
-        });
     },
 
     applySolutions: function (typeOfSolutions, record) {
         var me = this, actualSolutions, actualForm, actualCombobox;
 
         switch (typeOfSolutions) {
-            case 'SecuritySet' :
-            {
-                if (record.securitySetSolutions()) {
-                    actualForm = me.getSecuritySettingsForm();
-                    actualSolutions = record.securitySetSolutions();
-                }
-            }
-                break;
             case 'ConnectionMethod' :
             {
                 if (record.connectionMethodSolutions()) {

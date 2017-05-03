@@ -117,46 +117,6 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.DeviceConflictingMappingEdi
 
                     },
                     {
-                        xtype: 'form',
-                        itemId: 'securitySettingsForm'
-                    },
-                    {
-                        xtype: 'panel',
-                        itemId: 'securitySettingsAddsPanel',
-                        layout: {
-                            type: 'hbox'
-                        },
-                        items: [
-                            {
-                                xtype: 'panel',
-                                layout: {
-                                    type: 'hbox',
-                                    pack: 'end'
-                                },
-                                width: 300,
-                                items: [
-                                    {
-                                        xtype: 'displayfield',
-                                        emptyValueDisplay: ''
-                                    }
-                                ]
-                            },
-                            {
-                                xtype: 'displayfield',
-                                emptyValueDisplay: '',
-                                style: {
-                                    marginTop: 10
-                                },
-                                fieldStyle: {
-                                    fontStyle: 'italic',
-                                    color: '#999'
-                                },
-                                itemId: 'afterSetsAdds'
-                            }
-                        ]
-
-                    },
-                    {
                         xtype: 'fieldcontainer',
                         ui: 'actions',
                         style: {
@@ -182,8 +142,7 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.DeviceConflictingMappingEdi
                         ]
                     }
                 ]
-            },
-
+            }
         ];
         this.callParent(arguments);
     }
