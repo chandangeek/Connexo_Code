@@ -510,7 +510,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                             xtype: 'displayfield',
                             name: 'commentValue',
                             renderer: function (item) {
-                                debugger;
                                 return item ? item : '-';
                             }
                         }
@@ -635,7 +634,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 }
             }
         ];
-        debugger;
         me.callParent(arguments);
     }
 });

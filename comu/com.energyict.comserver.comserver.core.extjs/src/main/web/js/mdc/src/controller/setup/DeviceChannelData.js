@@ -1276,7 +1276,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     updateEstimatedValues: function (record, reading, estimatedReading, ruleId, action) {
         var me = this,
             grid = me.getPage().down('deviceLoadProfileChannelDataGrid');
-        debugger;
+
         if (record.get('estimateBulk')) {
             reading.set('collectedValue', estimatedReading.collectedValue);
             if (ruleId) {
