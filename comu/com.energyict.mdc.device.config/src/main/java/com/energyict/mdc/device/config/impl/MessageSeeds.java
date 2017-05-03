@@ -169,7 +169,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIG_DIRECTLY_ADDRESSABLE_WHEN_CONNECTIONTASKS(15017, Keys.DEVICE_CONFIG_DIRECTLY_ADDRESSABLE_WHEN_CONNECTIONTASKS, "You can''t change this property because you already have connection tasks"),
     CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT(15018, Keys.CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT, "You can''t remove the connection method because it is used by a communication task"),
     TIME_OF_USE_CALENDAR_ONLY(15019, Keys.TIME_OF_USE_CALENDAR_ONLY, "You can only add Time of Use calendars to a device type"),
-    ;
+    KEY_ACCESSOR_CAN_NOT_BE_DELETED(15020, "CanNotDeleteKeyAccessor", "Security accessors can no longer be deleted once configurations have been added to the device type");
 
     private final int number;
     private final String key;

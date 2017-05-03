@@ -311,9 +311,16 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 .filter(kat -> kat.getId() == keyAccessorType.getId())
                 .findAny()
                 .ifPresent(kat->{
+                    verifyKeyAccessorTypesCanBeDeleted();
                     ((KeyAccessorTypeImpl)kat).preDelete();
                     this.keyAccessors.remove(kat);
                 });
+    }
+
+    private void verifyKeyAccessorTypesCanBeDeleted() {
+        if (!getConfigurations().isEmpty()) { // TODO provide better check
+            throw new KeyAccessorTypeCanNotBeDeletedException(getThesaurus());
+        }
     }
 
     @Override
