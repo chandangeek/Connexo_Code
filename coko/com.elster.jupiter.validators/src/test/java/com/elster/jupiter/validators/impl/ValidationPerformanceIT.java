@@ -61,6 +61,7 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -71,8 +72,9 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
@@ -188,8 +190,8 @@ public class ValidationPerformanceIT {
                     .create();
             validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                 @Override
-                public List<ValidationRuleSet> resolve(ValidationContext validationContext) {
-                    return Arrays.asList(validationRuleSet);
+                public Map<ValidationRuleSet, List<Range<Instant>>> resolve(ValidationContext validationContext) {
+                    return Collections.singletonMap(validationRuleSet, Collections.singletonList(Range.atLeast(date1)));
                 }
 
                 @Override
