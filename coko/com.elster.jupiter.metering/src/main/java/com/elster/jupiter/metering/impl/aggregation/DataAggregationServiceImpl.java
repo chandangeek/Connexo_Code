@@ -477,7 +477,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         if (!period.hasUpperBound()) {
             Loggers.POST_PROCESS.info(() -> "Cannot generate timeseries when end is not known, defaulting to end of this year");
             ZonedDateTime startOfThisYear = Year.now(this.clock).atDay(1).atStartOfDay(zoneId);
-            return this.ensureBoundsOn(Ranges.copy(period).withOpenLowerBound(startOfThisYear.plusYears(1).toInstant()), zoneId);
+            return this.ensureBoundsOn(Ranges.copy(period).withClosedUpperBound(startOfThisYear.plusYears(1).toInstant()), zoneId);
         }
         return period;
     }
