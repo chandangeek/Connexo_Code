@@ -30,8 +30,11 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,7 +59,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public abstract class MainCheckEstimatorTest {
 
-
+    private final ZoneId CHANNEL_ZONE_ID = ZoneId .systemDefault();
+    private static final TemporalAmount CHANNEL_INTERVAL_LENGTH = Period.ofDays(1);
     private static final Logger LOGGER = Logger.getLogger(MainCheckEstimatorTest.class.getName());
     @Mock
     private MetrologyPurpose PURPOSE;
@@ -64,6 +68,9 @@ public abstract class MainCheckEstimatorTest {
     @Mock
     private MetrologyPurpose NOT_EXISTING_PURPOSE;
     private static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+    @Mock
+    private ReadingType readingType = mock(ReadingType.class);
 
     MainCheckEstimator mockEstimator(EstimationConfiguration estimationConfiguration) {
         MainCheckEstimator estimator = new MainCheckEstimator(estimationConfiguration.thesaurus, estimationConfiguration.metrologyConfigurationService, estimationConfiguration.validationService, estimationConfiguration.propertySpecService, estimationConfiguration.properties);
@@ -132,6 +139,8 @@ public abstract class MainCheckEstimatorTest {
         void mockAll() {
 
             thesaurus = mock(Thesaurus.class);
+
+            when(readingType.getFullAliasName()).thenReturn("[Daily] Secondary Delta A+ (kWh)");
 
             NlsMessageFormat nameFormat = mock(NlsMessageFormat.class);
             when(nameFormat.format()).thenReturn(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME.getDefaultFormat());
@@ -215,15 +224,9 @@ public abstract class MainCheckEstimatorTest {
                     .collect(Collectors.toList());
             doReturn(estimatablesList).when(estimationBlock).estimatables();
 
-            ReadingType readingType = mock(ReadingType.class);
-            when(readingType.getFullAliasName()).thenReturn("[Daily] Secondary Delta A+ (kWh)");
-
             when(estimationBlock.getReadingType()).thenReturn(readingType);
 
             effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
-
-            //estimatables.stream().map(estimatableConf -> estimatableConf.timeStamp).forEach(i->when(usagePoint.getEffectiveMetrologyConfiguration(i)).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint)));
-
 
             UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
             when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
@@ -236,6 +239,8 @@ public abstract class MainCheckEstimatorTest {
                     .of(channelsContainer));
 
             Channel checkChannel = mock(Channel.class);
+            when(checkChannel.getZoneId()).thenReturn(CHANNEL_ZONE_ID);
+            when(checkChannel.getIntervalLength()).thenReturn(Optional.of(CHANNEL_INTERVAL_LENGTH));
 
             when(channelsContainer.getChannel(readingType)).thenReturn(noCheckChannel?Optional.empty():Optional.of(checkChannel));
 
@@ -244,7 +249,7 @@ public abstract class MainCheckEstimatorTest {
                 List<EstimatableConf> estimatableConf =
                         estimatables.stream()
                                 .filter(e ->
-                                        e.timeStamp.compareTo(interval.lowerEndpoint()) >= 0 && e.timeStamp.compareTo(interval
+                                        e.timeStamp.compareTo(ZonedDateTime.ofInstant(interval.lowerEndpoint(),CHANNEL_ZONE_ID).minus(CHANNEL_INTERVAL_LENGTH).toInstant()) >= 0 && e.timeStamp.compareTo(interval
                                                 .upperEndpoint()) <= 0)
                                 .collect(Collectors.toList());
 

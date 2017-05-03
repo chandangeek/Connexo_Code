@@ -12,6 +12,7 @@ import com.elster.jupiter.estimators.AbstractEstimator;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -37,6 +38,7 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,6 +73,8 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
     static final String CHECK_PURPOSE = TranslationKeys.CHECK_PURPOSE.getKey();
 
     protected MetrologyPurpose checkPurpose;
+
+    ReadingType checkReadingType;
 
     protected UsagePoint validatingUsagePoint;
 
@@ -109,6 +113,11 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
         return QUALITY_CODE_SYSTEMS;
     }
 
+    void touchCheckReadingType(ReadingType readingType) {
+        if (checkReadingType == null) {
+            checkReadingType = readingType;
+        }
+    }
 
     PropertySpec buildCheckPurposePropertySpec() {
         List<MetrologyPurpose> metrologyPurposes = metrologyConfigurationService.getMetrologyPurposes();
@@ -139,7 +148,7 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
     public EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system) {
 
         // it is possible estimationBlocks list is empty
-        if (estimationBlocks.isEmpty()){
+        if (estimationBlocks.isEmpty()) {
             return SimpleEstimationResult.builder().build();
         }
 
@@ -161,6 +170,8 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
         } else {
             this.validatingUsagePoint = usagePoint.get();
         }
+
+        touchCheckReadingType(estimationBlocks.get(0).getReadingType());
 
         List<EstimationBlock> remain = new ArrayList<>();
         List<EstimationBlock> estimated = new ArrayList<>();
@@ -215,15 +226,17 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
     private Map<Estimatable, ReferenceReading> estimateBlock(EstimationBlock estimationBlock) {
 
         Instant startInterval = estimationBlock.estimatables().get(0).getTimestamp();
-        Instant endInterval = estimationBlock.estimatables()
-                .get(estimationBlock.estimatables().size() - 1)
-                .getTimestamp();
+        List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMCList = new ArrayList<>();
+        if (estimationBlock.estimatables().size() == 1) {
+            validatingUsagePoint.getEffectiveMetrologyConfiguration(startInterval).ifPresent(effectiveMCList::add);
+        } else {
+            Instant endInterval = estimationBlock.estimatables()
+                    .get(estimationBlock.estimatables().size() - 1)
+                    .getTimestamp();
 
-        Range<Instant> blockRange = Range.open(startInterval, endInterval);
-
-        List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMCList = validatingUsagePoint
-                .getEffectiveMetrologyConfigurations(blockRange);
-
+            Range<Instant> blockRange = Range.closedOpen(startInterval, endInterval);
+            effectiveMCList.addAll(validatingUsagePoint.getEffectiveMetrologyConfigurations(blockRange));
+        }
         return handleEffectiveMC(effectiveMCList, estimationBlock);
     }
 
@@ -261,18 +274,22 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
             return Stream.of(new ReferenceReading(NO_CHECK_CHANNEL))
                     .collect(Collectors.toMap(c -> estimationBlock.estimatables().get(0), Function.identity()));
         }
+
         Optional<Channel> checkChannel = channelsContainerWithCheckChannel.get()
-                .getChannel(estimationBlock.getReadingType());
+                .getChannel(checkReadingType);
         if (!checkChannel.isPresent()) {
             return Stream.of(new ReferenceReading(NO_CHECK_CHANNEL))
                     .collect(Collectors.toMap(c -> estimationBlock.estimatables().get(0), Function.identity()));
         }
         Instant startInterval = estimationBlock.estimatables().get(0).getTimestamp();
-        Instant endInterval = estimationBlock.estimatables()
+        Instant searchIntervalStart = ZonedDateTime.ofInstant(startInterval, checkChannel.get().getZoneId())
+                .minus(checkChannel.get().getIntervalLength().get())
+                .toInstant();
+        Instant searchIntervalEnd = estimationBlock.estimatables()
                 .get(estimationBlock.estimatables().size() - 1)
                 .getTimestamp();
         Map<Instant, IntervalReadingRecord> checkChannelBaseReadings = checkChannel.get()
-                .getIntervalReadings(Range.closed(startInterval, endInterval))
+                .getIntervalReadings(Range.openClosed(searchIntervalStart, searchIntervalEnd))
                 .stream()
                 .collect(Collectors.toMap(BaseReading::getTimeStamp, Function.identity()));
 

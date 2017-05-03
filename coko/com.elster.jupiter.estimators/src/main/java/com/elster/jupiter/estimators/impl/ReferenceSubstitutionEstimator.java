@@ -96,6 +96,7 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
         }
         // override validatingUsagePoint
         validatingUsagePoint = referenceUsagePoint.getUsagePoint();
+        touchCheckReadingType(referenceReadingTypeProperty.getReadingType());
         return super.estimate(estimationBlocks, system);
     }
 
