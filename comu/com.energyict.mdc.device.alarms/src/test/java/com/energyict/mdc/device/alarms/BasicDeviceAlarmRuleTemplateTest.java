@@ -30,7 +30,7 @@ public class BasicDeviceAlarmRuleTemplateTest extends BaseTest {
     @Test
     @Transactional
     public void testCanCreateAlarm() {
-        CreationRule rule = getCreationRule("testCanCreateAlarm", ModuleConstants.ALARM_REASON);
+        CreationRule rule = getCreationRule("testCanCreateAlarm");
         Meter meter = createMeter("1", "Name");
         OpenIssue baseIssue = createBaseIssue(rule, meter);
 
@@ -45,7 +45,7 @@ public class BasicDeviceAlarmRuleTemplateTest extends BaseTest {
     @Test
     @Transactional
     public void testCanCreateAlarmOnAnotherDevice() {
-        CreationRule rule = getCreationRule("testCanCreateAlarmOnAnotherDevice", ModuleConstants.ALARM_REASON);
+        CreationRule rule = getCreationRule("testCanCreateAlarmOnAnotherDevice");
         Meter meter = createMeter("1", "Name1");
         OpenIssue baseIssue = createBaseIssue(rule, meter);
         OpenDeviceAlarmImpl alarm = getDataModel().getInstance(OpenDeviceAlarmImpl.class);
@@ -66,7 +66,7 @@ public class BasicDeviceAlarmRuleTemplateTest extends BaseTest {
     @Test
     @Transactional
     public void testInProgressToOpenTransition() {
-        CreationRule rule = getCreationRule("testInProgressToOpenTransition", ModuleConstants.ALARM_REASON);
+        CreationRule rule = getCreationRule("testInProgressToOpenTransition");
         Meter meter = createMeter("1", "Name");
         OpenIssue baseIssue = createBaseIssue(rule, meter);
         OpenDeviceAlarmImpl alarm = getDataModel().getInstance(OpenDeviceAlarmImpl.class);
@@ -88,7 +88,7 @@ public class BasicDeviceAlarmRuleTemplateTest extends BaseTest {
     public void testCloseAlarm() {
         ((IssueServiceImpl) getIssueService()).addIssueProvider((IssueProvider) getDeviceAlarmService());
 
-        CreationRule rule = getCreationRule("testCloseAlarmBaseIssue", ModuleConstants.ALARM_REASON);
+        CreationRule rule = getCreationRule("testCloseAlarmBaseIssue");
         Meter meter = createMeter("1", "Name");
         EndDeviceEventCreatedEvent event = getEndDeviceEventCreatedEvent(1L);
         DeviceAlarm alarm = getDeviceAlarmService().createAlarm(createBaseIssue(rule, meter), event);

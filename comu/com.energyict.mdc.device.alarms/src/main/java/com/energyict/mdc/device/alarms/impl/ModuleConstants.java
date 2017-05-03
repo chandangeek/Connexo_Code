@@ -8,7 +8,6 @@ public final class ModuleConstants {
     private ModuleConstants() {
     }
 
-    public static final String ALARM_REASON = "alarm.reason";
     public static final String END_DEVICE_EVENT_CREATED = "end.device.event.created";
     public static final String AQ_DEVICE_ALARM_EVENT_SUBSC = "DeviceAlarmCreation";
     public static final String AQ_DEVICE_ALARM_EVENT_DISPLAYNAME = "Create device alarms";
@@ -21,7 +20,6 @@ public final class ModuleConstants {
     public static final String BASIC_TEMPLATE_DEVICE_ALARM_DESCRIPTION = "basicTemplateDeviceAlarmDescription";
     public static final String BASIC_TEMPLATE_DEVICE_ALARM_NAME = "basicTemplateDeviceAlarmName";
     public static final String ISSUE_TYPE_DEVICE_ALARM = "issueTypeDeviceAlarm";
-    public static final String ALARM_REASON_DESCRIPTION = "alarmReasonDescription";
     public static final String EVENT_TEMPORAL_THRESHOLD = "eventTemporalThreshold";
     public static final String RAISE_EVENT_PROPS = "raiseEventProperties";
     public static final String TRIGGERING_EVENTS = "triggeringEvents";

@@ -20,8 +20,6 @@ public enum TranslationKeys implements TranslationKey {
     CLOSE_ACTION_ALARM_CLOSED("action.alarm.closed", "Alarm closed"),
     CLOSE_ACTION_ALARM_ALREADY_CLOSED("action.alarm.already.closed", "Alarm already closed"),
     CLOSE_ACTION_CLOSE_ISSUE("alarm.action.closeAlarm", "Close alarm"),
-    ALARM_REASON(ModuleConstants.ALARM_REASON, "Alarm reason"),
-    ALARM_REASON_DESCRIPTION(ModuleConstants.ALARM_REASON_DESCRIPTION, "Alarm reason {0}"),
     ACTION_ASSIGN_ALARM("alarm.action.assignAlarm", "Assign alarm"),
     ACTION_ALARM_ASSIGNED("action.alarm.assigned", "Alarm assigned"),
     ACTION_ALARM_UNASSIGNED("action.alarm.unassigned", "Alarm unassigned"),

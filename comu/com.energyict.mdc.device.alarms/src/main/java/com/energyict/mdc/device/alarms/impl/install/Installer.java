@@ -81,7 +81,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         run(this::setAQSubscriber, "aq subscribers", logger);
         run(() -> {
             IssueType issueType = setSupportedIssueType();
-            setDefaultDeviceAlarmReasonsAndActions(issueType);
+            setDefaultDeviceAlarmActions(issueType);
         }, "issue reasons and action types", logger);
         run(this::createRelativePeriodCategory, "create alarm relative period category", logger);
         run(this::createRelativePeriods, "Assign default relative periods to DAL category", logger);
@@ -138,10 +138,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         }
     }
 
-    private void setDefaultDeviceAlarmReasonsAndActions(IssueType issueType) {
-        //TODO - reasons to be input by hand by user in UI
-        issueService.createReason(ModuleConstants.ALARM_REASON, issueType,
-                TranslationKeys.ALARM_REASON, TranslationKeys.ALARM_REASON_DESCRIPTION);
+    private void setDefaultDeviceAlarmActions(IssueType issueType) {
         IssueType deviceAlarmType = issueService.findIssueType(DeviceAlarmService.DEVICE_ALARM).get();
         issueActionService.createActionType(DeviceAlarmActionsFactory.ID, AssignDeviceAlarmAction.class.getName(), deviceAlarmType, null);
         issueActionService.createActionType(DeviceAlarmActionsFactory.ID, StartProcessAlarmAction.class.getName(), deviceAlarmType, null);
