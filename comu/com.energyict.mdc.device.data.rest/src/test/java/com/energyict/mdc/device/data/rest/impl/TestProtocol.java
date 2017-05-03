@@ -22,7 +22,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
@@ -199,19 +198,15 @@ public class TestProtocol implements DeviceProtocol {
 
     }
 
-    public static CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> getCustomPropertySet(PropertySpecService propertySpecService) {
-        return new BasicAuthenticationCustomPropertySet(propertySpecService);
-    }
-
     private PropertySpec getUserNamePropertySpec() {
         BasicPropertySpec propertySpec = new BasicPropertySpec(new StringFactory());
-        propertySpec.setName(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName());
+        propertySpec.setName("usrName");
         return propertySpec;
     }
 
     private PropertySpec getPasswordPropertySpec() {
         BasicPropertySpec propertySpec = new BasicPropertySpec(new StringFactory());
-        propertySpec.setName(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName());
+        propertySpec.setName("password");
         return propertySpec;
     }
 
