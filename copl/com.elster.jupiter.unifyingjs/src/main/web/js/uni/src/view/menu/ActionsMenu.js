@@ -22,6 +22,7 @@ Ext.define('Uni.view.menu.ActionsMenu', {
         me.sortMenuItems();
         me.callParent(arguments);
         me.mon(me, 'beforeshow', me.onBeforeShow, me);
+        me.mon(me, 'refreshMenuSeparators', me.onBeforeShow, me);
     },
 
     sortMenuItems: function() {
