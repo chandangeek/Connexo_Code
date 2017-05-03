@@ -9,11 +9,13 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
-public interface DeviceProtocolSecurityCapabilities {   //TODO: still needs rework
+public interface DeviceProtocolSecurityCapabilities {
 
     /**
      * Returns the {@link CustomPropertySet} that provides the storage area
@@ -41,14 +43,15 @@ public interface DeviceProtocolSecurityCapabilities {   //TODO: still needs rewo
      *
      * @return The CustomPropertySet
      */
-    default Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {   //TODO: all implementations should be removed
+    default Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {   //TODO: all implementations should be removed (in UPL)!
             return Optional.empty();
     }
 
-    default List<PropertySpec> getSecurityPropertySpecs() { //TODO: all implementations should be removed
-        return this.getCustomPropertySet()
-                .map(CustomPropertySet::getPropertySpecs)
-                .orElseGet(Collections::emptyList);
+    default List<PropertySpec> getSecurityPropertySpecs() {
+        Set<PropertySpec> allSecurityPropertySpecs = new HashSet<>();
+        getAuthenticationAccessLevels().forEach(accessLevel -> allSecurityPropertySpecs.addAll(accessLevel.getSecurityProperties()));
+        getEncryptionAccessLevels().forEach(accessLevel -> allSecurityPropertySpecs.addAll(accessLevel.getSecurityProperties()));
+        return new ArrayList<>(allSecurityPropertySpecs);
     }
 
     /**
@@ -58,7 +61,7 @@ public interface DeviceProtocolSecurityCapabilities {   //TODO: still needs rewo
      * @param name The name of the security property specification
      * @return The PropertySpec or an empty Optional if no such PropertySpec exists
      */
-    default Optional<PropertySpec> getSecurityPropertySpec(String name) {  //TODO: all implementations should be removed
+    default Optional<PropertySpec> getSecurityPropertySpec(String name) {
         return getSecurityPropertySpecs()
                 .stream()
                 .filter(propertySpec -> propertySpec.getName().equals(name))
@@ -99,6 +102,6 @@ public interface DeviceProtocolSecurityCapabilities {   //TODO: still needs rewo
      * @return The 'client' PropertySpec or an empty Optional in case the 'client' is not supported
      */
     default Optional<PropertySpec> getClientSecurityPropertySpec() {
-        return Optional.empty(); // By default, no support for client - TODO: foresee useful implementation on the protocols who need this
+        return Optional.empty(); // By default, no support for client - TODO: foresee useful implementation on the protocols who need this (in UPL)
     }
 }
