@@ -301,7 +301,7 @@ public class DeviceResource {
         } else {
             newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), name, shipmentDate);
         }
-        if (!newDevice.getDeviceType().isMultiElementSlave()){
+        if (!newDevice.getDeviceType().isMultiElementSlave()) {
             newDevice.setSerialNumber(serialNumber);
             newDevice.setManufacturer(manufacturer);
             newDevice.setModelNumber(modelNbr);
@@ -367,7 +367,7 @@ public class DeviceResource {
                 updateDataLoggerChannels(info, device);
                 device.save();
                 context.commit();
-            }catch(IllegalArgumentException e){
+            } catch (IllegalArgumentException e) {
                 throw exceptionFactory.newExceptionSupplier(Response.Status.NOT_ACCEPTABLE, MessageSeeds.UPDATE_OF_DEVICE_FAILED).get();
             }
         }
@@ -390,8 +390,9 @@ public class DeviceResource {
         boolean masterIsDataLogger = dataLogger.getDeviceConfiguration().isDataloggerEnabled();
         boolean masterIsMultiElementDevice = dataLogger.getDeviceConfiguration().isMultiElementEnabled();
         if (masterIsDataLogger || masterIsMultiElementDevice) {
-            final List<Device> currentDataLoggerSlaves = topologyService.findDataLoggerSlaves(dataLogger);;
-            final List<Device>currentMultiElementSlaves = multiElementDeviceService.findMultiElementSlaves(dataLogger);
+            final List<Device> currentDataLoggerSlaves = topologyService.findDataLoggerSlaves(dataLogger);
+            ;
+            final List<Device> currentMultiElementSlaves = multiElementDeviceService.findMultiElementSlaves(dataLogger);
             info.dataLoggerSlaveDevices.stream()
                     .filter(DataLoggerSlaveDeviceInfo::unlinked)
                     .forEach(dataLoggerSlaveDeviceInfo -> currentDataLoggerSlaves.stream().filter(slave -> slave.getId() == dataLoggerSlaveDeviceInfo.id).findAny()
@@ -412,7 +413,7 @@ public class DeviceResource {
                 validateBeforeCreatingNewSlaveViaWizard(slaveDeviceInfo.name);
                 slave = newDevice(slaveDeviceInfo.deviceConfigurationId, slaveDeviceInfo.batch, slaveDeviceInfo.name,
                         slaveDeviceInfo.serialNumber, slaveDeviceInfo.manufacturer, slaveDeviceInfo.modelNbr, slaveDeviceInfo.modelVersion, slaveDeviceInfo.yearOfCertification, Instant.ofEpochMilli(slaveDeviceInfo.shipmentDate));
-                if (slave.getDeviceType().isMultiElementSlave()){
+                if (slave.getDeviceType().isMultiElementSlave()) {
                     multiElementDeviceService.syncSlaves(dataLogger);
                 }
             } else {
@@ -440,7 +441,7 @@ public class DeviceResource {
                     topologyService.setDataLogger(slave, dataLogger, Instant.ofEpochMilli(slaveDeviceInfo.linkingTimeStamp), channelMap, registerMap);
                 }
                 if (slave.getDeviceType().isMultiElementSlave()) {
-                    multiElementDeviceService.addSlave(slave, dataLogger, Instant.ofEpochMilli(slaveDeviceInfo.linkingTimeStamp) , channelMap, registerMap);
+                    multiElementDeviceService.addSlave(slave, dataLogger, Instant.ofEpochMilli(slaveDeviceInfo.linkingTimeStamp), channelMap, registerMap);
                 }
             }
         }
@@ -967,6 +968,7 @@ public class DeviceResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         return PagedInfoList.fromCompleteList("dataLoggerSlaveDevices", getDataLoggerSlavesForDevice(device), queryParameters);
     }
+
     // Returns all data logger slaves and multi-element slaves for a device
     private List<DeviceTopologyInfo> getDataLoggerSlavesForDevice(Device device) {
         return (device.getDeviceConfiguration().isDataloggerEnabled() || device.getDeviceConfiguration().isMultiElementEnabled() ? resourceHelper.getDataLoggerSlaves(device) : Collections.emptyList());

@@ -9,15 +9,13 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.DataLoggerReference;
-
 import com.google.common.collect.Range;
+import org.junit.Test;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;

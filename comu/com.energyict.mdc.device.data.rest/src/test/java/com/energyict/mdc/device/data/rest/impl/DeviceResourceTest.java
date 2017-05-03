@@ -2501,7 +2501,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getId()).thenReturn(1L);
         when(device.getName()).thenReturn(name);
         DeviceType deviceType = mock(DeviceType.class);
-        if (gateway != null){
+        if (gateway != null) {
             when(deviceType.isDataloggerSlave()).thenReturn(true);
         }
         when(deviceType.getName()).thenReturn(name + "DeviceType");
