@@ -23,8 +23,6 @@ public class DeviceConfigSolutionMappingInfo {
     public DeviceConfigConfigurationInfo toConfiguration;
     public List<DeviceConfigConflictConfigurationInfo> connectionMethods = new ArrayList<>();
     public List<DeviceConfigSolutionConfigurationInfo> connectionMethodSolutions = new ArrayList<>();
-    public List<DeviceConfigConflictConfigurationInfo> securitySets = new ArrayList<>();
-    public List<DeviceConfigSolutionConfigurationInfo> securitySetSolutions = new ArrayList<>();
     public long version;
     public VersionInfo<Long> parent;
 
@@ -64,36 +62,6 @@ public class DeviceConfigSolutionMappingInfo {
                         case REMOVE:
                             connectionMethodSolutions.add(new DeviceConfigSolutionConfigurationInfo(
                                     conflictingConnectionMethodSolution.getConflictingMappingAction().toString(), from));
-                            break;
-                    }
-                });
-        deviceConfigConflictMapping.getConflictingSecuritySetSolutions()
-                .stream()
-                .forEach(conflictingSecuritySetSolution -> {
-                    List<DeviceConfigConfigurationInfo> to = new ArrayList<>();
-                    conflictingSecuritySetSolution.getMappableToDataSources()
-                            .stream()
-                            .forEach(securitySet ->
-                                    to.add(new DeviceConfigConfigurationInfo(securitySet.getId(),
-                                            securitySet.getName())));
-                    DeviceConfigConfigurationInfo from = new DeviceConfigConfigurationInfo(
-                            conflictingSecuritySetSolution.getOriginDataSource().getId(),
-                            conflictingSecuritySetSolution.getOriginDataSource().getName());
-                    securitySets.add(new DeviceConfigConflictConfigurationInfo(from, to));
-                    switch (conflictingSecuritySetSolution.getConflictingMappingAction()) {
-                        case MAP:
-                            securitySetSolutions.add(new DeviceConfigSolutionConfigurationInfo(
-                                    conflictingSecuritySetSolution.getConflictingMappingAction().toString(),
-                                    from,
-                                    new DeviceConfigConfigurationInfo(
-                                            conflictingSecuritySetSolution.getDestinationDataSource().getId(),
-                                            conflictingSecuritySetSolution.getDestinationDataSource().getName()
-                                    )
-                            ));
-                            break;
-                        case REMOVE:
-                            securitySetSolutions.add(new DeviceConfigSolutionConfigurationInfo(
-                                    conflictingSecuritySetSolution.getConflictingMappingAction().toString(), from));
                             break;
                     }
                 });

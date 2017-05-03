@@ -9,11 +9,9 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
-import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
@@ -84,23 +82,6 @@ public class DeviceConfigConflictMappingResource {
                         .filter(f -> f.getId() == deviceConfigConnectionMethodSolution.to.id)
                         .findFirst()
                         .orElseThrow(() -> new WebApplicationException("No device configuration conflict solution for destination data source with id " + deviceConfigConnectionMethodSolution.from.id, Response.Status.NOT_FOUND));
-                from.markSolutionAsMap(to);
-            } else {
-                from.markSolutionAsRemove();
-            }
-        });
-        deviceConfigConflictInfo.securitySetSolutions.forEach(deviceConfigSecuritySetSolution -> {
-            ConflictingSecuritySetSolution from = deviceConfigConflictMapping.getConflictingSecuritySetSolutions()
-                    .stream()
-                    .filter(f -> f.getOriginDataSource().getId() == deviceConfigSecuritySetSolution.from.id)
-                    .findFirst()
-                    .orElseThrow(() -> new WebApplicationException("No device configuration security set solution for original data source with id " + deviceConfigSecuritySetSolution.from.id, Response.Status.NOT_FOUND));
-            if (deviceConfigSecuritySetSolution.action.equals(DeviceConfigConflictMapping.ConflictingMappingAction.MAP.toString())) {
-                SecurityPropertySet to = from.getMappableToDataSources()
-                        .stream()
-                        .filter(f -> f.getId() == deviceConfigSecuritySetSolution.to.id)
-                        .findFirst()
-                        .orElseThrow(() -> new WebApplicationException("No device configuration security set solution for destination data source with id " + deviceConfigSecuritySetSolution.from.id, Response.Status.NOT_FOUND));
                 from.markSolutionAsMap(to);
             } else {
                 from.markSolutionAsRemove();

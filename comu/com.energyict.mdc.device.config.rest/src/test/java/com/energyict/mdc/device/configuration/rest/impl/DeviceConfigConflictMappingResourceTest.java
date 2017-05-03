@@ -5,18 +5,17 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
-import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -99,7 +98,7 @@ public class DeviceConfigConflictMappingResourceTest extends DeviceConfiguration
         when(deviceConfigConflictMapping.getDestinationDeviceConfiguration()).thenReturn(deviceConfigurationDestination);
 
         ConflictingConnectionMethodSolution conflictingConnectionMethodSolution = mock(ConflictingConnectionMethodSolution.class);
-        when(deviceConfigConflictMapping.getConflictingConnectionMethodSolutions()).thenReturn(Arrays.asList(conflictingConnectionMethodSolution));
+        when(deviceConfigConflictMapping.getConflictingConnectionMethodSolutions()).thenReturn(Collections.singletonList(conflictingConnectionMethodSolution));
 
         PartialConnectionTask connectionTaskOrigin = mock(PartialConnectionTask.class);
         when(conflictingConnectionMethodSolution.getOriginDataSource()).thenReturn(connectionTaskOrigin);
@@ -107,20 +106,9 @@ public class DeviceConfigConflictMappingResourceTest extends DeviceConfiguration
         PartialConnectionTask connectionTaskDestination = mock(PartialConnectionTask.class);
         when(conflictingConnectionMethodSolution.getDestinationDataSource()).thenReturn(connectionTaskDestination);
 
-        ConflictingSecuritySetSolution conflictingSecuritySetSolution = mock(ConflictingSecuritySetSolution.class);
-        when(deviceConfigConflictMapping.getConflictingSecuritySetSolutions()).thenReturn(Arrays.asList(conflictingSecuritySetSolution));
-
-        SecurityPropertySet securityTaskOrigin = mock(SecurityPropertySet.class);
-        when(conflictingSecuritySetSolution.getOriginDataSource()).thenReturn(securityTaskOrigin);
-
-        SecurityPropertySet securityTaskDestination = mock(SecurityPropertySet.class);
-        when(conflictingSecuritySetSolution.getDestinationDataSource()).thenReturn(securityTaskDestination);
-
         PartialConnectionTask mappableConnectionleTask = mock(PartialConnectionTask.class);
-        when(conflictingConnectionMethodSolution.getMappableToDataSources()).thenReturn(Arrays.asList(mappableConnectionleTask));
+        when(conflictingConnectionMethodSolution.getMappableToDataSources()).thenReturn(Collections.singletonList(mappableConnectionleTask));
 
-        SecurityPropertySet mappableSecurityTask = mock(SecurityPropertySet.class);
-        when(conflictingSecuritySetSolution.getMappableToDataSources()).thenReturn(Arrays.asList(mappableSecurityTask));
 
         when(deviceConfigConflictMapping.getId()).thenReturn(13L);
         when(deviceConfigConflictMapping.isSolved()).thenReturn(false);
@@ -132,18 +120,11 @@ public class DeviceConfigConflictMappingResourceTest extends DeviceConfiguration
         when(deviceConfigConflictMapping.getVersion()).thenReturn(OK_VERSION);
         when(mappableConnectionleTask.getId()).thenReturn(50L);
         when(mappableConnectionleTask.getName()).thenReturn("fifty");
-        when(mappableSecurityTask.getId()).thenReturn(60L);
-        when(mappableSecurityTask.getName()).thenReturn("sixty");
         when(connectionTaskOrigin.getId()).thenReturn(10L);
         when(connectionTaskOrigin.getName()).thenReturn("ten");
         when(connectionTaskDestination.getId()).thenReturn(20L);
         when(connectionTaskDestination.getName()).thenReturn("twenty");
-        when(securityTaskOrigin.getId()).thenReturn(30L);
-        when(securityTaskOrigin.getName()).thenReturn("thirty");
-        when(securityTaskDestination.getId()).thenReturn(40L);
-        when(securityTaskDestination.getName()).thenReturn("forty");
         when(conflictingConnectionMethodSolution.getConflictingMappingAction()).thenReturn(DeviceConfigConflictMapping.ConflictingMappingAction.MAP);
-        when(conflictingSecuritySetSolution.getConflictingMappingAction()).thenReturn(DeviceConfigConflictMapping.ConflictingMappingAction.MAP);
 
         Map<String, Object> map = target("/devicetypes/100500/conflictmappings/13").request().get(Map.class);
         assertThat(map.get("id")).isEqualTo(13).describedAs("JSon representation of a field, JavaScript impact if it changed");
