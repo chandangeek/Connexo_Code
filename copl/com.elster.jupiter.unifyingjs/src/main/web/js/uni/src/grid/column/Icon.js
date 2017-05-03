@@ -33,18 +33,14 @@ Ext.define('Uni.grid.column.Icon', {
         var res = {};
         if (Ext.isDefined(value.editedTime)) {
             var editedDate = Ext.isDate(value.editedTime) ? value.editedTime : new Date(value.editedTime),
-                formattedEditedDate = Uni.I18n.translate('general.dateAtTime', 'UNI', '{0} at {1}',
-                    [Uni.DateTime.formatDateShort(editedDate), Uni.DateTime.formatTimeShort(editedDate)]
-                );
+                formattedEditedDate = Uni.DateTime.formatDateTimeShort(editedDate);
             res.value = editedDate;
             res.iconCls = 'icon-pencil4';
             res.tipString = Uni.I18n.translate('general.editedOnX', 'UNI', 'Edited on {0}', formattedEditedDate);
         }
         if (Ext.isDefined(value.deletedTime)) {
             var deletedDate = Ext.isDate(value.deletedTime) ? value.deletedTime : new Date(value.deletedTime),
-                formattedDeletedDate = Uni.I18n.translate('general.dateAtTime', 'UNI', '{0} at {1}',
-                    [Uni.DateTime.formatDateShort(deletedDate), Uni.DateTime.formatTimeShort(deletedDate)]
-                );
+                formattedDeletedDate = Uni.DateTime.formatDateTimeShort(deletedDate);
             res.value = deletedDate;
             res.iconCls = 'uni-icon-deleted';
             res.tipString = Uni.I18n.translate('general.deletedOnX', 'UNI', 'Deleted on {0}', formattedDeletedDate);

@@ -27,7 +27,7 @@ Ext.define('Uni.DateTime', {
     timeShortDefault: 'H:i',
     timeLongDefault: 'H:i:s',
 
-    dateTimeSeparatorDefault: '-',
+    dateTimeSeparatorDefault: 'at',
     dateTimeOrderDefault: 'DT',
 
     LONG: 'long',
