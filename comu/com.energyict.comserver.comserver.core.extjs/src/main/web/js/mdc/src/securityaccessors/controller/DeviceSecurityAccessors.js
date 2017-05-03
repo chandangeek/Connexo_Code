@@ -597,7 +597,9 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             passiveAliasCombo = me.getEditPassiveCertificateAttributesContainer().down('#mdc-passive-alias-combo'),
             errorMsgPnl = me.getEditDeviceCertificatePanel().down('uni-form-error-message'),
             key,
-            value;
+            value,
+            trustStoreId = undefined,
+            trustStoreName = undefined;
 
         viewport.setLoading();
         errorMsgPnl.hide();
@@ -610,6 +612,9 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                 propertyValue = property.getPropertyValue();
                 propertyValue.set('value', value);
                 propertyValue.set('propertyHasValue', !Ext.isEmpty(value));
+            } else if (key === 'trustStore') {
+                trustStoreId = property.raw.propertyValueInfo.value.id;
+                trustStoreName = property.raw.propertyValueInfo.value.name;
             }
         });
         me.deviceCertificateRecord.tempProperties().each(function (property) {
@@ -619,6 +624,10 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                 propertyValue = property.getPropertyValue();
                 propertyValue.set('value', value);
                 propertyValue.set('propertyHasValue', !Ext.isEmpty(value));
+            } else if (key === 'trustStore' && trustStoreId && trustStoreName) {
+                propertyValue = property.getPropertyValue();
+                propertyValue.set('value', {id: trustStoreId, name: trustStoreName});
+                propertyValue.set('propertyHasValue', true);
             }
         });
         me.deviceCertificateRecord.endEdit();
