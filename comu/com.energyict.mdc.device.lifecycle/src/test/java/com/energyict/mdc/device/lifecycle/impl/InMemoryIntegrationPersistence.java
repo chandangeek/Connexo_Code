@@ -20,7 +20,7 @@ import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.FsmUsagePointProvider;
+import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
@@ -33,7 +33,6 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.metering.impl.StateTransitionPropertiesProviderImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
@@ -100,11 +99,11 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.mockito.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.http.HttpService;
@@ -118,6 +117,8 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Optional;
 import java.util.Properties;
+
+import org.mockito.Matchers;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
@@ -226,7 +227,7 @@ public class InMemoryIntegrationPersistence {
             this.injector.getInstance(CustomPropertySetService.class);
             initializeCustomPropertySets();
             StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler(this.injector
-                    .getInstance(EventService.class), this.injector.getInstance(BpmService.class), this.injector.getInstance(FsmUsagePointProvider.class),
+                    .getInstance(EventService.class), this.injector.getInstance(BpmService.class), this.injector.getInstance(StateTransitionPropertiesProvider.class),
                     this.injector.getInstance(HttpAuthenticationService.class));
             ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionTriggerEventTopicHandler);
             com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler meteringTopicHandler =
