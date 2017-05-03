@@ -27,6 +27,8 @@ import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
@@ -120,10 +122,10 @@ public enum TableSpecs {
             Table<ChannelsContainerValidation> table = dataModel.addTable(name(), ChannelsContainerValidation.class);
             table.map(ChannelsContainerValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            List<Column> intervalColumns = table.addIntervalColumns("interval");
-            for (Column intervalColumn : intervalColumns) {
-                intervalColumn.since(version(10, 3));
-            }
+            ImmutableList.Builder<Column> builder =  ImmutableList.builder();
+            builder.add(table.column("STARTTIME").number().installValue("0").notNull().conversion(NUMBER2LONG).since(version(10, 3)).map("interval.start").add());
+            builder.add(table.column("ENDTIME").number().installValue("1000000000000000000").notNull().conversion(NUMBER2LONG).since(version(10, 3)).map("interval.end").add());
+            List<Column> intervalColumns =  builder.build();
             Column ruleSetColumn = table.column("RULESETID").number().conversion(NUMBER2LONG).add();
             Column meterActivationColumn = table.column("METERACTIVATIONID").number().conversion(NUMBER2LONG).upTo(version(10, 2)).add();
             Column channelContainer = table.column("CHANNEL_CONTAINER").number().conversion(NUMBER2LONG).since(version(10, 2)).previously(meterActivationColumn).add();

@@ -5,6 +5,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -44,6 +45,7 @@ public class UpgraderV10_3 implements Upgrader {
     private static final Version VERSION = version(10, 3);
     private static final String METROLOGY_CONFIGURATION_PROPERTY = "metrologyConfigurations.metrologyConfiguration";
     private final DataModel dataModel;
+    private final MeteringService meteringService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MeteringGroupsService meteringGroupsService;
     private final ValidationService validationService;
@@ -52,12 +54,13 @@ public class UpgraderV10_3 implements Upgrader {
 
     @Inject
     public UpgraderV10_3(DataModel dataModel,
-                         MetrologyConfigurationService metrologyConfigurationService,
+                         MeteringService meteringService, MetrologyConfigurationService metrologyConfigurationService,
                          MeteringGroupsService meteringGroupsService,
                          ValidationService validationService,
                          SearchService searchService,
                          EventService eventService) {
         this.dataModel = dataModel;
+        this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.meteringGroupsService = meteringGroupsService;
         this.validationService = validationService;
@@ -109,6 +112,16 @@ public class UpgraderV10_3 implements Upgrader {
                         + validationTask.getId());
             }
         }
+        sql.add("UPDATE VAL_MA_VALIDATION SET VAL_MA_VALIDATION.STARTTIME = " +
+                "(SELECT MTR_EFFECTIVE_CONTRACT.STARTTIME FROM MTR_EFFECTIVE_CONTRACT WHERE MTR_EFFECTIVE_CONTRACT.CHANNELS_CONTAINER = VAL_MA_VALIDATION.CHANNEL_CONTAINER) " +
+                "WHERE VAL_MA_VALIDATION.STARTTIME = 0 " +
+                "AND EXISTS (SELECT MTR_EFFECTIVE_CONTRACT.STARTTIME FROM MTR_EFFECTIVE_CONTRACT WHERE MTR_EFFECTIVE_CONTRACT.CHANNELS_CONTAINER = VAL_MA_VALIDATION.CHANNEL_CONTAINER)");
+        sql.add("UPDATE VAL_MA_VALIDATION SET VAL_MA_VALIDATION.STARTTIME = " +
+                "(SELECT MTR_METERACTIVATION.STARTTIME FROM MTR_METERACTIVATION JOIN MTR_CHANNEL_CONTAINER " +
+                "ON MTR_METERACTIVATION.ID = MTR_CHANNEL_CONTAINER.METER_ACTIVATION WHERE MTR_CHANNEL_CONTAINER.ID = VAL_MA_VALIDATION.CHANNEL_CONTAINER) " +
+                "WHERE WHERE VAL_MA_VALIDATION.STARTTIME = 0 " +
+                "AND EXISTS (SELECT MTR_METERACTIVATION.STARTTIME FROM MTR_METERACTIVATION JOIN MTR_CHANNEL_CONTAINER " +
+                "ON MTR_METERACTIVATION.ID = MTR_CHANNEL_CONTAINER.METER_ACTIVATION WHERE MTR_CHANNEL_CONTAINER.ID = VAL_MA_VALIDATION.CHANNEL_CONTAINER)");
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()) {
                 sql.forEach(sqlCommand -> execute(statement, sqlCommand));
