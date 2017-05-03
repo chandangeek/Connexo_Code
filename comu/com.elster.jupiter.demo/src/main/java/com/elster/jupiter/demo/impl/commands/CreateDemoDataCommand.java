@@ -34,19 +34,19 @@ public class CreateDemoDataCommand {
 
     @Inject
     public CreateDemoDataCommand(
-                Provider<CreateCollectRemoteDataSetupCommand> createCollectRemoteDataSetupCommandProvider,
-                Provider<CreateUserManagementCommand> createUserManagementCommandProvider,
-                Provider<CreateApplicationServerCommand> createApplicationServerCommandProvider,
-                Provider<CreateNtaConfigCommand> createNtaConfigCommandProvider,
-                Provider<CreateValidationSetupCommand> createValidationSetupCommandProvider,
-                Provider<CreateEstimationSetupCommand> createEstimationSetupCommandProvider,
-                Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider,
-                Provider<ValidateStartDateCommand> validateStartDateCommandProvider,
-                Provider<CreateDemoUserCommand> createDemoUserCommandProvider,
-                Provider<SetupFirmwareManagementCommand> setupFirmwareManagementCommandProvider,
-                Provider<CreateDataLoggerSetupCommand> createDataLoggerSetupCommandProvider,
-                Provider<CreateImportersCommand> createImportersCommandProvider,
-                Provider<CreateBelgianMarketTimeOfUseDataCommand> createBelgianMarketTimeOfUseDataCommandProvider) {
+            Provider<CreateCollectRemoteDataSetupCommand> createCollectRemoteDataSetupCommandProvider,
+            Provider<CreateUserManagementCommand> createUserManagementCommandProvider,
+            Provider<CreateApplicationServerCommand> createApplicationServerCommandProvider,
+            Provider<CreateNtaConfigCommand> createNtaConfigCommandProvider,
+            Provider<CreateValidationSetupCommand> createValidationSetupCommandProvider,
+            Provider<CreateEstimationSetupCommand> createEstimationSetupCommandProvider,
+            Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider,
+            Provider<ValidateStartDateCommand> validateStartDateCommandProvider,
+            Provider<CreateDemoUserCommand> createDemoUserCommandProvider,
+            Provider<SetupFirmwareManagementCommand> setupFirmwareManagementCommandProvider,
+            Provider<CreateDataLoggerSetupCommand> createDataLoggerSetupCommandProvider,
+            Provider<CreateImportersCommand> createImportersCommandProvider,
+            Provider<CreateBelgianMarketTimeOfUseDataCommand> createBelgianMarketTimeOfUseDataCommandProvider) {
         this.createCollectRemoteDataSetupCommandProvider = createCollectRemoteDataSetupCommandProvider;
         this.createUserManagementCommandProvider = createUserManagementCommandProvider;
         this.createApplicationServerCommandProvider = createApplicationServerCommandProvider;

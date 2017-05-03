@@ -36,7 +36,6 @@ import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateMultiElementDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateSPEDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.tou.CreateBelgianMarketTimeOfUseDataCommand;
@@ -82,7 +81,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
 import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;

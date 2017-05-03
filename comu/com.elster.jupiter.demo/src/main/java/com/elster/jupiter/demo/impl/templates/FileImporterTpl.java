@@ -128,7 +128,7 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
     public ImportScheduleBuilder get(ImportScheduleBuilder builder) {
         builder.withName(importerName)
                .withFileImporterFactoryName(factoryName)
-               .withPathMatcher(this.pathMatcher())
+                .withPathMatcher(this.pathMatcher())
                .withScheduleExpression(DEFAULT_SCHEDULED_EXPRESSION)
                .withImportDirectory(importBasePath.toString())
                .withInProcessDirectory(importBasePath.resolve(DEFAULT_PROCESSING_DIRECTORY).toString())

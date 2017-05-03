@@ -32,7 +32,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -152,10 +151,10 @@ public class CreateMultiElementDeviceCommand {
                 .withYearOfCertification(2015)
                 .withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder())
                 .get();
-       // addConnectionTasksToDevice(device);
-       // device = deviceBuilderProvider.get().withName(name).get();
-       // addSecurityPropertiesToDevice(device);
-       // device = deviceBuilderProvider.get().withName(name).get();
+        // addConnectionTasksToDevice(device);
+        // device = deviceBuilderProvider.get().withName(name).get();
+        // addSecurityPropertiesToDevice(device);
+        // device = deviceBuilderProvider.get().withName(name).get();
         addComTaskToDevice(device, ComTaskTpl.READ_DATA_LOGGER_REGISTER_DATA);
         addComTaskToDevice(device, ComTaskTpl.READ_DATA_LOGGER_LOAD_PROFILE_DATA);
         return deviceBuilderProvider.get().withName(name).get();
@@ -170,8 +169,8 @@ public class CreateMultiElementDeviceCommand {
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "localhost")
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), new BigDecimal(4059))
+                .setProperty("host", "localhost")
+                .setProperty("portNumber", new BigDecimal(4059))
                 .setNumberOfSimultaneousConnections(1)
                 .add();
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
