@@ -136,7 +136,7 @@ import java.time.Clock;
         "osgi.command.function=importCalendar",
         "osgi.command.function=setDeviceLocations",
         "osgi.command.function=createSPEDevice",
-        "osgi.command.function=createAlarmCreationRule",
+        "osgi.command.function=createDefaultAlarmRule",
         "osgi.command.function=createPowerUser",
         "osgi.command.function=createRegisterDevice"
 }, immediate = true)
@@ -1068,7 +1068,7 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createAlarmCreationRule() {
+    public void createDefaultAlarmRule() {
         executeTransaction(() -> {
             CreateAlarmCreationRuleCommand command = injector.getInstance(CreateAlarmCreationRuleCommand.class);
             command.run();

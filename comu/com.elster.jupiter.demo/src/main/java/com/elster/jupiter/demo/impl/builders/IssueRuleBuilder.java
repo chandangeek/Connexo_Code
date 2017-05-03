@@ -11,16 +11,19 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.DueInType;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.HasName;
-import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -28,6 +31,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -42,7 +46,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -63,6 +66,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
     private String type;
     private String reason;
     private String ruleTemplate;
+    private long dueInValue;
     private DueInType dueInType = null;
     private Priority priority;
     private boolean active;
@@ -97,6 +101,11 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         return this;
     }
 
+    public IssueRuleBuilder withDueInValue(long dueInValue) {
+        this.dueInValue = dueInValue;
+        return this;
+    }
+
     public IssueRuleBuilder withPriority(Priority priority) {
         this.priority = priority;
         return this;
@@ -114,38 +123,59 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
 
     @Override
     public CreationRule create() {
+        IssueType issueType = getReasonForRule().getIssueType();
         Log.write(this);
         CreationRuleBuilder builder = issueCreationService.newCreationRule();
         builder.setName(getName());
         builder = this.active ? builder.activate() : builder.deactivate();
-        builder.setIssueType(getReasonForRule().getIssueType());
+        builder.setIssueType(issueType);
         builder.setReason(getReasonForRule());
-
-        if (this.dueInType == null) {
-            builder.setDueInTime(DueInType.WEEK, 1);
-        } else {
-
-
-            builder.setDueInTime(dueInType, 1);
-        }
-        if (this.priority == null) {
-            builder.setPriority(Priority.DEFAULT);
-        } else {
-            builder.setPriority(priority);
-        }
-
+        builder.setDueInTime(this.dueInType, this.dueInValue);
+        builder.setPriority(this.priority);
         CreationRuleTemplate template = getCreationRuleTemplate();
         builder.setTemplate(template.getName());
         builder.setProperties(getProperties(template));
-        return builder.complete();
+        CreationRule rule = builder.complete();
+
+        if (issueType.getPrefix().equals("ALM")) {
+            IssueCreationService.CreationRuleActionBuilder actionBuilder = builder.newCreationRuleAction();
+            actionBuilder.setPhase(CreationRuleActionPhase.fromString("CREATE"));
+            Optional<IssueActionType> actionType = issueService.getIssueActionService().findActionType(3);
+            actionBuilder.setActionType(actionType.get());
+            for (PropertySpec propertySpec : actionType.get().createIssueAction().get().setReasonName(issueType.getName()).getPropertySpecs()) {
+                actionBuilder.addProperty(propertySpec.getName(), propertySpec
+                        .getValueFactory()
+                        .fromStringValue("{\"workgroupId\":2,\"comment\":\"\",\"userId\":-1}"));
+                actionBuilder.complete();
+                rule.update();
+            }
+        }
+        return rule;
     }
 
     private com.elster.jupiter.issue.share.entity.IssueReason getReasonForRule() {
-        Optional<com.elster.jupiter.issue.share.entity.IssueReason> reasonRef = issueService.findReason(this.reason);
-        if (!reasonRef.isPresent()) {
-            throw new UnableToCreate("Unable to find reason with key = " + this.reason);
-        }
-        return reasonRef.get();
+        return issueService.findReason(reason).isPresent() ? issueService.findReason(reason).get() :
+                issueService.createReason(reason, getCreationRuleTemplate().getIssueType(), new TranslationKey() {
+                    @Override
+                    public String getKey() {
+                        return reason;
+                    }
+
+                    @Override
+                    public String getDefaultFormat() {
+                        return "Reason format";
+                    }
+                }, new TranslationKey() {
+                    @Override
+                    public String getKey() {
+                        return reason;
+                    }
+
+                    @Override
+                    public String getDefaultFormat() {
+                        return "Reason format";
+                    }
+                });
     }
 
     private CreationRuleTemplate getCreationRuleTemplate() {
@@ -173,8 +203,8 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
                 properties.put(BASIC_DATA_VALIDATION_RULE_TEMPLATE + ".deviceConfigurations", deviceConfigurations);
             }
         } else if (template.getName().equals(BASIC_DEVICE_ALARM_RULE_TEMPLATE)) {
-            properties.put(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS, getRandomEventCodeList(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS));
-            properties.put(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getRandomEventCodeList(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS));
+            properties.put(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS, getTamperingCode(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS));
+            properties.put(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS, getTamperingCode(BasicDeviceAlarmRuleTemplate.CLEARING_EVENTS));
             properties.put(
                     BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS,
                     template.getPropertySpec(BasicDeviceAlarmRuleTemplate.RAISE_EVENT_PROPS).get().getValueFactory().fromStringValue("0:0:0"));
@@ -208,70 +238,35 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         return listValue;
     }
 
-    private List<HasName> getRandomEventCodeList(String eventType) {
-        List<String> rawList;
-        List<HasName> listValue = new ArrayList<>();
+    private List<HasIdAndName> getTamperingCode(String eventType) {
+        String raisedOnEvent = "*.12.*.257";
+        String clearingEvent = "*.12.*.291";
         if (eventType.equals(BasicDeviceAlarmRuleTemplate.TRIGGERING_EVENTS)) {
-            rawList = Stream.of(EndDeviceEventTypeMapping.values())
-                    .limit(30)
-                    .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
-                        Collections.shuffle(collected);
-                        return collected.stream();
-                    }))
-                    .limit(10)
-                    .map((endDeviceEventTypeMapping) -> endDeviceEventTypeMapping.getEventType().getCode())
-                    .map(type -> {
-                        if (type.equals(EndDeviceEventTypeMapping.OTHER.getEventType().getCode())) {
-                            return type.concat(SEPARATOR).concat(String.valueOf(new Random().nextInt(65)));
-                        } else {
-                            return type.concat(SEPARATOR).concat(WILDCARD);
-                        }
-                    })
-                    .collect(Collectors.toList());
-            rawList.forEach(value ->
-                    listValue.add((new HasIdAndName() {
-                        @Override
-                        public Object getId() {
-                            return value;
-                        }
+            return Collections.singletonList(new HasIdAndName() {
+                @Override
+                public Object getId() {
+                    return raisedOnEvent + SEPARATOR + WILDCARD;
+                }
 
-                        @Override
-                        public String getName() {
-                            return "end device event " + value;
-                        }
-                    })));
+                @Override
+                public String getName() {
+                    return "raised on event: " + raisedOnEvent;
+                }
+            });
 
         } else {
-            rawList = Stream.of(EndDeviceEventTypeMapping.values())
-                    .skip(30)
-                    .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
-                        Collections.shuffle(collected);
-                        return collected.stream();
-                    }))
-                    .limit(10)
-                    .map((endDeviceEventTypeMapping) -> endDeviceEventTypeMapping.getEventType().getCode())
-                    .map(type -> {
-                        if (type.equals(EndDeviceEventTypeMapping.OTHER.getEventType().getCode())) {
-                            return type.concat(SEPARATOR).concat(String.valueOf(new Random().nextInt(65)));
-                        } else {
-                            return type.concat(SEPARATOR).concat(WILDCARD);
-                        }
-                    })
-                    .collect(Collectors.toList());
-            rawList.forEach(value ->
-                    listValue.add((new HasIdAndName() {
-                        @Override
-                        public Object getId() {
-                            return value;
-                        }
+            return Collections.singletonList(new HasIdAndName() {
+                @Override
+                public Object getId() {
+                    return clearingEvent + SEPARATOR + WILDCARD;
+                }
 
-                        @Override
-                        public String getName() {
-                            return "end device event " + value;
-                        }
-                    })));
+                @Override
+                public String getName() {
+                    return "clearing event: " + clearingEvent;
+                }
+            });
         }
-        return listValue;
     }
 
     private List<HasIdAndName> getAllDeviceStatesInAllDeviceTypes() {
