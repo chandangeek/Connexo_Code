@@ -17,7 +17,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.FsmUsagePointProvider;
+import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
@@ -81,6 +81,7 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -158,7 +159,7 @@ public class InMemoryIntegrationPersistence {
                 StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler(
                         this.injector.getInstance(EventService.class),
                         this.injector.getInstance(BpmService.class),
-                        this.injector.getInstance(FsmUsagePointProvider.class),
+                        this.injector.getInstance(StateTransitionPropertiesProvider.class),
                         this.injector.getInstance(HttpAuthenticationService.class));
                 ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionTriggerEventTopicHandler);
                 com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler meteringTopicHandler =
@@ -294,7 +295,7 @@ public class InMemoryIntegrationPersistence {
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(MessageInterpolator.class).toInstance(thesaurus);
 
-            bind(FsmUsagePointProvider.class).toInstance(mock(FsmUsagePointProvider.class));
+            bind(StateTransitionPropertiesProvider.class).toInstance(mock(StateTransitionPropertiesProvider.class));
             bind(HttpAuthenticationService.class).toInstance(mock(HttpAuthenticationService.class));
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(LicenseService.class).toInstance(licenseService);
