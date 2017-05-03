@@ -107,7 +107,6 @@ import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileJournalReading;
@@ -181,7 +180,6 @@ import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -417,7 +415,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return lockService;
     }
 
-    EventService getEventService() { return eventService; }
+    EventService getEventService() {
+        return eventService;
+    }
 
     private void setDeviceTypeFromDeviceConfiguration() {
         if (this.deviceConfiguration.isPresent()) {
@@ -1603,7 +1603,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         meterReadings.stream().map(JournaledChannelReadingRecord::getChannel).distinct().collect(Collectors.toList()));
             }
 
-            for ( JournaledChannelReadingRecord meterReading : meterReadings) {
+            for (JournaledChannelReadingRecord meterReading : meterReadings) {
                 List<LoadProfileJournalReadingImpl> loadProfileReadingList = sortedHistoryLoadProfileReadingMap.get(meterReading.getTimeStamp());
                 setLoadProfileHistoryReading(loadProfileReadingList, meterReading, mdcChannel);
             }
@@ -1634,7 +1634,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         loadProfileHistoryReading.setRange(loadProfileReadingList.get(0).getRange());
         loadProfileHistoryReading.setUserName(meterReading.getUserName());
         loadProfileHistoryReading.setJournalTime(meterReading.getJournalTime());
-        loadProfileHistoryReading.setChannelData(mdcChannel,  meterReading);
+        loadProfileHistoryReading.setChannelData(mdcChannel, meterReading);
         loadProfileHistoryReading.setReadingTime(meterReading.getReportedDateTime());
         loadProfileHistoryReading.setReadingQualities(mdcChannel, new ArrayList<>());
     }
@@ -1974,7 +1974,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public MeterActivation activate(Instant start) {
-         return new SyncDeviceWithKoreForActivation(this, deviceService, readingTypeUtilService, eventService, start).activateMeter(start);
+        return new SyncDeviceWithKoreForActivation(this, deviceService, readingTypeUtilService, eventService, start).activateMeter(start);
     }
 
     @Override

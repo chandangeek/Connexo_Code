@@ -4,11 +4,10 @@
 
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.DataValidationStatus;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.math.BigDecimal;
 import java.time.Instant;

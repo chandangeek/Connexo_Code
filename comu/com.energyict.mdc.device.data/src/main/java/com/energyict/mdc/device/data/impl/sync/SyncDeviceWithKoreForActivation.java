@@ -13,7 +13,6 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-
 import com.google.common.collect.ImmutableSet;
 
 import javax.inject.Inject;

@@ -27,7 +27,6 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.RegisterDataUpdater;
 import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceByMrID;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-
 import com.energyict.obis.ObisCode;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
