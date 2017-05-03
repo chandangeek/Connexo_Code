@@ -69,10 +69,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "UsagePointConfigurationServiceImpl",
-        service = {UsagePointConfigurationService.class, TranslationKeyProvider.class},
+        service = {UsagePointConfigurationService.class, ServerUsagePointConfigurationService.class, TranslationKeyProvider.class},
         property = {"name=" + UsagePointConfigurationService.COMPONENTNAME},
         immediate = true)
-public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, MessageSeedProvider, TranslationKeyProvider {
+public class UsagePointConfigurationServiceImpl implements ServerUsagePointConfigurationService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile Clock clock;
@@ -272,6 +272,17 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                         .isEqualTo(metrologyContract))
                 .stream()
                 .filter(usage -> usage.getStates().isEmpty() || usage.getStates().contains(state))
+                .map(MetrologyContractValidationRuleSetUsage::getValidationRuleSet)
+                .sorted(Comparator.comparing(ValidationRuleSet::getName, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ValidationRuleSet> getValidationRuleSets(State state) {
+        return this.dataModel
+                .query(MetrologyContractValidationRuleSetUsage.class, MetrologyContractValidationRuleSetStateUsage.class)
+                .select(where("states.state").isEqualTo(state))
+                .stream()
                 .map(MetrologyContractValidationRuleSetUsage::getValidationRuleSet)
                 .sorted(Comparator.comparing(ValidationRuleSet::getName, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
