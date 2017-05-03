@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.EndDeviceStage;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.Transactional;
@@ -29,6 +30,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -62,7 +64,12 @@ public class DeviceProtocolPropertyResource {
         TypedProperties deviceProperties = device.getDeviceProtocolProperties();
         DeviceProtocolInfo info = new DeviceProtocolInfo();
         device.getDeviceType().getDeviceProtocolPluggableClass().ifPresent(deviceProtocolPluggableClass -> {
-            PropertyDefaultValuesProvider possibleValue = (a,b)->device.getDeviceType().getKeyAccessorTypes();
+            PropertyDefaultValuesProvider possibleValue = (propertySpec,propertyType)-> {
+                if ((propertySpec.isReference() && (KeyAccessorType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())))) {
+                    return device.getDeviceType().getKeyAccessorTypes();
+                }
+                return Collections.emptyList();
+            };
 
             List<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs(), deviceProperties, possibleValue);
             info.id = deviceProtocolPluggableClass.getId();
