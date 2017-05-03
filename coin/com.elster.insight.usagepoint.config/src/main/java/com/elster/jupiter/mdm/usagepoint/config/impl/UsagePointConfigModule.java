@@ -32,6 +32,7 @@ public class UsagePointConfigModule extends AbstractModule {
         requireBinding(CustomPropertySetService.class);
 
         bind(UsagePointConfigurationService.class).to(UsagePointConfigurationServiceImpl.class).in(Scopes.SINGLETON);
+        bind(ServerUsagePointConfigurationService.class).to(UsagePointConfigurationServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }

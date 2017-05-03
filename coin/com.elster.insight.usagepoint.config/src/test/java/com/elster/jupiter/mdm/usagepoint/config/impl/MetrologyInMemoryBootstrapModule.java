@@ -44,6 +44,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
@@ -111,6 +112,8 @@ public class MetrologyInMemoryBootstrapModule {
             injector.getInstance(PropertySpecService.class);
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(UsagePointConfigurationService.class);
+            injector.getInstance(UsagePointLifeCycleConfigurationService.class);
+            injector.getInstance(ServerUsagePointConfigurationService.class);
             addMessageHandlers();
             ctx.commit();
         }
@@ -148,6 +151,10 @@ public class MetrologyInMemoryBootstrapModule {
         return injector.getInstance(CustomPropertySetService.class);
     }
 
+    public UsagePointLifeCycleConfigurationService getUsagePointLifeCycleConfigurationService() {
+        return injector.getInstance(UsagePointLifeCycleConfigurationService.class);
+    }
+
     public ServerMetrologyConfigurationService getMetrologyConfigurationService() {
         return (ServerMetrologyConfigurationService) injector.getInstance(MetrologyConfigurationService.class);
     }
@@ -155,6 +162,8 @@ public class MetrologyInMemoryBootstrapModule {
     private void addMessageHandlers() {
         MetrologyContractDeletionEventHandler metrologyContractDeletionEventHandler = injector.getInstance(MetrologyContractDeletionEventHandler.class);
         ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(metrologyContractDeletionEventHandler);
+        ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(this.injector.getInstance(UsagePointLifeCycleDeletionEventHandler.class));
+        ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(this.injector.getInstance(UsagePointStateDeletionEventHandler.class));
     }
 
     private static class MockModule extends AbstractModule {
