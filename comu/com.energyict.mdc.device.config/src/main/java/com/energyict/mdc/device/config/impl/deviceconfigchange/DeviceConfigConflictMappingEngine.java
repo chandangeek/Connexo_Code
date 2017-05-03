@@ -5,7 +5,6 @@
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
-import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
 import com.energyict.mdc.device.config.ConflictingSolution;
 import com.energyict.mdc.device.config.DeviceConfigChangeAction;
 import com.energyict.mdc.device.config.DeviceConfigChangeActionType;
@@ -14,7 +13,6 @@ import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.impl.ServerDeviceType;
 
 import java.util.List;
@@ -66,10 +64,6 @@ public final class DeviceConfigConflictMappingEngine {
                 Optional<ConflictingConnectionMethodSolution> existingConnectionMethodConflictSolution = deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().stream()
                         .filter(sameOriginConflict(conflictingAction)).findFirst();
                 existingConnectionMethodConflictSolution.ifPresent(deviceConfigConflictMapping::removeConnectionMethodSolution);
-            } else if (isSecurityPropertySetAction(conflictingAction)) {
-                Optional<ConflictingSecuritySetSolution> existingSecurityPropertySetConflictSolution = deviceConfigConflictMapping.getConflictingSecuritySetSolutions().stream()
-                        .filter(sameOriginConflict(conflictingAction)).findFirst();
-                existingSecurityPropertySetConflictSolution.ifPresent(deviceConfigConflictMapping::removeSecuritySetSolution);
             }
         };
     }
@@ -78,19 +72,6 @@ public final class DeviceConfigConflictMappingEngine {
         if (isConnectionMethodAction(conflictingAction)) {
             // do connectionTask stuff
             findOrCreateConflictingConnectionMethodSolution(conflictingAction, conflictMapping);
-        } else if (isSecurityPropertySetAction(conflictingAction)) {
-            // do securityPropertySet stuff
-            findOrCreateConflictingSecuritySetSolution(conflictingAction, conflictMapping);
-        }
-    }
-
-    private void findOrCreateConflictingSecuritySetSolution(DeviceConfigChangeAction conflictingAction, DeviceConfigConflictMappingImpl conflictMapping) {
-        // find existing solution
-        Optional<ConflictingSecuritySetSolution> existingSecurityPropertySetConflictSolution = conflictMapping.getConflictingSecuritySetSolutions().stream()
-                .filter(sameOriginConflict(conflictingAction)).findFirst();
-        // if not exists, create it
-        if (!existingSecurityPropertySetConflictSolution.isPresent()) {
-            conflictMapping.newConflictingSecurityPropertySets(((SecurityPropertySet) conflictingAction.getOrigin()));
         }
     }
 
@@ -109,11 +90,6 @@ public final class DeviceConfigConflictMappingEngine {
                 || (conflictingAction.getDestination() != null && conflictingAction.getDestination() instanceof PartialConnectionTask);
     }
 
-    private boolean isSecurityPropertySetAction(DeviceConfigChangeAction conflictingAction) {
-        return (conflictingAction.getOrigin() != null && conflictingAction.getOrigin() instanceof SecurityPropertySet)
-                || (conflictingAction.getDestination() != null && conflictingAction.getDestination() instanceof SecurityPropertySet);
-    }
-
     private Predicate<DeviceConfigConflictMapping> areConflictsResolved(List<DeviceConfigChangeAction> deviceConfigChangeActions) {
         return deviceConfigConflictMapping -> {
 
@@ -123,7 +99,7 @@ public final class DeviceConfigConflictMappingEngine {
                             && configChangeAction.getDestinationDeviceConfiguration().getId() == deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId())
                     .findFirst();
             // if there is none, then the conflicts are solved ...
-            return !deviceConfigChangeAction.isPresent() || deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().size() == 0 && deviceConfigConflictMapping.getConflictingSecuritySetSolutions().size() == 0;
+            return !deviceConfigChangeAction.isPresent() || deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().size() == 0;
         };
 
     }

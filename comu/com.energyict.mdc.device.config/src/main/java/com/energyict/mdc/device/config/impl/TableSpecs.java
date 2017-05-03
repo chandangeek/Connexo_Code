@@ -931,6 +931,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<ConflictingSecuritySetSolution> table = dataModel.addTable(name(), ConflictingSecuritySetSolution.class);
+            table.upTo(version(10, 3));
             table.map(ConflictingSecuritySetSolutionImpl.class);
             Column id = table.addAutoIdColumn();
             Column conflictmapping = table.column("CONFLICTMAPPING").number().notNull().add();

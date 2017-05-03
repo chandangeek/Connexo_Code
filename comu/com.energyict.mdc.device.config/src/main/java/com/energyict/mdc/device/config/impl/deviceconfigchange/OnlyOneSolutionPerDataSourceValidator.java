@@ -20,16 +20,12 @@ public class OnlyOneSolutionPerDataSourceValidator implements ConstraintValidato
 
     @Override
     public boolean isValid(DeviceConfigConflictMappingImpl deviceConfigConflictMapping, ConstraintValidatorContext constraintValidatorContext) {
-        if (multipleSecuritySetSolutionsPerDataSource(deviceConfigConflictMapping) || multipleConnectionMethodSolutionsPerDataSource(deviceConfigConflictMapping)) {
+        if (multipleConnectionMethodSolutionsPerDataSource(deviceConfigConflictMapping)) {
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.MULTIPLE_SOLUTIONS_FOR_SAME_CONFLICT + "}").addConstraintViolation();
             return false;
         }
         return true;
-    }
-
-    private boolean multipleSecuritySetSolutionsPerDataSource(DeviceConfigConflictMappingImpl deviceConfigConflictMapping) {
-        return !deviceConfigConflictMapping.getConflictingSecuritySetSolutions().stream().map(ConflictingSolution::getOriginDataSource).allMatch(new HashSet<>()::add);
     }
 
     private boolean multipleConnectionMethodSolutionsPerDataSource(DeviceConfigConflictMappingImpl deviceConfigConflictMapping) {

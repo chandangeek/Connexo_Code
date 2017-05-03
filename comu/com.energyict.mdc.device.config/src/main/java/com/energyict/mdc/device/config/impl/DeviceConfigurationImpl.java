@@ -1164,7 +1164,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private void removeSecurityPropertySet(ServerSecurityPropertySet propertySet) {
         if (propertySet != null) {
             propertySet.prepareDelete();
-            getServerDeviceType().removeConflictsFor(propertySet);
             securityPropertySets.remove(propertySet);
             if (this.getId() > 0) {
                 getEventService().postEvent(propertySet.deleteEventType().topic(), propertySet);

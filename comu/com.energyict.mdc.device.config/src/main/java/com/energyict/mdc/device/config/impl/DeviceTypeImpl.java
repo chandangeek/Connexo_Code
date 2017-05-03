@@ -26,7 +26,6 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
-import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -45,7 +44,6 @@ import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.events.EventType;
@@ -444,29 +442,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                             .collect(Collectors.toList());
                     conflictsWithGivenConnectionTask.stream()
                             .forEach(deviceConfigConflictMapping::removeConnectionMethodSolution);
-                });
-    }
-
-    @Override
-    public void removeConflictsFor(SecurityPropertySet securityPropertySet) {
-        this.deviceConfigConflictMappings.stream()
-                .filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getDestinationDeviceConfiguration()
-                        .getId() == securityPropertySet.getDeviceConfiguration()
-                        .getId() || deviceConfigConflictMapping.getOriginDeviceConfiguration()
-                        .getId() == securityPropertySet.getDeviceConfiguration().getId())
-                .forEach(deviceConfigConflictMapping -> {
-                    List<ConflictingSecuritySetSolution> conflictsWithGivenSecurityPropertySet = deviceConfigConflictMapping
-                            .getConflictingSecuritySetSolutions()
-                            .stream()
-                            .filter(securitySetSolutionPredicate -> securitySetSolutionPredicate.getOriginDataSource()
-                                    .getId() == securityPropertySet.getId()
-                                    || (securitySetSolutionPredicate.getConflictingMappingAction()
-                                    .equals(DeviceConfigConflictMapping.ConflictingMappingAction.MAP) && securitySetSolutionPredicate
-                                    .getDestinationDataSource()
-                                    .getId() == securityPropertySet.getId()))
-                            .collect(Collectors.toList());
-                    conflictsWithGivenSecurityPropertySet.stream()
-                            .forEach(deviceConfigConflictMapping::removeSecuritySetSolution);
                 });
     }
 

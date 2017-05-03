@@ -12,5 +12,6 @@ package com.energyict.mdc.device.config;
  *     <li>Map the origin SecuritySet to the destination SecuritySet</li>
  * </ul>
  */
+@Deprecated // This class was saved just for ORM
 public interface ConflictingSecuritySetSolution extends ConflictingSolution<SecurityPropertySet> {
 }

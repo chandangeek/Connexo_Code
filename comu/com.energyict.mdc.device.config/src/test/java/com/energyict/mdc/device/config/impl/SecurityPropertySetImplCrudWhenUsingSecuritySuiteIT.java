@@ -38,7 +38,6 @@ import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -60,8 +59,6 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -101,7 +98,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.fest.assertions.api.Assertions;
-import org.fest.assertions.core.Condition;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -119,7 +115,6 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -926,44 +921,6 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
         }).when(eventService.getSpy()).postEvent(any(), any());
     }
 
-    @Test
-    @Transactional
-    public void simpleConflictTest() {
-        int authenticationLevel = 1;
-        int encryptionLevel = 2;
-        int securitySuite = 100;
-        int requestSecurityLevel = 201;
-        int responseSecurityLevel = 302;
-        DeviceType deviceType = createDeviceType("simpleConflictTest");
-
-
-        DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
-
-        DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
-
-        DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
-
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).hasSize(2);
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return matchConfigs(deviceConfigConflictMapping, deviceConfiguration1, deviceConfiguration2)
-                        && deviceConfigConflictMapping.getConflictingSecuritySetSolutions().size() == 1
-                        && matchSecurityPropertySets(securityPropertySet1, securityPropertySet2, deviceConfigConflictMapping);
-            }
-        });
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return matchConfigs(deviceConfigConflictMapping, deviceConfiguration2, deviceConfiguration1)
-                        && deviceConfigConflictMapping.getConflictingSecuritySetSolutions().size() == 1
-                        && matchSecurityPropertySets(securityPropertySet2, securityPropertySet1, deviceConfigConflictMapping);
-            }
-        });
-    }
-
     private DeviceConfiguration createActiveConfiguration(DeviceType deviceType, String name) {
         DeviceConfiguration deviceConfiguration1 = deviceType.newConfiguration(name).add();
         deviceConfiguration1.activate();
@@ -1012,84 +969,6 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
 
         DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
         Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).isEmpty();
-    }
-
-    @Test
-    @Transactional
-    public void solvedMappingsAreNotRemovedWhenNewConflictArisesTest() {
-        int authenticationLevel = 1;
-        int encryptionLevel = 2;
-        int securitySuite = 100;
-        int requestSecurityLevel = 201;
-        int responseSecurityLevel = 302;
-        DeviceType deviceType = createDeviceType("simpleConflictTest");
-
-        DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
-
-        DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
-
-        DeviceConfigConflictMapping deviceConfigConflictMapping1 = deviceType.getDeviceConfigConflictMappings().get(0);
-        ConflictingSecuritySetSolution conflictingSecuritySetSolution1 = deviceConfigConflictMapping1.getConflictingSecuritySetSolutions().get(0);
-        conflictingSecuritySetSolution1.markSolutionAsRemove();
-        DeviceConfigConflictMapping deviceConfigConflictMapping2 = deviceType.getDeviceConfigConflictMappings().get(1);
-        ConflictingSecuritySetSolution conflictingSecuritySetSolution2 = deviceConfigConflictMapping2.getConflictingSecuritySetSolutions().get(0);
-        conflictingSecuritySetSolution2.markSolutionAsRemove();
-
-        DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).hasSize(2);
-
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return deviceConfigConflictMapping.getConflictingSecuritySetSolutions()
-                        .get(0).getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE)
-                        && deviceConfigConflictMapping.isSolved();
-            }
-        });
-
-        // Logic that we want to test: if new SecuritySet is added, new conflicts will be calculated. Existing solved conflicts should still remain
-        DeviceConfiguration thirdConfig = createActiveConfiguration(deviceType, "ThirdConfig");
-        SecurityPropertySet securityPropertySet3 = createSecurityPropertySet(thirdConfig, "Blablabla", authenticationLevel, encryptionLevel, securitySuite, requestSecurityLevel, responseSecurityLevel);
-
-        DeviceType finalDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
-        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).hasSize(6);
-
-        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return deviceConfigConflictMapping.getConflictingSecuritySetSolutions()
-                        .get(0).getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE)
-                        && deviceConfigConflictMapping.isSolved();
-            }
-        });
-
-        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return deviceConfigConflictMapping.isSolved();
-            }
-        });
-
-        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(4, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return !deviceConfigConflictMapping.isSolved();
-            }
-        });
-
-    }
-
-    private boolean matchSecurityPropertySets(SecurityPropertySet originSecurityPropertySet, SecurityPropertySet destinationSecurityPropertySet, DeviceConfigConflictMapping deviceConfigConflictMapping) {
-        return deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).getOriginDataSource().getId() == originSecurityPropertySet.getId();
-//                && deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).getDestinationDataSource().getId() == destinationSecurityPropertySet.getId();
-    }
-
-
-    private boolean matchConfigs(DeviceConfigConflictMapping deviceConfigConflictMapping, DeviceConfiguration originConfig, DeviceConfiguration destinationConfig) {
-        return deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == originConfig.getId()
-                && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == destinationConfig.getId();
     }
 
     private SecurityPropertySet createSecurityPropertySet(DeviceConfiguration deviceConfiguration, String setName, int authenticationLevel, int encryptionLevel, int securitySuite, int requestSecurityLevel, int responseSecurityLevel) {

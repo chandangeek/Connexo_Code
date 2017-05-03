@@ -6,7 +6,6 @@ package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigChangeConnectionTaskItem;
-import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigChangeSecuritySetItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,18 +59,6 @@ public final class DeviceConfigChangeEngine {
 
     private void calculateForPossibleConflictingAttributes(DeviceConfiguration origin, DeviceConfiguration destination, List<DeviceConfigChangeAction> deviceConfigChangeActions) {
         deviceConfigChangeActions.addAll(getConnectionTaskConfigChangeActions(origin, destination));
-        deviceConfigChangeActions.addAll(getSecuritySetConfigChangeActions(origin, destination));
-    }
-
-    /**
-     * Calculates the deviceConfigChangeActions for securityPropertySets
-     *
-     * @param origin      the origin DeviceConfiguration
-     * @param destination the destination DeviceConfiguration
-     * @return a list of actions that need to happen when we change the config of a device from the origin config to the destination config
-     */
-    public List<DeviceConfigChangeAction<SecurityPropertySet>> getSecuritySetConfigChangeActions(DeviceConfiguration origin, DeviceConfiguration destination) {
-        return calculateDeviceConfigChangeActionsFor(new DeviceConfigChangeSecuritySetItem(origin, destination));
     }
 
     /**
