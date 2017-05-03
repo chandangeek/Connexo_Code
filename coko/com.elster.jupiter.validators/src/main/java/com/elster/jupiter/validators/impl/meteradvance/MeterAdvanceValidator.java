@@ -31,6 +31,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.TwoValuesDifference;
 import com.elster.jupiter.properties.TwoValuesDifferenceValueFactory;
 import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.util.time.TemporalAmountComparator;
@@ -315,7 +316,7 @@ public class MeterAdvanceValidator extends AbstractValidator {
         Instant startOfFirstInterval = firstInterval.lowerEndpoint();
         Map.Entry<Instant, ReadingRecord> closestFromRightReading = registerReadings.ceilingEntry(startOfFirstInterval);
         if (closestFromRightReading != null) {
-            if (firstInterval.contains(closestFromRightReading.getKey())) {
+            if (Ranges.copy(firstInterval).asClosedOpen().contains(closestFromRightReading.getKey())) {// excluding upper end-point
                 return new ReferenceReading(closestFromRightReading.getValue(), firstInterval);
             } else {
                 Map.Entry<Instant, ReadingRecord> closestFromLeftReading = registerReadings.lowerEntry(startOfFirstInterval);
@@ -373,7 +374,7 @@ public class MeterAdvanceValidator extends AbstractValidator {
                                                          Range<Instant> firstChannelInterval, Range<Instant> intervalToSummarize) {
         TwoValuesDifference maxDifference = getMaximumDifferenceProperty();
         boolean isDifferenceValid = isDifferenceValid(deltaOfRegisterReadings, sumOfChannelReadings, maxDifference);
-        if (firstChannelInterval.upperEndpoint().isBefore(intervalToSummarize.lowerEndpoint())) {
+        if (firstChannelInterval.upperEndpoint().compareTo(intervalToSummarize.lowerEndpoint()) <= 0) {
             return isDifferenceValid ?
                     ValidationStrategy.markValid(Range.openClosed(firstChannelInterval.lowerEndpoint(), intervalToSummarize.upperEndpoint())) :
                     ValidationStrategy.markValidAndSuspect(Range.openClosed(firstChannelInterval.lowerEndpoint(), intervalToSummarize.lowerEndpoint()), intervalToSummarize);

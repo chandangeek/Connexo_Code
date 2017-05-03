@@ -8,6 +8,7 @@ import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.Layer;
@@ -20,14 +21,17 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.MissingRequiredProperty;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -39,11 +43,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConsecutiveValidatorTest {
+public class ConsecutiveZerosValidatorTest {
 
     public static final BigDecimal MINIMUM_THRESHOLD = BigDecimal.valueOf(0.8);
     public static final BigDecimal BELOW_MINIMUM = BigDecimal.valueOf(0.5);
@@ -63,7 +68,7 @@ public class ConsecutiveValidatorTest {
     @Mock
     private ReadingType readingType;
 
-    private ConsecutiveValidator consecutiveValidator;
+    private ConsecutiveZerosValidator consecutiveZerosValidator;
     private IntervalReadingRecord recordFromShortZeroInterval;
     private IntervalReadingRecord recordOutsideZeroInterval;
     private IntervalReadingRecord recordFromZeroInterval;
@@ -75,104 +80,105 @@ public class ConsecutiveValidatorTest {
     @Before
     public void setUp() {
         when(readingType.getAccumulation()).thenReturn(Accumulation.DELTADELTA);
-        ImmutableMap<String, Object> properties = ImmutableMap.of(ConsecutiveValidator.MINIMUM_PERIOD, MINIMUM_PERIOD,
-                ConsecutiveValidator.MAXIMUM_PERIOD, MAXIMUM_PERIOD,
-                ConsecutiveValidator.MINIMUM_THRESHOLD, MINIMUM_THRESHOLD,
-                ConsecutiveValidator.CHECK_RETROACTIVELY, false);
-        consecutiveValidator = new ConsecutiveValidator(thesaurus, propertySpecService, properties);
+        ImmutableMap<String, Object> properties = ImmutableMap.of(ConsecutiveZerosValidator.MINIMUM_PERIOD, MINIMUM_PERIOD,
+                ConsecutiveZerosValidator.MAXIMUM_PERIOD, MAXIMUM_PERIOD,
+                ConsecutiveZerosValidator.MINIMUM_THRESHOLD, MINIMUM_THRESHOLD,
+                ConsecutiveZerosValidator.CHECK_RETROACTIVELY, false);
+        consecutiveZerosValidator = new ConsecutiveZerosValidator(thesaurus, propertySpecService, properties);
         Range<Instant> validationInterval = Range.openClosed(Instant.ofEpochSecond(START_VALIDATION), Instant.ofEpochSecond(END_VALIDATION));
         List<Instant> channelToList = mockChannelToList(validationInterval);
         when(channel.toList(any())).thenReturn(channelToList);
         List<IntervalReadingRecord> records = mockIntervalReadingsRecords(validationInterval);
         when(channel.getIntervalReadings(any())).thenReturn(records);
-        consecutiveValidator.init(channel, readingType, validationInterval);
+        when(channel.getIntervalLength()).thenReturn(Optional.of(Duration.ofSeconds(RECORD_INTERVAL)));
+        consecutiveZerosValidator.init(channel, readingType, validationInterval);
     }
 
     @Test
     public void testValidationWithMaxZeroIntervalInRetroactivelyPeriod() {
-        ImmutableMap<String, Object> properties = ImmutableMap.of(ConsecutiveValidator.MINIMUM_PERIOD, MINIMUM_PERIOD,
-                ConsecutiveValidator.MAXIMUM_PERIOD, MAXIMUM_PERIOD,
-                ConsecutiveValidator.MINIMUM_THRESHOLD, MINIMUM_THRESHOLD,
-                ConsecutiveValidator.CHECK_RETROACTIVELY, true);
-        consecutiveValidator = new ConsecutiveValidator(thesaurus, propertySpecService, properties);
+        ImmutableMap<String, Object> properties = ImmutableMap.of(ConsecutiveZerosValidator.MINIMUM_PERIOD, MINIMUM_PERIOD,
+                ConsecutiveZerosValidator.MAXIMUM_PERIOD, MAXIMUM_PERIOD,
+                ConsecutiveZerosValidator.MINIMUM_THRESHOLD, MINIMUM_THRESHOLD,
+                ConsecutiveZerosValidator.CHECK_RETROACTIVELY, true);
+        consecutiveZerosValidator = new ConsecutiveZerosValidator(thesaurus, propertySpecService, properties);
         Range<Instant> validationInterval = Range.openClosed(Instant.ofEpochSecond(START_VALIDATION), Instant.ofEpochSecond(END_VALIDATION));
         Range<Instant> validationIntervalWithRetroactivelyPeriod = Range.openClosed(Instant.ofEpochSecond(START_VALIDATION - MAXIMUM_PERIOD.getSeconds()), Instant.ofEpochSecond(END_VALIDATION));
         List<Instant> channelToList = mockChannelToList(validationIntervalWithRetroactivelyPeriod);
         when(channel.toList(any())).thenReturn(channelToList);
         List<IntervalReadingRecord> records = mockIntervalReadingsRecordsWithMaxZeroIntervalInRetroactivelyPeriod(validationIntervalWithRetroactivelyPeriod);
         when(channel.getIntervalReadings(any())).thenReturn(records);
-        consecutiveValidator.init(channel, readingType, validationInterval);
+        consecutiveZerosValidator.init(channel, readingType, validationInterval);
 
-        ValidationResult validationResult = consecutiveValidator.validate(recordAfterMaxZeroIntervalInRetroactivelyPeriod);
+        ValidationResult validationResult = consecutiveZerosValidator.validate(recordAfterMaxZeroIntervalInRetroactivelyPeriod);
 
         assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
 
     @Test
     public void testValidationWithShortZeroIntervalInRetroactivelyPeriod() {
-        ImmutableMap<String, Object> properties = ImmutableMap.of(ConsecutiveValidator.MINIMUM_PERIOD, MINIMUM_PERIOD,
-                ConsecutiveValidator.MAXIMUM_PERIOD, MAXIMUM_PERIOD,
-                ConsecutiveValidator.MINIMUM_THRESHOLD, MINIMUM_THRESHOLD,
-                ConsecutiveValidator.CHECK_RETROACTIVELY, true);
-        consecutiveValidator = new ConsecutiveValidator(thesaurus, propertySpecService, properties);
+        ImmutableMap<String, Object> properties = ImmutableMap.of(ConsecutiveZerosValidator.MINIMUM_PERIOD, MINIMUM_PERIOD,
+                ConsecutiveZerosValidator.MAXIMUM_PERIOD, MAXIMUM_PERIOD,
+                ConsecutiveZerosValidator.MINIMUM_THRESHOLD, MINIMUM_THRESHOLD,
+                ConsecutiveZerosValidator.CHECK_RETROACTIVELY, true);
+        consecutiveZerosValidator = new ConsecutiveZerosValidator(thesaurus, propertySpecService, properties);
         Range<Instant> validationInterval = Range.openClosed(Instant.ofEpochSecond(START_VALIDATION), Instant.ofEpochSecond(END_VALIDATION));
         Range<Instant> validationIntervalWithRetroactivelyPeriod = Range.openClosed(Instant.ofEpochSecond(START_VALIDATION - MAXIMUM_PERIOD.getSeconds()), Instant.ofEpochSecond(END_VALIDATION));
         List<Instant> channelToList = mockChannelToList(validationIntervalWithRetroactivelyPeriod);
         when(channel.toList(any())).thenReturn(channelToList);
         List<IntervalReadingRecord> records = mockIntervalReadingsRecordsWithShortZeroIntervalInRetroactivelyPeriod(validationIntervalWithRetroactivelyPeriod);
         when(channel.getIntervalReadings(any())).thenReturn(records);
-        consecutiveValidator.init(channel, readingType, validationInterval);
+        consecutiveZerosValidator.init(channel, readingType, validationInterval);
 
-        ValidationResult validationResult = consecutiveValidator.validate(recordAfterShortZeroIntervalInRetroactivelyPeriod);
+        ValidationResult validationResult = consecutiveZerosValidator.validate(recordAfterShortZeroIntervalInRetroactivelyPeriod);
 
         assertThat(validationResult).isEqualTo(ValidationResult.SUSPECT);
     }
 
     @Test
     public void testChangeValidationResultOfRecordsFromShortZeroIntervalInRetroactivelyPeriod() {
-        ImmutableMap<String, Object> properties = ImmutableMap.of(ConsecutiveValidator.MINIMUM_PERIOD, MINIMUM_PERIOD,
-                ConsecutiveValidator.MAXIMUM_PERIOD, MAXIMUM_PERIOD,
-                ConsecutiveValidator.MINIMUM_THRESHOLD, MINIMUM_THRESHOLD,
-                ConsecutiveValidator.CHECK_RETROACTIVELY, true);
-        consecutiveValidator = new ConsecutiveValidator(thesaurus, propertySpecService, properties);
+        ImmutableMap<String, Object> properties = ImmutableMap.of(ConsecutiveZerosValidator.MINIMUM_PERIOD, MINIMUM_PERIOD,
+                ConsecutiveZerosValidator.MAXIMUM_PERIOD, MAXIMUM_PERIOD,
+                ConsecutiveZerosValidator.MINIMUM_THRESHOLD, MINIMUM_THRESHOLD,
+                ConsecutiveZerosValidator.CHECK_RETROACTIVELY, true);
+        consecutiveZerosValidator = new ConsecutiveZerosValidator(thesaurus, propertySpecService, properties);
         Range<Instant> validationInterval = Range.openClosed(Instant.ofEpochSecond(START_VALIDATION), Instant.ofEpochSecond(END_VALIDATION));
         Range<Instant> validationIntervalWithRetroactivelyPeriod = Range.openClosed(Instant.ofEpochSecond(START_VALIDATION - MAXIMUM_PERIOD.getSeconds()), Instant.ofEpochSecond(END_VALIDATION));
         List<Instant> channelToList = mockChannelToList(validationIntervalWithRetroactivelyPeriod);
         when(channel.toList(any())).thenReturn(channelToList);
         List<IntervalReadingRecord> records = mockIntervalReadingsRecordsWithShortZeroIntervalInRetroactivelyPeriod(validationIntervalWithRetroactivelyPeriod);
         when(channel.getIntervalReadings(any())).thenReturn(records);
-        consecutiveValidator.init(channel, readingType, validationInterval);
+        consecutiveZerosValidator.init(channel, readingType, validationInterval);
         Map<Instant, ValidationResult> expectedResultMap = createExpectedResultMap();
 
-        Map<Instant, ValidationResult> resultMap = consecutiveValidator.finish();
+        Map<Instant, ValidationResult> resultMap = consecutiveZerosValidator.finish();
 
         assertThat(resultMap).isEqualTo(expectedResultMap);
     }
 
     @Test
     public void testValidationRecordFromShortZeroInterval() {
-        ValidationResult validationResult = consecutiveValidator.validate(recordFromShortZeroInterval);
+        ValidationResult validationResult = consecutiveZerosValidator.validate(recordFromShortZeroInterval);
 
         assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
 
     @Test
     public void testValidationRecordNotFromZeroInterval() {
-        ValidationResult validationResult = consecutiveValidator.validate(recordOutsideZeroInterval);
+        ValidationResult validationResult = consecutiveZerosValidator.validate(recordOutsideZeroInterval);
 
         assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
 
     @Test
     public void testValidationRecordFromZeroInterval() {
-        ValidationResult validationResult = consecutiveValidator.validate(recordFromZeroInterval);
+        ValidationResult validationResult = consecutiveZerosValidator.validate(recordFromZeroInterval);
 
         assertThat(validationResult).isEqualTo(ValidationResult.SUSPECT);
     }
 
     @Test
     public void testValidationRecordFromLongZeroInterval() {
-        ValidationResult validationResult = consecutiveValidator.validate(recordFromLongZeroInterval);
+        ValidationResult validationResult = consecutiveZerosValidator.validate(recordFromLongZeroInterval);
 
         assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
@@ -180,29 +186,29 @@ public class ConsecutiveValidatorTest {
     @Test(expected = MissingRequiredProperty.class)
     public void testConstructionWithoutRequiredProperty() {
         ImmutableMap<String, Object> properties = ImmutableMap.of(
-                ConsecutiveValidator.MAXIMUM_PERIOD, MAXIMUM_PERIOD,
-                ConsecutiveValidator.MINIMUM_THRESHOLD, MINIMUM_THRESHOLD
+                ConsecutiveZerosValidator.MAXIMUM_PERIOD, MAXIMUM_PERIOD,
+                ConsecutiveZerosValidator.MINIMUM_THRESHOLD, MINIMUM_THRESHOLD
         );
-        consecutiveValidator = new ConsecutiveValidator(thesaurus, propertySpecService, properties);
+        consecutiveZerosValidator = new ConsecutiveZerosValidator(thesaurus, propertySpecService, properties);
     }
 
     @Test
     public void testGetDefaultFormat() {
-        assertThat(consecutiveValidator.getDefaultFormat()).isEqualTo(CONSECUTIVE_ZERO);
+        assertThat(consecutiveZerosValidator.getDefaultFormat()).isEqualTo(CONSECUTIVE_ZERO);
     }
 
     @Test
     public void testNlsKey() {
-        assertThat(consecutiveValidator.getNlsKey()).isEqualTo(SimpleNlsKey.key(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN, ConsecutiveValidator.class.getName()));
+        assertThat(consecutiveZerosValidator.getNlsKey()).isEqualTo(SimpleNlsKey.key(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN, ConsecutiveZerosValidator.class.getName()));
     }
 
     @Test
     public void testPropertyDisplayName() {
         // Business method
-        String minPeriodDisplayName = consecutiveValidator.getDisplayName(ConsecutiveValidator.MINIMUM_PERIOD);
-        String maxPeriodDisplayName = consecutiveValidator.getDisplayName(ConsecutiveValidator.MAXIMUM_PERIOD);
-        String minThresholdDisplayName = consecutiveValidator.getDisplayName(ConsecutiveValidator.MINIMUM_THRESHOLD);
-        String checkRetroactivelyDisplayName = consecutiveValidator.getDisplayName(ConsecutiveValidator.CHECK_RETROACTIVELY);
+        String minPeriodDisplayName = consecutiveZerosValidator.getDisplayName(ConsecutiveZerosValidator.MINIMUM_PERIOD);
+        String maxPeriodDisplayName = consecutiveZerosValidator.getDisplayName(ConsecutiveZerosValidator.MAXIMUM_PERIOD);
+        String minThresholdDisplayName = consecutiveZerosValidator.getDisplayName(ConsecutiveZerosValidator.MINIMUM_THRESHOLD);
+        String checkRetroactivelyDisplayName = consecutiveZerosValidator.getDisplayName(ConsecutiveZerosValidator.CHECK_RETROACTIVELY);
 
         // Asserts
         assertThat(minPeriodDisplayName).isEqualTo("Minimum period");
@@ -213,17 +219,17 @@ public class ConsecutiveValidatorTest {
 
     @Test
     public void testFinish() {
-        assertThat(consecutiveValidator.finish()).isEmpty();
+        assertThat(consecutiveZerosValidator.finish()).isEmpty();
     }
 
     @Test
     public void testGetReadingQualityTypeCode() {
-        assertThat(consecutiveValidator.getReadingQualityCodeIndex().isPresent()).isFalse();
+        assertThat(consecutiveZerosValidator.getReadingQualityCodeIndex().isPresent()).isFalse();
     }
 
     @Test
     public void testGetSupportedApplications() {
-        assertThat(consecutiveValidator.getSupportedQualityCodeSystems()).containsOnly(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
+        assertThat(consecutiveZerosValidator.getSupportedQualityCodeSystems()).containsOnly(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     }
 
     private List<Instant> mockChannelToList(Range<Instant> interval){
@@ -303,7 +309,7 @@ public class ConsecutiveValidatorTest {
         Instant timeSecond = interval.lowerEndpoint().plus(MAXIMUM_PERIOD.asTemporalAmount()).minus(MINIMUM_PERIOD.asTemporalAmount());
         Instant endZeroInterval = timeSecond.plus(MINIMUM_PERIOD.asTemporalAmount()).plusSeconds(RECORD_INTERVAL);
         //add a short zero interval at the end of the retroactively period
-        timeSecond = addZeroInterval(records, timeSecond, endZeroInterval);
+        timeSecond = addZeroIntervalWithValidQuality(records, timeSecond, endZeroInterval);
         instantsFromShortZeroInterval = records.stream().map(BaseReading::getTimeStamp).collect(Collectors.toList());
         //add first record after zero interval in retroactively period
         recordAfterShortZeroIntervalInRetroactivelyPeriod = mock(IntervalReadingRecord.class);
@@ -318,6 +324,21 @@ public class ConsecutiveValidatorTest {
             IntervalReadingRecord recordWithZeroValue = mock(IntervalReadingRecord.class);
             when(recordWithZeroValue.getTimeStamp()).thenReturn(timeSecond);
             when(recordWithZeroValue.getValue()).thenReturn(BELOW_MINIMUM);
+            records.add(recordWithZeroValue);
+            timeSecond = timeSecond.plusSeconds(RECORD_INTERVAL);
+        }
+        return timeSecond;
+    }
+
+    private Instant addZeroIntervalWithValidQuality(List<IntervalReadingRecord> records, Instant timeSecond, Instant endZeroInterval){
+        while (timeSecond.compareTo(endZeroInterval) < 0){
+            IntervalReadingRecord recordWithZeroValue = mock(IntervalReadingRecord.class);
+            when(recordWithZeroValue.getTimeStamp()).thenReturn(timeSecond);
+            when(recordWithZeroValue.getValue()).thenReturn(BELOW_MINIMUM);
+            ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
+            when(readingQualityRecord.getReadingType()).thenReturn(readingType);
+            when(readingQualityRecord.isSuspect()).thenReturn(false);
+            doReturn(ImmutableList.of(readingQualityRecord)).when(recordWithZeroValue).getReadingQualities();
             records.add(recordWithZeroValue);
             timeSecond = timeSecond.plusSeconds(RECORD_INTERVAL);
         }

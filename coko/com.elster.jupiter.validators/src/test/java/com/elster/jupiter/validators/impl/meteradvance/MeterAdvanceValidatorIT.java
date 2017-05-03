@@ -29,6 +29,8 @@ import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.Validator;
+import com.elster.jupiter.validators.impl.ValidatorInMemoryBootstrapModule;
+import com.elster.jupiter.validators.impl.properties.ReadingTypeReference;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -64,7 +66,7 @@ public class MeterAdvanceValidatorIT {
     private static final String METER_NAME = "SPE01";
 
     private static final Clock clock = Clock.system(ZoneId.of("Europe/Athens"));
-    private static MeterAdvanceInMemoryBootstrapModule inMemoryBootstrapModule = MeterAdvanceInMemoryBootstrapModule
+    private static ValidatorInMemoryBootstrapModule inMemoryBootstrapModule = ValidatorInMemoryBootstrapModule
             .withClockAndReadingTypes(clock, DAILY_DELTA_A_PLUS_KWH, DAILY_BULK_A_PLUS_KWH, BULK_A_PLUS_MWH);
 
     @Rule
@@ -731,6 +733,55 @@ public class MeterAdvanceValidatorIT {
                 MapEntry.entry(startTime.plus(1, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(2, ChronoUnit.DAYS), ValidationResult.VALID),
                 MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.VALID)
+        );
+    }
+
+    /**
+     * Test channels have the following readings:
+     * <table border="1">
+     * <tr><td>Timestamp</td><td>Daily Delta A+ kWh</td><td>Daily Bulk A+ kWh</td><td>Bulk A+ MWh</td></tr>
+     * <tr><td>2017-04-02 00:00</td><td>-</td><td>100</td><td>0.1</td></tr>
+     * <tr><td>2017-04-03 00:00</td><td>200</td><td>300</td><td>-</td></tr>
+     * <tr><td>2017-04-04 00:00</td><td>200</td><td>500</td><td>1.0</td></tr>
+     * </table>
+     */
+    @Test
+    @Transactional
+    public void firstRegisterReadingTimeMatchesFirstInterval() {
+        Instant startTime = ZonedDateTime.of(LocalDateTime.of(2017, 4, 1, 0, 0, 0, 0), clock.getZone()).toInstant();
+        Meter meter = createAndActivateMeterWithChannels(startTime.plusMillis(1));
+
+        // Prepare readings for validation
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(DAILY_BULK_A_PLUS_KWH);
+        intervalBlock.addAllIntervalReadings(Arrays.asList(
+                IntervalReadingImpl.of(startTime.plus(1, ChronoUnit.DAYS), new BigDecimal(100)),
+                IntervalReadingImpl.of(startTime.plus(2, ChronoUnit.DAYS), new BigDecimal(300)),
+                IntervalReadingImpl.of(startTime.plus(3, ChronoUnit.DAYS), new BigDecimal(500))
+        ));
+        meterReading.addIntervalBlock(intervalBlock);
+        meterReading.addAllReadings(Arrays.asList(
+                ReadingImpl.of(BULK_A_PLUS_MWH, new BigDecimal(0.1), startTime.plus(1, ChronoUnit.DAYS)),
+                ReadingImpl.of(BULK_A_PLUS_MWH, new BigDecimal(1.0), startTime.plus(3, ChronoUnit.DAYS))
+        ));
+        meter.store(QualityCodeSystem.MDC, meterReading);
+
+        // Initialize validator
+        Validator validator = createValidatorWithDefaultProperties();
+        Range<Instant> interval = Range.openClosed(startTime, startTime.plus(3, ChronoUnit.DAYS));
+        ReadingType validatedReadingType = getReadingType(DAILY_DELTA_A_PLUS_KWH);
+        Channel channel = meter.getChannelsContainers().get(0).getChannel(validatedReadingType).get();
+
+        // Business method
+        validator.init(channel, validatedReadingType, interval);
+        Map<Instant, ValidationResult> validationResults = channel.getIntervalReadings(interval).stream()
+                .collect(Collectors.toMap(BaseReading::getTimeStamp, validator::validate));
+
+        // Asserts
+        assertThat(validationResults).containsExactly(
+                MapEntry.entry(startTime.plus(1, ChronoUnit.DAYS), ValidationResult.VALID),
+                MapEntry.entry(startTime.plus(2, ChronoUnit.DAYS), ValidationResult.SUSPECT),
+                MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.SUSPECT)
         );
     }
 

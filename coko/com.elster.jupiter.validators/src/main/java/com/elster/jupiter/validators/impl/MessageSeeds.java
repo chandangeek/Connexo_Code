@@ -26,16 +26,14 @@ public enum MessageSeeds implements MessageSeed {
 
     // Consecutive zeros messages
     MAX_PERIOD_SHORTER_THEN_MIN_PERIOD(1008, "maximum.period.less.minimum", "Maximum period less than minimum"),
+    NOT_DELTA_READING_TYPE(1009, "not.delta.reading.type", "{0} is not a delta reading type", Level.INFO),
 
-    // FIXME: verify messages
     // Main/check validator messages
     MAIN_CHECK_MISC_NO_PURPOSE(2001, "reference.validator.misc.no.purpose", "Failed to validate period {0} using method \"{1}\" on {2} since the specified purpose doesn''t exist on the {3}"),
     MAIN_CHECK_MISC_PURPOSE_NEVER_ACTIVATED(2002, "reference.validator.misc.purpose.never.activated", "Failed to validate period {0} using method \"{1}\" on {2} since the specified purpose is never activated on effective metrology configuration on the {4}"),
     MAIN_CHECK_MISC_NO_CHECK_OUTPUT(2003, "reference.validator.misc.no.check.output", "Failed to validate period {0} using method \"{1}\" on {2} since 'check' output with matching reading type on the specified purpose doesn''t exist on {3}"),
     MAIN_CHECK_MISC_CHECK_OUTPUT_MISSING_OR_NOT_VALID(2004, "reference.validator.misc.check.output.missing.or.not.valid", "Failed to validate period {0} using method \"{1}\" on {2}/{3} since data from 'check' output is missing or not validated"),
 
-
-    // FIXME: verify messages
     //Referece comparison validator messages
     // {0} - period,{1] - validator display name,{2} - validating usage point name,{3} - validating purpose,{4} -validating reading type,{5} - reference usage point name
     REFERENCE_MISC_NO_REFERENCE_USAGE_POINT(3001, "reference.validator.misc.no.reference.usagepoint", "Failed to validate period {0} using method \"{1}\" on {2}/{3}/{4} since the specified purpose/reading type doesn''t exist on the {5}"),
