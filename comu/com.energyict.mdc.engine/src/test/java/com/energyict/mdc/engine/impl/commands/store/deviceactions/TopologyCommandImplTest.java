@@ -86,6 +86,37 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
     }
 
     @Test
+    public void doExecuteWithoutAdditionalInfoTest(){
+        DeviceIdentifierById masterDevice = new DeviceIdentifierById(1L);
+        DeviceIdentifierById slaveDevice1 = new DeviceIdentifierById(2L);
+        DeviceIdentifierById slaveDevice2 = new DeviceIdentifierById(3L);
+
+        Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
+        slaveDeviceIdentifiers.put(slaveDevice1, mock(CollectedTopology.ObservationTimestampProperty.class));
+        slaveDeviceIdentifiers.put(slaveDevice2, mock(CollectedTopology.ObservationTimestampProperty.class));
+
+        CollectedTopology collectedTopology = new DeviceTopology(masterDevice, slaveDeviceIdentifiers);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocol.getDeviceTopology()).thenReturn(collectedTopology);
+        GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
+        when(this.topologyTask.getTopologyAction()).thenReturn(TopologyAction.UPDATE);
+        TopologyCommand topologyCommand = groupedDeviceCommand.getTopologyCommand(topologyTask, groupedDeviceCommand, comTaskExecution);
+
+        // Business method
+        topologyCommand.execute(deviceProtocol, newTestExecutionContext());
+        String description = topologyCommand.toJournalMessageDescription(LogLevel.TRACE);
+
+        // asserts
+        assertThat(topologyCommand.getCollectedData()).isNotNull();
+        assertThat(topologyCommand.getCollectedData()).hasSize(1);
+        CollectedData collectedData = topologyCommand.getCollectedData().get(0);
+        assertThat(collectedData).isInstanceOf(CollectedTopology.class);
+        assertThat(description).isEqualTo(
+                ComCommandDescriptionTitle.TopologyCommandImpl.getDescription() +
+                        " {topologyAction: UPDATE; updatedTopologyMaster: device having id 1; originalSlaves: None; receivedSlaves: device having id 2, device having id 3}");
+    }
+
+    @Test
     public void testUpdateAccordingToUpdateAction() throws Exception {
         GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
         when(topologyTask.getTopologyAction()).thenReturn(TopologyAction.VERIFY);
