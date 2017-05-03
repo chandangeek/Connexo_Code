@@ -66,7 +66,7 @@ Ext.define('Imt.metrologyconfiguration.view.StatesInfoWindow', {
                     {
                         xtype: 'button',
                         itemId: 'states-info-window-close-btn',
-                        text: Uni.I18n.translate('general.close', 'UNI', 'Close'),
+                        text: Uni.I18n.translate('general.close', 'IMT', 'Close'),
                         handler: function(){me.destroy()}
                     }
                 ]
