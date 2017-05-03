@@ -11,15 +11,14 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
-import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -27,7 +26,6 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -387,16 +385,6 @@ public class ResourceHelper {
 
     public Optional<ReadingQualityComment> getReadingQualityComment(long id) {
         return meteringService.findReadingQualityComment(id);
-    }
-
-    public List<ReadingTypeRequirement> getReadingTypeRequirements(MetrologyContract metrologyContract) {
-        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
-        metrologyContract.getDeliverables()
-                .stream()
-                .map(ReadingTypeDeliverable::getFormula)
-                .map(Formula::getExpressionNode)
-                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
-        return requirementsCollector.getReadingTypeRequirements();
     }
 
     public void checkMeterRequirements(UsagePoint usagePoint, MetrologyContract metrologyContract) {

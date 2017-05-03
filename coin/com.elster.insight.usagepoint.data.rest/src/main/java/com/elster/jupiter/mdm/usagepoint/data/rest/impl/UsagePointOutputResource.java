@@ -43,6 +43,8 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -52,6 +54,7 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
@@ -117,6 +120,7 @@ public class UsagePointOutputResource {
     private final EstimationTaskInfoFactory estimationTaskInfoFactory;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
     private final UsagePointConfigurationService usagePointConfigurationService;
+    private final TransactionService transactionService;
 
     private final Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider;
     private final Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider;
@@ -141,6 +145,7 @@ public class UsagePointOutputResource {
                              EstimationTaskInfoFactory estimationTaskInfoFactory,
                              EstimationRuleInfoFactory estimationRuleInfoFactory,
                              UsagePointConfigurationService usagePointConfigurationService,
+                             TransactionService transactionService,
                              Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider,
                              Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider) {
         this.resourceHelper = resourceHelper;
@@ -160,6 +165,7 @@ public class UsagePointOutputResource {
         this.estimationTaskInfoFactory = estimationTaskInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.usagePointConfigurationService = usagePointConfigurationService;
+        this.transactionService = transactionService;
         this.usagePointOutputValidationResourceProvider = usagePointOutputValidationResourceProvider;
         this.usagePointOutputEstimationResourceProvider = usagePointOutputEstimationResourceProvider;
     }
@@ -393,7 +399,6 @@ public class UsagePointOutputResource {
         return Response.status(Response.Status.OK).build();
     }
 
-
     private void processInfo(OutputChannelDataInfo channelDataInfo, List<Instant> removeCandidates, List<BaseReading> estimatedReadings, List<BaseReading> editedReadings, List<BaseReading> confirmedReadings) {
         Optional<ReadingQualityComment> readingQualityComment = resourceHelper.getReadingQualityComment(channelDataInfo.commentId);
 
@@ -471,6 +476,80 @@ public class UsagePointOutputResource {
             }
         }
         return Optional.empty();
+    }
+
+    @PUT
+    @Path("/{purposeId}/outputs/{outputId}/channelData/prevalidate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    public PagedInfoList prevalidateEditedChannelData(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
+                                                      PrevalidateChannelDataRequestInfo info, @BeanParam JsonQueryParameters queryParameters) {
+        try (TransactionContext context = transactionService.getContext()) {
+            UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+            EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+            MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId);
+            ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
+            ReadingType readingType = readingTypeDeliverable.getReadingType();
+            if (!readingType.isRegular()) {
+                throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
+            }
+
+            List<BaseReading> editedReadings = new ArrayList<>();
+            List<BaseReading> estimatedReadings = new ArrayList<>();
+            List<BaseReading> confirmedReadings = new ArrayList<>();
+            List<Instant> removeCandidates = new ArrayList<>();
+
+            info.editedReadings.forEach(channelDataInfo ->
+                    processInfo(channelDataInfo, removeCandidates, estimatedReadings, editedReadings, confirmedReadings));
+
+            List<PrevalidatedChannelDataInfo> infos = usagePoint.getEffectiveMetrologyConfigurations().stream()
+                    .flatMap(effectiveMC ->
+                            findMetrologyContractForPurpose(effectiveMC, metrologyContract.getMetrologyPurpose())
+                                    .flatMap(effectiveMC::getChannelsContainer).map(Stream::of).orElse(Stream.empty()))
+                    .flatMap(channelsContainer -> {
+                        Range<Instant> containerRange = channelsContainer.getInterval().toOpenClosedRange();
+                        Channel channel = channelsContainer.getChannel(readingType).get();
+
+                        List<BaseReading> editedInContainer = filterInRange(editedReadings, containerRange, BaseReading::getTimeStamp);
+                        List<BaseReading> estimatedInContainer = filterInRange(estimatedReadings, containerRange, BaseReading::getTimeStamp);
+                        List<BaseReadingRecord> removedInContainer = filterInRange(removeCandidates, containerRange, Function.identity()).stream()
+                                .map(channel::getReading).flatMap(Functions.asStream()).collect(Collectors.toList());
+                        List<BaseReading> confirmedInContainer = filterInRange(confirmedReadings, containerRange, BaseReading::getTimeStamp);
+
+                        // edit readings
+                        channel.removeReadings(QualityCodeSystem.MDM, removedInContainer);
+                        channel.estimateReadings(QualityCodeSystem.MDM, estimatedInContainer);
+                        channel.editReadings(QualityCodeSystem.MDM, editedInContainer);
+                        channel.confirmReadings(QualityCodeSystem.MDM, confirmedInContainer);
+
+                        // validate readings
+                        Optional<Instant> firstEditedReadingTime = Stream.of(
+                                editedInContainer.stream().map(BaseReading::getTimeStamp),
+                                estimatedInContainer.stream().map(BaseReading::getTimeStamp),
+                                removedInContainer.stream().map(BaseReading::getTimeStamp))
+                                .flatMap(Function.identity())
+                                .min(Comparator.naturalOrder());
+                        if (firstEditedReadingTime.isPresent() && info.validateUntil != null && firstEditedReadingTime.get().compareTo(info.validateUntil) <= 0) {
+                            Range<Instant> rangeToPrevalidate = Ranges.closed(firstEditedReadingTime.get(), info.validateUntil);
+                            validationService.validate(
+                                    new ValidationContextImpl(ImmutableSet.of(QualityCodeSystem.MDM), channelsContainer, readingType),
+                                    rangeToPrevalidate);
+                            List<IntervalReadingRecord> updatedReadings = channel.getIntervalReadings(rangeToPrevalidate);
+                            return validationService.getEvaluator()
+                                    .getValidationStatus(ImmutableSet.of(QualityCodeSystem.MDM), channel, updatedReadings, rangeToPrevalidate)
+                                    .stream();
+                        }
+                        return Stream.empty();
+                    })
+                    .filter(dataValidationStatus -> ValidationResult.VALID != dataValidationStatus.getValidationResult())
+                    .map(outputChannelDataInfoFactory::createPrevalidatedChannelDataInfo)
+                    .sorted(Comparator.comparing(prevalidatedChannelDataInfo -> prevalidatedChannelDataInfo.readingTime))
+                    .collect(Collectors.toList());
+
+            // do NOT commit intentionally
+            return PagedInfoList.fromCompleteList("potentialSuspects", infos, queryParameters);
+        }
     }
 
     @POST
