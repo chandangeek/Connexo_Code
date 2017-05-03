@@ -324,6 +324,7 @@ Ext.define('Fim.controller.ImportServices', {
             activate && activate.setVisible(!active);
             deactivate && deactivate.setVisible(active);
         }
+        menu.fireEvent('refreshMenuSeparators', menu);
     },
 
     showEditImportService: function (importServiceId) {
