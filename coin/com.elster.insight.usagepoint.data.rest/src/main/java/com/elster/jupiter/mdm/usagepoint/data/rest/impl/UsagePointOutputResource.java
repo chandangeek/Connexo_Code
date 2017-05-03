@@ -586,7 +586,10 @@ public class UsagePointOutputResource {
                             else {
                                 tempMap.put(pair.getLast().interval, purposeOutputsDataInfoFactory.createPurposeOutputsDataInfo(pair.getFirst(), pair.getLast().value, pair.getLast().interval));
                             }});
-                outputsDataInfos = tempMap.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
+                outputsDataInfos = tempMap.entrySet().stream()
+                        .sorted((k1,k2) -> k2.getKey().start.compareTo(k1.getKey().start))
+                        .map(Map.Entry::getValue)
+                        .collect(Collectors.toList());
                 List<PurposeOutputsDataInfo> paginatedOutputsData = ListPager.of(outputsDataInfos).from(queryParameters).find();
                 PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedOutputsData, queryParameters);
                 return Response.ok(pagedInfoList).build();
