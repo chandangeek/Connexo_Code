@@ -9,7 +9,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
     requires: [
         'Uni.form.field.Obis',
         'Uni.form.field.ReadingTypeDisplay',
-        'Uni.form.field.ReadingTypeCombo'
+        'Uni.form.field.ReadingTypeCombo',
+        'Uni.view.form.ComboBoxWithEmptyComponent'
     ],
     edit: false,
 
@@ -49,21 +50,24 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         width: 650
                     },
                     {
-                        xtype: 'combobox',
-                        name: 'registerType',
+                        xtype: 'comboboxwithemptycomponent',
                         fieldLabel: Uni.I18n.translate('registerConfig.registerType', 'MDC', 'Register type'),
                         itemId: 'registerTypeComboBox',
-                        store: this.registerTypesOfDeviceType,
-                        queryMode: 'local',
-                        displayField: 'name',
-                        valueField: 'id',
-                        emptyText: Uni.I18n.translate('registerConfig.selectRegisterType', 'MDC', 'Select a register type...'),
-                        required: true,
-                        allowBlank: false,
-                        forceSelection: true,
-                        editable: false,
-                        width: 650,
-                        msgTarget: 'under'
+                        config: {
+                            name: 'registerType',
+                            store: this.registerTypesOfDeviceType,
+                            queryMode: 'local',
+                            displayField: 'name',
+                            noObjectsText: Uni.I18n.translate('registerConfig.noRegisterTypesAvailable', 'MDC', 'No register types available'),
+                            valueField: 'id',
+                            emptyText: Uni.I18n.translate('registerConfig.selectRegisterType', 'MDC', 'Select a register type...'),
+                            required: true,
+                            allowBlank: false,
+                            forceSelection: true,
+                            editable: false,
+                            width: 650,
+                            msgTarget: 'under'
+                        }
                     },
                     {
                         xtype: 'fieldcontainer',
