@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -30,7 +28,6 @@ import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
@@ -524,15 +521,6 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         }
         else {
             return this.meterProtocolSecuritySupportAdapter.getEncryptionAccessLevels();
-        }
-    }
-
-    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
-        if (this.delegateSecurityToActualProtocol()) {
-            return this.getDeviceSecuritySupport().getCustomPropertySet();
-        }
-        else {
-            return this.meterProtocolSecuritySupportAdapter.getCustomPropertySet();
         }
     }
 

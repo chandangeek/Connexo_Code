@@ -4,12 +4,9 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -22,7 +19,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements DeviceSecuritySupport {
 
@@ -57,18 +53,8 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
         return this.legacySecuritySupport != null;
     }
 
-    protected boolean checkExistingSecurityPropertyConverter() {
+    private boolean checkExistingSecurityPropertyConverter() {
         return this.legacySecurityPropertyConverter != null;
-    }
-
-    @Override
-    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
-        if (checkExistingSecuritySupport()) {
-            return this.legacySecuritySupport.getCustomPropertySet();
-        }
-        else {
-            return Optional.empty();
-        }
     }
 
     @Override
