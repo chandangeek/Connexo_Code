@@ -183,8 +183,8 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
 
         validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
             @Override
-            public List<ValidationRuleSet> resolve(ValidationContext validationContext) {
-                return Collections.singletonList(validationRuleSet);
+            public Map<ValidationRuleSet, List<Range<Instant>>> resolve(ValidationContext validationContext) {
+                return Collections.singletonMap(validationRuleSet, Collections.singletonList(Range.atLeast(Instant.EPOCH)));
             }
 
             @Override

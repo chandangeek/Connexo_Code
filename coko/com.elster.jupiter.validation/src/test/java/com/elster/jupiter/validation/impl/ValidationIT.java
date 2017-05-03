@@ -115,7 +115,7 @@ public class ValidationIT {
         ValidationServiceImpl validationService = getValidationService();
         validationService.addResource(validatorFactory);
         ValidationRuleSet validationRuleSet = createValidationRuleSet(readingType1, readingType2, readingType3, validationService);
-        when(validationRuleSetResolver.resolve(any())).thenReturn(Collections.singletonList(validationRuleSet));
+        when(validationRuleSetResolver.resolve(any())).thenReturn(Collections.singletonMap(validationRuleSet, Collections.singletonList(Range.atLeast(Instant.EPOCH))));
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
 
         validationService.activateValidation(meter);

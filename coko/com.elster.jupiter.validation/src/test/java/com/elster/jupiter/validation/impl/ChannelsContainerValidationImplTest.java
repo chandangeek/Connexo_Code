@@ -112,7 +112,7 @@ public class ChannelsContainerValidationImplTest {
         when(channelsContainer.getStart()).thenReturn(DATE1);
         when(channelsContainer.getMeter()).thenReturn(Optional.empty());
 
-        channelsContainerValidation = new ChannelsContainerValidationImpl(dataModel, clock).init(channelsContainer);
+        channelsContainerValidation = new ChannelsContainerValidationImpl(dataModel, clock).init(channelsContainer, Range.atLeast(Instant.EPOCH));
         channelsContainerValidation.setRuleSet(validationRuleSet);
         channelsContainerValidation.save();
     }

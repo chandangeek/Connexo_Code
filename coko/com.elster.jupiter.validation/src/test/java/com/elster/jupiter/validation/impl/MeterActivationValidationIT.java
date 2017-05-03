@@ -71,7 +71,6 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -133,7 +132,7 @@ public class MeterActivationValidationIT {
 
     @Before
     public void setUp() throws SQLException {
-        when(ruleSetResolver.resolve(any())).thenAnswer(invocation -> Arrays.asList(validationRuleSet));
+        when(ruleSetResolver.resolve(any())).thenAnswer(invocation -> Collections.singletonMap(validationRuleSet, Collections.singletonList(Range.atLeast(Instant.EPOCH))));
         when(validatorFactory.available()).thenReturn(Collections.singletonList("autoPass"));
         when(validatorFactory.create("autoPass", Collections.emptyMap())).thenReturn(validator);
         when(validatorFactory.createTemplate("autoPass")).thenReturn(validator);

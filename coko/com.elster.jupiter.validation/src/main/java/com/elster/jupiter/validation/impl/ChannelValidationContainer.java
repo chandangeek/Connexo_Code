@@ -5,6 +5,7 @@
 package com.elster.jupiter.validation.impl;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -48,7 +49,16 @@ public class ChannelValidationContainer {
     }
 
     Optional<Instant> getLastChecked() {
-        return getLastChecked(stream());
+        return getLastChecked(channelValidations);
+    }
+
+    static Optional<Instant> getLastChecked(Collection<? extends ChannelValidation> validations) {
+        Optional<Instant> lastChecked = getLastCheckedForCompleteRanges(validations.stream());
+        if (lastChecked.isPresent()) {
+            return lastChecked;
+        } else {
+            return getLastChecked(validations.stream());
+        }
     }
 
     static Optional<Instant> getLastChecked(Stream<? extends ChannelValidation> validations) {
@@ -59,6 +69,25 @@ public class ChannelValidationContainer {
                 .map(instant -> instant == null ? Instant.MIN : instant)
                 .min(Comparator.naturalOrder())
                 .flatMap(instant -> Instant.MIN.equals(instant) ? Optional.empty() : Optional.of(instant));
+    }
+
+    static Optional<Instant> getLastCheckedForCompleteRanges(Stream<? extends ChannelValidation> validations) {
+        // if any is null, then we should return Optional.empty()
+        return validations
+                .filter(ChannelValidation::hasActiveRules)
+                .filter(ChannelValidationContainer::isIncompleteRange)
+                .map(ChannelValidation::getLastChecked)
+                .map(instant -> instant == null ? Instant.MIN : instant)
+                .min(Comparator.naturalOrder())
+                .flatMap(instant -> Instant.MIN.equals(instant) ? Optional.empty() : Optional.of(instant));
+    }
+
+    static boolean isIncompleteRange(ChannelValidation channelValidation) {
+        if (channelValidation.getChannelsContainerValidation().getRange().hasUpperBound() && channelValidation.getLastChecked() != null) {
+            return channelValidation.getLastChecked().isBefore(channelValidation.getChannelsContainerValidation().getRange().upperEndpoint());
+        } else {
+            return true;
+        }
     }
 
     boolean isEmpty() {

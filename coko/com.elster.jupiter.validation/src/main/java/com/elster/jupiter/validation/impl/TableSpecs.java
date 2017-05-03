@@ -27,6 +27,8 @@ import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
+import java.util.List;
+
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -118,6 +120,10 @@ public enum TableSpecs {
             Table<ChannelsContainerValidation> table = dataModel.addTable(name(), ChannelsContainerValidation.class);
             table.map(ChannelsContainerValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            for (Column intervalColumn : intervalColumns) {
+                intervalColumn.since(version(10, 3));
+            }
             Column ruleSetColumn = table.column("RULESETID").number().conversion(NUMBER2LONG).add();
             Column meterActivationColumn = table.column("METERACTIVATIONID").number().conversion(NUMBER2LONG).upTo(version(10, 2)).add();
             Column channelContainer = table.column("CHANNEL_CONTAINER").number().conversion(NUMBER2LONG).since(version(10, 2)).previously(meterActivationColumn).add();
@@ -128,7 +134,7 @@ public enum TableSpecs {
             table.foreignKey("VAL_FK_MA_VALIDATION_MA").references(ChannelsContainer.class).onDelete(RESTRICT).map("channelsContainer").on(channelContainer).add();
             table.foreignKey("VAL_FK_MA_VALIDATION_VRS").references(VAL_VALIDATIONRULESET.name()).on(ruleSetColumn).onDelete(DeleteRule.RESTRICT)
                     .map("ruleSet", ValidationRuleSetVersionImpl.class, ValidationRuleImpl.class, ReadingTypeInValidationRule.class).add();
-            table.unique("VAL_MA_VALIDATION_U").on(ruleSetColumn, channelContainer, obsoleteColumn).add();
+            table.unique("VAL_MA_VALIDATION_U").on(ruleSetColumn, channelContainer, obsoleteColumn, intervalColumns.get(0)).add();
         }
     },
     VAL_CH_VALIDATION {

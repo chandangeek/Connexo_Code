@@ -12,8 +12,10 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 import com.google.common.collect.BoundType;
@@ -48,7 +50,7 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
     private Instant lastRun;
     private List<ChannelValidation> channelValidations = new ArrayList<>();
     private Instant obsoleteTime;
-
+    private Interval interval;
     private final DataModel dataModel;
     private final Clock clock;
     private boolean active = true;
@@ -59,8 +61,15 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
         this.clock = clock;
     }
 
+    ChannelsContainerValidationImpl init(ChannelsContainer channelsContainer, Range<Instant> range) {
+        this.channelsContainer.set(channelsContainer);
+        this.interval = Interval.of(range);
+        return this;
+    }
+
     ChannelsContainerValidationImpl init(ChannelsContainer channelsContainer) {
         this.channelsContainer.set(channelsContainer);
+        this.interval = channelsContainer.getInterval();
         return this;
     }
 
@@ -159,10 +168,14 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
     }
 
     private void validateChannel(Channel channel, Instant validateUntil) {
+        Range<Instant> range = interval.toOpenClosedRange();
+        if (validateUntil != null && range.contains(validateUntil)) {
+            range = Ranges.copy(range).withClosedUpperBound(validateUntil);
+        }
         List<IValidationRule> activeRules = getActiveRules();
         if (hasApplicableRules(channel, activeRules)) {
             ChannelValidationImpl channelValidation = findOrAddValidationFor(channel);
-            channelValidation.validate(validateUntil);
+            channelValidation.validate(range);
             channelValidation.setActiveRules(true);
         } else {
             ChannelValidationImpl channelValidation = findValidationFor(channel);
@@ -321,5 +334,14 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
             lastRun = null;
         }
         save();
+    }
+
+    @Override
+    public Interval getInterval() {
+        return interval;
+    }
+
+    public void setIntervalEnd(Instant end){
+        interval = Interval.of(Range.openClosed(interval.toOpenClosedRange().lowerEndpoint(), end));
     }
 }

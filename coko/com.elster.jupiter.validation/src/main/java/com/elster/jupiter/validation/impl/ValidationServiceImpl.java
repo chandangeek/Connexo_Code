@@ -569,14 +569,18 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     List<ChannelsContainerValidation> getUpdatedChannelsContainerValidations(ValidationContext validationContext) {
-        List<ValidationRuleSet> ruleSets = ruleSetResolvers.stream()
-                .flatMap(r -> r.resolve(validationContext).stream())
-                .filter(ruleSet -> validationContext.getQualityCodeSystems().isEmpty() || validationContext.getQualityCodeSystems().contains(ruleSet.getQualityCodeSystem()))
-                .collect(Collectors.toList());
+        Map<ValidationRuleSet, List<Range<Instant>>> ruleSets = ruleSetResolvers.stream()
+                .flatMap(r -> r.resolve(validationContext).entrySet().stream())
+                .filter(ruleSet -> validationContext.getQualityCodeSystems().isEmpty() || validationContext.getQualityCodeSystems()
+                        .contains(ruleSet.getKey().getQualityCodeSystem()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a));
         List<ChannelsContainerValidation> persistedChannelsContainerValidations = getPersistedChannelsContainerValidations(validationContext.getChannelsContainer());
-        List<ChannelsContainerValidation> returnList = ruleSets.stream()
-                .map(ruleSet -> Pair.of(ruleSet, getForRuleSet(persistedChannelsContainerValidations, ruleSet)))
-                .map(validationPair -> validationPair.getLast().orElseGet(() -> applyRuleSet(validationPair.getFirst(), validationContext.getChannelsContainer())))
+        List<ChannelsContainerValidation> returnList = ruleSets.entrySet().stream()
+                .flatMap(ruleSet -> ruleSet.getValue().stream()
+                        .map(range -> Pair.of(Pair.of(ruleSet.getKey(), range), getForRuleSet(persistedChannelsContainerValidations, ruleSet.getKey(), range.lowerEndpoint()))))
+                .map(validationPair -> validationPair.getLast()
+                        .map(channelsContainerValidation -> updateChannelsContainerValidationIntervalEnd(channelsContainerValidation, validationPair.getFirst().getLast()))
+                        .orElseGet(() -> applyRuleSet(validationPair.getFirst().getFirst(), validationContext.getChannelsContainer(), validationPair.getFirst().getLast())))
                 .collect(Collectors.toList());
         returnList
                 .forEach(channelsContainerValidation -> channelsContainerValidation.getChannelsContainer().getChannels()
@@ -587,12 +591,22 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         persistedChannelsContainerValidations.stream()
                 .filter(channelsContainerValidation -> {
                     ValidationRuleSet validationRuleSet = channelsContainerValidation.getRuleSet();
-                    return !ruleSets.contains(validationRuleSet)
+                    return !ruleSets.keySet().contains(validationRuleSet)
                             && (validationContext.getQualityCodeSystems().isEmpty() || validationContext.getQualityCodeSystems().contains(validationRuleSet.getQualityCodeSystem()))
                             && (validationRuleSet.getObsoleteDate() != null || !isValidationRuleSetInUse(validationRuleSet));
                 })
                 .forEach(ChannelsContainerValidation::makeObsolete);
         return returnList;
+    }
+
+    private ChannelsContainerValidation updateChannelsContainerValidationIntervalEnd(ChannelsContainerValidation channelsContainerValidation, Range<Instant> range) {
+        if (range.hasUpperBound()
+                && (!channelsContainerValidation.getRange().hasUpperBound()
+                || !range.upperEndpoint().equals(channelsContainerValidation.getRange().upperEndpoint()))) {
+            channelsContainerValidation.setIntervalEnd(range.upperEndpoint());
+            channelsContainerValidation.save();
+        }
+        return channelsContainerValidation;
     }
 
     ChannelsContainerValidationList activeChannelsContainerValidationsFor(ChannelsContainer channelsContainer) {
@@ -603,8 +617,9 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         return dataModel.getInstance(ChannelsContainerValidationList.class).ofUpdatedValidations(validationContext);
     }
 
-    private Optional<ChannelsContainerValidation> getForRuleSet(List<ChannelsContainerValidation> channelsContainerValidations, ValidationRuleSet ruleSet) {
-        return channelsContainerValidations.stream().filter(channelsContainerValidation -> ruleSet.equals(channelsContainerValidation.getRuleSet())).findFirst();
+    private Optional<ChannelsContainerValidation> getForRuleSet(List<ChannelsContainerValidation> channelsContainerValidations, ValidationRuleSet ruleSet, Instant instant) {
+        return channelsContainerValidations.stream().filter(channelsContainerValidation -> ruleSet.equals(channelsContainerValidation.getRuleSet())
+                && channelsContainerValidation.getRange().lowerEndpoint().equals(instant)).findFirst();
     }
 
     List<ChannelsContainerValidation> getPersistedChannelsContainerValidations(ChannelsContainer channelsContainer) {
@@ -620,8 +635,8 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         return dataModel.query(ChannelsContainerValidation.class, ChannelValidation.class).select(condition);
     }
 
-    private ChannelsContainerValidation applyRuleSet(ValidationRuleSet ruleSet, ChannelsContainer channelsContainer) {
-        ChannelsContainerValidation channelsContainerValidation = dataModel.getInstance(ChannelsContainerValidationImpl.class).init(channelsContainer);
+    private ChannelsContainerValidation applyRuleSet(ValidationRuleSet ruleSet, ChannelsContainer channelsContainer, Range<Instant> range) {
+        ChannelsContainerValidation channelsContainerValidation = dataModel.getInstance(ChannelsContainerValidationImpl.class).init(channelsContainer, range);
         channelsContainerValidation.setRuleSet(ruleSet);
         channelsContainer.getChannels().stream()
                 .filter(c -> !ruleSet.getRules(c.getReadingTypes()).isEmpty())
