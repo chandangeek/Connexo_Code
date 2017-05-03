@@ -47,9 +47,7 @@ Ext.define('Sam.controller.datapurge.History', {
             date = record.get('startDate');
 
         this.getDetailsView().setTitle(
-            Uni.I18n.translate('general.dateAtTime', 'SAM', '{0} at {1}',
-                [Uni.DateTime.formatDateLong(date), Uni.DateTime.formatTimeLong(date)]
-            )
+            Uni.DateTime.formatDateTimeLong(date)
         );
         categoriesStore.getProxy().setUrl(record.getId());
         categoriesStore.load();
