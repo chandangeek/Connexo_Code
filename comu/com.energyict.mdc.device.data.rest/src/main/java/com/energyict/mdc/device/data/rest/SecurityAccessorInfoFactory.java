@@ -9,6 +9,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.DeviceKeyAccessorType;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
@@ -23,6 +24,11 @@ import com.energyict.mdc.pluggable.rest.PropertyValuesResourceProvider;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
+
+import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITHOUT_PRIVILEGES;
+import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITH_PRIVILEGES;
+import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.HIDE_VALUES;
+import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.SHOW_VALUES;
 
 public class SecurityAccessorInfoFactory {
 
@@ -50,7 +56,8 @@ public class SecurityAccessorInfoFactory {
         info.status = thesaurus.getFormat(keyAccessor.getStatus()).format();
         info.canGeneratePassiveKey = KeyAccessorStatus.COMPLETE.equals(keyAccessor.getStatus());
         info.hasTempValue = keyAccessor.getTempValue().isPresent();
-        keyAccessor.getActualValue().getExpirationTime().ifPresent(expiration -> info.expirationTime = expiration);
+        info.hasActualValue = keyAccessor.getActualValue().isPresent();
+        keyAccessor.getActualValue().ifPresent(ka->ka.getExpirationTime().ifPresent(expiration -> info.expirationTime = expiration));
 
         return info;
     }
@@ -60,10 +67,15 @@ public class SecurityAccessorInfoFactory {
         List<PropertySpec> propertySpecs = keyAccessor.getPropertySpecs();
 
         TypedProperties actualTypedProperties = getPropertiesActualValue(keyAccessor);
-        info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties);
+        boolean userHasViewPrivilege = ((DeviceKeyAccessorType) keyAccessor.getKeyAccessorType()).currentUserIsAllowedToViewDeviceProperties();
+        boolean userHasEditPrivilege = ((DeviceKeyAccessorType) keyAccessor.getKeyAccessorType()).currentUserIsAllowedToEditDeviceProperties();
+
+        MdcPropertyUtils.ValueVisibility valueVisibility = userHasViewPrivilege && userHasEditPrivilege? SHOW_VALUES: HIDE_VALUES;
+        MdcPropertyUtils.PrivilegePresence withoutPrivileges = userHasViewPrivilege ? WITH_PRIVILEGES : WITHOUT_PRIVILEGES;
+        info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties, valueVisibility, withoutPrivileges);
 
         TypedProperties tempTypedProperties = getPropertiesTempValue(keyAccessor);
-        info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties);
+        info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties, valueVisibility, withoutPrivileges);
         return info;
     }
 
@@ -89,7 +101,7 @@ public class SecurityAccessorInfoFactory {
         info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
 
         if (keyAccessor instanceof CertificateAccessor) {
-            ((CertificateAccessor)keyAccessor).getActualValue().getLastReadDate().ifPresent(date -> info.lastReadDate = date);
+            ((CertificateAccessor)keyAccessor).getActualValue().ifPresent(cw->cw.getLastReadDate().ifPresent(date -> info.lastReadDate = date));
         }
 
         return info;
@@ -103,8 +115,7 @@ public class SecurityAccessorInfoFactory {
 
     private TypedProperties getPropertiesActualValue(KeyAccessor<?> keyAccessor) {
         TypedProperties actualTypedProperties = TypedProperties.empty();
-        keyAccessor.getActualValue()
-                .getProperties().entrySet().forEach(e1 -> actualTypedProperties.setProperty(e1.getKey(), e1.getValue()));
+        keyAccessor.getActualValue().ifPresent(ka->ka.getProperties().entrySet().forEach(e1 -> actualTypedProperties.setProperty(e1.getKey(), e1.getValue())));
         return actualTypedProperties;
     }
 
