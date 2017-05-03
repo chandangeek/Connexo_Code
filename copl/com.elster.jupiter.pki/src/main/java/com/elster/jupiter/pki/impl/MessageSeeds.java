@@ -34,14 +34,15 @@ public enum MessageSeeds implements MessageSeed {
     FAILED_TO_WRAP_WK(1018, "FailedToWrapWK", "Failed to AES wrap the WK: {0}"),
     GENERAL_KEYSTORE_FAILURE(1019, "GeneralKeystoreFailure", "The keystore could not be read: {0}"),
     COULD_NOT_READ_KEY_USAGES(1020, "ErrorReadingKeyUsages", "Could not read key usages"),
-    CERTIFICATE_PUBLIC_KEY_MISMATCH(1021, "PublicKeyMismatchCSR", "The certificate's public key does not match the CSR"),
+    CERTIFICATE_PUBLIC_KEY_MISMATCH(1021, "PublicKeyMismatchCSR", "The certificate''s public key does not match the CSR"),
     UNSUPPORTED_KEY_TYPE(1022, "UnsupportedKeyType", "The key type you requested is not supported: {0}"),
-    CERTIFICATE_SUBJECT_DN_MISMATCH(1023, "SubjectMismatchCSR", "The certificate's subject distinguished name does not match the CSR"),
-    CERTIFICATE_KEY_USAGE_MISMATCH(1024, "KeyUsagesMismatchCSR", "The certificate's key usage extension does not match the CSR"),
-    CERTIFICATE_EXTENDED_KEY_USAGES_MISMATCH(1025, "ExtendedKeyUsagesMismatchCSR", "The certificate's extended key usage extension does not match the CSR"),
-    INVALID_VALUE(1026, "InvalidValue", "This value is invalid"),
+    CERTIFICATE_SUBJECT_DN_MISMATCH(1023, "SubjectMismatchCSR", "The certificate''s subject distinguished name does not match the CSR"),
+    CERTIFICATE_KEY_USAGE_MISMATCH(1024, "KeyUsagesMismatchCSR", "The certificate''s key usage extension does not match the CSR"),
+    CERTIFICATE_EXTENDED_KEY_USAGES_MISMATCH(1025, "ExtendedKeyUsagesMismatchCSR", "The certificate''s extended key usage extension does not match the CSR"),
+    INVALID_VALUE(1026,Keys.INVALID_VALUE, "This value is invalid"),
     NO_POSSIBLE_CHARS_IN_PASSWORD(1027, Keys.NOVALIDCHARACTERS, "The passphrase type has no characters sets to choose from"),
-    INVALID_PASSWORD_LENGTH(1028, Keys.INVALIDPASSPHRASELENGTH, "Invalid passphrase length")    ;
+    INVALID_PASSWORD_LENGTH(1028, Keys.INVALIDPASSPHRASELENGTH, "Invalid passphrase length"),
+    INVALID_KEY_SIZE(1029, Keys.INVALID_KEY_SIZE, "Invalid key size");
 
     private final int number;
     private final String key;
@@ -96,6 +97,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_VALUE = "validation.invalid.value";
         public static final String NOVALIDCHARACTERS = "NoValidCharacters";
         public static final String INVALIDPASSPHRASELENGTH = "InvalidPassphraseLength";
+        public static final String INVALID_KEY_SIZE = "InvalidKeySize";
     }
 
 }

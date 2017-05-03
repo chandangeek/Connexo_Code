@@ -734,7 +734,7 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate's subject distinguished name does not match the CSR")
+    @Expected(value = PkiLocalizedException.class, message = "The certificate''s subject distinguished name does not match the CSR")
     public void testImportCertificateForExistingCsrWithSubjectDnMismatch() throws Exception {
         KeyType certificateType = inMemoryPersistence.getPkiService()
                 .newClientCertificateType("TLS-DN-MISMATCH", "SHA256withRSA")
@@ -765,7 +765,7 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate's key usage extension does not match the CSR")
+    @Expected(value = PkiLocalizedException.class, message = "The certificate''s key usage extension does not match the CSR")
     public void testImportCertificateForExistingCsrWithKeyUsageMismatch() throws Exception {
         KeyType certificateType = inMemoryPersistence.getPkiService()
                 .newClientCertificateType("TLS-DN-KEYUSAGE", "SHA256withRSA")
@@ -791,7 +791,7 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate's extended key usage extension does not match the CSR")
+    @Expected(value = PkiLocalizedException.class, message = "The certificate''s extended key usage extension does not match the CSR")
     public void testImportCertificateForExistingCsrWithExtendedKeyUsageMismatch() throws Exception {
         KeyType certificateType = inMemoryPersistence.getPkiService()
                 .newClientCertificateType("TLS-DN-EXTENDEDKEYUSAGE", "SHA256withRSA")
@@ -817,7 +817,7 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-    @Expected(value = PkiLocalizedException.class, message = "The certificate's public key does not match the CSR")
+    @Expected(value = PkiLocalizedException.class, message = "The certificate''s public key does not match the CSR")
     public void testImportMismatchingCertificateForExistingCsr() throws Exception {
         KeyType certificateType = inMemoryPersistence.getPkiService()
                 .newClientCertificateType("TLS-RSA-mismatch", "SHA256withRSA")
@@ -1035,7 +1035,7 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-//    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.INVALID_VALUE+"}", property="key")
+    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.INVALID_KEY_SIZE+"}", property="key")
     public void testUpdatePropertiesSymmetricKeyWithImproperSecretKey() throws Exception {
         KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128-props-sk", "AES", 128).add();
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
