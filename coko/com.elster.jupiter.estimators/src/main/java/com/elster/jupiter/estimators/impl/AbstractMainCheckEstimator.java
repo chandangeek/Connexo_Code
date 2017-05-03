@@ -138,6 +138,11 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
     @Override
     public EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system) {
 
+        // it is possible estimationBlocks list is empty
+        if (estimationBlocks.isEmpty()){
+            return SimpleEstimationResult.builder().build();
+        }
+
         Optional<UsagePoint> usagePoint = estimationBlocks.stream()
                 .map(EstimationBlock::getChannel)
                 .map(Channel::getChannelsContainer)
