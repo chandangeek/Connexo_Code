@@ -26,9 +26,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGrid', {
                 dataIndex: 'interval',
                 renderer: function (interval) {
                     return interval.end
-                        ? Uni.I18n.translate(
-                        'general.dateAtTime', 'MDC', '{0} at {1}',
-                        [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))])
+                        ? Uni.DateTime.formatDateTimeShort(new Date(interval.end))
                         : '';
                 },
                 flex: 1
@@ -61,9 +59,9 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGrid', {
                 flex: 1,
                 renderer: function(value){
                     var date = new Date(value);
-                    return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                    return Uni.DateTime.formatDateTimeShort(date)
                 }
-            },
+            }
         ];
 
         me.dockedItems = [

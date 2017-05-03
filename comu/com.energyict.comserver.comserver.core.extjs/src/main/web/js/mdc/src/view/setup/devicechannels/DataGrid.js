@@ -59,9 +59,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 renderer: function (value, metaData, record) {
                     var readingQualitiesPresent = !Ext.isEmpty(record.get('readingQualities')),
                         text = value
-                            ? Uni.I18n.translate(
-                                'general.dateAtTime', 'MDC', '{0} at {1}',
-                                [Uni.DateTime.formatDateShort(value), Uni.DateTime.formatTimeShort(value)])
+                            ? Uni.DateTime.formatDateTimeShort(new Date(value))
                             : '-',
                         tooltipContent = '',
                         icon = '';
@@ -145,7 +143,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 renderer: function(value){
                     if(value) {
                         var date = new Date(value);
-                        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                        return Uni.DateTime.formatDateTimeShort(date)
                     } else {
                         return '-';
                     }
@@ -233,9 +231,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
 
         if (validationInfo.estimatedByRule && !record.isModified('value')) {
             date = Ext.isDate(record.get('readingTime')) ? record.get('readingTime') : new Date(record.get('readingTime'));
-            formattedDate = Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                [Uni.DateTime.formatDateLong(date), Uni.DateTime.formatTimeLong(date)]
-            );
+            formattedDate =Uni.DateTime.formatDateTimeLong(date)
             app = validationInfo.editedInApp ? validationInfo.editedInApp.name : null;
             tooltipText = !Ext.isEmpty(app)
                 ? Uni.I18n.translate('general.estimatedOnXApp', 'MDC', 'Estimated in {0} on {1}', [app, formattedDate])

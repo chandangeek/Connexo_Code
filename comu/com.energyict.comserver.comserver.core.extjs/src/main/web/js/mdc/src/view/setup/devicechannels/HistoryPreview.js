@@ -22,9 +22,7 @@ Ext.define('Mdc.view.setup.devicechannels.HistoryPreview', {
     updateForm: function (record) {
         var me = this,
             intervalEnd = record.get('interval_end'),
-            title = Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                [Uni.DateTime.formatDateLong(intervalEnd), Uni.DateTime.formatTimeShort(intervalEnd)],
-                false),
+            title =Uni.DateTime.formatDateTime(intervalEnd,'long','short') ,
             mainValidationInfo,
             bulkValidationInfo,
             dataQualities,
@@ -281,11 +279,9 @@ Ext.define('Mdc.view.setup.devicechannels.HistoryPreview', {
                 name: 'interval',
                 renderer: function (value) {
                     return value
-                        ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                        [Uni.DateTime.formatDateLong(new Date(value.start)), Uni.DateTime.formatTimeLong(new Date(value.start))])
+                        ? Uni.DateTime.formatDateTimeLong(new Date(value.start))
                     + ' - ' +
-                    Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                        [Uni.DateTime.formatDateLong(new Date(value.end)), Uni.DateTime.formatTimeLong(new Date(value.end))])
+                    Uni.DateTime.formatDateTimeLong(new Date(value.end))
                         : '';
                 },
                 htmlEncode: false
@@ -323,7 +319,7 @@ Ext.define('Mdc.view.setup.devicechannels.HistoryPreview', {
                 name: 'reportedDateTime',
                 renderer: function (value) {
                     var date = new Date(value);
-                    return value ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(date), Uni.DateTime.formatTimeLong(date)]) : '-';
+                    return value ? Uni.DateTime.formatDateTimeLong(date)  : '-';
                 }
             },
             {

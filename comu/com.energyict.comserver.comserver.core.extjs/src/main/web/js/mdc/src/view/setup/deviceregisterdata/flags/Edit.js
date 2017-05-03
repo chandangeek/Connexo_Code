@@ -54,9 +54,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Edit', {
                         itemId: 'timeStampDisplayField',
                         renderer: function (value) {
                             if(!Ext.isEmpty(value)) {
-                                Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                                    [ Uni.DateTime.formatDateShort(new Date(value)), Uni.DateTime.formatTimeShort(new Date(value))]
-                                )
+                                Uni.DateTime.formatDateTimeShort(new Date(value))
                             }
                         },
                         submitValue: true,

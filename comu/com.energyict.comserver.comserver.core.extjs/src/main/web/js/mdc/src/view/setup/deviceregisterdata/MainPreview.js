@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
             return '-';
         }
         var date = new Date(value);
-        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(date), Uni.DateTime.formatTimeLong(date)]);
+        return Uni.DateTime.formatDateTimeLong(date) ;
     },
 
     initComponent: function () {
@@ -155,9 +155,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
     updateContent: function (registerRecord, registerBeingViewed) {
         var me = this,
             measurementDate = new Date(registerRecord.get('timeStamp')),
-            title = Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                [Uni.DateTime.formatDateLong(measurementDate), Uni.DateTime.formatTimeLong(measurementDate)],
-                false),
+            title = Uni.DateTime.formatDateTimeLong(measurementDate),
             calculatedValueField = me.down('#mdc-calculated-value-field'),
             deltaValueField = me.down('displayfield[name=deltaValue]'),
             measurementTime = me.down('displayfield[name=timeStamp]'),

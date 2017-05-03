@@ -37,9 +37,9 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
                             htmlEncode: false,
                             renderer: function (value) {
                                 return value
-                                    ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.start)), Uni.DateTime.formatTimeLong(new Date(value.start))], false)
+                                    ? Uni.DateTime.formatDateTimeShort(new Date(value.start))
                                 + ' - ' +
-                                Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.end)), Uni.DateTime.formatTimeLong(new Date(value.end))], false)
+                                Uni.DateTime.formatDateTimeShort(new Date(value.end))
                                     : '-';
                             }
                         },
@@ -50,7 +50,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
                             htmlEncode: false,
                             renderer: function (value) {
                                 return value
-                                    ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))], false)
+                                    ? Uni.DateTime.formatDateTimeShort(new Date(value))
                                     : '-';
                             }
                         },
@@ -109,9 +109,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
     loadRecord: function (record) {
         var me = this,
             interval = record.get('interval'),
-            title = Uni.I18n.translate(
-                'general.dateAtTime', 'MDC', '{0} at {1}',
-                [Uni.DateTime.formatDateLong(new Date(interval.end)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false);
+            title = Uni.DateTime.formatDateTimeShort(new Date(interval.end))
 
         me.record = record;
         Ext.suspendLayouts();
