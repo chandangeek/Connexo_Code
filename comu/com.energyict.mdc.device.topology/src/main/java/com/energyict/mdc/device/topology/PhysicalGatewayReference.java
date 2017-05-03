@@ -2,13 +2,19 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.device.topology.impl;
+package com.energyict.mdc.device.topology;
 
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.energyict.mdc.device.data.Device;
 
 import java.time.Instant;
 
+/**
+ * Represent Links between (slave) device/gateway
+ *                 between data logger slave/ data logger
+ *                 between multi-element submeter/ multi-element meter
+ * Each link is valid for a given period (=Effectivity)
+ */
 public interface PhysicalGatewayReference extends Effectivity {
 
     enum PhysicalGatewayReferenceDiscriminator {
@@ -19,7 +25,11 @@ public interface PhysicalGatewayReference extends Effectivity {
         /**
          * data logger slave to data logger reference
          */
-        DATA_LOGGER_REFERENCE
+        DATA_LOGGER_REFERENCE,
+        /**
+         * Multi-element submeter to multi-element meter reference
+         */
+        MULTI_ELEMENT_REFERENCE
     }
 
     /**
@@ -46,5 +56,11 @@ public interface PhysicalGatewayReference extends Effectivity {
      * Closes the current interval.
      */
     void terminate(Instant closingDate);
+
+    /**
+     * Synonym for 'is not effective at this moment'
+     * @return true if the 'effectivity' is ended, false if not
+     */
+    boolean isTerminated();
 
 }

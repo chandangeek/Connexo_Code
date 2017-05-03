@@ -71,6 +71,8 @@ import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.device.topology.impl.multielement.MultiElementDeviceModule;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -145,6 +147,7 @@ public class InMemoryIntegrationPersistence {
     private TaskService taskService;
     private DeviceDataModelService deviceDataModelService;
     private ServerTopologyService topologyService;
+    private MultiElementDeviceService multiElementDeviceService;
     private SchedulingService schedulingService;
     private InMemoryBootstrapModule bootstrapModule;
     private PropertySpecService propertySpecService;
@@ -265,7 +268,8 @@ public class InMemoryIntegrationPersistence {
                 new DeviceDataModule(),
                 new SchedulingModule(),
                 new TopologyModule(),
-                new CalendarModule());
+                new CalendarModule(),
+                new MultiElementDeviceModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
@@ -294,6 +298,7 @@ public class InMemoryIntegrationPersistence {
             this.schedulingService = injector.getInstance(SchedulingService.class);
             this.deviceDataModelService = injector.getInstance(DeviceDataModelService.class);
             this.topologyService = injector.getInstance(ServerTopologyService.class);
+            this.multiElementDeviceService = injector.getInstance(MultiElementDeviceService.class);
             this.deviceMessageSpecificationService = injector.getInstance(DeviceMessageSpecificationService.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.userService = injector.getInstance(UserService.class);
@@ -373,6 +378,10 @@ public class InMemoryIntegrationPersistence {
         return this.topologyService;
     }
 
+    public MultiElementDeviceService getMultiElementDeviceService(){
+        return this.multiElementDeviceService;
+    }
+
     public SchedulingService getSchedulingService() {
         return schedulingService;
     }
@@ -383,6 +392,10 @@ public class InMemoryIntegrationPersistence {
 
     public DataModel getTopologyDataModel() {
         return this.topologyService.dataModel();
+    }
+
+    public DataModel getMultiEditServiceDataModel() {
+        return topologyService.dataModel();
     }
 
     public Thesaurus getThesaurus() {

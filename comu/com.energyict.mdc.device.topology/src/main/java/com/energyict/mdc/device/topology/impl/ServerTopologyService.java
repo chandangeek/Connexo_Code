@@ -7,18 +7,20 @@ package com.energyict.mdc.device.topology.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.topology.PhysicalGatewayReference;
 import com.energyict.mdc.device.topology.TopologyService;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Adds behavior to {@link TopologyService} that is specific
  * to server side components.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2014-12-05 (14:23)
  */
 public interface ServerTopologyService extends TopologyService {
 
-    public DataModel dataModel();
+    DataModel dataModel();
 
     /**
      * Sets or updates the default {@link ConnectionTask} on
@@ -29,6 +31,14 @@ public interface ServerTopologyService extends TopologyService {
      * @param device The master device
      * @param connectionTask The new default ConnectionTask
      */
-    public void setOrUpdateDefaultConnectionTaskOnComTasksInDeviceTopology(Device device, ConnectionTask connectionTask);
+    void setOrUpdateDefaultConnectionTaskOnComTasksInDeviceTopology(Device device, ConnectionTask connectionTask);
+
+    Optional<PhysicalGatewayReference> getPhysicalGatewayReference(Device slave, Instant when);
+
+    List<PhysicalGatewayReference> getPhysicalGateWayReferencesFrom(Device slave, Instant when);
+
+    void terminateTemporal(PhysicalGatewayReference gatewayReference, Instant now);
+
+    void slaveTopologyChanged(Device slave, Optional<Device> gateway);
 
 }

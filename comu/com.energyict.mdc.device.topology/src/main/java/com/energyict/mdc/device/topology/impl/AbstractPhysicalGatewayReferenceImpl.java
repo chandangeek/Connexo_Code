@@ -10,6 +10,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ImplField;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.PhysicalGatewayReference;
+import com.energyict.mdc.device.topology.impl.multielement.MultiElementDeviceReferenceImpl;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -41,7 +43,8 @@ public abstract class AbstractPhysicalGatewayReferenceImpl implements PhysicalGa
     public static final Map<String, Class<? extends PhysicalGatewayReference>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends PhysicalGatewayReference>>of(
                     "" + PhysicalGatewayReferenceDiscriminator.DEFAULT.ordinal(), PhysicalGatewayReferenceImpl.class,
-                    "" + PhysicalGatewayReferenceDiscriminator.DATA_LOGGER_REFERENCE.ordinal(), DataLoggerReferenceImpl.class);
+                    "" + PhysicalGatewayReferenceDiscriminator.DATA_LOGGER_REFERENCE.ordinal(), DataLoggerReferenceImpl.class,
+                    "" + PhysicalGatewayReferenceDiscriminator.MULTI_ELEMENT_REFERENCE.ordinal(), MultiElementDeviceReferenceImpl.class);
 
     private long id;
     private Reference<Device> origin = ValueReference.absent();
@@ -83,6 +86,11 @@ public abstract class AbstractPhysicalGatewayReferenceImpl implements PhysicalGa
             throw new IllegalArgumentException();
         }
         interval = interval.withEnd(closingDate);
+    }
+
+    @Override
+    public boolean isTerminated() {
+        return getRange().hasUpperBound();
     }
 
     @Override

@@ -6,13 +6,10 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Membership;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.topology.G3CommunicationPath;
