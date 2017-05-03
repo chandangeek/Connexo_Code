@@ -25,9 +25,9 @@ Ext.define('Pkj.view.CertificatesOverview', {
                 ui: 'large',
                 title: Uni.I18n.translate('general.certificates', 'PKJ', 'Certificates'),
                 items: [
-                    {
-                        xtype: 'certificateFilter'
-                    },
+                    //{
+                    //    xtype: 'certificateFilter'
+                    //},
                     {
                         xtype: 'preview-container',
                         grid: {

@@ -19,22 +19,17 @@ Ext.define('Pkj.view.TrustedCertificatesGrid', {
             {
                 header: Uni.I18n.translate('general.alias', 'PKJ', 'Alias'),
                 dataIndex: 'alias',
-                flex: 1
-            },
-            {
-                header: Uni.I18n.translate('general.keyUsage', 'PKJ', 'Key usage'),
-                dataIndex: 'type',
-                flex: 1
+                flex: 2
             },
             {
                 header: Uni.I18n.translate('general.issuer', 'PKJ', 'Issuer'),
                 dataIndex: 'issuer',
-                flex: 1
+                flex: 3
             },
             {
                 header: Uni.I18n.translate('general.subject', 'PKJ', 'Subject'),
                 dataIndex: 'subject',
-                flex: 1
+                flex: 3
             },
             {
                 header: Uni.I18n.translate('general.status', 'PKJ', 'Status'),
