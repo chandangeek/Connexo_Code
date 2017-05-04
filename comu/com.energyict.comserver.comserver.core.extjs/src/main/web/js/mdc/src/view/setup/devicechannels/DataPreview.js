@@ -509,6 +509,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     renderer: function (value) {
                         if (!value) {
                             this.hide();
+                        } else {
+                            return value;
                         }
                     }
                 }
@@ -554,6 +556,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                         renderer: function (value) {
                             if (!value) {
                                 this.hide();
+                            } else {
+                                return value;
                             }
                         }
                     }
