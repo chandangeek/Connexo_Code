@@ -15,9 +15,11 @@ import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ExportTaskFinder;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
+import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -215,6 +217,12 @@ public class DataExportTaskResource {
                     if (info.destinations.isEmpty()) {
                         throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
                     }
+                    if (info.standardDataSelector.exportComplete.equals(MissingDataOption.EXCLUDE_OBJECT)) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.NOT_SUPPORTED_PROPERTY_VALUE, "");
+                    }
+                    if (info.standardDataSelector.validatedDataOption.equals(ValidatedDataOption.EXCLUDE_OBJECT)) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.NOT_SUPPORTED_PROPERTY_VALUE, "");
+                    }
                     DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = builder.selectingMeterReadings()
                             .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
                             .fromUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
@@ -242,7 +250,7 @@ public class DataExportTaskResource {
                             .map(r -> meteringService.getReadingType(r.mRID))
                             .flatMap(Functions.asStream())
                             .forEach(selectorBuilder::fromReadingType);
-                    if(info.standardDataSelector.purpose.id != null){
+                    if (info.standardDataSelector.purpose.id != null) {
                         selectorBuilder = selectorBuilder.fromMetrologyPurpose(metrologyConfigurationService.findMetrologyPurpose(info.standardDataSelector.purpose.id).get());
                     }
                     selectorBuilder.endSelection();
@@ -371,7 +379,7 @@ public class DataExportTaskResource {
                     .setExportContinuousData(info.standardDataSelector.exportContinuousData)
                     .setExportOnlyIfComplete(info.standardDataSelector.exportComplete)
                     .setValidatedDataOption(info.standardDataSelector.validatedDataOption);
-            if(info.standardDataSelector.purpose.id != null) {
+            if (info.standardDataSelector.purpose.id != null) {
                 updater = updater.setMetrologyPurpose(metrologyPurpose(info.standardDataSelector.purpose.id));
             } else {
                 updater = updater.setMetrologyPurpose(null);
@@ -668,8 +676,8 @@ public class DataExportTaskResource {
         return meteringGroupsService.findUsagePointGroup(((Number) usagePointGroupId).longValue()).orElse(null);
     }
 
-    private MetrologyPurpose metrologyPurpose(Object purposeId){
-        return metrologyConfigurationService.findMetrologyPurpose(((Number)purposeId).longValue()).orElse(null);
+    private MetrologyPurpose metrologyPurpose(Object purposeId) {
+        return metrologyConfigurationService.findMetrologyPurpose(((Number) purposeId).longValue()).orElse(null);
     }
 
     private RelativePeriod getRelativePeriod(RelativePeriodInfo relativePeriodInfo) {
