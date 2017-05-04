@@ -22,7 +22,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.CalculatedReadingRecord;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
-import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -43,16 +42,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static java.util.Comparator.naturalOrder;
-import static java.util.Comparator.nullsLast;
 
 public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel {
 
@@ -273,10 +267,14 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
         if (!isRegular()) {
             return Collections.emptyList();
         }
-        return getTimeSeries().getJournalEntries(interval).stream()
+        List<BaseReadingRecord> aggregatedDataToMerge = getCalculatedIntervalReadings(interval).entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
+        List<BaseReadingRecord> journaledData = getTimeSeries().getJournalEntries(interval).stream()
                 .map(entry -> new JournaledChannelReadingRecordImpl(this, entry))
                 .map(reading -> reading.filter(readingType))
-                .collect(ExtraCollectors.toImmutableList());
+                .collect(Collectors.toList());
+        aggregatedDataToMerge.addAll(journaledData);
+
+        return aggregatedDataToMerge;
     }
 
     @Override
