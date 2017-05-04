@@ -741,7 +741,7 @@ public class DeviceResource {
                     }
                 });
         return PagedInfoList
-                .fromPagedList(
+                .fromCompleteList(
                         "categories",
                         ListPager.of(infos).from(queryParameters).find(),
                         queryParameters);
