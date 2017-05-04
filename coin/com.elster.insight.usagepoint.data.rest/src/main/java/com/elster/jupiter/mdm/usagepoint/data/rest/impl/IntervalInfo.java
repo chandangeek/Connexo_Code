@@ -12,11 +12,11 @@ public class IntervalInfo {
     public long count;
     public String timeUnit = TimeDuration.TimeUnit.SECONDS.getDescription();
 
-    public IntervalInfo(){
+    public IntervalInfo() {
 
     }
 
-    public IntervalInfo(long id, String name, TimeDuration timeDuration){
+    public IntervalInfo(long id, String name, TimeDuration timeDuration) {
         this.id = id;
         this.name = name;
         this.count = timeDuration.getCount();
