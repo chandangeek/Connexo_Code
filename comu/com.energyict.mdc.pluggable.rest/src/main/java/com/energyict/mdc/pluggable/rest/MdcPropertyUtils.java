@@ -139,6 +139,12 @@ public class MdcPropertyUtils {
                     }
                 }
             }
+            else if (propertyType instanceof com.elster.jupiter.properties.rest.SimplePropertyType) {
+                com.elster.jupiter.properties.rest.SimplePropertyType simplePropertyType = (com.elster.jupiter.properties.rest.SimplePropertyType) propertyType;
+                if (com.elster.jupiter.properties.rest.SimplePropertyType.IDWITHNAME.equals(simplePropertyType)) {
+                    possibleValues = device.getDeviceType().getDeviceMessageFiles();
+                }
+            }
             return possibleValues;
         };
         return convertPropertySpecsToPropertyInfos(propertySpecs, properties, provider);
