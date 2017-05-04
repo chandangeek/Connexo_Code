@@ -336,9 +336,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 title: Uni.I18n.translate('general.removeX', 'MDC', "Remove '{0}'?", Ext.htmlEncode(record.get('name')), false),
                 fn: function (state) {
                     if (state === 'confirm') {
-                        me.getSecurityAccessorsGrid().setLoading();
                         record.destroy({
-                            callback: function () {
+                            success: function() {
+                                me.getSecurityAccessorsGrid().setLoading();
                                 me.getApplication().fireEvent('acknowledge',
                                     Uni.I18n.translate('securityaccessors.removeSecurityAccessorSuccess', 'MDC', 'Security accessor removed')
                                 );

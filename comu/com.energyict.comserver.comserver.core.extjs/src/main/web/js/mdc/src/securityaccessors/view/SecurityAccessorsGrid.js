@@ -34,7 +34,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
             {
                 header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                 dataIndex: 'keyType',
-                flex: 1,
+                flex: 2,
                 renderer: function (value) {
                     return Ext.isEmpty(value) || Ext.isEmpty(value.name) ? '-' : value.name;
                 }
@@ -49,7 +49,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                width: 120,
+                width: 150,
                 menu: {
                     xtype: 'security-accessors-action-menu',
                     itemId: 'mdc-security-accessors-action-menu'
