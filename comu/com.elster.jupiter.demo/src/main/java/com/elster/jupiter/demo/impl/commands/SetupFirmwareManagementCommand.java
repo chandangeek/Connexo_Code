@@ -12,7 +12,7 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
+import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
 import java.io.IOException;

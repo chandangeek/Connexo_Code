@@ -37,7 +37,6 @@ import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -45,14 +44,14 @@ import java.util.Optional;
 /**
  * Device Type using WebRTUKP Protocol.
  * 1 LoadProfile with 32 channels
- * Device Configuration is 'DataLogger Enabled'
+ * Device Configuration is 'MultiElement Enabled'
  */
-public class CreateDataLoggerCommand {
+public class CreateMultiElementDeviceCommand {
 
     //   private static final String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
 
-    private final static String DATA_LOGGER_NAME = "DemoDataLogger";
-    private final static String DATA_LOGGER_SERIAL = "660-05A043-1428";
+    private final static String MULTI_ELEMENT_DEVICE_NAME = "Demo Multi Element Device";
+    private final static String MULTI_ELEMENT_SERIAL = "660-05A043-1428b";
     private final static String CONNECTION_TASK_PLUGGABLE_CLASS_NAME = "OutboundTcpIpConnectionType";
 
     private final DeviceService deviceService;
@@ -63,16 +62,16 @@ public class CreateDataLoggerCommand {
     private final Provider<ActivateDevicesCommand> lifecyclePostBuilder;
 
     private Map<ComTaskTpl, ComTask> comTasks;
-    private String name = DATA_LOGGER_NAME;
-    private String serialNumber = DATA_LOGGER_SERIAL;
+    private String name = MULTI_ELEMENT_DEVICE_NAME;
+    private String serialNumber = MULTI_ELEMENT_SERIAL;
 
     @Inject
-    public CreateDataLoggerCommand(DeviceService deviceService,
-                                   ProtocolPluggableService protocolPluggableService,
-                                   ConnectionTaskService connectionTaskService,
-                                   Provider<DeviceBuilder> deviceBuilderProvider,
-                                   Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
-                                   Provider<ActivateDevicesCommand> lifecyclePostBuilder) {
+    public CreateMultiElementDeviceCommand(DeviceService deviceService,
+                                           ProtocolPluggableService protocolPluggableService,
+                                           ConnectionTaskService connectionTaskService,
+                                           Provider<DeviceBuilder> deviceBuilderProvider,
+                                           Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
+                                           Provider<ActivateDevicesCommand> lifecyclePostBuilder) {
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
         this.connectionTaskService = connectionTaskService;
@@ -81,7 +80,7 @@ public class CreateDataLoggerCommand {
         this.lifecyclePostBuilder = lifecyclePostBuilder;
     }
 
-    public void setDataLoggerName(String name) {
+    public void setMultiElementDeviceName(String name) {
         this.name = name;
     }
 
@@ -106,27 +105,24 @@ public class CreateDataLoggerCommand {
         findOrCreateRequiredObjects();
 
         // 3. Create the device type
-        DeviceType deviceType = (Builders.from(DeviceTypeTpl.WEBRTU_Z2).get());
+        DeviceType deviceType = (Builders.from(DeviceTypeTpl.MULTI_ELEMENT).get());
 
         // 4. Create the configuration
-        DeviceConfiguration configuration = createDataLoggerDeviceConfiguration(deviceType);
+        DeviceConfiguration configuration = createMultiElementDeviceConfiguration(deviceType);
 
+        createMultiElementDevice(configuration);
         // 5. Create the gateway device (and set it to the 'Active' life cycle state)
-        lifecyclePostBuilder.get()
-                .setDevices(Collections.singletonList(createDataLoggerDevice(configuration)))
-                .run();
-//
-//        //6. Create Device Group "Data loggers"
-//        EndDeviceGroup dataLoggerGroup = Builders.from(DeviceGroupTpl.DATA_LOGGERS).get();
-//        Builders.from(FavoriteGroupBuilder.class).withGroup(dataLoggerGroup).get();
+//        lifecyclePostBuilder.get()
+//                .setDevices(Collections.singletonList(createMultiElementDevice(configuration)))
+//                .run();
 
     }
 
-    private DeviceConfiguration createDataLoggerDeviceConfiguration(DeviceType deviceType) {
-        DeviceConfiguration config = Builders.from(DeviceConfigurationTpl.DATA_LOGGER).withDeviceType(deviceType)
+    private DeviceConfiguration createMultiElementDeviceConfiguration(DeviceType deviceType) {
+        DeviceConfiguration config = Builders.from(DeviceConfigurationTpl.MULTI_ELEMENT_DEVICE).withDeviceType(deviceType)
                 .withCanActAsGateway(true)
                 .withDirectlyAddressable(true)
-                .withDataLoggerEnabled(true)
+                .withMultiElementEnabled(true)
                 .withPostBuilder(this.connectionMethodsProvider.get().withRetryDelay(5))
                 .withPostBuilder(new ChannelsOnDevConfPostBuilder())
                 .get();
@@ -148,7 +144,7 @@ public class CreateDataLoggerCommand {
         return comTasks.put(comTaskTpl, Builders.from(comTaskTpl).get());
     }
 
-    private Device createDataLoggerDevice(DeviceConfiguration configuration) {
+    private Device createMultiElementDevice(DeviceConfiguration configuration) {
         Device device = deviceBuilderProvider.get()
                 .withName(name)
                 .withSerialNumber(serialNumber)
@@ -156,10 +152,10 @@ public class CreateDataLoggerCommand {
                 .withYearOfCertification(2015)
                 .withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder())
                 .get();
-        addConnectionTasksToDevice(device);
-        device = deviceBuilderProvider.get().withName(name).get();
-        addSecurityPropertiesToDevice(device);
-        device = deviceBuilderProvider.get().withName(name).get();
+       // addConnectionTasksToDevice(device);
+       // device = deviceBuilderProvider.get().withName(name).get();
+       // addSecurityPropertiesToDevice(device);
+       // device = deviceBuilderProvider.get().withName(name).get();
         addComTaskToDevice(device, ComTaskTpl.READ_DATA_LOGGER_REGISTER_DATA);
         addComTaskToDevice(device, ComTaskTpl.READ_DATA_LOGGER_LOAD_PROFILE_DATA);
         return deviceBuilderProvider.get().withName(name).get();
@@ -197,7 +193,7 @@ public class CreateDataLoggerCommand {
                         .findFirst()
                         .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5.getName() + "."));
         TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password("ntaSim"));
+        typedProperties.setProperty("ClientMacAddress", BigDecimal.ONE);
         securityPropertySetHigh
                 .getPropertySpecs()
                 .stream()
@@ -226,7 +222,9 @@ public class CreateDataLoggerCommand {
                         .findFirst()
                         .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SecurityPropertySetTpl.NO_SECURITY.getName() + "."));
         TypedProperties typedPropertiesNone = TypedProperties.empty();
+        typedPropertiesNone.setProperty("ClientMacAddress", BigDecimal.ONE);
         device.setSecurityProperties(securityPropertySetNone, typedProperties);
+
         device.save();
     }
 

@@ -93,7 +93,7 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
 import com.energyict.mdc.app.impl.MdcAppInstaller;
-import com.energyict.mdc.common.Password;
+import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmModule;
 import com.energyict.mdc.device.alarms.impl.templates.AbstractDeviceAlarmTemplate;
@@ -145,9 +145,7 @@ import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.favorites.impl.FavoritesModule;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.impl.FirmwareModule;
-import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.impl.MdcIOModule;
-import com.energyict.mdc.io.impl.SerialIONoModemComponentServiceImpl;
+import com.energyict.mdc.io.impl.SerialIOAtModemComponentServiceImpl;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
 import com.energyict.mdc.issue.datacollection.impl.templates.AbstractDataCollectionTemplate;
@@ -163,9 +161,8 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.pluggable.rest.MdcPropertyValueConverterFactory;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
-import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
@@ -176,19 +173,21 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.io.SerialComponentService;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
-import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import com.energyict.protocolimpl.elster.a3.AlphaA3;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -246,14 +245,14 @@ public class DemoTest {
             License license = mockLicense();
             when(licenseService.getLicenseForApplication("MDC")).thenReturn(Optional.of(license));
             bind(LicenseService.class).toInstance(licenseService);
-            bind(SerialComponentService.class).to(SerialIONoModemComponentServiceImpl.class).in(Scopes.SINGLETON);
+            bind(SerialComponentService.class).to(SerialIOAtModemComponentServiceImpl.class).in(Scopes.SINGLETON);
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(KieResources.class).toInstance(mock(KieResources.class));
             bind(KnowledgeBaseFactoryService.class).toInstance(mock(KnowledgeBaseFactoryService.class, RETURNS_DEEP_STUBS));
             bind(KnowledgeBuilderFactoryService.class).toInstance(mock(KnowledgeBuilderFactoryService.class, RETURNS_DEEP_STUBS));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HttpService.class).toInstance(mock(HttpService.class));
-            bind(LoadProfileFactory.class).toInstance(mock(LoadProfileFactory.class));
+            bind(MdcPropertyValueConverterFactory.class).toInstance(mock(MdcPropertyValueConverterFactory.class));
         }
 
         private License mockLicense() {
@@ -365,7 +364,6 @@ public class DemoTest {
                 new AppServiceModule(),
                 new TimeModule(),
                 new ExportModule(),
-                new MdcIOModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
@@ -542,7 +540,7 @@ public class DemoTest {
             }
             ctx.commit();
         }
-        assertThat(gateway.getDeviceProtocolProperties().getProperty("Short_MAC_address")).isEqualTo(BigDecimal.ZERO);
+        assertThat(gateway.getDeviceProtocolProperties().getProperty("ValidateInvokeId")).isEqualTo(Boolean.TRUE);
         assertThat(gateway.getComTaskExecutions()).hasSize(1);
     }
 
@@ -664,7 +662,7 @@ public class DemoTest {
             }
             ctx.commit();
         }
-        assertThat(device.getDeviceProtocolProperties().getProperty("MAC_address")).isEqualTo(MAC_ADDRESS);
+        assertThat(device.getDeviceProtocolProperties().getProperty("callHomeId")).isEqualTo(MAC_ADDRESS);
     }
 
     @Test
@@ -762,6 +760,9 @@ public class DemoTest {
 
     protected void doPreparations() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            Services.nlsService(injector.getInstance(com.energyict.mdc.upl.nls.NlsService.class));
+            Services.propertySpecService(injector.getInstance(com.energyict.mdc.upl.properties.PropertySpecService.class));
+
             injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(DataVaultServiceImpl.class);
@@ -794,7 +795,7 @@ public class DemoTest {
         protocolPluggableService.newDeviceProtocolPluggableClass("ALPHA_A3", AlphaA3.class.getName()).save();
         protocolPluggableService.newDeviceProtocolPluggableClass("RTU_PLUS_G3", com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer.class.getName()).save();
         protocolPluggableService.newDeviceProtocolPluggableClass("AM540", com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540.class.getName()).save();
-        protocolPluggableService.newConnectionTypePluggableClass("OutboundTcpIp", OutboundTcpIpConnectionType.class.getName());
+        protocolPluggableService.newConnectionTypePluggableClass("OutboundTcpIpConnectionType", OutboundTcpIpConnectionType.class.getName());
     }
 
     private void fixMissedDynamicReference() {

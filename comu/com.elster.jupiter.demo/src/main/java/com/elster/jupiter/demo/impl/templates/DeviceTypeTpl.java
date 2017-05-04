@@ -10,7 +10,7 @@ import com.elster.jupiter.demo.impl.builders.DeviceTypeBuilder;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
+import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -129,6 +129,16 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
             Arrays.<LoadProfileTypeTpl>asList(com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl._15_MIN_ELECTRICITY, com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.DAILY_ELECTRICITY, com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
             Collections.singletonList(com.elster.jupiter.demo.impl.templates.LogBookTypeTpl.GENERIC)),
     WEBRTU_Z2("WebRTU Z2", "com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP", 1, OutboundTCPComPortPoolTpl.ORANGE,
+            Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.DATA_LOGGER_1, RegisterTypeTpl.DATA_LOGGER_2, RegisterTypeTpl.DATA_LOGGER_3, RegisterTypeTpl.DATA_LOGGER_4, RegisterTypeTpl.DATA_LOGGER_5, RegisterTypeTpl.DATA_LOGGER_6
+                    , RegisterTypeTpl.DATA_LOGGER_7, RegisterTypeTpl.DATA_LOGGER_8, RegisterTypeTpl.DATA_LOGGER_9, RegisterTypeTpl.DATA_LOGGER_10, RegisterTypeTpl.DATA_LOGGER_11, RegisterTypeTpl.DATA_LOGGER_12
+                    , RegisterTypeTpl.DATA_LOGGER_13, RegisterTypeTpl.DATA_LOGGER_14, RegisterTypeTpl.DATA_LOGGER_15, RegisterTypeTpl.DATA_LOGGER_16, RegisterTypeTpl.DATA_LOGGER_17, RegisterTypeTpl.DATA_LOGGER_18
+                    , RegisterTypeTpl.DATA_LOGGER_19, RegisterTypeTpl.DATA_LOGGER_20, RegisterTypeTpl.DATA_LOGGER_21, RegisterTypeTpl.DATA_LOGGER_22, RegisterTypeTpl.DATA_LOGGER_23, RegisterTypeTpl.DATA_LOGGER_24
+                    , RegisterTypeTpl.DATA_LOGGER_25, RegisterTypeTpl.DATA_LOGGER_26, RegisterTypeTpl.DATA_LOGGER_27, RegisterTypeTpl.DATA_LOGGER_28, RegisterTypeTpl.DATA_LOGGER_29, RegisterTypeTpl.DATA_LOGGER_30
+                    , RegisterTypeTpl.DATA_LOGGER_31, RegisterTypeTpl.DATA_LOGGER_32
+            ),
+            Collections.singletonList(LoadProfileTypeTpl.DATA_LOGGER_32),
+            Collections.emptyList()),
+    MULTI_ELEMENT("Multi-element", "com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP", 1, OutboundTCPComPortPoolTpl.ORANGE,
             Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.DATA_LOGGER_1, RegisterTypeTpl.DATA_LOGGER_2, RegisterTypeTpl.DATA_LOGGER_3, RegisterTypeTpl.DATA_LOGGER_4, RegisterTypeTpl.DATA_LOGGER_5, RegisterTypeTpl.DATA_LOGGER_6
                     , RegisterTypeTpl.DATA_LOGGER_7, RegisterTypeTpl.DATA_LOGGER_8, RegisterTypeTpl.DATA_LOGGER_9, RegisterTypeTpl.DATA_LOGGER_10, RegisterTypeTpl.DATA_LOGGER_11, RegisterTypeTpl.DATA_LOGGER_12
                     , RegisterTypeTpl.DATA_LOGGER_13, RegisterTypeTpl.DATA_LOGGER_14, RegisterTypeTpl.DATA_LOGGER_15, RegisterTypeTpl.DATA_LOGGER_16, RegisterTypeTpl.DATA_LOGGER_17, RegisterTypeTpl.DATA_LOGGER_18
