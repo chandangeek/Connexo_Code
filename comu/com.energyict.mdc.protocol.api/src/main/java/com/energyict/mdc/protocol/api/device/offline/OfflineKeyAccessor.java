@@ -25,7 +25,7 @@ public interface OfflineKeyAccessor<T extends SecurityValueWrapper> extends Offl
      * The actual value is the value to be used at present
      * @return The current value
      */
-    T getActualValue();
+    Optional<T> getActualValue();
 
     /**
      * Whenever this security element is in the process of being renewed. The future value is saved in the temp field.
