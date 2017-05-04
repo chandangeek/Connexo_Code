@@ -153,12 +153,11 @@ class ChannelsContainerValidationList {
     }
 
     Optional<Instant> getLastChecked() {
-        return channelsContainerValidations.stream()
+        return ChannelValidationContainer.getLastChecked(channelsContainerValidations.stream()
                 .filter(ChannelsContainerValidation::isActive)
                 .filter(channelsContainerValidation -> channelsContainerValidation.getChannelValidations().stream().anyMatch(ChannelValidation::hasActiveRules))
-                .map(ChannelsContainerValidation::getMinLastChecked)
-                .filter(Objects::nonNull)
-                .min(naturalOrder());
+                .flatMap(channelsContainerValidation -> channelsContainerValidation.getChannelValidations().stream())
+                .collect(Collectors.toList()));
     }
 
     Optional<Instant> getLastValidationRun() {

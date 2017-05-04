@@ -4,12 +4,16 @@
 
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.metering.Channel;
+
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ChannelValidationContainer {
@@ -53,41 +57,29 @@ public class ChannelValidationContainer {
     }
 
     static Optional<Instant> getLastChecked(Collection<? extends ChannelValidation> validations) {
-        Optional<Instant> lastChecked = getLastCheckedForCompleteRanges(validations.stream());
-        if (lastChecked.isPresent()) {
-            return lastChecked;
-        } else {
-            return getLastChecked(validations.stream());
+        if (validations.stream().filter(ChannelValidation::hasActiveRules).map(ChannelValidation::getLastChecked).anyMatch(e -> e == null)) {
+            return Optional.empty();
         }
+        Map<Channel, List<ChannelValidation>> vals = validations.stream().collect(Collectors.groupingBy(ChannelValidation::getChannel, Collectors.toList()));
+        return vals.values().stream().map(ChannelValidationContainer::getLastCheckedForChannel).filter(Optional::isPresent).map(Optional::get).min(Comparator.naturalOrder());
     }
 
-    static Optional<Instant> getLastChecked(Stream<? extends ChannelValidation> validations) {
-        // if any is null, then we should return Optional.empty()
-        return validations
-                .filter(ChannelValidation::hasActiveRules)
-                .map(ChannelValidation::getLastChecked)
-                .map(instant -> instant == null ? Instant.MIN : instant)
-                .min(Comparator.naturalOrder())
-                .flatMap(instant -> Instant.MIN.equals(instant) ? Optional.empty() : Optional.of(instant));
-    }
-
-    static Optional<Instant> getLastCheckedForCompleteRanges(Stream<? extends ChannelValidation> validations) {
-        // if any is null, then we should return Optional.empty()
-        return validations
+    static Optional<Instant> getLastCheckedForChannel(List<ChannelValidation> channelValidations) {
+        return Optional.ofNullable(channelValidations.stream()
                 .filter(ChannelValidation::hasActiveRules)
                 .filter(ChannelValidationContainer::isIncompleteRange)
                 .map(ChannelValidation::getLastChecked)
-                .map(instant -> instant == null ? Instant.MIN : instant)
-                .min(Comparator.naturalOrder())
-                .flatMap(instant -> Instant.MIN.equals(instant) ? Optional.empty() : Optional.of(instant));
+                .min(Comparator.naturalOrder()).orElseGet(() -> channelValidations.stream()
+                        .filter(ChannelValidation::hasActiveRules)
+                        .map(ChannelValidation::getLastChecked)
+                        .max(Comparator.naturalOrder())
+                        .orElse(null)));
     }
 
     static boolean isIncompleteRange(ChannelValidation channelValidation) {
-        if (channelValidation.getChannelsContainerValidation().getRange().hasUpperBound() && channelValidation.getLastChecked() != null) {
-            return channelValidation.getLastChecked().isBefore(channelValidation.getChannelsContainerValidation().getRange().upperEndpoint());
-        } else {
-            return true;
-        }
+        return channelValidation.getChannelsContainerValidation().getRange().contains(channelValidation.getLastChecked())
+                && (!channelValidation.getChannelsContainerValidation().getRange().hasUpperBound()
+                || channelValidation.getLastChecked().isBefore(channelValidation.getChannelsContainerValidation().getRange().upperEndpoint()));
     }
 
     boolean isEmpty() {
