@@ -5,7 +5,6 @@
 package com.energyict.protocolimplv2.abnt.common.dialects;
 
 import com.energyict.CustomPropertiesPersistenceSupportTest;
-
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

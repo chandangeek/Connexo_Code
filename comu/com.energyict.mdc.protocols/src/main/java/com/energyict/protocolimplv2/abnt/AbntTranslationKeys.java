@@ -5,7 +5,6 @@
 package com.energyict.protocolimplv2.abnt;
 
 import com.elster.jupiter.nls.TranslationKey;
-
 import com.energyict.protocolimplv2.abnt.common.AbntProperties;
 
 /**

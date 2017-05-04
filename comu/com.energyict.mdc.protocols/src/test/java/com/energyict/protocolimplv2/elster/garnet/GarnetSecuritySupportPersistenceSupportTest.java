@@ -5,7 +5,6 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
 import com.energyict.CustomPropertiesPersistenceSupportTest;
-
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

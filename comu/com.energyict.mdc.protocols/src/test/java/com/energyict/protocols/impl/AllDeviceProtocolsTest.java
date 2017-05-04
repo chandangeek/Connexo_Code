@@ -19,22 +19,16 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.protocols.mdc.InboundDeviceProtocolRule;
+import com.energyict.mdc.upl.io.SerialComponentService;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.protocols.mdc.services.impl.InboundDeviceProtocolRule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 
 import com.energyict.license.LicensedProtocolRule;
@@ -79,6 +73,14 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class AllDeviceProtocolsTest {
 
+    private static final Set<String> NO_LONGER_SUPPORTED = new HashSet<>();
+
+    static {
+        NO_LONGER_SUPPORTED.add("com.energyict.rtuprotocol.EIWeb");      //This old version of the EIWeb protocol is in mdwutil.jar, not available in Connexo
+        NO_LONGER_SUPPORTED.add("com.energyict.rtuprotocol.Echelon");
+        NO_LONGER_SUPPORTED.add("com.energyict.rtuprotocol.RtuServer");
+    }
+
     @Mock
     private BundleContext bundleContext;
     @Mock
@@ -102,11 +104,7 @@ public class AllDeviceProtocolsTest {
     @Mock
     private TransactionService transactionService;
     @Mock
-    private com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
-    @Mock
     private PropertySpecService propertySpecService;
-    @Mock
-    private TopologyService topologyService;
     @Mock
     private SerialComponentService serialComponentService;
     @Mock
@@ -125,8 +123,6 @@ public class AllDeviceProtocolsTest {
     private ProtocolPluggableService protocolPluggableService;
     @Mock
     private DeviceMessageFileService deviceMessageFileService;
-    @Mock
-    private LoadProfileFactory loadProfileFactory;
 
     private InMemoryBootstrapModule bootstrapModule;
     private DeviceProtocolService deviceProtocolService;
@@ -139,7 +135,6 @@ public class AllDeviceProtocolsTest {
                 Guice.createInjector(
                         new MockModule(),
                         this.bootstrapModule,
-                        new MdcIOModule(),
                         new ProtocolsModule());
         this.deviceProtocolService = injector.getInstance(DeviceProtocolService.class);
     }
@@ -163,7 +158,10 @@ public class AllDeviceProtocolsTest {
     public void testAllOutboundProtocols() {
         final Set<String> descriptions = new HashSet<>();
 
-        Stream.of(LicensedProtocolRule.values()).forEach(rule -> this.testProtocolCreationAndUniqueDescription(rule, descriptions));
+        Stream.of(LicensedProtocolRule.values())
+                .filter(licensedProtocolRule -> (licensedProtocolRule.getCode() < 10000))
+                .filter(licensedProtocolRule -> !NO_LONGER_SUPPORTED.contains(licensedProtocolRule.getClassName()))
+                .forEach(rule -> this.testProtocolCreationAndUniqueDescription(rule, descriptions));
         System.out.println("Successfully tested the creation of " + LicensedProtocolRule.values().length + " outbound protocol(s)");
     }
 
@@ -180,12 +178,14 @@ public class AllDeviceProtocolsTest {
         assertThat(protocol).isNotNull();
 
         String description = null;
-        if (protocol instanceof MeterProtocol) {
-            description = ((MeterProtocol) protocol).getProtocolDescription();
-        } else if (protocol instanceof SmartMeterProtocol) {
-            description = ((SmartMeterProtocol) protocol).getProtocolDescription();
-        } else if (protocol instanceof DeviceProtocol) {
-            description = ((DeviceProtocol) protocol).getProtocolDescription();
+        if (protocol instanceof com.energyict.mdc.upl.MeterProtocol) {
+            com.energyict.mdc.upl.MeterProtocol uplMeterProtocol = (com.energyict.mdc.upl.MeterProtocol) protocol;
+            description = uplMeterProtocol.getProtocolDescription();
+        } else if (protocol instanceof com.energyict.mdc.upl.SmartMeterProtocol) {
+            com.energyict.mdc.upl.SmartMeterProtocol uplSmartMeterProtocol = (com.energyict.mdc.upl.SmartMeterProtocol) protocol;
+            description = uplSmartMeterProtocol.getProtocolDescription();
+        } else if (protocol instanceof com.energyict.mdc.upl.DeviceProtocol) {
+            description = ((com.energyict.mdc.upl.DeviceProtocol) protocol).getProtocolDescription();
         }
 
         assertNotNull("Protocol " + rule.getClassName() + " has no description!", description);
@@ -223,9 +223,7 @@ public class AllDeviceProtocolsTest {
             bind(MessageInterpolator.class).toInstance(thesaurus);
             bind(OrmService.class).toInstance(ormService);
             bind(TransactionService.class).toInstance(transactionService);
-            bind(com.elster.jupiter.properties.PropertySpecService.class).toInstance(jupiterPropertySpecService);
             bind(PropertySpecService.class).toInstance(propertySpecService);
-            bind(TopologyService.class).toInstance(topologyService);
             bind(IssueService.class).toInstance(issueService);
             bind(MdcReadingTypeUtilService.class).toInstance(mdcReadingTypeUtilService);
             bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
@@ -235,7 +233,10 @@ public class AllDeviceProtocolsTest {
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(SerialComponentService.class).toInstance(serialComponentService);
             bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
-            bind(LoadProfileFactory.class).toInstance(loadProfileFactory);
+            bind(com.energyict.mdc.upl.nls.NlsService.class).toInstance(mock(com.energyict.mdc.upl.nls.NlsService.class));
+            bind(com.energyict.mdc.upl.properties.Converter.class).toInstance(mock(com.energyict.mdc.upl.properties.Converter.class));
+            bind(com.energyict.mdc.upl.properties.PropertySpecService.class).toInstance(mock(com.energyict.mdc.upl.properties.PropertySpecService.class));
+            bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
