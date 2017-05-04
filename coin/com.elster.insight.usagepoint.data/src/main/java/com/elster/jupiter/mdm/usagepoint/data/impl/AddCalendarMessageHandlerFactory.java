@@ -41,7 +41,7 @@ public class AddCalendarMessageHandlerFactory implements MessageHandlerFactory {
             if (addCalendarMessage.isImmediately()) {
                 usagePoint.getUsedCalendars().addCalendar(calendar);
             } else {
-                usagePoint.getUsedCalendars().addCalendar(startTime, calendar);
+                usagePoint.getUsedCalendars().addCalendar(calendar, startTime);
             }
 
         };
