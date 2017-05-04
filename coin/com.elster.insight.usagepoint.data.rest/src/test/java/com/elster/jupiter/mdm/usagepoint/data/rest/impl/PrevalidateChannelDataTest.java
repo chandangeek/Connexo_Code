@@ -150,7 +150,7 @@ public class PrevalidateChannelDataTest extends UsagePointDataRestApplicationJer
     }
 
     @Test
-    public void test() throws IOException {
+    public void prevalidateEditedChannelData() throws IOException {
         // prepare payload
         PrevalidateChannelDataRequestInfo info = new PrevalidateChannelDataRequestInfo();
         info.validateUntil = TIMESTAMP.plus(5, ChronoUnit.DAYS);
@@ -196,8 +196,6 @@ public class PrevalidateChannelDataTest extends UsagePointDataRestApplicationJer
         assertThat(jsonModel.<List<?>>get("$.potentialSuspects")).hasSize(2);
         assertThat(jsonModel.<List<Number>>get("$.potentialSuspects[*].readingTime"))
                 .containsExactly(TIMESTAMP.plus(1, ChronoUnit.DAYS).toEpochMilli(), TIMESTAMP.plus(3, ChronoUnit.DAYS).toEpochMilli());
-        assertThat(jsonModel.<List<String>>get("$.potentialSuspects[*].validationResult"))
-                .containsExactly("validationStatus.suspect", "validationStatus.suspect");
         assertThat(jsonModel.<List<String>>get("$.potentialSuspects[*].validationRules[*].name")).containsExactly("MinMax", "Missing");
     }
 }

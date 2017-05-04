@@ -542,7 +542,7 @@ public class UsagePointOutputResource {
                         }
                         return Stream.empty();
                     })
-                    .filter(dataValidationStatus -> ValidationResult.VALID != dataValidationStatus.getValidationResult())
+                    .filter(dataValidationStatus -> ValidationResult.SUSPECT == dataValidationStatus.getValidationResult())
                     .map(outputChannelDataInfoFactory::createPrevalidatedChannelDataInfo)
                     .sorted(Comparator.comparing(prevalidatedChannelDataInfo -> prevalidatedChannelDataInfo.readingTime))
                     .collect(Collectors.toList());
