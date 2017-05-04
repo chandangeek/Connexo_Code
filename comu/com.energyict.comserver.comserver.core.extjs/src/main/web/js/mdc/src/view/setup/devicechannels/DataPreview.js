@@ -101,7 +101,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             detailRecord.set('value', record.get('value'));
             detailRecord.set('collectedValue', record.get('collectedValue'));
             detailRecord.set('multiplier', record.get('multiplier'));
-            detailRecord.set('commentValue', record.get('mainValidationInfo').commentValue);
+            detailRecord.set('mainCommentValue', record.get('mainCommentValue'));
+            detailRecord.set('bulkCommentValue', record.get('bulkCommentValue'));
             me.down('#values-panel').loadRecord(detailRecord);
             me.setLoading(false);
         });
@@ -502,11 +503,13 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     xtype: 'displayfield',
                     labelWidth: 200,
                     fieldLabel: Uni.I18n.translate('general.estimationComment', 'MDC', 'Estimation comment'),
+                    itemId: 'main-estimation-comment-field',
                     layout: 'hbox',
-                    // hidden: !me.channelRecord.get('mainValidationInfo') && !me.channelRecord.get('mainValidationInfo').commentValue,
-                    name: 'commentValue',
+                    name: 'mainCommentValue',
                     renderer: function (value) {
-                        return value ? value : '-';
+                        if (!value) {
+                            this.hide();
+                        }
                     }
                 }
             );
@@ -540,6 +543,19 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                         itemId: 'bulkValidationInfo',
                         name: 'bulkValidationInfo',
                         htmlEncode: false
+                    },
+                    {
+                        xtype: 'displayfield',
+                        labelWidth: 200,
+                        fieldLabel: Uni.I18n.translate('general.estimationComment', 'MDC', 'Estimation comment'),
+                        itemId: 'bulk-estimation-comment-field',
+                        layout: 'hbox',
+                        name: 'bulkCommentValue',
+                        renderer: function (value) {
+                            if (!value) {
+                                this.hide();
+                            }
+                        }
                     }
                 );
             }

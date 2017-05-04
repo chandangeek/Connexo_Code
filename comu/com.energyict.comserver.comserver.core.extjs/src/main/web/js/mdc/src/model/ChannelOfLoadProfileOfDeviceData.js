@@ -18,7 +18,6 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'estimatedCommentNotSaved', type: 'auto'},
         {name: 'validationActive', type: 'auto'},
         {name: 'mainValidationInfo', type: 'auto'},
-        {name: 'commentValue', type: 'auto'},
         {name: 'bulkValidationInfo', type: 'auto'},
         {name: 'confirmed', type: 'auto'},
         {name: 'dataValidated', type: 'auto'},
@@ -85,6 +84,32 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                         date: data.reportedDateTime,
                         app: bulkValidationInfo.editedInApp
                     }
+                }
+                return result;
+            }
+        },
+        {
+            name: 'mainCommentValue',
+            type: 'string',
+            mapping: function (data) {
+                var result = null,
+                    mainValidationInfo = data.mainValidationInfo;
+
+                if (mainValidationInfo && mainValidationInfo.commentValue) {
+                    result = mainValidationInfo.commentValue;
+                }
+                return result;
+            }
+        },
+        {
+            name: 'bulkCommentValue',
+            type: 'string',
+            mapping: function (data) {
+                var result = null,
+                    bulkValidationInfo = data.bulkValidationInfo;
+
+                if (bulkValidationInfo && bulkValidationInfo.commentValue) {
+                    result = bulkValidationInfo.commentValue;
                 }
                 return result;
             }
