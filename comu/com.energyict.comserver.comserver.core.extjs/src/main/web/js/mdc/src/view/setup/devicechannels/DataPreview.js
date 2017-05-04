@@ -103,7 +103,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             detailRecord.set('multiplier', record.get('multiplier'));
             detailRecord.set('commentValue', record.get('mainValidationInfo').commentValue);
             me.down('#values-panel').loadRecord(detailRecord);
-            debugger;
             me.setLoading(false);
         });
     },
@@ -500,22 +499,15 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     htmlEncode: false
                 },
                 {
-                    xtype: 'fieldcontainer',
+                    xtype: 'displayfield',
                     labelWidth: 200,
                     fieldLabel: Uni.I18n.translate('general.estimationComment', 'MDC', 'Estimation comment'),
                     layout: 'hbox',
                     // hidden: !me.channelRecord.get('mainValidationInfo') && !me.channelRecord.get('mainValidationInfo').commentValue,
-                    items: [
-                        {
-                            xtype: 'displayfield',
-                            name: 'commentValue',
-                            renderer: function (value) {
-                                console.log(me);
-                                debugger;
-                                return value ? value : '-';
-                            }
-                        }
-                    ]
+                    name: 'commentValue',
+                    renderer: function (value) {
+                        return value ? value : '-';
+                    }
                 }
             );
             var calculatedReadingType = me.channelRecord.get('calculatedReadingType');

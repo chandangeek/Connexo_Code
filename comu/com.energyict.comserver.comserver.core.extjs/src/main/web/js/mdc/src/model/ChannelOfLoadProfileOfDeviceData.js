@@ -18,6 +18,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'estimatedCommentNotSaved', type: 'auto'},
         {name: 'validationActive', type: 'auto'},
         {name: 'mainValidationInfo', type: 'auto'},
+        {name: 'commentValue', type: 'auto'},
         {name: 'bulkValidationInfo', type: 'auto'},
         {name: 'confirmed', type: 'auto'},
         {name: 'dataValidated', type: 'auto'},
