@@ -8,11 +8,13 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.Base64StringFactory;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.DurationValueFactory;
 import com.elster.jupiter.properties.LongFactory;
 import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.RelativePeriodFactory;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.TemporalAmountValueFactory;
 import com.elster.jupiter.properties.TimeDurationValueFactory;
 import com.elster.jupiter.properties.TimeZoneFactory;
 import com.elster.jupiter.properties.ValueFactory;
@@ -110,6 +112,16 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     public PropertySpecBuilderWizard.NlsOptions<TimeDuration> timeDurationSpec() {
         return this.specForValuesOf(new TimeDurationValueFactory());
+    }
+
+    @Override
+    public PropertySpecBuilderWizard.NlsOptions<TimeDuration> temporalAmountSpec() {
+        return this.specForValuesOf(new TemporalAmountValueFactory());
+    }
+
+    @Override
+    public PropertySpecBuilderWizard.NlsOptions<TimeDuration> durationSpec() {
+        return this.specForValuesOf(new DurationValueFactory());
     }
 
     @Override
