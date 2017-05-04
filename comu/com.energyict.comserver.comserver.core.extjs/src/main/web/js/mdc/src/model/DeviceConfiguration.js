@@ -16,6 +16,7 @@ Ext.define('Mdc.model.DeviceConfiguration', {
         {name: 'isDirectlyAddressable', type: 'boolean', useNull: true},
         {name: 'gatewayType', type: 'string', useNull: true},
         {name: 'dataloggerEnabled', type: 'boolean', useNull: true},
+        {name: 'multiElementEnabled', type: 'boolean', useNull: true},
         {name: 'validateOnStore', type: 'boolean', useNull: true}
     ],
     proxy: {

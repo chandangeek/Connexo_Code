@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     channels: null,
     router: null,
     frame: false,
-    mentionDataLoggerSlave: false,
+    linkPurpose: Mdc.util.LinkPurpose.NOT_APPLICABLE,
 
     updateForm: function (record) {
         var me = this,
@@ -298,10 +298,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             }
         );
 
-        if (me.mentionDataLoggerSlave) {
+        if (me.linkPurpose !== Mdc.util.LinkPurpose.NOT_APPLICABLE) {
             generalItems.push(
                 {
-                    fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                    fieldLabel: me.linkPurpose.channelGridSlaveColumn,
                     itemId: 'mdc-channel-data-preview-data-logger-slave',
                     renderer: function (slaveChannel) {
                         if (Ext.isEmpty(slaveChannel)) {

@@ -20,7 +20,9 @@ Ext.define('Mdc.model.DeviceConnectionHistory', {
         {name: 'isDefault', type: 'boolean'},
         {name: 'device'},
         {name: 'deviceConfiguration'},
-        {name: 'deviceType'}
+        {name: 'deviceType'},
+        {name: 'errors'},
+        {name: 'warnings'}
     ],
     proxy: {
         type: 'rest',

@@ -10,7 +10,8 @@ Ext.define('Mdc.controller.history.Setup', {
     currentPath: null,
 
     requires: [
-        'Uni.store.Apps'
+        'Uni.store.Apps',
+        'Mdc.util.LinkPurpose'
     ],
 
     checkInsightRedirect: function (route) {
@@ -107,7 +108,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'editCustomAttributeVersion',
                                     callback: function (route) {
                                         this.getApplication().on('loadCustomAttributeSetVersionOnDevice', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('period')]));
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('period'), false));
                                             return true;
                                         }, {single: true});
 
@@ -137,7 +138,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     privileges: Mdc.privileges.Device.administrateDeviceData,
                                     callback: function (route) {
                                         this.getApplication().on('loadCustomAttributeSetVersionOnDeviceClone', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.clonex', 'MDC', "Clone '{0}'", [record.get('period')]));
+                                            route.setTitle(Uni.I18n.translate('general.clonex', 'MDC', "Clone '{0}'", [record.get('period')], false));
                                             return true;
                                         }, {single: true});
 
@@ -556,18 +557,35 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         },
                         dataloggerslaves: {
-                            title: Uni.I18n.translate('general.dataLoggerSlaves', 'MDC', 'Data logger slaves'),
-                            route: 'dataloggerslaves',
+                            title: Uni.I18n.translate('general.slaves', 'MDC', 'Slaves'),
+                            route: 'slaves',
                             privileges: Mdc.privileges.Device.viewOrAdministrateDeviceData,
                             controller: 'Mdc.controller.setup.DataLoggerSlaves',
                             action: 'showDataLoggerSlaves',
+                            callback: function (route) {
+                                this.getApplication().on('loadDevice', function (device) {
+                                    var purpose = Mdc.util.LinkPurpose.forDevice(device);
+                                    if (!Ext.isEmpty(purpose)){
+                                        route.setTitle(purpose.pageTitle);
+                                    }
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
                             items: {
                                 link: {
                                     title: Uni.I18n.translate('general.linkDataLoggerSlave', 'MDC', 'Link data logger slave'),
                                     route: 'link',
                                     controller: 'Mdc.controller.setup.DataLoggerSlaves',
                                     privileges: Mdc.privileges.Device.administrateDevice,
-                                    action: 'showLinkWizard'
+                                    action: 'showLinkWizard',
+                                    callback: function (route) {
+                                        this.getApplication().on('linkSlave', function (purpose) {
+                                            route.setTitle(purpose.displayValue);
+                                            return true;
+                                        }, {single: true});
+                                        return this;
+                                    }
                                 }
                             }
                         },
@@ -2478,6 +2496,32 @@ Ext.define('Mdc.controller.history.Setup', {
                                         callback: function (route) {
                                             me.checkInsightRedirect(route);
                                             this.getApplication().on('usagePointChannelLoaded', function (record) {
+                                                route.setTitle(record.get('readingType').fullAliasName);
+                                                return true;
+                                            }, {single: true});
+
+                                            return this;
+                                        }
+                                    }
+                                }
+                            },
+                            registers: {
+                                title: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
+                                privileges: Mdc.privileges.UsagePoint.canView(),
+                                route: 'registers',
+                                controller: 'Mdc.usagepointmanagement.controller.ViewRegistersList',
+                                action: 'showOverview',
+                                callback: me.checkInsightRedirect,
+                                items: {
+                                    registerdata: {
+                                        title: Uni.I18n.translate('routing.registers', 'MDC', 'Registers'),
+                                        privileges: Mdc.privileges.UsagePoint.canView(),
+                                        route: '{registerId}/data',
+                                        controller: 'Mdc.usagepointmanagement.controller.ViewRegisterDataAndReadingQualities',
+                                        action: 'showOverview',
+                                        callback: function (route) {
+                                            me.checkInsightRedirect(route);
+                                            this.getApplication().on('usagePointRegisterLoaded', function (record) {
                                                 route.setTitle(record.get('readingType').fullAliasName);
                                                 return true;
                                             }, {single: true});

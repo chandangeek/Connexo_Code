@@ -141,12 +141,12 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
             jsonValues,
             portPoolsStore = Ext.getStore('Mdc.store.ComPortPools');
 
-        portPoolsStore.load(function() {
+        portPoolsStore.load(function () {
 
             var widget = Ext.widget('addComportToComportPoolView', {
-                    poolId: id,
-                    comportPoolStore: portPoolsStore
-                });
+                poolId: id,
+                comportPoolStore: portPoolsStore
+            });
 
             me.getApplication().fireEvent('changecontentevent', widget);
 
@@ -172,16 +172,16 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
                             callback: function () {
                                 me.comPortsStoreToAdd.sortByType(record.get('comPortType'));
                                 me.comPortsStoreToAdd.sortByExisted(existedRecordsArray);
-                                if (me.comPortsStoreToAdd.getCount() === 0){
+                                if (me.comPortsStoreToAdd.getCount() === 0) {
                                     widget.noItemsAvailable();
-                                }else{
+                                } else {
                                     widget.down('grid').reconfigure(me.comPortsStoreToAdd);
                                 }
                                 widget.setLoading(false);
                             }
                         });
                 },
-                failure: function(record){
+                failure: function (record) {
                     widget.setLoading(false);
                 }
             });
@@ -256,15 +256,21 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
                 if (response.status === 409) {
                     return
                 }
-                var title = Uni.I18n.translate('comPortPoolComPorts.remove.failurex', 'MDC', "Failed to remove '{0}'",[record.get('name')]),
+                var title = Uni.I18n.translate('comPortPoolComPorts.remove.failurex', 'MDC', "Failed to remove '{0}'", [record.get('name')]),
+                    json = Ext.JSON.decode(response.responseText),
                     errorsArray = Ext.JSON.decode(response.responseText).errors,
-                    message = '';
+                    message = '',
+                    code = '';
 
                 Ext.Array.each(errorsArray, function (obj) {
-                    message += obj.msg + '.</br>'
+                    message += obj.msg + '.</br>';
                 });
 
-                me.getApplication().getController('Uni.controller.Error').showError(title, message);
+                if (json && json.errorCode) {
+                    code = json.errorCode;
+                }
+
+                me.getApplication().getController('Uni.controller.Error').showError(title, message, code);
             },
             callback: function () {
                 page.setLoading(false);
