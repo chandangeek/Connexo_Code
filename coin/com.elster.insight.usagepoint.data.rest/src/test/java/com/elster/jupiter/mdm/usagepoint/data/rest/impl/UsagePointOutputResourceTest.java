@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -99,7 +100,12 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
     @Mock
     private Query<UsagePoint> usagePointQuery;
 
-    private MetrologyContract optionalContract, mandatoryContract1, mandatoryContract2;
+    @Mock
+    private MetrologyContractCalculationIntrospector metrologyContractCalculationIntrospector;
+
+    private MetrologyContract optionalContract;
+    private MetrologyContract mandatoryContract1;
+    private MetrologyContract mandatoryContract2;
 
     @Before
     public void before() {
@@ -146,6 +152,9 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         when(validationTask.getLastRun()).thenReturn(Optional.empty());
         when(validationTask.getLastOccurrence()).thenReturn(Optional.empty());
         when(validationTask.getId()).thenReturn(31L);
+        when(dataAggregationService.introspect(any(),any(),any())).thenReturn(metrologyContractCalculationIntrospector);
+        List<MetrologyContractCalculationIntrospector.CalendarUsage> calendarUsages = Collections.emptyList();
+        when(metrologyContractCalculationIntrospector.getCalendarUsagesFor(any())).thenReturn(calendarUsages);
     }
 
     @Test

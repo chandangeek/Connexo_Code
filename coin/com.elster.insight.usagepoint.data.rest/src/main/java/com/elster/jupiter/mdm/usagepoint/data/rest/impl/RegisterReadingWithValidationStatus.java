@@ -7,14 +7,38 @@ import com.elster.jupiter.metering.readings.Reading;
 
 import com.google.common.collect.Range;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
 public class RegisterReadingWithValidationStatus extends ReadingWithValidationStatus<ReadingRecord> {
 
-    public RegisterReadingWithValidationStatus(ZonedDateTime readingTimeStamp, ChannelGeneralValidation channelGeneralValidation) {
-        super(readingTimeStamp, channelGeneralValidation);
+    private ReadingRecord previousReadingRecord;
+
+    public RegisterReadingWithValidationStatus(ZonedDateTime readingTimeStamp) {
+        super(readingTimeStamp);
+    }
+
+    public Optional<ReadingRecord> getPreviousReading() {
+        return Optional.ofNullable(this.previousReadingRecord);
+    }
+
+    public void setPreviousReadingRecord(ReadingRecord previousReadingRecord) {
+        this.previousReadingRecord = previousReadingRecord;
+    }
+
+    public BigDecimal getPreviousValue(){
+        return getPreviousReading().map(BaseReading::getValue).orElse(null);
+    }
+
+    public BigDecimal getDeltaValue(){
+        BigDecimal value = getValue();
+        BigDecimal previousValue = getPreviousValue();
+        if(value != null && previousValue != null) {
+            return value.subtract(previousValue);
+        }
+        return null;
     }
 
     public Optional<String> getText() {
@@ -26,9 +50,9 @@ public class RegisterReadingWithValidationStatus extends ReadingWithValidationSt
     }
 
     public Optional<Range<Instant>> getTimePeriod() {
-        if(getReading().get().getReadingType().getMacroPeriod().equals(MacroPeriod.BILLINGPERIOD)){
+        if (getReading().get().getReadingType().getMacroPeriod().equals(MacroPeriod.BILLINGPERIOD)) {
             return getReading().get().getTimePeriod();
-        } else if(getPreviousReading().isPresent()){
+        } else if (getPreviousReading().isPresent()) {
             return Optional.of(Range.openClosed(getPreviousReading().get().getTimeStamp(), getReading().get().getTimeStamp()));
         } else {
             return Optional.of(Range.atMost(getReading().get().getTimeStamp()));

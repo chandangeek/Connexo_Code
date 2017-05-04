@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.IntervalInfo;
@@ -53,21 +52,25 @@ public class OutputChannelDataInfo {
 
     public List<ReadingQualityInfo> readingQualities;
 
+    public String calendarName;
+
+    public boolean partOfTimeOfUseGap;
+
     public EstimationQuantityInfo estimatedByRule;
 
     public boolean isProjected;
 
     public long ruleId;
-
+    
     public long commentId;
 
     public String commentValue;
 
-    public BaseReading createNew() {
+    public IntervalReadingImpl createNew() {    
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value, Collections.emptyList());
     }
 
-    public BaseReading createConfirm() {
+    public IntervalReadingImpl createConfirm() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), null, Collections.emptyList());
     }
 }

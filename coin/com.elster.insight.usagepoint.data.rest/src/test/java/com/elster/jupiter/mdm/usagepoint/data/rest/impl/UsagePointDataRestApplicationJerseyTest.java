@@ -6,6 +6,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cbo.Accumulation;
@@ -389,4 +390,9 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         when(propertySpec.getName()).thenReturn(name);
         return propertySpec;
     }
+
+    public Calendar mockCalendar(){
+        return mock(Calendar.class);
+    }
+
 }
