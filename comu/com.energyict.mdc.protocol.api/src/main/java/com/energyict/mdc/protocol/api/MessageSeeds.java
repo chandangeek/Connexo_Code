@@ -18,9 +18,9 @@ import java.util.logging.Level;
 //TODO delete this class, use 9.1 protocol code instead?
 public enum MessageSeeds implements MessageSeed {
 
-    LOADPROFILE_NOT_SUPPORTED(100, "issue.loadProfileXnotsupported", "Load profile with OBIS code '{0}' is not supported by the device"),
+    LOADPROFILE_NOT_SUPPORTED(100, "issue.loadProfileXnotsupported", "Load profile with OBIS code ''{0}'' is not supported by the device"),
     LOADPROFILE_ISSUE(101, "issue.loadProfileXIssue", "Encountered an exception while reading loadprofile {0}"),
-    LOGBOOK_NOT_SUPPORTED(102, "issue.logBookXnotsupported", "Logbook with OBIS code '{0}' is not supported by the device"),
+    LOGBOOK_NOT_SUPPORTED(102, "issue.logBookXnotsupported", "Logbook with OBIS code ''{0}'' is not supported by the device"),
     LOGBOOK_ISSUE(103, "issue.logBookXissue", "Encountered an exception while reading LogBook {0}: {1}"),
     UNSUPPORTED_CHANNEL_INFO(104, "issue.unsupportedChannelInfo", "The channel info ''{0}'' is not supported"),
     COULD_NOT_READOUT_LOGBOOK_DATA(105, "issue.couldNotReadoutLogBookData", "Could not correctly read the logbook data: {0}"),
@@ -30,7 +30,7 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_PARSE_REGISTER_DATA(109, "issue.couldNotParseRegisterData", "Could not correctly parse the register data"),
     COULD_NOT_PARSE_MESSAGE_DATA(110, "issue.couldNotParseMessageData", "Could not correctly parse the message data"),
     COULD_NOT_PARSE_TOPOLOGY_DATA(111, "issue.couldNotParseTopologyData", "Could not correctly parse the topology data"),
-    REGISTER_NOT_SUPPORTED(112, "issue.registerXnotsupported", "Register with OBIS code '{0}' is not supported by the device"),
+    REGISTER_NOT_SUPPORTED(112, "issue.registerXnotsupported", "Register with OBIS code ''{0}'' is not supported by the device"),
     REGISTER_ISSUE(113, "issue.registerXissue", "Encountered an exception while reading register {0}: {1}"),
     REGISTER_INCOMPATIBLE(114, "issue.registerXincompatible", "Register with OBIS code {0} is incompatible: {1}"),
     DEVICEPROTOCOL_LEGACY_ISSUE(115, "issue.deviceprotocol.legacy.issue", "An error occurred during the execution of a legacy protocol, see following stacktrace: {0}"),
