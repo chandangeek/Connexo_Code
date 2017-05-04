@@ -245,7 +245,7 @@ Ext.define('Pkj.controller.Certificates', {
                         }
                     }
                 } else {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificateImport.success', 'MDC', 'Certificate imported'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificateImport.success', 'PKJ', 'Certificate imported'));
                     me.getController('Uni.controller.history.Router').getRoute('administration/certificates').forward();
                 }
                 form.setLoading(false);
