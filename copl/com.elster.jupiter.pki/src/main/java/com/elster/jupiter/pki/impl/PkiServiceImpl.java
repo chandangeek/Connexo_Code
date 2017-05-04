@@ -463,7 +463,7 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
     }
 
     @Override
-    public List<String> getAliasesByFilter(AliasSearchFilter searchFilter) {
+    public Finder<CertificateWrapper> getAliasesByFilter(AliasSearchFilter searchFilter) {
         Condition searchCondition;
         if (searchFilter.trustStore ==null) {
             searchCondition = Where.where(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName())
@@ -476,11 +476,8 @@ public class PkiServiceImpl implements PkiService, TranslationKeyProvider, Messa
         }
         return DefaultFinder.of(CertificateWrapper.class,
                 searchCondition, getDataModel())
-                .paged(0,30)
                 .sorted(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName(), true)
-                .stream()
-                .map(CertificateWrapper::getAlias)
-                .collect(Collectors.toList());
+                .maxPageSize(thesaurus, 100);
     }
 
     private class ClientCertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {
