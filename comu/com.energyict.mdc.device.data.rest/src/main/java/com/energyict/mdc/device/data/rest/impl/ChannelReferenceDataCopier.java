@@ -93,8 +93,8 @@ public class ChannelReferenceDataCopier {
                 .filter(reading -> readingTimeStamps.contains(reading.getRange().upperEndpoint()))
                 .flatMap(e -> e.getReadingQualities().values().stream().flatMap(Collection::stream))
                 .filter(ReadingQualityRecord::isSuspect)
-                .filter(readingTimeStamps::contains)
-                .collect(Collectors.toMap(ReadingQualityRecord::getTimestamp, Function.identity(), (a, b) -> a));
+                .filter(readingQualityRecord -> readingTimeStamps.contains(readingQualityRecord.getReadingTimestamp()))
+                .collect(Collectors.toMap(ReadingQualityRecord::getReadingTimestamp, Function.identity(), (a, b) -> a));
 
         sourceReadings.forEach(record -> {
             Optional.ofNullable(correctedRanges.get(record.getRange()))
