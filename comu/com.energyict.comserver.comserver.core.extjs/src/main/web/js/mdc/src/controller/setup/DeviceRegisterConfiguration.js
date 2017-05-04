@@ -39,7 +39,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     stores: [
         'Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets',
         'RegisterConfigsOfDevice',
-        'Mdc.store.DataLoggerSlaveRegisterHistory'
+        'Mdc.store.DataLoggerSlaveRegisterHistory',
+        'Mdc.store.RegisterValidationConfiguration'
     ],
 
     refs: [
@@ -256,7 +257,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             widget = Ext.widget('deviceRegisterConfigurationPreview-' + type, {
                 router: me.getController('Uni.controller.history.Router'),
                 showDataLoggerSlaveField: me.getDeviceRegisterConfigurationGrid().showDataLoggerSlaveColumn,
-                showDataLoggerSlaveHistory: false // no history in preview
+                showDataLoggerSlaveHistory: false, // no history in preview
+                linkPurpose: me.getDeviceRegisterConfigurationGrid().getLinkPurpose()
             }),
             form = widget.down('#deviceRegisterConfigurationPreviewForm'),
             previewContainer = me.getDeviceRegisterConfigurationSetup().down('#previewComponentContainer'),
@@ -289,7 +291,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         model.getProxy().setExtraParam('deviceId', me.deviceId);
         form.setLoading(true);
         model.load(record.getId(), {
-            callback: function(record, operation, success) {
+            callback: function (record, operation, success) {
                 previewContainer.setLoading(false);
 
                 if (form.rendered) {
@@ -320,94 +322,100 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             registersOfDeviceStore = me.getStore('RegisterConfigsOfDevice'),
             slaveHistoryStore = me.getStore('Mdc.store.DataLoggerSlaveRegisterHistory'),
-            registersStore = me.getStore('Mdc.store.RegisterConfigsOfDevice');
+            registersStore = me.getStore('Mdc.store.RegisterConfigsOfDevice'),
+            validationConfigurationStore = me.getStore('Mdc.store.RegisterValidationConfiguration');
 
         me.fromSpecification = true;
         contentPanel.setLoading(true);
         registersStore.getProxy().extraParams = {deviceId: deviceId};
-        registersStore.load(Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
-            success: function (device) {
-                me.getApplication().fireEvent('loadDevice', device);
-                var model = Ext.ModelManager.getModel('Mdc.model.DeviceRegisterForPreview');
-                model.getProxy().setExtraParam('deviceId', deviceId);
-                model.load(registerId, {
-                    success: function (register) {
-                        var type = register.get('type'),
-                            widget = Ext.widget('tabbedDeviceRegisterView', {
-                                device: device,
-                                router: me.getController('Uni.controller.history.Router')
-                            }),
-                            func = function () {
-                                var customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets'),
-                                    config = Ext.widget('deviceRegisterConfigurationDetail-' + type, {
-                                        deviceId: encodeURIComponent(deviceId),
-                                        registerId: registerId,
-                                        router: me.getController('Uni.controller.history.Router'),
-                                        showDataLoggerSlaveField: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
-                                        showDataLoggerSlaveHistory: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
-                                        dataLoggerSlaveHistoryStore: slaveHistoryStore
-                                    }),
-                                    form = config.down('#deviceRegisterConfigurationDetailForm'),
-                                    multiplierField = form.down('[name=multiplier]'),
-                                    calculatedReadingTypeField = form.down('[name=calculatedReadingType]');
+        validationConfigurationStore.getProxy().extraParams = {deviceId: deviceId, registerId: registerId};
+        validationConfigurationStore.load(function () {
+            registersStore.load(Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
+                success: function (device) {
+                    me.getApplication().fireEvent('loadDevice', device);
+                    var model = Ext.ModelManager.getModel('Mdc.model.DeviceRegisterForPreview');
+                    model.getProxy().setExtraParam('deviceId', deviceId);
+                    model.load(registerId, {
+                        success: function (register) {
+                            var type = register.get('type'),
+                                widget = Ext.widget('tabbedDeviceRegisterView', {
+                                    device: device,
+                                    router: me.getController('Uni.controller.history.Router'),
+                                    validationConfigurationStore: validationConfigurationStore
+                                }),
+                                func = function () {
+                                    var customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets'),
+                                        config = Ext.widget('deviceRegisterConfigurationDetail-' + type, {
+                                            deviceId: encodeURIComponent(deviceId),
+                                            registerId: registerId,
+                                            router: me.getController('Uni.controller.history.Router'),
+                                        showDataLoggerSlaveField: (!Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')) || (!Ext.isEmpty(device.get('isMultiElementDevice')) && device.get('isMultiElementDevice')),
+                                        showDataLoggerSlaveHistory:  (!Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')) || (!Ext.isEmpty(device.get('isMultiElementDevice')) && device.get('isMultiElementDevice')),
+                                        dataLoggerSlaveHistoryStore: slaveHistoryStore,
+                                        linkPurpose: Mdc.util.LinkPurpose.forDevice(device)
+                                        }),
+                                        form = config.down('#deviceRegisterConfigurationDetailForm'),
+                                        multiplierField = form.down('[name=multiplier]'),
+                                        calculatedReadingTypeField = form.down('[name=calculatedReadingType]');
 
-                                if (!Ext.isEmpty(widget.down('#custom-attribute-sets-placeholder-form-id'))) {
-                                    customAttributesStore.getProxy().setParams(deviceId, registerId);
-                                    customAttributesStore.load(function () {
-                                        widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
-                                    });
-                                }
-                                me.getApplication().fireEvent('changecontentevent', widget);
-                                widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
-                                me.getApplication().fireEvent('loadRegisterConfiguration', register);
-                                form.loadRecord(register);
-                                if (multiplierField) {
-                                    if (register.get('multiplier')) {
-                                        multiplierField.show();
-                                    } else {
-                                        multiplierField.hide();
+                                    if (!Ext.isEmpty(widget.down('#custom-attribute-sets-placeholder-form-id'))) {
+                                        customAttributesStore.getProxy().setParams(deviceId, registerId);
+                                        customAttributesStore.load(function () {
+                                            widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+                                        });
                                     }
-                                }
-                                if (!Ext.isEmpty(calculatedReadingTypeField)) {
-                                    if (register.get('calculatedReadingType')) {
-                                        calculatedReadingTypeField.show();
-                                    } else {
-                                        calculatedReadingTypeField.hide();
+                                    me.getApplication().fireEvent('changecontentevent', widget);
+                                    widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
+                                    me.getApplication().fireEvent('loadRegisterConfiguration', register);
+                                    form.loadRecord(register);
+                                    if (multiplierField) {
+                                        if (register.get('multiplier')) {
+                                            multiplierField.show();
+                                        } else {
+                                            multiplierField.hide();
+                                        }
                                     }
-                                }
-                                if (!register.get('detailedValidationInfo').validationActive) {
-                                    config.down('#validateNowRegister').hide();
-                                }
-                                config.down('#deviceRegisterConfigurationActionMenu').record = register;
-                                widget.down('#register-specifications').add(config);
-                            },
-                            loadSlaveHistoryIfNeeded = function() {
-                                if (!Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')) {
-                                    slaveHistoryStore.getProxy().setParams(deviceId, registerId);
-                                    slaveHistoryStore.load(function() {
+                                    if (!Ext.isEmpty(calculatedReadingTypeField)) {
+                                        if (register.get('calculatedReadingType')) {
+                                            calculatedReadingTypeField.show();
+                                        } else {
+                                            calculatedReadingTypeField.hide();
+                                        }
+                                    }
+                                    if (!register.get('detailedValidationInfo').validationActive) {
+                                        config.down('#validateNowRegister').hide();
+                                    }
+                                    config.down('#deviceRegisterConfigurationActionMenu').record = register;
+                                    widget.down('#register-specifications').add(config);
+                                },
+                            loadSlaveHistoryIfNeeded = function () {
+                                    if (!Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')) {
+                                        slaveHistoryStore.getProxy().setParams(deviceId, registerId);
+                                    slaveHistoryStore.load(function () {
+                                            func();
+                                        });
+                                    } else {
                                         func();
-                                    });
-                                } else {
-                                    func();
-                                }
-                            };
+                                    }
+                                };
 
-                        if (registersOfDeviceStore.getTotalCount() === 0) {
-                            registersOfDeviceStore.getProxy().setExtraParam('deviceId', deviceId);
-                            registersOfDeviceStore.load(function () {
+                            if (registersOfDeviceStore.getTotalCount() === 0) {
+                                registersOfDeviceStore.getProxy().setExtraParam('deviceId', deviceId);
+                                registersOfDeviceStore.load(function () {
+                                    loadSlaveHistoryIfNeeded();
+                                });
+                            } else {
                                 loadSlaveHistoryIfNeeded();
-                            });
-                        } else {
-                            loadSlaveHistoryIfNeeded();
+                            }
+                        },
+                        callback: function () {
+                            contentPanel.setLoading(false);
+                            tabController.showTab(0);
                         }
-                    },
-                    callback: function () {
-                        contentPanel.setLoading(false);
-                        tabController.showTab(0);
-                    }
-                });
-            }
-        }));
+                    });
+                }
+            }));
+        });
     },
 
     showValidateNowMessage: function (record) {
@@ -436,12 +444,16 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                         msg: ''
                     });
                 } else {
-                    var title = Uni.I18n.translate('registerconfiguration.validateNow.error', 'MDC', 'Failed to validate data of register configuration {0}', [record.get('readingType').fullAliasName]),
-                        message = Uni.I18n.translate('registerconfiguration.validation.noData', 'MDC', 'There is currently no data for this register configuration'),
+                    var title =Uni.I18n.translate('registerconfiguration.validateNow.errorTitle', 'MDC', 'Couldn\'t perform your action'),
+                        message = Uni.I18n.translate('registerconfiguration.validateNow.error', 'MDC', 'Failed to validate data of register configuration {0}', [record.get('readingType').fullAliasName]) + '.' + Uni.I18n.translate('registerconfiguration.validation.noData', 'MDC', 'There is currently no data for this register configuration'),
+                        code = '',
                         config = {
                             icon: Ext.MessageBox.WARNING
                         };
-                    me.getApplication().getController('Uni.controller.Error').showError(title, message, config);
+                    if (res && res.errorCode) {
+                        code = res.errorCode;
+                    }
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, code, config);
                 }
             }
         });
@@ -456,7 +468,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         if (confWindow.down('#validateRegisterFromDate').getValue() > me.dataValidationLastChecked) {
             confWindow.down('#validateRegisterDateErrors').update(Uni.I18n.translate('deviceloadprofiles.activation.error', 'MDC', 'The date should be before or equal to the default date.'));
             confWindow.down('#validateRegisterDateErrors').setVisible(true);
-        } else  {
+        } else {
             confWindow.down('button').setDisabled(true);
             Ext.Ajax.request({
                 url: '/api/ddr/devices/' + encodeURIComponent(me.deviceId) + '/registers/' + me.registerId + '/validate',
@@ -622,7 +634,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         me.deviceId = deviceId;
         viewport.setLoading();
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
-            success: function(device) {
+            success: function (device) {
                 var widget = Ext.widget('device-register-edit', {
                     itemId: 'mdc-device-register-edit',
                     device: device,
@@ -632,7 +644,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceRegister');
                 model.getProxy().setExtraParam('deviceId', deviceId);
                 model.load(registerIdAsString, {
-                    success: function(register) {
+                    success: function (register) {
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         widget.setRegister(register);
                         me.updateEditRegisterFields(register);
@@ -650,7 +662,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         });
     },
 
-    updateEditRegisterFields: function(register) {
+    updateEditRegisterFields: function (register) {
         var me = this,
             type = register.get('type'),
             isCumulative = register.get('isCumulative'),
@@ -682,7 +694,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         }
     },
 
-    onOverruledObisCodeChange: function(overruledObisCodeField, newValue) {
+    onOverruledObisCodeChange: function (overruledObisCodeField, newValue) {
         var me = this;
         me.getRestoreObisCodeBtn().setDisabled(newValue === me.originalObisCodeOfConfig);
         me.getRestoreObisCodeBtn().setTooltip(
@@ -692,47 +704,47 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         );
     },
 
-    onRestoreObisCodeBtnClicked: function() {
+    onRestoreObisCodeBtnClicked: function () {
         var me = this;
         me.getOverruledObisCodeField().setValue(me.originalObisCodeOfConfig);
         me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.originalObisCodeOfConfig);
     },
 
-    onOverflowChange: function(overflowField, newValue) {
+    onOverflowChange: function (overflowField, newValue) {
         var me = this;
         me.getRestoreOverflowBtn().setDisabled(newValue === me.originalOverflowOfConfig);
         me.getRestoreOverflowBtn().setTooltip(
             newValue === me.originalOverflowOfConfig
                 ? null
                 : Uni.I18n.translate(
-                    'general.overflow.reset.tooltip',
-                    'MDC',
-                    'Reset to {0}, the overflow value of the device configuration',
-                    me.originalOverflowOfConfig)
+                'general.overflow.reset.tooltip',
+                'MDC',
+                'Reset to {0}, the overflow value of the device configuration',
+                me.originalOverflowOfConfig)
         );
     },
 
-    onRestoreOverflowBtnClicked: function() {
+    onRestoreOverflowBtnClicked: function () {
         var me = this;
         me.getOverflowField().setValue(me.originalOverflowOfConfig);
         me.onOverflowChange(me.getOverflowField(), me.originalOverflowOfConfig);
     },
 
-    onNumberOfFractionDigitsChange: function(fractionField, newValue) {
+    onNumberOfFractionDigitsChange: function (fractionField, newValue) {
         var me = this;
         me.getRestoreNumberOfFractionDigitsBtn().setDisabled(newValue === me.originalNumberOfFractionDigitsOfConfig);
         me.getRestoreNumberOfFractionDigitsBtn().setTooltip(
             newValue === me.originalNumberOfFractionDigitsOfConfig
                 ? null
                 : Uni.I18n.translate(
-                    'general.numberOfFractionDigits.reset.tooltip',
-                    'MDC',
-                    'Reset to {0}, the number of fraction digits of the device configuration',
-                    me.originalNumberOfFractionDigitsOfConfig)
+                'general.numberOfFractionDigits.reset.tooltip',
+                'MDC',
+                'Reset to {0}, the number of fraction digits of the device configuration',
+                me.originalNumberOfFractionDigitsOfConfig)
         );
     },
 
-    onRestoreNumberOfFractionDigitsBtnClicked: function() {
+    onRestoreNumberOfFractionDigitsBtnClicked: function () {
         var me = this;
         me.getNumberOfFractionDigitsField().setValue(me.originalNumberOfFractionDigitsOfConfig);
         me.onNumberOfFractionDigitsChange(me.getNumberOfFractionDigitsField(), me.originalNumberOfFractionDigitsOfConfig);

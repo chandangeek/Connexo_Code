@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
         'Uni.view.highstock.GraphView'
     ],
 
-    mentionDataLoggerSlave: false,
+    linkPurpose: Mdc.util.LinkPurpose.NOT_APPLICABLE,
 
     mixins: {
         bindable: 'Ext.util.Bindable'
@@ -74,8 +74,8 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
         html += ' - ' + Uni.DateTime.formatTimeShort(new Date(point.intervalEnd)) + deviceQualityIcon + '</b><br>';
         html += '<table style="margin-top: 10px; color: #686868; font-size: 14px;"><tbody>';
         bgColor = point.tooltipColor;
-        if (me.mentionDataLoggerSlave) {
-            html += '<tr><td><b>' + Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave') + '</b></td><td>'
+        if (me.linkPurpose !== Mdc.util.LinkPurpose.NOT_APPLICABLE) {
+            html += '<tr><td><b>' + me.linkPurpose.channelGridSlaveColumn + '</b></td><td>'
                 + (Ext.isEmpty(point.dataLoggerSlave) ? '-' : point.dataLoggerSlave) + '</td></tr>';
         }
         if (calculatedValue) {

@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.TabbedDeviceRegisterView'
     requires: [
         'Uni.view.toolbar.PreviousNextNavigation'
     ],
+    validationConfigurationStore: undefined,
     initComponent: function () {
         var me = this;
         me.content = [
@@ -29,7 +30,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.TabbedDeviceRegisterView'
                 listeners: {
                     afterrender: function (panel) {
                         var bar = panel.tabBar;
-                        bar.insert(2, [
+                        bar.add([
                             {
                                 xtype: 'tbfill'
                             },
@@ -46,6 +47,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.TabbedDeviceRegisterView'
                 }
             }
         ];
+
+        if (Mdc.privileges.Device.canViewValidationConfiguration()) {
+            me.addValidationConfiguration();
+        }
+
         me.side = [
             {
                 xtype: 'panel',
@@ -72,5 +78,17 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.TabbedDeviceRegisterView'
 
         ];
         me.callParent(arguments);
+    },
+
+    addValidationConfiguration: function () {
+        var me = this,
+            validationConfigurationRecord = me.validationConfigurationStore.first();
+
+        if (validationConfigurationRecord.rulesForCollectedReadingType().getCount() || validationConfigurationRecord.rulesForCalculatedReadingType().getCount()) {
+            me.content[0].items.push({
+                title: Uni.I18n.translate('general.validationConfiguration', 'MDC', 'Validation configuration'),
+                itemId: 'register-validation-configuration'
+            });
+        }
     }
 });
