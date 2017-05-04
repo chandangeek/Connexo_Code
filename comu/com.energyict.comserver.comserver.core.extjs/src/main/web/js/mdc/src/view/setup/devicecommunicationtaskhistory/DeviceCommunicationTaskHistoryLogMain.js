@@ -103,11 +103,11 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                                     if (value && value !== '') {
                                                         var data = this.up('form').getRecord().data;
 
-                                                        var link = '#/devices/' + encodeURIComponent(data.comSession.device.id)
+                                                        var link = '#/devices/' + encodeURIComponent(data.comSession.device.name)
                                                             + '/connectionmethods/' + data.comSession.connectionMethod.id
                                                             + '/history/' + data.comSession.id
                                                             + '/viewlog'
-                                                            + '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications';
+                                                            + '?logLevels=Debug&logTypes=Connections&logTypes=Communications';
 
                                                         return '<a href="' + link + '">' + Ext.String.htmlEncode(value.connectionMethod.name) + '</a>'
                                                     } else {

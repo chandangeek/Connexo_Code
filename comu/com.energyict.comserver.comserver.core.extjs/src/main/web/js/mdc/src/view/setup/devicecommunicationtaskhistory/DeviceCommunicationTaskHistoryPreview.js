@@ -48,6 +48,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                     name: 'communicationSummary',
                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.communicationSummary', 'MDC', 'Communication summary'),
                     itemId: 'com-task-communication-summary',
+                    width: '100%',
                     labelWidth: 250
                 },
                 {
@@ -130,11 +131,11 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     renderer: function (value) {
                                         if (value && value !== '') {
                                             var data = this.up('form').getRecord().data,
-                                                link = '#/devices/' + encodeURIComponent(data.comSession.device.id)
+                                                link = '#/devices/' + encodeURIComponent(data.comSession.device.name)
                                                     + '/connectionmethods/' + data.comSession.connectionMethod.id
                                                     + '/history/' + data.comSession.id
                                                     + '/viewlog'
-                                                    + '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications';
+                                                    + '?logLevels=Debug&logTypes=Connections&logTypes=Communications';
 
                                             return '<a href="' + link + '">' + Ext.String.htmlEncode(value.connectionMethod.name) + '</a>'
                                         } else {
