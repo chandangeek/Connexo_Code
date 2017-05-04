@@ -120,7 +120,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(certificateWrapper.hasCSR()).thenReturn(true);
         when(certificateWrapper.getCSR()).thenReturn(Optional.of(csr));
         X500Name x500Name = mock(X500Name.class);
-        when(x500Name.toString()).thenReturn("x500");
+        when(x500Name.toString()).thenReturn("cn=x500");
         when(csr.getSubject()).thenReturn(x500Name);
         AlgorithmIdentifier signatureAlgorithm = mock(AlgorithmIdentifier.class);
         when(csr.getSignatureAlgorithm()).thenReturn(signatureAlgorithm);
