@@ -14,7 +14,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -53,9 +52,9 @@ public class ConnectionsDevicePostBuilder implements Consumer<Device> {
                     .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                     .setNextExecutionSpecsFrom(null)
                     .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                    .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), this.host)
-                    .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), new BigDecimal(portNumber))
-                    .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.propertySpecName(), TimeDuration.minutes(1))
+                    .setProperty("host", this.host)
+                    .setProperty("portNumber", new BigDecimal(portNumber))
+                    .setProperty("connectionTimeout", TimeDuration.minutes(1))
                     .setNumberOfSimultaneousConnections(1)
                     .add();
             connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);

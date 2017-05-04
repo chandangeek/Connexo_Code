@@ -16,8 +16,6 @@ import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
-import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -30,7 +28,6 @@ import java.util.function.Consumer;
 public class CreateG3SlaveCommand {
 
     private static final String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
-    private static final String CLIENT = "1";
 
     public enum SlaveDeviceConfiguration {
         AS3000 {
@@ -47,7 +44,8 @@ public class CreateG3SlaveCommand {
                         .setProperty("PSK", "00112233445566778899AABBCCDDEEFF")
                         .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
                         .setProperty("HLSsecretASCII", "1234567890123456")
-                        .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"));
+                        .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
+                        .setProperty("ClientMacAddress", BigDecimal.ONE);
             }
         },
         AS220 {
@@ -64,7 +62,8 @@ public class CreateG3SlaveCommand {
                         .setProperty("PSK", "92DA010836AA91222BCBEA49713DD9C1")
                         .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
                         .setProperty("HLSsecretASCII", "1234567890123456")
-                        .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels")) ;
+                        .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
+                        .setProperty("ClientMacAddress", BigDecimal.ONE);
             }
         };
 
@@ -164,7 +163,7 @@ public class CreateG3SlaveCommand {
 
         TypedProperties getSecuritySetProperties(){
             TypedProperties securitySetProperties = TypedProperties.empty();
-            securitySetProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password((String) props.getProperty("HLSsecretASCII")));
+            securitySetProperties.setProperty("ClientMacAddress", props.getProperty("ClientMacAddress"));
             return securitySetProperties;
         }
 
@@ -184,9 +183,12 @@ public class CreateG3SlaveCommand {
         @Override
         public void accept(DeviceConfiguration configuration) {
              configuration.createSecurityPropertySet(SECURITY_SET_NAME)
-                     .authenticationLevel(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue())
-                     .encryptionLevel(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue())
-                     .client(CLIENT)
+                     .authenticationLevel(3)    //HIGH_LEVEL_MD5
+                     .encryptionLevel(0)        //NO_ENCRYPTION
+                     .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1)
+                     .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
+                     .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1)
+                     .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2)
                      .build();
         }
     }

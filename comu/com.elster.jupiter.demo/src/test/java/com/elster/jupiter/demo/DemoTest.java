@@ -59,7 +59,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.properties.rest.PropertyValueInfoServiceModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -102,6 +101,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -163,8 +163,6 @@ import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.pluggable.rest.MdcPropertyValueConverterFactory;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
-import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
-import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -182,17 +180,18 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
-
 import com.energyict.protocolimpl.elster.a3.AlphaA3;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
@@ -210,10 +209,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -347,7 +342,6 @@ public class DemoTest {
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
-                new PkiModule(),
                 new OrmModule(),
                 new UtilModule(),
                 new ThreadSecurityModule(),
@@ -483,7 +477,6 @@ public class DemoTest {
         String DEVICE_CONFIG_NAME = "Default";
         String SECURITY_PROPERTY_SET_NAME = "High level authentication - No encryption";
         String CONNECTION_METHOD_NAME = "Outbound TCP";
-        String CLIENT = "1";
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
         Optional<Device> gatewayOptional = deviceService.findDeviceByName(gatewayName);
@@ -502,9 +495,11 @@ public class DemoTest {
         assertThat(configuration.getSecurityPropertySets()).hasSize(1);
         SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().get(0);
         assertThat(securityPropertySet.getName()).isEqualTo(SECURITY_PROPERTY_SET_NAME);
-        assertThat(securityPropertySet.getClient()).isEqualTo(CLIENT);
-        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_GMAC.getValue());
-        assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue());
+        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(5);      //HIGH_LEVEL_GMAC
+        assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(0);          //NO_ENCRYPTION
+        assertThat(securityPropertySet.getUserActions()).containsExactly(
+                DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
+                DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
         assertThat(configuration.getPartialOutboundConnectionTasks()).hasSize(1);
         PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
         assertThat(connectionTask.getName()).isEqualTo(CONNECTION_METHOD_NAME);
@@ -528,11 +523,13 @@ public class DemoTest {
         assertThat(scheduledConnectionTask.getNumberOfSimultaneousConnections()).isEqualTo(1);
         assertThat(scheduledConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName()).getValue()).isEqualTo("10.0.0.135");
-            assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName()).getValue()).isEqualTo(new BigDecimal(4059));
-            assertThat(gateway.getSecurityProperties(securityPropertySet)).hasSize(2);
+            assertThat(scheduledConnectionTask.getProperty("host").getValue()).isEqualTo("10.0.0.135");
+            assertThat(scheduledConnectionTask.getProperty("portNumber").getValue()).isEqualTo(new BigDecimal(4059));
+            assertThat(gateway.getSecurityProperties(securityPropertySet)).hasSize(3);
             for (SecurityProperty securityProperty : gateway.getSecurityProperties(securityPropertySet)) {
-                if (SecurityPropertySpecName.AUTHENTICATION_KEY.getKey().equals(securityProperty.getName())) {
+                if (SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey().equals(securityProperty.getName())) {
+                    assertThat(securityProperty.getValue()).isEqualTo(BigDecimal.ONE);
+                } else if (SecurityPropertySpecName.AUTHENTICATION_KEY.getKey().equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue().toString()).isEqualTo("00112233445566778899AABBCCDDEEFF");
                 } else if (SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue().toString()).isEqualTo("11223344556677889900AABBCCDDEEFF");
@@ -548,7 +545,6 @@ public class DemoTest {
         String SERIAL_NUMBER = "Demo board AS3000".equals(deviceName) ? "E0023000520685414" : "123457S";
         String MAC_ADDRESS = "Demo board AS3000".equals(deviceName) ? "02237EFFFEFD835B" : "02237EFFFEFD82F4";
         String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
-        String CLIENT = "1";
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
         Optional<Device> deviceOptional = deviceService.findDeviceByName(deviceName);
@@ -606,9 +602,11 @@ public class DemoTest {
         assertThat(configuration.getSecurityPropertySets()).hasSize(1);
         SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().get(0);
         assertThat(securityPropertySet.getName()).isEqualTo(SECURITY_SET_NAME);
-        assertThat(securityPropertySet.getClient()).isEqualTo(CLIENT);
-        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue());
-        assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue());
+        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(3);      //HIGH_LEVEL_MD5
+        assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(0);          //NO_ENCRYPTION
+        assertThat(securityPropertySet.getUserActions()).containsExactly(
+                DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
+                DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
         assertThat(configuration.getPartialOutboundConnectionTasks().isEmpty()).isTrue();
         assertThat(configuration.getComTaskEnablements()).hasSize(3);
         for (ComTaskEnablement enablement : configuration.getComTaskEnablements()) {
@@ -656,8 +654,10 @@ public class DemoTest {
         }
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
-                if ("Password".equals(securityProperty.getName())) {
-                    assertThat(((Password) securityProperty.getValue()).getValue()).isEqualTo("1234567890123456");
+                if ("ClientMacAddress".equals(securityProperty.getName())) {
+                    assertThat(securityProperty.getValue()).isEqualTo(BigDecimal.ONE);
+                } else if ("Password".equals(securityProperty.getName())) {
+                    assertThat((String) securityProperty.getValue()).isEqualTo("1234567890123456");
                 }
             }
             ctx.commit();
