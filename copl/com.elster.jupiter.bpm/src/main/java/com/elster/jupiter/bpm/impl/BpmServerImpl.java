@@ -139,7 +139,7 @@ public class BpmServerImpl implements BpmServer {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException(e.getStackTrace().toString());
+            throw new RuntimeException(e);
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
@@ -180,7 +180,7 @@ public class BpmServerImpl implements BpmServer {
             return jsonContent.toString();
 
         } catch (IOException e) {
-            return e.getMessage();
+            throw new RuntimeException(e);
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
