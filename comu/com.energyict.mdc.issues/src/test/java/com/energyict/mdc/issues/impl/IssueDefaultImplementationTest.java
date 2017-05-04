@@ -5,13 +5,12 @@
 package com.energyict.mdc.issues.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-
-import java.time.Instant;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -24,7 +23,7 @@ public class IssueDefaultImplementationTest {
 
     @Test
     public void testProblemDescriptionAvailableInThesaurus(){
-        when(thesaurus.getString("comportXhasAnIssue", "comportXhasAnIssue")).thenReturn("Er ist ein problem mit das Comport '{0}'");
+        when(thesaurus.getString("comportXhasAnIssue", "comportXhasAnIssue")).thenReturn("Er ist ein problem mit das Comport ''{0}''");
         IssueDefaultImplementation issueDefaultImplementation = new ProblemImpl(thesaurus, Instant.now(), null, "comportXhasAnIssue", 5L);
 
         // Business method
@@ -48,7 +47,7 @@ public class IssueDefaultImplementationTest {
 
     @Test
     public void testWarningDescriptionAvailableInThesaurus(){
-        when(thesaurus.getString("comportXhasAnIssue", "comportXhasAnIssue")).thenReturn("Er ist ein warning mit das Comport '{0}'");
+        when(thesaurus.getString("comportXhasAnIssue", "comportXhasAnIssue")).thenReturn("Er ist ein warning mit das Comport ''{0}''");
         IssueDefaultImplementation issueDefaultImplementation = new WarningImpl(thesaurus, Instant.now(), null, "comportXhasAnIssue", 5L);
 
         // Business method
