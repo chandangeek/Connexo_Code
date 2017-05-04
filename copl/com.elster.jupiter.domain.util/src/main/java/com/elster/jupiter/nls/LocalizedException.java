@@ -13,6 +13,7 @@ public abstract class LocalizedException extends BaseException {
 	private final Thesaurus thesaurus;
     private final Object[] messageArgs;
 
+
     protected LocalizedException(Thesaurus thesaurus, MessageSeed messageSeed) {
         super(messageSeed);
         this.thesaurus = thesaurus;
@@ -42,7 +43,7 @@ public abstract class LocalizedException extends BaseException {
     }
 
     protected final NlsMessageFormat getFormat() {
-        return getThesaurus().getFormat(getMessageSeed());
+        return getThesaurus().getSimpleFormat(getMessageSeed());
     }
 
     @Override
