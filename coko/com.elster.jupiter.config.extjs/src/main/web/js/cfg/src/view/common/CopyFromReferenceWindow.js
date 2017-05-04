@@ -109,7 +109,10 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
                         },
                         {
                             xtype: 'label',
-                            margin: 6,
+                            margin: 8,
+                            style: {
+                                'font-weight': 'normal'
+                            },
                             text: Uni.I18n.translate('copyFromReference.completeBoxMassage', 'CFG', 'Only copy when all data is present')
                         }
                     ]
@@ -132,7 +135,10 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
                         },
                         {
                             xtype: 'label',
-                            margin: 6,
+                            margin: 8,
+                            style: {
+                                'font-weight': 'normal'
+                            },
                             text: Uni.I18n.translate('copyFromReference.projectedBoxMassage', 'CFG', 'Mark values as projected')
                         }
                     ]
