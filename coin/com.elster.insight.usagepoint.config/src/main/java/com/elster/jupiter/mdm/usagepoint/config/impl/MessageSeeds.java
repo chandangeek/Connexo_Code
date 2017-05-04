@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import static java.util.logging.Level.SEVERE;
 
 public enum MessageSeeds implements MessageSeed {
+    REQUIRED(1001, Keys.REQUIRED, "This field is required"),
     DUPLICATE_VALIDATION_RULE_USAGE(1001, Keys.DUPLICATE_VALIDATION_RULE_USAGE, "Rule set is already linked to metrology configuration"),
     CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE(1002, Keys.CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE, "This life cycle can''t be removed because one or more metrology configurations use states of this life cycle."),
     CAN_NOT_DELETE_ACTIVE_STATE(1003, Keys.CAN_NOT_DELETE_ACTIVE_STATE, "This state can''t be removed from this usage point life cycle because one or more metrology configurations use this state."),
@@ -58,6 +59,7 @@ public enum MessageSeeds implements MessageSeed {
     }
 
     public static class Keys {
+        public static final String REQUIRED = "isRequired";
         public static final String DUPLICATE_VALIDATION_RULE_USAGE = "duplicateValidationRuleUsage";
         public static final String CAN_NOT_DELETE_ACTIVE_LIFE_CYCLE = "canNotDeleteActiveLifeCycle";
         public static final String CAN_NOT_DELETE_ACTIVE_STATE = "canNotDeleteActiveLifeCycleState";

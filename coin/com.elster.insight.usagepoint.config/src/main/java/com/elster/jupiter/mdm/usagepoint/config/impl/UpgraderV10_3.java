@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
@@ -30,7 +31,6 @@ import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -44,18 +44,20 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
 
     private final DataModel dataModel;
     private final UserService userService;
+    private final CalendarService calendarService;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MeteringService meteringService;
     private final MetrologyConfigurationsInstaller metrologyConfigurationsInstaller;
 
     @Inject
-    UpgraderV10_3(DataModel dataModel, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService, UserService userService) {
+    UpgraderV10_3(DataModel dataModel, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService, UserService userService, CalendarService calendarService) {
         super();
         this.dataModel = dataModel;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.meteringService = meteringService;
         this.userService = userService;
-        this.metrologyConfigurationsInstaller = new MetrologyConfigurationsInstaller(metrologyConfigurationService, meteringService);
+        this.calendarService = calendarService;
+        this.metrologyConfigurationsInstaller = new MetrologyConfigurationsInstaller(calendarService, metrologyConfigurationService, meteringService);
     }
 
     @Override
@@ -66,6 +68,8 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
         upgradeResidentialNetMeteringProduction();
         upgradeResidentialProsumerWith1Meter();
         upgradeResidentialProsumerWith2Meter();
+        addResidentialNetMeteringConsumptionThickTimeOfUse();
+        addResidentialNetMeteringConsumptionThinTimeOfUse();
         metrologyConfigurationsInstaller.residentialWater();
         upgradeGapAllowedFlagForMetrologyConfigurations();
         userService.addModulePrivileges(this);
@@ -81,8 +85,8 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                     .filter(ootbConfig -> ootbConfig.getName().equals(metrologyConfiguration.getName()))
                     .findFirst()
                     // change gapAllowed flag for existing metrology configuration if it does not match OOTB value
-                    .map(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration::isGapAllowed)
-                    .filter(Predicate.isEqual(metrologyConfiguration.isGapAllowed()).negate())
+                    .map(MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration::areGapsAllowed)
+                    .filter(Predicate.isEqual(metrologyConfiguration.areGapsAllowed()).negate())
                     .ifPresent((isGapAllowed) -> metrologyConfiguration
                             .startUpdate().setGapAllowed(isGapAllowed).complete());
         }));
@@ -105,10 +109,10 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                     .findFirst();
 
             if (contract.isPresent() && meterRole.isPresent() && readingTypeTemplate.isPresent()) {
-                ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.BULK_A_PLUS_WH))
+                ReadingType readingTypeAplusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.BULK_A_PLUS_KWH))
                         .stream()
                         .findFirst()
-                        .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.BULK_A_PLUS_WH, "A+"));
+                        .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.BULK_A_PLUS_KWH, "A+"));
                 ReadingTypeRequirement requirementAplusRegister = (metrologyConfiguration)
                         .newReadingTypeRequirement(DefaultReadingTypeTemplate.BULK_A_PLUS.getNameTranslation()
                         .getDefaultFormat(), meterRole.get())
@@ -128,8 +132,8 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                 .ifPresent(mc -> {
                     Optional<MetrologyPurpose> purposeInformationOptional = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
                     Optional<MeterRole> meterRoleOptional = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey());
-                    Optional<ReadingTypeTemplate> readingTypeTemplateOptional = metrologyConfigurationService.findReadingTypeTemplate(
-                            DefaultReadingTypeTemplate.A_MINUS.getNameTranslation().getDefaultFormat());
+                    Optional<ReadingTypeTemplate> readingTypeTemplateOptional =
+                            metrologyConfigurationService.findReadingTypeTemplate(DefaultReadingTypeTemplate.A_MINUS.getNameTranslation().getDefaultFormat());
                     if (purposeInformationOptional.isPresent() && meterRoleOptional.isPresent() && readingTypeTemplateOptional.isPresent()) {
                         MetrologyPurpose purposeInformation = purposeInformationOptional.get();
                         MeterRole meterRole = meterRoleOptional.get();
@@ -139,10 +143,7 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                         // add information contract if not present yet
                         MetrologyContract contractInformation = mc.addMandatoryMetrologyContract(purposeInformation);
                         // add first reading type if not found
-                        ReadingType readingType15minAMinusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.MIN15_A_MINUS_WH))
-                                .stream()
-                                .findFirst()
-                                .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.MIN15_A_MINUS_WH, "A-"));
+                        ReadingType readingType15minAMinusWh = this.findOrCreateReadingType(MetrologyConfigurationsInstaller.MIN15_A_MINUS_KWH, "A-");
                         // add first deliverable if not found
                         ReadingTypeDeliverable min15Deliverable = contractInformation.getDeliverables().stream()
                                 .filter(deliverable -> readingType15minAMinusWh.equals(deliverable.getReadingType()))
@@ -156,15 +157,11 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
                                             .findAny()
                                             .orElseGet(() -> mc.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_MINUS.getNameTranslation().getDefaultFormat(), meterRole)
                                                     .withReadingTypeTemplate(readingTypeTemplate));
-                                    ReadingTypeDeliverable min15 = metrologyConfigurationsInstaller.buildFormulaSingleRequirement(
+                                    return metrologyConfigurationsInstaller.buildFormulaSingleRequirement(
                                             contractInformation, readingType15minAMinusWh, requirementAMinus, "15-min A- kWh");
-                                    return min15;
                                 });
                         // add second reading type if not found
-                        ReadingType readingTypeHourlyAMinusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.HOURLY_A_MINUS_WH))
-                                .stream()
-                                .findFirst()
-                                .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.HOURLY_A_MINUS_WH, "A-"));
+                        ReadingType readingTypeHourlyAMinusWh = this.findOrCreateReadingType(MetrologyConfigurationsInstaller.HOURLY_A_MINUS_KWH, "A-");
                         // add second deliverable if not found
                         if (contractInformation.getDeliverables().stream()
                                 .noneMatch(deliverable -> readingTypeHourlyAMinusWh.equals(deliverable.getReadingType()))) {
@@ -239,22 +236,22 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
         if (usagePointMetrologyConfiguration.isPresent() && usagePointMetrologyConfiguration.get() instanceof UsagePointMetrologyConfiguration) {
             UsagePointMetrologyConfiguration config = (UsagePointMetrologyConfiguration) usagePointMetrologyConfiguration
                     .get();
-            ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.MONTHLY_A_PLUS_WH))
+            ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.MONTHLY_A_PLUS_KWH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.MONTHLY_A_PLUS_WH, "A+"));
-            ReadingType readingTypeMonthlyNetWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.MONTHLY_NET_WH))
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.MONTHLY_A_PLUS_KWH, "A+"));
+            ReadingType readingTypeMonthlyNetWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.MONTHLY_NET_KWH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.MONTHLY_NET_WH, "Monthly Net kWh"));
-            ReadingType readingTypeYearlyNetWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.YEARLY_NET_WH))
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.MONTHLY_NET_KWH, "Monthly Net kWh"));
+            ReadingType readingTypeYearlyNetWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.YEARLY_NET_KWH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.YEARLY_NET_WH, "Yearly Net kWh"));
-            ReadingType readingTypeYearlyAminusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.YEARLY_A_MINUS_WH))
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.YEARLY_NET_KWH, "Yearly Net kWh"));
+            ReadingType readingTypeYearlyAminusWh = meteringService.findReadingTypes(Collections.singletonList(MetrologyConfigurationsInstaller.YEARLY_A_MINUS_KWH))
                     .stream()
                     .findFirst()
-                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.YEARLY_A_MINUS_WH, "A-"));
+                    .orElseGet(() -> meteringService.createReadingType(MetrologyConfigurationsInstaller.YEARLY_A_MINUS_KWH, "A-"));
 
             MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
                     .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
@@ -312,6 +309,16 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
         }
     }
 
+    private void addResidentialNetMeteringConsumptionThickTimeOfUse() {
+        MetrologyConfigurationsInstaller installer = new MetrologyConfigurationsInstaller(calendarService, this.metrologyConfigurationService, this.meteringService);
+        installer.residentialNetMeteringConsumptionThickTimeOfUse(installer.findOrCreateTimeOfUseEventSet());
+    }
+
+    private void addResidentialNetMeteringConsumptionThinTimeOfUse() {
+        MetrologyConfigurationsInstaller installer = new MetrologyConfigurationsInstaller(calendarService, this.metrologyConfigurationService, this.meteringService);
+        installer.residentialNetMeteringConsumptionThinTimeOfUse(installer.findOrCreateTimeOfUseEventSet());
+    }
+
     @Override
     public String getModuleName() {
         return UsagePointConfigurationService.COMPONENTNAME;
@@ -319,10 +326,28 @@ class UpgraderV10_3 implements Upgrader, PrivilegesProvider {
 
     @Override
     public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(UsagePointConfigurationService.COMPONENTNAME, DefaultTranslationKey.RESOURCE_ESTIMATION_CONFIGURATION
-                        .getKey(), DefaultTranslationKey.RESOURCE_ESTIMATION_CONFIGURATION_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.VIEW_ESTIMATION_ON_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_ESTIMATION_ON_METROLOGY_CONFIGURATION)));
-        return resources;
+        return Collections.singletonList(
+                userService
+                    .createModuleResourceWithPrivileges(
+                            UsagePointConfigurationService.COMPONENTNAME,
+                            DefaultTranslationKey.RESOURCE_ESTIMATION_CONFIGURATION.getKey(),
+                            DefaultTranslationKey.RESOURCE_ESTIMATION_CONFIGURATION_DESCRIPTION.getKey(),
+                            Arrays.asList(
+                                    Privileges.Constants.VIEW_ESTIMATION_ON_METROLOGY_CONFIGURATION,
+                                    Privileges.Constants.ADMINISTER_ESTIMATION_ON_METROLOGY_CONFIGURATION)));
     }
+
+    private ReadingType findOrCreateReadingType(String mRID, String aliasName) {
+        return this.meteringService
+                .findReadingTypes(Collections.singletonList(mRID))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType(mRID, aliasName));
+    }
+
+    private MetrologyPurpose findPurposeOrThrowException(DefaultMetrologyPurpose purpose) {
+        return metrologyConfigurationService.findMetrologyPurpose(purpose)
+                .orElseThrow(() -> new NoSuchElementException(purpose.getName().getDefaultMessage() + " metrology purpose not found"));
+    }
+
 }
