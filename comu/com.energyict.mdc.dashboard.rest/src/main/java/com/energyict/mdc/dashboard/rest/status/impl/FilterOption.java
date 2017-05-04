@@ -21,5 +21,6 @@ enum FilterOption {
     connectionTypes,
     deviceTypes,
     comPortPools,
-    deviceGroups;
+    deviceGroups,
+    connectionMethods;
 }

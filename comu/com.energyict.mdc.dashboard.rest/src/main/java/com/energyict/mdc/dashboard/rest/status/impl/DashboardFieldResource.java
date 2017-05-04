@@ -13,6 +13,8 @@ import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.ConnectionTaskLifecycleStatusAdapter;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -27,13 +29,16 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,15 +55,17 @@ public class DashboardFieldResource extends FieldResource {
     private static final Comparator<HasName> BY_NAME_COMPARATOR = Comparator.comparing(HasName::getName, String.CASE_INSENSITIVE_ORDER);
     private static final BreakdownOptionAdapter BREAKDOWN_OPTION_ADAPTER = new BreakdownOptionAdapter();
     private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceService deviceService;
     private final EngineConfigurationService engineConfigurationService;
     private final ProtocolPluggableService protocolPluggableService;
     private final TaskService taskService;
     private final SchedulingService schedulingService;
 
     @Inject
-    public DashboardFieldResource(NlsService nlsService, DeviceConfigurationService deviceConfigurationService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, TaskService taskService, SchedulingService schedulingService) {
+    public DashboardFieldResource(NlsService nlsService, DeviceConfigurationService deviceConfigurationService, DeviceService deviceService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, TaskService taskService, SchedulingService schedulingService) {
         super(nlsService.getThesaurus(DashboardApplication.COMPONENT_NAME, Layer.REST));
         this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceService = deviceService;
         this.engineConfigurationService = engineConfigurationService;
         this.protocolPluggableService = protocolPluggableService;
         this.taskService = taskService;
@@ -166,6 +173,22 @@ public class DashboardFieldResource extends FieldResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getConnectionTypeValues() {
         return Response.ok(asInfoMap("connectiontypepluggableclasses", protocolPluggableService.findAllConnectionTypePluggableClasses())).build();
+    }
+
+    @GET @Transactional
+    @Path("/device/{name}/connectionmethods")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Object getConnectionMethods(@PathParam("name") String deviceName) {
+        Optional<Device> deviceByName = deviceService.findDeviceByName(deviceName);
+        List<ConnectionTask<?, ?>> connectionTasks = new ArrayList<>();
+        if(deviceByName.isPresent()) {
+            Device device = deviceByName.get();
+            if(device.getDeviceConfiguration().isDirectlyAddressable()) {
+                connectionTasks = device.getConnectionTasks();
+            }
+        }
+        return Response.ok(asInfoMap("connectionmethods", connectionTasks)).build();
     }
 
     private <H extends HasId & HasName> Map<String, List<IdWithNameInfo>> asInfoMap(String name, List<H> list) {
