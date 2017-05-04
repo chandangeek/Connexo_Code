@@ -23,7 +23,6 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +31,6 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
-    private boolean isComplete = false;
 
     @Inject
     UsagePointReadingItemDataSelector(Clock clock,
@@ -69,29 +67,22 @@ class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
 
     @Override
     boolean isComplete(IReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings) {
-        Set<Instant> instants;
         switch (item.getSelector().getStrategy().getMissingDataOption()) {
             case EXCLUDE_OBJECT:
-                if (!isComplete) {
-                    instants = new HashSet<>(item.getReadingContainer().getReadingTypes(exportInterval).stream()
-                            .map(readingType -> item.getReadingContainer().toList(readingType, exportInterval))
-                            .flatMap(Collection::stream)
-                            .collect(Collectors.toSet()));
-                    item.getReadingContainer().getReadingTypes(exportInterval).stream()
-                            .map(readingType -> item.getReadingContainer().getReadings(exportInterval, readingType))
-                            .flatMap(Collection::stream)
-                            .map(BaseReadingRecord::getTimeStamp)
-                            .forEach(instants::remove);
-                    if (instants.isEmpty()) {
-                        isComplete = true;
-                        return isComplete;
-                    } else {
-                        return isComplete;
-                    }
-                }
-                return isComplete;
+                final boolean[] isComplete = {true};
+                    item.getReadingContainer().getReadingTypes(exportInterval)
+                            .forEach(readingType -> {
+                                Set<Instant> instants = new HashSet<>(item.getReadingContainer().toList(readingType, exportInterval));
+                                item.getReadingContainer().getReadings(exportInterval, readingType).stream()
+                                        .map(BaseReadingRecord::getTimeStamp)
+                                        .forEach(instants::remove);
+                                if (!instants.isEmpty()) {
+                                    isComplete[0] = false;
+                                }
+                            });
+                return isComplete[0];
             default:
-                instants = new HashSet<>(item.getReadingContainer().toList(item.getReadingType(), exportInterval));
+                Set<Instant> instants = new HashSet<>(item.getReadingContainer().toList(item.getReadingType(), exportInterval));
                 readings.stream()
                         .map(BaseReadingRecord::getTimeStamp)
                         .forEach(instants::remove);
