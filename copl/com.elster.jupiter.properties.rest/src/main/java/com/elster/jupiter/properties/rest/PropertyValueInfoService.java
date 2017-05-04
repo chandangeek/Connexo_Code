@@ -20,6 +20,15 @@ public interface PropertyValueInfoService {
 
     void addPropertyValueInfoConverter(PropertyValueConverter converter);
 
+    /**
+     * Add a 'dedicated' {@link PropertyValueConverter}. This will be the converter that will be used
+     * for converting values of {@link PropertySpec}s with the given name. Converters added this way will first be 'visited' to
+     * check they can convert a given PropertySpec.
+     * @param converter to use
+     * @param propertyName the name of the propertyspecs to convert values from/to
+     */
+    void addPropertyValueInfoConverter(PropertyValueConverter converter, String propertyName);
+
     void removePropertyValueInfoConverter(PropertyValueConverter converter);
 
     PropertyValueConverter getConverter(PropertySpec propertySpec);
