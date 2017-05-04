@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.TypedProperties;
@@ -22,6 +23,8 @@ import com.energyict.mdc.pluggable.rest.PropertyDefaultValuesProvider;
 import com.energyict.mdc.pluggable.rest.PropertyValuesResourceProvider;
 
 import javax.inject.Inject;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -96,9 +99,11 @@ public class SecurityAccessorInfoFactory {
         TypedProperties actualTypedProperties = getPropertiesActualValue(keyAccessor);
 
         info.currentProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, actualTypedProperties, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
+        Collections.sort(info.currentProperties, (PropertyInfo info1, PropertyInfo info2) -> info1.key.equals("trustStore") ? -1 : 0);
 
         TypedProperties tempTypedProperties = getPropertiesTempValue(keyAccessor);
         info.tempProperties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, tempTypedProperties, aliasTypeAheadPropertyValueProvider, trustStoreValuesProvider);
+        Collections.sort(info.tempProperties, (PropertyInfo info1, PropertyInfo info2) -> info1.key.equals("trustStore") ? -1 : 0);
 
         if (keyAccessor instanceof CertificateAccessor) {
             ((CertificateAccessor)keyAccessor).getActualValue().ifPresent(cw->cw.getLastReadDate().ifPresent(date -> info.lastReadDate = date));
