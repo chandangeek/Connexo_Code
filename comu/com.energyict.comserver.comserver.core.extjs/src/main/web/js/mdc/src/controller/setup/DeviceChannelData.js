@@ -874,25 +874,18 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             commentValue = commentCombo.getRawValue(),
             commentId = commentCombo.getValue(),
             readings = button.readings,
+            modificationState = radioValue ? 'bulkModificationState' : 'mainModificationState',
+            validationState = radioValue ? 'bulkValidationInfo' : 'mainValidationInfo',
             comment = {};
 
-        if (radioValue) {
-            _.each(readings, function (reading) {
-                if (reading.get('bulkModificationState') && reading.get('bulkModificationState').flag) {
-                    reading.get('bulkValidationInfo').commentId = commentId;
-                    reading.get('bulkValidationInfo').commentValue = commentValue;
-                    reading.set(button.modificationState, Uni.util.ReadingEditor.modificationState(reading.get('bulkModificationState').flag));
-                }
-            });
-        } else {
-            _.each(readings, function (reading) {
-                if (reading.get('mainModificationState') && reading.get('mainModificationState').flag) {
-                    reading.get('mainValidationInfo').commentId = commentId;
-                    reading.get('mainValidationInfo').commentValue = commentValue;
-                    reading.set(button.modificationState, Uni.util.ReadingEditor.modificationState(reading.get('mainModificationState').flag));
-                }
-            });
-        }
+        _.each(readings, function (reading) {
+            if (reading.get(modificationState) && reading.get(modificationState).flag) {
+                reading.get(validationState).commentId = commentId;
+                reading.get(validationState).commentValue = commentValue;
+                reading.set('estimatedCommentNotSaved', true);
+                reading.set(modificationState, Uni.util.ReadingEditor.modificationState(reading.get(modificationState).flag));
+            }
+        });
         me.showButtons();
         window.close();
     },
@@ -976,8 +969,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         item = _.find(response, function (rec) {
                             return rec.interval.end === item;
                         });
-                        reading.set('value', item.value);
-                        reading.set('mainValidationInfo', Ext.merge(item.mainValidationInfo, comment));
+                        if (item) {
+                            reading.set('value', item.value);
+                            reading.set('mainValidationInfo', Ext.merge(item.mainValidationInfo, comment));
+                            reading.get('mainValidationInfo').validationResult = 'validationStatus.ok';
+                            reading.get('mainValidationInfo').estimatedByRule = undefined;
+                            reading.set('mainModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+                        }
                     });
                     me.showButtons();
                     Ext.resumeLayouts(true);

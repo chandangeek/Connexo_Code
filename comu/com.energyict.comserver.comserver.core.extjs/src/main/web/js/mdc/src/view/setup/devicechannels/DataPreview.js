@@ -50,7 +50,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             if (me.channels) {
                 dataQualitiesForChannels = false;
                 Ext.Array.each(me.channels, function (channel) {
-                    // debugger;
                     var mainValidationInfoField = me.down('#mainValidationInfo' + channel.id),
                         channelBulkValueField = me.down('#channelBulkValue' + channel.id),
                         containter = me.down("#channelFieldContainer" + channel.id);
@@ -104,6 +103,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             detailRecord.set('multiplier', record.get('multiplier'));
             detailRecord.set('commentValue', record.get('mainValidationInfo').commentValue);
             me.down('#values-panel').loadRecord(detailRecord);
+            debugger;
             me.setLoading(false);
         });
     },
@@ -509,8 +509,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                         {
                             xtype: 'displayfield',
                             name: 'commentValue',
-                            renderer: function (item) {
-                                return item ? item : '-';
+                            renderer: function (value) {
+                                console.log(me);
+                                debugger;
+                                return value ? value : '-';
                             }
                         }
                     ]
