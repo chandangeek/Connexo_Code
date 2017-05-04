@@ -57,7 +57,7 @@ Ext.define('Uni.view.container.PortalContainer', {
                 var menu = this.down('menu');
                 if(menu) {
                     menu.removeAll();
-                    me.applyBullets(items);
+                    me.up('panel').applyBullets(items);
                     menu.add(items);
                 }
             }
@@ -72,7 +72,7 @@ Ext.define('Uni.view.container.PortalContainer', {
 
     applyBullets: function(items) {
         Ext.Array.each(items, function(item) {
-            if (!item.text.startsWith('<span')) {
+            if (!Ext.String.startsWith(item.text, '<span')) {
                 item.text = '<span class="icon-target" style="margin-right: 3px; cursor:pointer; text-decoration:none; display:inline-block; color:#A9A9A9; font-size:12px;"></span>'
                     + item.text;
             }
