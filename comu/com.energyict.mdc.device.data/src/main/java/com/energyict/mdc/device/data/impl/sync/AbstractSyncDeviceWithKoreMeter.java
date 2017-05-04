@@ -212,8 +212,12 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
         this.addKoreChannelsIfNecessary(newMeterActivation);
         device.getKoreHelper().setCurrentMeterActivation(Optional.of(newMeterActivation));
         // we need to create new channelReferences if applicable
-        this.eventService.postEvent(EventType.RESTARTED_METERACTIVATION.topic(), device);
+        meterActivationRestarted();
         return newMeterActivation;
+    }
+
+    protected void meterActivationRestarted(){
+        this.eventService.postEvent(EventType.RESTARTED_METERACTIVATION.topic(), device);
     }
 
     private MultiplierType getDefaultMultiplierType() {
