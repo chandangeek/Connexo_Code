@@ -33,6 +33,7 @@ import com.energyict.mdc.tasks.TopologyTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -87,28 +88,28 @@ public class ComTaskExecutionOrganizerTest {
     private ComTask createMockedTopologyComTask() {
         ComTask comTask = mock(ComTask.class);
         ProtocolTask basicCheck = mock(TopologyTask.class);
-        when(comTask.getProtocolTasks()).thenReturn(Arrays.asList(basicCheck));
+        when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(basicCheck));
         return comTask;
     }
 
     private ComTask createMockedLoadProfilesComTask() {
         ComTask comTask = mock(ComTask.class);
         ProtocolTask basicCheck = mock(LoadProfilesTask.class);
-        when(comTask.getProtocolTasks()).thenReturn(Arrays.asList(basicCheck));
+        when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(basicCheck));
         return comTask;
     }
 
     private ComTask createMockedLogBooksComTask() {
         ComTask comTask = mock(ComTask.class);
         ProtocolTask basicCheck = mock(LogBooksTask.class);
-        when(comTask.getProtocolTasks()).thenReturn(Arrays.asList(basicCheck));
+        when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(basicCheck));
         return comTask;
     }
 
     private ComTask createMockedRegistersComTask() {
         ComTask comTask = mock(ComTask.class);
         ProtocolTask basicCheck = mock(RegistersTask.class);
-        when(comTask.getProtocolTasks()).thenReturn(Arrays.asList(basicCheck));
+        when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(basicCheck));
         return comTask;
     }
 
@@ -142,7 +143,7 @@ public class ComTaskExecutionOrganizerTest {
         when(deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(this.comTaskEnablement));
 
         // business exception
-        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(topologyService, identificationService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
+        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(topologyService, identificationService).defineComTaskExecutionOrders(Collections.singletonList(comTaskExecution));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -744,7 +745,7 @@ public class ComTaskExecutionOrganizerTest {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.empty());
         when(masterDeviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(masterComTaskEnablement));
-        when(masterDeviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(this.securityPropertySet));
+        when(masterDeviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(this.securityPropertySet));
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
@@ -813,7 +814,7 @@ public class ComTaskExecutionOrganizerTest {
         DeviceConfiguration masterOfMaster1DeviceConfiguration = masterOfMaster1.getDeviceConfiguration();
         when(this.securityPropertySet.getDeviceConfiguration()).thenReturn(masterOfMaster1DeviceConfiguration);
         when(masterOfMaster1DeviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(this.comTaskEnablement));
-        when(masterOfMaster1DeviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(this.securityPropertySet));
+        when(masterOfMaster1DeviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(this.securityPropertySet));
 
         ComTaskExecution comTaskExecution1 = createMockedComTaskExecution(device, createMockedTopologyComTask());
         ComTaskExecution comTaskExecution2 = createMockedComTaskExecution(device, createMockedRegistersComTask());
@@ -872,7 +873,7 @@ public class ComTaskExecutionOrganizerTest {
         ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(topologyService, identificationService);
 
         // business method
-        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = organizer.defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
+        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = organizer.defineComTaskExecutionOrders(Collections.singletonList(comTaskExecution));
 
         // asserts: see expected exception rule
     }
@@ -904,7 +905,7 @@ public class ComTaskExecutionOrganizerTest {
         when(device.getKeyAccessors()).thenReturn(keyAccessors);
 
         // business method
-        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(topologyService, identificationService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
+        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(topologyService, identificationService).defineComTaskExecutionOrders(Collections.singletonList(comTaskExecution));
 
         // asserts
         final List<DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps> comTasksWithStepsAndSecurity = deviceOrganizedComTaskExecutions.get(0).getComTasksWithStepsAndSecurity();
@@ -1389,7 +1390,7 @@ public class ComTaskExecutionOrganizerTest {
         when(keyAccessorType.getName()).thenReturn(keyAccessorTypeName);
         when(keyAccessor.getKeyAccessorType()).thenReturn(keyAccessorType);
         when(keyAccessor.getDevice()).thenReturn(mock(Device.class));
-        when(keyAccessor.getActualValue()).thenReturn(plaintextPassphrase);
+        when(keyAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
         return keyAccessor;
     }
 

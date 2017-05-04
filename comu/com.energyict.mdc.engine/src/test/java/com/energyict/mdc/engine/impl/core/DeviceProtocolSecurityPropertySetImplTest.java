@@ -114,7 +114,7 @@ public class DeviceProtocolSecurityPropertySetImplTest {
         when(keyAccessorType.getName()).thenReturn(keyAccessorTypeName);
         when(keyAccessor.getKeyAccessorType()).thenReturn(keyAccessorType);
         when(keyAccessor.getDevice()).thenReturn(device);
-        when(keyAccessor.getActualValue()).thenReturn(plaintextSymmetricKey);
+        when(keyAccessor.getActualValue()).thenReturn(Optional.of(plaintextSymmetricKey));
         return keyAccessor;
     }
 
@@ -127,7 +127,7 @@ public class DeviceProtocolSecurityPropertySetImplTest {
         when(keyAccessorType.getName()).thenReturn(keyAccessorTypeName);
         when(keyAccessor.getKeyAccessorType()).thenReturn(keyAccessorType);
         when(keyAccessor.getDevice()).thenReturn(device);
-        when(keyAccessor.getActualValue()).thenReturn(plaintextPassphrase);
+        when(keyAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
         return keyAccessor;
     }
 }

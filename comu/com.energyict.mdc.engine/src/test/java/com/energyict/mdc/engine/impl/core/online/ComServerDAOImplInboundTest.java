@@ -206,7 +206,7 @@ public class ComServerDAOImplInboundTest {
         when(keyAccessor.getDevice()).thenReturn(device);
         PlaintextPassphrase plaintextPassphrase = mock(PlaintextPassphrase.class);
         when(plaintextPassphrase.getPassphrase()).thenReturn(Optional.of("MyPassword"));
-        when(keyAccessor.getActualValue()).thenReturn(plaintextPassphrase);
+        when(keyAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
         when(expectedSecurityProperty.getName()).thenReturn("Password");
         when(expectedSecurityProperty.getKeyAccessorType()).thenReturn(keyAccessorType);
         List<ConfigurationSecurityProperty> expectedSecurityProperties = Collections.singletonList(expectedSecurityProperty);

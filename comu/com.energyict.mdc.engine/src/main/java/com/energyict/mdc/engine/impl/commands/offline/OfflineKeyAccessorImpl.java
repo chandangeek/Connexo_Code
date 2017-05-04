@@ -20,7 +20,7 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
 
     private final Device device;
     private KeyAccessorType keyAccessorType;
-    private T actualValue;
+    private Optional<T> actualValue;
     private Optional<T> tempValue;
     private int deviceId;
 
@@ -92,7 +92,7 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
     }
 
     @Override
-    public T getActualValue() {
+    public Optional<T> getActualValue() {
         return actualValue;
     }
 
@@ -105,7 +105,7 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
         this.keyAccessorType = keyAccessorType;
     }
 
-    public void setActualValue(T actualValue) {
+    public void setActualValue(Optional<T> actualValue) {
         this.actualValue = actualValue;
     }
 

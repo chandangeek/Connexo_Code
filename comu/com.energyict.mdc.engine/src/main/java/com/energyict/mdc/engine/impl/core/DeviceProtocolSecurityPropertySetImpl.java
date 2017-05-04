@@ -49,18 +49,18 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
                     .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(configurationSecurityProperty.getKeyAccessorType().getName()))
                     .findFirst()
                     .map(keyAccessor -> new OfflineKeyAccessorImpl(keyAccessor, identificationService));
-            if (offlineKeyAccessor.isPresent()) {
-                if (offlineKeyAccessor.get().getActualValue() instanceof PlaintextSymmetricKey) {
-                    PlaintextSymmetricKey plaintextSymmetricKey = (PlaintextSymmetricKey) offlineKeyAccessor.get().getActualValue();
+            if (offlineKeyAccessor.isPresent() && offlineKeyAccessor.get().getActualValue().isPresent()) {
+                if (offlineKeyAccessor.get().getActualValue().get() instanceof PlaintextSymmetricKey) {
+                    PlaintextSymmetricKey plaintextSymmetricKey = (PlaintextSymmetricKey) offlineKeyAccessor.get().getActualValue().get();
                     if (plaintextSymmetricKey.getKey().isPresent()) {
                         securityProperties.setProperty(configurationSecurityProperty.getName(), plaintextSymmetricKey.getKey().get().getEncoded());
                     }
-                } else if (offlineKeyAccessor.get().getActualValue() instanceof PlaintextPassphrase) {
-                    PlaintextPassphrase plaintextPassphrase = (PlaintextPassphrase) offlineKeyAccessor.get().getActualValue();
+                } else if (offlineKeyAccessor.get().getActualValue().get() instanceof PlaintextPassphrase) {
+                    PlaintextPassphrase plaintextPassphrase = (PlaintextPassphrase) offlineKeyAccessor.get().getActualValue().get();
                     if (plaintextPassphrase.getPassphrase().isPresent()) {
                         securityProperties.setProperty(configurationSecurityProperty.getName(), plaintextPassphrase.getPassphrase().get());
                     }
-                } else if (offlineKeyAccessor.get().getActualValue() instanceof CertificateWrapper) {
+                } else if (offlineKeyAccessor.get().getActualValue().get() instanceof CertificateWrapper) {
                     //TODO: foresee offline variants for CertificateWrapper
                 }
             }
