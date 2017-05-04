@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.estimation;
 
 
@@ -5,9 +9,6 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.Event;
 import com.sun.javafx.scene.layout.region.Margins;
 
-/**
- * Created by aeryomin on 05.04.2017.
- */
 public class DiscardDaySettings implements CalendarWithEventSettings {
     private boolean discardDay;
     private Calendar calendar;
