@@ -17,6 +17,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.RangeComparatorFactory;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
@@ -266,6 +267,14 @@ class DeviceValidationImpl implements DeviceValidation {
     @Override
     public void validateChannel(Channel channel) {
         validate(channel.getReadingType());
+    }
+
+    @Override
+    public void validateChannel(Channel channel, Range<Instant> range) {
+        fetchKoreMeter().getChannelsContainers().stream()
+                .filter(channelsContainer -> channelsContainer.overlaps(range))
+                .forEach(channelsContainer -> this.validationService.validate(
+                        new ValidationContextImpl(ImmutableSet.of(QualityCodeSystem.MDC), channelsContainer, channel.getReadingType()), range));
     }
 
     @Override

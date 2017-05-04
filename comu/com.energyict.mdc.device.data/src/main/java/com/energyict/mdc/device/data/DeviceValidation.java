@@ -86,6 +86,8 @@ public interface DeviceValidation {
 
     void validateChannel(Channel channel);
 
+    void validateChannel(Channel channel, Range<Instant> range);
+
     void validateRegister(Register<?, ?> register);
 
     void setLastChecked(Channel c, Instant start);
