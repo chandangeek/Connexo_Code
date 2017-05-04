@@ -265,6 +265,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>dataquality</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.alarms</artifactId>
+        </dependency>
 
         <!-- TESTS -->
         <dependency>
@@ -382,7 +386,8 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.alarms</artifactId>
+            <artifactId>mdc.pluggable.rest</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
