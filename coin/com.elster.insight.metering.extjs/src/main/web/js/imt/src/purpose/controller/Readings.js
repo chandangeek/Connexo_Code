@@ -662,7 +662,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             commentCombo = window.down('#estimation-comment-box'),
             commentId = commentCombo.getValue(),
             commentValue = commentCombo.getRawValue(),
-            readings = [];
+            readings = window.records;
 
         form.updateRecord(model);
         model.getProxy().extraParams = {
@@ -671,10 +671,8 @@ Ext.define('Imt.purpose.controller.Readings', {
             outputId: router.arguments.outputId
         };
 
-        if (!Array.isArray(window.records)) {
-            readings.push(window.records);
-        } else {
-            readings = window.records;
+        if (!Array.isArray(readings)) {
+            readings = [readings];
         }
         _.each(readings, function (reading) {
             intervals.push(reading.get('interval'));
@@ -797,14 +795,12 @@ Ext.define('Imt.purpose.controller.Readings', {
             commentValue = commentCombo.getRawValue(),
             record = window.record,
             markAsProjected,
-            commentId,
             intervalsArray = [];
 
 
         !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
         !window.down('#error-label').isHidden() && window.down('#error-label').hide();
 
-        commentId = window.down('#estimation-comment-box').getValue();
         markAsProjected = window.down('#markProjected').getValue();
         propertyForm.clearInvalid();
 
@@ -900,19 +896,11 @@ Ext.define('Imt.purpose.controller.Readings', {
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
-                        if (commentId !== -1) {
-                            readings.set('commentId', commentId);
-                            readings.set('commentValue', commentValue);
-                        }
                         me.updateEstimatedValues(record, readings, responseText[0], ruleId, action);
                     } else {
                         Ext.Array.each(responseText, function (estimatedReading) {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
-                                    if (commentId !== -1) {
-                                        readings.set('commentId', commentId);
-                                        readings.set('commentValue', commentValue);
-                                    }
                                     me.updateEstimatedValues(record, reading, estimatedReading, ruleId, action);
                                     return true;
                                 }
