@@ -12,6 +12,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -30,9 +32,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static com.elster.jupiter.orm.Version.version;
 
 /**
  * Provides an implementation for the {@link ServerKeyStoreService} interface.
@@ -91,7 +94,13 @@ public class KeyStoreServiceImpl implements ServerKeyStoreService {
     public void activate() {
         this.dataModel.register(this.getModule());
         LegacyDataVaultProvider.instance.set(() -> dataModel.getInstance(DataVault.class));
-        upgradeService.register(InstallIdentifier.identifier("Pulse", DataVaultService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService
+            .register(
+                InstallIdentifier.identifier("Pulse", DataVaultService.COMPONENT_NAME),
+                    dataModel,
+                    Installer.class,
+                    ImmutableMap.of(
+                            version(10, 3), UpgraderV10_3.class));
     }
 
     private Module getModule() {
