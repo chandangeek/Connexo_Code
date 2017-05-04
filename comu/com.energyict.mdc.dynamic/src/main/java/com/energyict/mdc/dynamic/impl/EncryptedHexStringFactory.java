@@ -9,7 +9,12 @@ import com.energyict.mdc.common.HexString;
 
 import javax.inject.Inject;
 
-public class EncryptedHexStringFactory extends AbstractEncryptedValueFactory<HexString> {
+/**
+ *
+ * Date: 10/08/2016
+ * Time: 13:40
+ */
+public class EncryptedHexStringFactory extends AbstractEncryptedValueFactory<com.energyict.mdc.upl.properties.HexString> {
 
     @Inject
     public EncryptedHexStringFactory(DataVaultService dataVaultService) {
@@ -18,17 +23,17 @@ public class EncryptedHexStringFactory extends AbstractEncryptedValueFactory<Hex
     }
 
     @Override
-    public Class<HexString> getValueType () {
-        return HexString.class;
+    public Class<com.energyict.mdc.upl.properties.HexString> getValueType() {
+        return com.energyict.mdc.upl.properties.HexString.class;
     }
 
     @Override
-    public boolean isNull(HexString hexString) {
+    public boolean isNull(com.energyict.mdc.upl.properties.HexString hexString) {
         return super.isNull(hexString) || hexString.isEmpty();
     }
 
     @Override
-    public HexString valueFromDatabase (Object object) {
+    public HexString valueFromDatabase(Object object) {
         String encodedString = (String) object;
         return new HexString(new String(getDecryptedValueFromDatabase(encodedString)));
     }
@@ -36,29 +41,33 @@ public class EncryptedHexStringFactory extends AbstractEncryptedValueFactory<Hex
     @Override
     public HexString fromStringValue(String stringValue) {
         HexString result;
-        try{
+        try {
             result = new HexString(stringValue);
-        }catch (IllegalArgumentException ex){
+        } catch (IllegalArgumentException ex) {
             result = new InvalidHexString(stringValue);
         }
         return result;
     }
 
-    private class HexStringValidator implements PropertyValidator<HexString>{
+    private class HexStringValidator implements PropertyValidator<com.energyict.mdc.upl.properties.HexString> {
         @Override
-        public boolean validate(HexString value) {
-            if (!value.isValid()) {
-                setInvalidMessageSeed(MessageSeeds.INVALID_HEX_CHARACTERS);
-                setReferenceValue(value);
-                return false;
+        public boolean validate(com.energyict.mdc.upl.properties.HexString value) {
+            if (value instanceof HexString) {
+                HexString hexString = (HexString) value;
+                if (!hexString.isValid()) {
+                    setInvalidMessageSeed(MessageSeeds.INVALID_HEX_CHARACTERS);
+                    setReferenceValue(value);
+                    return false;
+                }
             }
             return true;
         }
     }
+
     // HexStrings with an invalid content can not be created: an IllegalArgumentException is thrown
     // Nevertheless the UI must point the fact the value is invalid!!!
-    private class InvalidHexString extends HexString{
-        InvalidHexString(String hexString){
+    private class InvalidHexString extends HexString {
+        InvalidHexString(String hexString) {
             super();
             setContent(hexString);
         }

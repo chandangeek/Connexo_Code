@@ -5,8 +5,8 @@
 package com.energyict.mdc.dynamic.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
-import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.common.Password;
+import com.energyict.mdc.upl.properties.HexString;
+import com.energyict.mdc.upl.properties.Password;
 
 import javax.inject.Inject;
 

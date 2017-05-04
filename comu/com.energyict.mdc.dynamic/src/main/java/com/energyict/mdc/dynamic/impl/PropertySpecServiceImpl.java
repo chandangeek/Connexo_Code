@@ -14,8 +14,6 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.ean.Ean13;
 import com.energyict.mdc.common.ean.Ean18;
@@ -24,8 +22,8 @@ import com.energyict.mdc.dynamic.Ean18Factory;
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.elster.jupiter.properties.TimeDurationValueFactory;
-
+import com.energyict.mdc.upl.properties.HexString;
+import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -121,12 +119,27 @@ public class PropertySpecServiceImpl implements PropertySpecService, MessageSeed
 
     @Override
     public PropertySpecBuilderWizard.NlsOptions<TimeDuration> timeDurationSpec() {
-        return this.specForValuesOf(new TimeDurationValueFactory());
+        return this.basicPropertySpecService.timeDurationSpec();
+    }
+
+    @Override
+    public PropertySpecBuilderWizard.NlsOptions<TimeDuration> temporalAmountSpec() {
+        return this.basicPropertySpecService.temporalAmountSpec();
+    }
+
+    @Override
+    public PropertySpecBuilderWizard.NlsOptions<TimeDuration> durationSpec() {
+        return this.basicPropertySpecService.durationSpec();
     }
 
     @Override
     public PropertySpecBuilderWizard.NlsOptions<HexString> hexStringSpec() {
-        return this.specForValuesOf(new HexStringFactory());
+        return this.specForValuesOf(HexStringFactory.forDefaultMaximumLength());
+    }
+
+    @Override
+    public PropertySpecBuilderWizard.NlsOptions<HexString> hexStringSpecOfExactLength(int length) {
+        return this.specForValuesOf(HexStringFactory.forExactLength(length));
     }
 
     @Override

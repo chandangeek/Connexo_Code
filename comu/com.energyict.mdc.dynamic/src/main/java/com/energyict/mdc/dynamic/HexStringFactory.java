@@ -18,13 +18,28 @@ import java.sql.SQLException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (17:01)
  */
-public class HexStringFactory extends AbstractValueFactory<HexString> {
+public class HexStringFactory extends AbstractValueFactory<com.energyict.mdc.upl.properties.HexString> {
 
-    public static final int MAX_SIZE = Table.MAX_STRING_LENGTH;
+    public static final int DEFAULT_MAX_SIZE = Table.MAX_STRING_LENGTH;
+
+    private final LengthConstraint lengthConstraint;
+
+    public static HexStringFactory forDefaultMaximumLength() {
+        return new HexStringFactory(new MaximumLength(DEFAULT_MAX_SIZE));
+    }
+
+    public static HexStringFactory forExactLength(int length) {
+        return new HexStringFactory(new ExactLength(length));
+    }
+
+    private HexStringFactory(LengthConstraint lengthConstraint) {
+        super();
+        this.lengthConstraint = lengthConstraint;
+    }
 
     @Override
-    public Class<HexString> getValueType () {
-        return HexString.class;
+    public Class<com.energyict.mdc.upl.properties.HexString> getValueType () {
+        return com.energyict.mdc.upl.properties.HexString.class;
     }
 
     @Override
@@ -33,7 +48,7 @@ public class HexStringFactory extends AbstractValueFactory<HexString> {
     }
 
     @Override
-    public boolean isNull(HexString value) {
+    public boolean isNull(com.energyict.mdc.upl.properties.HexString value) {
         return super.isNull(value) || value.getContent() == null || value.getContent().isEmpty();
     }
 
@@ -48,7 +63,7 @@ public class HexStringFactory extends AbstractValueFactory<HexString> {
     }
 
     @Override
-    public Object valueToDatabase (HexString object) {
+    public Object valueToDatabase (com.energyict.mdc.upl.properties.HexString object) {
         if (object == null) {
             return null;
         }
@@ -68,7 +83,7 @@ public class HexStringFactory extends AbstractValueFactory<HexString> {
     }
 
     @Override
-    public String toStringValue (HexString object) {
+    public String toStringValue (com.energyict.mdc.upl.properties.HexString object) {
         if (object == null) {
             return "";
         }
@@ -78,7 +93,7 @@ public class HexStringFactory extends AbstractValueFactory<HexString> {
     }
 
     @Override
-    public void bind(SqlBuilder builder, HexString value) {
+    public void bind(SqlBuilder builder, com.energyict.mdc.upl.properties.HexString value) {
         if (value != null) {
             builder.addObject(this.toStringValue(value));
         }
@@ -88,7 +103,7 @@ public class HexStringFactory extends AbstractValueFactory<HexString> {
     }
 
     @Override
-    public void bind(PreparedStatement statement, int offset, HexString value) throws SQLException {
+    public void bind(PreparedStatement statement, int offset, com.energyict.mdc.upl.properties.HexString value) throws SQLException {
         if (value != null) {
             statement.setString(offset, this.toStringValue(value));
         }
@@ -98,8 +113,38 @@ public class HexStringFactory extends AbstractValueFactory<HexString> {
     }
 
     @Override
-    public boolean isValid(HexString value) {
-        return value.getContent().length() <= MAX_SIZE;
+    public boolean isValid(com.energyict.mdc.upl.properties.HexString value) {
+        return this.lengthConstraint.isValid(value);
+    }
+
+    private interface LengthConstraint {
+        boolean isValid(com.energyict.mdc.upl.properties.HexString value);
+    }
+
+    private static class MaximumLength implements LengthConstraint {
+        private final int maxSize;
+
+        private MaximumLength(int maxSize) {
+            this.maxSize = maxSize;
+        }
+
+        @Override
+        public boolean isValid(com.energyict.mdc.upl.properties.HexString value) {
+            return value.length() <= this.maxSize;
+        }
+    }
+
+    private static class ExactLength implements LengthConstraint {
+        private final int length;
+
+        private ExactLength(int length) {
+            this.length = length;
+        }
+
+        @Override
+        public boolean isValid(com.energyict.mdc.upl.properties.HexString value) {
+            return value.length() == this.length;
+        }
     }
 
 }

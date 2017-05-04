@@ -6,7 +6,7 @@ package com.energyict.mdc.dynamic;
 
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

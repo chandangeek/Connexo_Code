@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.dynamic.impl;
 
-import com.energyict.mdc.common.HexString;
+import com.energyict.mdc.upl.properties.HexString;
 
 public class HexStringLengthValidator implements PropertyValidator<HexString> {
 
@@ -35,10 +35,10 @@ public class HexStringLengthValidator implements PropertyValidator<HexString> {
         if (validLength == null && maxLength == null){
             throw new IllegalStateException("no length parameters set");
         }
-        if (!((validLength != null && value.lenght() == validLength) || (maxLength!= null && value.lenght()<= maxLength))){
+        if (!((validLength != null && value.length() == validLength) || (maxLength!= null && value.length()<= maxLength))){
             if (valueFactory != null){
                 Integer referenceValue;
-                if (validLength != null && value.lenght() != validLength){
+                if (validLength != null && value.length() != validLength){
                     referenceValue = validLength;
                 }else{
                     referenceValue = maxLength;
@@ -50,4 +50,5 @@ public class HexStringLengthValidator implements PropertyValidator<HexString> {
         }
         return true;
     }
+
 }
