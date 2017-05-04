@@ -257,9 +257,9 @@ Ext.define('Pkj.controller.TrustStores', {
 
         certificatesStore.getProxy().setExtraParam('trustStoreId', trustStoreId);
         model.load(trustStoreId, {
-            success: function (record) {
+            success: function(record) {
                 me.currentTrustStoreId = trustStoreId;
-                certificatesStore.load(function() {
+                certificatesStore.load(function(records) {
                     me.showTrustedStoreAndCertificatesPage(record, certificatesStore);
                     me.getApplication().fireEvent('trustStoreLoaded', record.get('name'));
                 });
@@ -279,21 +279,26 @@ Ext.define('Pkj.controller.TrustStores', {
     showImportCertificatesPage: function(trustStoreId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            model = Ext.ModelManager.getModel('Pkj.model.TrustStore');
+            model = Ext.ModelManager.getModel('Pkj.model.TrustStore'),
+            certificatesStore = Ext.getStore('Pkj.store.TrustedCertificates');
 
+        certificatesStore.getProxy().setExtraParam('trustStoreId', trustStoreId);
         me.currentTrustStoreId = trustStoreId;
         model.load(trustStoreId, {
             success: function (trustStoreRecord) {
                 me.getApplication().fireEvent('trustStoreLoaded', trustStoreRecord.get('name'));
-                me.getApplication().fireEvent('changecontentevent',
-                    Ext.widget('trusted-certificate-import', {
-                        cancelLink: me.onTrustStoreCertificatesPage
-                            ? router.getRoute('administration/truststores/view').buildUrl({trustStoreId:me.trustStoreId})
-                            : router.getRoute('administration/truststores').buildUrl(),
-                        trustStoreRecord: trustStoreRecord
-                    })
-                );
-                me.onTrustStoreCertificatesPage = false;
+                certificatesStore.load(function(records) {
+                    me.getApplication().fireEvent('changecontentevent',
+                        Ext.widget('trusted-certificate-import', {
+                            cancelLink: me.onTrustStoreCertificatesPage
+                                ? router.getRoute('administration/truststores/view').buildUrl({trustStoreId:me.trustStoreId})
+                                : router.getRoute('administration/truststores').buildUrl(),
+                            trustStoreRecord: trustStoreRecord,
+                            showInfoMsg: records.length > 0
+                        })
+                    );
+                    me.onTrustStoreCertificatesPage = false;
+                });
             }
         });
     },
