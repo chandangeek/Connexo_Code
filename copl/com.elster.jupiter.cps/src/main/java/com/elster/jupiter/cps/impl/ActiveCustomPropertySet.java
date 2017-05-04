@@ -240,9 +240,10 @@ class ActiveCustomPropertySet {
                             .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet))
                             .and(where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(effectiveInterval)),
                         additionalPrimaryKeyColumnValues);
-        String[] columnNames = propertyColumnNames.toArray(new String[propertyColumnNames.size() + 2]);
+        String[] columnNames = propertyColumnNames.toArray(new String[propertyColumnNames.size() + 3]);
         columnNames[propertyColumnNames.size()] = "starttime";
         columnNames[propertyColumnNames.size() + 1] = "endtime";
+        columnNames[propertyColumnNames.size() + 2] = "modtime";
         return this.customPropertySetDataModel
                     .query(persistenceSupport.persistenceClass())
                     .asFragment(condition, columnNames);

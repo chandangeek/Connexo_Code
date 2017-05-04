@@ -47,6 +47,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -781,7 +782,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         sqlBuilder.append(CustomPropertySqlSupport.toValueSelectClauseExpression(activeCustomPropertySet, propertySpec));
         sqlBuilder.append(" as ");
         sqlBuilder.append(alias);
-        sqlBuilder.append(", cps.starttime, cps.endtime from (");
+        sqlBuilder.append(", cps.starttime, cps.endtime, cps.modtime from (");
         sqlBuilder.add(sqlFragment);
         sqlBuilder.append(") cps");
         return sqlBuilder;
