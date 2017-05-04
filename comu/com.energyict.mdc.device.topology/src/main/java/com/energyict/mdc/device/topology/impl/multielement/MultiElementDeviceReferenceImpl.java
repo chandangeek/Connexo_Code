@@ -2,31 +2,35 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.device.topology.impl;
+package com.energyict.mdc.device.topology.impl.multielement;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
-import com.energyict.mdc.device.topology.DataLoggerReference;
+import com.energyict.mdc.device.topology.impl.AbstractPhysicalGatewayReferenceImpl;
+import com.energyict.mdc.device.topology.impl.DataLoggerChannelUsageImpl;
+import com.energyict.mdc.device.topology.impl.MessageSeeds;
+import com.energyict.mdc.device.topology.impl.PhysicalGatewayNotSameAsOrigin;
 import com.energyict.mdc.device.topology.impl.utils.ChannelDataTransferor;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceReference;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@PhysicalGatewayNotSameAsOrigin(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_CANNOT_BE_DATA_LOGGER_FOR_ITSELF + "}")
-@OriginDeviceTypeIsDataLogger(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NOT_A_DATALOGGER_SLAVE_DEVICE + "}")
-@GatewayDeviceTypeIsDataLoggerEnabled(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.GATEWAY_NOT_DATALOGGER_ENABLED + "}")
-@AllSlaveChannelsIncluded(groups = {Save.Create.class}, message = "{" + DataLoggerLinkException.NO_MAPPING_FOR_ALL_SLAVE_CHANNELS + "}")
-@AllDataLoggerChannelsAvailable(groups = {Save.Create.class}, message = "{" + MessageSeeds.Keys.DATA_LOGGER_CHANNEL_ALREADY_REFERENCED + "}")
-public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImpl implements DataLoggerReference {
+@PhysicalGatewayNotSameAsOrigin(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_CANNOT_BE_MULTI_ELEMENT_METER_FOR_ITSELF + "}")
+@OriginDeviceTypeIsMultiElementSubmeter(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NOT_A_MULTI_ELEMENT_SUBMETER_DEVICE + "}")
+@GatewayDeviceTypeIsMultiElementEnabled(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.GATEWAY_NOT_MULTI_ELEMENT_ENABLED + "}")
+@AllSlaveChannelsIncluded(groups = {Save.Create.class}, message = "{" + MultiElementDeviceLinkException.NO_MAPPING_FOR_ALL_SLAVE_CHANNELS + "}")
+@AllDataLoggerChannelsAvailable(groups = {Save.Create.class}, message = "{" + MessageSeeds.Keys.MULTI_ELEMENT_DEVICE_CHANNEL_ALREADY_REFERENCED + "}")
+public class MultiElementDeviceReferenceImpl extends AbstractPhysicalGatewayReferenceImpl implements MultiElementDeviceReference {
 
     private List<DataLoggerChannelUsage> dataLoggerChannelUsages = new ArrayList<>();
 
-    public DataLoggerReferenceImpl createFor(Device origin, Device master, Interval interval) {
+    public MultiElementDeviceReferenceImpl createFor(Device origin, Device master, Interval interval) {
         super.createFor(origin, master, interval);
         return this;
     }
@@ -36,6 +40,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         return dataLoggerChannelUsages.add(new DataLoggerChannelUsageImpl().createFor(this, slaveChannel, dataLoggerChannel));
     }
 
+    @Override
     public List<DataLoggerChannelUsage> getDataLoggerChannelUsages() {
         return Collections.unmodifiableList(dataLoggerChannelUsages);
     }
@@ -46,7 +51,6 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
     public void terminate(Instant closingDate) {
         if (!isEffectiveAt(closingDate)) {
             throw new IllegalArgumentException(MessageSeeds.Keys.INVALID_TERMINATION_DATE);
-            //throw DataLoggerLinkException.invalidTerminationDate(thesaurus);
         }
 
         ChannelDataTransferor channelDataTransferor = new ChannelDataTransferor();
@@ -54,4 +58,5 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         this.dataLoggerChannelUsages.stream().forEach((usage) -> channelDataTransferor.transferChannelDataToDataLogger(usage, closingDate));
         super.terminate(closingDate);
     }
+
 }

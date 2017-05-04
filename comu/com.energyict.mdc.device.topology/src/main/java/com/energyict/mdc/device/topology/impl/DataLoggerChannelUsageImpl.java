@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ImplField;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
+import com.energyict.mdc.device.topology.PhysicalGatewayReference;
 
 import com.google.common.collect.Range;
 
@@ -21,7 +22,7 @@ import java.util.Optional;
 public class DataLoggerChannelUsageImpl implements DataLoggerChannelUsage {
 
     public enum Field implements ImplField {
-        PHYSICALGATEWAYREF("dataloggerReference"),
+        PHYSICALGATEWAYREF("physicalGatewayReference"),
         ORIGIN_CHANNEL("slaveChannel"),
         GATEWAY_CHANNEL("dataLoggerChannel")
         ;
@@ -39,22 +40,22 @@ public class DataLoggerChannelUsageImpl implements DataLoggerChannelUsage {
     }
 
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
-    private Reference<DataLoggerReferenceImpl> dataloggerReference = ValueReference.absent();
+    private Reference<PhysicalGatewayReference> physicalGatewayReference = ValueReference.absent();
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     private Reference<Channel> dataLoggerChannel = ValueReference.absent();
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.VALUE_IS_REQUIRED_KEY + "}")
     private Reference<Channel> slaveChannel = ValueReference.absent();
 
-    public DataLoggerChannelUsageImpl createFor(DataLoggerReferenceImpl dataLoggerReference, Channel slaveChannel, Channel dataLoggerChannel ) {
-        this.dataloggerReference.set(dataLoggerReference);
+    public DataLoggerChannelUsageImpl createFor(PhysicalGatewayReference physicalGatewayReference, Channel slaveChannel, Channel dataLoggerChannel ) {
+        this.physicalGatewayReference.set(physicalGatewayReference);
         this.slaveChannel.set(slaveChannel);
         this.dataLoggerChannel.set(dataLoggerChannel);
         return this;
     }
 
     @Override
-    public DataLoggerReferenceImpl getDataLoggerReference() {
-        return this.dataloggerReference.get();
+    public PhysicalGatewayReference getPhysicalGatewayReference() {
+        return this.physicalGatewayReference.get();
     }
 
     @Override
@@ -69,26 +70,26 @@ public class DataLoggerChannelUsageImpl implements DataLoggerChannelUsage {
 
     @Override
     public Interval getInterval() {
-        return this.dataloggerReference.get().getInterval();
+        return this.physicalGatewayReference.get().getInterval();
     }
 
     @Override
     public Range<Instant> getRange() {
-        return this.dataloggerReference.get().getRange();
+        return this.physicalGatewayReference.get().getRange();
     }
 
     @Override
     public boolean isEffectiveAt(Instant instant) {
-        return this.dataloggerReference.get().isEffectiveAt(instant);
+        return this.physicalGatewayReference.get().isEffectiveAt(instant);
     }
 
     @Override
     public boolean overlaps(Range<Instant> otherRange) {
-        return this.dataloggerReference.get().overlaps(otherRange);
+        return this.physicalGatewayReference.get().overlaps(otherRange);
     }
 
     @Override
     public Optional<Range<Instant>> intersection(Range<Instant> otherRange) {
-        return this.dataloggerReference.get().intersection(otherRange);
+        return this.physicalGatewayReference.get().intersection(otherRange);
     }
 }

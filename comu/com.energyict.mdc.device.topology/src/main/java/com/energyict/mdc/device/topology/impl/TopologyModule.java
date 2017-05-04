@@ -8,6 +8,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.impl.multielement.MultiElementDeviceServiceImpl;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -25,7 +27,8 @@ public class TopologyModule extends AbstractModule {
         requireBinding(NlsService.class);
         requireBinding(ConnectionTaskService.class);
         requireBinding(CommunicationTaskService.class);
-        bind(TopologyService.class).to(TopologyServiceImpl.class).in(Scopes.SINGLETON);
+        bind(TopologyService.class).to(ServerTopologyService.class).in(Scopes.SINGLETON);
+        bind(MultiElementDeviceService.class).to(MultiElementDeviceServiceImpl.class).in(Scopes.SINGLETON);
         bind(ServerTopologyService.class).to(TopologyServiceImpl.class).in(Scopes.SINGLETON);
     }
 
