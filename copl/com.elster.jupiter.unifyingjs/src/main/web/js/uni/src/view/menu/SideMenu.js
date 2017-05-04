@@ -363,7 +363,9 @@ Ext.define('Uni.view.menu.SideMenu', {
             title: false
         };
         if (objectType !== title) {
-            var objectNameComponent = me.header.items.find(function (item) { return item.itemId === 'side-menu-header-object-name'});
+            var objectNameComponent = _.find(me.header.items, function (item) {
+                return item.itemId === 'side-menu-header-object-name'
+            });
             objectNameComponent.autoEl = {
                 'data-qtip': title
             }

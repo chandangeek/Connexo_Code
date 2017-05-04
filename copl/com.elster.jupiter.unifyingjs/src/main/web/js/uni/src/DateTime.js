@@ -17,6 +17,7 @@ Ext.define('Uni.DateTime', {
 
     timeShortKey: 'format.time.short',
     timeLongKey: 'format.time.long',
+    timeLongWithMillisKey: 'format.time.long.millis',
 
     dateTimeSeparatorKey: 'format.datetime.separator',
     dateTimeOrderKey: 'format.datetime.order',
@@ -26,11 +27,13 @@ Ext.define('Uni.DateTime', {
 
     timeShortDefault: 'H:i',
     timeLongDefault: 'H:i:s',
+    timeLongWithMillisDefault: 'H:i:s.u',
 
     dateTimeSeparatorDefault: 'at',
     dateTimeOrderDefault: 'DT',
 
     LONG: 'long',
+    LONGWITHMILLIS: 'longWithMillis',
     SHORT: 'short',
 
     formatDateShort: function (date) {
@@ -84,8 +87,10 @@ Ext.define('Uni.DateTime', {
                 ? Uni.util.Preferences.lookup(this.dateLongKey, this.dateLongDefault)
                 : Uni.util.Preferences.lookup(this.dateShortKey, this.dateShortDefault),
             this.LONG === timeLongOrShort
-                ? Uni.util.Preferences.lookup(this.timeLongKey, this.timeLongDefault)
-                : Uni.util.Preferences.lookup(this.timeShortKey, this.timeShortDefault)
+                ? Uni.util.Preferences.lookup(this.timeLongKey, this.timeLongDefault) :
+                this.LONGWITHMILLIS === timeLongOrShort
+                    ? Uni.util.Preferences.lookup(this.timeLongWithMillisKey, this.timeLongWithMillisDefault) :
+                        Uni.util.Preferences.lookup(this.timeShortKey, this.timeShortDefault)
         );
     },
 
