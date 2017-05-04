@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.config;
 
+import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -39,7 +40,7 @@ public interface MetrologyConfiguration extends HasId, HasName {
      *
      * @return boolean
      */
-    boolean isGapAllowed();
+    boolean areGapsAllowed();
 
     MetrologyConfigurationStatus getStatus();
 
@@ -71,30 +72,11 @@ public interface MetrologyConfiguration extends HasId, HasName {
 
     void removeReadingTypeRequirement(ReadingTypeRequirement readingTypeRequirement);
 
-    /**
-     * This method adds the ReadingTypeDeliverable to the first contract from the configuration
-     *
-     * @deprecated because ReadingTypeDeliverable moved from MetrologyConfiguration to MetrologyContract
-     */
-    @Deprecated
-    ReadingTypeDeliverableBuilder newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode);
+    List<EventSet> getEventSets();
 
-    /**
-     * This method adds the ReadingTypeDeliverable to the first contract from the configuration
-     *
-     * @deprecated because ReadingTypeDeliverable moved from MetrologyConfiguration to MetrologyContract
-     */
-    @Deprecated
-    ReadingTypeDeliverableBuilder newReadingTypeDeliverable(String name, DeliverableType type, ReadingType readingType, Formula.Mode mode);
+    void addEventSet(EventSet eventSet);
 
-    /**
-     * This method removes the ReadingTypeDeliverable from contract to which belongs;
-     * @deprecated  because ReadingTypeDeliverable support is moved from MetrologyConfiguration to MetrologyContract
-     */
-    @Deprecated
-    void removeReadingTypeDeliverable(ReadingTypeDeliverable deliverable);
-
-    List<ReadingTypeDeliverable> getDeliverables();
+    void removeEventSet(EventSet eventSet);
 
     void delete();
 

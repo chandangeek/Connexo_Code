@@ -9,7 +9,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
@@ -124,7 +123,7 @@ public class MultiplierTypeIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     public void createMultiplierTypeWithNullName() {
         // Business method
         meteringService.createMultiplierType((String) null);
@@ -134,7 +133,7 @@ public class MultiplierTypeIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.REQUIRED + "}")
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + PrivateMessageSeeds.Constants.REQUIRED + "}")
     public void createMultiplierTypeWithEmptyName() {
         // Business method
         meteringService.createMultiplierType("");
@@ -144,7 +143,7 @@ public class MultiplierTypeIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + PrivateMessageSeeds.Constants.FIELD_TOO_LONG + "}")
     public void createMultiplierTypeWithLongName() {
         // Business method
         meteringService.createMultiplierType(Strings.repeat("name", 200));
@@ -154,7 +153,7 @@ public class MultiplierTypeIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
     public void createMultiplierTypeWithDuplicateFixedName() {
         meteringService.createMultiplierType(MULTIPLIER_TYPE_NAME);
 
@@ -198,7 +197,7 @@ public class MultiplierTypeIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + PrivateMessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
     public void createDuplicateMultiplierTypeWithNlsSupport() {
         String sourceNlsComponent = "SRC";
         String expectedEnglishName = "Test multiplier type";

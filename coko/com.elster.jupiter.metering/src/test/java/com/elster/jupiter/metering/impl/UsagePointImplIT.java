@@ -226,7 +226,7 @@ public class UsagePointImplIT {
                         .create();
         configuration2.activate();
         usagePoint.apply(configuration1, JULY_1ST_2016);
-        usagePoint.getEffectiveMetrologyConfiguration(JULY_1ST_2016).get().close(AUG_1ST_2016);
+        usagePoint.getEffectiveMetrologyConfiguration(AUG_1ST_2016).get().close(AUG_1ST_2016);
         usagePoint.apply(configuration2, AUG_1ST_2016);
         Range<Instant> period = Range.closedOpen(JULY_15TH_2016, SEPT_1ST_2016);
 

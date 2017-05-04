@@ -16,7 +16,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;

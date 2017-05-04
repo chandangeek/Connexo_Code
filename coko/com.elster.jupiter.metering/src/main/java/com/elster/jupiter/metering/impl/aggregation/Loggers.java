@@ -22,7 +22,12 @@ enum Loggers {
     /**
      * Used during the sql generation phase of the data aggregation request.
      */
-    SQL;
+    SQL,
+
+    /**
+     * Used during the post processing phase of the data aggregation request.
+     */
+    POST_PROCESS;
 
     private final Logger logger;
 

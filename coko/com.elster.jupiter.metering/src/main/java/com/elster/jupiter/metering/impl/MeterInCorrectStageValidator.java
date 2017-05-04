@@ -7,11 +7,11 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDeviceStage;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -50,7 +50,7 @@ public class MeterInCorrectStageValidator implements ConstraintValidator<MeterIn
 
     private boolean isValid(Meter meter, Optional<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration, Instant activationTime) {
         Optional<State> state = meter.getState(activationTime);
-        if(!state.isPresent()) {
+        if (!state.isPresent()) {
             return true;
         }
         if (!state.get().getStage().isPresent()) {
@@ -58,11 +58,11 @@ public class MeterInCorrectStageValidator implements ConstraintValidator<MeterIn
             return false;
         }
         Stage stage = state.get().getStage().get();
-        if(metrologyConfiguration.isPresent() && !stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())) {
-            addContextValidationError(getErrorMessage(MessageSeeds.METER_NOT_IN_OPERATIONAL_STAGE));
+        if (metrologyConfiguration.isPresent() && !stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())) {
+            addContextValidationError(getErrorMessage(PrivateMessageSeeds.METER_NOT_IN_OPERATIONAL_STAGE));
             return false;
-        } else if(!metrologyConfiguration.isPresent() && stage.getName().equals(EndDeviceStage.POST_OPERATIONAL.getKey())) {
-            addContextValidationError(getErrorMessage(MessageSeeds.METER_IN_POST_OPERATIONAL_STAGE));
+        } else if (!metrologyConfiguration.isPresent() && stage.getName().equals(EndDeviceStage.POST_OPERATIONAL.getKey())) {
+            addContextValidationError(getErrorMessage(PrivateMessageSeeds.METER_IN_POST_OPERATIONAL_STAGE));
             return false;
         }
         return true;
@@ -71,14 +71,12 @@ public class MeterInCorrectStageValidator implements ConstraintValidator<MeterIn
     private void addContextValidationError(String message) {
         context.disableDefaultConstraintViolation();
         context
-                .buildConstraintViolationWithTemplate(message)
-                .addPropertyNode("stage")
-                .addConstraintViolation();
+            .buildConstraintViolationWithTemplate(message)
+            .addPropertyNode("stage")
+            .addConstraintViolation();
     }
 
-    private String getErrorMessage(MessageSeeds seed) {
-        return this.thesaurus
-                .getFormat(seed)
-                .format();
+    private String getErrorMessage(MessageSeed seed) {
+        return this.thesaurus.getFormat(seed).format();
     }
 }

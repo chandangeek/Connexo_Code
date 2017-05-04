@@ -5,7 +5,6 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.Function;
@@ -13,6 +12,7 @@ import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
@@ -180,10 +180,10 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
         this.validateUseOfFunctions(function);
         if (function.requiresAggregationLevel()) {
             if (aggregationLevel == null) {
-                throw new InvalidNodeException(thesaurus, MessageSeeds.AGGREGATION_FUNCTION_REQUIRES_AGGREGATION_LEVEL);
+                throw new InvalidNodeException(thesaurus, PrivateMessageSeeds.AGGREGATION_FUNCTION_REQUIRES_AGGREGATION_LEVEL);
             }
             if (terms.isEmpty()) {
-                throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED);
+                throw new InvalidNodeException(thesaurus, PrivateMessageSeeds.INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED);
             }
         }
         return () -> new FunctionCallNodeImpl(

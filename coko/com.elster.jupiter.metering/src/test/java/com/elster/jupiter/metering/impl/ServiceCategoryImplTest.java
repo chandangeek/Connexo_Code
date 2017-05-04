@@ -11,6 +11,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -78,6 +79,8 @@ public class ServiceCategoryImplTest {
     @Mock
     private UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     @Mock
+    private DestinationSpec destinationSpec;
+    @Mock
     private UserService userService;
     @Mock
     private ThreadPrincipalService threadPrincipalService;
@@ -124,7 +127,7 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
-        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, () -> null, () -> null, customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService, userService, threadPrincipalService));
+        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(clock, dataModel, eventService, thesaurus, this.destinationSpec, () -> null, () -> null, customPropertySetService, metrologyConfigurationService, dataAggregationService, usagePointLifeCycleConfigurationService, userService, threadPrincipalService));
         when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenAnswer(invocation -> new UsagePointConnectionStateImpl(dataModel, thesaurus));
         State state = mock(State.class);
         when(state.isInitial()).thenReturn(true);

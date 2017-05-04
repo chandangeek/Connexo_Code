@@ -4,10 +4,11 @@
 
 package com.elster.jupiter.metering.aggregation;
 
-import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-04-01 (16:37)
  */
+@ProviderType
 public interface CalculatedMetrologyContractData {
 
     /**
@@ -54,6 +56,6 @@ public interface CalculatedMetrologyContractData {
      * @return The List of BaseReadingRecord ordered by time, oldest intervals first
      * @throws IllegalArgumentException Thrown if the ReadingTypeDeliverable is not part of the MetrologyContract
      */
-    List<? extends BaseReadingRecord> getCalculatedDataFor(ReadingTypeDeliverable deliverable);
+    List<CalculatedReadingRecord> getCalculatedDataFor(ReadingTypeDeliverable deliverable);
 
 }
