@@ -79,8 +79,22 @@ Ext.define('Imt.purpose.model.Reading', {
                     estimatedByRule: data.estimatedByRule,
                     isConfirmed: data.isConfirmed,
                     validationResult: data.validationResult,
-                    ruleId: data.ruleId,
+                    ruleId: data.ruleId
                 }
+            }
+        },
+        {
+            name: 'mainCommentValue',
+            type: 'string',
+            persist: false,
+            mapping: function (data) {
+                var result = null,
+                    mainValidationInfo = data.mainValidationInfo;
+
+                if (mainValidationInfo && mainValidationInfo.commentValue) {
+                    result = mainValidationInfo.commentValue;
+                }
+                return result;
             }
         },
         {

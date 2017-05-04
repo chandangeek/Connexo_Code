@@ -381,11 +381,12 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         valuesItems.push(
             {
                 itemId: 'estimation-comment-field',
-                name: 'commentValue',
+                name: 'mainCommentValue',
                 fieldLabel: Uni.I18n.translate('general.estimationComment', 'IMT', 'Estimation comment'),
-                hidden: !me.output.get('commentValue'),
-                renderer: function (string) {
-                    return string ? string : '-';
+                renderer: function (value) {
+                    if (!value) {
+                        this.hide();
+                    }
                 }
             }
         );
