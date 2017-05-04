@@ -14,6 +14,7 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -121,10 +122,14 @@ public class TariffCalendarExtractorImpl implements TariffCalendarExtractor {
     }
 
     private Range<Year> range(Calendar calender) {
-        if (calender.getEndYear() == null || calender.getEndYear().getValue() == 0) {
-            return Range.atLeast(calender.getStartYear());
+        if (calender.getEndYear().isPresent()) {
+            if (calender.getEndYear().get().getValue() == 0) {
+                return Range.atLeast(calender.getStartYear());
+            } else {
+                return Range.closed(calender.getStartYear(), calender.getEndYear().get());
+            }
         } else {
-            return Range.closed(calender.getStartYear(), calender.getEndYear());
+            return Range.atLeast(calender.getStartYear());
         }
     }
 
