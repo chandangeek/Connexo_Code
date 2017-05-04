@@ -27,7 +27,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategorySupplier {
     /**
      * The category for all messages that relate to the Activity Calendar
      */
-    ACTIVITY_CALENDAR(0, "Configuration Messages", "The category for all messages that relate to writing an activity calendar, a special days calendar or any other kind of tariff information.") {
+    ACTIVITY_CALENDAR(0, "Activity calendar", "The category for all messages that relate to writing an activity calendar, a special days calendar or any other kind of tariff information.") {
         @Override
         protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(ActivityCalendarDeviceMessage.values());
