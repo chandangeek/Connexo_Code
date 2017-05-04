@@ -14,7 +14,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         'Uni.grid.column.Edited',
         'Uni.view.toolbar.PagingTop',
         'Uni.grid.column.Action',
-        'Mdc.view.setup.devicechannels.DataBulkActionMenu'
+        'Mdc.view.setup.devicechannels.DataBulkActionMenu',
+        'Uni.grid.plugin.CopyPasteForGrid'
     ],
     viewConfig: {
         loadMask: false,
@@ -35,6 +36,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             unitOfCalculatedValues = calculatedReadingType && calculatedReadingType.names ? calculatedReadingType.names.unitOfMeasure : undefined;
 
         me.plugins = [
+            {
+                ptype: 'gridviewcopypaste',
+                editColumnDataIndex: 'value'
+            },
             {
                 ptype: 'bufferedrenderer',
                 trailingBufferZone: 12,
@@ -60,8 +65,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                     var readingQualitiesPresent = !Ext.isEmpty(record.get('readingQualities')),
                         text = value
                             ? Uni.I18n.translate(
-                                'general.dateAtTime', 'MDC', '{0} at {1}',
-                                [Uni.DateTime.formatDateShort(value), Uni.DateTime.formatTimeShort(value)])
+                            'general.dateAtTime', 'MDC', '{0} at {1}',
+                            [Uni.DateTime.formatDateShort(value), Uni.DateTime.formatTimeShort(value)])
                             : '-',
                         tooltipContent = '',
                         icon = '';
@@ -143,8 +148,13 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'reportedDateTime',
                 flex: 0.5,
                 renderer: function(value){
-                    var date = new Date(value);
-                    return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                    if (value) {
+                        var date = new Date(value);
+                        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                    }
+                    else {
+                        return '-';
+                    }
                 }
             },
             {
@@ -213,9 +223,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             value = Ext.isEmpty(v)
                 ? '-'
                 : Uni.Number.formatNumber(
-                    v.toString(),
-                    me.channelRecord && !Ext.isEmpty(me.channelRecord.get('overruledNbrOfFractionDigits')) ? me.channelRecord.get('overruledNbrOfFractionDigits') : -1
-                );
+                v.toString(),
+                me.channelRecord && !Ext.isEmpty(me.channelRecord.get('overruledNbrOfFractionDigits')) ? me.channelRecord.get('overruledNbrOfFractionDigits') : -1
+            );
 
         if (status === 'notValidated') {
             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
@@ -238,7 +248,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 : Uni.I18n.translate('general.estimatedOnX', 'MDC', 'Estimated on {0}', formattedDate);
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
                 + tooltipText + '"></span>';
-        } else if (validationInfo.isConfirmed && !record.isModified('value')) {
+        } else if ((validationInfo.isConfirmed || validationInfo.confirmedNotSaved) && !record.isModified('value')) {
             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.confirmed', 'MDC', 'Confirmed') + '"></span>';
         }

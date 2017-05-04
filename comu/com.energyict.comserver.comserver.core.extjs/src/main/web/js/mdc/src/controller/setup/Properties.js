@@ -265,7 +265,9 @@ Ext.define('Mdc.controller.setup.Properties', {
                             propertiesView.addDateProperty(key, null, restoreValue, required);
                         }
                         break;
-                    case 'TIMEDURATION':
+                    case 'DURATION':        // Intentional fall-through
+                    case 'TIMEDURATION':  // Intentional fall-through
+                    case 'TEMPORALAMOUNT':
                         var unit;
                         var count;
                         var timeDuration = null;
@@ -454,7 +456,7 @@ Ext.define('Mdc.controller.setup.Properties', {
             } else {
                 view.down('#' + key).setValue('');
             }
-        } else if (property.getPropertyType().data.simplePropertyType === 'TIMEDURATION') {
+        } else if (property.getPropertyType().data.simplePropertyType === 'TEMPORALAMOUNT' || property.getPropertyType().data.simplePropertyType === 'DURATION' || property.getPropertyType().data.simplePropertyType === 'TIMEDURATION') {
             try {
                 var selectionMode = property.getPropertyType().getPredefinedPropertyValue().data.selectionMode;
             } catch (ex) {
@@ -578,7 +580,7 @@ Ext.define('Mdc.controller.setup.Properties', {
                             value = newDate.getTime();
                         }
                     }
-                    if (property.getPropertyType().data.simplePropertyType === 'TIMEDURATION') {
+                if (property.getPropertyType().data.simplePropertyType === 'TEMPORALAMOUNT' || property.getPropertyType().data.simplePropertyType === 'DURATION' || property.getPropertyType().data.simplePropertyType === 'TIMEDURATION') {
                         var count = view.down('#' + property.data.key);
                         var unitField = view.down('#tu_' + property.data.key);
                         if (unitField === null) {

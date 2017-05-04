@@ -20,7 +20,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.GeneralPreview', {
                 xtype: 'deviceRegisterConfigurationActionMenu'
             }
         }
-    ]
+    ],
+    linkPurpose: Mdc.util.LinkPurpose.NOT_APPLICABLE
 });
 
 

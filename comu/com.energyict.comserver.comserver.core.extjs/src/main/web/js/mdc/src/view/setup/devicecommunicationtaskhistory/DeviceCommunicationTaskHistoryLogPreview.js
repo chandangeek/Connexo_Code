@@ -27,16 +27,8 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
             items: [
                 {
                     xtype: 'displayfield',
-                    name: 'timestamp',
-                    fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.timeStamp', 'MDC', 'Timestamp'),
-                    renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
-                    }
-                },
-                {
-                    xtype: 'displayfield',
                     name: 'details',
-                    fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.description', 'MDC', 'Description'),
+                    fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.message', 'MDC', 'Message'),
                     htmlEncode: false,
                     renderer: function(value,field){
                         if(!value){
@@ -46,11 +38,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                             return value.replace(/(?:\r\n|\r|\n)/g, '<br>');
                         }
                     }
-                },
-                {
-                    xtype: 'displayfield',
-                    name: 'logLevel',
-                    fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.logLevel', 'MDC', 'Log level')
                 },
                 {
                     xtype: 'displayfield',

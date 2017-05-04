@@ -146,28 +146,30 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             confirmBtnUi: 'action',
             green: true
         }).show({
-                closable: false,
-                fn: function (btnId) {
-                    if (btnId == 'confirm') {
-                        var store = me.getStore('Mdc.store.DeviceCommands');
-                        me.triggerCommand(deviceId, comTaskId, device);
-                    }
-                },
-                msg: Uni.I18n.translate('deviceCommand.overview.triggerMsg', 'MDC', 'Would you like to trigger a communication task to execute this command?'),
-                title: Uni.I18n.translate('deviceCommand.action.triggerComTask', 'MDC', 'Trigger communication task')
-            });
+            closable: false,
+            fn: function (btnId) {
+                if (btnId == 'confirm') {
+                    var store = me.getStore('Mdc.store.DeviceCommands');
+                    me.triggerCommand(deviceId, comTaskId, device);
+                }
+            },
+            msg: Uni.I18n.translate('deviceCommand.overview.triggerMsg', 'MDC', 'Would you like to trigger a communication task to execute this command?'),
+            title: Uni.I18n.translate('deviceCommand.action.triggerComTask', 'MDC', 'Trigger communication task')
+        });
     },
 
     triggerCommand: function (deviceId, comTaskId, device) {
         var me = this,
-            infoData = {'device': {
-                'version': device.data.version,
-                'name': device.data.name,
-                'parent' : {
-                    'id': device.data.parent.id,
-                    'version': device.data.parent.version
+            infoData = {
+                'device': {
+                    'version': device.data.version,
+                    'name': device.data.name,
+                    'parent': {
+                        'id': device.data.parent.id,
+                        'version': device.data.parent.version
+                    }
                 }
-            }};
+            };
         var info = Ext.encode(infoData);
         Ext.Ajax.request({
             url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/comtasks/' + comTaskId + '/runnow',
@@ -184,45 +186,49 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             deviceId = router.arguments.deviceId,
-            title = Uni.I18n.translate('deviceCommand.overview.revokex', 'MDC', "Revoke '{0}'?",[record.get('command').name]);
+            title = Uni.I18n.translate('deviceCommand.overview.revokex', 'MDC', "Revoke '{0}'?", [record.get('command').name]);
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('deviceCommand.overview.revoke', 'MDC', 'Revoke')
         }).show({
-                msg: Uni.I18n.translate('deviceCommand.overview.revokeMsg', 'MDC', 'This command will no longer be able to send'),
-                title: title,
-                fn: function (btnId) {
-                    if (btnId == 'confirm') {
-                        record.set('status', {value: 'REVOKED'});
-                        record.save({
-                            isNotEdit: true,
-                            url: '/api/ddr/devices/' + deviceId + '/devicemessages/',
-                            success: function () {
-                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.revokeSuccess', 'MDC', 'Command revoked'));
-                                router.getRoute().forward();
-                            },
-                            failure: function (record, operation) {
-                                record.reject();
-                                if (operation.response.status === 409) {
-                                    return
-                                }
-                                var title = Uni.I18n.translate('devicemessages.revoke.failurex', 'MDC', "Failed to revoke '{0}'", [record.get('command').name]),
-                                    json = Ext.decode(operation.response.responseText),
-                                    message = '';
-
-                                if (json && json.errors) {
-                                    message = json.errors[0].msg;
-                                }
-                                me.getApplication().getController('Uni.controller.Error').showError(title, message);
+            msg: Uni.I18n.translate('deviceCommand.overview.revokeMsg', 'MDC', 'This command will no longer be able to send'),
+            title: title,
+            fn: function (btnId) {
+                if (btnId == 'confirm') {
+                    record.set('status', {value: 'REVOKED'});
+                    record.save({
+                        isNotEdit: true,
+                        url: '/api/ddr/devices/' + deviceId + '/devicemessages/',
+                        success: function () {
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.revokeSuccess', 'MDC', 'Command revoked'));
+                            router.getRoute().forward();
+                        },
+                        failure: function (record, operation) {
+                            record.reject();
+                            if (operation.response.status === 409) {
+                                return
                             }
-                        });
-                    }
+                            var title =Uni.I18n.translate('devicemessages.revoke.failurexTitle', 'MDC', 'Couldn\'t perform your action'),
+                                json = Ext.decode(operation.response.responseText),
+                                message = '',
+                                code = '';
+
+                            if (json && json.errors) {
+                                message = json.errors[0].msg;
+                            }
+                            if (json && json.errorCode) {
+                                code = json.errorCode;
+                            }
+                            me.getApplication().getController('Uni.controller.Error').showError(title, Uni.I18n.translate('devicemessages.revoke.failurex', 'MDC', "Failed to revoke '{0}'", [record.get('command').name]) + '.' + message, code);
+                        }
+                    });
                 }
-            });
+            }
+        });
     },
 
     changeReleaseDate: function (record, device) {
         var me = this,
-            title = Uni.I18n.translate('deviceCommand.overview.changeReleaseDateHeader', 'MDC', "Change release date of command '{0}'",[record.get('command').name]),
+            title = Uni.I18n.translate('deviceCommand.overview.changeReleaseDateHeader', 'MDC', "Change release date of command '{0}'", [record.get('command').name]),
             router = me.getController('Uni.controller.history.Router'),
             responseText,
             store = me.getStore('Mdc.store.DeviceCommands');
@@ -316,7 +322,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 actionClmn = me.getDeviceCommandsGrid().down('uni-actioncolumn');
 
             previewPanel.setTitle(title);
-            if(record.get('trackingCategory').id ==='trackingCategory.serviceCall'){
+            if (record.get('trackingCategory').id === 'trackingCategory.serviceCall') {
                 previewForm.down('#tracking').setFieldLabel(Uni.I18n.translate('deviceCommands.view.serviceCall', 'MDC', 'Service call'));
                 previewForm.down('#tracking').renderer = function (val) {
                     if (record.get('trackingCategory').activeLink != undefined && record.get('trackingCategory').activeLink) {
@@ -378,7 +384,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         var me = this,
             command = records[0].copy(),
             propertyHeader = me.getAddPropertyHeader();
-        records[0].properties().each(function(record) {
+        records[0].properties().each(function (record) {
             command.properties().add(record)
         });
         if (command) {
@@ -469,14 +475,13 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             editForm = this.getAddCommandForm();
 
         if (editPropertyForm) {
-            if (key.indexOf('deviceMessageAttributes.')==0)
-            {
+            if (key.indexOf('deviceMessageAttributes.') == 0) {
                 key = key.replace('deviceMessageAttributes.', '');
-                return editPropertyForm.down('component[itemId='+key+']');
+                return editPropertyForm.down('component[itemId=' + key + ']');
             }
         }
-        if(editForm) {
-            return editForm.down('component[name='+key+']');
+        if (editForm) {
+            return editForm.down('component[name=' + key + ']');
         }
         return null;
     }

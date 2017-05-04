@@ -5,12 +5,9 @@
 Ext.define('Mdc.view.setup.device.DeviceMenu', {
     extend: 'Uni.view.menu.SideMenu',
     xtype: 'deviceMenu',
+    requires: ['Mdc.util.LinkPurpose'],
     uniqueMenuId: 'device-side-menu',
-
-    // TODO See what impact removing the 'toggleById' function has.
-//    toggleId: null,
     device: null,
-
     objectType: Uni.I18n.translate('devicemenu.title', 'MDC', 'Device'),
 
     initComponent: function () {
@@ -40,12 +37,12 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             };
         me.title = deviceId || Uni.I18n.translate('devicemenu.title', 'MDC', 'Device');
 
-        if ( !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger') ) {
+        if ((!Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')) || (!Ext.isEmpty(me.device.get('isMultiElementDevice')) && me.device.get('isMultiElementDevice'))) {
             menu.items.push(
                 {
-                    text: Uni.I18n.translate('devicemenu.dataLoggerSlaves', 'MDC', 'Data logger slaves'),
+                    text: Mdc.util.LinkPurpose.forDevice(me.device).pageTitle,
                     itemId: 'device-dataLoggerSlaves-link',
-                    href: '#/devices/' + encodeURIComponent(deviceId) + '/dataloggerslaves',
+                    href: '#/devices/' + encodeURIComponent(deviceId) + '/slaves',
                     privileges: Mdc.privileges.Device.viewDevice
                 }
             );
@@ -143,7 +140,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             );
         }
 
-        if (!me.device.get('isDataLoggerSlave')) {
+        if (!me.device.get('isDataLoggerSlave') && !me.device.get('isMultiElementSlave')) {
             me.menuItems.push(
                 {
                     title: Uni.I18n.translate('device.communication', 'MDC', 'Communication'),
@@ -218,19 +215,6 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
         }
 
         me.callParent(arguments);
-    },
-
-    toggleByItemId: function (toggleId) {
-        // TODO See what impact removing this function has.
-
-//        var cls = this.selectedCls,
-//            item = this.down('#' + toggleId);
-//
-//        if (item.hasCls(cls)) {
-//            item.removeCls(cls);
-//        } else {
-//            item.addCls(cls);
-//        }
     }
 
 });

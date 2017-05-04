@@ -4,6 +4,10 @@
 
 Ext.define('Mdc.model.DeviceType', {
     extend: 'Uni.model.Version',
+    requires: [
+        'Mdc.model.DeviceProtocol',
+        'Mdc.model.field.TimePeriod'
+    ],
     fields: [
         {name: 'id',type:'number',useNull:true},
         {name: 'name', type: 'string', useNull: true},
@@ -11,6 +15,7 @@ Ext.define('Mdc.model.DeviceType', {
         {name: 'registerCount', type: 'int', useNull: true},
         {name: 'logBookCount', type: 'int', useNull: true},
         {name: 'deviceConfigurationCount', type: 'int', useNull: true},
+        {name: 'activeDeviceConfigurationCount', type: 'int', useNull: true},
         {name: 'deviceConflictsCount', type: 'int', useNull: true},
         {name: 'canBeGateway', type: 'boolean', useNull: true},
         {name: 'canBeDirectlyAddressed', type: 'boolean', useNull: true},
@@ -28,7 +33,8 @@ Ext.define('Mdc.model.DeviceType', {
                 getTypeDiscriminator: function (node) {
                     return 'Mdc.model.RegisterType';
                 }
-            }
+            }  ,
+            {name: 'deviceLifeCycleEffectiveTimeShiftPeriod', type: 'hasOne', model: 'Mdc.model.field.TimePeriod'}
         ],
 
     proxy: {
@@ -41,6 +47,9 @@ Ext.define('Mdc.model.DeviceType', {
 
     isDataLoggerSlave: function() {
         return this.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
+    },
+    isMultiElementSlave: function() {
+        return this.get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE';
     }
 
 });
