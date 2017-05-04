@@ -8,6 +8,8 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
@@ -37,6 +39,7 @@ public class DeviceConfigurationInfo {
 
     public VersionInfo<Long> parent;
     public Boolean dataloggerEnabled;
+    public Boolean multiElementEnabled;
 
     public DeviceConfigurationInfo() {
     }
@@ -56,7 +59,14 @@ public class DeviceConfigurationInfo {
         version = deviceConfiguration.getVersion();
         parent = new VersionInfo<>(deviceConfiguration.getDeviceType().getId(), deviceConfiguration.getDeviceType().getVersion());
         dataloggerEnabled = deviceConfiguration.isDataloggerEnabled();
-        deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().ifPresent(deviceProtocolPluggableClass -> this.deviceProtocolInfo = new DeviceProtocolInfo(deviceProtocolPluggableClass));
+        multiElementEnabled = deviceConfiguration.isMultiElementEnabled();
+        deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().ifPresent(deviceProtocolPluggableClass -> {
+            this.deviceProtocolInfo = new DeviceProtocolInfo(deviceProtocolPluggableClass);
+            DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
+            if (deviceProtocol != null) {
+                deviceFunction = deviceProtocol.getDeviceFunction();
+            }
+        });
     }
 
     public static List<DeviceConfigurationInfo> from(List<DeviceConfiguration> deviceConfigurations) {
@@ -78,6 +88,7 @@ public class DeviceConfigurationInfo {
             deviceConfiguration.setDirectlyAddressable(this.isDirectlyAddressable);
         }
         deviceConfiguration.setDataloggerEnabled(dataloggerEnabled);
+        deviceConfiguration.setMultiElementEnabled(multiElementEnabled);
         deviceConfiguration.setValidateOnStore(this.validateOnStore);
     }
 }

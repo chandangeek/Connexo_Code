@@ -26,7 +26,11 @@ import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
 import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.api.security.SecuritySuite;
 
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.Matchers;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -39,9 +43,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -604,18 +605,23 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         };
 
         @Override
-        public String getTranslation() {
+        public String getTranslationKey() {
             return "DeviceProtocolAuthenticationAccessLevels" + this.name();
         }
 
         @Override
-        public List<PropertySpec> getSecurityProperties() {
+        public String getDefaultTranslation() {
+            return "DeviceProtocolAuthenticationAccessLevels" + this.name();
+        }
+
+        @Override
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Collections.emptyList();
         }
 
     }
 
-    private enum DeviceProtocolEncryptionAccessLevels implements EncryptionDeviceAccessLevel {
+    private enum DeviceProtocolEncryptionAccessLevels implements com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel {
         ONE {
             @Override
             public int getId() {
@@ -630,12 +636,17 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         };
 
         @Override
-        public String getTranslation() {
+        public String getTranslationKey() {
             return "DeviceProtocolEncryptionAccessLevels" + this.name();
         }
 
         @Override
-        public List<PropertySpec> getSecurityProperties() {
+        public String getDefaultTranslation() {
+            return "DeviceProtocolEncryptionAccessLevels" + this.name();
+        }
+
+        @Override
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Collections.emptyList();
         }
 

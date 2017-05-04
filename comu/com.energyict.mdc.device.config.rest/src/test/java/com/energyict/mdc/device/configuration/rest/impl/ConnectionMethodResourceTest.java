@@ -7,7 +7,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.TimeDurationValueFactory;
+import com.elster.jupiter.properties.TemporalAmountValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -29,8 +29,10 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -39,10 +41,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -131,7 +129,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         timeDurationInfo.timeUnit="1"; // INVALID
         propertyInfo.propertyValueInfo = new PropertyValueInfo<>(timeDurationInfo,null,null,true);
         propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
-        propertyInfo.propertyTypeInfo.simplePropertyType = com.elster.jupiter.properties.rest.SimplePropertyType.TIMEDURATION;
+        propertyInfo.propertyTypeInfo.simplePropertyType = com.elster.jupiter.properties.rest.SimplePropertyType.DURATION;
         info.properties.add(propertyInfo);
         info.version = OK_VERSION;
         info.parent = new VersionInfo<>(12L, OK_VERSION);
@@ -208,7 +206,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn("connectionTimeOut");
         when(propertySpec.isRequired()).thenReturn(false);
-        when(propertySpec.getValueFactory()).thenReturn(new TimeDurationValueFactory());
+        when(propertySpec.getValueFactory()).thenReturn(new TemporalAmountValueFactory());
         when(pluggableClass.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(protocolPluggableService.findConnectionTypePluggableClassByName("pluggableClass")).thenReturn(Optional.of(pluggableClass));
         when(deviceConfigurationService.findPartialConnectionTask(id)).thenReturn(Optional.of(partialConnectionTask));
@@ -304,7 +302,7 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
     protected DeviceProtocolDialect mockDeviceProtocolDialect(){
         DeviceProtocolDialect dialect = mock(DeviceProtocolDialect.class);
         when(dialect.getDeviceProtocolDialectName()).thenReturn("Mocked Protocol Dialect");
-        when(dialect.getDisplayName()).thenReturn("DisplayName of the mocked Protocol Dialect");
+        when(dialect.getDeviceProtocolDialectDisplayName()).thenReturn("DisplayName of the mocked Protocol Dialect");
         return dialect;
     }
 

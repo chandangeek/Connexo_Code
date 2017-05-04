@@ -6,7 +6,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.protocol.api.Manufacturer;
+import com.energyict.mdc.upl.Manufacturer;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
