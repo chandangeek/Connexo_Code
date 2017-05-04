@@ -4,24 +4,26 @@
 
 package com.elster.jupiter.issue.share.entity;
 
-import org.joda.time.DateTimeConstants;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+
 
 public enum DueInType {
-    DAY("days", DateTimeConstants.MILLIS_PER_DAY),
-    WEEK("weeks", DateTimeConstants.MILLIS_PER_WEEK),
-    MONTH("months", Const.MILLIS_PER_MONTH),
-    YEAR("years", Const.MILLIS_PER_YEAR);
+    DAY("days", ChronoUnit.DAYS),
+    WEEK("weeks", ChronoUnit.WEEKS),
+    MONTH("months", ChronoUnit.MONTHS),
+    YEAR("years", ChronoUnit.YEARS);
 
-    private long multiplier;
+    private ChronoUnit chronoUnit;
     private String name;
 
-    private DueInType(String name, long multiplier){
+    private DueInType(String name, ChronoUnit chronoUnit){
         this.name = name;
-        this.multiplier = multiplier;
+        this.chronoUnit = chronoUnit;
     }
 
     public long dueValueFor(long value){
-        return System.currentTimeMillis() + value * this.multiplier;
+        return ZonedDateTime.now().plus(value, chronoUnit).toInstant().toEpochMilli();
     }
 
     public String getName() {
@@ -37,12 +39,5 @@ public enum DueInType {
             }
         }
         return null;
-    }
-
-    private static class Const {
-        private static final long MILLIS_PER_MONTH = DateTimeConstants.MILLIS_PER_WEEK * 4;
-        private static final long MILLIS_PER_YEAR = MILLIS_PER_MONTH * 12;
-
-        private Const(){}
     }
 }
