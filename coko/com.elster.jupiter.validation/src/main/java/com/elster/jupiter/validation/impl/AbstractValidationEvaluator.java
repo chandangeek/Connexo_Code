@@ -40,12 +40,17 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
     @Override
     public boolean areSuspectsPresent(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer) {
         return channelsContainer.getChannels().stream()
-                .anyMatch(channel -> channel.findReadingQualities()
-                        .ofQualitySystems(qualityCodeSystems)
-                        .ofQualityIndex(QualityCodeIndex.SUSPECT)
-                        .inTimeInterval(channelsContainer.getRange())
-                        .actual()
-                        .anyMatch());
+                .anyMatch(channel -> areSuspectsPresent(qualityCodeSystems, channel, channelsContainer.getRange()));
+    }
+
+    @Override
+    public boolean areSuspectsPresent(Set<QualityCodeSystem> qualityCodeSystems, Channel channel, Range<Instant> interval) {
+        return channel.findReadingQualities()
+                .ofQualitySystems(qualityCodeSystems)
+                .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                .inTimeInterval(interval)
+                .actual().anyMatch();
+
     }
 
     /**

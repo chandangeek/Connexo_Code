@@ -695,6 +695,11 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     @Override
+    public ValidationEvaluator getEvaluator(ChannelsContainer container) {
+        return new ValidationEvaluatorForChannelContainer(this, container);
+    }
+
+    @Override
     public void addValidatorFactory(ValidatorFactory validatorfactory) {
         addResource(validatorfactory);
     }
