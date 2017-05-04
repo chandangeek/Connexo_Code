@@ -49,7 +49,7 @@ Ext.define('Imt.purpose.view.summary.PurposeDataGrid', {
                 align: 'right',
                 flex: 1,
                 renderer: function (data) {
-                    return !Ext.isEmpty(data[channel.get('id')]) ? Uni.Number.formatNumber(data[channel.get('id')], -1) : '-';
+                    return !Ext.isEmpty(data[channel.get('id')]) ? data[channel.get('id')] : '-';
                 }
             });
         });

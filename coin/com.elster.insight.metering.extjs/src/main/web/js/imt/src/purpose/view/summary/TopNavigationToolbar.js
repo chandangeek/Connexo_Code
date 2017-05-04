@@ -45,16 +45,18 @@ Ext.define('Imt.purpose.view.summary.TopNavigationToolbar', {
     },
 
     nextPage: function () {
-        var me = this;
-        me.page++;
-        me.down('#displayItem').setText(me.makeDisplayValue());
-        me.activateButtons();
-        me.fireEvent('outputspagechanged', me.page, me.pageSize);
+        this.page++;
+        this.changePage();
     },
 
     previousPage: function () {
+        this.page--;
+        this.changePage();
+    },
+
+    changePage: function(pageNumber){
         var me = this;
-        me.page--;
+        me.page = Ext.isNumber(pageNumber) ? pageNumber : me.page;
         me.down('#displayItem').setText(me.makeDisplayValue());
         me.activateButtons();
         me.fireEvent('outputspagechanged', me.page, me.pageSize);

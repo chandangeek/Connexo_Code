@@ -26,15 +26,6 @@ Ext.define('Imt.purpose.view.summary.PurposeMain', {
                 title: router.getRoute().getTitle(),
                 itemId: 'purposeTabPanel',
                 activeTab: 'purpose-' + me.tab,
-                listeners: {
-                    // tabchange: function(){
-                    //     var toolbar = this.down('previous-next-navigation-toolbar');
-                    //     Ext.suspendLayouts();
-                    //     toolbar.removeAll();
-                    //     toolbar.initToolbar(Ext.getStore(toolbar.store));
-                    //     Ext.resumeLayouts(true);
-                    // }
-                },
                 items: [
                     {
                         title: Uni.I18n.translate('purpose.summary.overview', 'IMT', 'Overview'),
@@ -45,7 +36,7 @@ Ext.define('Imt.purpose.view.summary.PurposeMain', {
                             usagePoint: me.usagePoint,
                             purposes: me.purposes,
                             purpose: me.purpose,
-                            defaultPeriod: me.defaultPeriod,
+                            defaultPeriod: me.defaultPeriod
                         },
                         listeners: {
                             activate: me.controller.showOverviewTab,
@@ -74,25 +65,7 @@ Ext.define('Imt.purpose.view.summary.PurposeMain', {
                         output: me.output
 
                     }
-                ],
-                // tabBar: {
-                //     layout: 'hbox',
-                //     items: [
-                //         {
-                //             xtype: 'tbfill'
-                //         },
-                //         {
-                //             xtype: 'previous-next-navigation-toolbar',
-                //             itemId: 'tabbed-device-channels-view-previous-next-navigation-toolbar',
-                //             store: 'Imt.purpose.store.Outputs',
-                //             router: me.router,
-                //             routerIdArgument: 'outputId',
-                //             itemsName: me.prevNextListLink,
-                //             indexLocation: 'arguments',
-                //             isFullTotalCount: true
-                //         }
-                //     ]
-                // }
+                ]
             }
         ];
 

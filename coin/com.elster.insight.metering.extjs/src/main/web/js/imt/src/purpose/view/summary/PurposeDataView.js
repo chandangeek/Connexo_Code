@@ -42,7 +42,8 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
 
         emptyComponent = {
             xtype: 'no-readings-found-panel',
-            itemId: 'readings-empty-panel'
+            itemId: 'readings-empty-panel',
+            hidden: true
         };
 
 
@@ -138,7 +139,8 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
                         ]
                     }
                 ]
-            }
+            },
+            emptyComponent
         ];
 
         me.items.push(
@@ -181,16 +183,26 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
 
     onLoad: function (store, records, successful, eOpts) {
         var me = this;
-        me.graphTitle = Uni.I18n.translate('purpose.summary.intervalData', 'IMT', '{0} data', me.down('#purpose-data-topfilter-interval').getRawValue());
-        me.outputs.clearFilter(true);
-        me.outputs.load({
-            callback: function (records, operation, success) {
-                me.updateNavigationToolbar();
-                me.showGraphView();
-                me.redrawGrid();
-                me.setLoading(false);
-            }
-        });
+
+        if(!store.getCount()){
+            me.down('no-readings-found-panel').show();
+            me.down('purpose-data-grid') && me.down('purpose-data-grid').hide();
+            me.down('purpose-top-navigation-toolbar') && me.down('purpose-top-navigation-toolbar').hide();
+            me.showGraphView();
+            me.setLoading(false);
+        } else {
+            me.down('no-readings-found-panel').hide();
+            me.graphTitle = Uni.I18n.translate('purpose.summary.intervalData', 'IMT', '{0} data', me.down('#purpose-data-topfilter-interval').getRawValue());
+            me.outputs.clearFilter(true);
+            me.outputs.load({
+                callback: function (records, operation, success) {
+                    me.updateNavigationToolbar();
+                    me.redrawGrid();
+                    me.showGraphView();
+                    me.setLoading(false);
+                }
+            });
+        }
     },
 
     onOutputsPageChanged: function (page, pageSize) {
