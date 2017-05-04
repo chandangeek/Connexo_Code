@@ -30,19 +30,16 @@ public enum MessageSeeds implements MessageSeed {
     MAINCHECK_ESTIMATOR_FAIL_NO_OUTPUTS_ON_PURPOSE_WITH_READING_TYPE(2004,"maincheck.estimator.fail.no.output.on.purpose","Failed to estimate period \"{0}\" using method {1} on {2} since '\''check'\'' output with matching reading type on the specified purpose doesn'\''t exist on {3}"),
     // {0} - period, {1} - estimator name, {2} - usage point, {3} - purpose, {4} - reading type
     MAINCHECK_ESTIMATOR_FAIL_DATA_SUSPECT_OR_MISSING(2005,"maincheck.estimator.fail.data.suspect.or.missing","Failed to estimate period \"{0}\" using method {1} on {2}/{3}/{4} since data from 'check' output is suspect or missing"),
-    // {0} - period, {1} - estimator name, {2} - usage point, {3} - purpose, {4} - reading type
 
-    REFERENCE_ESTIMATOR_MISC_CONFIGURATION_NOT_COMPLETE(3001,"reference.estimator.misc.not.complete","Failed to validate period {0} using method \"{1}\" on {2}/{3}/{4} since the check usage point, purpose and reading type are not specified"),
+    REFERENCE_ESTIMATOR_MISC_CONFIGURATION_NOT_COMPLETE(3001,"reference.estimator.misc.not.complete","Failed to estimate {0}/{1}/{2} using method {3} since the check usage point, purpose and reading type are not specified"),
+    REFERENCE_ESTIMATOR_REFERENCE_READING_TYPE_NOT_COMPARABLE(3002, "reference.estimator.misc.check.readingtype.not.comparable","Failed to estimate {0}/{1}/{2} using method {3} since specified ''check'' output doesn't match the ''main'' reading type"),
     REFERENCE_VALIDATE_PROPS_NO_PURPOSE_ON_USAGE_POINT(3002,"reference.estimator.validate.props.no.purpose","Purpose not found on usage point"),
     REFERENCE_VALIDATE_PROPS_NO_READING_TYPE_ON_PURPOSE_ON_USAGE_POINT(3003,"reference.estimator.validate.props.no.readingtype","Reading type not found on purpose"),
 
-    REFERENCE_ESTIMATOR_FAIL_EFFECTIVE_MC_NOT_FOUND(3004,"maincheck.estimator.fail.effective.mc.not.found","Failed to estimate period \"{0}\" using method {1} on {2} since effective metrology configuration has not been found on the {3}"),
-    // {0} - period, {1} - estimator name, {2} - reading type, {3} - usage point
-    REFERENCE_ESTIMATOR_FAIL_PURPOSE_DOES_NOT_EXIST_ON_UP(3005,"maincheck.estimator.fail.purpose.does.no.exist","Failed to estimate period \"{0}\" using method {1} on {2} since the specified purpose doesn'\''t exist on the {3}"),
-    // {0} - period, {1} - estimator name, {2} - reading type, {3} - usage point
-    REFERENCE_ESTIMATOR_FAIL_NO_OUTPUTS_ON_PURPOSE_WITH_READING_TYPE(3006,"maincheck.estimator.fail.no.output.on.purpose","Failed to estimate period \"{0}\" using method {1} on {2} since '\''check'\'' output with matching reading type on the specified purpose doesn'\''t exist on {3}"),
-    // {0} - period, {1} - estimator name, {2} - usage point, {3} - purpose, {4} - reading type
-    REFERENCE_ESTIMATOR_FAIL_DATA_SUSPECT_OR_MISSING(3007,"maincheck.estimator.fail.data.suspect.or.missing","Failed to estimate period \"{0}\" using method {1} on {2}/{3}/{4} since data from 'check' output is suspect or missing"),
+    REFERENCE_ESTIMATOR_FAIL_EFFECTIVE_MC_NOT_FOUND(3004,"reference.estimator.fail.effective.mc.not.found","Failed to estimate period \"{0}\" using method {1} on {2} since effective metrology configuration has not been found on the {3}"),
+    REFERENCE_ESTIMATOR_FAIL_PURPOSE_DOES_NOT_EXIST_ON_UP(3005,"reference.estimator.fail.purpose.does.no.exist","Failed to estimate {0}/{1}/{2} using method {3} since the specified purpose/reading type doesn''t exist on the {4}"),
+    REFERENCE_ESTIMATOR_FAIL_NO_OUTPUTS_ON_PURPOSE_WITH_READING_TYPE(3006,"reference.estimator.fail.no.output.on.purpose","Failed to estimate period \"{0}\" using method {1} on {2} since '\''check'\'' output with matching reading type on the specified purpose doesn'\''t exist on {3}"),
+    REFERENCE_ESTIMATOR_FAIL_DATA_SUSPECT_OR_MISSING(3007,"reference.estimator.fail.data.suspect.or.missing","Failed to estimate period \"{0}\" using method {1} on {2}/{3}/{4} since data from 'check' output is suspect or missing"),
 
 
     INVALID_NUMBER(1015,"property.error", "This value should be positive"),

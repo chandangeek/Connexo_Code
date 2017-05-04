@@ -44,26 +44,26 @@ public class MainCheckEstimator extends AbstractMainCheckEstimator {
         switch (referenceReadingQuality){
             case NO_MC:
                 message = getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_EFFECTIVE_MC_NOT_FOUND)
-                        .format(blockToString(estimationBlock), getThesaurus().getFormat(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME)
+                        .format(blockToString(estimationBlock), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
                                 .format(), estimationBlock.getReadingType()
                                 .getFullAliasName(), validatingUsagePoint.getName());
                 break;
             case NO_PURPOSE_ON_UP:
                 message = getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_PURPOSE_DOES_NOT_EXIST_ON_UP)
-                        .format(blockToString(estimationBlock), getThesaurus().getFormat(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME)
+                        .format(blockToString(estimationBlock), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
                                 .format(), estimationBlock.getReadingType()
                                 .getFullAliasName(), validatingUsagePoint.getName());
                 break;
             case NO_CHECK_CHANNEL:
                 message = getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_NO_OUTPUTS_ON_PURPOSE_WITH_READING_TYPE)
-                        .format(blockToString(estimationBlock), getThesaurus().getFormat(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME)
+                        .format(blockToString(estimationBlock), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
                                 .format(), estimationBlock.getReadingType()
                                 .getFullAliasName(), validatingUsagePoint.getName());
                 break;
             case REFERENCE_DATA_MISSING:
             case REFERENCE_DATA_SUSPECT:
                 message = getThesaurus().getFormat(MessageSeeds.MAINCHECK_ESTIMATOR_FAIL_DATA_SUSPECT_OR_MISSING)
-                        .format(blockToString(estimationBlock), getThesaurus().getFormat(MainCheckEstimator.TranslationKeys.ESTIMATOR_NAME)
+                        .format(blockToString(estimationBlock), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
                                 .format(), validatingUsagePoint.getName(), checkPurpose.getName(), estimationBlock.getReadingType()
                                 .getFullAliasName());
                 break;

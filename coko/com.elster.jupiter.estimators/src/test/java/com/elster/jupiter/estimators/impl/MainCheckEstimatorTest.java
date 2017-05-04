@@ -4,11 +4,13 @@
 
 package com.elster.jupiter.estimators.impl;
 
+import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -20,6 +22,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -42,9 +45,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -59,41 +65,52 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public abstract class MainCheckEstimatorTest {
 
-    private final ZoneId CHANNEL_ZONE_ID = ZoneId .systemDefault();
+    static final Logger LOGGER = Logger.getLogger(MainCheckEstimatorTest.class.getName());
+    LogRecorder logRecorder;
+
+    @Before
+    public void setUp() {
+        logRecorder = new LogRecorder(Level.ALL);
+        LOGGER.addHandler(logRecorder);
+        LoggingContext.getCloseableContext().with("rule", "rule");
+    }
+
+    @After
+    public void tearDown() {
+        LoggingContext.getCloseableContext().close();
+        LOGGER.removeHandler(logRecorder);
+    }
+
+    private final ZoneId CHANNEL_ZONE_ID = ZoneId.systemDefault();
     private static final TemporalAmount CHANNEL_INTERVAL_LENGTH = Period.ofDays(1);
-    private static final Logger LOGGER = Logger.getLogger(MainCheckEstimatorTest.class.getName());
     @Mock
-    private MetrologyPurpose PURPOSE;
+    MetrologyPurpose PURPOSE;
     private static final String PURPOSE_NAME = "Purpose";
     @Mock
-    private MetrologyPurpose NOT_EXISTING_PURPOSE;
+    MetrologyPurpose NOT_EXISTING_PURPOSE;
+    @Mock
+    UsagePoint usagePoint;
     private static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     @Mock
-    private ReadingType readingType = mock(ReadingType.class);
+    ReadingType readingType = mock(ReadingType.class);
 
     MainCheckEstimator mockEstimator(EstimationConfiguration estimationConfiguration) {
         MainCheckEstimator estimator = new MainCheckEstimator(estimationConfiguration.thesaurus, estimationConfiguration.metrologyConfigurationService, estimationConfiguration.validationService, estimationConfiguration.propertySpecService, estimationConfiguration.properties);
-        estimator.init(estimationConfiguration.logger==null?LOGGER:estimationConfiguration.logger);
+        estimator.init(estimationConfiguration.logger == null ? LOGGER : estimationConfiguration.logger);
         return estimator;
     }
 
-    Instant instant(String value) {
-        return LocalDate.from(DATE_TIME_FORMATTER.parse(value))
-                .atStartOfDay()
-                .atZone(ZoneId.systemDefault())
-                .toInstant();
-    }
-
-    BigDecimal bigDecimal(Double value) {
-        return BigDecimal.valueOf(value);
-    }
-
     BigDecimal findEstimatedValue(EstimationConfiguration estimationConfiguration, Instant timeStamp) {
-        return estimationConfiguration.blocks.stream().flatMap(blockConfiguration -> blockConfiguration.estimatables.stream()).filter(estimatableConf -> estimatableConf.timeStamp.compareTo(timeStamp)==0).findFirst().map(estimatableConf -> estimatableConf.estimatedValue).orElse(null);
+        return estimationConfiguration.blocks.stream()
+                .flatMap(blockConfiguration -> blockConfiguration.estimatables.stream())
+                .filter(estimatableConf -> estimatableConf.timeStamp.compareTo(timeStamp) == 0)
+                .findFirst()
+                .map(estimatableConf -> estimatableConf.estimatedValue)
+                .orElse(null);
     }
 
-    class EstimationConfiguration {
+    protected class EstimationConfiguration {
         // Objects to mock
         Thesaurus thesaurus;
         MetrologyConfigurationService metrologyConfigurationService;
@@ -105,7 +122,7 @@ public abstract class MainCheckEstimatorTest {
         // internal data
         List<BlockConfiguration> blocks = new ArrayList<>();
         boolean notAvailablePurpose;
-        private Logger logger;
+        Logger logger;
 
 
         EstimationConfiguration withLogger(Logger logger) {
@@ -118,7 +135,7 @@ public abstract class MainCheckEstimatorTest {
             return this;
         }
 
-        EstimationConfiguration withNotAvailablePurpose(){
+        EstimationConfiguration withNotAvailablePurpose() {
             this.notAvailablePurpose = true;
             return this;
         }
@@ -127,14 +144,22 @@ public abstract class MainCheckEstimatorTest {
             return estimationBlocks;
         }
 
-        NlsMessageFormat createNlsMessageFormat(MessageSeeds messageSeeds){
+        NlsMessageFormat createNlsMessageFormat(MessageSeeds messageSeeds) {
             NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
-            when(nlsMessageFormat.format(anyVararg())).thenAnswer(invocationOnMock -> {
-                return String.format(messageSeeds.getDefaultFormat().replaceAll("\\{.}","%s"),invocationOnMock.getArguments());
-            });
+            when(nlsMessageFormat.format(anyVararg())).thenAnswer(invocationOnMock -> String.format(messageSeeds.getDefaultFormat()
+                    .replaceAll("\\{.}", "%s"), invocationOnMock.getArguments()));
             return nlsMessageFormat;
         }
 
+        void mockProperties(){
+            properties = new HashMap<String, Object>() {{
+                put(MainCheckEstimator.CHECK_PURPOSE, notAvailablePurpose ? NOT_EXISTING_PURPOSE : PURPOSE);
+            }};
+        }
+
+        ReadingType getCheckReadingType(){
+            return readingType;
+        }
 
         void mockAll() {
 
@@ -151,14 +176,11 @@ public abstract class MainCheckEstimatorTest {
                 when(thesaurus.getFormat(messageSeeds)).thenReturn(nlsMessageFormat);
             });
 
-            properties = new HashMap<String, Object>() {{
-                put(MainCheckEstimator.CHECK_PURPOSE, notAvailablePurpose?NOT_EXISTING_PURPOSE:PURPOSE);
-            }};
+            mockProperties();
 
-            UsagePoint usagePoint = mock(UsagePoint.class);
             when(usagePoint.getName()).thenReturn("usage point name");
 
-            estimationBlocks = blocks.stream().map(b-> b.mockBlock(usagePoint)).collect(Collectors.toList());
+            estimationBlocks = blocks.stream().map(b -> b.mockBlock(usagePoint, getCheckReadingType())).collect(Collectors.toList());
 
             when(usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenAnswer(invocationOnMock -> {
                 Range<Instant> range = (Range<Instant>) invocationOnMock.getArguments()[0];
@@ -169,19 +191,26 @@ public abstract class MainCheckEstimatorTest {
             validationService = mock(ValidationService.class);
             ValidationEvaluator validationEvaluator = mock(ValidationEvaluator.class);
             when(validationService.getEvaluator()).thenReturn(validationEvaluator);
-            when(validationEvaluator.getValidationStatus(any(),any(),any())).thenAnswer(invocationOnMock -> {
-                List<BaseReading> checkChannelBaseReading = (List<BaseReading>)invocationOnMock.getArguments()[2];
-                return checkChannelBaseReading.stream().map(BaseReading::getTimeStamp).map(timeStamp -> blocks.stream().flatMap(block ->
-                        block.estimatables.stream()).filter(estimatableConf -> estimatableConf.timeStamp.compareTo(timeStamp)==0).findFirst()).map(estimatableConf -> {
-                   if (estimatableConf.isPresent()) {
-                       DataValidationStatus dataValidationStatus = mock(DataValidationStatus.class);
-                       when(dataValidationStatus.getValidationResult()).thenReturn(estimatableConf.get().referenceValue.validationResult);
-                       when(dataValidationStatus.getReadingTimestamp()).thenReturn(estimatableConf.get().timeStamp);
-                       return dataValidationStatus;
-                   } else {
-                       return null;
-                   }
-                }).collect(Collectors.toList());
+            when(validationEvaluator.getValidationStatus(any(), any(), any())).thenAnswer(invocationOnMock -> {
+                List<BaseReading> checkChannelBaseReading = (List<BaseReading>) invocationOnMock.getArguments()[2];
+                return checkChannelBaseReading.stream()
+                        .map(BaseReading::getTimeStamp)
+                        .map(timeStamp -> blocks.stream()
+                                .flatMap(block ->
+                                        block.estimatables.stream())
+                                .filter(estimatableConf -> estimatableConf.timeStamp.compareTo(timeStamp) == 0)
+                                .findFirst())
+                        .map(estimatableConf -> {
+                            if (estimatableConf.isPresent()) {
+                                DataValidationStatus dataValidationStatus = mock(DataValidationStatus.class);
+                                when(dataValidationStatus.getValidationResult()).thenReturn(estimatableConf.get().referenceValue.validationResult);
+                                when(dataValidationStatus.getReadingTimestamp()).thenReturn(estimatableConf.get().timeStamp);
+                                return dataValidationStatus;
+                            } else {
+                                return null;
+                            }
+                        })
+                        .collect(Collectors.toList());
             });
         }
     }
@@ -192,12 +221,13 @@ public abstract class MainCheckEstimatorTest {
 
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint;
 
-        boolean belongs(Range<Instant> range){
+        boolean belongs(Range<Instant> range) {
             Instant startInterval = estimatables.get(0).timeStamp;
             Instant endInterval = estimatables
                     .get(estimatables.size() - 1)
                     .timeStamp;
-            return range.lowerEndpoint().compareTo(startInterval)==0 && range.upperEndpoint().compareTo(endInterval)==0;
+            return range.lowerEndpoint().compareTo(startInterval) == 0 && range.upperEndpoint()
+                    .compareTo(endInterval) == 0;
         }
 
         BlockConfiguration withEstimatable(EstimatableConf estimatableConf) {
@@ -211,13 +241,16 @@ public abstract class MainCheckEstimatorTest {
         }
 
 
-        EstimationBlock mockBlock(UsagePoint usagePoint) {
+        EstimationBlock mockBlock(UsagePoint usagePoint, ReadingType checkReadingType) {
             EstimationBlock estimationBlock = mock(EstimationBlock.class);
             Channel channel = mock(Channel.class);
             when(estimationBlock.getChannel()).thenReturn(channel);
-            ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+            MetrologyContractChannelsContainer channelsContainer = mock(MetrologyContractChannelsContainer.class);
             when(channel.getChannelsContainer()).thenReturn(channelsContainer);
             when(channelsContainer.getUsagePoint()).thenReturn(Optional.of(usagePoint));
+
+            MetrologyContract metrologyContract = mock(MetrologyContract.class);
+            when(channelsContainer.getMetrologyContract()).thenReturn(metrologyContract);
 
             List<Estimatable> estimatablesList = estimatables.stream()
                     .map(EstimatableConf::mockEstimatable)
@@ -230,7 +263,6 @@ public abstract class MainCheckEstimatorTest {
 
             UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
             when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
-            MetrologyContract metrologyContract = mock(MetrologyContract.class);
             when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
             when(metrologyContract.getMetrologyPurpose()).thenReturn(PURPOSE);
             when(PURPOSE.getName()).thenReturn(PURPOSE_NAME);
@@ -242,18 +274,20 @@ public abstract class MainCheckEstimatorTest {
             when(checkChannel.getZoneId()).thenReturn(CHANNEL_ZONE_ID);
             when(checkChannel.getIntervalLength()).thenReturn(Optional.of(CHANNEL_INTERVAL_LENGTH));
 
-            when(channelsContainer.getChannel(readingType)).thenReturn(noCheckChannel?Optional.empty():Optional.of(checkChannel));
+            when(channelsContainer.getChannel(checkReadingType)).thenReturn(noCheckChannel ? Optional.empty() : Optional.of(checkChannel));
 
             when(checkChannel.getIntervalReadings(any())).thenAnswer(invocationOnMock -> {
-                Range<Instant> interval = (Range<Instant>)invocationOnMock.getArguments()[0];
+                Range<Instant> interval = (Range<Instant>) invocationOnMock.getArguments()[0];
                 List<EstimatableConf> estimatableConf =
                         estimatables.stream()
                                 .filter(e ->
-                                        e.timeStamp.compareTo(ZonedDateTime.ofInstant(interval.lowerEndpoint(),CHANNEL_ZONE_ID).minus(CHANNEL_INTERVAL_LENGTH).toInstant()) >= 0 && e.timeStamp.compareTo(interval
+                                        e.timeStamp.compareTo(ZonedDateTime.ofInstant(interval.lowerEndpoint(), CHANNEL_ZONE_ID)
+                                                .minus(CHANNEL_INTERVAL_LENGTH)
+                                                .toInstant()) >= 0 && e.timeStamp.compareTo(interval
                                                 .upperEndpoint()) <= 0)
                                 .collect(Collectors.toList());
 
-                return estimatableConf.stream().filter(e -> e.referenceValue!=null).map(e->{
+                return estimatableConf.stream().filter(e -> e.referenceValue != null).map(e -> {
                     IntervalReadingRecord intervalReading = mock(IntervalReadingRecord.class);
                     when(intervalReading.getValue()).thenReturn(e.referenceValue.value);
                     when(intervalReading.getTimeStamp()).thenReturn(e.timeStamp);
@@ -289,7 +323,7 @@ public abstract class MainCheckEstimatorTest {
             Estimatable estimatable = mock(Estimatable.class);
             when(estimatable.getTimestamp()).thenReturn(timeStamp);
             doAnswer(invocationOnMock -> {
-                estimatedValue = (BigDecimal)invocationOnMock.getArguments()[0];
+                estimatedValue = (BigDecimal) invocationOnMock.getArguments()[0];
                 return null;
             }).when(estimatable).setEstimation(any());
             return estimatable;

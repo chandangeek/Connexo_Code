@@ -41,7 +41,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -61,8 +60,8 @@ import static com.elster.jupiter.estimators.impl.AbstractMainCheckEstimator.Refe
 
 public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
 
-    protected static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDM);
-    protected static final DateTimeFormatter DATE_TIME_FORMATTER = DefaultDateTimeFormatters.mediumDate()
+    private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDM);
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DefaultDateTimeFormatters.mediumDate()
             .withShortTime()
             .build()
             .withZone(ZoneId
@@ -72,11 +71,11 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
 
     static final String CHECK_PURPOSE = TranslationKeys.CHECK_PURPOSE.getKey();
 
-    protected MetrologyPurpose checkPurpose;
+    MetrologyPurpose checkPurpose;
 
     ReadingType checkReadingType;
 
-    protected UsagePoint validatingUsagePoint;
+    UsagePoint validatingUsagePoint;
 
     protected ValidationService validationService;
     protected MetrologyConfigurationService metrologyConfigurationService;
@@ -100,7 +99,7 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(buildCheckPurposePropertySpec());
+        return Collections.singletonList(buildCheckPurposePropertySpec());
     }
 
     @Override
@@ -132,7 +131,7 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
                 .finish();
     }
 
-    protected String blockToString(EstimationBlock block) {
+    String blockToString(EstimationBlock block) {
         return DATE_TIME_FORMATTER.format(block.estimatables()
                 .get(0)
                 .getTimestamp()) + " until " + DATE_TIME_FORMATTER.format(block
@@ -152,23 +151,25 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
             return SimpleEstimationResult.builder().build();
         }
 
-        Optional<UsagePoint> usagePoint = estimationBlocks.stream()
-                .map(EstimationBlock::getChannel)
-                .map(Channel::getChannelsContainer)
-                .map(ChannelsContainer::getUsagePoint)
-                .filter(Optional::isPresent)
-                .findFirst()
-                .orElse(Optional.empty());
+        if (validatingUsagePoint == null) {
+            Optional<UsagePoint> usagePoint = estimationBlocks.stream()
+                    .map(EstimationBlock::getChannel)
+                    .map(Channel::getChannelsContainer)
+                    .map(ChannelsContainer::getUsagePoint)
+                    .filter(Optional::isPresent)
+                    .findFirst()
+                    .orElse(Optional.empty());
 
-        if (!usagePoint.isPresent()) {
-            // no usage point found
-            LoggingContext.get()
-                    .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.ESTIMATOR_FAIL_NO_UP)
-                            .format(getThesaurus().getFormat(getEstimatorNameKey())
-                                    .format()));
-            return SimpleEstimationResult.of(estimationBlocks, Collections.emptyList());
-        } else {
-            this.validatingUsagePoint = usagePoint.get();
+            if (!usagePoint.isPresent()) {
+                // no usage point found
+                LoggingContext.get()
+                        .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.ESTIMATOR_FAIL_NO_UP)
+                                .format(getThesaurus().getFormat(getEstimatorNameKey())
+                                        .format()));
+                return SimpleEstimationResult.of(estimationBlocks, Collections.emptyList());
+            } else {
+                this.validatingUsagePoint = usagePoint.get();
+            }
         }
 
         touchCheckReadingType(estimationBlocks.get(0).getReadingType());
@@ -216,11 +217,14 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
             return false;
         } else {
             // set estimation values to each estimatable
-            referenceReadingMap.forEach((e, r) -> e.setEstimation(r.getReferenceValue()));
+            referenceReadingMap.forEach(this::setEstimatableValue);
             return true;
         }
     }
 
+    protected void setEstimatableValue(Estimatable estimatable, ReferenceReading referenceReading) {
+        estimatable.setEstimation(referenceReading.getReferenceValue());
+    }
 
     // assumption: block always belongs to one effective metrology configuration
     private Map<Estimatable, ReferenceReading> estimateBlock(EstimationBlock estimationBlock) {
@@ -318,7 +322,7 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
         return new ReferenceReading(REFERENCE_DATA_SUSPECT);
     }
 
-    protected class InitCancelException extends Exception {
+    class EstimationCancelledException extends Exception {
     }
 
     public enum TranslationKeys implements TranslationKey {
@@ -346,7 +350,7 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
 
     }
 
-    private class ReferenceReading {
+    class ReferenceReading {
 
         ReferenceReading(ReferenceReadingQuality quality) {
             this.quality = quality;
