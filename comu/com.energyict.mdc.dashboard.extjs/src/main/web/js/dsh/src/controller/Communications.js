@@ -262,11 +262,6 @@ Ext.define('Dsh.controller.Communications', {
     },
 
     viewConnections: function (record) {
-        var connectionType = record.get('connectionTask').connectionType,
-            storeIndex = this.getConnectionTypeFilter().getStore().findExact("name", connectionType),
-            connectionTypeRecord = storeIndex!=-1 ? this.getConnectionTypeFilter().getStore().getAt(storeIndex) : undefined;
-
-        location.href = '#/workspace/connections/details?device=' + encodeURIComponent(record.get('connectionTask').device.name)
-            + (Ext.isEmpty(connectionTypeRecord) ? '' : '&connectionTypes=' + connectionTypeRecord.get('id'));
+        location.href = '#/workspace/connections/details?device=' + encodeURIComponent(record.get('connectionTask').device.name);
     }
 });

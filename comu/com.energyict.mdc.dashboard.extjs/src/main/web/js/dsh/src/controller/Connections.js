@@ -304,7 +304,7 @@ Ext.define('Dsh.controller.Connections', {
             connectionTypeRecord = storeIndex!=-1 ? this.getConnectionTypeFilter().getStore().getAt(storeIndex) : undefined;
 
         location.href = '#/workspace/communications/details?device=' + encodeURIComponent(record.get('device').name)
-            + (Ext.isEmpty(connectionTypeRecord) ? '' : '&connectionTypes=' + connectionTypeRecord.get('id'));
+            + (Ext.isEmpty(connectionTypeRecord) ? '' : '&connectionMethods=' + record.get('id'));
     }
 
 });
