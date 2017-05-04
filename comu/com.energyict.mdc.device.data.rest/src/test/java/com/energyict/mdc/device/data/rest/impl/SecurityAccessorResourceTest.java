@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
@@ -125,6 +126,9 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         when(deviceService.findAndLockKeyAccessorByIdAndVersion(any(Device.class), any(KeyAccessorType.class), anyLong())).thenReturn(Optional.empty());
         when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
         when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, certificateKeyAccessorType, 22L)).thenReturn(Optional.of(clientCertificateAccessor));
+
+        Finder<CertificateWrapper> finder = mockFinder(Collections.emptyList());
+        when(pkiService.getAliasesByFilter(any(PkiService.AliasSearchFilter.class))).thenReturn(finder);
     }
 
     @Test

@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CryptographicType;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
@@ -22,7 +23,6 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.KeyAccessor;
-import com.energyict.mdc.device.data.rest.AliasInfo;
 import com.energyict.mdc.device.data.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -333,11 +333,19 @@ public class SecurityAccessorResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4,
             com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public PagedInfoList aliasSource(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
+        PkiService.AliasSearchFilter aliasSearchFilter = getAliasSearchFilter(params, uriInfo.getQueryParameters());
+        List<String> collect = pkiService.getAliasesByFilter(aliasSearchFilter)
+                .from(queryParameters)
+                .stream()
+                .map(CertificateWrapper::getAlias)
+                .collect(toList());
+        return PagedInfoList.fromPagedList("aliases", collect, queryParameters);
+    }
 
+    private PkiService.AliasSearchFilter getAliasSearchFilter(StandardParametersBean params, MultivaluedMap<String, String> uriParams) {
         PkiService.AliasSearchFilter aliasSearchFilter = new PkiService.AliasSearchFilter();
         String alias = null;
 
-        MultivaluedMap<String, String> uriParams = uriInfo.getQueryParameters();
         if (uriParams.containsKey("alias")) {
             alias = params.getFirst("alias");
         }
@@ -356,8 +364,7 @@ public class SecurityAccessorResource {
                 aliasSearchFilter.alias=alias;
             }
         }
-        List<AliasInfo> aliasInfos = AliasInfo.fromAliases(pkiService.getAliasesByFilter(aliasSearchFilter));
-        return PagedInfoList.fromPagedList("aliases", aliasInfos, queryParameters);
+        return aliasSearchFilter;
     }
 
     private KeyAccessorType findKeyAccessorTypeOrThrowException(@PathParam("id") long keyAccessorTypeId, Device device) {
