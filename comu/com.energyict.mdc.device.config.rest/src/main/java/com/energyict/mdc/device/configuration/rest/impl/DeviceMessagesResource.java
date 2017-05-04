@@ -92,7 +92,7 @@ public class DeviceMessagesResource {
         }
 
         Collections.sort(infos, (c1, c2) -> c1.name.compareTo(c2.name));
-        return PagedInfoList.fromPagedList("categories", infos, queryParameters);
+        return PagedInfoList.fromCompleteList("categories", infos, queryParameters);
     }
 
     @POST @Transactional
