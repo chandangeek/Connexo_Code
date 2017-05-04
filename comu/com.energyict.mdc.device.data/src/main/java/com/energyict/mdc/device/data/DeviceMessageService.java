@@ -8,6 +8,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -17,6 +18,8 @@ import java.util.Optional;
 public interface DeviceMessageService {
 
     Optional<DeviceMessage> findDeviceMessageById(long id);
+
+    Optional<DeviceMessage> findDeviceMessageByIdentifier(MessageIdentifier identifier);
 
     Optional<DeviceMessage> findAndLockDeviceMessageByIdAndVersion(long id, long version);
 
@@ -45,7 +48,7 @@ public interface DeviceMessageService {
      * @param deviceMessage The deviceMessage that needs to be checked<
      * @return A ComTask if one is found, else null
      */
-    ComTask getPreferredComTask(Device device, DeviceMessage<?> deviceMessage);
+    ComTask getPreferredComTask(Device device, DeviceMessage deviceMessage);
 
     /**
      * Checks if the logged in user can create or update a given message

@@ -6,10 +6,12 @@ package com.energyict.mdc.device.data.impl.constraintvalidators;
 
 import com.energyict.mdc.device.data.impl.DeviceMessageImpl;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 public class DeviceMessageIdValidator implements ConstraintValidator<ValidDeviceMessageId, DeviceMessageImpl> {
 
@@ -24,9 +26,10 @@ public class DeviceMessageIdValidator implements ConstraintValidator<ValidDevice
         if (deviceMessage.getDevice()
                 .getDeviceType()
                 .getDeviceProtocolPluggableClass()
-                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass
-                        .getDeviceProtocol().getSupportedMessages())
-                .orElse(Collections.emptySet())
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
+                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
+                        .map(DeviceMessageId::havingId)
+                        .collect(Collectors.toList())).orElse(Collections.emptyList())
                 .stream()
                 .filter(deviceMessageId -> deviceMessageId.equals(deviceMessage.getDeviceMessageId()))
                 .count() != 1) {

@@ -33,15 +33,21 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -51,12 +57,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import java.util.stream.Collectors;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -73,6 +74,15 @@ import static org.mockito.Mockito.when;
 public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     protected static final TimeDuration EVERY_HOUR = new TimeDuration(1, TimeDuration.TimeUnit.HOURS);
+    protected static final long IP_COMPORT_POOL_ID = 1;
+    protected static final long MODEM_COMPORT_POOL_ID = IP_COMPORT_POOL_ID + 2;
+    protected static final long INBOUND_COMPORT_POOL1_ID = MODEM_COMPORT_POOL_ID + 1;
+    protected static final long INBOUND_COMPORT_POOL2_ID = INBOUND_COMPORT_POOL1_ID + 1;
+    protected static final String IP_ADDRESS_PROPERTY_VALUE = "192.168.2.100";
+    protected static final String UPDATED_IP_ADDRESS_PROPERTY_VALUE = "192.168.100.2";
+    protected static final BigDecimal PORT_PROPERTY_VALUE = new BigDecimal(1521);
+    protected static final BigDecimal UPDATED_PORT_PROPERTY_VALUE = new BigDecimal(4049);
+    private static final String DEVICE_PROTOCOL_DIALECT_NAME = "Limbueregs";
 
     protected static long PARTIAL_SCHEDULED_CONNECTION_TASK1_ID;
     protected static long PARTIAL_SCHEDULED_CONNECTION_TASK2_ID;
@@ -82,16 +92,6 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected static long PARTIAL_INBOUND_CONNECTION_TASK3_ID;
     protected static long PARTIAL_CONNECTION_INITIATION_TASK1_ID;
     protected static long PARTIAL_CONNECTION_INITIATION_TASK2_ID;
-
-    protected static final long IP_COMPORT_POOL_ID = 1;
-    protected static final long MODEM_COMPORT_POOL_ID = IP_COMPORT_POOL_ID + 2;
-    protected static final long INBOUND_COMPORT_POOL1_ID = MODEM_COMPORT_POOL_ID + 1;
-    protected static final long INBOUND_COMPORT_POOL2_ID = INBOUND_COMPORT_POOL1_ID + 1;
-    protected static final String IP_ADDRESS_PROPERTY_VALUE = "192.168.2.100";
-    protected static final String UPDATED_IP_ADDRESS_PROPERTY_VALUE = "192.168.100.2";
-    protected static final BigDecimal PORT_PROPERTY_VALUE = new BigDecimal(1521);
-    protected static final BigDecimal UPDATED_PORT_PROPERTY_VALUE = new BigDecimal(4049);
-
     protected static ConnectionTypePluggableClass inboundNoParamsConnectionTypePluggableClass;
     protected static ConnectionTypePluggableClass outboundNoParamsConnectionTypePluggableClass;
     protected static ConnectionTypePluggableClass modemNoParamsConnectionTypePluggableClass;
@@ -117,26 +117,13 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     protected PartialConnectionInitiationTask partialConnectionInitiationTask2;
 
     protected int comTaskEnablementPriority = 213;
+    protected ComTaskEnablement comTaskEnablement1;
+    protected ComTaskEnablement comTaskEnablement2;
+    protected ComTaskEnablement comTaskEnablement3;
     private OnlineComServer onlineComServer;
     private OnlineComServer otherOnlineComServer;
     private String COM_TASK_NAME = "TheNameOfMyComTask";
     private int maxNrOfTries = 5;
-    protected ComTaskEnablement comTaskEnablement1;
-    protected ComTaskEnablement comTaskEnablement2;
-    protected ComTaskEnablement comTaskEnablement3;
-
-    @Before
-    public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration() {
-        this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
-    }
-
-    public OnlineComServer getOnlineComServer() {
-        return onlineComServer;
-    }
-
-    public OnlineComServer getOtherOnlineComServer() {
-        return otherOnlineComServer;
-    }
 
     @BeforeClass
     public static void registerConnectionTypePluggableClasses() {
@@ -151,15 +138,6 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
                 modemNoParamsConnectionTypePluggableClass = registerConnectionTypePluggableClass(ModemNoParamsConnectionTypeImpl.class);
             }
         });
-    }
-
-    protected void refreshConnectionTypePluggableClasses() {
-        outboundNoParamsConnectionTypePluggableClass = refreshConnectionTypePluggableClass(OutboundNoParamsConnectionTypeImpl.class);
-        inboundNoParamsConnectionTypePluggableClass = refreshConnectionTypePluggableClass(InboundNoParamsConnectionTypeImpl.class);
-        inboundIpConnectionTypePluggableClass = refreshConnectionTypePluggableClass(InboundIpConnectionTypeImpl.class);
-        outboundIpConnectionTypePluggableClass = refreshConnectionTypePluggableClass(OutboundIpConnectionTypeImpl.class);
-        modemConnectionTypePluggableClass = refreshConnectionTypePluggableClass(ModemConnectionType.class);
-        modemNoParamsConnectionTypePluggableClass = refreshConnectionTypePluggableClass(ModemNoParamsConnectionTypeImpl.class);
     }
 
     private static <T extends ConnectionType> ConnectionTypePluggableClass registerConnectionTypePluggableClass(Class<T> connectionTypeClass) {
@@ -309,6 +287,28 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     private static InboundComPortPool createInactiveInboundIpComPortPool(String name) {
         return inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, discoveryProtocolPluggableClass, Collections.emptyMap());
+    }
+
+    @Before
+    public void getFirstProtocolDialectConfigurationPropertiesFromDeviceConfiguration() {
+        this.deviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0);
+    }
+
+    public OnlineComServer getOnlineComServer() {
+        return onlineComServer;
+    }
+
+    public OnlineComServer getOtherOnlineComServer() {
+        return otherOnlineComServer;
+    }
+
+    protected void refreshConnectionTypePluggableClasses() {
+        outboundNoParamsConnectionTypePluggableClass = refreshConnectionTypePluggableClass(OutboundNoParamsConnectionTypeImpl.class);
+        inboundNoParamsConnectionTypePluggableClass = refreshConnectionTypePluggableClass(InboundNoParamsConnectionTypeImpl.class);
+        inboundIpConnectionTypePluggableClass = refreshConnectionTypePluggableClass(InboundIpConnectionTypeImpl.class);
+        outboundIpConnectionTypePluggableClass = refreshConnectionTypePluggableClass(OutboundIpConnectionTypeImpl.class);
+        modemConnectionTypePluggableClass = refreshConnectionTypePluggableClass(ModemConnectionType.class);
+        modemNoParamsConnectionTypePluggableClass = refreshConnectionTypePluggableClass(ModemNoParamsConnectionTypeImpl.class);
     }
 
     @Before
@@ -521,7 +521,7 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected ComTaskExecution getReloadedComTaskExecution(ComTaskExecution comTaskExecution) {
-        return  inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+        return inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
     }
 
     protected void grantAllViewAndEditPrivilegesToPrincipal() {
@@ -540,11 +540,16 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
         @Override
         public String getDeviceProtocolDialectName() {
-            return DEVICE_PROTOCOL_DIALECT_NAME;
+            return Property.DEVICE_PROTOCOL_DIALECT.getName();
         }
 
         @Override
-        public String getDisplayName() {
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+            return getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
+        }
+
+        @Override
+        public String getDeviceProtocolDialectDisplayName() {
             return "It's a Dell Display";
         }
 

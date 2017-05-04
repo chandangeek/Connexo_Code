@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.pluggable.PluggableClassUsage;
@@ -12,10 +13,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialectProperty;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 
-import aQute.bnd.annotation.ProviderType;
-
 /**
- * Models the fact that a {@link com.energyict.mdc.protocol.api.device.BaseDevice} uses a {@link DeviceProtocolDialect}
+ * Models the fact that a {@link com.energyict.mdc.upl.meterdata.Device} uses a {@link DeviceProtocolDialect}
  * and will specify the values of the properties of the DeviceProtocolDialect.
  *
  * @author Rudi Vankeirsbilck (rudi)

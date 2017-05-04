@@ -16,8 +16,7 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertyS
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.ConstraintViolation;
@@ -143,13 +142,13 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
     private void cancelNotYetProcessedDeviceMessages(ServiceCall serviceCall, CommandServiceCallDomainExtension domainExtension) {
         // Try to cancel all not yet processed device messages
         Device device = (Device) serviceCall.getTargetObject().get();
-        List<DeviceMessage<Device>> interruptCandidates = device.getMessagesByState(DeviceMessageStatus.PENDING);
+        List<DeviceMessage> interruptCandidates = device.getMessagesByState(DeviceMessageStatus.PENDING);
         interruptCandidates.addAll(device.getMessagesByState(DeviceMessageStatus.WAITING));
         List<String> deviceMsgIds = Arrays.asList(domainExtension.getDeviceMessages().substring(1, domainExtension.getDeviceMessages().length() - 1).split(DEVICE_MSG_DELIMITER));
         serviceCall.log(LogLevel.WARNING, MessageFormat.format("Revoking device messages with ids {0}", Arrays.toString(deviceMsgIds.toArray())));
         interruptCandidates.stream()
                 .filter(msg -> deviceMsgIds.contains(Long.toString(msg.getId())))
-                .filter(msg -> msg.getStatus().isPredecessorOf(DeviceMessageStatus.REVOKED))
+                .filter(msg -> msg.getStatus().isPredecessorOf(DeviceMessageStatus.CANCELED))
                 .forEach(msg -> {
                     tryToRevokeDeviceMessage(msg, serviceCall);
                 });
@@ -160,7 +159,7 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
      * Remark: all ConstraintViolationExceptions are caught and logged on the ServiceCall, these should not be thrown to outside this method
      * ( as we should be able to continue the flow)
      */
-    private void tryToRevokeDeviceMessage(DeviceMessage<Device> msg, ServiceCall serviceCall) {
+    private void tryToRevokeDeviceMessage(DeviceMessage msg, ServiceCall serviceCall) {
         try {
             msg.revoke();
         } catch (ConstraintViolationException e) {

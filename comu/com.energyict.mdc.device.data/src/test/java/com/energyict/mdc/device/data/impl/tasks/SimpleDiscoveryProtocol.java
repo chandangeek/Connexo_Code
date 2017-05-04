@@ -6,11 +6,10 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,25 +24,45 @@ import static org.mockito.Mockito.mock;
  */
 public class SimpleDiscoveryProtocol implements InboundDeviceProtocol {
 
-    private InboundDiscoveryContext inboundDiscoveryContext;
+    private com.energyict.mdc.upl.InboundDiscoveryContext inboundDiscoveryContext;
 
     @Override
-    public void initializeDiscoveryContext(InboundDiscoveryContext context) {
+    public void initializeDiscoveryContext(com.energyict.mdc.upl.InboundDiscoveryContext context) {
         this.inboundDiscoveryContext = context;
     }
 
     @Override
-    public InboundDiscoveryContext getContext() {
+    public String getAdditionalInformation() {
+        return null;
+    }
+
+    @Override
+    public boolean hasSupportForRequestsOnInbound() {
+        return false;
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
+    }
+
+    @Override
+    public com.energyict.mdc.upl.InboundDiscoveryContext getContext() {
         return this.inboundDiscoveryContext;
     }
 
     @Override
-    public DiscoverResultType doDiscovery() {
-        return DiscoverResultType.IDENTIFIER;
+    public com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType doDiscovery() {
+        return com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.IDENTIFIER;
     }
 
     @Override
-    public void provideResponse(DiscoverResponseType responseType) {
+    public void provideResponse(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType responseType) {
     }
 
     @Override
@@ -52,7 +71,7 @@ public class SimpleDiscoveryProtocol implements InboundDeviceProtocol {
     }
 
     @Override
-    public List<CollectedData> getCollectedData(OfflineDevice device) {
+    public List<CollectedData> getCollectedData() {
         return Collections.emptyList();
     }
 
@@ -69,5 +88,4 @@ public class SimpleDiscoveryProtocol implements InboundDeviceProtocol {
     public List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();
     }
-
 }

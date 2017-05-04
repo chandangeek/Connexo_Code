@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.orm.associations.Effectivity;
-import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import java.time.Instant;
 
