@@ -72,7 +72,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -88,7 +88,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -104,7 +104,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -120,7 +120,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -137,7 +137,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();

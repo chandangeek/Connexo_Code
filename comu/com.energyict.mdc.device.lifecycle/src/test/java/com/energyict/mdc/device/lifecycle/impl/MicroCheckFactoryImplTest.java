@@ -12,6 +12,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,8 @@ public class MicroCheckFactoryImplTest {
     private NlsService nlsService;
     @Mock
     private TopologyService topologyService;
+    @Mock
+    private MultiElementDeviceService multiElementDeviceService;
     @Mock
     private ValidationService validationService;
     @Mock
@@ -72,7 +75,7 @@ public class MicroCheckFactoryImplTest {
     }
 
     private MicroCheckFactoryImpl getTestInstance() {
-        return new MicroCheckFactoryImpl(this.nlsService, this.topologyService, this.validationService, meteringService);
+        return new MicroCheckFactoryImpl(this.nlsService, this.topologyService, this.multiElementDeviceService, this.validationService, meteringService);
     }
 
 }

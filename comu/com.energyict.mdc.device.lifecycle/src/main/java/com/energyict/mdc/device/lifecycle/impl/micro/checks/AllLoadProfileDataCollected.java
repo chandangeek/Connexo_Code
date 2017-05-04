@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeterActivation;
@@ -43,7 +42,7 @@ public class AllLoadProfileDataCollected extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp, State state) {
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
         return this.evaluateLoadProfiles(device, effectiveTimestamp);
     }
 
@@ -72,11 +71,11 @@ public class AllLoadProfileDataCollected extends TranslatableServerMicroCheck {
     }
 
     private boolean lastReadingInLoadProfileMissing(LoadProfile loadProfile) {
-        return !loadProfile.getLastReading().isPresent();
+        return loadProfile.getLastReading() == null;
     }
 
     private boolean lastReadingOfLoadProfileIsNotFromPreviousInterval(LoadProfile loadProfile, Instant effectiveTimestamp) {
-        Instant loadProfileLastReading = loadProfile.getLastReading().get(); // the isPresent is checked in the previous check
+        Instant loadProfileLastReading = loadProfile.getLastReading().toInstant();  //The null check already happened
         if (effectiveTimestamp.isAfter(loadProfileLastReading)) {
             final Instant[] nextIntervalForLoadProfile = {loadProfileLastReading};
             findMdcAmrSystem().findMeter(String.valueOf(loadProfile.getDevice().getId())).

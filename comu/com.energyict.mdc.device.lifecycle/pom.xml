@@ -28,6 +28,10 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.upl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
         </dependency>
         <dependency>
@@ -151,6 +155,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pki</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle.config</artifactId>
         </dependency>
 
         <!-- Testing -->
@@ -309,11 +317,6 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>usagepoint.lifecycle.config</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

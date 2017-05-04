@@ -88,7 +88,7 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
         Instant effectiveTimestamp = this.effectiveTimestampFrom(event);
         switch (newState) {
             case IN_STOCK: {
-                // Initial newState is not posted as an event
+                // Initial getUpdater is not posted as an event
                 break;
             }
             case ACTIVE: {
@@ -108,7 +108,7 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
                 break;
             }
             default: {
-                // No CIM date for this newState so ignore it
+                // No CIM date for this getUpdater so ignore it
             }
         }
     }
