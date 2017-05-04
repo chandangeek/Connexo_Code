@@ -20,7 +20,7 @@ public enum MessageSeeds implements MessageSeed {
     CONCURRENT_DELETE_TITLE(7, "ConcurrentModificationRemoveTitle", "Failed to remove ''{0}''", Level.SEVERE),
     CONCURRENT_DELETE_BODY(8, "ConcurrentModificationRemoveMessage", "{0} has changed since the page was last updated.", Level.SEVERE),
     INVALID_RANGE(9, "InvalidRange", "Invalid range", Level.SEVERE),
-
+    INTERNAL_CONNEXO_ERROR(10, "internalConnexoError", "Connexo has encountered an error, please contact your system administrator", Level.SEVERE)
     ;
 
     public static final String COMPONENT_NAME = "RUT";

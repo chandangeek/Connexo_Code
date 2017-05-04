@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ConcurrentModificationInfo {
     @JsonProperty("error")
     public String messageBody;
+    @JsonProperty("errorCode")
+    public String errorCode;
     @JsonProperty("message")
     public String messageTitle;
     @JsonProperty("version")
@@ -22,6 +24,7 @@ public class ConcurrentModificationInfo {
     public ConcurrentModificationInfo from(ConcurrentModificationException exception){
         this.messageBody = exception.getMessageBody();
         this.messageTitle = exception.getMessageTitle();
+        this.errorCode = exception.getErrorCode();
         this.version = exception.getVersion();
         if (exception.getParentId() != null && exception.getParentId().length != 0){
             this.parent = new VersionInfo();
