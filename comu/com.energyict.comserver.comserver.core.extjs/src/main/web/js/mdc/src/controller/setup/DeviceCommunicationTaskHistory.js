@@ -236,7 +236,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
         var comTaskLog = this.getDeviceCommunicationTaskHistoryLogGrid().getSelectionModel().getSelection()[0];
         this.getDeviceCommunicationTaskHistoryLogPreviewForm().loadRecord(comTaskLog);
         var timeStamp = Uni.DateTime.formatDateTimeLong(new Date(comTaskLog.get('timestamp')));
-        this.getDeviceCommunicationTaskHistoryLogPreview().setTitle(Ext.String.format(Uni.I18n.translate('devicecommunicationtaskhistory.communicationOn', 'MDC', 'Communication on {0}'), timeStamp));
+        this.getDeviceCommunicationTaskHistoryLogPreview().setTitle(Ext.String.format(timeStamp));
     },
 
     showComTaskConnectionDetails: function(){
