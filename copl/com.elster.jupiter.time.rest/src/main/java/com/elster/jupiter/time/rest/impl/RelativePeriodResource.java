@@ -5,6 +5,7 @@
 package com.elster.jupiter.time.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -154,7 +155,7 @@ public class RelativePeriodResource {
             relativePeriod.delete();
             context.commit();
             return Response.status(Response.Status.OK).build();
-        } catch (WebApplicationException | ConcurrentModificationException | CannotDeleteUsedRelativePeriodException e) {
+        } catch (WebApplicationException | LocalizedException e) {
             throw e;
         } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
