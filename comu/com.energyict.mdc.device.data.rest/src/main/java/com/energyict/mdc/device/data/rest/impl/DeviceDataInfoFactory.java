@@ -441,4 +441,12 @@ public class DeviceDataInfoFactory {
         addCommonRegisterInfo(flagsRegister, flagsRegisterInfo, topologyService);
         return flagsRegisterInfo;
     }
+
+    public PrevalidatedChannelDataInfo createPrevalidatedChannelDataInfo(DataValidationStatus dataValidationStatus) {
+        PrevalidatedChannelDataInfo info = new PrevalidatedChannelDataInfo();
+        info.readingTime = dataValidationStatus.getReadingTimestamp();
+        info.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
+        info.bulkValidationRules = validationRuleInfoFactory.createInfosForBulkDataValidationStatus(dataValidationStatus);
+        return info;
+    }
 }

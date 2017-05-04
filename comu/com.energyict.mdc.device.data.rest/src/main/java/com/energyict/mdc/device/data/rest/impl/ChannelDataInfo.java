@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
@@ -17,9 +17,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Created by bvn on 8/1/14.
- */
 public class ChannelDataInfo {
     @JsonProperty("interval")
     public IntervalInfo interval;
@@ -59,15 +56,15 @@ public class ChannelDataInfo {
 
     public SlaveChannelInfo slaveChannel;
 
-    public BaseReading createNew() {
+    public BaseReadingImpl createNew() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value, Collections.emptyList());
     }
 
-    public BaseReading createNewBulk() {
+    public BaseReadingImpl createNewBulk() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.collectedValue, Collections.emptyList());
     }
 
-    public BaseReading createConfirm() {
+    public BaseReadingImpl createConfirm() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), null, Collections.emptyList());
     }
 }
