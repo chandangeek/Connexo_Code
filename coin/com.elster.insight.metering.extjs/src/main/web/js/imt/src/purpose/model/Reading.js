@@ -29,6 +29,8 @@ Ext.define('Imt.purpose.model.Reading', {
         {name: 'readingQualities', type: 'auto', defaultValue: null},
         {name: 'modificationFlag', type: 'auto'},
         {name: 'modificationDate', type: 'auto'},
+        {name: 'calendarName', type: 'string'},
+        {name: 'partOfTimeOfUseGap', type: 'auto'},
         'plotband',
         {
             name: 'readingProperties',

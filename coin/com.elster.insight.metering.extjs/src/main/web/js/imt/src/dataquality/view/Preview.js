@@ -175,6 +175,14 @@ Ext.define('Imt.dataquality.view.Preview', {
                                             return '<span class="icon-flag5" style="color:#dedc49; margin-right:10px" data-qtip="'
                                                 + Uni.I18n.translate('general.informatives', 'IMT', 'Informatives') + '"></span>' + value;
                                         }
+                                    },
+                                    {
+                                        name: 'amountOfProjected',
+                                        itemId: 'amount-of-projected',
+                                        renderer: function (value) {
+                                            return '<span style="font-weight:bold; cursor: default;  margin-right:15px" data-qtip="'
+                                                + Uni.I18n.translate('general.projected', 'IMT', 'Projected') + '">P</span>' + value;
+                                        }
                                     }
                                 ]
                             },

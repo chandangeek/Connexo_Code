@@ -375,7 +375,6 @@ Ext.define('Imt.purpose.controller.Readings', {
             grid = me.getReadingsList(),
             store = grid.getStore(),
             color = '#70BB51';
-
         if (!Ext.isEmpty(record.get('estimatedByRule'))) {
             color = '#568343';
         } else if (properties.notValidated) {
