@@ -132,7 +132,7 @@ public class ChannelImplTest extends EqualsContractTest {
         readingType3 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID3, "3");
         readingType4 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID4, "4");
 
-        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1, readingType2));
+        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1, readingType2), Optional.empty());
     }
 
     @After
@@ -195,7 +195,7 @@ public class ChannelImplTest extends EqualsContractTest {
     	readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID1_IRR, "1");
         readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2_IRR, "2");
 
-        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1, readingType2));
+        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1, readingType2), Optional.empty());
 
         assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
         assertThat(channel.getBulkQuantityReadingType().isPresent()).isFalse();
@@ -219,7 +219,7 @@ public class ChannelImplTest extends EqualsContractTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testInitWithInconsistentIntervalLength() {
-        createChannel().init(channelsContainer, ImmutableList.of(readingType1, readingType3));
+        createChannel().init(channelsContainer, ImmutableList.of(readingType1, readingType3), Optional.empty());
     }
 
     @Test
@@ -228,7 +228,7 @@ public class ChannelImplTest extends EqualsContractTest {
         readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2_IRR, "2");
         readingType4 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID4_IRR, "4");
 
-        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1, readingType2, readingType4));
+        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1, readingType2, readingType4), Optional.empty());
 
         assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
         assertThat(channel.getBulkQuantityReadingType().isPresent()).isFalse();
@@ -280,7 +280,7 @@ public class ChannelImplTest extends EqualsContractTest {
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID1_IRR, "1");
         readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2_IRR, "2");
 
-        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1, readingType2));
+        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1, readingType2), Optional.empty());
 
         when(timeSeries.getEntries(INTERVAL)).thenReturn(Collections.singletonList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(anyInt())).thenReturn(VALUE);
@@ -300,7 +300,7 @@ public class ChannelImplTest extends EqualsContractTest {
     @Test(expected = LocalizedFieldValidationException.class)
     public void testValidateBillingReadingWithTimestampLessThanStart() {
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID5_BIL, "Billing");
-        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1));
+        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1), Optional.empty());
         ReadingImpl reading = ReadingImpl.of(readingType1.getMRID(), BigDecimal.valueOf(50), LocalDateTime.of(2014, 6, 2, 0, 0).toInstant(ZoneOffset.UTC));
         reading.setTimePeriod(
                 LocalDateTime.of(2014, 6, 3, 0, 0).toInstant(ZoneOffset.UTC),
@@ -311,7 +311,7 @@ public class ChannelImplTest extends EqualsContractTest {
     @Test(expected = LocalizedFieldValidationException.class)
     public void testValidateBillingReadingWithTimestampGreaterThanEnd() {
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID5_BIL, "Billing");
-        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1));
+        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1), Optional.empty());
         ReadingImpl reading = ReadingImpl.of(readingType1.getMRID(), BigDecimal.valueOf(50), LocalDateTime.of(2014, 6, 6, 0, 0).toInstant(ZoneOffset.UTC));
         reading.setTimePeriod(
                 LocalDateTime.of(2014, 6, 3, 0, 0).toInstant(ZoneOffset.UTC),
@@ -322,7 +322,7 @@ public class ChannelImplTest extends EqualsContractTest {
     @Test
     public void testValidateBillingReadingAtTimePeriodStart() {
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID5_BIL, "Billing");
-        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1));
+        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1), Optional.empty());
         Instant startInstant = LocalDateTime.of(2014, 6, 3, 0, 0).toInstant(ZoneOffset.UTC);
         ReadingImpl reading = ReadingImpl.of(readingType1.getMRID(), BigDecimal.valueOf(50), startInstant);
         reading.setTimePeriod(
@@ -335,7 +335,7 @@ public class ChannelImplTest extends EqualsContractTest {
     @Test
     public void testValidateBillingReadingAtTimePeriodEnd() {
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID5_BIL, "Billing");
-        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1));
+        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1), Optional.empty());
         Instant endInstant = LocalDateTime.of(2014, 6, 5, 0, 0).toInstant(ZoneOffset.UTC);
         ReadingImpl reading = ReadingImpl.of(readingType1.getMRID(), BigDecimal.valueOf(50), endInstant);
         reading.setTimePeriod(
@@ -348,7 +348,7 @@ public class ChannelImplTest extends EqualsContractTest {
     @Test
     public void testValidateBillingReadingInTheMiddleOfTimePeriod() {
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID5_BIL, "Billing");
-        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1));
+        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1), Optional.empty());
         ReadingImpl reading = ReadingImpl.of(readingType1.getMRID(), BigDecimal.valueOf(50), LocalDateTime.of(2014, 6, 4, 12, 0).toInstant(ZoneOffset.UTC));
         reading.setTimePeriod(
                 LocalDateTime.of(2014, 6, 3, 0, 0).toInstant(ZoneOffset.UTC),
@@ -361,7 +361,7 @@ public class ChannelImplTest extends EqualsContractTest {
     @Test
     public void testGetTimePeriodForNumericalRegister() {
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID1, "Numerical");
-        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1));
+        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1), Optional.empty());
 
         ReadingImpl reading = ReadingImpl.of(readingType1.getMRID(), BigDecimal.valueOf(50), LocalDateTime.of(2014, 6, 4, 12, 0).toInstant(ZoneOffset.UTC));
         Object[] values = channel.toArray(reading, readingType1, new ProcessStatus(0));
@@ -373,7 +373,7 @@ public class ChannelImplTest extends EqualsContractTest {
     @Test
     public void testGetTimePeriodForBillingRegister() {
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID5_BIL, "Billing");
-        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1));
+        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1), Optional.empty());
 
         ReadingImpl reading = ReadingImpl.of(readingType1.getMRID(), BigDecimal.valueOf(50), LocalDateTime.of(2014, 6, 4, 12, 0).toInstant(ZoneOffset.UTC));
         Instant start = LocalDateTime.of(2014, 6, 3, 0, 0).toInstant(ZoneOffset.UTC);
@@ -390,7 +390,7 @@ public class ChannelImplTest extends EqualsContractTest {
     @Test
     public void testGetTimePeriodForCorruptedReading() {
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID5_BIL, "Billing");
-        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1));
+        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1), Optional.empty());
         ReadingImpl reading = ReadingImpl.of(readingType1.getMRID(), BigDecimal.valueOf(50), LocalDateTime.of(2014, 6, 4, 12, 0).toInstant(ZoneOffset.UTC));
         Object[] values = channel.toArray(reading, readingType1, new ProcessStatus(0));
 
@@ -401,7 +401,7 @@ public class ChannelImplTest extends EqualsContractTest {
     @Test
     public void testGetTimePeriodForCorruptedValues() {
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID5_BIL, "Billing");
-        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1));
+        channel = createChannel().init(channelsContainer, ImmutableList.of(readingType1), Optional.empty());
         Optional<Range<Instant>> period = channel.getTimePeriod(null, new Object[]{});
         assertThat(period.isPresent()).isFalse();
     }

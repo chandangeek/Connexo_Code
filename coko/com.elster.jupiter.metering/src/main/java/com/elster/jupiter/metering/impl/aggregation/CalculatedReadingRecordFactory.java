@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Provides factory services for {@link CalculatedReadingRecord}s.
+ * Provides factory services for {@link CalculatedReadingRecordImpl}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-26 (13:05)
@@ -19,7 +19,7 @@ import java.util.Map;
 public interface CalculatedReadingRecordFactory {
 
     /**
-     * Consumes all the data in the ResultSet, converting to {@link CalculatedReadingRecord}s
+     * Consumes all the data in the ResultSet, converting to {@link CalculatedReadingRecordImpl}s
      * that are organized by {@link ReadingType} to support ResultSets that contain data
      * for different {@link ReadingType}s.
      * Any SQLException thrown while reading from ResultSet will be wrapped
@@ -28,6 +28,6 @@ public interface CalculatedReadingRecordFactory {
      * @param resultSet The ResultSet
      * @return The List of CalculatedReadingRecord organized by ReadingType
      */
-    Map<ReadingType, List<CalculatedReadingRecord>> consume(ResultSet resultSet, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation);
+    Map<ReadingType, List<CalculatedReadingRecordImpl>> consume(ResultSet resultSet, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation);
 
 }

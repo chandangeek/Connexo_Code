@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.EventSet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
@@ -53,6 +54,8 @@ import com.elster.jupiter.metering.impl.config.AbstractNode;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePointImpl;
+import com.elster.jupiter.metering.impl.config.EventSetOnMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.EventSetOnMetrologyConfigurationImpl;
 import com.elster.jupiter.metering.impl.config.FormulaImpl;
 import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
@@ -107,7 +110,6 @@ import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
-
 
 public enum TableSpecs {
     MTR_SERVICECATEGORY {
@@ -746,11 +748,11 @@ public enum TableSpecs {
                     .varChar()
                     .map(MetrologyConfigurationImpl.Fields.DESCRIPTION.fieldName())
                     .add();
-            table.column(MetrologyConfigurationImpl.Fields.ALLOW_GAP.name())
+            table.column(MetrologyConfigurationImpl.Fields.ALLOW_GAPS.name())
                     .type("char(1)")
                     .notNull()
                     .conversion(CHAR2BOOLEAN)
-                    .map(MetrologyConfigurationImpl.Fields.ALLOW_GAP.fieldName())
+                    .map(MetrologyConfigurationImpl.Fields.ALLOW_GAPS.fieldName())
                     .since(version(10,3))
                     .installValue("'N'")
                     .add();
@@ -839,7 +841,7 @@ public enum TableSpecs {
                     .on(usagePoint)
                     .references(UsagePoint.class)
                     .map("usagePoint")
-                    .reverseMap("metrologyConfigurations")
+                    .reverseMap("metrologyConfigurations", EffectiveMetrologyContractOnUsagePoint.class, MetrologyContract.class, ChannelsContainer.class, Channel.class)
                     .composition()
                     .add();
             table.foreignKey("FK_MTR_UPMTRCONFIG_MC")
@@ -1708,7 +1710,7 @@ public enum TableSpecs {
                     .on(effectiveConfColumn)
                     .references(EffectiveMetrologyConfigurationOnUsagePoint.class)
                     .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.fieldName())
-                    .reverseMap("effectiveContracts")
+                    .reverseMap("effectiveContracts", MetrologyContract.class, ReadingTypeDeliverable.class)
                     .composition()
                     .add();
             table.foreignKey("MTR_EF_CONTRACT_2_CONTRACT")
@@ -1999,6 +2001,32 @@ public enum TableSpecs {
                     .on(calendar)
                     .map(CalendarUsageImpl.Fields.CALENDAR.fieldName())
                     .references(Calendar.class)
+                    .add();
+        }
+    },
+    MTR_EVENTSET_ON_METROCONFIG {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EventSetOnMetrologyConfiguration> table = dataModel.addTable(this.name(), EventSetOnMetrologyConfiguration.class).since(version(10, 3));
+            table.map(EventSetOnMetrologyConfigurationImpl.class);
+            Column metrologyConfiguration = table.column("METROLOGYCONFIGURATION").number().notNull().add();
+            Column eventSet = table.column("EVENTSET").number().notNull().add();
+            table.setJournalTableName("MTR_EVENTSET_ON_METROCONFJRNL");
+            table.addAuditColumns();
+            table.primaryKey("MTR_PK_EVSET_ON_METROCONF")
+                    .on(metrologyConfiguration, eventSet)
+                    .add();
+            table.foreignKey("MTR_FK_SET_ON_CONFIG_TO_CONFIG")
+                    .on(metrologyConfiguration)
+                    .references(MetrologyConfiguration.class)
+                    .map(EventSetOnMetrologyConfigurationImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
+                    .composition()
+                    .reverseMap("eventSets")
+                    .add();
+            table.foreignKey("MTR_FK_SET_ON_CONFIG_TO_SET")
+                    .on(eventSet)
+                    .references(EventSet.class)
+                    .map(EventSetOnMetrologyConfigurationImpl.Fields.EVENTSET.fieldName())
                     .add();
         }
     },

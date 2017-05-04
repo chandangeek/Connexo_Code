@@ -5,12 +5,13 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 
 public class ReadingRecordImpl extends BaseReadingRecordImpl implements ReadingRecord {
-	
-	ReadingRecordImpl(ChannelImpl channel, TimeSeriesEntry entry) {
+
+	ReadingRecordImpl(ChannelContract channel, TimeSeriesEntry entry) {
 		super(channel,entry);
 	}
 
@@ -18,11 +19,11 @@ public class ReadingRecordImpl extends BaseReadingRecordImpl implements ReadingR
 	final int getReadingTypeOffset() {
 		return 1;
 	}
-	
+
 	public String getReadingTypeCode() {
 		return getReadingType().getMRID();
 	}
-	
+
 	public String getReason() {
 		return null;
 	}

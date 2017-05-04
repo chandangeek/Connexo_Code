@@ -60,9 +60,9 @@ public class ChannelBuilderImpl implements ChannelBuilder {
     @Override
     public ChannelImpl build() {
         if (readingTypes.size() > 1) {
-            return channelFactory.get().init(channelsContainer, readingTypes, (rt1, rt2) -> DerivationRule.MEASURED);
+            return channelFactory.get().init(channelsContainer, readingTypes, Optional.empty(), (rt1, rt2) -> DerivationRule.MEASURED);
         }
-        return channelFactory.get().init(channelsContainer, buildReadingTypes());
+        return channelFactory.get().init(channelsContainer, buildReadingTypes(), Optional.empty());
     }
 
     private List<IReadingType> buildReadingTypes() {

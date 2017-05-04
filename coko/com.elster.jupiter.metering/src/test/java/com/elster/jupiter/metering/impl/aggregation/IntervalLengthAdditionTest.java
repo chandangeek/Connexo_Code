@@ -170,6 +170,26 @@ public class IntervalLengthAdditionTest {
     }
 
     @Test
+    public void testOneDayOnSwithOverToSummerTime() {
+        // Business method
+        Instant morningOfSwitchOverToSummerTime = Instant.ofEpochSecond(1459033200);
+        Instant instant = IntervalLength.DAY1.addTo(morningOfSwitchOverToSummerTime, testZoneId());
+
+        // Asserts
+        assertThat(instant).isEqualTo(Instant.ofEpochSecond(1459116000));
+    }
+
+    @Test
+    public void testOneDayOnSwithOverToWinterTime() {
+        // Business method
+        Instant morningOfSwitchOverToWinterTime = Instant.ofEpochSecond(1477778400);
+        Instant instant = IntervalLength.DAY1.addTo(morningOfSwitchOverToWinterTime, testZoneId());
+
+        // Asserts
+        assertThat(instant).isEqualTo(Instant.ofEpochSecond(1477868400));
+    }
+
+    @Test
     public void testOneDayOnLastDayOfMonth() {
         // Business method
         Instant instant = IntervalLength.DAY1.addTo(Instant.ofEpochMilli(1472594400000L), testZoneId());  // In Europe/Brussels: 2016-08-31 00:00:00

@@ -105,6 +105,8 @@ public interface ReadingTypeRequirement extends HasId, HasName {
 
     Set<ReadingTypeUnit> getUnits();
 
+    int getTou();
+
     String getDescription();
 
 }

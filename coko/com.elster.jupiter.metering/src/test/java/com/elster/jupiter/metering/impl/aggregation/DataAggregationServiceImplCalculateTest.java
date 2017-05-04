@@ -53,6 +53,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -138,6 +139,7 @@ public class DataAggregationServiceImplCalculateTest {
     @Mock
     private NlsService nlsService;
 
+    private Clock clock = Clock.systemDefaultZone();
     private ServerMetrologyConfigurationService metrologyConfigurationService;
     private SqlBuilder withClauseBuilder;
     private SqlBuilder selectClauseBuilder;
@@ -309,13 +311,13 @@ public class DataAggregationServiceImplCalculateTest {
         service.calculate(this.usagePoint, this.contract, aggregationPeriod);
 
         // Asserts
-        verify(this.virtualFactory).nextMeterActivationSet(any(MeterActivationSet.class), eq(aggregationPeriod));
+        verify(this.virtualFactory, times(2)).nextMeterActivationSet(any(MeterActivationSet.class), eq(aggregationPeriod));
         ArgumentCaptor<VirtualReadingType> consumptionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
-        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), consumptionReadingTypeArgumentCaptor.capture());
+        verify(this.virtualFactory, times(2)).requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), consumptionReadingTypeArgumentCaptor.capture());
         VirtualReadingType capturedConsumptionReadingType = consumptionReadingTypeArgumentCaptor.getValue();
         assertThat(capturedConsumptionReadingType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
         ArgumentCaptor<VirtualReadingType> productionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
-        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), productionReadingTypeArgumentCaptor.capture());
+        verify(this.virtualFactory, times(2)).requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), productionReadingTypeArgumentCaptor.capture());
         VirtualReadingType capturedProductionReadngType = productionReadingTypeArgumentCaptor.getValue();
         assertThat(capturedProductionReadngType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
         verify(this.virtualFactory).allRequirements();
@@ -429,13 +431,13 @@ public class DataAggregationServiceImplCalculateTest {
         service.calculate(this.usagePoint, this.contract, aggregationPeriod);
 
         // Asserts
-        verify(this.virtualFactory).nextMeterActivationSet(any(MeterActivationSet.class), eq(aggregationPeriod));
+        verify(this.virtualFactory, times(2)).nextMeterActivationSet(any(MeterActivationSet.class), eq(aggregationPeriod));
         ArgumentCaptor<VirtualReadingType> consumptionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
-        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), consumptionReadingTypeArgumentCaptor.capture());
+        verify(this.virtualFactory, times(2)).requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), consumptionReadingTypeArgumentCaptor.capture());
         VirtualReadingType capturedConsumptionReadingType = consumptionReadingTypeArgumentCaptor.getValue();
         assertThat(capturedConsumptionReadingType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
         ArgumentCaptor<VirtualReadingType> productionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
-        verify(this.virtualFactory).requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), productionReadingTypeArgumentCaptor.capture());
+        verify(this.virtualFactory, times(2)).requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), productionReadingTypeArgumentCaptor.capture());
         VirtualReadingType capturedProductionReadngType = productionReadingTypeArgumentCaptor.getValue();
         assertThat(capturedProductionReadngType.getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
         verify(this.virtualFactory).allRequirements();
@@ -571,17 +573,17 @@ public class DataAggregationServiceImplCalculateTest {
         service.calculate(this.usagePoint, this.contract, aggregationPeriod);
 
         // Asserts
-        verify(this.virtualFactory, times(2)).nextMeterActivationSet(any(MeterActivationSet.class), eq(aggregationPeriod));
+        verify(this.virtualFactory, times(4)).nextMeterActivationSet(any(MeterActivationSet.class), eq(aggregationPeriod));
         ArgumentCaptor<VirtualReadingType> consumptionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
-        verify(this.virtualFactory, times(2)).requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), consumptionReadingTypeArgumentCaptor.capture());
+        verify(this.virtualFactory, times(4)).requirementFor(eq(Formula.Mode.AUTO), eq(consumption), eq(netConsumption), consumptionReadingTypeArgumentCaptor.capture());
         List<VirtualReadingType> capturedConsumptionReadingTypes = consumptionReadingTypeArgumentCaptor.getAllValues();
-        assertThat(capturedConsumptionReadingTypes).hasSize(2);
+        assertThat(capturedConsumptionReadingTypes).hasSize(4); // Last two captures relate to the introspection calls
         assertThat(capturedConsumptionReadingTypes.get(0).getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
         assertThat(capturedConsumptionReadingTypes.get(1).getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
         ArgumentCaptor<VirtualReadingType> productionReadingTypeArgumentCaptor = ArgumentCaptor.forClass(VirtualReadingType.class);
-        verify(this.virtualFactory, times(2)).requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), productionReadingTypeArgumentCaptor.capture());
+        verify(this.virtualFactory, times(4)).requirementFor(eq(Formula.Mode.AUTO), eq(production), eq(netConsumption), productionReadingTypeArgumentCaptor.capture());
         List<VirtualReadingType> capturedProductionReadingTypes = productionReadingTypeArgumentCaptor.getAllValues();
-        assertThat(capturedProductionReadingTypes).hasSize(2);
+        assertThat(capturedProductionReadingTypes).hasSize(4);  // Last 2 captures relate to the introspection calls
         assertThat(capturedProductionReadingTypes.get(0).getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
         assertThat(capturedProductionReadingTypes.get(1).getIntervalLength()).isEqualTo(IntervalLength.MINUTE15);
         verify(this.virtualFactory).allRequirements();
@@ -634,9 +636,10 @@ public class DataAggregationServiceImplCalculateTest {
 
     private DataAggregationServiceImpl testInstance() {
         return new DataAggregationServiceImpl(
+                this.clock,
+                this.meteringService,
                 this.calendarService,
                 this.customPropertySetService,
-                this.meteringService,
                 new InstantTruncaterFactory(this.meteringService),
                 this::getSqlBuilderFactory,
                 this::getVirtualFactory,

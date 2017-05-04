@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.metering.Channel;
@@ -178,14 +179,19 @@ class VirtualRequirementNode implements ServerExpressionNode {
         return this.virtualRequirement.getPreferredChannel();
     }
 
+    Optional<Calendar> getCalendar() {
+        this.ensureVirtualized();
+        return this.virtualRequirement.getCalendar();
+    }
+
     VirtualReadingType getTargetReadingType() {
         return this.targetReadingType;
     }
 
     void setTargetReadingType(VirtualReadingType targetReadingType) {
-        this.targetReadingType = targetReadingType;
+        this.targetReadingType = targetReadingType.withTimeOfUseBucketIfNotNull(this.targetReadingType.getTimeOfUseBucket());
         if (this.virtualRequirement != null) {
-            this.virtualRequirement.setTargetReadingType(targetReadingType);
+            this.virtualRequirement.setTargetReadingType(this.targetReadingType);
         }
     }
 
@@ -241,6 +247,16 @@ class VirtualRequirementNode implements ServerExpressionNode {
     }
 
     /**
+     * Returns the appropriate source channel for this node's {@link ReadingTypeRequirement}.
+     *
+     * @return The source channel value
+     */
+    String sourceChannelValue() {
+        this.ensureVirtualized();
+        return this.virtualRequirement.sourceChannelValue();
+    }
+
+    /**
      * Appends the necessary sql constructs to the specified {@link SqlBuilder}
      * to get the value of this nodes's {@link ReadingTypeRequirement}
      * and apply unit conversion if that is necessary.
@@ -255,6 +271,10 @@ class VirtualRequirementNode implements ServerExpressionNode {
     String sqlName() {
         this.ensureVirtualized();
         return this.virtualRequirement.sqlName();
+    }
+
+    ServerDataAggregationService.DetailedCalendarUsage toDetailedCalendarUsage() {
+        return this.virtualRequirement.toDetailedCalendarUsage();
     }
 
 }

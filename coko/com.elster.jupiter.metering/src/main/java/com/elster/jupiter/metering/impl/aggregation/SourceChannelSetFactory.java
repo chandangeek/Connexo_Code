@@ -13,6 +13,12 @@ public class SourceChannelSetFactory {
 
     private final MeteringService meteringService;
 
+    public static String format(Set<String> channelIds) {
+        return channelIds
+                .stream()
+                .collect(Collectors.joining(" || '" + SOURCE_CHANNEL_IDS_SEPARATOR + "' || "));
+    }
+
     public SourceChannelSetFactory(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
@@ -24,6 +30,10 @@ public class SourceChannelSetFactory {
             throw new IllegalArgumentException("Unable to parse the list of source channel ids from string: " + value
                     + ". Expected: the list of numbers separated by '" + SOURCE_CHANNEL_IDS_SEPARATOR + "'.");
         }
+    }
+
+    public SourceChannelSet empty() {
+        return new SourceChannelSet(meteringService, Collections.emptySet());
     }
 
     private Set<Long> parseListOfLongs(String value, String separator) {
