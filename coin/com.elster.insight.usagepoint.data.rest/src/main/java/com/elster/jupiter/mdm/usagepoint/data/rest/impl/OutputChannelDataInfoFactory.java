@@ -144,7 +144,9 @@ public class OutputChannelDataInfoFactory {
                 infos.add(outputChannelDataInfo);
             }
             else {
-                readingWithValidationStatus.setReadingRecord((AggregatedChannel.AggregatedIntervalReadingRecord)record);
+                if (readingWithValidationStatus != null) {
+                    readingWithValidationStatus.setReadingRecord((AggregatedChannel.AggregatedIntervalReadingRecord) record);
+                }
                 OutputChannelHistoryDataInfo outputChannelHistoryDataInfo = new OutputChannelHistoryDataInfo(createChannelDataInfo(readingWithValidationStatus));
                 outputChannelHistoryDataInfo.userName = "";
                 outputChannelHistoryDataInfo.readingQualities = record.getReadingQualities().stream()

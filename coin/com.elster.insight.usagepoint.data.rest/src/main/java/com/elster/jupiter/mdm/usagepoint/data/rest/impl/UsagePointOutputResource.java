@@ -822,7 +822,6 @@ public class UsagePointOutputResource {
                 .collect(Collectors.toMap(
                         Function.identity(),
                         readingWithValidationStatusFactory::createChannelReading, (r1, r2) -> r1, TreeMap::new));
-
         List<DataValidationStatus> dataValidationStatuses = evaluator.getValidationStatus(
                 EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC),
                 aggregatedChannel,
