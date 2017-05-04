@@ -535,6 +535,15 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
         this.smartMeterProtocolSecuritySupportAdapter = smartMeterProtocolSecuritySupportAdapter;
     }
 
+    @Override
+    public List<PropertySpec> getSecurityPropertySpecs() {
+        if (this.delegateSecurityToActualProtocol()) {
+            return getDeviceSecuritySupport().getSecurityPropertySpecs();
+        } else {
+            return this.smartMeterProtocolSecuritySupportAdapter.getSecurityPropertySpecs();
+        }
+    }
+
     // Publish the protected method as public
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {

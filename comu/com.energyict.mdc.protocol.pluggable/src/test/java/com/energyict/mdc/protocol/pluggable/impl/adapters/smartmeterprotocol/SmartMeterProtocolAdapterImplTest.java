@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -60,6 +59,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -468,16 +468,14 @@ public class SmartMeterProtocolAdapterImplTest {
     @Test
     public void testGetSecurityPropertiesWhenWrappedProtocolImplementsDeviceSecuritySupport() {
         MeterProtocolWithDeviceSecuritySupport adaptedProtocol = mock(MeterProtocolWithDeviceSecuritySupport.class, withSettings().extraInterfaces(DeviceMessageSupport.class));
-        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
-        when(adaptedProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
+        when(adaptedProtocol.getSecurityPropertySpecs()).thenReturn(Collections.emptyList());
         SmartMeterProtocolAdapterImpl adapter = newSmartMeterProtocolAdapter(adaptedProtocol);
 
         // Business method
         adapter.getSecurityPropertySpecs();
 
         // Asserts
-        verify(adaptedProtocol).getCustomPropertySet();
-        verify(customPropertySet).getPropertySpecs();
+        verify(adaptedProtocol).getSecurityPropertySpecs();
     }
 
     @Test

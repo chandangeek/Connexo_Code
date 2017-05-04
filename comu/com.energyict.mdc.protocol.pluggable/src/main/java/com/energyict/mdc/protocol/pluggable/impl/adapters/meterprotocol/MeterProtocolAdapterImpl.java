@@ -498,8 +498,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     public List<PropertySpec> getSecurityPropertySpecs() {
         if (this.delegateSecurityToActualProtocol()) {
             return getDeviceSecuritySupport().getSecurityPropertySpecs();
-        }
-        else {
+        } else {
             return this.meterProtocolSecuritySupportAdapter.getSecurityPropertySpecs();
         }
     }
