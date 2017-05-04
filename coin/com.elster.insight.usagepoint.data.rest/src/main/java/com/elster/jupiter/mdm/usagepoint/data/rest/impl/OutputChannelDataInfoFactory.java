@@ -4,11 +4,14 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.metering.AggregatedChannel;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.JournaledChannelReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.rest.util.IntervalInfo;
+import com.elster.jupiter.util.streams.ExtraCollectors;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -16,7 +19,10 @@ import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -74,14 +80,10 @@ public class OutputChannelDataInfoFactory {
             }
             outputChannelDataInfo.isProjected = status.getReadingQualities()
                     .stream()
-                    .filter(quality -> quality.getType().hasProjectedCategory())
-                    .findFirst()
-                    .isPresent();
+                    .anyMatch(quality -> quality.getType().hasProjectedCategory());
             outputChannelDataInfo.isConfirmed = status.getReadingQualities()
                     .stream()
-                    .filter(quality -> quality.getType().isConfirmed())
-                    .findFirst()
-                    .isPresent();
+                    .anyMatch(quality -> quality.getType().isConfirmed());
             outputChannelDataInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
         } else {
             // Missing value
@@ -124,5 +126,35 @@ public class OutputChannelDataInfoFactory {
         outputChannelDataInfo.interval = readingRecord.getTimePeriod().map(IntervalInfo::from).orElse(null);
         outputChannelDataInfo.value = estimatedValue;
         return outputChannelDataInfo;
+    }
+
+    public List<OutputChannelHistoryDataInfo> createOutputChannelHistoryDataInfo(Map<BaseReadingRecord, ChannelReadingWithValidationStatus> result) {
+        List<OutputChannelHistoryDataInfo> infos = new ArrayList<>();
+        result.forEach((record, readingWithValidationStatus) -> {
+            if (record instanceof JournaledChannelReadingRecord) {
+                OutputChannelHistoryDataInfo outputChannelDataInfo = new OutputChannelHistoryDataInfo(createChannelDataInfo(readingWithValidationStatus));
+                outputChannelDataInfo.value = record.getValue();
+                outputChannelDataInfo.journalTime = ((JournaledChannelReadingRecord) record).getJournalTime();
+                outputChannelDataInfo.userName = ((JournaledChannelReadingRecord) record).getUserName();
+                outputChannelDataInfo.reportedDateTime = record.getReportedDateTime();
+                outputChannelDataInfo.readingQualities = record.getReadingQualities().stream()
+                        .map(ReadingQuality::getType)
+                        .map(readingQualityInfoFactory::asInfo)
+                        .collect(Collectors.toList());
+                infos.add(outputChannelDataInfo);
+            }
+            else {
+                readingWithValidationStatus.setReadingRecord((AggregatedChannel.AggregatedIntervalReadingRecord)record);
+                OutputChannelHistoryDataInfo outputChannelHistoryDataInfo = new OutputChannelHistoryDataInfo(createChannelDataInfo(readingWithValidationStatus));
+                outputChannelHistoryDataInfo.userName = "";
+                outputChannelHistoryDataInfo.readingQualities = record.getReadingQualities().stream()
+                        .map(ReadingQuality::getType)
+                        .map(readingQualityInfoFactory::asInfo)
+                        .collect(Collectors.toList());
+                infos.add(outputChannelHistoryDataInfo);
+            }
+        });
+        return infos.stream().sorted(Comparator.comparing(info -> ((OutputChannelHistoryDataInfo)info).interval.end)
+                .thenComparing(Comparator.comparing(info -> ((OutputChannelHistoryDataInfo) info).reportedDateTime).reversed())).collect(ExtraCollectors.toImmutableList());
     }
 }
