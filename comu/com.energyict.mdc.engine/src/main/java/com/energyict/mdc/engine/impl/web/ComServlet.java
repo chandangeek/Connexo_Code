@@ -6,12 +6,17 @@ package com.energyict.mdc.engine.impl.web;
 
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
+import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLInboundDeviceProtocolAdapter;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.ServletBasedInboundDeviceProtocol;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -75,7 +80,7 @@ public class ComServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-        throws
+            throws
             IOException,
             ServletException {
         this.setThreadPrinciple();
@@ -136,11 +141,42 @@ public class ComServlet extends HttpServlet {
         InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, request, response, serviceProvider.connectionTaskService());
         context.setComServerDAO(this.comServerDAO);
         context.setLogger(Logger.getAnonymousLogger());
+
+        context.setObjectMapperService(Services.objectMapperService());
+        context.setCollectedDataFactory(Services.collectedDataFactory());
+        context.setIssueFactory(Services.issueFactory());
+        context.setPropertySpecService(Services.propertySpecService());
+        context.setNlsService(Services.nlsService());
+        context.setConverter(Services.converter());
+        context.setDeviceGroupExtractor(Services.deviceGroupExtractor());
+        context.setDeviceExtractor(Services.deviceExtractor());
+        context.setDeviceMasterDataExtractor(Services.deviceMasterDataExtractor());
+        context.setMessageFileExtractor(Services.deviceMessageFileExtractor());
+        context.setX509Service(Services.x509Service());
+        context.setKeyStoreService(Services.keyStoreService());
+        context.setCertificateWrapperExtractor(Services.certificateWrapperExtractor());
+        context.setCertificateAliasFinder(Services.certificateAliasFinder());
+
         return context;
     }
 
     private ServletBasedInboundDeviceProtocol newInboundDeviceProtocol() {
-        return (ServletBasedInboundDeviceProtocol) this.comPort.getComPortPool().getDiscoveryProtocolPluggableClass().getInboundDeviceProtocol();
+        InboundDeviceProtocolPluggableClass discoveryProtocolPluggableClass = this.comPort.getComPortPool().getDiscoveryProtocolPluggableClass();
+        InboundDeviceProtocol inboundDeviceProtocol = discoveryProtocolPluggableClass.getInboundDeviceProtocol();
+
+        com.energyict.mdc.upl.InboundDeviceProtocol uplInboundDeviceProtocol;
+        if (inboundDeviceProtocol instanceof UPLInboundDeviceProtocolAdapter) {
+            uplInboundDeviceProtocol = ((UPLInboundDeviceProtocolAdapter) inboundDeviceProtocol).getUplInboundDeviceProtocol();
+        } else {
+            uplInboundDeviceProtocol = inboundDeviceProtocol;
+        }
+
+        if (uplInboundDeviceProtocol instanceof ServletBasedInboundDeviceProtocol) {
+            return ((ServletBasedInboundDeviceProtocol) uplInboundDeviceProtocol);
+        } else {
+            throw new IllegalStateException(serviceProvider.thesaurus().getFormat(MessageSeeds.INVALID_INBOUND_SERVLET_PROTOCOL).format(discoveryProtocolPluggableClass.getJavaClassName()));
+        }
+
     }
 
     private String getJupiterVersion() {
