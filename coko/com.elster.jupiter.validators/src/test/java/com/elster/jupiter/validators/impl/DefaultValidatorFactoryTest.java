@@ -126,22 +126,22 @@ public class DefaultValidatorFactoryTest {
     @Test
     public void testCreateConsecutiveValidator() {
         ImmutableMap<String, Object> properties = ImmutableMap.of(
-                ConsecutiveValidator.MINIMUM_PERIOD, TimeDuration.hours(2),
-                ConsecutiveValidator.MAXIMUM_PERIOD, TimeDuration.days(1),
-                ConsecutiveValidator.MINIMUM_THRESHOLD, BigDecimal.ZERO,
-                ConsecutiveValidator.CHECK_RETROACTIVELY, true
+                ConsecutiveZerosValidator.MINIMUM_PERIOD, TimeDuration.hours(2),
+                ConsecutiveZerosValidator.MAXIMUM_PERIOD, TimeDuration.days(1),
+                ConsecutiveZerosValidator.MINIMUM_THRESHOLD, BigDecimal.ZERO,
+                ConsecutiveZerosValidator.CHECK_RETROACTIVELY, true
         );
 
-        Validator validator = defaultValidatorFactory.create(ConsecutiveValidator.class.getName(), properties);
+        Validator validator = defaultValidatorFactory.create(ConsecutiveZerosValidator.class.getName(), properties);
 
-        assertThat(validator).isNotNull().isInstanceOf(ConsecutiveValidator.class);
+        assertThat(validator).isNotNull().isInstanceOf(ConsecutiveZerosValidator.class);
     }
 
     @Test
     public void testCreateConsecutiveValidatorTemplate() {
-        Validator validator = defaultValidatorFactory.createTemplate(ConsecutiveValidator.class.getName());
+        Validator validator = defaultValidatorFactory.createTemplate(ConsecutiveZerosValidator.class.getName());
 
-        assertThat(validator).isNotNull().isInstanceOf(ConsecutiveValidator.class);
+        assertThat(validator).isNotNull().isInstanceOf(ConsecutiveZerosValidator.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
