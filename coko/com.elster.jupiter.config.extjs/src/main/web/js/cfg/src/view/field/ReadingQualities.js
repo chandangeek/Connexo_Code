@@ -73,12 +73,14 @@ Ext.define('Cfg.view.field.ReadingQualities', {
             prop,
             me = this,
             failEqualDataValue,
-            intervalFlagsValue = '';
+            intervalFlagsValue = '',
+            currentAttributesInfoIcon = '<span class="icon-info" style="margin-left: 10px; color: #A9A9A9; font-size: 16px; line-height: 13px; vertical-align: middle;" data-qtip="'
+                + Uni.I18n.translate('general.currentAttributes', 'CFG', 'Current attributes') + '"></span>';
 
         Ext.Array.each(rules, function (rule) {
-            var application = rule.application
-                ? '<span class="application">(' + rule.application.name + ')</span>'
-                : '';
+            var application = rule.application ? '<span class="application">(' + rule.application.name + ')</span>' : '',
+                icon;
+
             if (!Ext.isEmpty(rule.properties)) {
                 switch (rule.implementation) {
                     case 'com.elster.jupiter.validators.impl.ThresholdValidator':
@@ -111,6 +113,7 @@ Ext.define('Cfg.view.field.ReadingQualities', {
             } else {
                 prop = '';
             }
+            icon = !Ext.isEmpty(prop) ? currentAttributesInfoIcon : '';
             if (rule.deleted) {
                 str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'CFG', '(removed rule)') + prop  + '&nbsp;' + application  + '</span><br>';
             }
@@ -129,8 +132,7 @@ Ext.define('Cfg.view.field.ReadingQualities', {
                 } else {
                     str += rule.name;
                 }
-                str += me.withOutAppName ? prop + '</span><br>'
-                    : prop + '&nbsp;' + application + '</span><br>'
+                str += me.withOutAppName ? prop + icon + '</span><br>' : prop + '&nbsp;' + application + icon + '</span><br>';
             }
         });
 

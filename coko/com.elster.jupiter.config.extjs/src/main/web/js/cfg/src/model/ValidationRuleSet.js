@@ -10,6 +10,7 @@ Ext.define('Cfg.model.ValidationRuleSet', {
         'description',
 		'numberOfVersions',
 		'hasCurrent',
+		{ name: 'isInUse', persist: false },
 		{			
 			name: 'activeVersion',
             persist: false,

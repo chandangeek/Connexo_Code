@@ -98,8 +98,8 @@ Ext.define('Cfg.controller.Validation', {
         {ref: 'versionOverview', selector: 'versionOverview'},
         {ref: 'versionRulePreviewContainer', selector: 'versionRulePreviewContainer'},
         {ref: 'versionsGrid', selector: 'versionsList'},
-        {ref: 'addReadingTypesBulk', selector: 'addReadingTypesBulk'}
-
+        {ref: 'addReadingTypesBulk', selector: 'addReadingTypesBulk'},
+        {ref: 'addEditRulePage', selector: 'addRule'}
 
     ],
 
@@ -109,6 +109,9 @@ Ext.define('Cfg.controller.Validation', {
     ruleModel: null,
     ruleSetModel: null,
     returnLink: undefined,
+    initialRuleName: undefined,
+    initialRuleDataQualityLevel: undefined,
+    ruleSetInUse: false,
 
     init: function () {
         this.control({
@@ -258,7 +261,10 @@ Ext.define('Cfg.controller.Validation', {
             formErrorsPanel = form.down('[name=form-errors]'),
             arrReadingTypes = [],
             propertyForm = me.getAddRule().down('property-form'),
-            record = me.formToModel();
+            record = me.formToModel(),
+            isNameChanged = record.get('name') !== me.initialRuleName,
+            isLevelChanged = record.get('action') !== me.initialRuleDataQualityLevel,
+            onlyLevelChanged = !isNameChanged && isLevelChanged;
 
         form.getForm().clearInvalid();
         form.down('#readingTypesErrorLabel').hide();
@@ -285,21 +291,58 @@ Ext.define('Cfg.controller.Validation', {
 
         record.readingTypes().add(arrReadingTypes);
 
-        me.getAddRule().setLoading(true);
-        record.getProxy().setUrl(router.arguments.ruleSetId, router.arguments.versionId);
-        record.save({
+        if (me.ruleSetInUse && (isNameChanged || isLevelChanged) && me.getAddEditRulePage().edit) {
+            me.showRuleSetInUseWindow(record, onlyLevelChanged);
+        } else {
+            me.saveRule(record);
+        }
+    },
+
+    showRuleSetInUseWindow: function(record, onlyDataQualityLevelChanged) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                confirmText: Uni.I18n.translate('general.save', 'CFG', 'Save')
+            }),
+            entity = me.getApplication().name === 'MdmApp' ? 'usage point' : 'device',
+            title = onlyDataQualityLevelChanged ? Uni.I18n.translate('general.editDataQualityLevel.question', 'CFG', 'Edit data quality level?') :
+                Uni.I18n.translate('general.editName.question', 'CFG', 'Edit name?'),
+            message = onlyDataQualityLevelChanged ? Uni.I18n.translate('general.editDataQualityLevel.msg', 'CFG', 'Changing the data quality could potentially delete overriden attributes on {0} reading qualities', entity) :
+                Uni.I18n.translate('general.editName.msg', 'CFG', 'Changing the name could potentially delete overriden attributes on {0} reading qualities', entity);
+
+        confirmationWindow.show({
+            title: title,
+            msg: message,
+            fn: confirm
+        });
+
+        function confirm(state) {
+            if (state === 'confirm') {
+                me.saveRule(record);
+            }
+        }
+    },
+
+    saveRule: function (rule) {
+        var me = this,
+            form = me.getAddRule(),
+            formErrorsPanel = form.down('[name=form-errors]'),
+            router = me.getController('Uni.controller.history.Router');
+
+        form.setLoading();
+        rule.getProxy().setUrl(router.arguments.ruleSetId, router.arguments.versionId);
+        rule.save({
             backUrl: me.returnLink
-                     || // as fall back
-                     (me.fromRulePreview
-                        ? router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({
-                            ruleSetId: router.arguments.ruleSetId,
-                            versionId: router.arguments.versionId
-                          })
-                        : router.getRoute('administration/rulesets/overview/versions').buildUrl({ruleSetId: router.arguments.ruleSetId})
-                     ),
+            || // as fall back
+            (me.fromRulePreview
+                    ? router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({
+                    ruleSetId: router.arguments.ruleSetId,
+                    versionId: router.arguments.versionId
+                })
+                    : router.getRoute('administration/rulesets/overview/versions').buildUrl({ruleSetId: router.arguments.ruleSetId})
+            ),
             success: function (record) {
                 var messageText;
-                if (button.action === 'editRuleAction') {
+                if (form.down('#createRuleAction').action === 'editRuleAction') {
                     messageText = Uni.I18n.translate('validation.editRuleSuccess.msg', 'CFG', 'Validation rule saved');
                 } else {
                     messageText = Uni.I18n.translate('validation.addRuleSuccess.msg', 'CFG', 'Validation rule added');
@@ -793,11 +836,10 @@ Ext.define('Cfg.controller.Validation', {
                     me.modelToForm(ruleSetId, versionId, ruleId, null, true);
                 }
 
-                ruleSetsStore.load({
-                    callback: function () {
-                        ruleSet = this.getById(parseInt(ruleSetId));
+                Cfg.model.ValidationRuleSet.load(ruleSetId, {
+                    success: function (ruleSet) {
                         me.getApplication().fireEvent('loadRuleSet', ruleSet);
-
+                        me.ruleSetInUse = ruleSet.get('isInUse');
                         var versionStore = me.getValidationRuleSetVersionsStore();
                         versionStore.load({
                             params: {
@@ -807,7 +849,6 @@ Ext.define('Cfg.controller.Validation', {
                             callback: function (records, operation, success) {
                                 var version = versionStore.getById(parseInt(versionId));
                                 me.getApplication().fireEvent('loadVersion', version);
-
                             }
                         });
                     }
@@ -869,6 +910,8 @@ Ext.define('Cfg.controller.Validation', {
                         return;
                     }
                     me.ruleModel = rule;
+                    me.initialRuleName = rule.get('name');
+                    me.initialRuleDataQualityLevel = rule.get('action');
                     me.ruleTitle = "Edit '" + Ext.String.htmlEncode(rule.get('name')) + "'"
 
                     me.getApplication().fireEvent('loadRule', rule);
