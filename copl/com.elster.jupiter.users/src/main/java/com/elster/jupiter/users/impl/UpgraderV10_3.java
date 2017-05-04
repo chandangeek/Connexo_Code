@@ -10,6 +10,8 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.PreferenceType;
+import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
@@ -18,6 +20,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import static com.elster.jupiter.util.streams.Currying.perform;
 
@@ -25,11 +28,13 @@ class UpgraderV10_3 implements Upgrader {
 
     private final DataModel dataModel;
     private final UserService userService;
+    private final UserPreferencesService userPreferencesService;
 
     @Inject
-    public UpgraderV10_3(DataModel dataModel, UserService userService) {
+    public UpgraderV10_3(DataModel dataModel, UserService userService, UserPreferencesService userPreferencesService) {
         this.dataModel = dataModel;
         this.userService = userService;
+        this.userPreferencesService = userPreferencesService;
     }
 
     @Override
@@ -52,6 +57,16 @@ class UpgraderV10_3 implements Upgrader {
                     });
             user.join(installerGroup);
         });
+        updateUserPreferences();
+    }
+
+    private void updateUserPreferences(){
+        if(!userPreferencesService.getPreferenceByKey(Locale.ENGLISH, PreferenceType.LONG_TIME_WITH_MILLIS).isPresent()){
+            userPreferencesService.createUserPreference(Locale.ENGLISH, PreferenceType.LONG_TIME_WITH_MILLIS, "HH:mm:ss:L", "H:i:s.u", true);
+        }
+        if(!userPreferencesService.getPreferenceByKey(Locale.US, PreferenceType.LONG_TIME_WITH_MILLIS).isPresent()){
+            userPreferencesService.createUserPreference(Locale.US, PreferenceType.LONG_TIME_WITH_MILLIS, "hh:mm:ss:L a", "h:i:s.u a", true);
+        }
     }
 
     private Group createNewGroups() {
