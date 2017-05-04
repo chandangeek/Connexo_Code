@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataBulkActionMenu', {
             },
             {
                 itemId: 'estimate-value',
-                hidden: true,
+                //hidden: true,
                 text: Uni.I18n.translate('general.editWithEstimator', 'MDC', 'Edit with estimator'),
                 action: 'estimateValue',
                 section: this.SECTION_ACTION
@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataBulkActionMenu', {
             },
             {
                 itemId: 'estimate-value-with-rule',
-                hidden: true,
+                //hidden: true,
                 text: Uni.I18n.translate('general.estimateValueWithRule', 'MDC', 'Estimate with rule'),
                 action: 'estimateWithRule',
                 section: this.SECTION_ACTION

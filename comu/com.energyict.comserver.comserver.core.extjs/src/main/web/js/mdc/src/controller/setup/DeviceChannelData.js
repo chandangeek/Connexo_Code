@@ -274,7 +274,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         routerIdArgument: routerIdArgument,
                         isFullTotalCount: isFullTotalCount,
                         filterDefault: activeTab === 1 ? me.getDataFilter(channel, contentName, gasDayYearStart, router) : {},
-                        mentionDataLoggerSlave: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
                         dataLoggerSlaveHistoryStore: slaveHistoryStore,
                         application: me.getApplication(),
                         validationConfigurationStore: validationConfigurationStore,
@@ -602,6 +601,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             bulkStatus = validationResult.bulk === 'suspect';
         }
 
+        //menu.down('#estimate-value').setVisible(mainStatus || bulkStatus || menu.record.get('estimatedNotSaved') === true);
+        //menu.down('#estimate-value-with-rule').setVisible(estimationRulesCount && (mainStatus || bulkStatus));
+        
         if (menu.record.get('mainModificationState') && menu.record.get('mainModificationState').flag) {
             canEditingComment = flagForComment(menu.record.get('mainModificationState').flag);
         }
@@ -609,8 +611,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             canEditingComment = flagForComment(menu.record.get('bulkModificationState').flag);
         }
 
-        menu.down('#estimate-value').setVisible(mainStatus || bulkStatus || menu.record.get('estimatedNotSaved') === true);
-        menu.down('#estimate-value-with-rule').setVisible(estimationRulesCount && (mainStatus || bulkStatus));
         if (menu.record.get('confirmed') || menu.record.isModified('value') || menu.record.isModified('collectedValue')) {
             menu.down('#confirm-value').hide();
         } else {
@@ -995,28 +995,28 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             mainValueSuspect = false,
             bulkValueSuspect = false;
 
-        if (!Ext.isArray(record)) {
-            bothSuspected = record.get('validationResult') &&
-                record.get('validationResult').main == 'suspect' &&
-                record.get('validationResult').bulk == 'suspect';
-        } else {
-            Ext.Array.findBy(record, function (item) {
-                mainValueSuspect = item.get('validationResult') && item.get('validationResult').main == 'suspect';
-                return mainValueSuspect;
-            });
-            Ext.Array.findBy(record, function (item) {
-                bulkValueSuspect = item.get('validationResult') && item.get('validationResult').bulk == 'suspect';
-                return bulkValueSuspect;
-            });
-            bothSuspected = mainValueSuspect && bulkValueSuspect;
-        }
+        // if (!Ext.isArray(record)) {
+        //     bothSuspected = record.get('validationResult') &&
+        //         record.get('validationResult').main == 'suspect' &&
+        //         record.get('validationResult').bulk == 'suspect';
+        // } else {
+        //     Ext.Array.findBy(record, function (item) {
+        //         mainValueSuspect = item.get('validationResult') && item.get('validationResult').main == 'suspect';
+        //         return mainValueSuspect;
+        //     });
+        //     Ext.Array.findBy(record, function (item) {
+        //         bulkValueSuspect = item.get('validationResult') && item.get('validationResult').bulk == 'suspect';
+        //         return bulkValueSuspect;
+        //     });
+        //     bothSuspected = mainValueSuspect && bulkValueSuspect;
+        // }
         me.getPage().setLoading();
         me.getStore('Mdc.store.Estimators').load(function () {
             me.getPage().setLoading(false);
             Ext.widget('reading-estimation-window', {
                 itemId: 'channel-reading-estimation-window',
                 record: record,
-                bothSuspected: bothSuspected
+                bothSuspected: true
             }).show();
         });
     },
@@ -1028,23 +1028,23 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             bulkValueSuspect = false,
             estimationRulesStore = me.getStore('Mdc.store.EstimationRulesOnChannelMainValue');
 
-        if (!Ext.isArray(record)) {
-            if (record.get('validationResult')) {
-                mainValueSuspect = record.get('validationResult').main == 'suspect';
-                bulkValueSuspect = record.get('validationResult').bulk == 'suspect';
-                bothSuspected = mainValueSuspect && bulkValueSuspect;
-            }
-        } else {
-            Ext.Array.findBy(record, function (item) {
-                mainValueSuspect = item.get('validationResult') && item.get('validationResult').main == 'suspect';
-                return mainValueSuspect;
-            });
-            Ext.Array.findBy(record, function (item) {
-                bulkValueSuspect = item.get('validationResult') && item.get('validationResult').bulk == 'suspect';
-                return bulkValueSuspect;
-            });
-            bothSuspected = mainValueSuspect && bulkValueSuspect;
-        }
+        // if (!Ext.isArray(record)) {
+        //     if (record.get('validationResult')) {
+        //         mainValueSuspect = record.get('validationResult').main == 'suspect';
+        //         bulkValueSuspect = record.get('validationResult').bulk == 'suspect';
+        //         bothSuspected = mainValueSuspect && bulkValueSuspect;
+        //     }
+        // } else {
+        //     Ext.Array.findBy(record, function (item) {
+        //         mainValueSuspect = item.get('validationResult') && item.get('validationResult').main == 'suspect';
+        //         return mainValueSuspect;
+        //     });
+        //     Ext.Array.findBy(record, function (item) {
+        //         bulkValueSuspect = item.get('validationResult') && item.get('validationResult').bulk == 'suspect';
+        //         return bulkValueSuspect;
+        //     });
+        //     bothSuspected = mainValueSuspect && bulkValueSuspect;
+        // }
 
         estimationRulesStore.getProxy().setExtraParam('isBulk', !bothSuspected ? bulkValueSuspect : false);
         estimationRulesStore.load(function (records) {
@@ -1055,7 +1055,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             Ext.widget('reading-estimation-with-rule-window', {
                 itemId: 'channel-reading-estimation-with-rule-window',
                 record: record,
-                bothSuspected: bothSuspected,
+                bothSuspected: true,
                 hasRules: hasRules
             }).show();
         }
@@ -1453,8 +1453,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             return (validationResult.main == 'suspect')
                 || (validationResult.bulk == 'suspect') || record.get('estimatedNotSaved') === true;
         });
-        menu.down('#estimate-value').setVisible(suspects.length);
-        menu.down('#estimate-value-with-rule').setVisible(suspects.length && estimationRulesCount);
+        //menu.down('#estimate-value').setVisible(suspects.length);
+        //menu.down('#estimate-value-with-rule').setVisible(suspects.length && estimationRulesCount);
 
         var confirms = suspects.filter(function (record) {
             return !record.get('confirmed') && !record.isModified('value') && !record.isModified('collectedValue')

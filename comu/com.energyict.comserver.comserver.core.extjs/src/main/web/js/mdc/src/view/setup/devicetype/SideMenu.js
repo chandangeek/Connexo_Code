@@ -10,6 +10,7 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
     objectType: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
     deviceTypeId: null,
     isDataLoggerSlave: undefined,
+    isMultiElementSlave: undefined,
     initComponent: function () {
         var me = this;
 
@@ -66,11 +67,12 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
             }
         ];
 
-        if (me.isDataLoggerSlave === undefined) {
+        if (me.isDataLoggerSlave === undefined && me.isMultiElementSlave === undefined) {
             Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
                 success: function (deviceType) {
-                    me.isDataLoggerSlave = deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
-                    if (me.isDataLoggerSlave) {
+                    me.isDataLoggerSlave = deviceType.isDataLoggerSlave(); //deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
+                    me.isMultiElementSlave = deviceType.isMultiElementSlave();
+                    if (me.isDataLoggerSlave || me.isMultiElementSlave) {
                         me.down('#logbooksLink').hide();
                         me.down('#conflictingMappingLink').hide();
                     } else {
@@ -90,7 +92,7 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
 
     executeIfNoDataLoggerSlave: function () {
         var me = this;
-        if (!me.isDataLoggerSlave) {
+        if (!me.isDataLoggerSlave && !me.isMultiElementSlave) {
             me.addMenuWithFirmware();
         } else {
             me.addMenuWithoutFirmware();

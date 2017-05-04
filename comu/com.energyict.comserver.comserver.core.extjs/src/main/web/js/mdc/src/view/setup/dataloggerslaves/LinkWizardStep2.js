@@ -12,6 +12,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep2', {
         'Uni.util.FormEmptyMessage',
         'Mdc.model.Channel'
     ],
+    purpose: undefined,
 
     initComponent: function () {
         var me = this;
@@ -70,7 +71,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep2', {
             Ext.suspendLayouts();
             me.down('#mdc-dataloggerslave-link-wizard-step2-container').add({
                 xtype: 'uni-form-empty-message',
-                text: Uni.I18n.translate('general.dataLoggerSlave.noChannels', 'MDC', 'There are no channels on the data logger slave.')
+                text: me.purpose.noChannelsMessage
             });
             Ext.resumeLayouts(true);
             me.doLayout();

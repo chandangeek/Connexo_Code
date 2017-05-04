@@ -38,7 +38,7 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
             closeBtn: true,
             btns: [
                 {
-                    text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
+                    text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                     cls: 'isu-btn-link',
                     hnd: function () {
                         window.location = '#/administration/devicetypes/' + encodeURIComponent(editView.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(editView.deviceConfigurationId) + '/logbookconfigurations';
@@ -78,15 +78,20 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
                 failure: function (record, operation) {
                     if (operation.response.status == 400) {
                         var result = Ext.decode(operation.response.responseText, true),
-                            errorTitle = Ext.String.format(Uni.I18n.translate('logbookconfiguration.failedToUpdate', 'MDC', 'Failed to update {0}'), record.data.name),
-                            errorText = Uni.I18n.translate('logbookconfiguration.configurationCouldNotBeUpdated', 'MDC', 'Logbook configuration could not be updated. There was a problem accessing the database');
+                            errorTitle = Uni.I18n.translate('logbookconfiguration.failedToUpdateTitle', 'Couldn\'t perform your action'),
+                            errorText = Ext.String.format(Uni.I18n.translate('logbookconfiguration.failedToUpdate', 'MDC', 'Failed to update {0}'), record.data.name) + '.' + Uni.I18n.translate('logbookconfiguration.configurationCouldNotBeUpdated', 'MDC', 'Logbook configuration could not be updated. There was a problem accessing the database'),
+                            code = '';
 
                         if (result !== null) {
                             errorTitle = result.error;
                             errorText = result.message;
                         }
 
-                        me.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
+                        if (result && result.errorCode) {
+                            code = result.errorCode;
+                        }
+
+                        me.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText, code);
                     }
                 },
                 callback: function () {
