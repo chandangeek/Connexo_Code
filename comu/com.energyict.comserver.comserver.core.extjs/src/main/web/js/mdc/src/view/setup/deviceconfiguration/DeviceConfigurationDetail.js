@@ -93,6 +93,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                 {
                                     xtype: 'displayfield',
                                     fieldLabel: Uni.I18n.translate('deviceconfiguration.isDirectlyAddressable', 'MDC', 'Directly addressable'),
+                                    itemId: 'mdc-deviceConfigurationDetail-directlyAddressable',
                                     name: 'isDirectlyAddressable',
                                     renderer: function (value) {
                                         return value === true
@@ -103,6 +104,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                 {
                                     xtype: 'displayfield',
                                     fieldLabel: Uni.I18n.translate('deviceconfiguration.Gateway', 'MDC', 'Gateway'),
+                                    itemId: 'mdc-deviceConfigurationDetail-gateway',
                                     name: 'canBeGateway',
                                     renderer: function (value) {
                                         var text,
@@ -123,7 +125,19 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                 {
                                     xtype: 'displayfield',
                                     fieldLabel: Uni.I18n.translate('deviceconfiguration.dataLoggerFunctionality', 'MDC', 'Data logger functionality'),
+                                    itemId: 'mdc-deviceConfigurationDetail-dataLogger',
                                     name: 'dataloggerEnabled',
+                                    renderer: function (value) {
+                                        return value === true
+                                            ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                                            : Uni.I18n.translate('general.no', 'MDC', 'No');
+                                    }
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    fieldLabel: Uni.I18n.translate('deviceconfiguration.multiElementFunctionality', 'MDC', 'Multi-element functionality'),
+                                    itemId: 'mdc-deviceConfigurationDetail-multiElement',
+                                    name: 'multiElementEnabled',
                                     renderer: function (value) {
                                         return value === true
                                             ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')

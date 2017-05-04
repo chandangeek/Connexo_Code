@@ -8,8 +8,9 @@ Ext.define('Mdc.view.setup.dataloggerslaves.Setup', {
     itemId: 'mdc-dataLoggerSlavesSetup',
     router: null,
     device: null,
-
+    purpose: undefined,
     requires: [
+        'Mdc.util.LinkPurpose',
         'Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid',
         'Mdc.view.setup.device.DeviceMenu',
         'Uni.view.container.PreviewContainer',
@@ -41,24 +42,24 @@ Ext.define('Mdc.view.setup.dataloggerslaves.Setup', {
         me.content = {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('general.dataLoggerSlaves', 'MDC', 'Data logger slaves'),
+            title: me.purpose.pageTitle,
             items: [
                 {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'dataLoggerSlavesGrid',
+                        purpose: me.purpose,
                         router: me.router,
                         store: me.store
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('dataLoggerSlavesGrid.empty.title', 'MDC', 'No data logger slaves found'),
-                        reasons: [
-                            Uni.I18n.translate('dataLoggerSlavesGrid.empty.reason1', 'MDC', 'No data logger slaves have been linked yet.')
-                        ],
+                        itemId : 'no-items-found',
+                        title: me.purpose.noItemsFoundText,
+                        reasons: me.purpose.noItemsFoundReasons,
                         stepItems: [
                             {
-                                text: Uni.I18n.translate('general.linkDataLoggerSlave', 'MDC', 'Link data logger slave'),
+                                text: me.purpose.displayValue,
                                 itemId: 'mdc-link-dataloggerslave-btn',
                                 action: 'linkDataLoggerSlave',
                                 privileges: Mdc.privileges.Device.administrateDevice

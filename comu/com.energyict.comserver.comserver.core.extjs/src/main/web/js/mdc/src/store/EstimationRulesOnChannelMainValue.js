@@ -7,7 +7,7 @@ Ext.define('Mdc.store.EstimationRulesOnChannelMainValue', {
     model: 'Mdc.model.EstimationRuleOnChannel',
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devices/{deviceId}/channels/{channelId}/data/estimateWithRule',
+        url: '/api/ddr/devices/{deviceId}/channels/{channelId}/data/applicableEstimationRules',
         reader: {
             type: 'json',
             root: 'rules',

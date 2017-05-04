@@ -102,7 +102,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             '#registerConfigEditForm #valueTypeRadioGroup': {
                 change: this.hideShowNumberFields
             },
-            '#registerConfigEditForm #multiplierRadioGroup': {
+            '#registerConfigEditForm #mdc-register-config-multiplier-checkbox': {
                 change: this.onMultiplierChange
             },
             '#registerConfigEditForm #editOverruledObisCodeField': {
@@ -266,10 +266,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             registerType = undefined,
             useMultiplier = undefined;
         if (field.name === 'registerType') {
-            view.down('#multiplierRadioGroup').setDisabled(false);
+            view.down('#mdc-register-config-multiplier-checkbox').setDisabled(false);
             var registerTypeId = me.getAvailableRegisterTypesForDeviceConfigurationStore().findExact('id', value);
             registerType = me.getAvailableRegisterTypesForDeviceConfigurationStore().getAt(registerTypeId);
-            useMultiplier = view.down('#multiplierRadioGroup').getValue().useMultiplier;
+            useMultiplier = view.down('#mdc-register-config-multiplier-checkbox').getValue();
             me.updateReadingTypeFields(registerType, useMultiplier);
             me.registerTypesObisCode = registerType.get('obisCode');
             view.down('#editObisCodeField').setValue(me.registerTypesObisCode);
@@ -288,7 +288,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             newObisCode = form.down('#editObisCodeField').getValue(),
             originalObisCode = form.down('#editOverruledObisCodeField').getValue(),
             asText = form.down('#valueTypeRadioGroup').getValue().asText,
-            useMultiplier = asText ? false : form.down('#multiplierRadioGroup').getValue().useMultiplier,
+            useMultiplier = asText ? false : form.down('#mdc-register-config-multiplier-checkbox').getValue(),
             calculatedReadingTypeField = form.down('#mdc-calculated-readingType-field'),
             calculatedReadingTypeCombo = form.down('#mdc-calculated-readingType-combo'),
             router = this.getController('Uni.controller.history.Router');
@@ -418,7 +418,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                         widget.down('form').loadRecord(registerConfiguration);
                                         // Don't know why these aren't set when loading the record:
                                         widget.down('#valueTypeRadioGroup').setValue({ asText : registerConfiguration.get('asText') });
-                                        widget.down('#multiplierRadioGroup').setValue({ useMultiplier : registerConfiguration.get('useMultiplier') });
 
                                         me.getApplication().fireEvent('loadRegisterConfiguration', registerConfiguration);
                                         me.getRegisterConfigEditForm().setTitle(
@@ -428,7 +427,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                         widget.down('#editObisCodeField').setValue(me.registerTypesObisCode);
                                         widget.down('#mdc-calculated-readingType-combo').setDisabled(deviceConfiguration.get('active'));
                                         widget.down('#valueTypeRadioGroup').setDisabled(deviceConfiguration.get('active'));
-                                        widget.down('#multiplierRadioGroup').setDisabled(
+                                        widget.down('#mdc-register-config-multiplier-checkbox').setDisabled(
                                             !me.registerConfigurationBeingEdited.get('possibleCalculatedReadingTypes') ||
                                             me.registerConfigurationBeingEdited.get('possibleCalculatedReadingTypes').length === 0 ||
                                             deviceConfiguration.get('active')
@@ -456,7 +455,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             router = me.getController('Uni.controller.history.Router'),
             newObisCode = form.down('#editObisCodeField').getValue(),
             originalObisCode = form.down('#editOverruledObisCodeField').getValue(),
-            useMultiplier = form.down('#multiplierRadioGroup').getValue().useMultiplier,
+            useMultiplier = form.down('#mdc-register-config-multiplier-checkbox').getValue(),
             calculatedReadingTypeField = form.down('#mdc-calculated-readingType-field'),
             calculatedReadingTypeCombo = form.down('#mdc-calculated-readingType-combo');
 
@@ -467,6 +466,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         if (form.isValid()) {
             if (record) {
                 record.set(values);
+                record.set('useMultiplier', useMultiplier);
                 if (newObisCode === originalObisCode) {
                     record.overruledObisCode = null;
                 }
@@ -521,13 +521,13 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             asNumber = !(radioGroup.getValue().asText),
             overflowValueField = me.getRegisterConfigEditForm().down('#editOverflowValueField'),
             numberOfFractionDigitsField = me.getRegisterConfigEditForm().down('#editNumberOfFractionDigitsField'),
-            multiplierRadioGroup = me.getRegisterConfigEditForm().down('#multiplierRadioGroup'),
+            multiplierCheckBox = me.getRegisterConfigEditForm().down('#mdc-register-config-multiplier-checkbox'),
             dataContainer,
             useMultiplier;
 
         numberOfFractionDigitsField.setVisible(asNumber);
         overflowValueField.setVisible(asNumber);
-        multiplierRadioGroup.setVisible(asNumber);
+        multiplierCheckBox.setVisible(asNumber);
         if (asNumber) {
             var values = this.getRegisterConfigEditForm().getValues();
             if (values.numberOfFractionDigits === '') {
@@ -542,16 +542,13 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         } else { // Busy adding a register config
             dataContainer = me.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', me.getRegisterTypeCombo().getValue());
         }
-        useMultiplier = !asNumber
-            ? false
-            : me.getRegisterConfigEditForm().down('#multiplierRadioGroup').getValue().useMultiplier;
+        useMultiplier = !asNumber ? false : me.getRegisterConfigEditForm().down('#mdc-register-config-multiplier-checkbox').getValue();
         me.updateReadingTypeFields(dataContainer, useMultiplier);
     },
 
-    onMultiplierChange: function(radioGroup) {
+    onMultiplierChange: function(checkBox, useMultiplier) {
         var me = this,
             contentContainer = this.getRegisterConfigEditForm().up('#registerConfigEdit'),
-            useMultiplier = radioGroup.getValue().useMultiplier,
             dataContainer;
 
         if (contentContainer.isEdit()) { // Busy editing a register config
@@ -566,13 +563,14 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     updateReadingTypeFields: function(dataContainer, useMultiplier) {
         var me = this,
             form = me.getRegisterConfigEditForm(),
-            multiplierRadioGroup = form.down('#multiplierRadioGroup'),
+            multiplierCheckBox = form.down('#mdc-register-config-multiplier-checkbox'),
             collectedReadingTypeField = form.down('#mdc-collected-readingType-field'),
             calculatedReadingTypeField = form.down('#mdc-calculated-readingType-field'),
             calculatedReadingTypeCombo = form.down('#mdc-calculated-readingType-combo'),
             overflowField = form.down('#editOverflowValueField'),
             possibleCalculatedReadingTypes = dataContainer.get('possibleCalculatedReadingTypes'),
             isCumulative = dataContainer.get('isCumulative');
+
         if (dataContainer.get('collectedReadingType') !== undefined) {
             collectedReadingTypeField.setValue(dataContainer.get('collectedReadingType'));
         } else {
@@ -580,11 +578,11 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         }
         collectedReadingTypeField.setVisible(dataContainer);
         if (!possibleCalculatedReadingTypes || possibleCalculatedReadingTypes.length === 0) {
-            multiplierRadioGroup.setValue({ useMultiplier : false });
-            useMultiplier = multiplierRadioGroup.getValue().useMultiplier;
-            multiplierRadioGroup.setDisabled(true);
+            multiplierCheckBox.setValue(false);
+            useMultiplier = false;
+            multiplierCheckBox.setDisabled(true);
         } else {
-            multiplierRadioGroup.setDisabled(false);
+            multiplierCheckBox.setDisabled(false);
         }
 
         if (useMultiplier) {

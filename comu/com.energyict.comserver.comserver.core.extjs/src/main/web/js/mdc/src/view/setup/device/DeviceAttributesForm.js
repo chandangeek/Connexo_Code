@@ -187,7 +187,7 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 fieldLabel: Uni.I18n.translate('general.dataLogger', 'MDC', 'Data logger'),
                 hidden: Ext.isEmpty(me.dataLoggerSlave),
                 renderer: function() {
-                    var dataloggerName = Ext.isEmpty(me.dataLoggerSlave) ? undefined : me.dataLoggerSlave.get('dataloggerName');
+                    var dataloggerName = Ext.isEmpty(me.dataLoggerSlave) ? undefined : (me.dataLoggerSlave.get('isDataloggerSlave') ? me.dataLoggerSlave.get('dataloggerName'): me.dataLoggerSlave.get('multiElementDeviceName')) ;
                     if (Ext.isEmpty(dataloggerName)) {
                         return '-';
                     }
@@ -327,6 +327,9 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 fullInfo: me.fullInfo
             }
         ];
+        if (!Ext.isEmpty(me.dataLoggerSlave) && me.dataLoggerSlave.get('isMultiElementSlave')){
+           me.items[9].fieldLabel =  Uni.I18n.translate('general.multiElementDevice', 'MDC', 'Multi-element device');
+        }
         me.callParent(arguments);
     }
 });

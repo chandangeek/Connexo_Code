@@ -105,7 +105,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
             success: function (deviceType) {
-                if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+                if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE' || deviceType.get('deviceTypePurpose') === 'MULTI_ELEMENT_SLAVE') {
                     me.down('#logbooksLink').hide();
                     me.down('#mdc-deviceConfiguration-communication-menu').hide();
                 }

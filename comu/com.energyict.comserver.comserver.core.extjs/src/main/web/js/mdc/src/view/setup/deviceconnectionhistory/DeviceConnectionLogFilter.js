@@ -16,18 +16,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogFilter', {
             multiSelect: true,
             options: [
                 {
-                    display: Uni.I18n.translate('deviceconnectionhistory.error', 'MDC', 'Error'),
-                    value: 'Error'
-                },
-                {
-                    display: Uni.I18n.translate('deviceconnectionhistory.warning', 'MDC', 'Warning'),
-                    value: 'Warning'
-                },
-                {
-                    display: Uni.I18n.translate('deviceconnectionhistory.information', 'MDC', 'Information'),
-                    value: 'Information'
-                },
-                {
                     display: Uni.I18n.translate('deviceconnectionhistory.debug', 'MDC', 'Debug'),
                     value: 'Debug'
                 },
@@ -48,7 +36,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogFilter', {
                     value: 'Connections'
                 },
                 {
-                    display: Uni.I18n.translate('deviceconnectionhistory.communicationTask', 'MDC', 'Communications'),
+                    display: Uni.I18n.translate('deviceconnectionhistory.communicationTasks', 'MDC', 'Communication tasks'),
                     value: 'Communications'
                 }
             ]

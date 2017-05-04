@@ -94,7 +94,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                 'tou-devicetype-edit-specs-form #tou-edit-cancel-link': {
                     click: this.goBackToCalendars
                 },
-                '#tou-allowed-radio-field': {
+                '#fwc-tou-devicetype-edit-specs-timeOfUse-checkbox': {
                     change: this.disableEnableCheckboxes
                 },
                 '#device-type-tou-tab-panel': {
@@ -442,7 +442,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/timeofuse', {deviceTypeId: me.deviceTypeId}).forward();
     },
 
-    disableEnableCheckboxes: function (radioField, newValue) {
+    disableEnableCheckboxes: function (checkBox, newValue) {
         var me = this,
             form = me.getEditForm();
 

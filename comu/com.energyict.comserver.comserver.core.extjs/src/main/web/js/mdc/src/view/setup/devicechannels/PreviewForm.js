@@ -12,7 +12,8 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
         'Mdc.view.setup.devicechannels.ValidationOverview',
         'Mdc.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm',
         'Mdc.view.setup.devicechannels.ActionMenu',
-        'Mdc.view.setup.devicechannels.DataLoggerSlaveHistory'
+        'Mdc.view.setup.devicechannels.DataLoggerSlaveHistory',
+        'Mdc.util.LinkPurpose'
     ],
     device: null,
     router: null,
@@ -83,9 +84,9 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                             name: 'lastValueTimestamp_formatted'
                                         },
                                         {
-                                            fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                                            fieldLabel: Mdc.util.LinkPurpose.forDevice(me.device).channelGridSlaveColumn,
                                             name: 'dataloggerSlaveName',
-                                            hidden: Ext.isEmpty(me.device.get('isDataLogger')) || !me.device.get('isDataLogger'),
+                                            hidden: !((!Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')) || (!Ext.isEmpty(me.device.get('isMultiElementDevice')) && me.device.get('isMultiElementDevice'))),
                                             renderer: function(value) {
                                                 if (Ext.isEmpty(value)) {
                                                     return '-';
@@ -158,11 +159,14 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
             ]
         };
 
-        if (me.showDataLoggerSlaveHistory && !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')) {
+        if (me.showDataLoggerSlaveHistory &&
+            ((!Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')) ||
+            (!Ext.isEmpty(me.device.get('isMultiElementDevice')) && me.device.get('isMultiElementDevice')))){
             me.on('afterrender', function() {
                 me.down('#mdc-channel-preview-main-form').add(
                     {
                         xtype: 'dataLogger-slaveChannelHistory',
+                        linkPurpose: Mdc.util.LinkPurpose.forDevice(me.device),
                         dataLoggerSlaveHistoryStore: me.dataLoggerSlaveHistoryStore
                     }
                 );

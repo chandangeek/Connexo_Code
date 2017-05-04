@@ -90,7 +90,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             '#loadProfileConfigurationDetailRulesGrid': {
                 selectionchange: this.previewValidationRule
             },           
-            'loadProfileConfigurationDetailForm #mdc-channel-config-multiplierRadioGroup': {
+            'loadProfileConfigurationDetailForm #mdc-channel-config-multiplier-checkbox': {
                 change: this.onMultiplierChange
             },
             'loadProfileConfigurationDetailForm #mdc-channel-config-editOverruledObisCodeField': {
@@ -229,7 +229,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             formValues = form.getValues(),
             preloader,
             jsonValues,
-            useMultiplier = formPanel.down('#mdc-channel-config-multiplierRadioGroup').getValue().useMultiplier,
+            useMultiplier = formPanel.down('#mdc-channel-config-multiplier-checkbox').getValue(),
             collectedReadingTypeField = formPanel.down('#mdc-channel-config-collected-readingType-field'),
             calculatedReadingTypeField = formPanel.down('#mdc-channel-config-calculated-readingType-field'),
             calculatedReadingTypeCombo = formPanel.down('#mdc-channel-config-calculated-readingType-combo'),
@@ -571,7 +571,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                     method: 'GET',
                                     success: function (response) {
                                         var loadProfileConfig = Ext.JSON.decode(response.responseText),
-                                            multiplierRadioGroup = widget.down('#mdc-channel-config-multiplierRadioGroup'),
+                                            multiplierCheckBox = widget.down('#mdc-channel-config-multiplier-checkbox'),
+                                            useMultiplier = multiplierCheckBox.getValue(),
                                             registerTypeCombo = widget.down('#mdc-channel-config-registerTypeComboBox'),
                                             calculatedReadingTypeCombo = widget.down('#mdc-channel-config-calculated-readingType-combo'),
                                             registerTypesStore = Ext.create('Ext.data.Store', {model: 'Mdc.model.MeasurementType'});
@@ -589,9 +590,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         registerTypeCombo.setValue(measurementTypeId);
                                         registerTypeCombo.setDisabled(true);
 
-                                        me.onMultiplierChange(multiplierRadioGroup); // (1) Keep this order
+                                        me.onMultiplierChange(multiplierCheckBox, useMultiplier); // (1) Keep this order
                                         if (deviceConfig.get('active')) { // (2) Keep this order
-                                            multiplierRadioGroup.setDisabled(true);
+                                            multiplierCheckBox.setDisabled(true);
                                         }
                                         calculatedReadingTypeCombo.setDisabled(deviceConfig.get('active'));
 
@@ -623,13 +624,11 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
 
     onRegisterTypeChange: function (field, value) {
         var me = this,
-            multiplierRadioGroup = me.getChannelForm().down('#mdc-channel-config-multiplierRadioGroup'),
-            registerType = undefined,
-            useMultiplier = undefined;
+            multiplierCheckBox = me.getChannelForm().down('#mdc-channel-config-multiplier-checkbox'),
+            useMultiplier = multiplierCheckBox.getValue(),
+            registerType = field.getStore().findRecord('id', value);
 
-        multiplierRadioGroup.setDisabled(false);
-        registerType = field.getStore().findRecord('id', value);
-        useMultiplier = multiplierRadioGroup.getValue().useMultiplier;
+        multiplierCheckBox.setDisabled(false);
         if (registerType != null) {
             me.updateReadingTypeFields(registerType, useMultiplier);
             me.updateOverflowField(registerType.get('isCumulative'));
@@ -639,10 +638,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         }
     },
 
-    onMultiplierChange: function(radioGroup) {
+    onMultiplierChange: function(checkBox, useMultiplier) {
         var me = this,
-            contentContainer = this.getChannelForm().up('#mdc-loadProfileConfigurationDetailForm'),
-            useMultiplier = radioGroup.getValue().useMultiplier;
+            contentContainer = this.getChannelForm().up('#mdc-loadProfileConfigurationDetailForm');
 
         if (contentContainer.isEdit()) { // Busy editing a channel config
             me.channelConfigurationBeingEdited.set('isCumulative', me.channelConfigurationBeingEdited.get('readingType').isCumulative);
@@ -664,7 +662,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     updateReadingTypeFields: function(dataContainer, useMultiplier) {
         var me = this,
             form = me.getChannelForm(),
-            multiplierRadioGroup = form.down('#mdc-channel-config-multiplierRadioGroup'),
+            multiplierCheckBox = form.down('#mdc-channel-config-multiplier-checkbox'),
             collectedReadingTypeField = form.down('#mdc-channel-config-collected-readingType-field'),
             calculatedReadingTypeField = form.down('#mdc-channel-config-calculated-readingType-field'),
             calculatedReadingTypeCombo = form.down('#mdc-channel-config-calculated-readingType-combo'),
@@ -682,11 +680,11 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         }
         collectedReadingTypeField.setVisible(dataContainer);
         if (!possibleCalculatedReadingTypes || possibleCalculatedReadingTypes.length === 0) {
-            multiplierRadioGroup.setValue({ useMultiplier : false });
-            useMultiplier = multiplierRadioGroup.getValue().useMultiplier;
-            multiplierRadioGroup.setDisabled(true);
+            multiplierCheckBox.setValue(false);
+            useMultiplier = false;
+            multiplierCheckBox.setDisabled(true);
         } else {
-            multiplierRadioGroup.setDisabled(false);
+            multiplierCheckBox.setDisabled(false);
         }
 
         if (useMultiplier) {

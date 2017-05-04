@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.device-action-menu',
     items: [],
-    disableChangeConfigSinceDataLoggerOrSlave: false,
+    disableChangeConfigSinceSlave: false,
     actionsStore: undefined,
     deviceName: undefined,
     router: undefined,
@@ -25,9 +25,9 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
                 section: me.SECTION_EDIT
             };
 
-        if (me.disableChangeConfigSinceDataLoggerOrSlave) {
+        if (me.disableChangeConfigSinceSlave) {
             changeConfigItem.disabled = true;
-            changeConfigItem.tooltip = Uni.I18n.translate('deviceconfiguration.changeImpossible.reason', 'MDC', 'The device configuration of data loggers and data logger slaves cannot be changed.');
+            changeConfigItem.tooltip = Uni.I18n.translate('deviceconfiguration.changeImpossible.new.reason', 'MDC', 'The device configuration of slave devices cannot be changed.');
         }
 
         me.items = [

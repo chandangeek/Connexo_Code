@@ -185,18 +185,22 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                     } else {
                         me.dataValidationLastChecked = new Date();
                     }
-                    confirmationWindow.insert(1,me.getValidationContent());
+                    confirmationWindow.insert(1, me.getValidationContent());
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('deviceloadprofiles.validateNow', 'MDC', 'Validate data of load profile {0}?', [record.get('name')]),
-                        msg: ''
+                        title: Uni.I18n.translate('deviceloadprofiles.validateNowTitle', 'MDC', 'Couldn\'t perform your action'),
+                        msg: Uni.I18n.translate('deviceloadprofiles.validateNow', 'MDC', 'Validate data of load profile {0}?', [record.get('name')])
                     });
                 } else {
-                    var title = Uni.I18n.translate('deviceloadprofiles.validateNow.error', 'MDC', 'Failed to validate data of load profile {0}', [record.get('name')]),
-                        message = Uni.I18n.translate('deviceloadprofiles.noData', 'MDC', 'There is currently no data for this load profile'),
+                    var title = Uni.I18n.translate('deviceloadprofiles.validateNow.errorTitle', 'MDC', 'Couldn\'t perform your action'),
+                        message = Uni.I18n.translate('deviceloadprofiles.validateNow.error', 'MDC', 'Failed to validate data of load profile {0}', [record.get('name')]) + '.' + Uni.I18n.translate('deviceloadprofiles.noData', 'MDC', 'There is currently no data for this load profile'),
+                        code = '',
                         config = {
                             icon: Ext.MessageBox.WARNING
                         };
-                    me.getApplication().getController('Uni.controller.Error').showError(title, message, config);
+                    if (res && res.errorCode) {
+                        code = res.errorCode;
+                    }
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, code, config);
                 }
             }
         });
@@ -253,7 +257,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
         }
     },
 
-    saveLoadProfile: function() {
+    saveLoadProfile: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             editWindow = me.getDeviceLoadProfileEditWindow(),
@@ -262,7 +266,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             loadProfileModel = me.getModel('Mdc.model.LoadProfileOfDevice'),
             deviceId = this.getController('Uni.controller.history.Router').arguments.deviceId,
             loadProfileId = loadProfileRecordInEditWindow.get('id'),
-            onLoadProfileLoaded = function(loadProfileRecord) {
+            onLoadProfileLoaded = function (loadProfileRecord) {
                 loadProfileRecordInEditWindow.set('lastReading', datePicker.getValue());
                 loadProfileRecord.beginEdit();
                 loadProfileRecord.set('lastReading', datePicker.getValue());
@@ -278,7 +282,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                 });
                 editWindow.close();
             },
-            onLoadProfileSaved = function() {
+            onLoadProfileSaved = function () {
                 me.getApplication().fireEvent('acknowledge',
                     Uni.I18n.translate('deviceloadpofiles.acknowledge.updateSuccess', 'MDC', 'Load profile saved')
                 );

@@ -330,11 +330,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     wizard.setLoading(false);
                 },
 
-                failure: function (response) {
-                    var resp = Ext.decode(response.responseText, true);
-                    if (resp && resp.message) {
-                        me.showStatusMsg(me.buildMessage(resp.message));
-                    }
+                failure: function () {
                     finishBtn.enable();
                     wizard.setLoading(false);
                 }

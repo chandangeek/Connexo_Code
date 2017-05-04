@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
         'Uni.DateTime'
     ],
     store: 'DeviceCommunicationTaskLog',
-
+    hasHtmlInColumnHeaders: true,
     columns: {
         defaults: {
             sortable: false,
@@ -20,25 +20,38 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
         },
         items: [
             {
+                itemId: 'loglevel',
+                dataIndex: 'logLevel',
+                exportText: Uni.I18n.translate('devicecommunicationtaskhistory.loglevel', 'MDC', 'Log level'),
+                renderer: function (value) {
+                    if ((value != 'Warning') && (value != 'Error')){
+                        return '';
+                    }
+
+                    var exportText = (value == 'Warning') ? Uni.I18n.translate('devicecommunicationtaskhistory.loglevel.warning', 'MDC', 'Warning') : Uni.I18n.translate('devicecommunicationtaskhistory.loglevel.error', 'MDC', 'Error'),
+                        icon = (value == 'Warning') ? 'icon-warning' : 'icon-notification',
+                        color = (value == 'Warning') ? '' : 'color: #eb5642; ';
+
+                    return '<span class="' + icon + '" style="' + color + 'margin-left: 10px" data-qtip="' + exportText + '">'
+                        +'<div style="display:none;">' + exportText + '</div></span>';
+                }
+            },
+            {
                 itemId: 'timestamp',
                 text: Uni.I18n.translate('devicecommunicationtaskhistory.timeStamp', 'MDC', 'Timestamp'),
+                exportText: Uni.I18n.translate('devicecommunicationtaskhistory.timeStamp', 'MDC', 'Timestamp'),
                 dataIndex: 'timestamp',
                 flex: 1,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTime(value, Uni.DateTime.SHORT, Uni.DateTime.LONG) : '-';
+                    return value ? Uni.DateTime.formatDateTime(value, Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS) : '-';
                 }
             },
             {
                 itemId: 'details',
-                text: Uni.I18n.translate('devicecommunicationtaskhistory.description', 'MDC', 'Description'),
+                text: Uni.I18n.translate('devicecommunicationtaskhistory.message', 'MDC', 'Message'),
+                exportText: Uni.I18n.translate('devicecommunicationtaskhistory.message', 'MDC', 'Message'),
                 dataIndex: 'details',
                 flex: 3
-            },
-            {
-                itemId: 'logLevel',
-                text: Uni.I18n.translate('devicecommunicationtaskhistory.logLevel', 'MDC', 'Log level'),
-                dataIndex: 'logLevel',
-                flex: 1
             }
         ]
     },

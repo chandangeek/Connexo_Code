@@ -81,11 +81,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                                 fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.duration', 'MDC', 'Duration'),
                                                 itemId: 'duration',
                                                 usesSeconds: true
-                                            },
-                                            {
-                                                xtype: 'displayfield',
-                                                name: 'result',
-                                                fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.result', 'MDC', 'Result')
                                             }
                                         ]
                                     },
@@ -119,6 +114,11 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                                         return '-';
                                                     }
                                                 }
+                                            },
+                                            {
+                                                xtype: 'displayfield',
+                                                name: 'result',
+                                                fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.result', 'MDC', 'Result')
                                             }
                                         ]
                                     }

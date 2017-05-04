@@ -149,29 +149,13 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         width: 450
                     },
                     {
-                        xtype: 'radiogroup',
-                        itemId: 'multiplierRadioGroup',
-                        fieldLabel: Uni.I18n.translate('registerConfig.useMultiplier', 'MDC', 'Use multiplier'),
-                        columns: 1,
-                        disabled: true,
-                        defaults: {
-                            name: 'useMultiplier'
-                        },
-                        allowBlank: false,
-                        required: true,
-                        items: [
-                            {
-                                boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
-                                itemId: 'multiplierRadio',
-                                inputValue: true
-                            },
-                            {
-                                boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'),
-                                itemId: 'noMultiplierRadio',
-                                inputValue: false,
-                                checked: true
-                            }
-                        ]
+                        xtype: 'checkboxfield',
+                        fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
+                        itemId: 'mdc-register-config-multiplier-checkbox',
+                        name: 'useMultiplier',
+                        boxLabel: Uni.I18n.translate('registerConfig.useMultiplier', 'MDC', 'Use multiplier'),
+                        checked: false,
+                        disabled: true
                     },
                     {
                         xtype: 'reading-type-displayfield',

@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 dataIndex: 'startedOn',
                 flex: 2,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+                    return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                 }
             },
             {
@@ -63,10 +63,31 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 itemId: 'comTaskCount',
                 renderer: function (val,metaData) {
                     metaData.tdCls = 'communication-tasks-status';
-                    var template = '';                   
-                        template += '<tpl><span class="icon-checkmark"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '</tpl>';
-                        template += '<tpl><span class="icon-cross"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '</tpl>';
-                        template += '<tpl><span  class="icon-stop2"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</tpl>';
+                    var template = '',
+                        tooltipText = '';
+                    tooltipText += Uni.I18n.translatePlural(
+                        'device.connections.comTasksSuccessful', val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : 0, 'MDC',
+                        'No communication tasks successful', '1 communication task successful', '{0} communication tasks successful'
+                    );
+                    tooltipText += '<br>';
+                    tooltipText += Uni.I18n.translatePlural(
+                        'device.connections.comTasksFailed', val.numberOfFailedTasks ? val.numberOfFailedTasks : 0, 'MDC',
+                        'No communication tasks failed', '1 communication task failed', '{0} communication tasks failed'
+                    );
+                    tooltipText += '<br>';
+                    tooltipText += Uni.I18n.translatePlural(
+                        'device.connections.comTasksNotCompleted', val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : 0, 'MDC',
+                        'No communication tasks not completed', '1 communication task not completed', '{0} communication tasks not completed'
+                    );
+                    if (!Ext.isEmpty(tooltipText)) {
+                        metaData.tdAttr = 'data-qtip="' + tooltipText + '"';
+                    } else {
+                        metaData.tdAttr = 'data-qtip=""';
+                    }
+
+                    template += '<tpl><span class="icon-checkmark"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '</tpl>';
+                    template += '<tpl><span class="icon-cross"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '</tpl>';
+                    template += '<tpl><span  class="icon-stop2"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</tpl>';
                     return template;
                 },
                 header: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),

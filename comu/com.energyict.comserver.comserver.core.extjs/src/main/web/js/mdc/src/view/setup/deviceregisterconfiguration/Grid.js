@@ -6,9 +6,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceRegisterConfigurationGrid',
     itemId: 'deviceRegisterConfigurationGrid',
-    deviceId: null, // is already encodeURIComponent'ed
+    device: null,
     router: null,
-    showDataLoggerSlaveColumn: false,
     store: 'Mdc.store.RegisterConfigsOfDevice',
     scroll: false,
     requires: [
@@ -30,7 +29,8 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 header: Uni.I18n.translate('deviceregisterconfiguration.register', 'MDC', 'Register'),
                 dataIndex: 'readingType',
                 renderer: function (value, metaData, record) {
-                    return '<a href="#/devices/' + me.deviceId + '/registers/' + record.get('id') + '/data">' + Ext.String.htmlEncode(value.fullAliasName) + '</a>';
+                    var mRID = encodeURIComponent(me.device.get('name'));
+                    return '<a href="#/devices/' + mRID + '/registers/' + record.get('id') + '/data">' + Ext.String.htmlEncode(value.fullAliasName) + '</a>';
                 },
                 flex: 2
             },
@@ -53,12 +53,13 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
             }
         ];
 
-        if (me.showDataLoggerSlaveColumn) {
+        if ((!Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')) ||
+            (!Ext.isEmpty(me.device.get('isMultiElementDevice')) && me.device.get('isMultiElementDevice'))){
             me.columns.push(
                 {
                     dataIndex: 'dataloggerSlaveName',
                     flex: 1,
-                    header: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                    header: me.getLinkPurpose().channelGridSlaveColumn,
                     renderer: function(value) {
                         if (Ext.isEmpty(value)) {
                             return '-';
@@ -94,7 +95,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 params: [
-                    {deviceId: Uni.util.Common.decodeURIArguments(me.deviceId)}
+                    {deviceId: Uni.util.Common.decodeURIArguments(me.device.get("name"))}
                 ],
                 itemsPerPageMsg: Uni.I18n.translate('deviceregisterconfiguration.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Registers per page'),
                 dock: 'bottom'
@@ -102,6 +103,9 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
         ];
 
         me.callParent(arguments);
+    },
+    getLinkPurpose: function(){
+        return Mdc.util.LinkPurpose.forDevice(this.device);
     }
 });
 

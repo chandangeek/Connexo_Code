@@ -35,10 +35,13 @@ Ext.define('Mdc.model.Device', {
         {name: 'linkingTimeStamp', type: 'number', useNull: true}, // Only for a data logger slave device
         {name: 'unlinkingTimeStamp', type: 'number', useNull: true}, // Only for a data logger slave device
         {name: 'dataloggerName', type: 'string', useNull: true}, // Only for a data logger slave device
+        {name: 'multiElementDeviceName', type: 'string', useNull: true}, // Only for a data logger slave device
         {name: 'isDirectlyAddressed', type: 'boolean'},
         {name: 'isGateway', type: 'boolean'},
         {name: 'isDataLogger', type: 'boolean'},
         {name: 'isDataLoggerSlave', type: 'boolean'},
+        {name: 'isMultiElementDevice', type: 'boolean'},
+        {name: 'isMultiElementSlave', type: 'boolean'},
         {name: 'hasLoadProfiles', type: 'boolean'},
         {name: 'hasLogBooks', type: 'boolean'},
         {name: 'hasRegisters', type: 'boolean'},

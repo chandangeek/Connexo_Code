@@ -27,17 +27,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogPreview', 
             items: [
                 {
                     xtype: 'displayfield',
-                    name: 'timestamp',
-                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.timeStamp', 'MDC', 'Timestamp'),
-                    itemId: 'timestamp',
-                    renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
-                    }
-                },
-                {
-                    xtype: 'displayfield',
                     name: 'details',
-                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.description', 'MDC', 'Description'),
+                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.message', 'MDC', 'Message'),
                     itemId: 'details',
                     htmlEncode: false,
                     renderer: function(value,field){
@@ -63,12 +54,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogPreview', 
                             return value.replace(/(?:\r\n|\r|\n)/g, '<br />');
                         }
                     }
-                },
-                {
-                    xtype: 'displayfield',
-                    name: 'logLevel',
-                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.logLevel', 'MDC', 'Log level'),
-                    itemId: 'logLevel'
                 }
             ]
         }

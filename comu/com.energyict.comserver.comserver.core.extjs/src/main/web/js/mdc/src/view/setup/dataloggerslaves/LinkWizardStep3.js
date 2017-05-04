@@ -12,6 +12,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep3', {
         'Uni.util.FormEmptyMessage',
         'Mdc.model.Register'
     ],
+    purpose: undefined,
 
     initComponent: function () {
         var me = this;
@@ -61,7 +62,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep3', {
             Ext.suspendLayouts();
             me.down('#mdc-dataloggerslave-link-wizard-step3-container').add({
                 xtype: 'uni-form-empty-message',
-                text: Uni.I18n.translate('general.dataLoggerSlave.noRegisters', 'MDC', 'There are no registers on the data logger slave.')
+                text: me.purpose.noRegistersMessage
             });
             Ext.resumeLayouts(true);
             me.doLayout();

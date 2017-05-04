@@ -166,13 +166,24 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
         page.setLoading('Removing...');
         record.destroy({
             callback: function (model, operation) {
+                var message ='', errorCode = '';
                 page.setLoading(false);
                 if (operation.response.status == 204) {
                     gridToolbarTop.totalCount = 0;
                     me.getComPortPoolGrid().getStore().loadPage(1);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortPool.deleteSuccess.msg', 'MDC', 'Communication port pool removed'));
                 } else if (operation.response.status == 400) {
-                    me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('general.during.removing', 'MDC', 'Error during removing'), response.responseText);
+                    if (!Ext.isEmpty(response.responseText)) {
+                        var json = Ext.decode(response.responseText, true);
+                        if (json && json.error) {
+                            message = json.error;
+                        }
+                        if (json && json.errorCode) {
+                            errorCode = json.errorCode;
+                        }
+                    }
+
+                    me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('general.during.removing', 'MDC', 'Error during removing'), 'Error during removing.'+response.responseText, errorCode);
                 }
             }
         });

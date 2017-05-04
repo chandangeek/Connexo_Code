@@ -4,8 +4,7 @@
 
 Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizard', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.dataloggerslave-link-wizard',
-
+    alias: 'widget.slave-link-wizard',
     requires: [
         'Mdc.view.setup.dataloggerslaves.LinkWizardStep1',
         'Mdc.view.setup.dataloggerslaves.LinkWizardStep2',
@@ -16,7 +15,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizard', {
     ],
 
     layout: 'card',
-
+    purpose: undefined,
     router: null,
     returnLink: null,
     service: null,
@@ -28,19 +27,22 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizard', {
             {
                 xtype: 'dataloggerslave-link-wizard-step1',
                 itemId: 'mdc-dataloggerslave-link-wizard-step1',
-                title: Uni.I18n.translate('linkwizard.step1.title', 'MDC', 'Step 1: Select data logger slave'),
+                title: me.purpose.titleWizardStep1,
+                purpose: me.purpose,
                 navigationIndex: 1
             },
             {
                 xtype: 'dataloggerslave-link-wizard-step2',
                 itemId: 'mdc-dataloggerslave-link-wizard-step2',
                 title: Uni.I18n.translate('linkwizard.step2.title', 'MDC', 'Step 2: Map channels'),
+                purpose: me.purpose,
                 navigationIndex: 2
             },
             {
                 xtype: 'dataloggerslave-link-wizard-step3',
                 itemId: 'mdc-dataloggerslave-link-wizard-step3',
                 title: Uni.I18n.translate('linkwizard.step3.title', 'MDC', 'Step 3: Map registers'),
+                purpose: me.purpose,
                 navigationIndex: 3
             },
             {
@@ -53,6 +55,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizard', {
                 xtype: 'dataloggerslave-link-wizard-step5',
                 itemId: 'mdc-dataloggerslave-link-wizard-step5',
                 title: Uni.I18n.translate('linkwizard.step5.title', 'MDC', 'Step 5: Confirmation'),
+                purpose: me.purpose,
                 navigationIndex: 5
             },
             {
@@ -108,7 +111,6 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizard', {
 
         me.callParent(arguments);
     },
-
     updateRecord: function (record) {
         var me = this,
             filter = me.parseFilter(),

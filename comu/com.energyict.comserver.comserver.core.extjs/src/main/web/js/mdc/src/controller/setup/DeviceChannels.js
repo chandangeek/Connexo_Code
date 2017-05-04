@@ -99,7 +99,6 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                         if (record.get('hasLoadProfiles')) {
                             me.getApplication().fireEvent('loadDevice', record);
                             widget = Ext.widget('deviceLoadProfileChannelsSetup', {
-                                deviceId: deviceId,
                                 router: router,
                                 device: record
                             });
@@ -211,7 +210,8 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             url: '../../api/ddr/devices/' + encodeURIComponent(deviceId) + '/validationrulesets/validationstatus',
             method: 'GET',
             success: function (response) {
-                var res = Ext.JSON.decode(response.responseText);
+                var res = Ext.JSON.decode(response.responseText),
+                    code = '';
                 if (res.hasValidation) {
                     if (res.lastChecked) {
                         me.dataValidationLastChecked = new Date(res.lastChecked);
@@ -220,16 +220,19 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                     }
                     confirmationWindow.insert(1, me.getValidationContent());
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('deviceloadprofiles.channels.validateNow', 'MDC', 'Validate data of channel {0}?', [record.get('name')]),
-                        msg: ''
+                        title: Uni.I18n.translate('deviceloadprofiles.channels.validateNowTitle', 'MDC', 'Couldn\'t perform your action'),
+                        msg: Uni.I18n.translate('deviceloadprofiles.channels.validateNow', 'MDC', 'Validate data of channel {0}?', [record.get('name')])
                     });
                 } else {
-                    var title = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.error', 'MDC', 'Failed to validate data of channel {0}', [record.get('name')]),
-                        message = Uni.I18n.translate('deviceloadprofiles.channels.noData', 'MDC', 'There is currently no data for this channel'),
+                    if (res && res.errorCode) {
+                        code = res.errorCode;
+                    }
+                    var title = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.errorTitle', 'MDC', 'Couldn\'t perform your action'),
+                        message = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.errorMsg', 'MDC', 'Failed to validate data of channel {0}', [record.get('name')]) + "." + Uni.I18n.translate('deviceloadprofiles.channels.noData', 'MDC', 'There is currently no data for this channel'),
                         config = {
                             icon: Ext.MessageBox.WARNING
                         };
-                    me.getApplication().getController('Uni.controller.Error').showError(title, message, config);
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, code, config);
                 }
             }
         });

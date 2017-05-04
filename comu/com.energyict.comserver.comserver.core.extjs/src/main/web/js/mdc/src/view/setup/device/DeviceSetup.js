@@ -24,7 +24,6 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.view.widget.WhatsGoingOn',
         'Mdc.view.setup.device.DataLoggerSlavesPanel'
-        //'Mdc.view.setup.device.DeviceHealthCheckPanel'
     ],
 
     content: [
@@ -178,7 +177,6 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             panel = me.content[0],
             isGateway = me.device.get('isGateway'),
             isDirectlyAddressable = me.device.get('isDirectlyAddressed'),
-            disableChangeConfigSinceDataLoggerOrSlave = me.device.get('isDataLogger') || me.device.get('isDataLoggerSlave'),
             hasValidationRules = me.device.get('hasValidationRules');
 
         panel.tools = [
@@ -224,7 +222,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                             xtype: 'device-action-menu',
                             itemId: 'deviceActionMenu',
                             router: me.router,
-                            disableChangeConfigSinceDataLoggerOrSlave: disableChangeConfigSinceDataLoggerOrSlave,
+                            disableChangeConfigSinceSlave: me.device.get('isDataLoggerSlave') || me.device.get('isMultiElementSlave'),
                             deviceName: me.device.get('name'),
                             actionsStore: me.actionsStore
                         }
@@ -309,7 +307,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                     },
                     {
                         xtype: 'deviceGeneralInformationPanel',
-                        dataLoggerSlave: me.device.get('isDataLoggerSlave') ? me.device : undefined,
+                        dataLoggerSlave: me.device.get('isDataLoggerSlave') ? me.device : (me.device.get('isMultiElementSlave') ? me.device: undefined ),
                         router: me.router,
                         minWidth: 300,
                         style: {
@@ -409,7 +407,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         var me = this,
             panelContainer = me.down('#mdc-panel-container');
 
-        if ( Ext.isEmpty(me.device.get('isDataLogger')) || !me.device.get('isDataLogger') ) {
+        if (( Ext.isEmpty(me.device.get('isDataLogger')) || !me.device.get('isDataLogger')) &&
+            ( Ext.isEmpty(me.device.get('isMultiElementDevice')) || !me.device.get('isMultiElementDevice'))) {
             return;
         }
 

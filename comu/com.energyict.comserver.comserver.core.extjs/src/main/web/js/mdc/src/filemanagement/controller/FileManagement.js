@@ -166,7 +166,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
         });
 
 
-        if(!form.down('#files-allowed-radio-field').checked) {
+        if (!form.down('#files-allowed-radio-field').checked) {
             confirmationWindow.show(
                 {
                     msg: Uni.I18n.translate('filemanagement.disable.msg', 'MDC', 'You will not be able to use these files anymore, existing files will be removed from the system. This action is irreversible.'),
@@ -228,12 +228,12 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
         }
         input = form.down('filefield').button.fileInputEl.dom;
         file = input.files[0];
-        if(file === undefined) {
+        if (file === undefined) {
             return;
         }
-        if(file.size > max_file_size) {
+        if (file.size > max_file_size) {
             me.getApplication().getController('Uni.controller.Error')
-                .showError(Uni.I18n.translate('general.failed.to.upload.file', 'MDC', 'Failed to upload file'), Uni.I18n.translate('filemanagement.fileSizShouldBeLessThan', 'MDC', 'File size should be less than 2 MB'));
+                .showError(Uni.I18n.translate('general.failed.to.upload.fileTitle', 'MDC', 'Couldn\'t perform your action'), Uni.I18n.translate('general.failed.to.upload.file', 'MDC', 'Failed to upload file') + '.' + Uni.I18n.translate('filemanagement.fileSizShouldBeLessThan', 'MDC', 'File size should be less than 2 MB'));
             fileField.reset();
         } else {
             store.getProxy().setUrl(me.deviceTypeId);
@@ -250,10 +250,14 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
                 callback: function (config, success, response) {
                     fileField.reset();
                     if (response.responseText) {
-                        var responseObject = JSON.parse(response.responseText);
+                        var responseObject = JSON.parse(response.responseText),
+                            code = '';
                         if (!responseObject.success) {
+                            if (responseObject.errorCode) {
+                                code = responseObject.errorCode;
+                            }
                             me.getApplication().getController('Uni.controller.Error')
-                                .showError(Uni.I18n.translate('general.failed.to.upload.file', 'MDC', 'Failed to upload file'), responseObject.message);
+                                .showError(Uni.I18n.translate('general.failed.to.upload.fileTitle', 'MDC', 'Couldn\'t perform your action'), Uni.I18n.translate('general.failed.to.upload.file', 'MDC', 'Failed to upload file') + '.' + responseObject.message, code);
                         }
                     }
                     store.load({
@@ -313,10 +317,10 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             grid = setup.down('files-grid'),
             maxHeight = window.innerHeight - 280;
 
-        if(maxHeight < 400) {
+        if (maxHeight < 400) {
             maxHeight = 400;
         }
-        if(grid) {
+        if (grid) {
             grid.maxHeight = maxHeight;
             grid.updateLayout();
         }

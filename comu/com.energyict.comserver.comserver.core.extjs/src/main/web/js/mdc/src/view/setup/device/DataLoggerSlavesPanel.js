@@ -7,14 +7,15 @@ Ext.define('Mdc.view.setup.device.DataLoggerSlavesPanel', {
     alias: 'widget.dataLoggerSlavesPanel',
     requires: [
         'Mdc.store.MasterDeviceCandidates',
-        'Uni.util.FormEmptyMessage'
+        'Uni.util.FormEmptyMessage',
+        'Mdc.util.LinkPurpose'
     ],
     overflowY: 'auto',
     itemId: 'mdc-dataLoggerSlavesPanel',
     device: null,
+    purpose: undefined,
     ui: 'tile',
     title: Uni.I18n.translate('device.dataLoggerSlaves.title', 'MDC', 'Data logger slaves'),
-
     setSlaveStore: function(slaveStore) {
         var me = this,
             slavesCount = slaveStore.getCount(),
@@ -69,8 +70,9 @@ Ext.define('Mdc.view.setup.device.DataLoggerSlavesPanel', {
             },
             manageSlavesLink = {
                 xtype: 'container',
-                margin: '0 0 4 7',
-                html: '<a href="' + me.router.getRoute('devices/device/dataloggerslaves').buildUrl() + '">' + Uni.I18n.translate('general.manageDataLoggerSlaves', 'MDC', 'Manage data logger slaves') + '</a>'
+                itemId: 'manageLink',
+                html : '<a href="' + this.router.getRoute('devices/device/dataloggerslaves').buildUrl() + '">' + me.purpose.manageLinkText + '</a>',
+                margin: '0 0 4 7'
             };
 
         me.removeAll();
@@ -79,5 +81,10 @@ Ext.define('Mdc.view.setup.device.DataLoggerSlavesPanel', {
         } else {
             me.add(label, manageSlavesLink);
         }
+    },
+    setDevice: function (device){
+        this.device = device;
+        this.purpose = Mdc.util.LinkPurpose.forDevice(device);
+        this.setTitle(this.purpose.pageTitle)
     }
 });

@@ -216,8 +216,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             },
             success: function () {
                 location.href = '#/administration/devicetypes/'
-                + me.deviceTypeId + '/deviceconfigurations/'
-                + me.deviceConfigId + '/validationrulesets';
+                    + me.deviceTypeId + '/deviceconfigurations/'
+                    + me.deviceConfigId + '/validationrulesets';
 
                 var message = Uni.I18n.translatePlural(
                     'validation.ruleSetAdded',
@@ -233,17 +233,21 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             failure: function (response) {
                 if (response.status === 400) {
                     var result = Ext.decode(response.responseText, true),
-                        title = Uni.I18n.translate('general.failedToAdd', 'MDC', 'Failed to add'),
-                        message = Uni.I18n.translate('validation.failedToAddRuleSets', 'MDC',
-                            'Validation rule sets could not be added. There was a problem accessing the database.'
-                        );
+                        title = Uni.I18n.translate('general.failedToAddTitle', 'MDC', 'Couldn\'t perform your action'),
+                        message = Uni.I18n.translate('general.failedToAdd', 'MDC', 'Failed to add') + '.' + Uni.I18n.translate('validation.failedToAddRuleSets', 'MDC',
+                                'Validation rule sets could not be added. There was a problem accessing the database.'
+                            ),
+                        code = '';
 
                     if (result !== null) {
                         title = result.error;
                         message = result.message;
                     }
+                    if(result && result.errorCode){
+                        code = result.errorCode;
+                    }
 
-                    me.getApplication().getController('Uni.controller.Error').showError(title, message);
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message, code);
                 }
             },
             callback: function () {
@@ -351,8 +355,9 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                     if (response.status === 400) {
                         var record = cfg.config.record,
                             result = Ext.decode(response.responseText, true),
-                            title = Uni.I18n.translate('general.failedToRemove', 'MDC', 'Failed to remove {0}', [record.data.name]),
-                            message = Uni.I18n.translate('general.serverError', 'MDC', 'Server error');
+                            title = Uni.I18n.translate('general.failedToRemoveTitle', 'MDC', 'Couldn\'t perform your action'),
+                            message = Uni.I18n.translate('general.failedToRemove', 'MDC', 'Failed to remove {0}', [record.data.name]) + '.' + Uni.I18n.translate('general.serverError', 'MDC', 'Server error'),
+                            code='';
                         if (!Ext.isEmpty(response.statusText)) {
                             message = response.statusText;
                         }
@@ -361,7 +366,10 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                         } else if (result && result.error) {
                             message = result.error;
                         }
-                        self.getApplication().getController('Uni.controller.Error').showError(title, message);
+                        if(result && result.errorCode){
+                            code = result.errorCode;
+                        }
+                        self.getApplication().getController('Uni.controller.Error').showError(title, message, code);
                     }
                 },
                 callback: function () {

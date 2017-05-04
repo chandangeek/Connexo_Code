@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectsGrid', {
 
     initComponent: function () {
         var me = this;
-        me.columns = [
+        this.columns = [
             {
                 header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                 dataIndex: 'name',
@@ -30,17 +30,16 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectsGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                width: 120,
                 privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                 menu: {xtype: 'protocol-dialect-action-menu'},
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.protocolDialectsActions
             }
 
         ];
-        me.dockedItems = [
+        this.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
-                store: me.store,
+                store: this.store,
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('protocolDialects.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} protocol dialects'),
                 displayMoreMsg: Uni.I18n.translate('protocolDialects.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} protocol dialects'),
@@ -48,15 +47,15 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectsGrid', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                store: me.store,
+                store: this.store,
                 params: [
-                    {deviceId: me.deviceId}
+                    {deviceId: this.deviceId}
                 ],
                 dock: 'bottom',
                 itemsPerPageMsg: Uni.I18n.translate('protocolDialects.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Protocol dialects per page')
             }
         ];
 
-        me.callParent();
+        this.callParent();
     }
 });

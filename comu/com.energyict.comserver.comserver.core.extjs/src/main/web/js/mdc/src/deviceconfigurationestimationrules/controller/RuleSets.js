@@ -152,8 +152,9 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
                     if (response.status === 400) {
                         var record = cfg.config.record,
                             result = Ext.decode(response.responseText, true),
-                            title = Uni.I18n.translate('general.failedToRemove', 'MDC', 'Failed to remove {0}', [record.data.name]),
-                            message = Uni.I18n.translate('general.serverError', 'MDC', 'Server error');
+                            title = Uni.I18n.translate('general.failedToRemoveTitle', 'MDC', 'Couldn\'t perform your action'),
+                            message = Uni.I18n.translate('general.failedToRemove', 'MDC', 'Failed to remove {0}', [record.data.name]) + '.' + Uni.I18n.translate('general.serverError', 'MDC', 'Server error'),
+                            code = '';
                         if (!Ext.isEmpty(response.statusText)) {
                             message = response.statusText;
                         }
@@ -162,7 +163,10 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
                         } else if (result && result.error) {
                             message = result.error;
                         }
-                        me.getApplication().getController('Uni.controller.Error').showError(title, message);
+                        if (result && result.errorCode) {
+                            message = result.errorCode;
+                        }
+                        me.getApplication().getController('Uni.controller.Error').showError(title, message, code);
                     }
                 },
                 callback: function () {
@@ -221,7 +225,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
 
         Ext.getStore('Mdc.deviceconfigurationestimationrules.store.EstimationRuleSets').getProxy().setUrl(router.arguments);
 
-        widget = Ext.widget('device-configuration-estimation-rule-sets-setup', { router: router });
+        widget = Ext.widget('device-configuration-estimation-rule-sets-setup', {router: router});
 
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.down('device-configuration-estimation-rule-sets-grid').getStore().load();
