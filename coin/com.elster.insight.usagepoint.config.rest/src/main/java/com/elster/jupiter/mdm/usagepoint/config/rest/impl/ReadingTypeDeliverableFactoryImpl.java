@@ -33,12 +33,14 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.util.HasName;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,13 +82,19 @@ public class ReadingTypeDeliverableFactoryImpl implements ReadingTypeDeliverable
         info.id = readingTypeDeliverable.getId();
         info.name = readingTypeDeliverable.getName();
         info.readingType = readingTypeDeliverable.getReadingType() != null ? readingTypeInfoFactory.from(readingTypeDeliverable.getReadingType()) : null;
-        info.formula = readingTypeDeliverable.getFormula() != null ? asInfo(readingTypeDeliverable.getFormula(), metrologyConfiguration) : null;
+        info.formula = readingTypeDeliverable.getFormula() != null ? formulaInfo(readingTypeDeliverable, metrologyConfiguration) : null;
+        info.eventNames = new ArrayList<>();
+        metrologyConfiguration.getEventSets().stream()
+                .flatMap(eventSet -> eventSet.getEvents().stream())
+                .filter(event -> event.getCode()==readingTypeDeliverable.getReadingType().getTou())
+                .forEach(event2 -> info.eventNames.add(info.eventNames.size(),event2.getName()));
         return info;
     }
 
-    private FormulaInfo asInfo(Formula formula, MetrologyConfiguration metrologyConfiguration) {
+    private FormulaInfo formulaInfo(ReadingTypeDeliverable deliverable, MetrologyConfiguration metrologyConfiguration) {
+        Formula formula = deliverable.getFormula();
         FormulaInfo info = new FormulaInfo();
-        info.description = formula.getExpressionNode().accept(new FormulaDescriptionBuilder(this.thesaurus));
+        info.description = formula.getExpressionNode().accept(new FormulaDescriptionBuilder(deliverable, this.thesaurus));
         info.readingTypeRequirements = asInfoList(formula.getExpressionNode(), metrologyConfiguration);
         CustomPropertyInfoFactory visitor = new CustomPropertyInfoFactory();
         formula.getExpressionNode().accept(visitor);

@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -17,4 +18,5 @@ public class ReadingTypeDeliverablesInfo {
     public String name;
     public ReadingTypeInfo readingType;
     public FormulaInfo formula;
+    public ArrayList<String> eventNames;
 }

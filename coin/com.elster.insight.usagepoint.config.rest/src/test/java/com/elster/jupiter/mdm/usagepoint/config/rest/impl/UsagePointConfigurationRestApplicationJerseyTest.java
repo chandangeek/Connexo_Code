@@ -78,8 +78,12 @@ public class UsagePointConfigurationRestApplicationJerseyTest extends FelixRestA
     }
 
     protected ReadingType mockReadingType() {
+        return mockReadingType(0);
+    }
+
+    protected ReadingType mockReadingType(int timeOfUse) {
         ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMRID()).thenReturn("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        when(readingType.getMRID()).thenReturn("13.0.0.4.1.1.12.0.0.0.0." + timeOfUse + ".0.0.0.3.72.0");
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getAggregate()).thenReturn(Aggregate.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
@@ -89,6 +93,7 @@ public class UsagePointConfigurationRestApplicationJerseyTest extends FelixRestA
         when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.NOTAPPLICABLE);
         when(readingType.getInterharmonic()).thenReturn(RationalNumber.NOTAPPLICABLE);
         when(readingType.getArgument()).thenReturn(RationalNumber.NOTAPPLICABLE);
+        when(readingType.getTou()).thenReturn(timeOfUse);
         when(readingType.getPhases()).thenReturn(Phase.NOTAPPLICABLE);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.NOTAPPLICABLE);
