@@ -92,7 +92,7 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
                 }
             }
             if (contract == null) {
-                throw new LocalizedFieldValidationException(MessageSeeds.REFERENCE_VALIDATE_PROPS_NO_PURPOSE_ON_USAGE_POINT, "properties." + CHECK_USAGE_POINT);
+                throw new LocalizedFieldValidationException(MessageSeeds.REFERENCE_VALIDATE_PROPS_NO_PURPOSE_ON_USAGE_POINT, "properties." + CHECK_PURPOSE);
             } else {
                 Channel channel = null;
                 Optional<ChannelsContainer> channelsContainerWithCheckChannel = effectiveMC.get()
