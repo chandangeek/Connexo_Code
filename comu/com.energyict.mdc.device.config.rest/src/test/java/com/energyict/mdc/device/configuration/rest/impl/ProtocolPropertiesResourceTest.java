@@ -16,9 +16,9 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.configuration.rest.ProtocolInfo;
-import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
-
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -45,14 +43,14 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
         DeviceProtocolConfigurationProperties properties = mock(DeviceProtocolConfigurationProperties.class);
         mockDeviceConfiguration(properties);
         PropertyInfo propertyInfo = new PropertyInfo();
-        propertyInfo.key = DeviceProtocolProperty.CALL_HOME_ID.javaFieldName();
+        propertyInfo.key = LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME;
         propertyInfo.propertyValueInfo = new PropertyValueInfo<>("0x7", null, null, true);
         propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
         when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         String response = target("/devicetypes/11/deviceconfigurations/12/protocols/1").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
         assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(7);
-        assertThat(jsonModel.<String>get("$.properties[0].key")).isEqualTo(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName());
+        assertThat(jsonModel.<String>get("$.properties[0].key")).isEqualTo(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
         assertThat(jsonModel.<String>get("$.properties[0].propertyValueInfo.value")).isEqualTo("0x7");
     }
 
@@ -61,8 +59,8 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
         DeviceProtocolConfigurationProperties properties = mock(DeviceProtocolConfigurationProperties.class);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(properties);
         PropertyInfo propertyInfo = new PropertyInfo();
-        propertyInfo.key =DeviceProtocolProperty.CALL_HOME_ID.javaFieldName();
-        propertyInfo.name=DeviceProtocolProperty.CALL_HOME_ID.javaFieldName();
+        propertyInfo.key =LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME;
+        propertyInfo.name=LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME;
         propertyInfo.propertyValueInfo = new PropertyValueInfo<>("0x99", null, null, true);
         propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
         propertyInfo.propertyTypeInfo.simplePropertyType= SimplePropertyType.TEXT;
@@ -76,7 +74,7 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
         when(propertyValueInfoService.findPropertyValue(any(), any())).thenReturn(propertyInfo.getPropertyValueInfo().getValue());
         Response response = target("/devicetypes/11/deviceconfigurations/12/protocols/7").request().put(Entity.json(protocolInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(properties).setProperty(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), "0x99");
+        verify(properties).setProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "0x99");
         verify(deviceConfiguration).save();
     }
 
@@ -97,14 +95,14 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
 
     private DeviceConfiguration mockDeviceConfiguration(DeviceProtocolConfigurationProperties properties) {
         PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName());
+        when(propertySpec.getName()).thenReturn(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
         when(propertySpec.isRequired()).thenReturn(false);
         when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
         DeviceType deviceType = mockDeviceType("device", 11, Arrays.asList(propertySpec));
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfigurationId);
         when(properties.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), "0x7");
+        typedProperties.setProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "0x7");
         when(properties.getTypedProperties()).thenReturn(typedProperties);
         when(properties.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         when(deviceConfiguration.getDeviceProtocolProperties()).thenReturn(properties);
