@@ -8,8 +8,9 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ReadingInfo {
 
@@ -21,12 +22,11 @@ public class ReadingInfo {
         this.timeStamp = reading.getTimeStamp().toEpochMilli();
         this.recordTime = reading.getReportedDateTime() == null ? null : reading.getReportedDateTime().toEpochMilli();
         List<Quantity> quantities = reading.getQuantities();
-        values = new ArrayList<>(quantities.size());
-        for (Quantity quantity : quantities) {
-        	if (quantity != null) {
-        		values.add(quantity.getValue());
-        	}
-        }
+        values = quantities
+                .stream()
+                .filter(Objects::nonNull)
+                .map(Quantity::getValue)
+                .collect(Collectors.toList());
     }
-    
+
 }
