@@ -41,7 +41,7 @@ public class ConcurrentModificationException extends LocalizedException {
 
     public String getMessageBody() {
         if (messageBody != null) {
-            return getThesaurus().getFormat(this.messageBody).format(this.messageBodyArgs);
+            return getThesaurus().getSimpleFormat(this.messageBody).format(this.messageBodyArgs);
         } else {
             return null;
         }
