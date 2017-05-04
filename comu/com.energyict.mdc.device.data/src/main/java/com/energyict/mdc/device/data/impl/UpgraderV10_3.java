@@ -4,10 +4,12 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -26,10 +28,16 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 class UpgraderV10_3 implements Upgrader {
 
     private final DataModel dataModel;
+    private final UserService userService;
+    private final EventService eventService;
+    private final PrivilegesProviderV10_3 privilegesProviderV10_3;
 
     @Inject
-    UpgraderV10_3(DataModel dataModel) {
+    UpgraderV10_3(DataModel dataModel, EventService eventService, UserService userService, PrivilegesProviderV10_3 privilegesProviderV10_3) {
         this.dataModel = dataModel;
+        this.userService = userService;
+        this.eventService = eventService;
+        this.privilegesProviderV10_3 = privilegesProviderV10_3;
     }
 
     @Override
@@ -38,6 +46,9 @@ class UpgraderV10_3 implements Upgrader {
         upgradeDeviceMessageAttributesForUPL();
         dataModelUpgrader.upgrade(dataModel, Version.version(10,3));
         moveProtocolDialectProperties();
+        userService.addModulePrivileges(privilegesProviderV10_3);
+        // Validation for Device Configuration Change on data loggers and multi-elememt devices
+        EventType.DEVICE_CONFIG_CHANGE_VALIDATE.createIfNotExists(eventService);
     }
 
     private void upgradeDeviceMessageAttributesForUPL() {
@@ -112,5 +123,4 @@ class UpgraderV10_3 implements Upgrader {
             }
         });
     }
-
 }
