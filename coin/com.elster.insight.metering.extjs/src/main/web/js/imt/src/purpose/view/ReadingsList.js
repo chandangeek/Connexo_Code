@@ -155,6 +155,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         if (record.get('confirmedNotSaved') || record.isModified('isProjected')) {
             metaData.tdCls = 'x-grid-dirty-cell';
         }
+
         if (status === 'notValidated') {
             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + '"></span>';
