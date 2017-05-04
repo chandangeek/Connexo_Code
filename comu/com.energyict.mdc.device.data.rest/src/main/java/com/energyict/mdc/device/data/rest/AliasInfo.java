@@ -10,10 +10,8 @@ package com.energyict.mdc.device.data.rest;
 public class AliasInfo {
     public String alias;
 
-    public AliasInfo from(String alias) {
-        AliasInfo aliasInfo = new AliasInfo();
-        aliasInfo.alias = alias;
-        return aliasInfo;
+    public AliasInfo(String alias) {
+        this.alias = alias;
     }
 
 }

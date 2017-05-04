@@ -23,6 +23,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.KeyAccessor;
+import com.energyict.mdc.device.data.rest.AliasInfo;
 import com.energyict.mdc.device.data.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -334,10 +335,11 @@ public class SecurityAccessorResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
     public PagedInfoList aliasSource(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
         PkiService.AliasSearchFilter aliasSearchFilter = getAliasSearchFilter(params, uriInfo.getQueryParameters());
-        List<String> collect = pkiService.getAliasesByFilter(aliasSearchFilter)
+        List<AliasInfo> collect = pkiService.getAliasesByFilter(aliasSearchFilter)
                 .from(queryParameters)
                 .stream()
                 .map(CertificateWrapper::getAlias)
+                .map(AliasInfo::new)
                 .collect(toList());
         return PagedInfoList.fromPagedList("aliases", collect, queryParameters);
     }

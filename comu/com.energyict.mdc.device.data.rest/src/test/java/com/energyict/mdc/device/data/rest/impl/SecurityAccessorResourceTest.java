@@ -101,7 +101,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         symmetricKeyAccessorType = mockSymmetricKeyAccessorType(111L, "aes");
         certificateKeyAccessorType = mockCertificateKeyAccessorType(222L, "tls1");
 
-        actualClientCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "comserver");
+        actualClientCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "comserver", "myAlias");
         clientCertificateAccessor = mockClientCertificateAccessor(certificatePropertySpecs, actualClientCertificateWrapper);
 
         actualSymmetricKeyWrapper = mockSymmetricKeyWrapper(symmetricKeyPropertySpecs, "key", "b21nLEkgY2FuJ3QgYmVsaWV2ZSB5b3UgZGVjb2RlZCB0aGlz");
@@ -121,13 +121,13 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         when(pkiService.getPropertySpecs(certificateKeyAccessorType)).thenReturn(certificatePropertySpecs);
         when(pkiService.findCertificateWrapper(anyString())).thenReturn(Optional.empty());
         when(pkiService.findCertificateWrapper("comserver")).thenReturn(Optional.of(actualClientCertificateWrapper));
-        tempClientCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "newcomserver");
+        tempClientCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "newcomserver", "myAlias");
         when(pkiService.findCertificateWrapper("newcomserver")).thenReturn(Optional.of(tempClientCertificateWrapper));
         when(deviceService.findAndLockKeyAccessorByIdAndVersion(any(Device.class), any(KeyAccessorType.class), anyLong())).thenReturn(Optional.empty());
         when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
         when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, certificateKeyAccessorType, 22L)).thenReturn(Optional.of(clientCertificateAccessor));
 
-        Finder<CertificateWrapper> finder = mockFinder(Collections.emptyList());
+        Finder<CertificateWrapper> finder = mockFinder(Collections.singletonList(actualClientCertificateWrapper));
         when(pkiService.getAliasesByFilter(any(PkiService.AliasSearchFilter.class))).thenReturn(finder);
     }
 
@@ -189,6 +189,10 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         verify(pkiService, times(1)).getAliasesByFilter(captor.capture());
         assertThat(captor.getValue().alias).isEqualTo("com*");
         assertThat(captor.getValue().trustStore).isEqualTo(trustStore);
+        JsonModel jsonModel = JsonModel.create((InputStream)response1.getEntity());
+        System.out.println(jsonModel.toJson());
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.aliases[0].alias")).isEqualTo("myAlias");
     }
 
     @Test
@@ -356,7 +360,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("alias", "comserver"));
         securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("alias", "newcomserver"));
 
-        CertificateWrapper tempCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "tempAlias");
+        CertificateWrapper tempCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "tempAlias", "myAlias");
         clientCertificateAccessor = mock(KeyAccessor.class);
         when(clientCertificateAccessor.getTempValue()).thenReturn(Optional.of(tempCertificateWrapper));
         when(clientCertificateAccessor.getActualValue()).thenReturn(Optional.empty());
@@ -382,7 +386,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         securityAccessorInfo.currentProperties = Arrays.asList(createPropertyInfo("alias", "comserver"));
         securityAccessorInfo.tempProperties = Collections.emptyList();
 
-        CertificateWrapper tempCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "tempAlias");
+        CertificateWrapper tempCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "tempAlias", "myAlias");
         clientCertificateAccessor = mock(KeyAccessor.class);
         when(clientCertificateAccessor.getTempValue()).thenReturn(Optional.of(tempCertificateWrapper));
         when(clientCertificateAccessor.getActualValue()).thenReturn(Optional.empty());
@@ -533,7 +537,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         securityAccessorInfo.tempProperties = Arrays.asList(createPropertyInfo("alias", "newnewcomserver"));
 
         when(clientCertificateAccessor.getTempValue()).thenReturn(Optional.of(tempClientCertificateWrapper));
-        ClientCertificateWrapper newNewComserver = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "newnewcomserver");
+        ClientCertificateWrapper newNewComserver = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "newnewcomserver", "myAlias");
         when(pkiService.findCertificateWrapper("newnewcomserver")).thenReturn(Optional.of(newNewComserver));
 
         Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
@@ -673,10 +677,11 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         return keyAccessor1;
     }
 
-    private ClientCertificateWrapper mockClientCertificateWrapper(List<PropertySpec> propertySpecs, String key, String value) {
+    private ClientCertificateWrapper mockClientCertificateWrapper(List<PropertySpec> propertySpecs, String key, String value, String alias) {
         ClientCertificateWrapper clientCertificateWrapper = mock(ClientCertificateWrapper.class);
         Map<String, Object> map = new HashMap<>();
         map.put(key, value);
+        when(clientCertificateWrapper.getAlias()).thenReturn(alias);
         when(clientCertificateWrapper.getProperties()).thenReturn(map);
         when(clientCertificateWrapper.getPropertySpecs()).thenReturn(propertySpecs);
         when(clientCertificateWrapper.getExpirationTime()).thenReturn(Optional.of(Instant.now()));
