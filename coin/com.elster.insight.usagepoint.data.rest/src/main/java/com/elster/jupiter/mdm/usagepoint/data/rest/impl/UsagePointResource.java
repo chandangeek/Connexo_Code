@@ -4,6 +4,12 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.calendar.Calendar;
+import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.calendar.Category;
+import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.calendar.EventSet;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -30,11 +36,10 @@ import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
@@ -106,7 +111,11 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.MonthDay;
 import java.time.Period;
+import java.time.Year;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
@@ -175,41 +184,44 @@ public class UsagePointResource {
     private final UsagePointLifeCycleService usagePointLifeCycleService;
     private final PropertyValueInfoService propertyValueInfoService;
     private final ValidationService validationService;
+    private final CalendarService calendarService;
     private final MetrologyConfigurationHistoryInfoFactory metrologyConfigurationHistoryInfoFactory;
     private final UsagePointTransitionInfoFactory usagePointTransitionInfoFactory;
 
     @Inject
-    public UsagePointResource(RestQueryService queryService,
-                              MeteringService meteringService,
-                              TimeService timeService,
-                              Clock clock,
-                              ServiceCallService serviceCallService,
-                              ServiceCallInfoFactory serviceCallInfoFactory,
-                              Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider,
-                              CustomPropertySetService customPropertySetService,
-                              Provider<UsagePointCalendarResource> usagePointCalendarResourceProvider,
-                              UsagePointInfoFactory usagePointInfoFactory,
-                              CustomPropertySetInfoFactory customPropertySetInfoFactory,
-                              Provider<UsagePointCalendarHistoryResource> usagePointCalendarHistoryResourceProvider,
-                              Provider<BulkScheduleResource> bulkScheduleResourceProvider,
-                              ExceptionFactory exceptionFactory,
-                              LocationInfoFactory locationInfoFactory,
-                              ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory,
-                              Thesaurus thesaurus,
-                              ResourceHelper resourceHelper,
-                              MetrologyConfigurationService metrologyConfigurationService,
-                              UsagePointDataCompletionService usagePointDataCompletionService,
-                              Provider<GoingOnResource> goingOnResourceProvider,
-                              Provider<UsagePointOutputResource> usagePointOutputResourceProvider,
-                              ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
-                              DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
-                              HistoricalMeterActivationInfoFactory historicalMeterActivationInfoFactory,
-                              TransactionService transactionService,
-                              UsagePointLifeCycleService usagePointLifeCycleService,
-                              PropertyValueInfoService propertyValueInfoService,
-                              ValidationService validationService,
-                              MetrologyConfigurationHistoryInfoFactory metrologyConfigurationHistoryInfoFactory,
-                              UsagePointTransitionInfoFactory usagePointTransitionInfoFactory) {
+    public UsagePointResource(
+                RestQueryService queryService,
+                MeteringService meteringService,
+                TimeService timeService,
+                Clock clock,
+                ServiceCallService serviceCallService,
+                ServiceCallInfoFactory serviceCallInfoFactory,
+                Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider,
+                CustomPropertySetService customPropertySetService,
+                Provider<UsagePointCalendarResource> usagePointCalendarResourceProvider,
+                UsagePointInfoFactory usagePointInfoFactory,
+                CustomPropertySetInfoFactory customPropertySetInfoFactory,
+                Provider<UsagePointCalendarHistoryResource> usagePointCalendarHistoryResourceProvider,
+                Provider<BulkScheduleResource> bulkScheduleResourceProvider,
+                ExceptionFactory exceptionFactory,
+                LocationInfoFactory locationInfoFactory,
+                ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory,
+                Thesaurus thesaurus,
+                ResourceHelper resourceHelper,
+                MetrologyConfigurationService metrologyConfigurationService,
+                UsagePointDataCompletionService usagePointDataCompletionService,
+                Provider<GoingOnResource> goingOnResourceProvider,
+                Provider<UsagePointOutputResource> usagePointOutputResourceProvider,
+                ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
+                DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
+                HistoricalMeterActivationInfoFactory historicalMeterActivationInfoFactory,
+                TransactionService transactionService,
+                UsagePointLifeCycleService usagePointLifeCycleService,
+                PropertyValueInfoService propertyValueInfoService,
+                ValidationService validationService,
+                CalendarService calendarService,
+                MetrologyConfigurationHistoryInfoFactory metrologyConfigurationHistoryInfoFactory,
+                UsagePointTransitionInfoFactory usagePointTransitionInfoFactory) {
         this.queryService = queryService;
         this.timeService = timeService;
         this.meteringService = meteringService;
@@ -239,6 +251,7 @@ public class UsagePointResource {
         this.usagePointLifeCycleService = usagePointLifeCycleService;
         this.propertyValueInfoService = propertyValueInfoService;
         this.validationService = validationService;
+        this.calendarService = calendarService;
         this.metrologyConfigurationHistoryInfoFactory = metrologyConfigurationHistoryInfoFactory;
         this.usagePointTransitionInfoFactory = usagePointTransitionInfoFactory;
     }
@@ -394,6 +407,34 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Transactional
+    @Path("/{name}/availablemeterroles/{timeStamp}")
+    public Response getAvailableMeterRolesOnUsagePoint(@PathParam("name") String name, @PathParam("timeStamp") long timeStamp, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        Instant instant = Instant.ofEpochMilli(timeStamp);
+        List<UsagePointMetrologyConfiguration> configurations = usagePoint.getEffectiveMetrologyConfigurations().stream()
+                .filter(emc -> emc.isEffectiveAt(instant) || emc.getStart().isAfter(instant))
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration).collect(Collectors.toList());
+        if(!configurations.isEmpty()){
+            return Response.ok()
+                    .entity(PagedInfoList.fromCompleteList("meterRoles", configurations.stream()
+                            .flatMap(mc -> mc.getMeterRoles().stream())
+                            .distinct()
+                            .map(MeterRoleInfo::new)
+                            .collect(Collectors.toList()), queryParameters))
+                    .build();
+        } else {
+            return Response.ok()
+                    .entity(PagedInfoList.fromCompleteList("meterRoles", metrologyConfigurationService.getMeterRoles().stream()
+                            .map(MeterRoleInfo::new)
+                            .collect(Collectors.toList()), queryParameters))
+                    .build();
+        }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @Transactional
     @Path("/{name}/transitions")
     public Response getAvailableTransitions(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
@@ -415,7 +456,7 @@ public class UsagePointResource {
     public Response activateMeters(@PathParam("name") String name, UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByNameOrThrowException(name, info.version);
         Stage stage = usagePoint.getState().getStage().get();
-        if(!stage.getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey())  && !stage.getName().equals(UsagePointStage.SUSPENDED.getKey())){
+        if (!stage.getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey())  && !stage.getName().equals(UsagePointStage.SUSPENDED.getKey())) {
             throw UsagePointMeterActivationException.usagePointIncorrectStage(thesaurus);
         }
         try {
@@ -479,7 +520,7 @@ public class UsagePointResource {
             if(!createNew){
                 updateCustomPropertySetValues(usagePoint,customPropertySetInfo);
             }
-            else if (customPropertySetInfo.isVersioned && createNew){
+            else if (customPropertySetInfo.isVersioned && createNew) {
                 UsagePointVersionedPropertySet propertySet = usagePoint.forCustomProperties().getVersionedPropertySet(customPropertySetInfo.id);
                 CustomPropertySetValues existingVersion= propertySet.getValues();
 
@@ -527,19 +568,6 @@ public class UsagePointResource {
         usagePoint.getCurrentEffectiveMetrologyConfiguration().ifPresent(emc -> emc.close(emc.getStart()));
 
         return Response.ok().build();
-    }
-
-    private Set<MetrologyPurpose> getPurposesOfReadingTypeRequirements(List<ReadingTypeRequirement> requirements, UsagePointMetrologyConfiguration metrologyConfiguration) {
-        Map<MetrologyPurpose, Set<ReadingTypeRequirement>> requirementsPerMetrologyPurpose = metrologyConfiguration.getContracts().stream()
-                .collect(Collectors.toMap(MetrologyContract::getMetrologyPurpose, MetrologyContract::getRequirements));
-        return requirements.stream()
-                .map(requirement -> requirementsPerMetrologyPurpose.entrySet().stream()
-                        .filter(entry -> entry.getValue().contains(requirement))
-                        .map(Map.Entry::getKey)
-                        .findAny()
-                        .orElse(null))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
     }
 
     @GET
@@ -595,11 +623,11 @@ public class UsagePointResource {
         validateUsagePointAttributes(info, validationBuilder);
 
         if (validate) {
-            if (step.equals("generalInfo")) {
+            if ("generalInfo".equals(step)) {
                 try (TransactionContext transaction = transactionService.getContext()) {
                     usagePointInfoFactory.newUsagePointBuilder(info).validate();
                 }
-            } else if (step.equals("techInfo")) {
+            } else if ("techInfo".equals(step)) {
                 if (info.techInfo == null) {
                     throw exceptionFactory.newException(MessageSeeds.NO_SUCH_TECHNICAL_INFO, info.serviceCategory);
                 }
@@ -607,8 +635,10 @@ public class UsagePointResource {
                     info.techInfo.getUsagePointDetailBuilder(usagePointInfoFactory.newUsagePointBuilder(info)
                             .validate(), clock).validate();
                 }
-            } else if (step.equals("metrologyConfigurationWithMetersInfo")) {
+            } else if ("metrologyConfigurationWithMetersInfo".equals(step)) {
                 validateMetrologyConfiguration(info, validationBuilder);
+            } else if ("calendarTransitionInfo".equals(step)) {
+                validateCalendarConfiguration(info, validationBuilder);
             } else if (customPropertySetId > 0) {
                 RegisteredCustomPropertySet set = customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)
                         .stream()
@@ -966,7 +996,7 @@ public class UsagePointResource {
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("deliverables", deliverables, queryParameters);
     }
-    
+
     @GET
     @Path("/{name}/history/meters")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
@@ -1085,22 +1115,93 @@ public class UsagePointResource {
     }
 
     private void validateMetrologyConfiguration(UsagePointInfo info, RestValidationBuilder validationBuilder) {
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration;
         try (TransactionContext transaction = transactionService.getContext()) {
             if (info.metrologyConfiguration != null) {
                 UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
                 info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
                 resourceHelper.activateMeters(info, usagePoint);
                 checkMeterRolesActivationTime(info.metrologyConfiguration.meterRoles, usagePoint.getInstallationTime(), validationBuilder);
-                usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper.findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
+                UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper.findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
+                if (usagePointMetrologyConfiguration.requiresCalendarOnUsagePoint()) {
+                    this.addFakeCalendar(usagePoint, usagePointMetrologyConfiguration.getEventSets());
+                }
                 usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
+                resourceHelper.activateMeters(info, usagePoint);
             }
+        } catch (UsagePointManagementException ex) {
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "metrologyConfiguration", ex.getMessageArgs())).validate();
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "meterRole", ex.getMessageArgs())).validate();
         } catch (UsagePointMeterActivationException ex) {
-            if (ex instanceof UsagePointManagementException) {
-                validationBuilder.addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "metrologyConfiguration", ex.getMessageArgs())).validate();
-            }
             validationBuilder.addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "meterRole", ex.getMessageArgs())).validate();
         }
+    }
+
+    private void validateCalendarConfiguration(UsagePointInfo info, RestValidationBuilder validationBuilder){
+        try (TransactionContext transaction = transactionService.getContext()) {
+            if (info.metrologyConfiguration != null) {
+                UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
+                info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
+                checkMeterRolesActivationTime(info.metrologyConfiguration.meterRoles, usagePoint.getInstallationTime(), validationBuilder);
+                UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper.findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
+                addCalendars(info, usagePoint);
+                usagePoint.apply(usagePointMetrologyConfiguration);
+                resourceHelper.activateMeters(info, usagePoint);
+            }
+        }
+    }
+
+    private void addCalendars(UsagePointInfo info, UsagePoint usagePoint) {
+        info.calendars.forEach(calendarInfo -> {
+            Calendar calendar = calendarService.findCalendar(calendarInfo.calendar.id).orElse(null);
+            Instant start = Instant.ofEpochMilli(calendarInfo.fromTime);
+            if (calendarInfo.immediately) {
+                usagePoint.getUsedCalendars().addCalendar(calendar);
+            } else {
+                usagePoint.getUsedCalendars().addCalendar(calendar, start);
+            }
+        });
+    }
+
+    private void addFakeCalendar(UsagePoint usagePoint, List<EventSet> eventSets) {
+        eventSets
+                .stream()
+                .map(EventSet::getEvents)
+                .flatMap(Collection::stream)
+                .mapToLong(Event::getCode)
+                .findAny()
+                .ifPresent(randomEventCode -> this.addFakeCalendar(usagePoint, eventSets, randomEventCode));
+    }
+
+    private void addFakeCalendar(UsagePoint usagePoint, List<EventSet> eventSets, long randomEventCode) {
+        String fakeDayTypeName = "always";
+        String fakePeriodName = "allyear";
+        usagePoint
+                .getUsedCalendars()
+                .addCalendar(this.calendarService
+                        .newCalendar("Fake", this.getTimeOfUseCategory(), Year.now(this.clock), this.createFakeEventSet(eventSets))
+                        .description("Generated to satisfy the metrology configuration as part of validating one step of the wizzard that creates a usage point")
+                        .newDayType(fakeDayTypeName).eventWithCode(randomEventCode).startsFrom(LocalTime.MIDNIGHT).add()
+                        .addPeriod(fakePeriodName, fakeDayTypeName, fakeDayTypeName, fakeDayTypeName, fakeDayTypeName, fakeDayTypeName, fakeDayTypeName, fakeDayTypeName)
+                        .on(MonthDay.of(Month.JANUARY, 1)).transitionTo(fakePeriodName)
+                        .add());
+    }
+
+    private EventSet createFakeEventSet(List<EventSet> eventSets) {
+        CalendarService.EventSetBuilder eventSetBuilder = this.calendarService.newEventSet("Fake");
+        eventSets
+                .stream()
+                .map(EventSet::getEvents)
+                .flatMap(Collection::stream)
+                .map(Event::getCode)
+                .distinct()
+                .forEach(code -> eventSetBuilder.addEvent("fake" + code).withCode(code).add());
+        return eventSetBuilder.add();
+    }
+
+    private Category getTimeOfUseCategory() {
+        return this.calendarService
+                .findCategoryByName(OutOfTheBoxCategory.TOU.name())
+                .orElseThrow(() -> new IllegalStateException("Calendar service installer failure, time of use category is missing"));
     }
 
     private UsagePoint createUsagePointAndActivateMeters(UsagePointInfo info, RestValidationBuilder validationBuilder) {
@@ -1109,6 +1210,7 @@ public class UsagePointResource {
             UsagePointBuilder usagePointBuilder = usagePointInfoFactory.newUsagePointBuilder(info);
             usagePoint = usagePointBuilder.create();
             info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
+            addCalendars(info, usagePoint);
             resourceHelper.activateMeters(info, usagePoint);
             if (info.metrologyConfiguration != null) {
                 UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper

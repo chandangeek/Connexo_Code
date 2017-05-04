@@ -122,6 +122,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile MeteringTranslationService meteringTranslationService;
     private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private volatile PropertySpecService propertySpecService;
+    private volatile UsagePointDataModelService usagePointDataModelService;
     private volatile UserService userService;
 
     @Override
@@ -141,7 +142,9 @@ public class UsagePointApplication extends Application implements TranslationKey
                 BulkScheduleResource.class,
                 UsagePointGroupResource.class,
                 FieldResource.class,
-                FavoritesResource.class);
+                FavoritesResource.class,
+                UsagePointOutputValidationResource.class,
+                UsagePointOutputEstimationResource.class);
     }
 
     @Override
@@ -365,6 +368,11 @@ public class UsagePointApplication extends Application implements TranslationKey
     }
 
     @Reference
+    public void setUsagePointDataModelService(UsagePointDataModelService usagePointDataModelService) {
+        this.usagePointDataModelService = usagePointDataModelService;
+    }
+
+    @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
@@ -438,6 +446,9 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(EstimationTaskInfoFactory.class).to(EstimationTaskInfoFactory.class);
             bind(UsagePointTransitionInfoFactory.class).to(UsagePointTransitionInfoFactory.class);
             bind(propertySpecService).to(PropertySpecService.class);
+            bind(usagePointDataModelService).to(UsagePointDataModelService.class);
+            bind(ChannelValidationRuleInfoFactory.class).to(ChannelValidationRuleInfoFactory.class);
+            bind(ChannelEstimationRuleInfoFactory.class).to(ChannelEstimationRuleInfoFactory.class);
             bind(MetrologyConfigurationHistoryInfoFactory.class).to(MetrologyConfigurationHistoryInfoFactory.class);
             bind(userService).to(UserService.class);
         }

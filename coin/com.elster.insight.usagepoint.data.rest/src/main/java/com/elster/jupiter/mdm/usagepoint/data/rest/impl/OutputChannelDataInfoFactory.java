@@ -15,12 +15,12 @@ import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
-
 
 public class OutputChannelDataInfoFactory {
 
@@ -37,10 +37,18 @@ public class OutputChannelDataInfoFactory {
 
     public OutputChannelDataInfo createChannelDataInfo(ChannelReadingWithValidationStatus readingWithValidationStatus) {
         OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
-        outputChannelDataInfo.reportedDateTime = readingWithValidationStatus.getTimeStamp();
+        outputChannelDataInfo.reportedDateTime = readingWithValidationStatus.getReportedDateTime();
         outputChannelDataInfo.interval = IntervalInfo.from(readingWithValidationStatus.getTimePeriod());
         outputChannelDataInfo.value = readingWithValidationStatus.getValue();
-        outputChannelDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue().orElse(null);
+        if (readingWithValidationStatus.wasEdited()) {
+            outputChannelDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue();
+        } else {
+            outputChannelDataInfo.calculatedValue = null;
+        }
+        if (readingWithValidationStatus.getCalendar().isPresent()) {
+            outputChannelDataInfo.calendarName = readingWithValidationStatus.getCalendar().get().getName();
+        }
+        outputChannelDataInfo.partOfTimeOfUseGap = readingWithValidationStatus.isPartOfTimeOfUseGap();
         setValidationFields(readingWithValidationStatus, outputChannelDataInfo);
         setEditingFields(readingWithValidationStatus, outputChannelDataInfo);
         setReadingQualities(readingWithValidationStatus, outputChannelDataInfo);
@@ -93,8 +101,12 @@ public class OutputChannelDataInfoFactory {
         readingWithValidationStatus.getReadingModificationFlag().ifPresent(modificationFlag -> {
             outputChannelDataInfo.modificationFlag = modificationFlag.getFirst();
             outputChannelDataInfo.editedInApp = modificationFlag.getLast().getType().system().map(ReadingModificationFlag::getApplicationInfo).orElse(null);
-            if(modificationFlag.getLast() instanceof ReadingQualityRecord){
-                outputChannelDataInfo.modificationDate = ((ReadingQualityRecord)modificationFlag.getLast()).getTimestamp();
+            if (modificationFlag.getLast() instanceof ReadingQualityRecord) {
+                Instant timestamp = ((ReadingQualityRecord) modificationFlag.getLast()).getTimestamp();
+                outputChannelDataInfo.modificationDate = timestamp;
+                if (timestamp != null) {
+                    outputChannelDataInfo.reportedDateTime = timestamp;
+                }
             }
         });
     }
