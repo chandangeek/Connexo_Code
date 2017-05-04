@@ -22,7 +22,9 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.store.ValidationTasks',
         'Imt.purpose.store.EstimationTasks',
         'Imt.usagepointmanagement.store.Periods',
-        'Imt.purpose.store.EstimationRules'
+        'Imt.purpose.store.EstimationRules',
+        'Imt.purpose.store.OutputValidationConfiguration',
+        'Imt.purpose.store.OutputEstimationConfiguration'
     ],
 
     models: [
@@ -31,7 +33,9 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.usagepointmanagement.model.ValidationInfo',
         'Imt.usagepointmanagement.model.SuspectReason',
         'Imt.usagepointmanagement.model.Purpose',
-        'Imt.usagepointmanagement.model.UsagePoint'
+        'Imt.usagepointmanagement.model.UsagePoint',
+        'Imt.purpose.model.OutputValidationConfiguration',
+        'Imt.purpose.model.OutputEstimationConfiguration'
     ],
 
     views: [
@@ -40,7 +44,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.view.ValidationStatusForm',
         'Imt.purpose.view.ValidationDate',
         'Uni.view.window.Confirmation',
-        'Ext.ProgressBar'
+        'Ext.ProgressBar',
+        'Cfg.configuration.view.RuleWithAttributesEdit'
     ],
 
     refs: [
@@ -180,18 +185,34 @@ Ext.define('Imt.purpose.controller.Purpose', {
             purposes,
             purpose,
             outputs,
-            output;
+            output,
+            validationConfigurationStore = me.getStore('Imt.purpose.store.OutputValidationConfiguration'),
+            estimationConfigurationStore = me.getStore('Imt.purpose.store.OutputEstimationConfiguration');
 
-        if (!tab) {
+        if (!tab || (tab === 'validation' && !Imt.privileges.UsagePoint.canViewValidationConfiguration()) || (tab === 'estimation' && !Imt.privileges.UsagePoint.canViewEstimationConfiguration())) {
             window.location.replace(router.getRoute('usagepoints/view/purpose/output').buildUrl({tab: 'readings'}));
         } else {
+            validationConfigurationStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId};
+            validationConfigurationStore.load(function () {
+                displayPage();
+            });
+
+            estimationConfigurationStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId};
+            estimationConfigurationStore.load(function () {
+                displayPage();
+            });
+
             outputModel = me.getModel('Imt.purpose.model.Output');
-            dependenciesCounter = 3;
+            dependenciesCounter = 5;
             displayPage = function () {
                 var widget;
 
                 dependenciesCounter--;
                 if (!dependenciesCounter) {
+                    if ((tab === 'validation' && !validationConfigurationStore.getCount()) || (tab === 'estimation' && output.get('outputType') === 'channel' && !estimationConfigurationStore.getCount())) {
+                        window.location.replace(router.getRoute('usagepoints/view/purpose/output').buildUrl({tab: 'readings'}));
+                        return;
+                    }
                     mainView.setLoading(false);
                     app.fireEvent('outputs-loaded', outputs);
                     app.fireEvent('output-loaded', output);
@@ -206,6 +227,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
                         interval: me.getInterval(output),
                         prevNextListLink: prevNextListLink,
                         controller: me,
+                        validationConfigurationStore: validationConfigurationStore,
+                        estimationConfigurationStore: estimationConfigurationStore,
                         tab: tab
                     });
                     app.fireEvent('changecontentevent', widget);
@@ -268,6 +291,30 @@ Ext.define('Imt.purpose.controller.Purpose', {
             Uni.util.History.suspendEventsForNextCall();
             Uni.util.History.setParsePath(false);
             router.arguments.tab = 'specifications';
+            router.getRoute('usagepoints/view/purpose/output').forward();
+        }
+    },
+
+    showValidationTab: function() {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        if (router.arguments.tab != 'validation') {
+            Uni.util.History.suspendEventsForNextCall();
+            Uni.util.History.setParsePath(false);
+            router.arguments.tab = 'validation';
+            router.getRoute('usagepoints/view/purpose/output').forward();
+        }
+    },
+
+    showEstimationTab: function() {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        if (router.arguments.tab != 'estimation') {
+            Uni.util.History.suspendEventsForNextCall();
+            Uni.util.History.setParsePath(false);
+            router.arguments.tab = 'estimation';
             router.getRoute('usagepoints/view/purpose/output').forward();
         }
     },
@@ -342,6 +389,12 @@ Ext.define('Imt.purpose.controller.Purpose', {
             defaultDate: lastChecked ? new Date(lastChecked) : new Date(),
             padding: '-10 0 0 45'
         });
+        confirmationWindow.insert(1, {
+            itemId: 'validate-now-window-errors',
+            xtype: 'label',
+            margin: '0 0 10 50',
+            hidden: true
+        });
         confirmationWindow.show({
             title: Uni.I18n.translate('purpose.validateNow', 'IMT', "Validate data for '{0}' purpose on usage point '{1}'?",
                 [purpose.get('name'), usagePoint.get('name')], false),
@@ -378,7 +431,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
         } else {
             lastChecked = new Date().getTime();
         }
-
         purpose.set('validationInfo', {lastChecked: lastChecked});
         me.doOperation(purpose, usagePoint, confWindow, Uni.I18n.translate('purpose.successMsg', 'IMT', 'Data validation for the purpose is completed'), 'validate');
     },
@@ -393,8 +445,26 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 confirmation: _.once(Ext.bind(me.onEstimateNow, me, [purpose, usagePoint, getConfirmationWindow]))
             });
 
+        confirmationWindow.insert(1, {
+            xtype: 'fieldcontainer',
+            margin: '0 10 10 50',
+            flex: 1,
+            layout: 'hbox',
+            items: [
+            {
+                xtype: 'checkbox',
+                itemId: 'revalidate'
+            },
+            {
+                xtype: 'label',
+                margin: 6,
+                text: Uni.I18n.translate('purpose.revalidationEstimatedData', 'IMT', 'Re-validate estimated data')
+            }
+        ]
+        });
+
         confirmationWindow.show({
-            title: Uni.I18n.translate('purpose.estimateNow', 'IMT', "Estimate data for '{0}' purpose on usage point '{1}'?",
+            title: Uni.I18n.translate('purpose.estimateData', 'IMT', "Estimate data of '{0}' purpose on usage point '{1}'?",
                 [purpose.get('name'), usagePoint.get('name')], false),
             icon: 'icon-question4'
         });
@@ -407,7 +477,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
     onEstimateNow: function (purpose, usagePoint, getConfirmationWindow) {
         var me = this,
             confirmationWindow = getConfirmationWindow(),
-            progressbar = confirmationWindow.insert(1, {
+            progressbar = confirmationWindow.insert(2, {
                 xtype: 'progressbar',
                 itemId: 'estimation-progressbar',
                 margin: '5 0 15 0'
@@ -420,7 +490,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 msg: Uni.I18n.translate('purpose.dataEstimation.timeout.message', 'IMT', 'Data estimation takes longer than expected and will continue in the background.')
             }])
         });
-
+        purpose.set('revalidate', confirmationWindow.down('#revalidate').getValue());
         me.doOperation(purpose, usagePoint, confirmationWindow, Uni.I18n.translate('purpose.dataEstimation.successMsg', 'IMT', 'Data estimation for the purpose is completed'), 'estimate');
     },
 
@@ -451,20 +521,100 @@ Ext.define('Imt.purpose.controller.Purpose', {
     doOperation: function (purpose, usagePoint, confirmationWindow, successMessage, action) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            formErrorsPanel = confirmationWindow.down('#validate-now-window-errors'),
+            progressbar = confirmationWindow.down('progressbar'),
             purposePage = me.getPurposePage();
 
         purpose[action](usagePoint, {
             isNotEdit: true,
             notHandleTimeout: true,
             callback: function (options, success, response) {
-                if (response.status) {
+                if (response.status && success) {
                     confirmationWindow.close();
                 }
                 if (purposePage.rendered && success) {
                     me.getApplication().fireEvent('acknowledge', successMessage);
                     router.getRoute().forward(null, Ext.Object.fromQueryString(router.getQueryString()));
                 }
+                if(!success){
+                    if(formErrorsPanel){
+                        var responseText = Ext.decode(response.responseText, true);
+                        Ext.suspendLayouts();
+                        formErrorsPanel.setText('<div style="color: #EB5642">' + responseText.errors[0].msg + '</div>', false);
+                        formErrorsPanel.show();
+                        progressbar.reset(true);
+                        Ext.resumeLayouts(true);
+                    }
+                }
             }
         });
+    },
+
+    showEditValidationRuleWithAttributes: function() {
+        this.showEditRuleWithAttributes('validation');
+    },
+
+    showEditEstimationRuleWithAttributes: function() {
+        this.showEditRuleWithAttributes('estimation');
+    },
+
+    showEditRuleWithAttributes: function(type) {
+        var me = this,
+            app = me.getApplication(),
+            router = me.getController('Uni.controller.history.Router'),
+            usagePointId = router.arguments.usagePointId,
+            purposeId = router.arguments.purposeId,
+            outputId = router.arguments.outputId,
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            usagePointsController = me.getController('Imt.usagepointmanagement.controller.View'),
+            dependenciesCounter = 3,
+            outputModel = me.getModel('Imt.purpose.model.Output'),
+            ruleWithAttributesModel = type === 'validation' ? me.getModel('Imt.purpose.model.OutputValidationConfiguration') : me.getModel('Imt.purpose.model.OutputEstimationConfiguration'),
+            form,
+            output,
+            rule,
+            widget;
+
+        mainView.setLoading();
+        outputModel.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
+        ruleWithAttributesModel.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId, outputId: outputId};
+
+        usagePointsController.loadUsagePoint(usagePointId, {
+            success: function () {
+                displayPage();
+            }
+        });
+        outputModel.load(outputId, {
+            success: function (record) {
+                output = record;
+                displayPage();
+            }
+        });
+        ruleWithAttributesModel.load(router.arguments.ruleId, {
+            success: function (record) {
+                rule = record;
+                displayPage();
+            }
+        });
+
+        function displayPage() {
+            dependenciesCounter--;
+            if (!dependenciesCounter) {
+                mainView.setLoading(false);
+                app.fireEvent('output-loaded', output);
+                widget = Ext.widget('rule-with-attributes-edit', {
+                    itemId: 'rule-with-attributes-edit-' + type,
+                    type: type,
+                    route: router.getRoute('usagepoints/view/purpose/output'),
+                    application: me.getApplication()
+                });
+                form = widget.down('#rule-with-attributes-edit-form');
+                form.loadRecord(rule);
+                form.setTitle(Ext.String.format("{0} '{1}'", Uni.I18n.translate('general.editAttributesFor', 'IMT', 'Edit attributes for'), rule.get('name')));
+                form.down('property-form').loadRecord(rule);
+                app.fireEvent('rule-with-attributes-loaded', rule);
+                app.fireEvent('changecontentevent', widget);
+            }
+        }
     }
 });
