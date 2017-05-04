@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.devtools.rest;
 
+import aQute.lib.strings.Strings;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -35,6 +36,9 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import javax.validation.MessageInterpolator;
 import javax.ws.rs.DELETE;
@@ -46,10 +50,6 @@ import javax.ws.rs.core.Application;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import static java.util.stream.Collectors.toList;
 import static junit.framework.Assert.fail;
@@ -120,6 +120,8 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
         when(thesaurus.getFormat(any(TranslationKey.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((TranslationKey) invocation.getArguments()[0]));
         when(thesaurus.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
+        when(thesaurus.getSimpleFormat(any(MessageSeed.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
         when(thesaurus.interpolate(any(String.class), any(MessageInterpolator.Context.class))).thenAnswer(invocation -> getTranslationByKey(((String) invocation.getArguments()[0]).substring(1, ((String) invocation.getArguments()[0]).length()-1), "xxx"));
         when(thesaurus.join(any())).thenReturn(thesaurus);
