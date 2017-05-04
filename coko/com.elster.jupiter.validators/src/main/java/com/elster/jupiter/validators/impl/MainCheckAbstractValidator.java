@@ -41,6 +41,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -158,7 +159,8 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
         if (checkReadingValidationResult != ValidationResult.VALID) {
             // show log
             if (useValidatedData) {
-                logFailure(InitCancelReason.REFERENCE_OUPUT_MISSING_OR_NOT_VALID.getProps().withReadingType(readingType));
+                logFailure(InitCancelReason.REFERENCE_OUPUT_MISSING_OR_NOT_VALID.getProps()
+                        .withReadingType(readingType));
                 // [RULE ACTION] Stop the validation at the timestamp where the timestamp with the last validated reference data was found for the channel if Use validated data is checked
                 prepareValidationResult(ValidationResult.NOT_VALIDATED, timeStamp);
                 return ValidationResult.NOT_VALIDATED;
@@ -171,7 +173,8 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
         ComparingValues comparingValues = calculateComparingValues(mainReading, checkReading);
 
         if (!minThreshold.isNone()) {
-            if (comparingValues.mainValue.compareTo(minThreshold.getValue()) <= 0 && comparingValues.checkValue.compareTo(minThreshold.getValue()) <= 0) {
+            if (comparingValues.mainValue.compareTo(minThreshold.getValue()) <= 0 && comparingValues.checkValue.compareTo(minThreshold
+                    .getValue()) <= 0) {
                 // [RULE FLOW ACTION] the check for the interval is marked valid and the validation moves to the next interval.
                 return ValidationResult.VALID;
             }
@@ -183,7 +186,8 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
         if (TwoValuesDifference.Type.ABSOLUTE == maxAbsoluteDifference.getType()) {
             differenceValue = maxAbsoluteDifference.getValue();
         } else if (TwoValuesDifference.Type.RELATIVE == maxAbsoluteDifference.getType()) {
-            differenceValue = comparingValues.mainValue.multiply(maxAbsoluteDifference.getValue()).multiply(new BigDecimal(0.01));
+            differenceValue = comparingValues.mainValue.multiply(maxAbsoluteDifference.getValue())
+                    .multiply(new BigDecimal(0.01));
         } else {
             return ValidationResult.NOT_VALIDATED;
         }
@@ -205,11 +209,12 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
 
     void initValidatingPurpose() {
         // find validating purpose
-            if (validatingChannel.getChannelsContainer() instanceof MetrologyContractChannelsContainer){
-                validatingPurpose = ((MetrologyContractChannelsContainer)validatingChannel.getChannelsContainer()).getMetrologyContract().getMetrologyPurpose();
-            } else {
-                throw new IllegalStateException("Validating channels container is not instance of MetrologyContractChannelsContainer");
-            }
+        if (validatingChannel.getChannelsContainer() instanceof MetrologyContractChannelsContainer) {
+            validatingPurpose = ((MetrologyContractChannelsContainer) validatingChannel.getChannelsContainer()).getMetrologyContract()
+                    .getMetrologyPurpose();
+        } else {
+            throw new IllegalStateException("Validating channels container is not instance of MetrologyContractChannelsContainer");
+        }
     }
 
     void initCheckData(UsagePoint referenceUsagePoint, ReadingType referenceReadingType) throws
@@ -257,12 +262,17 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
                         .collect(Collectors.toMap(IntervalReadingRecord::getTimeStamp, Function.identity()));
 
                 // 4. get validation statuses for check channel
+                if (checkReadingRecords.isEmpty()) {
+                    checkReadingRecordValidations = Collections.EMPTY_MAP;
+                } else {
 
-                ValidationEvaluator evaluator = validationService.getEvaluator();
-                checkReadingRecordValidations = evaluator.getValidationStatus(getSupportedQualityCodeSystems(), checkChannel
-                        .get(), checkChannelIntervalReadings)
-                        .stream()
-                        .collect(Collectors.toMap(DataValidationStatus::getReadingTimestamp, DataValidationStatus::getValidationResult));
+
+                    ValidationEvaluator evaluator = validationService.getEvaluator();
+                    checkReadingRecordValidations = evaluator.getValidationStatus(getSupportedQualityCodeSystems(), checkChannel
+                            .get(), checkChannelIntervalReadings)
+                            .stream()
+                            .collect(Collectors.toMap(DataValidationStatus::getReadingTimestamp, DataValidationStatus::getValidationResult));
+                }
             }
         } else {
             // this means that purpose is not active on a usagepoint
@@ -516,7 +526,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
                 return new InitCancelProps(REFERENCE_OUTPUT_DOES_NOT_EXIST);
             }
         },
-        REFERENCE_OUPUT_MISSING_OR_NOT_VALID{
+        REFERENCE_OUPUT_MISSING_OR_NOT_VALID {
             @Override
             InitCancelProps getProps() {
                 return new InitCancelProps(REFERENCE_OUPUT_MISSING_OR_NOT_VALID);
@@ -553,7 +563,7 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
         }
     }
 
-    protected ComparingValues calculateComparingValues(IntervalReadingRecord mainReading, IntervalReadingRecord checkReading){
+    protected ComparingValues calculateComparingValues(IntervalReadingRecord mainReading, IntervalReadingRecord checkReading) {
         return new ComparingValues(mainReading.getValue(), checkReading.getValue());
     }
 }
