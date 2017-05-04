@@ -459,11 +459,13 @@ public class UsagePointOutputResource {
                             } else {
                                 deliverables = contract.getDeliverables().stream()
                                         .filter(deliverable -> deliverable.getReadingType().isRegular())
+                                        .filter(deliverable -> !deliverable.getReadingType().isCumulative())
                                         .collect(Collectors.toList());
                             }
                         } else {
                             deliverables = contract.getDeliverables().stream()
                                     .filter(deliverable -> deliverable.getReadingType().isRegular())
+                                    .filter(deliverable -> !deliverable.getReadingType().isCumulative())
                                     .collect(Collectors.toList());
                         }
                         if (filter.hasProperty("unit")) {
