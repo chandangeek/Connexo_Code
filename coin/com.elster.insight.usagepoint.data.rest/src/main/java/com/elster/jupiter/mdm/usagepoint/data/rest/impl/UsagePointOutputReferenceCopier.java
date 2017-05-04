@@ -100,8 +100,8 @@ public class UsagePointOutputReferenceCopier {
             Map<Instant, ReadingQualityRecord> referenceReadingQualities = referenceChannel.findReadingQualities()
                     .inTimeInterval(Ranges.copy(referenceRange.intersection(effectiveMetrologyConfigurationOnUsagePoint.getRange())).asOpenClosed()).stream()
                     .filter(ReadingQualityRecord::isSuspect)
-                    .filter(readingTimeStamps::contains)
-                    .collect(Collectors.toMap(ReadingQualityRecord::getTimestamp, Function.identity(), (a, b) -> a));
+                    .filter(readingQualityRecord -> readingTimeStamps.contains(readingQualityRecord.getReadingTimestamp()))
+                    .collect(Collectors.toMap(ReadingQualityRecord::getReadingTimestamp, Function.identity(), (a, b) -> a));
 
             correctedRanges.entrySet().stream().filter(e -> effectiveMetrologyConfigurationOnUsagePoint.overlaps(e.getValue())).forEach(range -> {
                 Optional<IntervalReadingRecord> referenceRecord = Optional.ofNullable(referenceRecords.get(range.getValue().upperEndpoint()));
@@ -133,7 +133,7 @@ public class UsagePointOutputReferenceCopier {
         }
         channelDataInfo.isProjected = referenceChannelDataInfo.projectedValue;
         channelDataInfo.interval = IntervalInfo.from(sourceInterval);
-        if (referenceChannelDataInfo.allowSuspectData || !Optional.ofNullable(referenceReadingQualities.get(sourceInterval.upperEndpoint()))
+        if (referenceChannelDataInfo.allowSuspectData || !Optional.ofNullable(referenceReadingQualities.get(referenceReading.getTimeStamp()))
                 .filter(ReadingQualityRecord::isSuspect)
                 .isPresent()) {
             resultReadings.add(channelDataInfo);
@@ -150,7 +150,7 @@ public class UsagePointOutputReferenceCopier {
                         ? resourceHelper.getReadingQualityComment(referenceChannelDataInfo.commentId)
                         : Optional.empty());
         channelDataInfo.isProjected = referenceChannelDataInfo.projectedValue;
-        if (referenceChannelDataInfo.allowSuspectData || !Optional.ofNullable(referenceReadingQualities.get(sourceRecord.getTimeStamp()))
+        if (referenceChannelDataInfo.allowSuspectData || !Optional.ofNullable(referenceReadingQualities.get(referenceReading.getTimeStamp()))
                 .filter(ReadingQualityRecord::isSuspect)
                 .isPresent()) {
             resultReadings.add(channelDataInfo);
