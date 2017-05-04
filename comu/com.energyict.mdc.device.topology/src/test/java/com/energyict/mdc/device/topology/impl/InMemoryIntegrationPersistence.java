@@ -72,11 +72,12 @@ import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.device.topology.impl.multielement.MultiElementDeviceModule;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -86,6 +87,7 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
@@ -94,7 +96,6 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -147,6 +148,7 @@ public class InMemoryIntegrationPersistence {
     private TaskService taskService;
     private DeviceDataModelService deviceDataModelService;
     private ServerTopologyService topologyService;
+    private MultiElementDeviceService multiElementDeviceService;
     private SchedulingService schedulingService;
     private InMemoryBootstrapModule bootstrapModule;
     private PropertySpecService propertySpecService;
@@ -261,7 +263,6 @@ public class InMemoryIntegrationPersistence {
                 new FiniteStateMachineModule(),
                 new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
-                new MdcIOModule(),
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
                 new TaskModule(),
@@ -269,7 +270,8 @@ public class InMemoryIntegrationPersistence {
                 new DeviceDataModule(),
                 new SchedulingModule(),
                 new TopologyModule(),
-                new CalendarModule());
+                new CalendarModule(),
+                new MultiElementDeviceModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
@@ -298,6 +300,7 @@ public class InMemoryIntegrationPersistence {
             this.schedulingService = injector.getInstance(SchedulingService.class);
             this.deviceDataModelService = injector.getInstance(DeviceDataModelService.class);
             this.topologyService = injector.getInstance(ServerTopologyService.class);
+            this.multiElementDeviceService = injector.getInstance(MultiElementDeviceService.class);
             this.deviceMessageSpecificationService = injector.getInstance(DeviceMessageSpecificationService.class);
             this.propertySpecService = injector.getInstance(PropertySpecService.class);
             this.userService = injector.getInstance(UserService.class);
@@ -377,6 +380,10 @@ public class InMemoryIntegrationPersistence {
         return this.topologyService;
     }
 
+    public MultiElementDeviceService getMultiElementDeviceService(){
+        return this.multiElementDeviceService;
+    }
+
     public SchedulingService getSchedulingService() {
         return schedulingService;
     }
@@ -387,6 +394,10 @@ public class InMemoryIntegrationPersistence {
 
     public DataModel getTopologyDataModel() {
         return this.topologyService.dataModel();
+    }
+
+    public DataModel getMultiEditServiceDataModel() {
+        return topologyService.dataModel();
     }
 
     public Thesaurus getThesaurus() {
@@ -455,11 +466,14 @@ public class InMemoryIntegrationPersistence {
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
         }
     }
 
     public User getMockedUser(){
-        return (User) this.principal;
+        return this.principal;
     }
 
     public UserService getUserService() {

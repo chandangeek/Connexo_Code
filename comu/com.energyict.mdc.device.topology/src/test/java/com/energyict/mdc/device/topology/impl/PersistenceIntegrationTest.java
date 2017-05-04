@@ -10,8 +10,6 @@ import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -22,19 +20,22 @@ import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 
@@ -60,15 +61,22 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public abstract class PersistenceIntegrationTest {
 
+    protected static final String MRID = "MyUniqueMRID";
+    protected static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
     static final String DEVICE_TYPE_NAME = PersistenceIntegrationTest.class.getName() + "Type";
     static final String DATA_LOGGER_ENABLED_DEVICE_TYPE_NAME = "DataLoggerEnabledType";
     static final String DATA_LOGGER_DEVICE_TYPE = "DataLoggerType";
     static final String DEVICE_CONFIGURATION_NAME = PersistenceIntegrationTest.class.getName() + "Config";
     static final String DATA_LOGGER_ENABLED_DEVICE_CONFIGURATION_NAME = "DataLoggerConfig";
     static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
-    protected static final String MRID = "MyUniqueMRID";
-
-    protected static final TimeZone utcTimeZone = TimeZone.getTimeZone("UTC");
+    protected static Clock clock = mock(Clock.class);
+    protected static InMemoryIntegrationPersistence inMemoryPersistence;
+    @Rule
+    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
+    @Rule
+    public TestRule expectedErrorRule = new ExpectedExceptionRule();
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
     protected DeviceType deviceType;
     protected DeviceType dataLoggerEnabledDeviceType;
     protected DeviceType dataLoggerSlaveDeviceType;
@@ -76,25 +84,13 @@ public abstract class PersistenceIntegrationTest {
     protected DeviceConfiguration dataLoggerEnabledDeviceConfiguration;
     protected DeviceConfiguration dataLoggerSlaveDeviceConfiguration;
     protected SecurityPropertySet securityPropertySet;
-
-    @Rule
-    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
-    @Rule
-    public TestRule expectedErrorRule = new ExpectedExceptionRule();
-    @Rule
-    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
-
+    @Mock
+    protected DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    List<DeviceMessageSpec> deviceMessageSpecs;
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
-    protected DeviceProtocolPluggableClass deviceProtocolPluggableClass;
-    @Mock
     private DeviceProtocol deviceProtocol;
-
-    protected static Clock clock = mock(Clock.class);
-    protected static InMemoryIntegrationPersistence inMemoryPersistence;
-
-    EnumSet<DeviceMessageId> deviceMessageIds;
 
     @BeforeClass
     public static void initialize() throws SQLException {
@@ -112,22 +108,42 @@ public abstract class PersistenceIntegrationTest {
         return inMemoryPersistence.getTransactionService();
     }
 
+    private static void initializeClock() {
+        when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
+        when(clock.instant()).thenAnswer(invocationOnMock -> Instant.now());
+    }
+
     @Before
     public void initializeMocks() {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        deviceMessageIds = EnumSet.of(DeviceMessageId.CONTACTOR_CLOSE,
-                DeviceMessageId.CONTACTOR_OPEN,
-                DeviceMessageId.CONTACTOR_ARM,
-                DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT,
-                DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE,
-                DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS);
-        when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
-        AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
+
+        deviceMessageSpecs = new ArrayList<>();
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec0 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec0.getId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
+        deviceMessageSpecs.add(deviceMessageSpec0);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
+        deviceMessageSpecs.add(deviceMessageSpec1);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec2 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec2.getId()).thenReturn(DeviceMessageId.CONTACTOR_ARM.dbValue());
+        deviceMessageSpecs.add(deviceMessageSpec2);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec3 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec3.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT.dbValue());
+        deviceMessageSpecs.add(deviceMessageSpec3);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec4 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec4.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.dbValue());
+        deviceMessageSpecs.add(deviceMessageSpec4);
+        com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec5 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
+        when(deviceMessageSpec5.getId()).thenReturn(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS.dbValue());
+        deviceMessageSpecs.add(deviceMessageSpec5);
+
+        when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageSpecs);
+        com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class);
         int anySecurityLevel = 0;
         when(authenticationAccessLevel.getId()).thenReturn(anySecurityLevel);
         when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.singletonList(authenticationAccessLevel));
-        EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
+        com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel encryptionAccessLevel = mock(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(anySecurityLevel);
         when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encryptionAccessLevel));
         when(this.deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
@@ -146,7 +162,11 @@ public abstract class PersistenceIntegrationTest {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfigurationBuilder.isDirectlyAddressable(true);
         deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceMessageIds.stream().forEach(deviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageSpecs
+                .stream()
+                .map(DeviceMessageSpec::getId)
+                .map(DeviceMessageId::havingId)
+                .forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
 
         DeviceType.DeviceConfigurationBuilder dataLoggerEnabledDeviceConfigurationBuilder = dataLoggerEnabledDeviceType.newConfiguration(DATA_LOGGER_ENABLED_DEVICE_CONFIGURATION_NAME);
@@ -154,7 +174,11 @@ public abstract class PersistenceIntegrationTest {
         dataLoggerEnabledDeviceConfigurationBuilder.dataloggerEnabled(true);
 
         dataLoggerEnabledDeviceConfiguration = dataLoggerEnabledDeviceConfigurationBuilder.add();
-        deviceMessageIds.stream().forEach(dataLoggerEnabledDeviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageSpecs
+                .stream()
+                .map(DeviceMessageSpec::getId)
+                .map(DeviceMessageId::havingId)
+                .forEach(dataLoggerEnabledDeviceConfiguration::createDeviceMessageEnablement);
         ReadingType activeEnergy = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.1.8.0.255"), Unit.get("kWh"));
         RegisterType registerType1 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(activeEnergy).get();
         ReadingType reactiveEnergy = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.2.8.0.255"), Unit.get("kWh"));
@@ -169,7 +193,11 @@ public abstract class PersistenceIntegrationTest {
         dataLoggerSlaveDeviceConfigurationBuilder.isDirectlyAddressable(true);
         dataLoggerSlaveDeviceConfiguration = dataLoggerSlaveDeviceConfigurationBuilder.add();
         dataLoggerSlaveDeviceType.addRegisterType(registerType1);
-        deviceMessageIds.stream().forEach(dataLoggerSlaveDeviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageSpecs
+                .stream()
+                .map(DeviceMessageSpec::getId)
+                .map(DeviceMessageId::havingId)
+                .forEach(dataLoggerSlaveDeviceConfiguration::createDeviceMessageEnablement);
         dataLoggerSlaveDeviceConfiguration.createNumericalRegisterSpec(registerType1).overflowValue(BigDecimal.valueOf(1000L)).numberOfFractionDigits(0).add();
         dataLoggerSlaveDeviceConfiguration.activate();
 
@@ -183,20 +211,15 @@ public abstract class PersistenceIntegrationTest {
     }
 
     @After
-    public void resetClock () {
+    public void resetClock() {
         initializeClock();
-    }
-
-    private static void initializeClock() {
-        when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
-        when(clock.instant()).thenAnswer(invocationOnMock -> Instant.now());
     }
 
     protected Device createSimpleDevice() {
         return createSimpleDeviceWithName(this.getClass().getSimpleName());
     }
 
-    protected Device createSimpleDeviceWithName(String name, String mRID){
+    protected Device createSimpleDeviceWithName(String name, String mRID) {
         return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID, Instant.now());
     }
 
@@ -204,11 +227,11 @@ public abstract class PersistenceIntegrationTest {
         return createSimpleDeviceWithName(name, "SimpleMrId");
     }
 
-    protected Device createSlaveDevice(String name){
+    protected Device createSlaveDevice(String name) {
         return inMemoryPersistence.getDeviceService().newDevice(dataLoggerSlaveDeviceConfiguration, name, name + "MrId", clock.instant());
     }
 
-    protected Device createDataLoggerDevice(String name){
+    protected Device createDataLoggerDevice(String name) {
         return inMemoryPersistence.getDeviceService().newDevice(dataLoggerEnabledDeviceConfiguration, name, name + "MrId", clock.instant());
     }
 

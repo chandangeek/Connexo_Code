@@ -8,16 +8,20 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.topology.PhysicalGatewayReference;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 
 import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
@@ -109,7 +113,11 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         dataLoggerConfiguration.createChannelSpec(lpt2.findChannelType(registerTypeForChannel5).get(), loadProfileSpec2).interval(TimeDuration.minutes(15)).overflow(new BigDecimal(1000000L)).add();
         dataLoggerConfiguration.createChannelSpec(lpt2.findChannelType(registerTypeForChannel6).get(), loadProfileSpec2).interval(TimeDuration.minutes(15)).overflow(new BigDecimal(1000000L)).add();
 
-        deviceMessageIds.stream().forEach(dataLoggerConfiguration::createDeviceMessageEnablement);
+        deviceMessageSpecs
+                .stream()
+                .map(DeviceMessageSpec::getId)
+                .map(DeviceMessageId::havingId)
+                .forEach(dataLoggerConfiguration::createDeviceMessageEnablement);
         dataLoggerConfiguration.activate();
     }
 
@@ -148,7 +156,11 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         slave1DeviceConfiguration.createChannelSpec(lpt.findChannelType(registerTypeForChannel2).get(), lpSpec).overflow(new BigDecimal(1000000L)).add();
         slave1DeviceConfiguration.createChannelSpec(lpt.findChannelType(registerTypeForChannel3).get(), lpSpec).overflow(new BigDecimal(1000000L)).add();
 
-        deviceMessageIds.stream().forEach(slave1DeviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageSpecs
+                .stream()
+                .map(DeviceMessageSpec::getId)
+                .map(DeviceMessageId::havingId)
+                .forEach(slave1DeviceConfiguration::createDeviceMessageEnablement);
         slave1DeviceConfiguration.activate();
 
     }
@@ -179,7 +191,11 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
 
         slave2DeviceConfiguration.createChannelSpec(lpt.findChannelType(registerTypeForChannel1).get(), lpSpec).overflow(new BigDecimal(1000000L)).add();
 
-        deviceMessageIds.stream().forEach(slave2DeviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageSpecs
+                .stream()
+                .map(DeviceMessageSpec::getId)
+                .map(DeviceMessageId::havingId)
+                .forEach(slave2DeviceConfiguration::createDeviceMessageEnablement);
         slave2DeviceConfiguration.activate();
     }
 
@@ -529,11 +545,13 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         channelMapping1.put(slave1.getChannels().get(2), dataLogger.getChannels().get(2));
         HashMap<Register, Register> registerMapping1 = new HashMap<>();
         inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, linkingDate, channelMapping1, registerMapping1);
+        assertThat(inMemoryPersistence.getTopologyService().dataModel().query(PhysicalGatewayReference.class).select(Condition.TRUE)).hasSize(1);
 
         HashMap<Channel, Channel> channelMapping2 = new HashMap<>();
         channelMapping2.put(slave2.getChannels().get(0), dataLogger.getChannels().get(4));
         HashMap<Register, Register> registerMapping2 = new HashMap<>();
         inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, linkingDate, channelMapping2, registerMapping2);
+        assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE)).hasSize(2);
 
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isTrue();
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(4))).isTrue();

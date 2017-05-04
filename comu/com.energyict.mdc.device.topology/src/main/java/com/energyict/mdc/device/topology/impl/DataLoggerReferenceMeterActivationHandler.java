@@ -11,9 +11,10 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.topology.ChannelProvider;
 import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
-import com.energyict.mdc.device.topology.DataLoggerReference;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -26,19 +27,22 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.device.topology.impl.DataLoggerReferenceMeterActivationHandler", service = TopicHandler.class, immediate = true)
+@SuppressWarnings("unused")
 public class DataLoggerReferenceMeterActivationHandler implements TopicHandler {
 
     private static final String TOPIC = "com/energyict/mdc/device/data/meteractivation/RESTARTED";
 
     private volatile TopologyService topologyService;
+    private volatile MultiElementDeviceService multiElementDeviceService;
 
     public DataLoggerReferenceMeterActivationHandler() {
     }
 
     @Inject
-    public DataLoggerReferenceMeterActivationHandler(TopologyService topologyService) {
+    public DataLoggerReferenceMeterActivationHandler(TopologyService topologyService, MultiElementDeviceService multiElementDeviceService) {
         this();
         this.topologyService = topologyService;
+        this.multiElementDeviceService = multiElementDeviceService;
     }
 
     @Reference
@@ -46,27 +50,41 @@ public class DataLoggerReferenceMeterActivationHandler implements TopicHandler {
         this.topologyService = topologyService;
     }
 
+    @Reference
+    public void setMultiElementDeviceService(MultiElementDeviceService multiElementDeviceService) {
+        this.multiElementDeviceService = multiElementDeviceService;
+    }
+
     @Override
     public void handle(LocalEvent localEvent) {
         Device device = (Device) localEvent.getSource();
         device.getCurrentMeterActivation().ifPresent(currentMeterActivation -> {
-
             //Do it for the case where it is the dataLogger
             List<Device> dataLoggerSlaves = topologyService.findDataLoggerSlaves(device);
             dataLoggerSlaves.forEach(slave -> topologyService.findLastDataloggerReference(slave)
-                    .ifPresent(dataLoggerReference -> createNewDataLoggerReferenceIfApplicable(dataLoggerReference, currentMeterActivation, SourceDeviceType.DATALOGGER)));
+                    .ifPresent(dataLoggerReference -> createNewDataLoggerReferenceIfApplicable(dataLoggerReference, currentMeterActivation, SourceDeviceType.GATEWAY)));
 
             //Do it for the case where it is a slave
             topologyService.findDataloggerReference(device, currentMeterActivation.getStart())
                     .ifPresent(dataLoggerReference -> createNewDataLoggerReferenceIfApplicable(dataLoggerReference, currentMeterActivation, SourceDeviceType.SLAVE));
+
+            //Do it for the case where it is the multi-element device
+            List<Device> multiElementdataLoggerSlaves = multiElementDeviceService.findMultiElementSlaves(device);
+            multiElementdataLoggerSlaves.forEach(slave -> multiElementDeviceService.findLastReference(slave)
+                    .ifPresent(multiElementDeviceReference -> createNewDataLoggerReferenceIfApplicable(multiElementDeviceReference, currentMeterActivation, SourceDeviceType.GATEWAY)));
+
+            //Do it for the case where it is a (multi-element) slave
+            multiElementDeviceService.findMultiElementDeviceReference(device, currentMeterActivation.getStart())
+                    .ifPresent(multiElementDeviceReference -> createNewDataLoggerReferenceIfApplicable(multiElementDeviceReference, currentMeterActivation, SourceDeviceType.SLAVE));
+
         });
     }
 
-    private void createNewDataLoggerReferenceIfApplicable(DataLoggerReference dataLoggerReference, MeterActivation currentMeterActivation, SourceDeviceType deviceType) {
-        if (!dataLoggerReference.isTerminated()) {
+    private void createNewDataLoggerReferenceIfApplicable(ChannelProvider gatewayReference, MeterActivation currentMeterActivation, SourceDeviceType deviceType) {
+        if (!gatewayReference.isTerminated()) {
             Map<Channel, Channel> channelMap = new HashMap<>();
             Map<Register, Register> registerMap = new HashMap<>();
-            dataLoggerReference
+            gatewayReference
                 .getDataLoggerChannelUsages()
                 .forEach(dataLoggerChannelUsage ->
                     currentMeterActivation
@@ -81,20 +99,32 @@ public class DataLoggerReferenceMeterActivationHandler implements TopicHandler {
                         .findAny()
                         .ifPresent(newChannel ->
                                 mapToProperMdcChannelsAndRegisters(
-                                        dataLoggerReference.getGateway(),
-                                        dataLoggerReference.getOrigin(),
+                                        gatewayReference.getGateway(),
+                                        gatewayReference.getOrigin(),
                                         channelMap,
                                         registerMap,
                                         dataLoggerChannelUsage,
                                         newChannel,
                                         deviceType)));
-            topologyService.clearDataLogger(dataLoggerReference.getOrigin(), currentMeterActivation.getStart());
-            topologyService.setDataLogger(
-                    dataLoggerReference.getOrigin(),
-                    dataLoggerReference.getGateway(),
-                    currentMeterActivation.getStart(),
-                    channelMap,
-                    registerMap);
+
+            if (gatewayReference.getOrigin().getDeviceType().isDataloggerSlave()) {
+                topologyService.clearDataLogger(gatewayReference.getOrigin(), currentMeterActivation.getStart());
+                topologyService.setDataLogger(
+                        gatewayReference.getOrigin(),
+                        gatewayReference.getGateway(),
+                        currentMeterActivation.getStart(),
+                        channelMap,
+                        registerMap);
+            }
+            if (gatewayReference.getOrigin().getDeviceType().isMultiElementSlave()) {
+                multiElementDeviceService.removeSlave(gatewayReference.getOrigin(), currentMeterActivation.getStart());
+                multiElementDeviceService.addSlave(
+                        gatewayReference.getOrigin(),
+                        gatewayReference.getGateway(),
+                        currentMeterActivation.getStart(),
+                        channelMap,
+                        registerMap);
+            }
         }
     }
 
@@ -133,7 +163,7 @@ public class DataLoggerReferenceMeterActivationHandler implements TopicHandler {
      * is a data logger or a slave device.
      */
     private enum SourceDeviceType {
-        DATALOGGER {
+        GATEWAY {
             @Override
             List<? extends ReadingType> getReadingTypes(DataLoggerChannelUsage dataLoggerChannelUsage) {
                 return dataLoggerChannelUsage.getDataLoggerChannel().getReadingTypes();
