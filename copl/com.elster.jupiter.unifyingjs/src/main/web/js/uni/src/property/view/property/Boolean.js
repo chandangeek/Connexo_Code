@@ -6,18 +6,22 @@ Ext.define('Uni.property.view.property.Boolean', {
     extend: 'Uni.property.view.property.Base',
 
     getEditCmp: function () {
-        var me = this;
+        var me = this,
+            checkbox = {
+                xtype: 'checkbox',
+                name: this.getName(),
+                itemId: me.key + 'checkbox',
+                cls: 'check',
+                msgTarget: 'under',
+                readOnly: me.isReadOnly,
+                boxLabel: me.boxLabel ? me.boxLabel : ''
+            },
+            property = me.getProperty();
 
-        return {
-            xtype: 'checkbox',
-            name: this.getName(),
-            itemId: me.key + 'checkbox',
-            width: me.width,
-            cls: 'check',
-            msgTarget: 'under',
-            readOnly: me.isReadOnly,
-            boxLabel: me.boxLabel ? me.boxLabel : ''
-        };
+        if (!(property.get('overridden') || property.get('canBeOverridden'))) {
+            checkbox.width = me.width;
+        }
+        return checkbox;
     },
 
     getField: function () {
@@ -32,8 +36,13 @@ Ext.define('Uni.property.view.property.Boolean', {
     },
 
     getDisplayCmp: function () {
-        var displayCmp = this.callParent();
-        displayCmp.width = this.width;
+        var me = this,
+            property = me.getProperty(),
+            displayCmp = me.callParent();
+
+        if (!(property.get('overridden') || property.get('canBeOverridden'))) {
+            displayCmp.width = me.width;
+        }
         displayCmp.msgTarget = 'under';
         return displayCmp;
     },

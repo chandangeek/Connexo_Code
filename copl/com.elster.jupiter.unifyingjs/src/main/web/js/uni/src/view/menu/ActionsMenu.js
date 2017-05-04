@@ -11,6 +11,7 @@ Ext.define('Uni.view.menu.ActionsMenu', {
     minWidth: 20,
     defaultAlign: 'tr-br?',
     items: [],
+    noSort: false,
 
     SECTION_ACTION: 1,
     SECTION_EDIT: 2,
@@ -19,7 +20,9 @@ Ext.define('Uni.view.menu.ActionsMenu', {
 
     initComponent: function() {
         var me = this;
-        me.sortMenuItems();
+        if (!me.noSort) {
+            me.sortMenuItems();
+        }
         me.callParent(arguments);
         me.mon(me, 'beforeshow', me.onBeforeShow, me);
     },
@@ -83,6 +86,7 @@ Ext.define('Uni.view.menu.ActionsMenu', {
                 previousSection = menuItem.section;
             }
         });
+
 
         // Add the separators
         var counter,
@@ -156,5 +160,76 @@ Ext.define('Uni.view.menu.ActionsMenu', {
             return; // <<< added: We don't want the menu to fire a 'click' event without an item
         }
         me.fireEvent('click', me, item, e);
+    },
+
+    reorderItems: function () {
+        var me = this, menuItems,
+            sort = function (menuItem1, menuItem2) {
+                var sectionResult = 0;
+                if ((menuItem1.xtype === 'menuseparator') || (menuItem2.xtype === 'menuseparator')) {
+                    return 0; // no reordering whenever separators are involved
+                }
+                if (Ext.isEmpty(menuItem1.section)) {
+                    if (!Ext.isEmpty(menuItem2.section)) {
+                        sectionResult = 1;
+                    }
+                } else if (Ext.isEmpty(menuItem2.section)) {
+                    if (!Ext.isEmpty(menuItem1.section)) {
+                        sectionResult = -1;
+                    }
+                } else {
+                    sectionResult = menuItem1.section - menuItem2.section;
+                }
+                return sectionResult === 0 ? menuItem1.text.localeCompare(menuItem2.text) : sectionResult;
+            };
+
+        if (Ext.isArray(me.items)) {
+            menuItems = Ext.Array.sort(me.items, sort);
+            menuItems = Ext.Array.clone(menuItems);
+        } else if (Ext.isArray(me.items.items)) {
+            menuItems = Ext.Array.sort(me.items.items, sort);
+            menuItems = Ext.Array.clone(menuItems);
+        }
+
+        // Add separators where needed (without taking the visibility of the menu items into account)
+        var separatorIndices = [],
+            indexCounter = -1,
+            previousSection = -1,
+            itemsBeforeSeparator = 0;
+
+        Ext.Array.forEach(menuItems, function (menuItem) {
+            indexCounter++;
+            if (Ext.isEmpty(menuItem.section)) {
+                if (!Ext.isEmpty(previousSection)) {
+                    if (itemsBeforeSeparator > 0) {
+                        separatorIndices.push(indexCounter);
+                        itemsBeforeSeparator = 0;
+                    }
+                    itemsBeforeSeparator++;
+                    previousSection = undefined;
+                }
+            } else if (menuItem.section !== previousSection) {
+                if (itemsBeforeSeparator > 0) {
+                    separatorIndices.push(indexCounter);
+                    itemsBeforeSeparator = 0;
+                }
+                itemsBeforeSeparator++;
+                previousSection = menuItem.section;
+            }
+        });
+
+        // Add the separators
+        var counter,
+            separatorsAdded = 0;
+        for (counter = 0; counter < separatorIndices.length; counter++) {
+            menuItems.splice(separatorIndices[counter] + separatorsAdded, 0, {xtype: 'menuseparator', action: 'none'});
+            separatorsAdded++;
+        }
+        me.remove(true);
+        for (var i = 0; i < menuItems.length; i++) {
+            me.add(menuItems[i]);
+        }
+
     }
+
 });

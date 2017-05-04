@@ -386,8 +386,8 @@ Ext.define('Uni.service.Search', {
             return !!f.value
                 && Ext.isArray(f.value)
                 && !Ext.isEmpty(
-                    _.filter(f.value, function (v) {
-                        return (v.operator === '==' && !Ext.isEmpty(v.criteria))
+                    _.filter(f.value, function(v) {
+                        return !Ext.isEmpty(v.criteria)
                             || v.operator === 'ISDEFINED'
                             || v.operator === 'ISNOTDEFINED';
                     })
