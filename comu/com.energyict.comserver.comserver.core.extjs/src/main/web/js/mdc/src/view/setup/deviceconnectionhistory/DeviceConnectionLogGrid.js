@@ -65,13 +65,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogGrid', {
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbartop.logLines.displayMsg', 'MDC', '{0} - {1} of {2} log lines'),
                 displayMoreMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbartop.logLines.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} log lines')
-            },
-            {
-                xtype: 'pagingtoolbarbottom',
-                store: me.store,
-                defaultPageSize: 100,
-                itemsPerPageMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbarbottom.itemsPerPageRuleSet', 'MDC', 'Log lines per page'),
-                dock: 'bottom'
             }
         ];
         me.callParent();
