@@ -71,7 +71,7 @@ public class ComSessionResource {
         List<ComSession> comSessions = connectionTaskService.findAllSessionsFor(connectionTask).stream().sorted((c1, c2) -> c2.getStartDate().compareTo(c1.getStartDate())).collect(toList());
         List<ComSessionInfo> comSessionsInPage = ListPager.of(comSessions).from(queryParameters).find().stream()
                 .sorted((cs1, cs2) -> cs2.getStartDate().compareTo(cs1.getStartDate()))
-                .map(comSessionInfoFactory::from).collect(toList());
+                .map(cs -> comSessionInfoFactory.from(cs, journalEntryInfoFactory)).collect(toList());
         PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("comSessions", comSessionsInPage, queryParameters);
         ComSessionsInfo info = new ComSessionsInfo();
         info.connectionMethod = connectionTask.getName();
@@ -88,7 +88,7 @@ public class ComSessionResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         ConnectionTask<?, ?> connectionTask = resourceHelper.findConnectionTaskOrThrowException(device, connectionMethodId);
         ComSession comSession = getComSessionOrThrowException(comSessionId, connectionTask);
-        ComSessionInfo info = comSessionInfoFactory.from(comSession);
+        ComSessionInfo info = comSessionInfoFactory.from(comSession, journalEntryInfoFactory);
         info.connectionMethod = new IdWithNameInfo(connectionTask);
         return info;
     }
@@ -133,7 +133,14 @@ public class ComSessionResource {
         List<JournalEntryInfo> infos = new ArrayList<>();
         EnumSet<ComServer.LogLevel> logLevels = EnumSet.noneOf(ComServer.LogLevel.class);
         if (jsonQueryFilter.hasProperty(LOG_LEVELS_FILTER_PROPERTY)) {
-            jsonQueryFilter.getPropertyList(LOG_LEVELS_FILTER_PROPERTY, new LogLevelAdapter()).stream().forEach(logLevels::add);
+            jsonQueryFilter.getPropertyList(LOG_LEVELS_FILTER_PROPERTY, new LogLevelAdapter())
+                    .stream()
+                    .forEach(logLevels::add);
+            if (logLevels.contains(ComServer.LogLevel.DEBUG)) {
+                logLevels.add(ComServer.LogLevel.ERROR);
+                logLevels.add(ComServer.LogLevel.WARN);
+                logLevels.add(ComServer.LogLevel.INFO);
+            }
         } else {
             logLevels = EnumSet.allOf(ComServer.LogLevel.class);
         }
