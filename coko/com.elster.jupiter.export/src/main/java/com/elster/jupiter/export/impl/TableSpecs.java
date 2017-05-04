@@ -78,7 +78,6 @@ enum TableSpecs {
             table.column("EXPORT_UPDATE").bool().map("exportUpdate").notNull(false).since(version(10, 3)).previously(exportUpdate_10_2).add();
             Column exportComplete_10_2 =
                     table.column("EXPORT_COMPLETE").bool().map("exportOnlyIfComplete").upTo(version(10, 3)).add();
-            //table.column("EXPORT_COMPLETE").bool().notNull(false).map("exportOnlyIfComplete").since(version(10, 3)).previously(exportComplete_10_2).add();
             table.column("EXPORT_COMPLETE").number().conversion(ColumnConversion.NUMBER2ENUM).map("exportOnlyIfComplete").notNull(false).since(version(10, 3)).previously(exportComplete_10_2).add();
             table.column("EXPORT_CONTINUOUS_DATA").bool().map("exportContinuousData").add();
             table.column("VALIDATED_DATA_OPTION").number().conversion(ColumnConversion.NUMBER2ENUM).map("validatedDataOption").add();

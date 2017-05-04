@@ -5,6 +5,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -32,6 +33,7 @@ public class UpgraderV10_3 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, version(10, 3));
 
         upgradeStandardSelectors();
+        upgradeReadingTypeDataSelector();
     }
 
     private void upgradeStandardSelectors() {
@@ -64,6 +66,57 @@ public class UpgraderV10_3 implements Upgrader {
         PreparedStatement statement = connection.prepareStatement("UPDATE DES_RTDATASELECTORJRNL SET TYPE = ? WHERE EXPORTTASK IN (SELECT DISTINCT ID FROM DES_DATAEXPORTTASKJRNL WHERE DATASELECTOR = ?)");
         statement.setString(1, implementor);
         statement.setString(2, selector);
+        return statement;
+    }
+
+    private void upgradeReadingTypeDataSelector(){
+        try (Connection connection = this.dataModel.getConnection(true)) {
+            try(PreparedStatement statement = connection.prepareStatement("ALTER TABLE DES_RTDATASELECTOR ADD NEW_EXPORT_COMPLETE NUMBER")){
+                statement.executeUpdate();
+            }
+            try(PreparedStatement statement = connection.prepareStatement("ALTER TABLE DES_RTDATASELECTORJRNL ADD NEW_EXPORT_COMPLETE NUMBER")){
+                statement.executeUpdate();
+            }
+            try(PreparedStatement statement = upgradeReadingTypeTDataSelector(connection, MissingDataOption.EXCLUDE_INTERVAL.ordinal(), 'N')){
+                statement.executeUpdate();
+            }
+            try(PreparedStatement statement = upgradeReadingTypeTDataSelector(connection, MissingDataOption.EXCLUDE_ITEM.ordinal(), 'Y')){
+                statement.executeUpdate();
+            }
+            try(PreparedStatement statement = upgradeReadingTypeTDataSelectorJRNL(connection, MissingDataOption.EXCLUDE_INTERVAL.ordinal(), 'N')){
+                statement.executeUpdate();
+            }
+            try(PreparedStatement statement = upgradeReadingTypeTDataSelectorJRNL(connection, MissingDataOption.EXCLUDE_ITEM.ordinal(), 'Y')){
+                statement.executeUpdate();
+            }
+            try(PreparedStatement statement = connection.prepareStatement("ALTER TABLE DES_RTDATASELECTOR DROP COLUMN EXPORT_COMPLETE")){
+                statement.executeUpdate();
+            }
+            try(PreparedStatement statement = connection.prepareStatement("ALTER TABLE DES_RTDATASELECTORJRNL DROP COLUMN EXPORT_COMPLETE")){
+                statement.executeUpdate();
+            }
+            try(PreparedStatement statement = connection.prepareStatement("ALTER TABLE DES_RTDATASELECTOR RENAME COLUMN NEW_EXPORT_COMPLETE TO EXPORT_COMPLETE")){
+                statement.executeUpdate();
+            }
+            try(PreparedStatement statement = connection.prepareStatement("ALTER TABLE DES_RTDATASELECTORJRNL RENAME COLUMN NEW_EXPORT_COMPLETE TO EXPORT_COMPLETE")){
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    private PreparedStatement upgradeReadingTypeTDataSelector(Connection connection, int ordinalValue, char charValue) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("UPDATE DES_RTDATASELECTOR SET DES_RTDATASELECTOR.NEW_EXPORT_COMPLETE = ? WHERE DES_RTDATASELECTOR.EXPORT_COMPLETE = ?");
+        statement.setInt(1, ordinalValue);
+        statement.setString(2, String.valueOf(charValue));
+        return statement;
+    }
+
+    private PreparedStatement upgradeReadingTypeTDataSelectorJRNL(Connection connection, int ordinalValue, char charValue) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("UPDATE DES_RTDATASELECTORJRNL SET DES_RTDATASELECTORJRNL.NEW_EXPORT_COMPLETE = ? WHERE DES_RTDATASELECTORJRNL.EXPORT_COMPLETE = ?");
+        statement.setInt(1, ordinalValue);
+        statement.setString(2, String.valueOf(charValue));
         return statement;
     }
 }

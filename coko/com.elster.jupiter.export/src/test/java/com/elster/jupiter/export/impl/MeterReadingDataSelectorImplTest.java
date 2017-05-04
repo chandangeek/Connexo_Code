@@ -201,7 +201,8 @@ public class MeterReadingDataSelectorImplTest {
                 .addReadingType(readingType)
                 .setExportUpdate(true)
                 .setUpdatePeriod(updatePeriod)
-                .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL);
+                .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_INTERVAL);
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
         List<ExportData> collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
@@ -242,7 +243,8 @@ public class MeterReadingDataSelectorImplTest {
                 .setExportUpdate(true)
                 .setUpdatePeriod(updatePeriod)
                 .setUpdateWindow(updateWindow)
-                .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL);
+                .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_INTERVAL);
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
         List<ExportData> collect = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());

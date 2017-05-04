@@ -4,10 +4,13 @@
 
 package com.elster.jupiter.export.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -20,6 +23,8 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -27,6 +32,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
+    private boolean isComplete = false;
 
     @Inject
     UsagePointReadingItemDataSelector(Clock clock,
@@ -59,5 +65,54 @@ class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
     @Override
     Set<QualityCodeSystem> getQualityCodeSystems() {
         return ImmutableSet.of(QualityCodeSystem.MDM);
+    }
+
+    @Override
+    boolean isComplete(IReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings) {
+        Set<Instant> instants;
+        switch (item.getSelector().getStrategy().getMissingDataOption()) {
+            case EXCLUDE_OBJECT:
+                if (!isComplete) {
+                    instants = new HashSet<>(item.getReadingContainer().getReadingTypes(exportInterval).stream()
+                            .map(readingType -> item.getReadingContainer().toList(readingType, exportInterval))
+                            .flatMap(Collection::stream)
+                            .collect(Collectors.toSet()));
+                    item.getReadingContainer().getReadingTypes(exportInterval).stream()
+                            .map(readingType -> item.getReadingContainer().getReadings(exportInterval, readingType))
+                            .flatMap(Collection::stream)
+                            .map(BaseReadingRecord::getTimeStamp)
+                            .forEach(instants::remove);
+                    if (instants.isEmpty()) {
+                        isComplete = true;
+                        return isComplete;
+                    } else {
+                        return isComplete;
+                    }
+                }
+                return isComplete;
+            default:
+                instants = new HashSet<>(item.getReadingContainer().toList(item.getReadingType(), exportInterval));
+                readings.stream()
+                        .map(BaseReadingRecord::getTimeStamp)
+                        .forEach(instants::remove);
+                return instants.isEmpty();
+        }
+    }
+
+    @Override
+    void handleExcludeObject(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
+        if (hasUnvalidatedReadings(item, readings) || item.getReadingContainer().getReadingTypes(interval).stream()
+                .anyMatch(readingType -> hasSuspects(item, readingType, interval))) {
+            logExportWindow(MessageSeeds.SUSPECT_WINDOW, interval, itemDescription);
+            readings.clear();
+        }
+    }
+
+    private boolean hasSuspects(IReadingTypeDataExportItem item, ReadingType readingType, Range<Instant> interval) {
+        return item.getReadingContainer()
+                .getReadingQualities(getQualityCodeSystems(), QualityCodeIndex.SUSPECT, readingType, interval).stream()
+                .map(ReadingQualityRecord::getReadingTimestamp)
+                .findAny()
+                .isPresent();
     }
 }

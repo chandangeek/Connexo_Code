@@ -14,6 +14,7 @@ import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.FormattedData;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -229,6 +230,7 @@ public class StandardDataSelectorTest {
         selectorConfig.startUpdate()
                 .setEndDeviceGroup(group)
                 .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_INTERVAL)
                 .addReadingType(readingType1);
         existingItem = selectorConfig.addExportItem(meter2, readingType1);
         obsoleteItem = selectorConfig.addExportItem(meter3, readingType1);
@@ -247,6 +249,7 @@ public class StandardDataSelectorTest {
         selectorConfig.startUpdate()
                 .setEndDeviceGroup(group)
                 .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_INTERVAL)
                 .addReadingType(readingType1);
         existingItem = selectorConfig.addExportItem(meter2, readingType1);
         obsoleteItem = selectorConfig.addExportItem(meter3, readingType1);
@@ -264,6 +267,7 @@ public class StandardDataSelectorTest {
         selectorConfig.startUpdate()
                 .setEndDeviceGroup(group)
                 .setValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .setExportOnlyIfComplete(MissingDataOption.EXCLUDE_INTERVAL)
                 .addReadingType(readingType1);
         existingItem = selectorConfig.addExportItem(meter2, readingType1);
         obsoleteItem = selectorConfig.addExportItem(meter3, readingType1);

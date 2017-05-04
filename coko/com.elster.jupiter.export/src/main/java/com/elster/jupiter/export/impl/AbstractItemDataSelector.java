@@ -118,7 +118,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
             if(strategy.getMissingDataOption().equals(MissingDataOption.EXCLUDE_ITEM)) {
                 logExportWindow(MessageSeeds.MISSING_WINDOW, exportInterval, itemDescription);
             }
-            if(strategy.getMissingDataOption().equals(MissingDataOption.EXCLUDE_ITEM)) {
+            if(strategy.getMissingDataOption().equals(MissingDataOption.EXCLUDE_OBJECT)) {
                 logExportWindow(MessageSeeds.USAGE_POINT_MISSING_WINDOW, exportInterval, item.getDomainObject().getDescription());
             }
             return Optional.empty();
@@ -185,6 +185,10 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
                     break;
                 case EXCLUDE_ITEM:
                     handleExcludeItem(item, readings, interval, itemDescription);
+                    break;
+                case EXCLUDE_OBJECT:
+                    handleExcludeObject(item, readings, interval, itemDescription);
+                    break;
                 default:
             }
         }
@@ -197,7 +201,11 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         }
     }
 
-    private void logExportWindow(MessageSeeds messageSeeds, Range<Instant> interval, String itemDescription) {
+    void handleExcludeObject(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
+        //This type of exclusion is only available for usage point
+    }
+
+    void logExportWindow(MessageSeeds messageSeeds, Range<Instant> interval, String itemDescription) {
         String fromDate = interval.hasLowerBound() ? timeFormatter.format(interval.lowerEndpoint()) : "";
         String toDate = interval.hasUpperBound() ? timeFormatter.format(interval.upperEndpoint()) : "";
         try (TransactionContext context = transactionService.getContext()) {
@@ -210,7 +218,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         return getSuspects(item, interval).findAny().isPresent();
     }
 
-    private boolean hasUnvalidatedReadings(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
+    boolean hasUnvalidatedReadings(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {
         Optional<Instant> lastChecked = validationService.getEvaluator().getLastChecked(item.getReadingContainer(), item.getReadingType());
         return !lastChecked.isPresent() || readings.stream().anyMatch(baseReadingRecord -> baseReadingRecord.getTimeStamp().isAfter(lastChecked.get()));
     }
