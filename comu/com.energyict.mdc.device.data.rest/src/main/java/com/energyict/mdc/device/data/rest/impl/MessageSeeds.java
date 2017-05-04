@@ -116,7 +116,6 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_READINGTYPE(294, "noReadingType", "No reading type with MRID {0}"),
     READINGTYPES_DONT_MATCH(295, "ReadingTypesDontMatch", "Reading types don''t match"),
     READINGTYPE_NOT_FOUND_ON_DEVICE(296, "ReadingTypeNotFoundOnDevice", "Reading type not found on device"),
-    NO_SUCH_VALIDATION_RULE(297, "noSuchValidationRule", "No validation rule with id {0}"),
     NO_SUCH_ESTIMATION_RULE(298, "noSuchEstimationRule", "No estimation rule with id {0}"),
     NO_SUCH_READINGTYPE_ON_CHANNEL(299, "noSuchReadingTypeOnChannel", "Device''s channel doesn''t provide reading type {0}"),
     VALIDATION_RULE_IS_NOT_APPLICABLE_TO_READINGTYPE(300, "ValidationRuleIsNotApplicableToReadingType", "Validation rule with id {0} is not applicable to reading type {1}"),
