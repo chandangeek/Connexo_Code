@@ -87,9 +87,9 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     private ReadingTypeDeliverableForMeterActivationFactory readingTypeDeliverableForMeterActivationFactory;
 
     public DataAggregationServiceImpl(
-                    MeteringDataModelService meteringDataModelService,
-                    InstantTruncaterFactory truncaterFactory,
-                    SourceChannelSetFactory sourceChannelSetFactory) {
+            MeteringDataModelService meteringDataModelService,
+            InstantTruncaterFactory truncaterFactory,
+            SourceChannelSetFactory sourceChannelSetFactory) {
         this(meteringDataModelService.getClock(),
                 meteringDataModelService.getMeteringService(),
                 meteringDataModelService.getCalendarService(),
@@ -104,35 +104,35 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     // For testing purposes only
     @Inject
     public DataAggregationServiceImpl(
-                    Clock clock,
-                    ServerMeteringService meteringService,
-                    CalendarService calendarService,
-                    CustomPropertySetService customPropertySetService,
-                    InstantTruncaterFactory truncaterFactory,
-                    Provider<SqlBuilderFactory> sqlBuilderFactoryProvider,
-                    Provider<VirtualFactory> virtualFactoryProvider,
-                    Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
+            Clock clock,
+            ServerMeteringService meteringService,
+            CalendarService calendarService,
+            CustomPropertySetService customPropertySetService,
+            InstantTruncaterFactory truncaterFactory,
+            Provider<SqlBuilderFactory> sqlBuilderFactoryProvider,
+            Provider<VirtualFactory> virtualFactoryProvider,
+            Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
         this(clock,
-            meteringService,
-            calendarService,
-            customPropertySetService,
-            truncaterFactory,
-            () -> new SourceChannelSetFactory(meteringService),
-            sqlBuilderFactoryProvider,
-            virtualFactoryProvider,
-            readingTypeDeliverableForMeterActivationFactoryProvider);
+                meteringService,
+                calendarService,
+                customPropertySetService,
+                truncaterFactory,
+                () -> new SourceChannelSetFactory(meteringService),
+                sqlBuilderFactoryProvider,
+                virtualFactoryProvider,
+                readingTypeDeliverableForMeterActivationFactoryProvider);
     }
 
     private DataAggregationServiceImpl(
-                    Clock clock,
-                    ServerMeteringService meteringService,
-                    CalendarService calendarService,
-                    CustomPropertySetService customPropertySetService,
-                    InstantTruncaterFactory truncaterFactory,
-                    Provider<SourceChannelSetFactory> sourceChannelSetProvider,
-                    Provider<SqlBuilderFactory> sqlBuilderFactoryProvider,
-                    Provider<VirtualFactory> virtualFactoryProvider,
-                    Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
+            Clock clock,
+            ServerMeteringService meteringService,
+            CalendarService calendarService,
+            CustomPropertySetService customPropertySetService,
+            InstantTruncaterFactory truncaterFactory,
+            Provider<SourceChannelSetFactory> sourceChannelSetProvider,
+            Provider<SqlBuilderFactory> sqlBuilderFactoryProvider,
+            Provider<VirtualFactory> virtualFactoryProvider,
+            Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
         super();
         this.clock = clock;
         this.meteringService = meteringService;
@@ -191,11 +191,11 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
     private List<DetailedCalendarUsage> introspect(ServerUsagePoint usagePoint, Range<Instant> period, MetrologyConfiguration metrologyConfiguration) {
         return metrologyConfiguration
-                    .getContracts()
-                    .stream()
-                    .map(contract -> this.introspect(usagePoint, period, contract))
-                    .flatMap(java.util.function.Function.identity())
-                    .collect(Collectors.toList());
+                .getContracts()
+                .stream()
+                .map(contract -> this.introspect(usagePoint, period, contract))
+                .flatMap(java.util.function.Function.identity())
+                .collect(Collectors.toList());
     }
 
     private Stream<DetailedCalendarUsage> introspect(ServerUsagePoint usagePoint, Range<Instant> period, MetrologyContract contract) {
@@ -207,10 +207,10 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                             () -> new DataAggregationAnalysisLogger().calendarIntrospectionStarted(usagePoint, contract, period),
                             virtualFactory);
             return deliverablesPerMeterActivation
-                        .values()
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .flatMap(ReadingTypeDeliverableForMeterActivationSet::getDetailedCalendarUsages);
+                    .values()
+                    .stream()
+                    .flatMap(Collection::stream)
+                    .flatMap(ReadingTypeDeliverableForMeterActivationSet::getDetailedCalendarUsages);
         } catch (RequirementNotBackedByMeter e) {
             return Stream.empty();
         }
@@ -265,11 +265,11 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     private boolean onlyConstantLikeExpressions(MetrologyContract contract) {
         ConstantLikeExpression visitor = new ConstantLikeExpression(contract);
         return contract
-                    .getDeliverables()
-                    .stream()
-                    .map(ReadingTypeDeliverable::getFormula)
-                    .map(Formula::getExpressionNode)
-                    .allMatch(expressionNode -> expressionNode.accept(visitor));
+                .getDeliverables()
+                .stream()
+                .map(ReadingTypeDeliverable::getFormula)
+                .map(Formula::getExpressionNode)
+                .allMatch(expressionNode -> expressionNode.accept(visitor));
     }
 
     private CalculatedMetrologyContractDataImpl noData(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
@@ -360,13 +360,13 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                 .get(meterActivationSet)
                 .add(this.readingTypeDeliverableForMeterActivationFactory
                         .from(
-                            deliverable.getFormula().getMode(),
-                            deliverable,
-                            meterActivationSet,
-                            period,
-                            virtualFactory.sequenceNumber(),
-                            withMultipliers,
-                            readingType));
+                                deliverable.getFormula().getMode(),
+                                deliverable,
+                                meterActivationSet,
+                                period,
+                                virtualFactory.sequenceNumber(),
+                                withMultipliers,
+                                readingType));
     }
 
     /**
@@ -430,7 +430,8 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                 .forEach(each -> each.appendDefinitionTo(sqlBuilder));
     }
 
-    private Map<ReadingType, List<CalculatedReadingRecordImpl>> execute(SqlBuilder sqlBuilder, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) throws SQLException {
+    private Map<ReadingType, List<CalculatedReadingRecordImpl>> execute(SqlBuilder sqlBuilder, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) throws
+            SQLException {
         try (Connection connection = this.getDataModel().getConnection(true)) {
             try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
                 return this.execute(statement, deliverablesPerMeterActivation);
@@ -450,12 +451,12 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                 .entrySet()
                 .forEach(readingTypeAndRecords ->
                         withMissings
-                            .put(
-                                readingTypeAndRecords.getKey(),
-                                this.addMissings(
-                                        readingTypeAndRecords,
-                                        introspector,
-                                        this.ensureBoundsOn(period, introspector.getUsagePoint().getZoneId()))));
+                                .put(
+                                        readingTypeAndRecords.getKey(),
+                                        this.addMissings(
+                                                readingTypeAndRecords,
+                                                introspector,
+                                                this.ensureBoundsOn(period, introspector.getUsagePoint().getZoneId()))));
         return withMissings;
     }
 
@@ -484,35 +485,39 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
 
     private List<CalculatedReadingRecordImpl> addMissings(Map.Entry<ReadingType, List<CalculatedReadingRecordImpl>> readingTypeAndRecords, MetrologyContractCalculationIntrospector introspector, Range<Instant> period) {
-        List<CalculatedReadingRecordImpl> withMissings = new ArrayList<>(readingTypeAndRecords.getValue());
-        ZoneId zoneId = introspector.getUsagePoint().getZoneId();
-        Year startYear = this.getStartYear(period, zoneId);
-        Year endYear = this.getEndYear(period, zoneId);
-        List<ZonedCalendarUsage> calendarUsages =
-                introspector
-                    .getMetrologyContract()
-                    .getDeliverables()
-                    .stream()
-                    .filter(deliverable -> deliverable.getReadingType().equals(readingTypeAndRecords.getKey()))
-                    .findAny()
-                    .map(introspector::getCalendarUsagesFor)
-                    .orElseGet(Collections::emptyList)
-                    .stream()
-                    .map(calendarUsage -> new ZonedCalendarUsage(introspector.getUsagePoint(), zoneId, startYear, endYear, calendarUsage))
-                    .collect(Collectors.toList());
-        IntervalLength
-                .from(readingTypeAndRecords.getKey())
-                .toTimeSeries(period, zoneId)
-                .forEach(timestamp ->
-                        this.findCalendarUsage(calendarUsages, timestamp)
-                            .ifPresent(calendarUsage ->
-                                    this.addMissingIfDifferentTimeOfUse(
-                                            calendarUsage,
-                                            readingTypeAndRecords.getKey(),
-                                            timestamp,
-                                            zoneId,
-                                            withMissings)));
-        return withMissings;
+        if (!IntervalLength.NOT_SUPPORTED.equals(IntervalLength.from(readingTypeAndRecords.getKey()))) {
+            List<CalculatedReadingRecordImpl> withMissings = new ArrayList<>(readingTypeAndRecords.getValue());
+            ZoneId zoneId = introspector.getUsagePoint().getZoneId();
+            Year startYear = this.getStartYear(period, zoneId);
+            Year endYear = this.getEndYear(period, zoneId);
+            List<ZonedCalendarUsage> calendarUsages =
+                    introspector
+                            .getMetrologyContract()
+                            .getDeliverables()
+                            .stream()
+                            .filter(deliverable -> deliverable.getReadingType().equals(readingTypeAndRecords.getKey()))
+                            .findAny()
+                            .map(introspector::getCalendarUsagesFor)
+                            .orElseGet(Collections::emptyList)
+                            .stream()
+                            .map(calendarUsage -> new ZonedCalendarUsage(introspector.getUsagePoint(), zoneId, startYear, endYear, calendarUsage))
+                            .collect(Collectors.toList());
+            IntervalLength
+                    .from(readingTypeAndRecords.getKey())
+                    .toTimeSeries(period, zoneId)
+                    .forEach(timestamp ->
+                            this.findCalendarUsage(calendarUsages, timestamp)
+                                    .ifPresent(calendarUsage ->
+                                            this.addMissingIfDifferentTimeOfUse(
+                                                    calendarUsage,
+                                                    readingTypeAndRecords.getKey(),
+                                                    timestamp,
+                                                    zoneId,
+                                                    withMissings)));
+            return withMissings;
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     private Year getStartYear(Range<Instant> period, ZoneId zoneId) {
@@ -567,7 +572,8 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         return this.meteringService.getThesaurus();
     }
 
-    private Map<ReadingType, List<CalculatedReadingRecordImpl>> execute(PreparedStatement statement, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) throws SQLException {
+    private Map<ReadingType, List<CalculatedReadingRecordImpl>> execute(PreparedStatement statement, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) throws
+            SQLException {
         try (ResultSet resultSet = statement.executeQuery()) {
             return this.getDataModel().getInstance(CalculatedReadingRecordFactory.class).consume(resultSet, deliverablesPerMeterActivation);
         }
@@ -576,8 +582,8 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     @Override
     public Category getTimeOfUseCategory() {
         return this.calendarService
-                    .findCategoryByName(OutOfTheBoxCategory.TOU.name())
-                    .orElseThrow(() -> new IllegalStateException("Calendar service installer failure, time of use category is missing"));
+                .findCategoryByName(OutOfTheBoxCategory.TOU.name())
+                .orElseThrow(() -> new IllegalStateException("Calendar service installer failure, time of use category is missing"));
     }
 
     @Override
