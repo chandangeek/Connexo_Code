@@ -2,10 +2,10 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Uni.view.error.NotFound', {
+Ext.define('Uni.view.error.NotVisible', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.errorNotFound',
-    itemId: 'errorNotFound',
+    alias: 'widget.errorNotVisible',
+    itemId: 'errorNotVisible',
     overflowY: 'auto',
     requires: [
         'Ext.panel.Panel'
@@ -16,9 +16,9 @@ Ext.define('Uni.view.error.NotFound', {
             xtype: 'panel',
             ui: 'large',
             title: Uni.I18n.translate(
-                'error.pageNotFoundTitle',
+                'error.pageNotVisibleTitle',
                 'UNI',
-                "Sorry! We couldn't find it."
+                "Sorry! We couldn't show you this."
             ),
             layout: {
                 type: 'fit',
@@ -29,19 +29,20 @@ Ext.define('Uni.view.error.NotFound', {
                     xtype: 'no-items-found-panel',
                     title: '<span style="color: #eb5642">'
                     + Uni.I18n.translate(
-                        'error.pageNotFound',
+                        'error.pageNotVisible',
                         'UNI',
-                        'Page not found'
+                        'Page not visible'
                     ) + '</span>',
                     reasons: [
                         Uni.I18n.translate(
-                            'error.pageNotFoundPageMisspelled',
+                            'error.pageNotVisibleAuthorized',
                             'UNI',
-                            "The URL is misspelled."
+                            "You are not authorized to access this page."
                         ),
                         Uni.I18n.translate(
-                            'error.pageNotFoundPageNotAvailable',
-                            'UNI', "The page you are looking for is not available."
+                            'error.pageNotVisibleLicenseExpired',
+                            'UNI',
+                            "Your license has expired."
                         )
                     ],
                     stepItems: []

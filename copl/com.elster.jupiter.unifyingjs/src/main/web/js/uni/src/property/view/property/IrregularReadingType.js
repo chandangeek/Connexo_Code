@@ -4,7 +4,7 @@
 
 Ext.define('Uni.property.view.property.IrregularReadingType', {
     extend: 'Uni.property.view.property.BaseCombo',
-
+    layout: 'fit',
     getEditCmp: function () {
         var me = this;
 
@@ -14,6 +14,7 @@ Ext.define('Uni.property.view.property.IrregularReadingType', {
             name: this.getName(),
             store: 'Uni.property.store.ReadingTypes',
             width: me.width,
+            maxWidth: 283,
             readOnly: me.isReadOnly,
             blankText: me.blankText,
             emptyText: Uni.I18n.translate('property.readingType.emptyText', 'UNI', 'Start typing to select a reading type'),
