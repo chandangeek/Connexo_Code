@@ -126,7 +126,7 @@ Ext.define('Imt.metrologyconfiguration.view.validation.PurposeWithRuleSetsGrid',
                     count++;
                 }
             });
-            result += '<br>' +Uni.I18n.translate('validation.clickForMoreInformation', 'IMT', 'Click for more information');
+            result += '<br>...<br>' +Uni.I18n.translate('validation.clickForMoreInformation', 'IMT', 'Click for more information');
             return result;
         }
 

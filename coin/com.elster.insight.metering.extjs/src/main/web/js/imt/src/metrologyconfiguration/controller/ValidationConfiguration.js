@@ -214,25 +214,33 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
             purposesCombo = me.getAddValidationRuleSetsView().down('#purpose-combo'),
             purpose = purposesCombo.findRecordByValue(purposesCombo.getValue()),
             records = me.getAddValidationRuleSetsView().down('add-validation-rule-sets-to-purpose-grid').getSelectedRecords(),
-            states = me.getAddValidationRuleSetsView().down('add-usage-point-states-grid').getSelectedRecords(),
+            statesGrid = me.getAddValidationRuleSetsView().down('add-usage-point-states-grid'),
+            statesErrorMessage = me.getAddValidationRuleSetsView().down('#add-usage-point-states-error'),
+            states = statesGrid.getSelectedRecords(),
             statesData = _.map(states, function (state) {
                 return state.getRecordData();
             });
 
-        Ext.Array.each(records,function(record){
-            record.set('lifeCycleStates', statesData);
-        });
-        purpose.estimationRuleSets().removeAll();
-        purpose.validationRuleSets().removeAll();
-        purpose.validationRuleSets().add(records);
-        purpose.save({
-            success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('validationRuleSets.count.added', records.length, 'IMT', 'No validation rule sets added',
-                    '{0} validation rule set added',
-                    '{0} validation rule sets added'));
-                me.getController('Uni.controller.history.Router').getRoute('administration/metrologyconfiguration/view/validation').forward();
-            }
-        });
+        if(!statesGrid.allStatesSelected && !states.length){
+            statesErrorMessage.show()
+        } else {
+            statesErrorMessage.hide();
+            Ext.Array.each(records,function(record){
+                record.set('lifeCycleStates', statesData);
+            });
+            purpose.estimationRuleSets().removeAll();
+            purpose.validationRuleSets().removeAll();
+            purpose.validationRuleSets().add(records);
+            purpose.save({
+                success: function () {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('validationRuleSets.count.added', records.length, 'IMT', 'No validation rule sets added',
+                        '{0} validation rule set added',
+                        '{0} validation rule sets added'));
+                    me.getController('Uni.controller.history.Router').getRoute('administration/metrologyconfiguration/view/validation').forward();
+                }
+            });
+        }
+
     },
 
     showRulesTab: function(panel) {

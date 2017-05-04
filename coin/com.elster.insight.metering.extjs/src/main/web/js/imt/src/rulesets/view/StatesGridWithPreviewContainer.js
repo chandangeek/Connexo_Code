@@ -67,7 +67,7 @@ Ext.define('Imt.rulesets.view.StatesGridWithPreviewContainer',{
                 margin: '-20 0 10 0',
                 itemId: 'add-usage-point-states-error',
                 hidden: true,
-                html: '<span style="color: #eb5642">' + Uni.I18n.translate('general.usagePointLifeCycle.no.stages.selected', 'IMT', 'Select at least 1 usage point stage') + '</span>'
+                html: '<span style="color: #eb5642">' + Uni.I18n.translate('general.usagePointLifeCycle.no.states.selected', 'IMT', 'Select at least 1 usage point state') + '</span>'
             },
             me.bottomToolbar,
             me.detailsComponent
