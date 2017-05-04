@@ -485,7 +485,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             return "";
         }
 
-        public DeviceType getDeviceType() {
+        protected DeviceType getDeviceType() {
             return deviceType;
         }
 
@@ -702,6 +702,10 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 e.printStackTrace();
             }
             return "";
+        }
+
+        protected long getRelativePeriodId() {
+            return relativePeriod.getId();
         }
 
         @Override
