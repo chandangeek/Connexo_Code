@@ -15,7 +15,7 @@ use Sys::Hostname;
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20170405";
+my $INSTALL_VERSION="v20170505";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -44,7 +44,7 @@ my $UPGRADE_OLD_SERVICE_VERSION="";
 
 my $HOST_NAME, my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
 my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL;
-my $FACTS_DB_HOST, my $FACTS_DB_PORT, my $FACTS_DB_NAME, my $FACTS_DBUSER, my $FACTS_DBPASSWORD, my $FACTS_LICENSE;
+my $FACTS_DB_HOST, my $FACTS_DB_PORT, my $FACTS_DB_NAME, my $FACTS_DB_USE_SERVICE_NAME, my $FACTS_DBUSER, my $FACTS_DBPASSWORD, my $FACTS_LICENSE;
 my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
 
 my $TOMCAT_DIR="tomcat";
@@ -203,6 +203,7 @@ sub read_config {
                 if ( "$val[0]" eq "FACTS_DB_HOST" )                 {$FACTS_DB_HOST=$val[1];}
                 if ( "$val[0]" eq "FACTS_DB_PORT" )                 {$FACTS_DB_PORT=$val[1];}
                 if ( "$val[0]" eq "FACTS_DB_NAME" )                 {$FACTS_DB_NAME=$val[1];}
+				if ( "$val[0]" eq "FACTS_DB_USE_SERVICE_NAME" )     {$FACTS_DB_USE_SERVICE_NAME=$val[1];}
                 if ( "$val[0]" eq "FACTS_DBUSER" )                  {$FACTS_DBUSER=$val[1];}
                 if ( "$val[0]" eq "FACTS_DBPASSWORD" )              {$FACTS_DBPASSWORD=$val[1];}
                 if ( "$val[0]" eq "FACTS_LICENSE" )                 {$FACTS_LICENSE=$val[1];}
@@ -257,6 +258,8 @@ sub read_config {
             chomp($FACTS_DB_PORT=<STDIN>);
             print "Please enter the oracle database name for Facts: ";
             chomp($FACTS_DB_NAME=<STDIN>);
+			print "Will the connection to the oracle database use service name instead of SID? (yes/no): ";
+            chomp($FACTS_DB_USE_SERVICE_NAME=<STDIN>);
             print "Please enter the database user for Facts: ";
             chomp($FACTS_DBUSER=<STDIN>);
             print "Please enter the database password for Facts database user: ";
@@ -441,7 +444,7 @@ sub install_tomcat {
 		print "\n\nExtracting Apache Tomcat 7 ...\n";
 		print "==========================================================================\n";
 
-		$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\"";
+		$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\";-Dorg.jboss.logging.provider=slf4j;-Dorg.uberfire.nio.git.ssh.algorithm=RSA";
 
 		chdir "$TOMCAT_BASE";
 		print "Extracting $TOMCAT_ZIP.zip\n";
@@ -452,6 +455,9 @@ sub install_tomcat {
 		if (-e "$TOMCAT_BASE/connexo.filter.jar") {
             print "    $TOMCAT_BASE/connexo.filter.jar -> $TOMCAT_BASE/tomcat/lib/connexo.filter.jar\n";
 		    copy("$TOMCAT_BASE/connexo.filter.jar","$TOMCAT_BASE/tomcat/lib/connexo.filter.jar");
+        }
+		if (-e "$TOMCAT_BASE/simplelogger.properties") {
+            copy("$TOMCAT_BASE/simplelogger.properties","$TOMCAT_BASE/tomcat/lib/simplelogger.properties");
         }
 		chdir "$TOMCAT_DIR/bin";
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/server.xml","<Connector port=\"8009\" protocol=\"AJP/1.3\" redirectPort=\"8443\" />","<Connector port=\"$TOMCAT_AJP_PORT\" protocol=\"AJP/1.3\" redirectPort=\"8443\" />");
@@ -465,7 +471,7 @@ sub install_tomcat {
 		print "Installing Apache Tomcat For Connexo as service ...\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.bat") or die "Could not open $TOMCAT_DIR/bin/setenv.bat: $!";
-			print $FH "set CATALINA_OPTS=".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=\"$CATALINA_HOME\" -Dorg.uberfire.metadata.index.dir=\"$CATALINA_HOME\" -Dorg.uberfire.nio.git.ssh.cert.dir=\"$CATALINA_HOME\" -Dorg.guvnor.m2repo.dir=\"$CATALINA_HOME/repositories\" -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\" -Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\" -Dbtm.root=\"$CATALINA_HOME\" -Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\" -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false\n";
+			print $FH "set CATALINA_OPTS=".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=\"$CATALINA_HOME\" -Dorg.uberfire.metadata.index.dir=\"$CATALINA_HOME\" -Dorg.uberfire.nio.git.ssh.cert.dir=\"$CATALINA_HOME\" -Dorg.guvnor.m2repo.dir=\"$CATALINA_HOME/repositories\" -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\" -Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\" -Dbtm.root=\"$CATALINA_HOME\" -Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\" -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false -Dorg.jboss.logging.provider=slf4j -Dorg.uberfire.nio.git.ssh.algorithm=RSA\n";
 			close($FH);
 			system("service.bat install ConnexoTomcat$SERVICE_VERSION");
 		} else {
@@ -473,7 +479,7 @@ sub install_tomcat {
             (my $replaceACCOUNT = $CONNEXO_ADMIN_ACCOUNT) =~ s/ /\\ /g;
             (my $replacePASSWORD = $CONNEXO_ADMIN_PASSWORD) =~ s/ /\\ /g;
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.sh") or die "Could not open $TOMCAT_DIR/bin/setenv.sh: $!";
-			print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=$replaceHOME -Dorg.uberfire.metadata.index.dir=$replaceHOME -Dorg.uberfire.nio.git.ssh.cert.dir=$replaceHOME -Dorg.guvnor.m2repo.dir=$replaceHOME/repositories -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=$replaceACCOUNT -Dconnexo.password=$replacePASSWORD -Dbtm.root=$replaceHOME -Dbitronix.tm.configuration=$replaceHOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false\"\n";
+			print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=$replaceHOME -Dorg.uberfire.metadata.index.dir=$replaceHOME -Dorg.uberfire.nio.git.ssh.cert.dir=$replaceHOME -Dorg.guvnor.m2repo.dir=$replaceHOME/repositories -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=$replaceACCOUNT -Dconnexo.password=$replacePASSWORD -Dbtm.root=$replaceHOME -Dbitronix.tm.configuration=$replaceHOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false -Dorg.jboss.logging.provider=slf4j -Dorg.uberfire.nio.git.ssh.algorithm=RSA\"\n";
 			close($FH);
 			
 			open(my $FH,"> /etc/init.d/ConnexoTomcat$SERVICE_VERSION") or die "Could not open /etc/init.d/ConnexoTomcat$SERVICE_VERSION: $!";
@@ -529,6 +535,8 @@ sub install_facts {
 		my $INSTALLER_LICENSE="$CONNEXO_DIR/partners/facts/facts-license.lic";
 		my $FACTS_BASE_PROPERTIES="$CONNEXO_DIR/partners/facts/facts.properties";
 		my $FACTS_TEMP_PROPERTIES="$CONNEXO_DIR/custom.properties";
+		my $FACTS_BASE_POST_INSTALL="$CONNEXO_DIR/partners/facts/postinstall.xml";
+        my $FACTS_TEMP_POST_INSTALL="$CONNEXO_DIR/resources/postinstall.xml";
 		my $FACTS_BASE="$TOMCAT_BASE/$TOMCAT_DIR/webapps";
 		my $FACTS_DIR="$FACTS_BASE/facts";
 		my $FACTS_PORT=$TOMCAT_HTTP_PORT;
@@ -564,6 +572,9 @@ sub install_facts {
 		print $FH "option.db.hostname=$FACTS_DB_HOST\n";
 		print $FH "option.db.port=$FACTS_DB_PORT\n";
 		print $FH "option.db.dbname=$FACTS_DB_NAME\n";
+		if($FACTS_DB_USE_SERVICE_NAME eq "yes"){
+		    print $FH "option.db.oracleconnectionmode=service\n";
+		}
 		print $FH "option.db.username=$FACTS_DBUSER\n";
 		print $FH "option.db.userpassword=$FACTS_DBPASSWORD\n";
 		print $FH "option.db.dbausername=$FACTS_DBUSER\n";
@@ -575,6 +586,19 @@ sub install_facts {
 		chdir "$CONNEXO_DIR";
 		system("\"$JAVA_HOME/bin/jar\" -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" custom.properties") == 0 or die "$JAVA_HOME/bin/jar -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" custom.properties failed: $?";
 		unlink("$CONNEXO_DIR/custom.properties");
+		
+		make_path("$CONNEXO_DIR/resources");
+		copy("$FACTS_BASE_POST_INSTALL","$FACTS_TEMP_POST_INSTALL");
+		if ("$ACTIVATE_SSO" eq "yes") {
+		    replace_in_file("$FACTS_TEMP_POST_INSTALL",'\$\{url\}',"http://$HOST_NAME/facts/");
+		} else {
+		    replace_in_file("$FACTS_TEMP_POST_INSTALL",'\$\{url\}',"http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
+		}
+
+		system("\"$JAVA_HOME/bin/jar\" -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" resources/postinstall.xml") == 0 or die "$JAVA_HOME/bin/jar -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" custom.properties failed: $?";
+        unlink("$FACTS_TEMP_POST_INSTALL");
+        rmdir "$CONNEXO_DIR/resources";
+
         system("\"$JAVA_HOME/bin/java\" -jar \"$CONNEXO_DIR/partners/facts/facts.jar\" -silent") == 0 or die "$JAVA_HOME/bin/java -jar \"$CONNEXO_DIR/partners/facts/facts.jar\" -silent failed: $?";
 		if (!-d "$FACTS_DIR") { make_path("$FACTS_DIR"); }
 		copy("$FACTS_BASE/facts.war","$FACTS_DIR/facts.war") or die "File cannot be copied: $!";
@@ -694,13 +718,14 @@ sub activate_sso {
     if ("$ACTIVATE_SSO" eq "yes") {
         if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
             #install apache 2.2 or 2.4???
-            my $PUBLIC_KEY="to be filled in";
+            my $PUBLIC_KEY_PROPERTIES="to be filled in";
             if (-e "$CONNEXO_DIR/publicKey.txt") {
+				local $/;
                 open(my $FH,"< $CONNEXO_DIR/publicKey.txt") or die "Could not open $CONNEXO_DIR/publicKey.txt: $!";
-                $PUBLIC_KEY=<$FH>;
-                chomp($PUBLIC_KEY);
+                $PUBLIC_KEY_PROPERTIES=<$FH>;
+                chomp($PUBLIC_KEY_PROPERTIES);
                 close($FH);
-            }            
+            }              
             #if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
             #    copy("$CONNEXO_DIR/bin/vcruntime140.dll","$APACHE_PATH/bin/vcruntime140.dll");
             #    system("$APACHE_PATH/bin/httpd.exe -k install -n \"Apache2.4\"");
@@ -769,7 +794,7 @@ sub activate_sso {
             add_to_file("$CATALINA_BASE/conf/connexo.properties","");
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.url=http://$HOST_NAME:$CONNEXO_HTTP_PORT");
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.externalurl=http://$HOST_NAME");
-            add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.sso.public.key=$PUBLIC_KEY");
+            add_to_file("$CATALINA_BASE/conf/connexo.properties","$PUBLIC_KEY_PROPERTIES");
 
             #if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
             #    system("sc config \"Apache2.4\"  start= delayed-auto");
