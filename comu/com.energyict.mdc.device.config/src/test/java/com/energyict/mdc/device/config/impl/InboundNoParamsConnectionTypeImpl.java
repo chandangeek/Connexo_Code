@@ -7,8 +7,8 @@ package com.energyict.mdc.device.config.impl;
 public class InboundNoParamsConnectionTypeImpl extends NoParamsConnectionType {
 
     @Override
-    public Direction getDirection() {
-        return Direction.INBOUND;
+    public ConnectionTypeDirection getDirection() {
+        return ConnectionTypeDirection.INBOUND;
     }
 
 }

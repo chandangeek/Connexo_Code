@@ -17,8 +17,8 @@ import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceUsageType;
@@ -32,7 +32,7 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import com.google.common.jimfs.Configuration;
@@ -142,6 +142,8 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(deviceType.getRegisterTypes()).isEmpty();
         assertThat(deviceType.getDeviceProtocolPluggableClass().get()).isEqualTo(this.deviceProtocolPluggableClass);
         assertThat(deviceType.getDescription()).isNotEmpty();
+        assertThat(deviceType.isDataloggerSlave()).isFalse();
+        assertThat(deviceType.isMultiElementSlave()).isFalse();
         assertThat(deviceType.getDeviceUsageType()).isEqualTo(DeviceUsageType.NONE);
     }
 

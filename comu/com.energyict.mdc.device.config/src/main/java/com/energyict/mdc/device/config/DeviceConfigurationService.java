@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -18,12 +19,10 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
-import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import java.util.List;
 import java.util.Optional;
@@ -102,6 +101,18 @@ public interface DeviceConfigurationService {
      * @return The newly created datalogger slave DeviceType
      */
     DeviceType.DeviceTypeBuilder newDataloggerSlaveDeviceTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle);
+
+    /**
+     * Creates a new multi-element submeter {@link com.energyict.mdc.device.config.DeviceType.DeviceTypeBuilder} with the specified name.
+     * The {@link com.elster.jupiter.fsm.State} of the devices
+     * of this type are managed by the provided {@link DeviceLifeCycle}.
+     * Devices of this deviceType will not be able to define communication related items, and make part of a Multi-Element enabled meter/device type.
+     *
+     * @param name The name of the new DeviceType
+     * @param deviceLifeCycle The DeviceLifeCycle
+     * @return The newly created multi-element submeter DeviceType
+     */
+    DeviceType.DeviceTypeBuilder newMultiElementSlaveDeviceTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle);
 
     /**
      * Find the {@link DeviceType} which is uniquely identified by the provided ID.

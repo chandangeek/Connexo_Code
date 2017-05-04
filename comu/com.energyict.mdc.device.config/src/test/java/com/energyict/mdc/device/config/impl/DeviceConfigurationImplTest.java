@@ -12,8 +12,8 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceCommunicationFunction;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -34,7 +34,7 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.math.BigDecimal;
@@ -794,12 +794,31 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE + "}")
+    public void createMultiElementConfigWithoutResourcesTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("createMultiElementMeterConfigWithoutResourcesTest").multiElementEnabled(true).add();
+        deviceConfiguration.activate();
+    }
+
+    @Test
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE + "}")
     public void createDataloggerSlaveConfigWithoutResourcesTest() {
         DeviceType dataloggerSlaveDeviceType = inMemoryPersistence.getDeviceConfigurationService()
                 .newDataloggerSlaveDeviceTypeBuilder("DataloggerSlave", inMemoryPersistence.getDeviceLifeCycleConfigurationService()
                         .findDefaultDeviceLifeCycle().get()).create();
         DeviceConfiguration deviceConfiguration = dataloggerSlaveDeviceType.newConfiguration("createDataloggerSlaveConfigWithoutResourcesTest").add();
+        deviceConfiguration.activate();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MULTI_ELEMENT_SUBMETER_AT_LEAST_ONE_DATASOURCE + "}")
+    public void createSubmeterConfigWithoutResourcesTest() {
+        DeviceType dataloggerSlaveDeviceType = inMemoryPersistence.getDeviceConfigurationService()
+                .newMultiElementSlaveDeviceTypeBuilder("Submeter", inMemoryPersistence.getDeviceLifeCycleConfigurationService()
+                        .findDefaultDeviceLifeCycle().get()).create();
+        DeviceConfiguration deviceConfiguration = dataloggerSlaveDeviceType.newConfiguration("createSubmeterConfigWithoutResourcesTest").add();
         deviceConfiguration.activate();
     }
 }

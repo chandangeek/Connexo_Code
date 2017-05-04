@@ -15,11 +15,11 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateIntervalWhenLoadProfileTypeIsInUseException;
 import com.energyict.mdc.device.config.exceptions.CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException;
 import com.energyict.mdc.masterdata.LoadProfileType;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.Event;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -28,7 +28,7 @@ import static com.elster.jupiter.util.Checks.is;
  * Handles update events that are being sent when a {@link LoadProfileType}
  * has been updated and will veto the update when:
  * <ul>
- * <li>that would cause a duplicate {@link com.energyict.mdc.common.ObisCode}
+ * <li>that would cause a duplicate {@link com.energyict.obis.ObisCode}
  * in a {@link DeviceConfiguration} that is using the LoadProfileType.</li>
  * <li>the ObisCode changed and the LoadProfileType is already in use by a {@link LoadProfileSpec}</li>
  * <li>the interval changed and the LoadProfileType is already in use by a {@link LoadProfileSpec}</li>
@@ -90,7 +90,7 @@ public class LoadProfileTypeUpdateEventHandler implements TopicHandler {
     private boolean intervalChanged(LocalEvent event, LoadProfileType loadProfileType) {
         Event osgiEvent = event.toOsgiEvent();
         Object oldIntervalSeconds = osgiEvent.getProperty("oldIntervalSeconds");
-        return oldIntervalSeconds != null && !((Long) oldIntervalSeconds == loadProfileType.getInterval().getSeconds());
+        return oldIntervalSeconds != null && !((Long) oldIntervalSeconds == loadProfileType.interval().get(ChronoUnit.SECONDS));
     }
 
     private boolean isUsed(LoadProfileType loadProfileType) {

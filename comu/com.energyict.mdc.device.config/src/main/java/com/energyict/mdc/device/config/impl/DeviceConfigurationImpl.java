@@ -23,7 +23,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
@@ -36,6 +35,7 @@ import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -76,6 +76,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -120,7 +121,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         DEVICE_MESSAGE_ENABLEMENTS("deviceMessageEnablements"),
         DEVICECONF_ESTIMATIONRULESET_USAGES("deviceConfigurationEstimationRuleSetUsages"),
         DATALOGGER_ENABLED("dataloggerEnabled"),
-        VALIDATE_ON_STORE("validateOnStore");
+        VALIDATE_ON_STORE("validateOnStore"),
+        MULTI_ELEMENT_ENABLED("multiElementEnabled");
+
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -184,6 +187,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     private List<DeviceConfigurationEstimationRuleSetUsage> deviceConfigurationEstimationRuleSetUsages = new ArrayList<>();
     private final Provider<DeviceConfigurationEstimationRuleSetUsageImpl> deviceConfigEstimationRuleSetUsageFactory;
     private boolean dataloggerEnabled;
+    private boolean multiElementEnabled;
     private boolean validateOnStore;
 
     private PropertySpecService propertySpecService;
@@ -217,7 +221,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     DeviceConfigurationImpl initialize(DeviceType deviceType, String name) {
         this.deviceType.set(deviceType);
         setName(name);
-        if (!getDeviceType().isDataloggerSlave()) {
+        if (!getDeviceType().isDataloggerSlave() && ! getDeviceType().isMultiElementSlave()) {
             this.getDeviceType()
                     .getDeviceProtocolPluggableClass()
                     .ifPresent(deviceProtocolPluggableClass -> deviceProtocolPluggableClass
@@ -747,7 +751,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     private LogBookBehavior getLogBookBehavior() {
-        return getDeviceType().isDataloggerSlave() ? new DataloggerSlaveLogBookBehavior() : new RegularLogBookBehavior();
+        return ((getDeviceType().isDataloggerSlave() || getDeviceType().isMultiElementSlave()) ? new LackingLogBookBehavior() : new RegularLogBookBehavior());
     }
 
     /**
@@ -808,7 +812,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
-    private class DataloggerSlaveLogBookBehavior implements LogBookBehavior {
+    private class LackingLogBookBehavior implements LogBookBehavior {
 
         @Override
         public LogBookSpec.LogBookSpecBuilder createLogBookSpec(LogBookType logBookType) {
@@ -1284,7 +1288,10 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             if (supportsAllProtocolMessages()) {
                 Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = this.getDeviceType().getDeviceProtocolPluggableClass();
                 if ((deviceProtocolPluggableClass.isPresent()
-                        && deviceProtocolPluggableClass.get().getDeviceProtocol().getSupportedMessages().contains(deviceMessageId))) {
+                        && deviceProtocolPluggableClass.get().getDeviceProtocol().getSupportedMessages().stream()
+                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
+                        .collect(Collectors.toList())
+                        .contains(deviceMessageId.dbValue()))) {
                     return getAllProtocolMessagesUserActions().stream()
                             .anyMatch(deviceMessageUserAction -> isUserAuthorizedForAction(deviceMessageUserAction, user));
                 }
@@ -1317,19 +1324,21 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     @Override
     public List<DeviceMessageSpec> getEnabledAndAuthorizedDeviceMessageSpecsIn(DeviceMessageCategory category) {
-        Set<DeviceMessageId> supportedMessagesSpecs =
-                this.getDeviceType()
-                        .getDeviceProtocolPluggableClass()
-                        .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()).orElse(Collections.emptySet());
+        List<Long> ids = this.getDeviceType().getDeviceProtocolPluggableClass()
+                .map(pluggableClass -> pluggableClass.getDeviceProtocol().getSupportedMessages().stream()
+                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
 
         EnumSet<DeviceMessageId> enabledDeviceMessageIds = EnumSet.noneOf(DeviceMessageId.class);
         this.getDeviceMessageEnablements()
                 .stream()
                 .map(DeviceMessageEnablement::getDeviceMessageId)
                 .forEach(enabledDeviceMessageIds::add);
+
         return category.getMessageSpecifications()
                 .stream()
-                .filter(deviceMessageSpec -> supportedMessagesSpecs.contains(deviceMessageSpec.getId())) // limit to device message specs supported by the protocol
+                .filter(deviceMessageSpec -> ids.contains(deviceMessageSpec.getId().dbValue())) // limit to device message specs supported by the protocol
                 .filter(deviceMessageSpec -> enabledDeviceMessageIds.contains(deviceMessageSpec.getId())) // limit to device message specs enabled on the config
                 .filter(deviceMessageSpec -> this.isAuthorized(deviceMessageSpec.getId())) // limit to device message specs whom the user is authorized to
                 .map(this::replaceDeviceMessageFileValueFactories)
@@ -1349,7 +1358,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     private DeviceMessageSpec replaceDeviceMessageFileValueFactories(DeviceMessageSpec spec) {
-        return new DeviceMessageSpecImpl(this.getDeviceType(), spec, this.propertySpecService);
+        return new FileMessageSpecImpl(this.getDeviceType(), spec, this.propertySpecService);
     }
 
     public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages() {
@@ -1479,13 +1488,25 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     public void setDataloggerEnabled(boolean dataloggerEnabled) {
         if (isActive() && dataloggerEnabled != this.dataloggerEnabled) {
-            throw DataloggerSlaveException.cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(getThesaurus(), this);
+            throw DataloggerSlaveException.cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(getThesaurus(), MessageSeeds.DATALOGGER_ENABLED_CANNOT_CHANGE_ON_ACTIVE_CONFIG , this);
         }
         this.dataloggerEnabled = dataloggerEnabled;
     }
-
+    @Override
     public boolean isDataloggerEnabled() {
         return this.dataloggerEnabled;
+    }
+
+    public void setMultiElementEnabled(boolean multiElementEnabled) {
+        if (isActive() && multiElementEnabled != this.multiElementEnabled) {
+            throw DataloggerSlaveException.cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(getThesaurus(), MessageSeeds.MULTI_ELEMENT_ENABLEMENT_CANNOT_CHANGE_ON_ACTIVE_CONFIG ,this);
+        }
+        this.multiElementEnabled = multiElementEnabled;
+    }
+
+    @Override
+    public boolean isMultiElementEnabled() {
+        return this.multiElementEnabled;
     }
 
     public boolean getValidateOnStore() {
@@ -1720,6 +1741,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 .gatewayType(getGatewayType())
                 .isDirectlyAddressable(isDirectlyAddressable())
                 .dataloggerEnabled(isDataloggerEnabled())
+                .multiElementEnabled(isMultiElementEnabled())
                 .validateOnStore(getValidateOnStore())
                 .add();
         this.getDeviceProtocolProperties().getPropertySpecs().forEach(cloneDeviceProtocolProperties(clone));

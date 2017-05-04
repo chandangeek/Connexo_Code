@@ -11,7 +11,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import java.util.Arrays;

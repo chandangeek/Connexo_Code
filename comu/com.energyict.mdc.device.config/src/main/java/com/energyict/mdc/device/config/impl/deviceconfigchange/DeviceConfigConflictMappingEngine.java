@@ -35,7 +35,7 @@ public final class DeviceConfigConflictMappingEngine {
     }
 
     public void reCalculateConflicts(DeviceType deviceType) {
-        if (!deviceType.isDataloggerSlave()) {
+        if (!deviceType.isDataloggerSlave() && !deviceType.isMultiElementSlave()) {
             List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
 
             deviceConfigChangeActions.stream()

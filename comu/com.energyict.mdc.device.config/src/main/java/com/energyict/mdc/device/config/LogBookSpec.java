@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.masterdata.LogBookType;
 
 import aQute.bnd.annotation.ProviderType;

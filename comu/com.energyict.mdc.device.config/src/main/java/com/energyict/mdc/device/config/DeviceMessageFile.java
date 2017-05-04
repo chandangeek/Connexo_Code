@@ -17,4 +17,6 @@ public interface DeviceMessageFile extends com.energyict.mdc.protocol.api.Device
     DeviceType getDeviceType();
 
     Instant getCreateTime();
+
+    long getSize();
 }
