@@ -243,15 +243,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
                                 store.getProxy().setExtraParam('connectionId', deviceConnectionMethodId);
                                 store.getProxy().setExtraParam('sessionId', deviceConnectionHistoryId);
 
-                                store.on('load', function(){
+                                widget = Ext.widget('deviceConnectionLogMain', {device: device, deviceId: deviceId});
+                                me.getApplication().fireEvent('changecontentevent', widget);
+
+                                store.load(function () {
                                     me.getApplication().fireEvent('loadDevice', device);
                                     me.getApplication().fireEvent('loadConnectionMethod', connectionMethod);
                                     me.getDeviceConnectionLogOverviewForm().loadRecord(deviceConnectionHistory);
                                 });
-
-                                widget = Ext.widget('deviceConnectionLogMain', {device: device, deviceId: deviceId});
-                                me.getApplication().fireEvent('changecontentevent', widget);
-
                             }
                         });
                     }
