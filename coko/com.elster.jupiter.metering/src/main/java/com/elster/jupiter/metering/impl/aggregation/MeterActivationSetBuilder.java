@@ -55,36 +55,43 @@ class MeterActivationSetBuilder {
         this.period = period;
         this.metrologyConfiguration = this.usagePoint.getEffectiveMetrologyConfiguration(this.period.lowerEndpoint()).get().getMetrologyConfiguration();
         this.customPropertySets = new HashSet<>();
-        this.getVersionedCustomPropertySetsWithSLPProperties().forEach(this.customPropertySets::add);
-        this.getNonVersionedCustomPropertySetsWithSLPProperties().forEach(this.customPropertySets::add);
+        this.getVersionedCustomPropertySets().forEach(this.customPropertySets::add);
+        this.getNonVersionedCustomPropertySets().forEach(this.customPropertySets::add);
     }
 
     MeterActivationSetBuilder(CustomPropertySetService customPropertySetService, ServerUsagePoint usagePoint, Instant when) {
         this(customPropertySetService, usagePoint, Range.singleton(when));
     }
 
+    private Set<CustomPropertySet<UsagePoint, ?>> getVersionedCustomPropertySets() {
+        return this.getCustomPropertySets(CustomPropertySet::isVersioned);
+    }
+
+    private Set<CustomPropertySet<UsagePoint, ?>> getNonVersionedCustomPropertySets() {
+        return this.getCustomPropertySets(Predicates.not(CustomPropertySet::isVersioned));
+    }
+
     private Set<CustomPropertySet<UsagePoint, ?>> getVersionedCustomPropertySetsWithSLPProperties() {
-        return this.getCustomPropertySetsWithSLPProperties(CustomPropertySet::isVersioned);
+        return this.getCustomPropertySets(cps -> cps.isVersioned() && this.hasSLPProperty(cps));
     }
 
     private Set<CustomPropertySet<UsagePoint, ?>> getNonVersionedCustomPropertySetsWithSLPProperties() {
-        return this.getCustomPropertySetsWithSLPProperties(Predicates.not(CustomPropertySet::isVersioned));
+        return this.getCustomPropertySets(cps -> !cps.isVersioned() && this.hasSLPProperty(cps));
     }
 
-    private Set<CustomPropertySet<UsagePoint, ?>> getCustomPropertySetsWithSLPProperties(Predicate<CustomPropertySet> versioned) {
+    private Set<CustomPropertySet<UsagePoint, ?>> getCustomPropertySets(Predicate<CustomPropertySet> filter) {
         Set<CustomPropertySet<UsagePoint, ?>> customPropertySets = new HashSet<>();
-        this.addSLPCustomPropertySets(customPropertySets, this.usagePoint.getServiceCategory().getCustomPropertySets(), versioned);
-        this.addSLPCustomPropertySets(customPropertySets, this.metrologyConfiguration.getCustomPropertySets(), versioned);
+        this.addCustomPropertySets(customPropertySets, this.usagePoint.getServiceCategory().getCustomPropertySets(), filter);
+        this.addCustomPropertySets(customPropertySets, this.metrologyConfiguration.getCustomPropertySets(), filter);
         return customPropertySets;
     }
 
-    private void addSLPCustomPropertySets(Set<CustomPropertySet<UsagePoint, ?>> customPropertySets, Collection<RegisteredCustomPropertySet> registered, Predicate<CustomPropertySet> versioned) {
+    private void addCustomPropertySets(Set<CustomPropertySet<UsagePoint, ?>> customPropertySets, Collection<RegisteredCustomPropertySet> registered, Predicate<CustomPropertySet> filter) {
         registered
                 .stream()
                 .map(RegisteredCustomPropertySet::getCustomPropertySet)
                 .filter(Objects::nonNull)   // Remove the once that were not available on the classpath, which may not be a good idea but it does produce weird and ureadable exceptions
-                .filter(versioned)
-                .filter(this::hasSLPProperty)
+                .filter(filter)
                 .forEach(customPropertySets::add);
     }
 
@@ -110,8 +117,7 @@ class MeterActivationSetBuilder {
         Stream.Builder<Instant> builder = Stream.builder();
         this.getOverlappingMeterActivations().flatMap(this::switchTimestamps).forEach(builder::add);
         this.getOverlappingCalendarUsages().flatMap(this::switchTimestamps).forEach(builder::add);
-        this.customPropertySets
-                .forEach(cps -> this.getOverlappingSLPProperties(cps).forEach(builder::add));
+        this.customPropertySets.forEach(cps -> this.getOverlappingProperties(cps).forEach(builder::add));
         return builder
                 .build()
                 .distinct()
@@ -145,7 +151,7 @@ class MeterActivationSetBuilder {
         return this.switchTimestampsFromRange(this.period.intersection(calendarUsage.getRange()));
     }
 
-    private Stream<Instant> getOverlappingSLPProperties(CustomPropertySet<UsagePoint, ?> customPropertySet) {
+    private Stream<Instant> getOverlappingProperties(CustomPropertySet<UsagePoint, ?> customPropertySet) {
         List<CustomPropertySetValues> allValues;
         if (customPropertySet.isVersioned()) {
             allValues = this.customPropertySetService.getAllVersionedValuesFor(customPropertySet, this.usagePoint);
@@ -194,12 +200,21 @@ class MeterActivationSetBuilder {
                             .collect(Collectors.toList());
             Optional<ServerCalendarUsage> calendarUsage = this.getOverlappingCalendarUsages().filter(each -> each.getRange().contains(switchTimestamp)).findAny();
             Optional<SyntheticLoadProfileUsage> syntheticLoadProfileUsage = this.getSyntheticLoadProfileUsage(switchTimestamp);
-            if (meterActivations.isEmpty() && !calendarUsage.isPresent() && !syntheticLoadProfileUsage.isPresent()) {
+            List<CustomPropertySetValues> allCustomPropertyValues = this.getCustomPropertyValues(switchTimestamp);
+            if (meterActivations.isEmpty() && !calendarUsage.isPresent() && !syntheticLoadProfileUsage.isPresent() && allCustomPropertyValues.isEmpty()) {
                 return Optional.empty();
             } else {
                 return Optional.of(this.createMeterActivationSet(switchTimestamp, meterActivations, calendarUsage, syntheticLoadProfileUsage));
             }
         }
+    }
+
+    private List<CustomPropertySetValues> getCustomPropertyValues(Instant switchTimestamp) {
+        return this.getVersionedCustomPropertySets()
+                    .stream()
+                    .map(customPropertySet -> this.customPropertySetService.getUniqueValuesFor(customPropertySet, this.usagePoint, switchTimestamp))
+                    .filter(Predicates.not(CustomPropertySetValues::isEmpty))
+                    .collect(Collectors.toList());
     }
 
     private Optional<SyntheticLoadProfileUsage> getSyntheticLoadProfileUsage(Instant switchTimestamp) {
@@ -229,7 +244,7 @@ class MeterActivationSetBuilder {
 
     private MeterActivationSet createMeterActivationSet(Instant switchTimestamp, List<MeterActivation> meterActivations, Optional<ServerCalendarUsage> calendarUsage, Optional<SyntheticLoadProfileUsage> syntheticLoadProfileUsage) {
         this.sequenceNumber++;
-        MeterActivationSetImpl set = new MeterActivationSetImpl(this.usagePoint, this.metrologyConfiguration, this.sequenceNumber, period, switchTimestamp);
+        MeterActivationSetImpl set = new MeterActivationSetImpl(this.usagePoint, this.metrologyConfiguration, this.sequenceNumber, this.period, switchTimestamp);
         meterActivations.forEach(set::add);
         calendarUsage.ifPresent(set::setCalendar);
         syntheticLoadProfileUsage.ifPresent(set::addSyntheticLoadProfile);

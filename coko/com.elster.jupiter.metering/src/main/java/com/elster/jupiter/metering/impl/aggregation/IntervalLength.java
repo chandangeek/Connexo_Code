@@ -905,7 +905,27 @@ public enum IntervalLength {
     abstract Set<IntervalLength> multiples();
 
     /**
-     * Returns a copy of the the specified Instant truncated to this IntervalLength.
+     * Extends the specified period so that it aligns with this IntervalLength.
+     *
+     * @param period The period
+     * @param zoneId The ZoneId required to correctly truncate
+     * @return The extended period with the same bound types
+     */
+    public Range<Instant> extend(Range<Instant> period, ZoneId zoneId) {
+        Instant truncatedUpperEndPoint = this.truncate(period.upperEndpoint(), zoneId);
+        if (truncatedUpperEndPoint.equals(period.upperEndpoint())) {
+            // Already aligned
+            return period;
+        } else {
+            Instant extendedUpperEndPoint = this.addTo(truncatedUpperEndPoint, zoneId);
+            return Range.range(
+                    period.lowerEndpoint(), period.lowerBoundType(),
+                    extendedUpperEndPoint, period.upperBoundType());
+        }
+    }
+
+    /**
+     * Returns a copy of the specified Instant truncated to this IntervalLength.
      * Truncation returns the biggest value that is &le; the instant
      * that is a multiple of this IntervalLength.
      * In other words:

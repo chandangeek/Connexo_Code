@@ -15,8 +15,8 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Models the usage of {@link SyntheticLoadProfile}s from custom properties
- * within the same time period.
+ * Models the usage of {@link SyntheticLoadProfile}s from
+ * custom properties within the same time period.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2017-02-13 (16:41)
