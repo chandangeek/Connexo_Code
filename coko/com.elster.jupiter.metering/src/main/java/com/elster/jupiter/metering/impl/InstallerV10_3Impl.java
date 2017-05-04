@@ -14,7 +14,9 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.impl.aggregation.CalendarTimeSeriesCacheHandlerFactory;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.slp.SyntheticLoadProfileServiceImpl;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.nls.Layer;
@@ -42,13 +44,19 @@ public class InstallerV10_3Impl implements FullInstaller {
     private final IdsService idsService;
     private final MessageService messageService;
     private final FiniteStateMachineService stateMachineService;
+    private final ServerMetrologyConfigurationService metrologyConfigurationService;
 
     @Inject
-    InstallerV10_3Impl(DataModel dataModel, IdsService idsService, MessageService messageService, FiniteStateMachineService stateMachineService) {
+    InstallerV10_3Impl(DataModel dataModel,
+                       IdsService idsService,
+                       MessageService messageService,
+                       FiniteStateMachineService stateMachineService,
+                       ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.dataModel = dataModel;
         this.idsService = idsService;
         this.messageService = messageService;
         this.stateMachineService = stateMachineService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Override
@@ -68,6 +76,12 @@ public class InstallerV10_3Impl implements FullInstaller {
                 this::createQueues,
                 logger
         );
+        doTry(
+                "Create Check Metrology Purpose",
+                this::createCheckMetrologyPurpose,
+                logger
+        );
+
     }
 
     private void createRecordSpec() {
@@ -96,6 +110,10 @@ public class InstallerV10_3Impl implements FullInstaller {
         Stream.of(EndDeviceStage.values())
                 .forEach(endDeviceStage -> stageSetBuilder.stage(endDeviceStage.getKey()));
         stageSetBuilder.add();
+    }
+
+    private void createCheckMetrologyPurpose() {
+        metrologyConfigurationService.createMetrologyPurpose(DefaultMetrologyPurpose.CHECK);
     }
 
     public void createQueues() {

@@ -213,6 +213,11 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
+    public List<MeterRole> getMeterRoles() {
+        return getDataModel().mapper(MeterRole.class).find();
+    }
+
+    @Override
     public MeterRole findDefaultMeterRole(DefaultMeterRole defaultMeterRole) {
         return this.findMeterRole(defaultMeterRole.getKey()).get();
     }

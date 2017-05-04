@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -152,8 +153,13 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                             Collectors.toMap(
                                 IntervalReadingRecord::getTimeStamp,
                                 Function.identity()));
-        calculatedReadings.putAll(persistedReadings);
-        return calculatedReadings.values().stream().sorted(Comparator.comparing(BaseReading::getTimeStamp)).collect(Collectors.toList());
+
+        // return elements, sorted by timestamp
+        TreeMap<Instant, IntervalReadingRecord> orderedReadings = new TreeMap<>();
+        orderedReadings.putAll(calculatedReadings);
+        orderedReadings.putAll(persistedReadings);
+
+        return new ArrayList<>(orderedReadings.values());
     }
 
     @Override
