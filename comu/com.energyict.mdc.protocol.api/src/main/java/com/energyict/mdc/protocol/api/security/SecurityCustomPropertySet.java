@@ -9,7 +9,7 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.ViewPrivilege;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.upl.meterdata.Device;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -21,14 +21,14 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-18 (12:39)
  */
-public abstract class SecurityCustomPropertySet<T extends PersistentDomainExtension<BaseDevice>> implements CustomPropertySet<BaseDevice, T> {
+public abstract class SecurityCustomPropertySet<T extends PersistentDomainExtension<Device>> implements CustomPropertySet<Device, T> {
 
     @Override
-    public abstract PersistenceSupport<BaseDevice, T> getPersistenceSupport();
+    public abstract PersistenceSupport<Device, T> getPersistenceSupport();
 
     @Override
-    public Class<BaseDevice> getDomainClass() {
-        return BaseDevice.class;
+    public Class<Device> getDomainClass() {
+        return Device.class;
     }
 
     @Override

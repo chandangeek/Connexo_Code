@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 /**
  * Models a file that can be sent to a
- * {@link com.energyict.mdc.protocol.api.device.BaseDevice}
+ * {@link com.energyict.mdc.upl.meterdata.Device}
  * by means of a {@link com.energyict.mdc.protocol.api.device.messages.DeviceMessage}.
  * <p>
  * Note that implementation classes should not forget to close InputStreams that
@@ -24,7 +24,7 @@ import java.util.function.Consumer;
  * @since 2016-05-11 (12:58)
  */
 @ConsumerType
-public interface DeviceMessageFile extends HasId, HasName {
+public interface DeviceMessageFile extends HasId, HasName, com.energyict.mdc.upl.properties.DeviceMessageFile {
 
     /**
      * Supports reading the contents of this DeviceMessageFile.

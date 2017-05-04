@@ -5,6 +5,7 @@
 package com.energyict.mdc.protocol.api.device.data;
 
 import java.io.Serializable;
+import com.energyict.protocol.ProfileData;
 
 public class MeterUsageData implements Serializable {
 

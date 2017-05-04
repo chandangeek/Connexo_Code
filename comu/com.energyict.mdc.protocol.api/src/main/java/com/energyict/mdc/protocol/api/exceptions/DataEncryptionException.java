@@ -7,7 +7,7 @@ package com.energyict.mdc.protocol.api.exceptions;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.security.NoSuchAlgorithmException;
 
@@ -20,7 +20,6 @@ import java.security.NoSuchAlgorithmException;
  * @since 2012-10-17 (12:02)
  */
 public class DataEncryptionException extends CommunicationException {
-
 
     /**
      * Throws a new DataEncryptionException that indicates

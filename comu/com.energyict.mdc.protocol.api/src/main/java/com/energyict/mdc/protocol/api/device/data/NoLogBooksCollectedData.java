@@ -4,7 +4,8 @@
 
 package com.energyict.mdc.protocol.api.device.data;
 
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 /**
  * Models the situation in which events are collected, for a device uniquely identified by its {@link DeviceIdentifier},
@@ -21,6 +22,6 @@ public interface NoLogBooksCollectedData extends CollectedLogBook {
      *
      * @return the {@link DeviceIdentifier deviceIdentifier}
      */
-    public DeviceIdentifier getDeviceIdentifier();
+    DeviceIdentifier getDeviceIdentifier();
 
 }

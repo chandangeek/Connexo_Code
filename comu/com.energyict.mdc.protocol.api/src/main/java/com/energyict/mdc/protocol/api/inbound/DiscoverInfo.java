@@ -14,7 +14,7 @@
 
 package com.energyict.mdc.protocol.api.inbound;
 
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 
 import java.util.List;
 
@@ -55,7 +55,7 @@ public class DiscoverInfo {
         strBuff.append("DiscoverInfo: ");
         strBuff.append("nodeId=" + getNodeId() + ", baudrate=" + getBaudrate() + ", passwords:\n");
         for (int i = 0; i < getPasswords().size(); i++) {
-            strBuff.append((String) getPasswords().get(i) + "\n");
+            strBuff.append(getPasswords().get(i) + "\n");
         }
         return strBuff.toString();
     }

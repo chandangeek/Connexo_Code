@@ -9,7 +9,7 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.upl.meterdata.Device;
 
 import javax.validation.constraints.NotNull;
 import java.util.Optional;
@@ -21,7 +21,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-18 (11:59)
  */
-public abstract class CommonBaseDeviceSecurityProperties extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<BaseDevice> {
+public abstract class CommonBaseDeviceSecurityProperties extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<Device> {
 
     public enum Fields {
         DEVICE {
@@ -65,13 +65,13 @@ public abstract class CommonBaseDeviceSecurityProperties extends AbstractVersion
     }
 
     @NotNull
-    private Reference<BaseDevice> device = Reference.empty();
+    private Reference<Device> device = Reference.empty();
     @NotNull
     private Reference<SecurityPropertySpecProvider> propertySpecProvider = Reference.empty();
     private boolean complete = false;
 
     @Override
-    public void copyFrom(BaseDevice device, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
+    public void copyFrom(Device device, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.device.set(device);
         SecurityPropertySpecProvider propertySpecProvider = (SecurityPropertySpecProvider) propertyValues.getProperty(Fields.PROPERTY_SPEC_PROVIDER
                 .javaName());

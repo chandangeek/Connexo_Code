@@ -19,7 +19,7 @@ import java.util.Optional;
  * for the purpose of a single customer installation.
  * Any DeviceMessageSpec that is created through the ComServer
  * API will by default be a non-standard DeviceMessage.
- * Note that non standard message can still be part
+ * Note that non standard messages can still be part
  * of standard {@link DeviceMessageCategory DeviceMessageCategories}.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -62,11 +62,10 @@ public interface DeviceMessageSpec {
      * @param name The name
      * @return The PropertySpec or an empty Optional if no such PropertySpec exists
      */
-    default Optional<PropertySpec> getPropertySpec (String name) {
+    default Optional<PropertySpec> getPropertySpec(String name) {
         return getPropertySpecs()
                 .stream()
                 .filter(propertySpec -> propertySpec.getName().equals(name))
                 .findAny();
     }
-
 }

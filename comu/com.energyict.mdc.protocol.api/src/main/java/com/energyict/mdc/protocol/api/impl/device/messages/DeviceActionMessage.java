@@ -95,34 +95,6 @@ enum DeviceActionMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(this.stringSpec(DeviceMessageAttributes.AdminNew, propertySpecService, thesaurus));
         }
     },
-    SetOutputOn(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_ON, "Set output on") {
-        @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.OutputOn, propertySpecService, thesaurus));
-        }
-    },
-    SetOutputOff(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_OFF, "Set output off") {
-        @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.OutputOff, propertySpecService, thesaurus));
-        }
-    },
-    SetOutputToggle(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_TOGGLE, "Set output toggle") {
-        @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.OutputToggle, propertySpecService, thesaurus));
-        }
-    },
-    SetOutputPulse(DeviceMessageId.DEVICE_ACTIONS_SET_OUTPUT_PULSE, "Set output pulse") {
-        @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(this.stringSpec(DeviceMessageAttributes.OutputPulse, propertySpecService, thesaurus));
-        }
-    },
     SetAnalogOut(DeviceMessageId.DEVICE_ACTIONS_SET_ANALOG_OUT, "Set Analog out") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {

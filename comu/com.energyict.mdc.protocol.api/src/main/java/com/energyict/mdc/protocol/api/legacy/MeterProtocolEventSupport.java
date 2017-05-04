@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.protocol.api.legacy;
 
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.protocol.MeterEvent;
 
 import java.io.IOException;
 import java.util.Date;

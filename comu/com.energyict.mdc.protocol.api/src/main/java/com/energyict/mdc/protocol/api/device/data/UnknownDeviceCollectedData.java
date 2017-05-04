@@ -4,7 +4,8 @@
 
 package com.energyict.mdc.protocol.api.device.data;
 
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 /**
  * Models the situation in which data is collected, for an unknown Device.
@@ -20,6 +21,6 @@ public interface UnknownDeviceCollectedData extends CollectedData {
      *
      * @return the {@link DeviceIdentifier deviceIdentifier}
      */
-    public DeviceIdentifier getDeviceIdentifier();
+    DeviceIdentifier getDeviceIdentifier();
 
 }

@@ -9,7 +9,7 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.upl.meterdata.Device;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-20 (12:28)
  */
-public abstract class CommonBaseDeviceSecuritySupport<T extends PersistentDomainExtension<BaseDevice>> implements PersistenceSupport<BaseDevice, T> {
+public abstract class CommonBaseDeviceSecuritySupport<T extends PersistentDomainExtension<Device>> implements PersistenceSupport<Device, T> {
 
     @Override
     public String domainFieldName() {

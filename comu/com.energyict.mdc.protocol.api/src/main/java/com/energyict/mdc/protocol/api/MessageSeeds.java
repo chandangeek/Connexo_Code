@@ -10,11 +10,12 @@ import java.util.logging.Level;
 
 /**
  * Provides {@link MessageSeed}s ready to be used by {@link DeviceProtocol}
- * implementation classes to report {@link com.energyict.mdc.issues.Issue}s.
+ * implementation classes to report {@link com.energyict.mdc.upl.issue.Issue}s.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-02-10 (08:57)
  */
+//TODO delete this class, use 9.1 protocol code instead?
 public enum MessageSeeds implements MessageSeed {
 
     LOADPROFILE_NOT_SUPPORTED(100, "issue.loadProfileXnotsupported", "Load profile with OBIS code '{0}' is not supported by the device"),
@@ -59,6 +60,7 @@ public enum MessageSeeds implements MessageSeed {
     PROTOCOL_IO_PARSE_ERROR(139, "protocol.io.parse.error", "Protocol parse error: {0}"),
     GENERAL_PARSE_EXCEPTION(140, "general.parse.exception", "A general parsing error occurred: {0}"),
     INVALID_PROPERTY_VALUE(141, "invalid.property.value", "The property {0} has an invalid value {1}"),
+    COULD_NOT_PARSE_OBIS_CODE(142, "issue.couldNotParseObisCode", "Not a valid obiscode: {0}"),
 //TODO complete this list with the entries of 9.1, will happen when the 9.1 codebase is used
     ;
 

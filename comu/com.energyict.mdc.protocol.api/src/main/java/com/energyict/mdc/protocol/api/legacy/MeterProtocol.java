@@ -4,15 +4,15 @@
 
 package com.energyict.mdc.protocol.api.legacy;
 
-import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
 import com.energyict.mdc.protocol.api.UnsupportedException;
-import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.legacy.dynamic.Pluggable;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceDescriptionSupport;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+
+import com.energyict.cbo.Quantity;
+import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,29 +24,18 @@ import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
+ * Adds configuration support to the {@link com.energyict.mdc.upl.MeterProtocol} interface.
  * <p>
- * MeterProtocol defines the interface between a data collection
- * system and the meter protocol implementation. The interface can both be
- * used at operational time and at configuration time
- * <p/>
- * During normal operations the data collection system will call the MeterProtocol
- * methods in the following sequence:
- * <ul>
- * <li> setProperties </li>
- * <li> init </li>
- * <li> connect </li>
- * <li> any of the get , set and initializeDevice methods in undefined sequence </li>
- * <li> release </li>
- * <li> disconnect </li>
- * </ul>
  * At configuration time, the getRequiredKeys, getOptionalKeys and setProperties methods
- * can be called in any sequence.
+ * can be called in any sequence </p><p>
+ * <p/>
+ * During normal operations the data collection system will first set the configured properties
+ * and will then call the methods of the com.energyict.mdc.upl.MeterProtocol interface as defined.
  *
  * @author Karel
  *         KV 15122003 serialnumber of the device
  */
-
-public interface MeterProtocol extends Pluggable, CachingProtocol, DeviceDescriptionSupport {
+public interface MeterProtocol extends Pluggable, CachingProtocol, com.energyict.mdc.upl.MeterProtocol {
 
     /**
      * The string typically used for the device address property

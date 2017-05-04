@@ -8,10 +8,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.LoadProfileMode;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.upl.meterdata.LoadProfile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ enum LoadProfileMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .referenceSpec(BaseLoadProfile.class)
+                            .referenceSpec(LoadProfile.class)
                             .named(loadProfileAttributeName, LoadProfileDeviceMessageAttributes.loadProfileAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -57,7 +57,7 @@ enum LoadProfileMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(DeviceMessageAttributes.capturePeriodAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -70,7 +70,7 @@ enum LoadProfileMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .timeDurationSpec()
+                            .temporalAmountSpec()
                             .named(DeviceMessageAttributes.capturePeriodAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -98,7 +98,7 @@ enum LoadProfileMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .referenceSpec(BaseLoadProfile.class)
+                            .referenceSpec(LoadProfile.class)
                             .named(loadProfileAttributeName, LoadProfileDeviceMessageAttributes.loadProfileAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -144,6 +144,6 @@ enum LoadProfileMessage implements DeviceMessageSpecEnum {
 
     protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         // Default behavior is not to add anything
-    };
+    }
 
 }
