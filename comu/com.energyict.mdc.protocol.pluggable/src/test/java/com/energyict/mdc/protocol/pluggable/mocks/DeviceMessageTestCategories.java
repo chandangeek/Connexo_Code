@@ -10,6 +10,12 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 
 import java.util.List;
 
+/**
+ * Test enum for DeviceMessageCategories
+ * <p>
+ * Date: 8/02/13
+ * Time: 15:30
+ */
 public enum DeviceMessageTestCategories implements DeviceMessageCategory {
 
     FIRST_TEST_CATEGORY {
@@ -88,5 +94,4 @@ public enum DeviceMessageTestCategories implements DeviceMessageCategory {
     protected PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
-
 }

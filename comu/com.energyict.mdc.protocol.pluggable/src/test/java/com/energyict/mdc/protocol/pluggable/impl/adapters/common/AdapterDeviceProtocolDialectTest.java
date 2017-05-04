@@ -29,6 +29,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -42,9 +43,11 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
@@ -126,10 +129,10 @@ public class AdapterDeviceProtocolDialectTest {
                 new DataVaultModule(),
                 new IssuesModule(),
                 new PluggableModule(),
-                new MdcIOModule(),
                 new BasicPropertiesModule(),
                 new MdcDynamicModule(),
                 new ProtocolPluggableModule(),
+                new TaskModule(),
                 new CustomPropertySetsModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
@@ -205,6 +208,9 @@ public class AdapterDeviceProtocolDialectTest {
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(SearchService.class).toProvider(() -> searchService);
+            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
         }
     }
 

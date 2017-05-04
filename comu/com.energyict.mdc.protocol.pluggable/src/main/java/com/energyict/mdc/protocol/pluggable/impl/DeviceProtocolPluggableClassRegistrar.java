@@ -8,8 +8,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.LicensedProtocol;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceDescriptionSupport;
+import com.energyict.mdc.protocol.LicensedProtocol;
+import com.energyict.mdc.upl.DeviceDescriptionSupport;
 
 import java.time.Instant;
 import java.util.Iterator;

@@ -4,14 +4,19 @@ Private-Package:  \
 	com.energyict.mdc.protocol.pluggable.impl,\
 	com.energyict.mdc.protocol.pluggable.impl.adapters,\
 	com.energyict.mdc.protocol.pluggable.impl.adapters.common,\
-	com.energyict.mdc.protocol.pluggable.impl.adapters.common.identifiers,\
 	com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol,\
 	com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol,\
-	com.energyict.mdc.protocol.pluggable.impl.relations
+	com.energyict.mdc.protocol.pluggable.impl.adapters.upl,\
+	com.energyict.mdc.protocol.pluggable.impl.adapters.upl.accesslevel,\
 Export-Package:  \
 	com.energyict.mdc.protocol.pluggable,\
-	com.energyict.mdc.protocol.pluggable.security
+	com.energyict.mdc.protocol.pluggable.security,\
+	com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel,\
+	com.energyict.mdc.protocol.pluggable.adapters.upl.cps
 Include-Resource: \
 	capabilitymappings.properties\=src/main/resources/capabilitymappings.properties,\
 	messagemappings.properties\=src/main/resources/messagemappings.properties,\
-	securitymappings.properties\=src/main/resources/securitymappings.properties
+	securitymappings.properties\=src/main/resources/securitymappings.properties,\
+	connectiontype-custom-property-set-mapping.properties\=src/main/resources/connectiontype-custom-property-set-mapping.properties,\
+	dialect-custom-property-set-mapping.properties\=src/main/resources/dialect-custom-property-set-mapping.properties,\
+	security-custom-property-set-mapping.properties\=src/main/resources/security-custom-property-set-mapping.properties

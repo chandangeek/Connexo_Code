@@ -4,12 +4,12 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.mocks;
 
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -99,4 +99,9 @@ public class MockCollectedMessage implements CollectedMessage {
 
     }
 
+    @Override
+    public void setFailureInformation(ResultType resultType, List<Issue> issues) {
+        this.setResultType(resultType);
+        this.issues.addAll(issues);
+    }
 }
