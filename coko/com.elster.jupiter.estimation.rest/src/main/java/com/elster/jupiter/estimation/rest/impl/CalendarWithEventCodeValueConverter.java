@@ -13,9 +13,6 @@ import com.elster.jupiter.properties.rest.PropertyValueConverter;
 
 import java.util.Map;
 
-/**
- * Created by aeryomin on 10.04.2017.
- */
 public class CalendarWithEventCodeValueConverter implements PropertyValueConverter {
     @Override
     public boolean canProcess(PropertySpec propertySpec) {

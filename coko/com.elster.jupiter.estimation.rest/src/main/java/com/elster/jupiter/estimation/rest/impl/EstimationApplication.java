@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -26,9 +27,11 @@ import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -54,9 +57,7 @@ public class EstimationApplication extends Application implements MessageSeedPro
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
-
-    public EstimationApplication() {
-    }
+    private List<PropertyValueConverter> converters = new ArrayList<>();
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -67,8 +68,15 @@ public class EstimationApplication extends Application implements MessageSeedPro
 
     @Activate
     public void activate() {
-        propertyValueInfoService.addPropertyValueInfoConverter(new AdvanceReadingsSettingsValueConverter());
+        AdvanceReadingsSettingsValueConverter converter = new AdvanceReadingsSettingsValueConverter();
+        this.converters.add(converter);
         propertyValueInfoService.addPropertyValueInfoConverter(new CalendarWithEventCodeValueConverter());
+        propertyValueInfoService.addPropertyValueInfoConverter(converter);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        this.converters.forEach(propertyValueInfoService::removePropertyValueInfoConverter);
     }
 
     @Reference
