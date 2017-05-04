@@ -610,7 +610,6 @@ Ext.define('Imt.purpose.controller.Readings', {
             commentId = commentCombo.getValue(),
             readings = button.readings,
             record = {
-                modificationFlag: 'EDITED',
                 modificationState: Uni.util.ReadingEditor.modificationState('EDITED'),
                 commentId: commentId,
                 commentValue: commentValue
@@ -702,13 +701,16 @@ Ext.define('Imt.purpose.controller.Readings', {
                         item = _.find(response, function (rec) {
                             return rec.interval.end === item;
                         });
-                        reading.set('value', item.value);
-                        reading.set('isProjected', model.get('projectedValue'));
-                        reading.set('mainValidationInfo', item.mainValidationInfo);
-                        reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
-                        if (commentId !== -1) {
-                            reading.set('commentId', commentId);
-                            reading.set('commentValue', commentValue);
+                        if (item) {
+                            reading.set('value', item.value);
+                            reading.set('isProjected', model.get('projectedValue'));
+                            reading.set('estimatedByRule', undefined);
+                            reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+                            reading.set('validationResult', 'validationStatus.ok');
+                            if (commentId !== -1) {
+                                reading.set('commentId', commentId);
+                                reading.set('commentValue', commentValue);
+                            }
                         }
                     });
                     me.showButtons();
