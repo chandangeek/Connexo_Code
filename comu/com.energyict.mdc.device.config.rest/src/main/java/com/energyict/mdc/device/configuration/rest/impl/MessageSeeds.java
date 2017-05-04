@@ -141,7 +141,12 @@ public enum MessageSeeds implements MessageSeed {
     DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE(224, Keys.DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before you can " +
             "activate a datalogger slave device configuration"),
     DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE(225, Keys.DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before " +
-            "you can activate a datalogger device configuration"),;
+            "you can activate a datalogger device configuration"),
+    MULTI_ELEMENT_SLAVE_AT_LEAST_ONE_DATASOURCE(226, Keys.MULTI_ELEMENT_SLAVE_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before you can " +
+            "activate a multi-element slave configuration"),
+    MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE(227, Keys.MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before " +
+            "you can activate a multi-element device configuration")
+    ;
 
     private final int number;
     private final String key;
@@ -281,6 +286,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CALENDAR_OPTION_ACTIVATE_PASSIVE = ProtocolSupportedCalendarOptions.ACTIVATE_PASSIVE_CALENDAR.getId();
         public static final String DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE = "datalogger.slave.at.least.one.datasource";
         public static final String DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE = "datalogger.enablements.at.least.one.datasource";
+        public static final String MULTI_ELEMENT_SLAVE_AT_LEAST_ONE_DATASOURCE = "multi.element.submeter.at.least.one.datasource";
+        public static final String MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE = "multi.element.enablements.at.least.one.datasource";
     }
 
 }

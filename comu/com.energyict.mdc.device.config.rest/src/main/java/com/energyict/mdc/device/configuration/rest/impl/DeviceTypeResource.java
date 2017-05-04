@@ -162,7 +162,6 @@ public class DeviceTypeResource {
         info.id = id;
         resourceHelper.lockDeviceTypeOrThrowException(info).delete();
         return Response.ok().build();
-
     }
 
     @POST
@@ -172,22 +171,24 @@ public class DeviceTypeResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceTypeInfo.deviceProtocolPluggableClassName);
-        Optional<DeviceLifeCycle> deviceLifeCycle;
-        if (deviceTypeInfo.deviceLifeCycleId != null) {
-            deviceLifeCycle = resourceHelper.findDeviceLifeCycleById(deviceTypeInfo.deviceLifeCycleId);
-        } else {
-            deviceLifeCycle = Optional.empty();
-        }
-        DeviceType deviceType;
-        if (deviceTypeInfo.deviceTypePurpose.equals(DeviceTypePurposeTranslationKeys.DATALOGGER_SLAVE.getKey())) {
-            deviceType = deviceConfigurationService.newDataloggerSlaveDeviceTypeBuilder(deviceTypeInfo.name, deviceLifeCycle.orElse(null)).create();
-        } else {
-            deviceType = deviceConfigurationService
-                    .newDeviceTypeBuilder(
-                        deviceTypeInfo.name,
-                        deviceProtocolPluggableClass.orElse(null),  // Avoid NoSuchElementException but expect a backend validation error as this is a required parameter to create a device type
-                        deviceLifeCycle.orElse(null))               // Avoid NoSuchElementException but expect a backend validation error as this is a required parameter to create a device type
-                    .create();
+        Optional<DeviceLifeCycle> deviceLifeCycleRef = deviceTypeInfo.deviceLifeCycleId != null ? resourceHelper.findDeviceLifeCycleById(deviceTypeInfo.deviceLifeCycleId) : Optional
+                .empty();
+        DeviceType deviceType = null;
+        switch (deviceTypeInfo.deviceTypePurpose){
+            case "REGULAR":
+                deviceType = deviceConfigurationService.newDeviceTypeBuilder(deviceTypeInfo.name,
+                        deviceProtocolPluggableClass.isPresent() ? deviceProtocolPluggableClass.get() : null,
+                        deviceLifeCycleRef.isPresent() ? deviceLifeCycleRef.get() : null).create();
+                break;
+            case "DATALOGGER_SLAVE":
+                deviceType = deviceConfigurationService.newDataloggerSlaveDeviceTypeBuilder(deviceTypeInfo.name, deviceLifeCycleRef
+                        .isPresent() ? deviceLifeCycleRef.get() : null).create();
+                break;
+            case "MULTI_ELEMENT_SLAVE":
+                deviceType = deviceConfigurationService.newMultiElementSlaveDeviceTypeBuilder(deviceTypeInfo.name, deviceLifeCycleRef
+                        .isPresent() ? deviceLifeCycleRef.get() : null).create();
+                break;
+
         }
         return DeviceTypeInfo.from(deviceType);
     }
@@ -203,7 +204,7 @@ public class DeviceTypeResource {
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(deviceTypeInfo);
         deviceType.setName(deviceTypeInfo.name);
         deviceType.setDeviceTypePurpose(getDeviceTypePurpose(deviceTypeInfo));
-        if (!deviceType.isDataloggerSlave()) {
+        if (!deviceType.isDataloggerSlave() && !deviceType.isMultiElementSlave()) {
             deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.deviceProtocolPluggableClassName);
         }
         if (deviceTypeInfo.registerTypes != null) {
@@ -681,7 +682,7 @@ public class DeviceTypeResource {
                 .stream()
                 .filter(calendar -> !usedCalendars.contains(calendar)
                         && calendar.getStatus().equals(Status.ACTIVE)
-                        && calendar.getCategory().getId()==(calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.getDefaultDisplayName()).get().getId()))
+                        && calendar.getCategory().getName().equals(OutOfTheBoxCategory.TOU.name()))
                 .map(calendarInfoFactory::summaryFromCalendar)
                 .collect(Collectors.toList());
 
