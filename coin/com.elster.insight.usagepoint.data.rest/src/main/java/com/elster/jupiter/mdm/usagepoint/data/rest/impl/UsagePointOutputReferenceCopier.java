@@ -62,7 +62,7 @@ public class UsagePointOutputReferenceCopier {
         this.referenceChannelDataInfo = referenceChannelDataInfo;
 
         UsagePoint usagePoint = resourceHelper.findUsagePointByName(referenceChannelDataInfo.referenceUsagePoint)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "usagePoint", referenceChannelDataInfo.referenceUsagePoint));
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "referenceUsagePoint", referenceChannelDataInfo.referenceUsagePoint));
         MetrologyPurpose purpose = resourceHelper.findMetrologyPurpose(referenceChannelDataInfo.referencePurpose)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "referencePurpose", referenceChannelDataInfo.referencePurpose));
         ReadingType readingType = meteringService.getReadingType(referenceChannelDataInfo.readingType)
