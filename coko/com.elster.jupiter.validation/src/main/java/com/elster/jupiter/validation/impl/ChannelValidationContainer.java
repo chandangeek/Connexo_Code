@@ -60,8 +60,8 @@ public class ChannelValidationContainer {
         if (validations.stream().filter(ChannelValidation::hasActiveRules).map(ChannelValidation::getLastChecked).anyMatch(e -> e == null)) {
             return Optional.empty();
         }
-        Map<Channel, List<ChannelValidation>> vals = validations.stream().collect(Collectors.groupingBy(ChannelValidation::getChannel, Collectors.toList()));
-        return vals.values().stream().map(ChannelValidationContainer::getLastCheckedForChannel).filter(Optional::isPresent).map(Optional::get).min(Comparator.naturalOrder());
+        Map<Channel, List<ChannelValidation>> channelValidations = validations.stream().collect(Collectors.groupingBy(ChannelValidation::getChannel, Collectors.toList()));
+        return channelValidations.values().stream().map(ChannelValidationContainer::getLastCheckedForChannel).filter(Optional::isPresent).map(Optional::get).min(Comparator.naturalOrder());
     }
 
     static Optional<Instant> getLastCheckedForChannel(List<ChannelValidation> channelValidations) {
