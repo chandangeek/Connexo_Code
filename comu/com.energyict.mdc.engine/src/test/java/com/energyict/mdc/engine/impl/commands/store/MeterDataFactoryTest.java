@@ -6,14 +6,14 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalBlock;
-import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
+import com.energyict.protocol.ProtocolReadingQualities;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalValue;
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalValue;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -43,12 +43,12 @@ public class MeterDataFactoryTest {
     public void convertToIntervalBlocksTest() {
         when(readingType.getMRID()).thenReturn(READING_TYPE_CODE);
         TimeDuration interval = new TimeDuration(15, TimeDuration.TimeUnit.MINUTES);
-        ChannelInfo channelInfo = new ChannelInfo(1, "1.0.1.8.0.255", Unit.get("kWh"), "meter", readingType);
+        ChannelInfo channelInfo = new ChannelInfo(1, "1.0.1.8.0.255", Unit.get("kWh"), "meter", readingType.getMRID());
         Date intervalDate = new Date(1385974800L);
         IntervalData intervalData = new IntervalData(intervalDate);
-        IntervalValue intervalValue = new IntervalValue(new BigDecimal(123.456), 0, new HashSet<>(Arrays.asList(ProtocolReadingQualities.OTHER.getReadingQualityType())));
+        IntervalValue intervalValue = new IntervalValue(new BigDecimal(123.456), 0, new HashSet<>(Arrays.asList(ProtocolReadingQualities.OTHER.getCimCode())));
         intervalData.setIntervalValues(Collections.singletonList(intervalValue));
-        intervalData.setReadingQualityTypes(new HashSet<>(Arrays.asList(ProtocolReadingQualities.BADTIME.getReadingQualityType())));
+        intervalData.setReadingQualityTypes(new HashSet<>(Arrays.asList(ProtocolReadingQualities.BADTIME.getCimCode())));
         CollectedLoadProfile collectedLoadProfile = mock(CollectedLoadProfile.class);
         when(collectedLoadProfile.getChannelInfo()).thenReturn(Arrays.asList(channelInfo));
         when(collectedLoadProfile.getCollectedIntervalData()).thenReturn(Arrays.asList(intervalData));

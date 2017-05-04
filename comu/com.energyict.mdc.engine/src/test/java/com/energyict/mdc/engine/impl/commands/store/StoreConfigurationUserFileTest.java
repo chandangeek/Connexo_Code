@@ -9,14 +9,13 @@ import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInformation;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-
-import java.time.format.DateTimeFormatter;
-
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.time.format.DateTimeFormatter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -45,7 +44,7 @@ public class StoreConfigurationUserFileTest {
 
     @Test
     public void testExecute() {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         DeviceUserFileConfigurationInformation collectedData = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
         StoreConfigurationUserFile command = new StoreConfigurationUserFile(collectedData, null, new NoDeviceCommandServices());
         command.logExecutionWith(this.executionLogger);
@@ -61,7 +60,7 @@ public class StoreConfigurationUserFileTest {
 
     @Test
     public void testToString() {
-        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
+        DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         DeviceUserFileConfigurationInformation collectedData = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
         StoreConfigurationUserFile command = new StoreConfigurationUserFile(collectedData, null, new NoDeviceCommandServices());
 

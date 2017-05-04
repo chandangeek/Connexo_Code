@@ -11,8 +11,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.impl.identifiers.DeviceIdentifierForAlreadyKnownDeviceByMrID;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -24,29 +22,31 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
-import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
-import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
+import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.OfflineDeviceContext;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLogBook;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.security.CertificateAlias;
 import com.google.common.collect.Range;
 
 import java.sql.SQLException;
@@ -82,7 +82,7 @@ public class MockComServerDAO implements ComServerDAO {
     private Map<ConnectionTask, ComServer> connectionTaskLocking = new HashMap<>();
     private Map<ComTaskExecution, ComPort> comTaskExecutionLocking = new HashMap<>();
 
-    public MockOnlineComServer addEmptyComServer () {
+    public MockOnlineComServer addEmptyComServer() {
         MockOnlineComServer comServer = new MockOnlineComServer(HOST_NAME);
         this.setMockProprerties(comServer);
         this.comServers.add(comServer);
@@ -90,7 +90,7 @@ public class MockComServerDAO implements ComServerDAO {
         return comServer;
     }
 
-    private void setMockProprerties (MockOnlineComServer comServer) {
+    private void setMockProprerties(MockOnlineComServer comServer) {
         comServer.setActive(true);
         comServer.setServerLogLevel(ComServer.LogLevel.INFO);
         comServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
@@ -98,93 +98,92 @@ public class MockComServerDAO implements ComServerDAO {
         comServer.setSchedulingInterPollDelay(new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS));
     }
 
-    public MockOnlineComServer addComServer (int activeOutboundComPorts, int activeInboundComPorts) throws SQLException {
+    public MockOnlineComServer addComServer(int activeOutboundComPorts, int activeInboundComPorts) throws SQLException {
         MockOnlineComServer comServer = this.addEmptyComServer();
         this.addMockComPorts(comServer, activeOutboundComPorts, activeInboundComPorts);
         this.doRefresh(comServer);
         return comServer;
     }
 
-    private void addMockComPorts (MockOnlineComServer comServer, int activeOutboundComPorts, int activeInboundComPorts) throws SQLException {
+    private void addMockComPorts(MockOnlineComServer comServer, int activeOutboundComPorts, int activeInboundComPorts) throws SQLException {
         this.addMockInboundComPorts(comServer, activeInboundComPorts);
         this.addMockOutboundComPorts(comServer, activeOutboundComPorts);
     }
 
-    private void addMockOutboundComPorts (MockOnlineComServer comServer, int activeOutboundComPorts) throws SQLException {
+    private void addMockOutboundComPorts(MockOnlineComServer comServer, int activeOutboundComPorts) throws SQLException {
         for (int i = 0; i < activeOutboundComPorts; i++) {
             this.createOutbound(comServer, i, true, 1);
         }
     }
 
-    private void addMockInboundComPorts (MockOnlineComServer comServer, int activeInboundComPorts) throws SQLException {
+    private void addMockInboundComPorts(MockOnlineComServer comServer, int activeInboundComPorts) throws SQLException {
         for (int i = 0; i < activeInboundComPorts; i++) {
             this.createInbound(comServer, i, true, 1);
         }
     }
 
-    public OutboundComPort createOutbound (int serverIndex, boolean active, int numberOfConnections) throws SQLException {
+    public OutboundComPort createOutbound(int serverIndex, boolean active, int numberOfConnections) throws SQLException {
         MockOnlineComServer comServer = this.getCloneForServer(serverIndex);
         int newPortIndex = comServer.getOutboundComPorts().size();
         return this.createOutbound(comServer, newPortIndex, active, numberOfConnections);
     }
 
-    private OutboundComPort createOutbound (MockOnlineComServer comServer, int i, boolean active, int numberOfConnections) throws SQLException {
+    private OutboundComPort createOutbound(MockOnlineComServer comServer, int i, boolean active, int numberOfConnections) throws SQLException {
         return comServer.createOutbound("ComPort-" + (i + 1), active, numberOfConnections);
     }
 
-    public InboundComPort createInbound (int serverIndex, boolean active, int numberOfConnections) throws SQLException {
+    public InboundComPort createInbound(int serverIndex, boolean active, int numberOfConnections) throws SQLException {
         MockOnlineComServer comServer = this.getCloneForServer(serverIndex);
         int newPortIndex = comServer.getInboundComPorts().size();
         return this.createInbound(comServer, newPortIndex, active, numberOfConnections);
     }
 
-    private InboundComPort createInbound (MockOnlineComServer comServer, int i, boolean active, int numberOfConnections) throws SQLException {
+    private InboundComPort createInbound(MockOnlineComServer comServer, int i, boolean active, int numberOfConnections) throws SQLException {
         return comServer.createTCPBasedInbound("ComPort-" + (i + 1), active, PORT_NUMBER_START + i, numberOfConnections);
     }
 
-    public MockTCPInboundComPort deactivateInbound (int serverIndex, int portNumber) {
+    public MockTCPInboundComPort deactivateInbound(int serverIndex, int portNumber) {
         MockOnlineComServer comServer = this.getCloneForServer(serverIndex);
         return comServer.deactivateInbound(portNumber);
     }
 
-    public void deleteInbound (int serverIndex, int portNumber) {
+    public void deleteInbound(int serverIndex, int portNumber) {
         MockOnlineComServer comServer = this.getCloneForServer(serverIndex);
         comServer.deleteInbound(portNumber);
     }
 
-    public MockOutboundComPort deactivateOutbound (int serverIndex, int portNumber) {
+    public MockOutboundComPort deactivateOutbound(int serverIndex, int portNumber) {
         MockOnlineComServer comServer = this.getCloneForServer(serverIndex);
         return comServer.deactivateOutbound(portNumber);
     }
 
-    public void deleteOutbound (int serverIndex, int portNumber) {
+    public void deleteOutbound(int serverIndex, int portNumber) {
         MockOnlineComServer comServer = this.getCloneForServer(serverIndex);
         comServer.deleteOutbound(portNumber);
     }
 
-    public MockTCPInboundComPort setNumberOfSimultaneousInboundConnections (int serverIndex, int portNumber, int numberOfSimultaneousInboundConnections) {
+    public MockTCPInboundComPort setNumberOfSimultaneousInboundConnections(int serverIndex, int portNumber, int numberOfSimultaneousInboundConnections) {
         MockOnlineComServer comServer = this.getCloneForServer(serverIndex);
         return comServer.setNumberOfSimultaneousInboundConnections(portNumber, numberOfSimultaneousInboundConnections);
     }
 
-    public MockOutboundComPort setNumberOfSimultaneousOutboundConnections (int serverIndex, int portNumber, int numberOfSimultaneousConnections) {
+    public MockOutboundComPort setNumberOfSimultaneousOutboundConnections(int serverIndex, int portNumber, int numberOfSimultaneousConnections) {
         MockOnlineComServer comServer = this.getCloneForServer(serverIndex);
         return comServer.setNumberOfSimultaneousOutboundConnections(portNumber, numberOfSimultaneousConnections);
     }
 
-    public void setSchedulingInterPollDelay (int serverIndex, TimeDuration interPollDelay) {
+    public void setSchedulingInterPollDelay(int serverIndex, TimeDuration interPollDelay) {
         MockOnlineComServer comServer = this.getCloneForServer(serverIndex);
         comServer.setSchedulingInterPollDelay(interPollDelay);
     }
 
-    private MockOnlineComServer getCloneForServer (int serverIndex) {
+    private MockOnlineComServer getCloneForServer(int serverIndex) {
         MockOnlineComServer clone = this.comServerClones.get(serverIndex);
         if (clone == null) {
             try {
                 clone = (MockOnlineComServer) this.comServers.get(serverIndex).clone();
                 this.comServerClones.set(serverIndex, clone);
-            }
-            catch (CloneNotSupportedException e) {
+            } catch (CloneNotSupportedException e) {
                 // Silly compiler, MockOnlineComServer implements Cloneable
             }
         }
@@ -192,12 +191,12 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public ComServer getThisComServer () {
+    public ComServer getThisComServer() {
         return this.getComServer("localhost");
     }
 
     @Override
-    public ComServer getComServer (String hostName) {
+    public ComServer getComServer(String hostName) {
         for (ComServer comServer : this.comServers) {
             if (is(comServer.getName()).equalTo(hostName)) {
                 return comServer;
@@ -207,43 +206,40 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public ComServer refreshComServer (ComServer comServer) {
+    public ComServer refreshComServer(ComServer comServer) {
         this.comServerRefreshCount++;
         return this.doRefresh(comServer);
     }
 
     @Override
-    public ComPort refreshComPort (ComPort comPort) {
+    public ComPort refreshComPort(ComPort comPort) {
         MockComPort mockComPort = (MockComPort) comPort;
         if (mockComPort.isDirty()) {
             mockComPort.setDirty(false);
             try {
                 return (ComPort) mockComPort.clone();
-            }
-            catch (CloneNotSupportedException e) {
+            } catch (CloneNotSupportedException e) {
                 // Silly bugger, the class implements Cloneable
                 return comPort;
             }
-        }
-        else {
+        } else {
             return comPort;
         }
     }
 
-    private ComServer doRefresh (ComServer comServer) {
+    private ComServer doRefresh(ComServer comServer) {
         MockOnlineComServer mockComserver = (MockOnlineComServer) comServer;
         if (mockComserver.isDirty()) {
             int i = this.comServers.indexOf(comServer);
             MockOnlineComServer clone = this.comServerClones.get(i);
             this.comServerClones.set(i, null);  // Throw away the clone
             return clone;
-        }
-        else {
+        } else {
             return comServer;
         }
     }
 
-    public int getAndResetComServerRefreshCount () {
+    public int getAndResetComServerRefreshCount() {
         int value = comServerRefreshCount;
         this.comServerRefreshCount = 0;
         return value;
@@ -255,7 +251,7 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public List<ComTaskExecution> findExecutableInboundComTasks (OfflineDevice device, InboundComPort comPort) {
+    public List<ComTaskExecution> findExecutableInboundComTasks(OfflineDevice device, InboundComPort comPort) {
         return Collections.emptyList();
     }
 
@@ -265,7 +261,7 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier, OfflineDeviceContext offlineDeviceContext) {
         return Optional.empty();
     }
 
@@ -300,8 +296,7 @@ public class MockComServerDAO implements ComServerDAO {
         if (alreadyLockingComServer == null || !comServer.equals(alreadyLockingComServer)) {
             this.connectionTaskLocking.put(connectionTask, comServer);
             return connectionTask;
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -312,48 +307,46 @@ public class MockComServerDAO implements ComServerDAO {
         if (alreadyLockingComServer == null || !comServer.equals(alreadyLockingComServer)) {
             this.connectionTaskLocking.put(connectionTask, comServer);
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
 
     @Override
-    public void unlock (OutboundConnectionTask connectionTask) {
+    public void unlock(OutboundConnectionTask connectionTask) {
         this.connectionTaskLocking.remove(connectionTask);
     }
 
     @Override
-    public boolean attemptLock (ComTaskExecution comTaskExecution, ComPort comPort) {
+    public boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort) {
         ComPort alreadyLockingComPort = this.comTaskExecutionLocking.get(comTaskExecution);
         if (alreadyLockingComPort == null || !comPort.equals(alreadyLockingComPort)) {
             this.comTaskExecutionLocking.put(comTaskExecution, comPort);
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
 
     @Override
-    public void unlock (ComTaskExecution comTaskExecution) {
+    public void unlock(ComTaskExecution comTaskExecution) {
         this.comTaskExecutionLocking.remove(comTaskExecution);
     }
 
     @Override
-    public ConnectionTask<?, ?> executionStarted (ConnectionTask connectionTask, ComServer comServer) {
+    public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComServer comServer) {
         this.connectionTaskLocking.put(connectionTask, comServer);
         return connectionTask;
     }
 
     @Override
-    public ConnectionTask<?, ?> executionFailed (ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> executionFailed(ConnectionTask connectionTask) {
         this.connectionTaskLocking.remove(connectionTask);
         return connectionTask;
     }
 
     @Override
-    public ConnectionTask<?, ?> executionCompleted (ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> executionCompleted(ConnectionTask connectionTask) {
         this.connectionTaskLocking.remove(connectionTask);
         return connectionTask;
     }
@@ -364,7 +357,7 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void executionCompleted (ComTaskExecution comTaskExecution) {
+    public void executionCompleted(ComTaskExecution comTaskExecution) {
         this.comTaskExecutionLocking.remove(comTaskExecution);
     }
 
@@ -374,31 +367,31 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void executionCompleted (List<? extends ComTaskExecution> comTaskExecutions) {
+    public void executionCompleted(List<? extends ComTaskExecution> comTaskExecutions) {
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             this.executionCompleted(comTaskExecution);
         }
     }
 
     @Override
-    public void executionFailed (ComTaskExecution comTaskExecution) {
+    public void executionFailed(ComTaskExecution comTaskExecution) {
         this.comTaskExecutionLocking.remove(comTaskExecution);
     }
 
     @Override
-    public void executionFailed (List<? extends ComTaskExecution> comTaskExecutions) {
+    public void executionFailed(List<? extends ComTaskExecution> comTaskExecutions) {
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             this.executionFailed(comTaskExecution);
         }
     }
 
     @Override
-    public void releaseInterruptedTasks (ComServer comServer) {
+    public void releaseInterruptedTasks(ComServer comServer) {
         this.comTaskExecutionLocking.clear();
     }
 
     @Override
-    public TimeDuration releaseTimedOutTasks (ComServer comServer) {
+    public TimeDuration releaseTimedOutTasks(ComServer comServer) {
         this.comTaskExecutionLocking.clear();
         return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
     }
@@ -425,7 +418,7 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void updateIpAddress (String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
+    public void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
     }
 
     @Override
@@ -434,7 +427,7 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void storeConfigurationFile (DeviceIdentifier deviceIdentifier, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents) {
+    public void storeConfigurationFile(DeviceIdentifier deviceIdentifier, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents) {
         // Not storing any configuration files in mock mode
     }
 
@@ -449,7 +442,12 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public TypedProperties getDeviceConnectionTypeProperties (DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceDialectProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        return null;
+    }
+
+    @Override
+    public TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
         return TypedProperties.empty();
     }
 
@@ -459,8 +457,23 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public TypedProperties getDeviceProtocolProperties (DeviceIdentifier deviceIdentifier) {
+    public TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier) {
         return TypedProperties.empty();
+    }
+
+    @Override
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceLocalProtocolProperties(DeviceIdentifier deviceIdentifier) {
+        return null;
+    }
+
+    @Override
+    public com.energyict.mdc.upl.offline.OfflineDevice getOfflineDevice(DeviceIdentifier deviceIdentifier, OfflineDeviceContext context) {
+        return null;
+    }
+
+    @Override
+    public String getDeviceProtocolClassName(DeviceIdentifier identifier) {
+        return null;
     }
 
     @Override
@@ -479,12 +492,12 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public boolean isStillPending (long comTaskExecutionId) {
+    public boolean isStillPending(long comTaskExecutionId) {
         return true;
     }
 
     @Override
-    public boolean areStillPending (Collection<Long> comTaskExecutionIds) {
+    public boolean areStillPending(Collection<Long> comTaskExecutionIds) {
         return true;
     }
 
@@ -494,18 +507,58 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
-        return new DeviceIdentifierForAlreadyKnownDeviceByMrID((Device) loadProfileIdentifier.findLoadProfile().getDevice());
+    public DeviceIdentifier getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
+        //com.energyict.mdc.device.data.LoadProfile loadProfile = (com.energyict.mdc.device.data.LoadProfile) loadProfileIdentifier.getLoadProfile();     //Downcast to Connexo LoadProfile
+        //return new DeviceIdentifierForAlreadyKnownDeviceByMrID(loadProfile.getDevice());
+        //TODO fix?
+        return null;
     }
 
     @Override
-    public DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
-        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(((LogBook) logBookIdentifier.getLogBook()).getDevice());
+    public DeviceIdentifier getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
+        //TODO fix?
+        //return new DeviceIdentifierForAlreadyKnownDeviceByMrID(((LogBook) logBookIdentifier.getLogBook()).getDevice());
+        return null;
+    }
+
+    @Override
+    public PropertyValueType getDeviceProtocolPropertyValueType(DeviceIdentifier deviceIdentifier, String propertyName) {
+        return null;
+    }
+
+    @Override
+    public void updateDeviceDialectProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+
+    }
+
+    @Override
+    public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+
+    }
+
+    @Override
+    public void addCACertificate(CertificateAlias certificateAlias) {
+
+    }
+
+    @Override
+    public long addEndDeviceCertificate(CollectedCertificateWrapper collectedCertificateWrapper) {
+        return 0;
+    }
+
+    @Override
+    public Optional<Device> getDeviceFor(DeviceIdentifier deviceIdentifier) {
+        return null;
+    }
+
+    @Override
+    public List<Device> getAllDevicesFor(DeviceIdentifier deviceIdentifier) {
+        return null;
     }
 
     @Override
     public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading) {
-         // I am her
+        // I am her
     }
 
     @Override
@@ -548,25 +601,30 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public Boolean getInboundComTaskOnHold(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        return null;
+    }
+
+    @Override
     public void cleanupOutdatedComTaskExecutionTriggers() {
 
     }
 
     @Override
-    public ServerProcessStatus getStatus () {
+    public ServerProcessStatus getStatus() {
         return null;
     }
 
     @Override
-    public void start () {
+    public void start() {
     }
 
     @Override
-    public void shutdown () {
+    public void shutdown() {
     }
 
     @Override
-    public void shutdownImmediate () {
+    public void shutdownImmediate() {
     }
 
     @Override

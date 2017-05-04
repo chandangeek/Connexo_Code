@@ -11,7 +11,6 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
 
 import javax.servlet.ServletException;
@@ -36,7 +35,7 @@ import java.util.logging.Logger;
  * <ul>
  * <li>Check with the {@link DeviceCommandExecutor} if additional tasks can be accepted</li>
  * <li>Execute the InboundDeviceProtocol</li>
- * <li>Filter the {@link com.energyict.mdc.protocol.api.device.data.CollectedData} against the {@link com.energyict.mdc.tasks.ComTask}s of the Device that is posting the data</li>
+ * <li>Filter the {@link com.energyict.mdc.upl.meterdata.CollectedData} against the {@link com.energyict.mdc.tasks.ComTask}s of the Device that is posting the data</li>
  * <li>Convert the filtered collected data to {@link com.energyict.mdc.engine.impl.commands.store.DeviceCommand}s</li>
  * <li>Execute the composite device command with the DeviceCommandExecutor</li>
  * </ul>
@@ -103,7 +102,7 @@ public class ComServlet extends HttpServlet {
         this.checkForConfigurationError(this.communicationHandler.getResponseType());
     }
 
-    private void checkForConfigurationError(InboundDeviceProtocol.DiscoverResponseType responseType) {
+    private void checkForConfigurationError(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType responseType) {
         switch (responseType) {
             case DEVICE_NOT_FOUND: {
                 // Intentional fallthrough
@@ -135,7 +134,7 @@ public class ComServlet extends HttpServlet {
 
     private InboundDiscoveryContextImpl newInboundDiscoveryContext(HttpServletRequest request, HttpServletResponse response) {
         InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, request, response, serviceProvider.connectionTaskService());
-        context.setInboundDAO(this.comServerDAO);
+        context.setComServerDAO(this.comServerDAO);
         context.setLogger(Logger.getAnonymousLogger());
         return context;
     }

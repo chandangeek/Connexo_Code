@@ -4,11 +4,9 @@
 
 package com.energyict.mdc.engine.impl.events.datastorage;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.time.Clock;
 
@@ -25,6 +23,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class UpdateDeviceProtocolPropertyEventTest {
 
+    public static final String TEST_PROPERTY_NAME = "testProperty";
     @Mock
     private AbstractComServerEventImpl.ServiceProvider serviceProvider;
 
@@ -37,11 +36,9 @@ public class UpdateDeviceProtocolPropertyEventTest {
     public void testCategory(){
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getDisplayName()).thenReturn("The changed property");
         String propertyValue = "the new value";
 
-        UpdateDeviceProtocolPropertyEvent event = new UpdateDeviceProtocolPropertyEvent(serviceProvider, deviceIdentifier, propertySpec, propertyValue);
+        UpdateDeviceProtocolPropertyEvent event = new UpdateDeviceProtocolPropertyEvent(serviceProvider, deviceIdentifier, TEST_PROPERTY_NAME, propertyValue);
         assertThat(event.getCategory()).isEqualTo(Category.COLLECTED_DATA_PROCESSING);
     }
 
@@ -49,12 +46,9 @@ public class UpdateDeviceProtocolPropertyEventTest {
     public void testToString() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
-        when(propertySpec.getDisplayName()).thenReturn("The changed property");
         String propertyValue = "The new value";
 
-        UpdateDeviceProtocolPropertyEvent event = new UpdateDeviceProtocolPropertyEvent(serviceProvider, deviceIdentifier, propertySpec, propertyValue);
+        UpdateDeviceProtocolPropertyEvent event = new UpdateDeviceProtocolPropertyEvent(serviceProvider, deviceIdentifier, TEST_PROPERTY_NAME, propertyValue);
         // Business method
         String eventString = event.toString();
 
@@ -64,12 +58,9 @@ public class UpdateDeviceProtocolPropertyEventTest {
 
     @Test
     public void testToStringNoDeviceIdentifier() {
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
-        when(propertySpec.getDisplayName()).thenReturn("The changed property");
         String propertyValue = "the new value";
 
-        UpdateDeviceProtocolPropertyEvent event = new UpdateDeviceProtocolPropertyEvent(serviceProvider, null, propertySpec, propertyValue);
+        UpdateDeviceProtocolPropertyEvent event = new UpdateDeviceProtocolPropertyEvent(serviceProvider, null, TEST_PROPERTY_NAME, propertyValue);
         // Business method
         String eventString = event.toString();
 
@@ -95,16 +86,14 @@ public class UpdateDeviceProtocolPropertyEventTest {
     public void testToStringNoPropertyValue() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.toString()).thenReturn("My Device identifier");
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getDisplayName()).thenReturn("The changed property");
 
-        UpdateDeviceProtocolPropertyEvent event = new UpdateDeviceProtocolPropertyEvent(serviceProvider, deviceIdentifier, propertySpec, null);
+        UpdateDeviceProtocolPropertyEvent event = new UpdateDeviceProtocolPropertyEvent(serviceProvider, deviceIdentifier, TEST_PROPERTY_NAME, null);
+
         // Business method
         String eventString = event.toString();
 
         // Asserts
         assertThat(eventString).matches("\\{.*\\}");
     }
-
 
 }

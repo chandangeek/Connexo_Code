@@ -6,17 +6,16 @@ package com.energyict.mdc.engine.impl.events.datastorage;
 
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-
-import java.time.Clock;
-import java.util.Optional;
-
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.time.Clock;
+import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

@@ -4,14 +4,14 @@
 
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.obis.ObisCode;
 import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfilesTaskOptions;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
 import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 

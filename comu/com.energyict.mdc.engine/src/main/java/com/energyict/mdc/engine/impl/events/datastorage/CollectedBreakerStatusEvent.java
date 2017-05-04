@@ -6,7 +6,7 @@ package com.energyict.mdc.engine.impl.events.datastorage;
 
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.commands.store.CollectedBreakerStatusDeviceCommand;
-import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 
 import org.json.JSONException;
 import org.json.JSONWriter;

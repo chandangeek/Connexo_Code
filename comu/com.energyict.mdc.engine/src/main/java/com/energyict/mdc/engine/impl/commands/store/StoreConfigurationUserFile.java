@@ -10,8 +10,8 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.StoreConfigurationEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInformation;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
- * that will store configuration information of a {@link com.energyict.mdc.protocol.api.device.BaseDevice device}
+ * that will store configuration information of a {@link com.energyict.mdc.upl.meterdata.Device device}
  * in a UserFile alongside that device, i.e. the UserFile will be stored in the same parent folder.
  *
  * @author Rudi Vankeirsbilck (rudi)

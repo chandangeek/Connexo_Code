@@ -15,14 +15,13 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.device.LogBookFactory;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
 
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -32,7 +31,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * Simple command that just reads the requested {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}s from the device.
+ * Simple command that just reads the requested {@link com.energyict.mdc.upl.meterdata.LoadProfile}s from the device.
  */
 public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComCommand implements ReadLegacyLoadProfileLogBooksDataCommand {
 
@@ -50,13 +49,17 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
         lastLogBookDate = getLastLogbookDate((MeterProtocolAdapter) deviceProtocol);
         loadProfileLogBooksData = ((MeterProtocolAdapter) deviceProtocol).getLoadProfileLogBooksData(legacyLoadProfileLogBooksCommand.getLoadProfileReaders(),
                 legacyLoadProfileLogBooksCommand.getLogBookReaders());
+
         removeUnwantedChannels(legacyLoadProfileLogBooksCommand.getLoadProfileReaders(), loadProfileLogBooksData);
+        addReadingTypesToChannelInfos(loadProfileLogBooksData, legacyLoadProfileLogBooksCommand.getLoadProfileReaders());
+
         this.legacyLoadProfileLogBooksCommand.addListOfCollectedDataItems(loadProfileLogBooksData);
     }
 
     private Instant getLastLogbookDate(MeterProtocolAdapter deviceProtocol) {
         try {
-            return deviceProtocol.getValidLogBook(this.legacyLoadProfileLogBooksCommand.getLogBookReaders()).getLastLogBook();
+            Date lastLogBook = deviceProtocol.getValidLogBook(this.legacyLoadProfileLogBooksCommand.getLogBookReaders()).getLastLogBook();
+            return lastLogBook == null ? null : lastLogBook.toInstant();
         } catch (Exception e) {
             return Instant.now();
         }
@@ -93,8 +96,8 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
                         MessageFormat.format(
                                 "{0} [{1,date,yyyy-MM-dd HH:mm:ss} - {2,date,yyy-MM-dd HH:mm:ss}]",
                                 loadProfileReader.getProfileObisCode(),
-                                Date.from(loadProfileReader.getStartReadingTime()),
-                                Date.from(loadProfileReader.getEndReadingTime())));
+                                loadProfileReader.getStartReadingTime(),
+                                loadProfileReader.getEndReadingTime()));
                 loadProfilesToReadBuilder.next();
             }
         }
@@ -170,15 +173,5 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImpl extends SimpleComComma
             }
         }
         return null;
-    }
-
-    private LogBookReader getValidLogBook(List<LogBookReader> logBookReaders) {
-        LogBookReader validLogBook = null;
-        for (LogBookReader logBookReader : logBookReaders) {
-            if (logBookReader.getLogBookObisCode().equals(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
-                validLogBook = logBookReader;
-            }
-        }
-        return validLogBook;
     }
 }

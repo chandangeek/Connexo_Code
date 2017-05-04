@@ -6,7 +6,10 @@ package com.energyict.mdc.engine.impl.events.datastorage;
 
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCommand;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
@@ -32,13 +35,20 @@ public class CollectedLoadProfileEvent extends AbstractCollectedDataProcessingEv
         writer.object();
         writer.key("loadProfileIdentifier");
         writer.object();
-        writer.key("class").value(loadProfile.getLoadProfileIdentifier().getClass().getSimpleName());
-        writer.key("deviceIdentifier").value(loadProfile.getLoadProfileIdentifier().getDeviceIdentifier().toString());
+        LoadProfileIdentifier loadProfileIdentifier = loadProfile.getLoadProfileIdentifier();
+        writer.key("class").value(loadProfileIdentifier.getClass().getSimpleName());
+        Introspector loadProfileIntrospector = loadProfileIdentifier.forIntrospection();
+        try {
+            DeviceIdentifier deviceIdentifier = (DeviceIdentifier) loadProfileIntrospector.getValue("device");
+            writer.key("deviceIdentifier").value(deviceIdentifier.toString());
+        } catch (IllegalArgumentException e) {
+            // The LoadProfileIdentifier does not support "device" so it apparently does not know about the device directly.
+        }
         writer.key("identifiers");
         writer.array();
-        for (Object each : loadProfile.getLoadProfileIdentifier().getIdentifier()) {
+        for (String role: loadProfileIntrospector.getRoles()) {
             writer.object();
-            writer.key("value").value(each.toString());
+            writer.key("value").value(loadProfileIntrospector.getValue(role).toString());
             writer.endObject();
         }
         writer.endArray();

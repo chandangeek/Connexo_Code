@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.events;
 
-import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.upl.issue.Issue;
 
 import java.util.List;
 

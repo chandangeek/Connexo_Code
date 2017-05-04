@@ -76,10 +76,10 @@ abstract class AbstractRescheduleBehavior {
     }
 
     protected Instant calculateNextExecutionTimestampFromBaseline(Instant baseLine, ComTaskExecution comTaskExecution) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(Date.from(baseLine));
         Optional<NextExecutionSpecs> nextExecutionSpecs = comTaskExecution.getNextExecutionSpecs();
         if (nextExecutionSpecs.isPresent()) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(Date.from(baseLine));
             return nextExecutionSpecs.get().getNextTimestamp(calendar).toInstant();
         } else {
             return null;

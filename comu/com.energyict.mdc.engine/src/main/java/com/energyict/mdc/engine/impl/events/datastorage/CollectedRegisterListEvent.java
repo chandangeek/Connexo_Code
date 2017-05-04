@@ -4,16 +4,15 @@
 
 package com.energyict.mdc.engine.impl.events.datastorage;
 
-import com.energyict.mdc.common.Quantity;
+import com.energyict.cbo.Quantity;
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.commands.store.CollectedRegisterListDeviceCommand;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
-
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
-import java.time.Instant;
+import java.util.Date;
 
 /**
  * {@link CollectedDataProcessingEvent} related to a {@link CollectedRegisterListDeviceCommand}
@@ -51,21 +50,21 @@ public class CollectedRegisterListEvent extends AbstractCollectedDataProcessingE
             if (text != null){
                 writer.key("text").value(text);
             }
-            Instant readTime = each.getReadTime();
+            Date readTime = each.getReadTime();
             if (readTime != null){
-                writer.key("readTime").value(readTime);
+                writer.key("readTime").value(readTime.toInstant());
             }
-            Instant fromTime = each.getFromTime();
-            if (readTime != null){
-                writer.key("fromTime").value(fromTime);
+            Date fromTime = each.getFromTime();
+            if (fromTime != null){
+                writer.key("fromTime").value(fromTime.toInstant());
             }
-            Instant toTime = each.getToTime();
-            if (readTime != null){
-                writer.key("toTime").value(toTime);
+            Date toTime = each.getToTime();
+            if (toTime != null){
+                writer.key("toTime").value(toTime.toInstant());
             }
-            Instant eventTime = each.getEventTime();
+            Date eventTime = each.getEventTime();
             if (eventTime != null){
-                writer.key("eventTime").value(eventTime);
+                writer.key("eventTime").value(eventTime.toInstant());
             }
             writer.endObject();
         }

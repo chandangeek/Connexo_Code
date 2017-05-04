@@ -21,22 +21,23 @@ import com.energyict.mdc.engine.impl.tools.StackTracePrinter;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.io.ModemException;
-import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.issues.Problem;
-import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
+import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.issue.Problem;
+import com.energyict.mdc.upl.issue.Warning;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.LoadProfileReader;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -72,7 +73,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
         }
 
         this.groupedDeviceCommand = groupedDeviceCommand;
-        this.basicComCommandBehavior = new BasicComCommandBehavior(this, ComCommandDescriptionTitle.getComCommandDescriptionTitleFor(this.getClass()).getDescription(), getServiceProvider().clock());
+        this.basicComCommandBehavior = new BasicComCommandBehavior(this, ComCommandDescriptionTitle.getComCommandDescriptionTitleFor(this.getClass()).getDescription(), getServiceProvider().clock(), getServiceProvider().deviceMessageService());
     }
 
     private CommandRoot.ServiceProvider getServiceProvider() {
@@ -92,40 +93,49 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                 try {
                     doExecute(deviceProtocol, executionContext);
                     success = true;
-                } catch (CommunicationException e) {
-                    if (e instanceof ConnectionCommunicationException) {
-
-                        if (e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.NUMBER_OF_RETRIES_REACHED_CONNECTION_STILL_INTACT) {
-                            //A special case applicable for physical slaves that have the same gateway (and thus connection task)
-                            //It is a common timeout (we did not receive the response of the slave device in time), but the connection is still intact. Other physical slaves can still use it.
-                            addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.TimeoutError);
-                            getGroupedDeviceCommand().skipOtherComTaskExecutions();
-                        } else if (e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.UNEXPECTED_PROTOCOL_ERROR
-                                || e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.CIPHERING_EXCEPTION) {
-                            //Problem in the application layer of the protocol, specific for the current physical slave. The next physical slaves can still be read out.
-                            //For example: invalid frame counter, decryption failure, empty object list, etc.
-                            addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.UnexpectedError);
-                            getGroupedDeviceCommand().skipOtherComTaskExecutions();
-                        } else {
-                            //Any other ConnectionCommunicationException means that the connection is broken/closed and can no longer be used.
-                            //The next comtasks for this connection will be set to 'not executed'.
-                            connectionErrorOccurred(deviceProtocol, e);
-                        }
-
-                    } else if (e instanceof ConnectionSetupException || e instanceof ModemException) {
-                        connectionErrorOccurred(deviceProtocol, e);
+                } catch (com.energyict.mdc.upl.io.ConnectionCommunicationException e) {
+                    if (com.energyict.mdc.upl.io.ConnectionCommunicationException.Type.INTERRUPTED_BY_EXCEEDED_ALLOWED_NUMBER_OF_ATTEMPTS.equals(e.getType())) {
+                        /* A special case applicable for physical slaves that have the same gateway (and thus connection task)
+                         * It is a common timeout (we did not receive the response of the slave device in time), but the connection is still intact. Other physical slaves can still use it. */
+                        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.TimeoutError);
+                        getGroupedDeviceCommand().skipOtherComTaskExecutions();
                     } else {
-                        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.ProtocolError);
+                        /* Any other upl ConnectionCommunicationException means that the connection is broken/closed and can no longer be used.
+                         * The next comtasks for this connection will be set to 'not executed'. */
+                        connectionErrorOccurred(deviceProtocol, e);
                     }
                     executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
-
-                } catch (DataParseException e) {
+                } catch (ConnectionCommunicationException e) {
+                    if (e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.NUMBER_OF_RETRIES_REACHED_CONNECTION_STILL_INTACT) {
+                        /* A special case applicable for physical slaves that have the same gateway (and thus connection task)
+                         * It is a common timeout (we did not receive the response of the slave device in time), but the connection is still intact. Other physical slaves can still use it. */
+                        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.TimeoutError);
+                        getGroupedDeviceCommand().skipOtherComTaskExecutions();
+                    } else if (e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.UNEXPECTED_PROTOCOL_ERROR
+                            || e.getMessageSeed() == com.energyict.mdc.protocol.api.MessageSeeds.CIPHERING_EXCEPTION) {
+                        /* Problem in the application layer of the protocol, specific for the current physical slave.
+                         * The next physical slaves can still be read out.
+                         * For example: invalid frame counter, decryption failure, empty object list, etc. */
+                        addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.UnexpectedError);
+                        getGroupedDeviceCommand().skipOtherComTaskExecutions();
+                    } else {
+                        /* Any other ConnectionCommunicationException means that the connection is broken/closed and can no longer be used.
+                         * The next comtasks for this connection will be set to 'not executed'. */
+                        connectionErrorOccurred(deviceProtocol, e);
+                    }
+                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
+                } catch (ConnectionSetupException | com.energyict.mdc.upl.io.ConnectionSetupException | ModemException | com.energyict.mdc.upl.io.ModemException e) {
+                    connectionErrorOccurred(deviceProtocol, e);
+                    executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
+                } catch (CommunicationException | DataParseException e) {
                     addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.ProtocolError);
                     executionContext.connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
                 } catch (DeviceConfigurationException | CanNotFindForIdentifier | DuplicateException e) {
                     addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e), CompletionCode.ConfigurationError);
                     executionContext.connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
-
+                } catch (NestedPropertyValidationException e) {
+                    addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.NOT_EXECUTED_DUE_TO_GENERAL_SETUP_ERROR, e.getUplException()), CompletionCode.ConfigurationError);
+                    executionContext.connectionLogger.taskExecutionFailedDueToProblems(Thread.currentThread().getName(), getComTasksDescription(executionContext), executionContext.getComTaskExecution().getDevice().getName());
                 } catch (LegacyProtocolException e) {
                     if (isExceptionCausedByALegacyTimeout(e)) {
                         connectionErrorOccurred(deviceProtocol, e);
@@ -375,6 +385,30 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     }
 
     /**
+     * Fill in the proper readingTypeMRID on the collected channel infos.
+     */
+    protected void addReadingTypesToChannelInfos(List<CollectedData> collectedDatas, List<LoadProfileReader> loadProfileReaders) {
+        for (CollectedData collectedData : collectedDatas) {
+            if (collectedData instanceof CollectedLoadProfile) {
+                CollectedLoadProfile collectedLoadProfile = (CollectedLoadProfile) collectedData;
+                for (LoadProfileReader loadProfileReader : loadProfileReaders) {
+                    if (collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode().equalsIgnoreBChannel(loadProfileReader.getProfileObisCode())) {
+
+                        collectedLoadProfile.getChannelInfo().forEach(collectedChannelInfo -> collectedChannelInfo.setReadingTypeMRID(
+                                loadProfileReader.getChannelInfos()
+                                        .stream()
+                                        .filter(configuredChannelInfo -> configuredChannelInfo.equals(collectedChannelInfo))
+                                        .findAny()
+                                        .get()
+                                        .getReadingTypeMRID()
+                        ));
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Return true if the read out channel (identified by obiscode, unit, serial number) is also configured in EIServer.
      * Otherwise, interval data for this channel cannot be stored in EIServer. It will be filtered out.
      * <p>
@@ -387,7 +421,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     private boolean channelIsConfigured(LoadProfileReader loadProfileReader, ChannelInfo readChannel) {
 
         //Clone the argument
-        ChannelInfo clone = new ChannelInfo(readChannel.getId(), readChannel.getName(), readChannel.getUnit(), readChannel.getMeterIdentifier(), readChannel.isCumulative(), readChannel.getReadingType());
+        ChannelInfo clone = new ChannelInfo(readChannel.getId(), readChannel.getName(), readChannel.getUnit(), readChannel.getMeterIdentifier(), readChannel.isCumulative(), readChannel.getReadingTypeMRID());
 
         //We found an exact match, cool.
         if (loadProfileReader.getChannelInfos().contains(clone)) {

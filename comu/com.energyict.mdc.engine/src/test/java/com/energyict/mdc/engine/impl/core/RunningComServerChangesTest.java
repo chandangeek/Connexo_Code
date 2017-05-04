@@ -35,18 +35,17 @@ import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.monitor.ComServerMonitor;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Clock;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -159,7 +158,7 @@ public class RunningComServerChangesTest {
         verify(scheduledComPort, times(1)).start();
     }
 
-    @Test
+    @Test(timeout = 20000)
     public void testAddOutboundComPortThatShouldBeIgnored() throws InterruptedException, SQLException {
         MockComServerDAO comServerDAO = new MockComServerDAO();
         comServerDAO.addEmptyComServer();

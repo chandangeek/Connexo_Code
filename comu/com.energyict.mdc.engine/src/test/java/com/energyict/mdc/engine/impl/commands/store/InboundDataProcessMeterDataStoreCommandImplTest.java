@@ -28,10 +28,10 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
-import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.time.Clock;
 import java.util.Collections;
@@ -60,11 +60,8 @@ public class InboundDataProcessMeterDataStoreCommandImplTest {
     private static final long DEVICE_ID = CONNECTION_TASK_ID + 1;
     private static final long COM_TASK_EXECUTION_ID = DEVICE_ID + 1;
 
-    private final String deviceIdentifierString = "MyIdentifier";
     @Mock
     protected EventPublisherImpl eventPublisher;
-    private ExecutionContext executionContext;
-    private Clock clock = Clock.systemDefaultZone();
     @Mock
     private DeviceCommand.ServiceProvider serviceProvider;
     @Mock
@@ -84,6 +81,9 @@ public class InboundDataProcessMeterDataStoreCommandImplTest {
     @Mock
     private Thesaurus thesaurus;
 
+    private ExecutionContext executionContext;
+    private Clock clock = Clock.systemDefaultZone();
+
     @Before
     public void setup() {
         when(nlsService.getThesaurus(any(), any())).thenReturn(thesaurus);
@@ -97,7 +97,6 @@ public class InboundDataProcessMeterDataStoreCommandImplTest {
         when(executionContextServiceProvider.eventPublisher()).thenReturn(this.eventPublisher);
 
         executionContext = newTestExecutionContext();
-        when(deviceIdentifier.getIdentifier()).thenReturn(deviceIdentifierString);
     }
 
     @Test

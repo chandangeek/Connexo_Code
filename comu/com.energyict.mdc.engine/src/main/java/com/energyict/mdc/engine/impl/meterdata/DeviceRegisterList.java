@@ -7,10 +7,10 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.engine.impl.commands.store.CollectedRegisterListDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import java.util.List;
 
@@ -21,9 +21,9 @@ import java.util.List;
 
 public class DeviceRegisterList extends CompositeCollectedData<CollectedRegister> implements CollectedRegisterList {
 
-    private final DeviceIdentifier<?> deviceIdentifier;
+    private final DeviceIdentifier deviceIdentifier;
 
-    public DeviceRegisterList(DeviceIdentifier<?> deviceIdentifier) {
+    public DeviceRegisterList(DeviceIdentifier deviceIdentifier) {
         this.deviceIdentifier = deviceIdentifier;
     }
 
@@ -38,7 +38,7 @@ public class DeviceRegisterList extends CompositeCollectedData<CollectedRegister
     }
 
     @Override
-    public DeviceIdentifier<?> getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
     }
 

@@ -20,7 +20,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
@@ -38,11 +37,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;

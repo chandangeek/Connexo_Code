@@ -6,15 +6,15 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
-import com.energyict.mdc.protocol.api.device.data.ResultType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -49,12 +49,13 @@ public class PreStoreRegisters {
         Map<DeviceIdentifier, List<Reading>> processedReadings = new HashMap<>();
         for (CollectedRegister collectedRegister : collectedRegisterList.getCollectedRegisters()) {
             if (collectedRegister.getResultType().equals(ResultType.Supported)) {
-                Optional<OfflineRegister> offlineRegister = this.comServerDAO.findOfflineRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadTime());
+                Optional<OfflineRegister> offlineRegister = this.comServerDAO.findOfflineRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadTime().toInstant());
                 DeviceIdentifier deviceIdentifier = offlineRegister.get().getDeviceIdentifier();
                 if (offlineRegister.isPresent()) {
-                    Reading reading = MeterDataFactory.createReadingForDeviceRegisterAndObisCode(collectedRegister);
+                    String readingTypeMRID = offlineRegister.get().getReadingTypeMRID();
+                    Reading reading = MeterDataFactory.createReadingForDeviceRegisterAndObisCode(collectedRegister, readingTypeMRID);
                     if (!collectedRegister.isTextRegister() && collectedRegister.getCollectedQuantity() != null) {
-                        Unit configuredUnit = this.mdcReadingTypeUtilService.getMdcUnitFor(collectedRegister.getReadingType().getMRID());
+                        Unit configuredUnit = this.mdcReadingTypeUtilService.getMdcUnitFor(readingTypeMRID);
                         int scaler = getScaler(collectedRegister.getCollectedQuantity().getUnit(), configuredUnit);
                         Reading scaledReading = getScaledReading(scaler, reading);
                         addProcessedReadingFor(processedReadings, deviceIdentifier, scaledReading);

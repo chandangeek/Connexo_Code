@@ -12,7 +12,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
 import org.junit.Test;

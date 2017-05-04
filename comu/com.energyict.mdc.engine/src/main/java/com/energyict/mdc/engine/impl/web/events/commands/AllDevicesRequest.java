@@ -7,7 +7,7 @@ package com.energyict.mdc.engine.impl.web.events.commands;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 
 /**
- * Modesl a request to widen the interest of
+ * Models a request to widen the interest of
  * device related events to all devices.
  *
  * @author Rudi Vankeirsbilck (rudi)

@@ -8,9 +8,8 @@ import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedData;
 import org.json.JSONException;
 import org.json.JSONWriter;
 

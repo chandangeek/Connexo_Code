@@ -11,15 +11,15 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.UpdateDeviceIpAddressEvent;
 import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
-import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link DeviceCommand} interface
- * that will update the ip address of a {@link com.energyict.mdc.protocol.api.device.BaseDevice device}
+ * that will update the ip address of a {@link com.energyict.mdc.upl.meterdata.Device device}
  * from information that was collected during the device communication session.
  *
  * @author Rudi Vankeirsbilck (rudi)
@@ -27,7 +27,7 @@ import java.util.Optional;
  */
 public class UpdateDeviceIpAddress extends DeviceCommandImpl<UpdateDeviceIpAddressEvent> {
 
-    public final static String DESCRIPTION_TITLE = "Update device IP address";
+    public static final String DESCRIPTION_TITLE = "Update device IP address";
 
     private DeviceIdentifier deviceIdentifier;
     private String ipAddress;

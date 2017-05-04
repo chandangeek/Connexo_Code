@@ -4,8 +4,7 @@
 
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 
 public abstract class DeviceQuantityRegister extends DeviceRegister {
 
@@ -13,12 +12,10 @@ public abstract class DeviceQuantityRegister extends DeviceRegister {
      * Default constructor
      *
      * @param registerIdentifier the identifier of the Register
-     * @param readingType
      */
-    public DeviceQuantityRegister(RegisterIdentifier registerIdentifier, ReadingType readingType) {
-        super(registerIdentifier, readingType);
+    public DeviceQuantityRegister(RegisterIdentifier registerIdentifier) {
+        super(registerIdentifier);
     }
-
 
     @Override
     public boolean isTextRegister() {

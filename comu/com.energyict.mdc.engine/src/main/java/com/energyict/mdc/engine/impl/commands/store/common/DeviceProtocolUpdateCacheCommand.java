@@ -14,7 +14,7 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
 public class DeviceProtocolUpdateCacheCommand extends SimpleComCommand {
@@ -40,7 +40,7 @@ public class DeviceProtocolUpdateCacheCommand extends SimpleComCommand {
     protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
         if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
-            if (this.deviceCache != null && this.deviceCache.isDirty()) {
+            if (this.deviceCache != null && this.deviceCache.contentChanged()) {
                 builder.addLabel("Content has changed, update is required");
             } else {
                 builder.addLabel("No update needed");

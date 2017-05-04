@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.engine.commands.store;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceCacheCommand;
 import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceTopologyDeviceCommand;
@@ -48,26 +46,27 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInform
 import com.energyict.mdc.engine.impl.meterdata.NoLogBooksForDevice;
 import com.energyict.mdc.engine.impl.meterdata.UpdatedDeviceCache;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.device.BaseLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-import com.energyict.mdc.protocol.api.tasks.TopologyAction;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLogBook;
+import com.energyict.mdc.upl.tasks.TopologyAction;
+
+import com.energyict.obis.ObisCode;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -100,14 +99,14 @@ public class DeviceCommandImplTest {
     EventPublisher publisher;
 
     @Before
-    public void initMocks(){
+    public void initMocks() {
         when(serviceProvider.eventPublisher()).thenReturn(publisher);
         when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
         when(serviceProvider.issueService()).thenReturn(issueService);
     }
 
     @Test
-    public void ExecutingCollectedDeviceCacheCommandPublishesEvent(){
+    public void ExecutingCollectedDeviceCacheCommandPublishesEvent() {
         UpdatedDeviceCache deviceCache = mock(UpdatedDeviceCache.class);
 
         CollectedDeviceCacheCommand deviceCacheCommand = new CollectedDeviceCacheCommand(deviceCache, comTaskExecution, serviceProvider);
@@ -121,15 +120,15 @@ public class DeviceCommandImplTest {
     }
 
     @Test
-    public void ExecutingCollectedDeviceTopologyDeviceCommandPublishesEvent(){
+    public void ExecutingCollectedDeviceTopologyDeviceCommandPublishesEvent() {
         CollectedTopology deviceTopology = mock(CollectedTopology.class);
         when(deviceTopology.getTopologyAction()).thenReturn(TopologyAction.VERIFY);
         MeterDataStoreCommand meterDataStoreCommand = mock(MeterDataStoreCommand.class);
         Optional<OfflineDevice> device = Optional.of(mock(OfflineDevice.class));
 
-        when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class),any(DeviceOfflineFlags.class))).thenReturn(device);
+        when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(DeviceOfflineFlags.class))).thenReturn(device);
 
-        CollectedDeviceTopologyDeviceCommand topologyCommand = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, meterDataStoreCommand,serviceProvider );
+        CollectedDeviceTopologyDeviceCommand topologyCommand = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, meterDataStoreCommand, serviceProvider);
 
         // Business method
         topologyCommand.execute(comServerDAO);
@@ -140,10 +139,10 @@ public class DeviceCommandImplTest {
     }
 
     @Test
-    public void ExecutingCollectedFirmwareVersionDeviceCommandPublishesEvent(){
+    public void ExecutingCollectedFirmwareVersionDeviceCommandPublishesEvent() {
         CollectedFirmwareVersion firmwareVersion = mock(CollectedFirmwareVersion.class);
 
-        CollectedFirmwareVersionDeviceCommand firmwareVersionCommand = new CollectedFirmwareVersionDeviceCommand(serviceProvider, firmwareVersion, comTaskExecution );
+        CollectedFirmwareVersionDeviceCommand firmwareVersionCommand = new CollectedFirmwareVersionDeviceCommand(serviceProvider, firmwareVersion, comTaskExecution);
 
         // Business method
         firmwareVersionCommand.execute(comServerDAO);
@@ -154,7 +153,7 @@ public class DeviceCommandImplTest {
     }
 
     @Test
-    public void ExecutingCollectedLoadProfileDeviceCommandDeviceCommandPublishesEvent(){
+    public void ExecutingCollectedLoadProfileDeviceCommandDeviceCommandPublishesEvent() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         LoadProfileIdentifier loadProfileIdentifier = mock(LoadProfileIdentifier.class);
         CollectedLoadProfile loadProfile = mock(CollectedLoadProfile.class);
@@ -163,7 +162,7 @@ public class DeviceCommandImplTest {
         MeterDataStoreCommand meterDataStoreCommand = mock(MeterDataStoreCommand.class);
         OfflineLoadProfile offlineLoadProfile = mock(OfflineLoadProfile.class);
         when(offlineLoadProfile.getObisCode()).thenReturn(mock(ObisCode.class));
-        when(offlineLoadProfile.getLastReading()).thenReturn(Optional.of(Instant.now()));
+        when(offlineLoadProfile.getLastReading()).thenReturn(new Date());
 
         when(comServerDAO.findOfflineLoadProfile(loadProfileIdentifier)).thenReturn(Optional.of(offlineLoadProfile));
 
@@ -179,14 +178,12 @@ public class DeviceCommandImplTest {
     }
 
     @Test
-    public void ExecutingCollectedLogBookDeviceCommandPublishesEvent(){
-        BaseLogBook logbook = mock(BaseLogBook.class);
+    public void ExecutingCollectedLogBookDeviceCommandPublishesEvent() {
         LogBookIdentifier logBookIdentifier = mock(LogBookIdentifier.class);
         OfflineLogBook offlineLogBook = mock(OfflineLogBook.class);
 
         DeviceLogBook deviceLogBook = mock(DeviceLogBook.class);
         when(deviceLogBook.getLogBookIdentifier()).thenReturn(logBookIdentifier);
-        when(logBookIdentifier.getLogBook()).thenReturn(logbook);
 
         MeterDataStoreCommand meterDataStoreCommand = mock(MeterDataStoreCommand.class);
         when(meterDataStoreCommand.getServiceProvider()).thenReturn(serviceProvider);
@@ -204,7 +201,7 @@ public class DeviceCommandImplTest {
     }
 
     @Test
-    public void ExecutingCollectedMessageListDeviceCommandPublishesEvent(){
+    public void ExecutingCollectedMessageListDeviceCommandPublishesEvent() {
         DeviceProtocolMessageList messageList = mock(DeviceProtocolMessageList.class);
         OfflineDeviceMessage offlineDeviceMessage = mock(OfflineDeviceMessage.class);
 
@@ -227,7 +224,7 @@ public class DeviceCommandImplTest {
     }
 
     @Test
-    public void ExecutingCollectedNoLogBooksDeviceCommandDeviceCommandPublishesEvent(){
+    public void ExecutingCollectedNoLogBooksDeviceCommandDeviceCommandPublishesEvent() {
         NoLogBooksForDevice noLogBooksForDevice = mock(NoLogBooksForDevice.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         LogBookIdentifier logBookIdentifier = mock(LogBookIdentifier.class);
@@ -235,7 +232,7 @@ public class DeviceCommandImplTest {
         when(noLogBooksForDevice.getDeviceIdentifier()).thenReturn(deviceIdentifier);
         when(noLogBooksForDevice.getLogBookIdentifier()).thenReturn(logBookIdentifier);
 
-        CreateNoLogBooksForDeviceEvent command = new CreateNoLogBooksForDeviceEvent(noLogBooksForDevice,comTaskExecution,serviceProvider);
+        CreateNoLogBooksForDeviceEvent command = new CreateNoLogBooksForDeviceEvent(noLogBooksForDevice, comTaskExecution, serviceProvider);
         command.logExecutionWith(executionLogger);
 
         // Business method
@@ -247,7 +244,7 @@ public class DeviceCommandImplTest {
     }
 
     @Test
-    public void ExecutingCollectedRegisterListDeviceCommandDeviceCommandPublishesEvent(){
+    public void ExecutingCollectedRegisterListDeviceCommandDeviceCommandPublishesEvent() {
         CollectedRegisterList registerList = mock(CollectedRegisterList.class);
         MeterDataStoreCommand meterDataStoreCommand = mock(MeterDataStoreCommand.class);
 
@@ -267,7 +264,7 @@ public class DeviceCommandImplTest {
     }
 
     @Test
-    public void ExecutingMeterDataStoreCommandPublishesEvent(){
+    public void ExecutingMeterDataStoreCommandPublishesEvent() {
         when(serviceProvider.eventPublisher()).thenReturn(publisher);
         when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
 
@@ -282,7 +279,7 @@ public class DeviceCommandImplTest {
     }
 
     @Test
-    public void ExecutingNoopDeviceCommandPublishesEvent(){
+    public void ExecutingNoopDeviceCommandPublishesEvent() {
         NoopDeviceCommand noopCommand = new NoopDeviceCommand();
 
         // Business method
@@ -293,25 +290,25 @@ public class DeviceCommandImplTest {
     }
 
     @Test
-    public void ExecutingStoreConfigurationUserFilePublishesEvent(){
+    public void ExecutingStoreConfigurationUserFilePublishesEvent() {
         DeviceIdentifier identifier = mock(DeviceIdentifier.class);
         when(identifier.toString()).thenReturn("My device identifier");
 
         DeviceUserFileConfigurationInformation userFileConfigurationInformation = mock(DeviceUserFileConfigurationInformation.class);
         when(userFileConfigurationInformation.getDeviceIdentifier()).thenReturn(identifier);
 
-        StoreConfigurationUserFile storeConfigurationUserFile = new StoreConfigurationUserFile( userFileConfigurationInformation,comTaskExecution, serviceProvider);
+        StoreConfigurationUserFile storeConfigurationUserFile = new StoreConfigurationUserFile(userFileConfigurationInformation, comTaskExecution, serviceProvider);
 
         // Business method
         storeConfigurationUserFile.execute(comServerDAO);
 
         // Asserts
         verify(publisher, times(1)).publish(any(StoreConfigurationEvent.class));
-                verify(publisher).publish(isA(StoreConfigurationEvent.class));
+        verify(publisher).publish(isA(StoreConfigurationEvent.class));
     }
 
     @Test
-    public void ExecutingUpdateDeviceIpAddressDeviceCommandPublishesEvent(){
+    public void ExecutingUpdateDeviceIpAddressDeviceCommandPublishesEvent() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         DeviceIpAddress deviceIpAddress = mock(DeviceIpAddress.class);
         when(deviceIpAddress.getDeviceIdentifier()).thenReturn(deviceIdentifier);
@@ -328,7 +325,7 @@ public class DeviceCommandImplTest {
     }
 
     @Test
-    public void ExecutingUpdateDeviceMessageDeviceCommandPublishesEvent(){
+    public void ExecutingUpdateDeviceMessageDeviceCommandPublishesEvent() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         MessageIdentifier messageIdentifier = mock(MessageIdentifier.class);
         when(messageIdentifier.getDeviceIdentifier()).thenReturn(deviceIdentifier);
@@ -353,10 +350,10 @@ public class DeviceCommandImplTest {
     }
 
     @Test
-    public void ExecutingUpdateDeviceProtocolPropertyDeviceCommandPublishesEvent(){
+    public void ExecutingUpdateDeviceProtocolPropertyDeviceCommandPublishesEvent() {
         DeviceProtocolProperty deviceProtocolProperty = mock(DeviceProtocolProperty.class);
         when(deviceProtocolProperty.getDeviceIdentifier()).thenReturn(mock(DeviceIdentifier.class));
-        when(deviceProtocolProperty.getPropertySpec()).thenReturn(mock(PropertySpec.class));
+        when(deviceProtocolProperty.getPropertyName()).thenReturn("propertyName");
         when(deviceProtocolProperty.getPropertyValue()).thenReturn("aaaa");
 
         Optional<OfflineDevice> device = Optional.of(mock(OfflineDevice.class));

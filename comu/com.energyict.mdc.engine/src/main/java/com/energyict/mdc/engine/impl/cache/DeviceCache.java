@@ -4,8 +4,15 @@
 
 package com.energyict.mdc.engine.impl.cache;
 
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 
+/**
+ * Represents a simple object that holds a <i>cache</i> {@link Object} for a specific {@link com.energyict.mdc.upl.meterdata.Device}
+ * <p/>
+ *
+ * Date: 31/08/12
+ * Time: 16:30
+ */
 public interface DeviceCache {
 
     void update();
@@ -17,17 +24,17 @@ public interface DeviceCache {
      *
      * @return the id of the Device
      */
-    public long getDeviceId();
+    long getDeviceId();
 
     /**
      * @return the cache object
      */
-    public DeviceProtocolCache getSimpleCacheObject();
+    DeviceProtocolCache getSimpleCacheObject();
 
     /**
      * Sets the current cache object
      * @param deviceProtocolCache the current cacheObject
      */
-    public void setCacheObject(DeviceProtocolCache deviceProtocolCache);
+    void setCacheObject(DeviceProtocolCache deviceProtocolCache);
 
 }

@@ -5,10 +5,8 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
-import com.energyict.mdc.common.ObisCode;
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -35,20 +33,28 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.cim.EndDeviceEventTypeMapping;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
-import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.ProtocolReadingQualities;
+import com.energyict.protocol.exceptions.ConnectionException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.ZoneId;
@@ -59,15 +65,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -153,7 +150,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
 
     private void initializeDeviceLoadProfileWith(ProtocolReadingQualities readingQualityType) {
         List<IntervalData> intervalDatas = new ArrayList<>();
-        intervalDatas.add(new IntervalData(Date.from(getFrozenClock().instant()), new HashSet<ReadingQualityType>(Arrays.asList(readingQualityType.getReadingQualityType()))));
+        intervalDatas.add(new IntervalData(Date.from(getFrozenClock().instant()), new HashSet<String>(Arrays.asList(readingQualityType.getCimCode()))));
         when(deviceLoadProfile.getCollectedIntervalData()).thenReturn(intervalDatas);
     }
 
@@ -174,7 +171,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         Optional<EndDeviceEventType> configurationChangeEventOptional = Optional.of(configurationChange);
         when(this.meteringService.getEndDeviceEventType(configurationChangeEventMRID)).thenReturn(configurationChangeEventOptional);
         EndDeviceEventType otherEndDeviceEventType = mock(EndDeviceEventType.class, Mockito.RETURNS_DEEP_STUBS);
-        when(this.meteringService.getEndDeviceEventType(EndDeviceEventTypeMapping.OTHER.getEndDeviceEventTypeMRID())).thenReturn(Optional.of(otherEndDeviceEventType));
+        when(this.meteringService.getEndDeviceEventType(EndDeviceEventTypeMapping.OTHER.getEventType().getCode())).thenReturn(Optional.of(otherEndDeviceEventType));
     }
 
     @Test
@@ -238,7 +235,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
                         time,
                         meterEvent,
                         0,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(meterEvent, this.meteringService).orElseThrow(() -> new RuntimeException("event type for " + meterEvent + " was not setup correctly in this unit test")),
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(meterEvent),
                         null,
                         0,
                         0));

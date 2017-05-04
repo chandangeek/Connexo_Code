@@ -10,13 +10,17 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.store.ComTaskExecutionRootDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+import com.energyict.mdc.tasks.ComTask;
+
+import org.json.JSONException;
+import org.json.JSONWriter;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Provides an implementation for the {@link com.energyict.mdc.protocol.api.device.data.CollectedData} interface
+ * Provides an implementation for the {@link com.energyict.mdc.upl.meterdata.CollectedData} interface
  * that contains all the CollectedData that relates to the same {@link ComTaskExecution}.
  *
  * @author Rudi Vankeirsbilck (rudi)

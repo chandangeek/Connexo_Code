@@ -6,8 +6,7 @@ package com.energyict.mdc.engine.impl.events.connection;
 
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.protocol.api.ConnectionException;
-
+import com.energyict.protocol.exceptions.ConnectionException;
 import org.json.JSONException;
 import org.json.JSONWriter;
 
@@ -16,7 +15,7 @@ import java.io.StringWriter;
 
 /**
  * Represents a {@link com.energyict.mdc.engine.events.ConnectionEvent}
- * for an outbound connection that failed to established for a {@link com.energyict.mdc.protocol.api.device.BaseDevice device}.
+ * for an outbound connection that failed to established for a {@link com.energyict.mdc.upl.meterdata.Device device}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-06 (11:30)

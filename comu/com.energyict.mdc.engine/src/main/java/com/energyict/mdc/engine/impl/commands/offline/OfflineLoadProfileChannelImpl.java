@@ -4,17 +4,16 @@
 
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
+import com.energyict.mdc.upl.offline.OfflineLoadProfileChannel;
+import com.energyict.obis.ObisCode;
 
-import java.math.BigDecimal;
+import javax.xml.bind.annotation.XmlElement;
 
 
 /**
- * An offline implementation version of a {@link com.energyict.mdc.protocol.api.device.BaseChannel} mainly containing information which is relevant to use at offline-time.
+ * An offline implementation version of a {@link Channel} mainly containing information which is relevant to use at offline-time.
  *
  * @author gna
  * @since 30/05/12 - 9:55
@@ -22,12 +21,12 @@ import java.math.BigDecimal;
 public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel {
 
     /**
-     * The {@link com.energyict.mdc.protocol.api.device.BaseChannel} which is going offline
+     * The {@link Channel} which is going offline
      */
     private final Channel channel;
 
     /**
-     * The ObisCode used by the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} for this channel
+     * The ObisCode used by the {@link com.energyict.mdc.upl.meterdata.LoadProfile} for this channel
      */
     private ObisCode channelObisCode;
     /**
@@ -36,14 +35,14 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
     private Unit unit;
 
     /**
-     * The ID of the {@link com.energyict.mdc.protocol.api.device.BaseDevice Device} owning this {@link com.energyict.mdc.protocol.api.device.BaseChannel}
+     * The ID of the {@link com.energyict.mdc.upl.meterdata.Device Device} owning this {@link Channel}
      */
-    private int rtuId;
+    private long deviceId;
 
     /**
-     * The ID of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} where this {@link com.energyict.mdc.protocol.api.device.BaseChannel} is referring to
+     * The ID of the {@link com.energyict.mdc.upl.meterdata.LoadProfile} where this {@link Channel} is referring to
      */
-    private int loadProfileId;
+    private long loadProfileId;
 
     /**
      * Indication whether to store meterData in this channel
@@ -51,17 +50,13 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
     private boolean storeData;
 
     /**
-     * The SerialNumber of the {@link com.energyict.mdc.protocol.api.device.BaseDevice Device} which owns this {@link com.energyict.mdc.protocol.api.device.BaseChannel}
+     * The SerialNumber of the {@link com.energyict.mdc.upl.meterdata.Device Device} which owns this {@link Channel}
      */
     private String serialNumber;
     /**
-     * The ReadingType of the Kore channel that will store the data
+     * The ReadingType MRID (string) of the Kore channel that will store the data
      */
-    private ReadingType readingType;
-    /**
-     * The configured overflow
-     */
-    private BigDecimal overflow;
+    private String readingTypeMRID;
 
     public OfflineLoadProfileChannelImpl(Channel channel) {
         this.channel = channel;
@@ -76,16 +71,20 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
     protected void goOffline() {
         setChannelObisCode(this.channel.getObisCode());
         setUnit(this.channel.getUnit());
-        setRtuId((int) this.channel.getDevice().getId());
-        setLoadProfileId((int) this.channel.getLoadProfile().getId());
+        setDeviceId(this.channel.getDevice().getId());
+        setLoadProfileId(this.channel.getLoadProfile().getId());
         setStoreData(true);
         setSerialNumber(this.channel.getDevice().getSerialNumber());
-        setReadingType(this.channel.getChannelSpec().getReadingType());
-        this.channel.getOverflow().ifPresent(overflow -> this.overflow = overflow);
+        setReadingTypeMRID(this.channel.getChannelSpec().getReadingType().getMRID());
+    }
+
+    @Override
+    public String getName() {
+        return getReadingTypeMRID();
     }
 
     /**
-     * Returns the {@link ObisCode} for this {@link com.energyict.mdc.protocol.api.device.BaseChannel} in the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * Returns the {@link ObisCode} for this {@link Channel} in the {@link com.energyict.mdc.upl.meterdata.LoadProfile}
      *
      * @return the {@link ObisCode}
      */
@@ -95,23 +94,31 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
     }
 
     /**
-     * Returns the ID of the {@link com.energyict.mdc.protocol.api.device.BaseDevice} for the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} object.
+     * Returns the ID of the {@link com.energyict.mdc.upl.meterdata.Device} for the {@link com.energyict.mdc.upl.meterdata.LoadProfile} object.
      *
-     * @return the ID of the {@link com.energyict.mdc.protocol.api.device.BaseDevice}.
+     * @return the ID of the {@link com.energyict.mdc.upl.meterdata.Device}.
      */
     @Override
-    public int getRtuId() {
-        return this.rtuId;
+    public int getDeviceId() {
+        return (int) this.deviceId;
+    }
+
+    private void setDeviceId(final long deviceId) {
+        this.deviceId = deviceId;
     }
 
     /**
-     * Returns the ID of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}
+     * Returns the ID of the {@link com.energyict.mdc.upl.meterdata.LoadProfile}
      *
-     * @return the ID of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}.
+     * @return the ID of the {@link com.energyict.mdc.upl.meterdata.LoadProfile}.
      */
     @Override
-    public int getLoadProfileId() {
+    public long getLoadProfileId() {
         return this.loadProfileId;
+    }
+
+    private void setLoadProfileId(final long loadProfileId) {
+        this.loadProfileId = loadProfileId;
     }
 
     /**
@@ -124,6 +131,10 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
         return this.unit;
     }
 
+    private void setUnit(final Unit unit) {
+        this.unit = unit;
+    }
+
     /**
      * Indication whether we should store data for this channel
      *
@@ -134,51 +145,44 @@ public class OfflineLoadProfileChannelImpl implements OfflineLoadProfileChannel 
         return storeData;
     }
 
+    private void setStoreData(final boolean storeData) {
+        this.storeData = storeData;
+    }
+
     /**
-     * Returns the SerialNumber of the {@link com.energyict.mdc.protocol.api.device.BaseDevice Device}
+     * Returns the SerialNumber of the {@link com.energyict.mdc.upl.meterdata.Device Device}
      *
-     * @return the SerialNumber of the {@link com.energyict.mdc.protocol.api.device.BaseDevice Device}
+     * @return the SerialNumber of the {@link com.energyict.mdc.upl.meterdata.Device Device}
      */
     @Override
     public String getMasterSerialNumber() {
         return serialNumber;
     }
 
-    @Override
-    public ReadingType getReadingType() {
-        return this.readingType;
+    @XmlElement(name = "type")
+    public String getXmlType() {
+        return getClass().getName();
     }
 
     @Override
-    public BigDecimal getOverflow() {
-        return this.overflow;
+    public void setXmlType(String ignore) {
+        // For xml unmarshalling purposes only
+    }
+
+    @Override
+    public String getReadingTypeMRID() {
+        return this.readingTypeMRID;
+    }
+
+    private void setReadingTypeMRID(String readingTypeMRID) {
+        this.readingTypeMRID = readingTypeMRID;
     }
 
     private void setChannelObisCode(final ObisCode channelObisCode) {
         this.channelObisCode = channelObisCode;
     }
 
-    private void setUnit(final Unit unit) {
-        this.unit = unit;
-    }
-
-    private void setLoadProfileId(final int loadProfileId) {
-        this.loadProfileId = loadProfileId;
-    }
-
-    private void setRtuId(final int rtuId) {
-        this.rtuId = rtuId;
-    }
-
     private void setSerialNumber(final String serialNumber) {
         this.serialNumber = serialNumber;
-    }
-
-    private void setStoreData(final boolean storeData) {
-        this.storeData = storeData;
-    }
-
-    private void setReadingType(ReadingType readingType) {
-        this.readingType = readingType;
     }
 }

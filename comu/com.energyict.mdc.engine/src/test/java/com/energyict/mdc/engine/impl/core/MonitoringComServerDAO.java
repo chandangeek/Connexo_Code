@@ -22,28 +22,30 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.core.verification.CounterVerifier;
 import com.energyict.mdc.engine.impl.tools.Counter;
-import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
-import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
-import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
-import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
+import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.OfflineDeviceContext;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+import com.energyict.mdc.upl.offline.OfflineLogBook;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.security.CertificateAlias;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -88,29 +90,29 @@ public class MonitoringComServerDAO implements ComServerDAO {
     private Counter comTaskExecutionCompleted = new Counter();
     private Counter executionFailed = new Counter();
 
-    public MonitoringComServerDAO (ComServerDAO actual) {
+    public MonitoringComServerDAO(ComServerDAO actual) {
         super();
         this.actual = actual;
     }
 
-    public ComServerDAO verify (CounterVerifier verifier) {
+    public ComServerDAO verify(CounterVerifier verifier) {
         return new VerifyingComServerDAO(verifier);
     }
 
     @Override
-    public ComServer getThisComServer () {
+    public ComServer getThisComServer() {
         this.getThisComServer.increment();
         return this.actual.getThisComServer();
     }
 
     @Override
-    public ComServer getComServer (String hostName) {
+    public ComServer getComServer(String hostName) {
         this.getComServer.increment();
         return this.actual.getComServer(hostName);
     }
 
     @Override
-    public ComServer refreshComServer (ComServer comServer) {
+    public ComServer refreshComServer(ComServer comServer) {
         this.refreshComServer.increment();
         return this.actual.refreshComServer(comServer);
     }
@@ -122,13 +124,13 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public List<ComJob> findExecutableOutboundComTasks (OutboundComPort comPort) {
+    public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
         this.findExecutableComTasks.increment();
         return this.actual.findExecutableOutboundComTasks(comPort);
     }
 
     @Override
-    public List<ComTaskExecution> findExecutableInboundComTasks (OfflineDevice device, InboundComPort comPort) {
+    public List<ComTaskExecution> findExecutableInboundComTasks(OfflineDevice device, InboundComPort comPort) {
         return null;
     }
 
@@ -138,13 +140,19 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier, OfflineDeviceContext offlineDeviceContext) {
         return actual.findOfflineDevice(identifier, offlineDeviceContext);
     }
+
 
     @Override
     public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier, Instant when) {
         return Optional.empty();
+    }
+
+    @Override
+    public Boolean getInboundComTaskOnHold(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        return null;
     }
 
     @Override
@@ -178,36 +186,36 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void unlock (OutboundConnectionTask connectionTask) {
+    public void unlock(OutboundConnectionTask connectionTask) {
         this.actual.unlock(connectionTask);
     }
 
     @Override
-    public boolean attemptLock (ComTaskExecution comTaskExecution, ComPort comPort) {
+    public boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort) {
         return this.actual.attemptLock(comTaskExecution, comPort);
     }
 
     @Override
-    public void unlock (ComTaskExecution comTaskExecution) {
+    public void unlock(ComTaskExecution comTaskExecution) {
         this.actual.unlock(comTaskExecution);
     }
 
     @Override
-    public ConnectionTask<?, ?> executionStarted (ConnectionTask connectionTask, ComServer comServer) {
+    public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComServer comServer) {
         this.connectionTaskExecutionStarted.increment();
         this.actual.executionStarted(connectionTask, comServer);
         return connectionTask;
     }
 
     @Override
-    public ConnectionTask<?, ?> executionCompleted (ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> executionCompleted(ConnectionTask connectionTask) {
         this.connectionTaskExecutionCompleted.increment();
         this.actual.executionCompleted(connectionTask);
         return connectionTask;
     }
 
     @Override
-    public ConnectionTask<?, ?> executionFailed (ConnectionTask connectionTask) {
+    public ConnectionTask<?, ?> executionFailed(ConnectionTask connectionTask) {
         this.connectionTaskExecutionFailed.increment();
         this.actual.executionFailed(connectionTask);
         return connectionTask;
@@ -220,7 +228,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void executionCompleted (ComTaskExecution comTaskExecution) {
+    public void executionCompleted(ComTaskExecution comTaskExecution) {
         this.comTaskExecutionCompleted.increment();
         this.actual.executionCompleted(comTaskExecution);
     }
@@ -232,28 +240,28 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void executionCompleted (List<? extends ComTaskExecution> comTaskExecutions) {
+    public void executionCompleted(List<? extends ComTaskExecution> comTaskExecutions) {
         comTaskExecutions.forEach(this::executionCompleted);
     }
 
     @Override
-    public void executionFailed (ComTaskExecution comTaskExecution) {
+    public void executionFailed(ComTaskExecution comTaskExecution) {
         this.executionFailed.increment();
         this.actual.executionFailed(comTaskExecution);
     }
 
     @Override
-    public void executionFailed (List<? extends ComTaskExecution> comTaskExecutions) {
+    public void executionFailed(List<? extends ComTaskExecution> comTaskExecutions) {
         comTaskExecutions.forEach(this::executionFailed);
     }
 
     @Override
-    public boolean isStillPending (long comTaskExecutionId) {
+    public boolean isStillPending(long comTaskExecutionId) {
         return this.actual.isStillPending(comTaskExecutionId);
     }
 
     @Override
-    public boolean areStillPending (Collection<Long> comTaskExecutionIds) {
+    public boolean areStillPending(Collection<Long> comTaskExecutionIds) {
         return this.actual.areStillPending(comTaskExecutionIds);
     }
 
@@ -263,12 +271,47 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
+    public DeviceIdentifier getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
         return this.actual.getDeviceIdentifierFor(loadProfileIdentifier);
     }
 
     @Override
-    public DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
+    public PropertyValueType getDeviceProtocolPropertyValueType(DeviceIdentifier deviceIdentifier, String propertyName) {
+        return actual.getDeviceProtocolPropertyValueType(deviceIdentifier, propertyName);
+    }
+
+    @Override
+    public void updateDeviceDialectProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+        actual.updateDeviceDialectProperty(deviceIdentifier, propertyName, propertyValue);
+    }
+
+    @Override
+    public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+        actual.updateDeviceSecurityProperty(deviceIdentifier, propertyName, propertyValue);
+    }
+
+    @Override
+    public void addCACertificate(CertificateAlias certificateAlias) {
+        actual.addCACertificate(certificateAlias);
+    }
+
+    @Override
+    public long addEndDeviceCertificate(CollectedCertificateWrapper collectedCertificateWrapper) {
+        return actual.addEndDeviceCertificate(collectedCertificateWrapper);
+    }
+
+    @Override
+    public Optional<Device> getDeviceFor(DeviceIdentifier deviceIdentifier) {
+        return actual.getDeviceFor(deviceIdentifier);
+    }
+
+    @Override
+    public List<Device> getAllDevicesFor(DeviceIdentifier deviceIdentifier) {
+        return actual.getAllDevicesFor(deviceIdentifier);
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
         return this.actual.getDeviceIdentifierFor(logBookIdentifier);
     }
 
@@ -325,6 +368,132 @@ public class MonitoringComServerDAO implements ComServerDAO {
         return this.actual.createComSession(builder, stopDate, successIndicator);
     }
 
+    @Override
+    public void releaseInterruptedTasks(ComServer comServer) {
+        // No need to release when in monitoring mode
+    }
+
+    @Override
+    public TimeDuration releaseTimedOutTasks(ComServer comServer) {
+        // No need to release when in monitoring mode
+        return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+    }
+
+    @Override
+    public void releaseTasksFor(ComPort comPort) {
+        // No implementation required
+    }
+
+    @Override
+    public void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
+        // Not storing readings in mock mode
+    }
+
+    @Override
+    public void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
+        // Not updating device ip address in monitoring mode
+    }
+
+    @Override
+    public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+
+    }
+
+    @Override
+    public void storeConfigurationFile(DeviceIdentifier deviceIdentifier, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents) {
+        // Not storing configuration files in monitoring mode
+    }
+
+    @Override
+    public List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(DeviceIdentifier deviceIdentifier, int confirmationCount) {
+        return new ArrayList<>(0);
+    }
+
+    @Override
+    public List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        // No support for inbound communication in monitoring mode
+        return null;
+    }
+
+    @Override
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceDialectProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        return null;
+    }
+
+    @Override
+    public TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        // No support for inbound communication in monitoring mode
+        return TypedProperties.empty();
+    }
+
+    @Override
+    public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
+        return TypedProperties.empty();
+    }
+
+    @Override
+    public TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier) {
+        // No support for inbound communication in monitoring mode
+        return TypedProperties.empty();
+    }
+
+    @Override
+    public com.energyict.mdc.upl.properties.TypedProperties getDeviceLocalProtocolProperties(DeviceIdentifier deviceIdentifier) {
+        return null;
+    }
+
+    @Override
+    public com.energyict.mdc.upl.offline.OfflineDevice getOfflineDevice(DeviceIdentifier deviceIdentifier, OfflineDeviceContext context) {
+        return null;
+    }
+
+    @Override
+    public String getDeviceProtocolClassName(DeviceIdentifier identifier) {
+        return null;
+    }
+
+    @Override
+    public void updateGateway(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier) {
+        // Not updating the gateway device in monitor mode
+    }
+
+    @Override
+    public void signalEvent(String topic, Object source) {
+        // Not signaling events in monitor mode
+    }
+
+    @Override
+    public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
+        // nothing to update
+    }
+
+    @Override
+    public ServerProcessStatus getStatus() {
+        return null;
+    }
+
+    @Override
+    public void start() {
+    }
+
+    @Override
+    public void shutdown() {
+    }
+
+    @Override
+    public void shutdownImmediate() {
+    }
+
+    @Override
+    public List<Pair<OfflineLoadProfile, Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile loadProfile, String readingTypeMRID, Range<Instant> dataPeriod) {
+        return this.actual.getStorageLoadProfileIdentifiers(loadProfile, readingTypeMRID, dataPeriod);
+    }
+
+    @Override
+    public User getComServerUser() {
+        return this.actual.getComServerUser();
+    }
+
     private class VerifyingComServerDAO implements ComServerDAO {
         private CounterVerifier verifier;
 
@@ -334,19 +503,19 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public ComServer getThisComServer () {
+        public ComServer getThisComServer() {
             this.verifier.verify(getThisComServer);
             return null;
         }
 
         @Override
-        public ComServer getComServer (String hostName) {
+        public ComServer getComServer(String hostName) {
             this.verifier.verify(getComServer);
             return null;
         }
 
         @Override
-        public ComServer refreshComServer (ComServer comServer) {
+        public ComServer refreshComServer(ComServer comServer) {
             this.verifier.verify(refreshComServer);
             return null;
         }
@@ -358,7 +527,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public List<ComJob> findExecutableOutboundComTasks (OutboundComPort comPort) {
+        public List<ComJob> findExecutableOutboundComTasks(OutboundComPort comPort) {
             this.verifier.verify(findExecutableComTasks);
             return null;
         }
@@ -369,12 +538,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
+        public DeviceIdentifier getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
             return null;
         }
 
         @Override
-        public DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
+        public DeviceIdentifier getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
             return null;
         }
 
@@ -424,12 +593,52 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
+        public Boolean getInboundComTaskOnHold(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+            return null;
+        }
+
+        @Override
         public void cleanupOutdatedComTaskExecutionTriggers() {
 
         }
 
         @Override
-        public List<ComTaskExecution> findExecutableInboundComTasks (OfflineDevice device, InboundComPort comPort) {
+        public List<ComTaskExecution> findExecutableInboundComTasks(OfflineDevice device, InboundComPort comPort) {
+            return null;
+        }
+
+        @Override
+        public PropertyValueType getDeviceProtocolPropertyValueType(DeviceIdentifier deviceIdentifier, String propertyName) {
+            return null;
+        }
+
+        @Override
+        public void updateDeviceDialectProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+
+        }
+
+        @Override
+        public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
+
+        }
+
+        @Override
+        public void addCACertificate(CertificateAlias certificateAlias) {
+
+        }
+
+        @Override
+        public long addEndDeviceCertificate(CollectedCertificateWrapper collectedCertificateWrapper) {
+            return 0;
+        }
+
+        @Override
+        public Optional<Device> getDeviceFor(DeviceIdentifier deviceIdentifier) {
+            return null;
+        }
+
+        @Override
+        public List<Device> getAllDevicesFor(DeviceIdentifier deviceIdentifier) {
             return null;
         }
 
@@ -439,7 +648,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
+        public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier, OfflineDeviceContext offlineDeviceContext) {
             return actual.findOfflineDevice(identifier, offlineDeviceContext);
         }
 
@@ -479,34 +688,34 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void unlock (OutboundConnectionTask connectionTask) {
+        public void unlock(OutboundConnectionTask connectionTask) {
             // No implementation required so far
         }
 
         @Override
-        public boolean attemptLock (ComTaskExecution comTaskExecution, ComPort comPort) {
+        public boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort) {
             return true;
         }
 
         @Override
-        public void unlock (ComTaskExecution comTaskExecution) {
+        public void unlock(ComTaskExecution comTaskExecution) {
             // No implementation required so far
         }
 
         @Override
-        public ConnectionTask<?, ?> executionStarted (ConnectionTask connectionTask, ComServer comServer) {
+        public ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComServer comServer) {
             this.verifier.verify(connectionTaskExecutionStarted);
             return connectionTask;
         }
 
         @Override
-        public ConnectionTask<?, ?> executionCompleted (ConnectionTask connectionTask) {
+        public ConnectionTask<?, ?> executionCompleted(ConnectionTask connectionTask) {
             this.verifier.verify(connectionTaskExecutionCompleted);
             return connectionTask;
         }
 
         @Override
-        public ConnectionTask<?, ?> executionFailed (ConnectionTask connectionTask) {
+        public ConnectionTask<?, ?> executionFailed(ConnectionTask connectionTask) {
             this.verifier.verify(connectionTaskExecutionFailed);
             return connectionTask;
         }
@@ -517,7 +726,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void executionCompleted (ComTaskExecution comTaskExecution) {
+        public void executionCompleted(ComTaskExecution comTaskExecution) {
             this.verifier.verify(comTaskExecutionCompleted);
         }
 
@@ -527,27 +736,27 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void executionCompleted (List<? extends ComTaskExecution> comTaskExecutions) {
+        public void executionCompleted(List<? extends ComTaskExecution> comTaskExecutions) {
             comTaskExecutions.forEach(this::executionCompleted);
         }
 
         @Override
-        public void executionFailed (ComTaskExecution comTaskExecution) {
+        public void executionFailed(ComTaskExecution comTaskExecution) {
             this.verifier.verify(executionFailed);
         }
 
         @Override
-        public void executionFailed (List<? extends ComTaskExecution> comTaskExecutions) {
+        public void executionFailed(List<? extends ComTaskExecution> comTaskExecutions) {
             comTaskExecutions.forEach(this::executionFailed);
         }
 
         @Override
-        public void releaseInterruptedTasks (ComServer comServer) {
+        public void releaseInterruptedTasks(ComServer comServer) {
             // No implementation required
         }
 
         @Override
-        public TimeDuration releaseTimedOutTasks (ComServer comServer) {
+        public TimeDuration releaseTimedOutTasks(ComServer comServer) {
             // No implementation required
             return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
         }
@@ -564,7 +773,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
 
         @Override
-        public void updateIpAddress (String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
+        public void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
             // No implementation required
         }
 
@@ -574,7 +783,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void storeConfigurationFile (DeviceIdentifier deviceIdentifier, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents) {
+        public void storeConfigurationFile(DeviceIdentifier deviceIdentifier, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents) {
             // No implementation required
         }
 
@@ -585,12 +794,17 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
+        public com.energyict.mdc.upl.properties.TypedProperties getDeviceDialectProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+            return null;
+        }
+
+        @Override
         public DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
             return null;
         }
 
         @Override
-        public TypedProperties getDeviceConnectionTypeProperties (DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+        public TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
             // No implementation required
             return TypedProperties.empty();
         }
@@ -602,7 +816,22 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public TypedProperties getDeviceProtocolProperties (DeviceIdentifier deviceIdentifier) {
+        public com.energyict.mdc.upl.properties.TypedProperties getDeviceLocalProtocolProperties(DeviceIdentifier deviceIdentifier) {
+            return null;
+        }
+
+        @Override
+        public com.energyict.mdc.upl.offline.OfflineDevice getOfflineDevice(DeviceIdentifier deviceIdentifier, OfflineDeviceContext context) {
+            return null;
+        }
+
+        @Override
+        public String getDeviceProtocolClassName(DeviceIdentifier identifier) {
+            return null;
+        }
+
+        @Override
+        public TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier) {
             // No implementation required
             return TypedProperties.empty();
         }
@@ -623,30 +852,30 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public boolean isStillPending (long comTaskExecutionId) {
+        public boolean isStillPending(long comTaskExecutionId) {
             return false;
         }
 
         @Override
-        public boolean areStillPending (Collection<Long> comTaskExecutionIds) {
+        public boolean areStillPending(Collection<Long> comTaskExecutionIds) {
             return false;
         }
 
         @Override
-        public ServerProcessStatus getStatus () {
+        public ServerProcessStatus getStatus() {
             return null;
         }
 
         @Override
-        public void start () {
+        public void start() {
         }
 
         @Override
-        public void shutdown () {
+        public void shutdown() {
         }
 
         @Override
-        public void shutdownImmediate () {
+        public void shutdownImmediate() {
         }
 
         @Override
@@ -663,110 +892,5 @@ public class MonitoringComServerDAO implements ComServerDAO {
         public User getComServerUser() {
             return null;
         }
-    }
-
-    @Override
-    public void releaseInterruptedTasks (ComServer comServer) {
-        // No need to release when in monitoring mode
-    }
-
-    @Override
-    public TimeDuration releaseTimedOutTasks (ComServer comServer) {
-        // No need to release when in monitoring mode
-        return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
-    }
-
-    @Override
-    public void releaseTasksFor(ComPort comPort) {
-        // No implementation required
-    }
-
-    @Override
-    public void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
-        // Not storing readings in mock mode
-    }
-
-    @Override
-    public void updateIpAddress (String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
-        // Not updating device ip address in monitoring mode
-    }
-
-    @Override
-    public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
-
-    }
-
-    @Override
-    public void storeConfigurationFile (DeviceIdentifier deviceIdentifier, DateTimeFormatter timeStampFormat, String fileExtension, byte[] contents) {
-        // Not storing configuration files in monitoring mode
-    }
-
-    @Override
-    public List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(DeviceIdentifier deviceIdentifier, int confirmationCount) {
-        return new ArrayList<>(0);
-    }
-
-    @Override
-    public DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
-        return null;
-    }
-
-    @Override
-    public TypedProperties getDeviceConnectionTypeProperties (DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
-        // No support for inbound communication in monitoring mode
-        return TypedProperties.empty();
-    }
-
-    @Override
-    public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
-        return TypedProperties.empty();
-    }
-
-    @Override
-    public TypedProperties getDeviceProtocolProperties (DeviceIdentifier deviceIdentifier) {
-        // No support for inbound communication in monitoring mode
-        return TypedProperties.empty();
-    }
-
-    @Override
-    public void updateGateway(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier) {
-        // Not updating the gateway device in monitor mode
-    }
-
-    @Override
-    public void signalEvent(String topic, Object source) {
-        // Not signaling events in monitor mode
-    }
-
-    @Override
-    public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
-        // nothing to update
-    }
-
-    @Override
-    public ServerProcessStatus getStatus () {
-        return null;
-    }
-
-    @Override
-    public void start () {
-    }
-
-    @Override
-    public void shutdown () {
-    }
-
-    @Override
-    public void shutdownImmediate () {
-    }
-
-    @Override
-    public List<Pair<OfflineLoadProfile, Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile loadProfile, String readingTypeMRID, Range<Instant> dataPeriod) {
-        return this.actual.getStorageLoadProfileIdentifiers(loadProfile, readingTypeMRID, dataPeriod);
-    }
-
-    @Override
-    public User getComServerUser() {
-        return this.actual.getComServerUser();
     }
 }

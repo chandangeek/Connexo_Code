@@ -11,8 +11,9 @@ import com.energyict.mdc.engine.impl.core.CommandCreator;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class LegacySmartMeterProtocolCommandCreator implements CommandCreator {
         if (comTaskExecutionConnectionStep.isLogOnRequired() || comTaskExecutionConnectionStep.isDaisyChainedLogOnRequired()) {
             CommandFactory.createSetDeviceCacheCommand(groupedDeviceCommand, comTaskExecution, groupedDeviceCommand.getOfflineDevice());
             CommandFactory.createLegacyInitLoggerCommand(groupedDeviceCommand, comTaskExecution);
-            CommandFactory.createAddProperties(groupedDeviceCommand, comTaskExecution, groupedDeviceCommand.getOfflineDevice().getAllProperties(), protocolDialectProperties, deviceProtocolSecurityPropertySet);
+            CommandFactory.createAddProperties(groupedDeviceCommand, comTaskExecution, TypedProperties.copyOf(groupedDeviceCommand.getOfflineDevice().getAllProperties()), protocolDialectProperties, deviceProtocolSecurityPropertySet);
             CommandFactory.createDeviceProtocolInitialization(groupedDeviceCommand, comTaskExecution, groupedDeviceCommand.getOfflineDevice(), comChannel);
             CommandFactory.createHandHeldUnitEnabler(groupedDeviceCommand, comTaskExecution, comChannel);
             if (comTaskExecutionConnectionStep.isLogOnRequired()) {

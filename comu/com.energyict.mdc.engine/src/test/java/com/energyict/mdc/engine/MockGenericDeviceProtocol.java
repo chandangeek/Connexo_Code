@@ -12,46 +12,43 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
-import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
 public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
 
-    private OfflineDevice offlineDevice;
-
     @Override
-    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-        this.offlineDevice = offlineDevice;
+    public void init(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, ComChannel comChannel) {
     }
 
     @Override
@@ -70,7 +67,7 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
     }
 
     @Override
-    public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
+    public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -110,7 +107,7 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
     }
 
     @Override
-    public Set<DeviceMessageId> getSupportedMessages() {
+    public List<DeviceMessageSpec> getSupportedMessages() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -175,12 +172,17 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
     }
 
     @Override
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return new ArrayList<>(0);
     }
 
     @Override
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+    public List<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return new ArrayList<>(0);
     }
 
@@ -190,8 +192,23 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
         return null;
+    }
+
+    @Override
+    public Optional<String> prepareMessageContext(Device device, com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return null;
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
     }
 
     /**
