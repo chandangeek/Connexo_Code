@@ -20,11 +20,13 @@ import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTrans
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
 import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.api.security.SecuritySuite;
 
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.util.Collections;
@@ -33,6 +35,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourceTest.Editability.CAN_EDIT;
+import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourceTest.Editability.CAN_NOT_EDIT;
+import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourceTest.Visibility.CAN_NOT_VIEW;
+import static com.energyict.mdc.device.data.rest.impl.SecurityPropertySetResourceTest.Visibility.CAN_VIEW;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

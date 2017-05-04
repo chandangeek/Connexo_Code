@@ -50,6 +50,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
+import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -67,6 +68,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
@@ -80,6 +82,9 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.SystemComTask;
+import com.energyict.obis.ObisCode;
+import org.junit.Before;
+import org.mockito.Mock;
 
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
@@ -98,9 +103,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import org.junit.Before;
-import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -124,6 +126,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     DeviceService deviceService;
     @Mock
     TopologyService topologyService;
+    @Mock
+    MultiElementDeviceService multiElementDeviceService;
     @Mock
     BatchService batchService;
     @Mock
@@ -209,6 +213,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     UserService userService;
     @Mock
+    ObisCodeDescriptor obisCodeDescriptor;
+    @Mock
     PkiService pkiService;
 
     @Mock
@@ -232,6 +238,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
 
     @Before
     public void setup() {
+        when(obisCodeDescriptor.describe(any(ObisCode.class))).thenReturn("obisCodeDescription");
         readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
         channelInfoFactory = new ChannelInfoFactory(clock, topologyService, readingTypeInfoFactory);
         this.setupTranslations();
@@ -243,6 +250,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(topologyService.availabilityDate(any(Register.class))).thenReturn(Optional.empty());
         when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.findLastDataloggerReference(any(Device.class))).thenReturn(Optional.empty());
+        when(multiElementDeviceService.findMultiElementDeviceReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
     }
 
     protected void setupTranslations() {
@@ -250,6 +258,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
         doReturn(messageFormat).when(thesaurus).getFormat(any(MessageSeed.class));
         doReturn(messageFormat).when(thesaurus).getFormat(any(TranslationKey.class));
+        doReturn(messageFormat).when(thesaurus).getSimpleFormat(any(MessageSeed.class));
     }
 
     protected boolean disableDeviceConstraintsBasedOnDeviceState() {
@@ -279,6 +288,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setConnectionTaskService(connectionTaskService);
         application.setDeviceService(deviceService);
         application.setTopologyService(topologyService);
+        application.setMultiElementDeviceService(multiElementDeviceService);
         application.setBatchService(batchService);
         application.setEngineConfigurationService(engineConfigurationService);
         application.setIssueService(issueService);
@@ -316,6 +326,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setDeviceAlarmService(deviceAlarmService);
         application.setUserService(userService);
+        application.setObisCodeDescriptor(obisCodeDescriptor);
         application.setPkiService(pkiService);
         return application;
     }

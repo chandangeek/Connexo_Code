@@ -113,11 +113,12 @@ public enum MessageSeeds implements MessageSeed {
     PROCESS_STATUS_SUSPENDED(291, "ProcessStatusSuspended", "Suspended"),
     OVERLAPPING_COMTASKS_IN_COMSCHEDULES(292, "OverlappingComTasks", "There are overlapping communication tasks in the schedules"),
     NO_SUCH_PROTOCOL_PROPERTIES(293, "NoSuchProtocolDialectProperties", "\"No protocol dialect with name '{0}'"),
-    NO_SUCH_KEY_ACCESSOR_TYPE(294, "NoSuchKeyAccessorType", "The device type does not have a security accessor with that id"),
-    NO_SUCH_CERTIFICATE(295, "NoSuchCertificate", "Certificate could not be found"),
-    NO_SUCH_TRUSTED_CERTIFICATE(296, "NoSuchTrustedCertificate", "Certificate could not be found in the trust store"),
-    NO_SUCH_TRUST_STORE(297, "NoSuchTrustStore", "No such trust store"),
-    NO_SUCH_KEY_ACCESSOR(298, "NoSuchKeyAccessor", "No such security accessor");
+    UPDATE_OF_DEVICE_FAILED(294, "UpdateOfDeviceFailed", "Update of device failed");
+    NO_SUCH_KEY_ACCESSOR_TYPE(295, "NoSuchKeyAccessorType", "The device type does not have a security accessor with that id"),
+    NO_SUCH_CERTIFICATE(296, "NoSuchCertificate", "Certificate could not be found"),
+    NO_SUCH_TRUSTED_CERTIFICATE(297, "NoSuchTrustedCertificate", "Certificate could not be found in the trust store"),
+    NO_SUCH_TRUST_STORE(298, "NoSuchTrustStore", "No such trust store"),
+    NO_SUCH_KEY_ACCESSOR(299, "NoSuchKeyAccessor", "No such security accessor");
     private final int number;
     private final String key;
     private final String format;

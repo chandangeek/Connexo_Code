@@ -72,6 +72,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.ExecutionTimerService;
@@ -96,11 +97,12 @@ import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.device.topology.impl.TopologyModule;
+import com.energyict.mdc.device.topology.impl.multielement.MultiElementDeviceModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -111,6 +113,7 @@ import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
@@ -120,7 +123,6 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -272,7 +274,6 @@ public class InMemoryIntegrationPersistence {
                 new TimeModule(),
                 new DeviceLifeCycleConfigurationModule(),
                 new DeviceConfigurationModule(),
-                new MdcIOModule(),
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
                 new TaskModule(),
@@ -284,6 +285,8 @@ public class InMemoryIntegrationPersistence {
                 new ServiceCallRestModule(),
                 new CalendarModule(),
                 new CalendarRestModule(),
+                new TopologyModule(),
+                new MultiElementDeviceModule(),
                 new PropertyValueInfoServiceModule()
         );
         this.transactionService = injector.getInstance(TransactionService.class);
@@ -586,12 +589,15 @@ public class InMemoryIntegrationPersistence {
             bind(LicenseService.class).toInstance(licenseService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LogService.class).toInstance(mock(LogService.class));
-            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
+            bind(CronExpressionParser.class).toInstance(new DefaultCronExpressionParser());
             bind(IssueService.class).toInstance(issueService);
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(LocationService.class).toInstance(locationService);
+
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
         }
     }
 

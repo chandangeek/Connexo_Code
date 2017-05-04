@@ -45,7 +45,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.properties.PropertySpec;
@@ -68,12 +67,11 @@ import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -96,7 +94,6 @@ import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.TopologyTimeline;
@@ -118,6 +115,9 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolReadingQualities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
@@ -129,6 +129,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.sql.Date;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -198,6 +199,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn(messageSeed.getDefaultFormat());
         doReturn(messageFormat).when(thesaurus).getFormat(messageSeed);
+        doReturn(messageFormat).when(thesaurus).getSimpleFormat(messageSeed);
     }
 
     @Before
@@ -1512,7 +1514,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLoggerChannel.getId()).thenReturn(2L);
         when(dataLogger.getChannels()).thenReturn(Collections.singletonList(dataLoggerChannel));
 
-        Device slave1 = mockDeviceForTopologyTest("slave1");
+        Device slave1 = mockDeviceForTopologyTest("slave1", dataLogger);
         Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
         when(slaveChannel1.getDevice()).thenReturn(slave1);
         when(slaveChannel1.getId()).thenReturn(1L);
@@ -1521,6 +1523,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration deviceConfig = dataLogger.getDeviceConfiguration();
 
         when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
+        when(deviceConfig.isMultiElementEnabled()).thenReturn(false);
         when(dataLogger.getUsagePoint()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
@@ -1538,6 +1541,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         slaveInfo1.deviceTypeName = "firstSlaveDeviceType";
         slaveInfo1.deviceConfigurationId = 2L;
         slaveInfo1.deviceConfigurationName = "firstSlaveDeviceConfiguration";
+        slaveInfo1.deviceTypePurpose = DeviceTypePurpose.DATALOGGER_SLAVE.name();
         slaveInfo1.serialNumber = "100";
         slaveInfo1.yearOfCertification = 1960;
         slaveInfo1.version = 1;
@@ -1659,7 +1663,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         when(dataLogger.getChannels()).thenReturn(Collections.singletonList(dataLoggerChannel));
 
-        Device slave1 = mockDeviceForTopologyTest("slave1");
+        Device slave1 = mockDeviceForTopologyTest("slave1", dataLogger);
         Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
         when(slaveChannel1.getDevice()).thenReturn(slave1);
         when(slaveChannel1.getId()).thenReturn(1L);
@@ -1992,7 +1996,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLoggerRegister.getLastReading()).thenReturn(Optional.empty());
         when(dataLogger.getRegisters()).thenReturn(Collections.singletonList(dataLoggerRegister));
 
-        Device slave1 = mockDeviceForTopologyTest("slave1");
+        Device slave1 = mockDeviceForTopologyTest("slave1", dataLogger);
         when(slave1.getmRID()).thenReturn("firstSlave");
         NumericalRegisterSpec slave1RegisterSpec = mock(NumericalRegisterSpec.class);
         when(slave1RegisterSpec.getRegisterType()).thenReturn(registerType);
@@ -2080,7 +2084,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLoggerRegister.getLastReading()).thenReturn(Optional.empty());
         when(dataLogger.getRegisters()).thenReturn(Collections.singletonList(dataLoggerRegister));
 
-        Device slave1 = mockDeviceForTopologyTest("slave1");
+        Device slave1 = mockDeviceForTopologyTest("slave1", dataLogger);
         when(slave1.getmRID()).thenReturn("firstSlave");
 
         Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
@@ -2177,7 +2181,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLoggerRegister.getDeviceObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
         when(dataLogger.getRegisters()).thenReturn(Collections.singletonList(dataLoggerRegister));
 
-        Device slave1 = mockDeviceForTopologyTest("slave1");
+        Device slave1 = mockDeviceForTopologyTest("slave1", dataLogger);
         when(slave1.getmRID()).thenReturn("firstSlave");
         NumericalRegisterSpec slave1RegisterSpec = mock(NumericalRegisterSpec.class);
         when(slave1RegisterSpec.getRegisterType()).thenReturn(registerType);
@@ -2379,6 +2383,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getId()).thenReturn(1L);
         when(device.getName()).thenReturn(name);
         DeviceType deviceType = mock(DeviceType.class);
+        if (gateway != null){
+            when(deviceType.isDataloggerSlave()).thenReturn(true);
+        }
         when(deviceType.getName()).thenReturn(name + "DeviceType");
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getName()).thenReturn(name + "DeviceConfig");
@@ -2483,7 +2490,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfile1.getId()).thenReturn(id);
         when(loadProfile1.getDeviceObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, (int) id));
         when(loadProfile1.getChannels()).thenReturn(channels == null ? Collections.<Channel>emptyList() : Arrays.asList(channels));
-        when(loadProfile1.getLastReading()).thenReturn(Optional.of(Instant.ofEpochMilli(1406617200000L))); //  (GMT): Tue, 29 Jul 2014 07:00:00 GMT
+        when(loadProfile1.getLastReading()).thenReturn(Date.from(Instant.ofEpochMilli(1406617200000L))); //  (GMT): Tue, 29 Jul 2014 07:00:00 GMT
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         when(loadProfile1.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         return loadProfile1;
@@ -2631,18 +2638,18 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         verifyNoMoreInteractions(deviceService);
         Condition andCondition = conditionArgumentCaptor.getValue();
         assertThat(andCondition).isInstanceOf(And.class);
-        List<Condition> conditions = ((And)andCondition).getConditions();
+        List<Condition> conditions = ((And) andCondition).getConditions();
         assertThat(conditions).hasSize(2);
         Condition nameCondition = conditions.get(0);
         assertThat(nameCondition).isInstanceOf(Comparison.class);
-        assertThat(((Comparison)nameCondition).getFieldName()).isEqualTo("name");
-        assertThat(((Comparison)nameCondition).getOperator()).isEqualTo(Operator.LIKEIGNORECASE);
-        assertThat(((Comparison)nameCondition).getValues()).containsExactly("COP%");
+        assertThat(((Comparison) nameCondition).getFieldName()).isEqualTo("name");
+        assertThat(((Comparison) nameCondition).getOperator()).isEqualTo(Operator.LIKEIGNORECASE);
+        assertThat(((Comparison) nameCondition).getValues()).containsExactly("COP%");
         Condition serialCondition = conditions.get(1);
         assertThat(serialCondition).isInstanceOf(Comparison.class);
-        assertThat(((Comparison)serialCondition).getFieldName()).isEqualTo("serialNumber");
-        assertThat(((Comparison)serialCondition).getOperator()).isEqualTo(Operator.LIKEIGNORECASE);
-        assertThat(((Comparison)serialCondition).getValues()).containsExactly("%");
+        assertThat(((Comparison) serialCondition).getFieldName()).isEqualTo("serialNumber");
+        assertThat(((Comparison) serialCondition).getOperator()).isEqualTo(Operator.LIKEIGNORECASE);
+        assertThat(((Comparison) serialCondition).getValues()).containsExactly("%");
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.devices[0].name")).isEqualTo("COP_TestDevice");

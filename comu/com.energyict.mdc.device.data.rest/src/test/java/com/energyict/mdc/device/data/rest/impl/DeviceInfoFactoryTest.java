@@ -35,8 +35,8 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -56,6 +56,7 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
@@ -149,6 +150,8 @@ public class DeviceInfoFactoryTest {
     private IssueStatus issueStatusOpen;
     @Mock
     private TopologyService topologyService;
+    @Mock
+    private MultiElementDeviceService multiElementDeviceService;
     @Mock
     private IssueDataValidationService issueDataValidationService;
     @Mock
@@ -277,6 +280,7 @@ public class DeviceInfoFactoryTest {
 
         when(slave1.getDeviceType()).thenReturn(slaveDeviceType1);
         when(slaveDeviceType1.getName()).thenReturn(SLAVE_DEVICE_TYPE_NAME_1);
+        when(slaveDeviceType1.isDataloggerSlave()).thenReturn(true);
         when(slave1.getDeviceConfiguration()).thenReturn(slaveDeviceConfiguration1);
         when(slaveDeviceConfiguration1.getName()).thenReturn(SLAVE_DEVICE_CONFIGURATION_NAME_1);
         when(slave1.getId()).thenReturn(1L);
@@ -289,6 +293,7 @@ public class DeviceInfoFactoryTest {
 
         when(slave2.getDeviceType()).thenReturn(slaveDeviceType2);
         when(slaveDeviceType2.getName()).thenReturn(SLAVE_DEVICE_TYPE_NAME_2);
+        when(slaveDeviceType2.isDataloggerSlave()).thenReturn(true);
         when(slave2.getDeviceConfiguration()).thenReturn(slaveDeviceConfiguration2);
         when(slaveDeviceConfiguration2.getName()).thenReturn(SLAVE_DEVICE_CONFIGURATION_NAME_2);
         when(slave2.getId()).thenReturn(2L);
@@ -494,9 +499,9 @@ public class DeviceInfoFactoryTest {
 
     @Test
     public void fromDataLoggerTest() {
-        DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory = new DataLoggerSlaveDeviceInfoFactory(Clock.systemUTC(), topologyService, deviceDataInfoFactory, batchService, channelInfoFactory);
+        DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory = new DataLoggerSlaveDeviceInfoFactory(Clock.systemUTC(), topologyService, multiElementDeviceService, deviceDataInfoFactory, batchService, channelInfoFactory);
 
-        DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService, issueService, dataLoggerSlaveDeviceInfoFactory, deviceService, deviceLifeCycleConfigurationService, clock);
+        DeviceInfoFactory deviceInfoFactory = new DeviceInfoFactory(thesaurus, batchService, topologyService, multiElementDeviceService, issueService, dataLoggerSlaveDeviceInfoFactory, deviceService, deviceLifeCycleConfigurationService, clock);
         DeviceInfo info = deviceInfoFactory.deviceInfo(dataLogger);
 
         assertThat(info.id).isEqualTo(DATALOGGER_ID);

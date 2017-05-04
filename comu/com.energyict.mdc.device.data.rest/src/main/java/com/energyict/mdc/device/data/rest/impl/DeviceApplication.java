@@ -49,6 +49,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
+import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
@@ -72,6 +73,7 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -106,9 +108,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
 
     private volatile MasterDataService masterDataService;
 
+    private volatile ObisCodeDescriptor obisCodeDescriptor;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile DeviceService deviceService;
     private volatile TopologyService topologyService;
+    private volatile MultiElementDeviceService multiElementDeviceService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile BatchService batchService;
@@ -205,6 +209,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
+    public void setObisCodeDescriptor(ObisCodeDescriptor obisCodeDescriptor) {
+        this.obisCodeDescriptor = obisCodeDescriptor;
+    }
+
+    @Reference
     public void setUserService(UserService userService){
         this.userService = userService;
     }
@@ -252,6 +261,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
+    }
+
+    @Reference
+    public void setMultiElementDeviceService(MultiElementDeviceService multiElementDeviceService) {
+        this.multiElementDeviceService = multiElementDeviceService;
     }
 
     @Reference
@@ -517,6 +531,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
 
         @Override
         protected void configure() {
+            bind(obisCodeDescriptor).to(ObisCodeDescriptor.class);
             bind(masterDataService).to(MasterDataService.class);
             bind(connectionTaskService).to(ConnectionTaskService.class);
             bind(deviceService).to(DeviceService.class);
@@ -563,6 +578,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(communicationTaskService).to(CommunicationTaskService.class);
             bind(favoritesService).to(FavoritesService.class);
             bind(topologyService).to(TopologyService.class);
+            bind(multiElementDeviceService).to(MultiElementDeviceService.class);
             bind(DeviceConnectionTaskInfoFactory.class).to(DeviceConnectionTaskInfoFactory.class);
             bind(DeviceComTaskExecutionInfoFactory.class).to(DeviceComTaskExecutionInfoFactory.class);
             bind(DataCollectionKpiInfoFactory.class).to(DataCollectionKpiInfoFactory.class);
