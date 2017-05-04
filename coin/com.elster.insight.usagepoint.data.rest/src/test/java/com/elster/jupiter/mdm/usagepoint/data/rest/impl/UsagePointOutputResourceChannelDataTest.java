@@ -992,6 +992,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(intervalReadingRecord.getTimeStamp()).thenReturn(interval.upperEndpoint());
         when(intervalReadingRecord.getReportedDateTime()).thenReturn(interval.upperEndpoint());
         when(intervalReadingRecord.getValue()).thenReturn(value);
+        when(intervalReadingRecord.getReadingType()).thenReturn(regularReadingType);
+        when(regularReadingType.getIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         return intervalReadingRecord;
     }
 
