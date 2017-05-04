@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.time.TimeService;
@@ -29,6 +30,7 @@ import com.energyict.mdc.pluggable.rest.impl.properties.FirmwareVersionPropertyV
 import com.energyict.mdc.pluggable.rest.impl.properties.HexStringPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.LoadProfilePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.LoadProfileTypePropertyValueConverter;
+import com.energyict.mdc.pluggable.rest.impl.properties.LocalTimePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.LogbookPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.ObisCodePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.PasswordPropertyValueConverter;
@@ -43,9 +45,11 @@ import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -54,6 +58,7 @@ import java.util.Set;
 
 @Component(name = "com.energyict.mdc.pluggable.rest", service = {Application.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/plr", "app=MDC", "name=" + MdcPluggableRestApplication.COMPONENT_NAME})
 public class MdcPluggableRestApplication extends Application implements MessageSeedProvider {
+
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "PLR";
 
@@ -65,6 +70,7 @@ public class MdcPluggableRestApplication extends Application implements MessageS
     private volatile License license;
     private volatile FirmwareService firmwareService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private List<PropertyValueConverter> converters = new ArrayList<>();
     private NlsService nlsService;
     private Thesaurus thesaurus;
 
@@ -90,24 +96,35 @@ public class MdcPluggableRestApplication extends Application implements MessageS
 
     @Activate
     public void activate() {
-        propertyValueInfoService.addPropertyValueInfoConverter(new CalendarPropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new ClockPropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new DeviceMessageFilePropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new Ean13PropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new Ean18PropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new FirmwareVersionPropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new HexStringPropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new LoadProfilePropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new LoadProfileTypePropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new LogbookPropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new ObisCodePropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new PasswordPropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new ReadingTypePropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new RegisterPropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new TimeOfDayPropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new TimeZoneInUsePropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new UsagePointPropertyValueConverter());
-        propertyValueInfoService.addPropertyValueInfoConverter(new DatePropertyValueConverter());
+        addConverter(new CalendarPropertyValueConverter());
+        addConverter(new ClockPropertyValueConverter());
+        addConverter(new DeviceMessageFilePropertyValueConverter());
+        addConverter(new Ean13PropertyValueConverter());
+        addConverter(new Ean18PropertyValueConverter());
+        addConverter(new FirmwareVersionPropertyValueConverter());
+        addConverter(new HexStringPropertyValueConverter());
+        addConverter(new LoadProfilePropertyValueConverter());
+        addConverter(new LoadProfileTypePropertyValueConverter());
+        addConverter(new LogbookPropertyValueConverter());
+        addConverter(new ObisCodePropertyValueConverter());
+        addConverter(new PasswordPropertyValueConverter());
+        addConverter(new ReadingTypePropertyValueConverter());
+        addConverter(new RegisterPropertyValueConverter());
+        addConverter(new TimeOfDayPropertyValueConverter());
+        addConverter(new LocalTimePropertyValueConverter());
+        addConverter(new TimeZoneInUsePropertyValueConverter());
+        addConverter(new UsagePointPropertyValueConverter());
+        addConverter(new DatePropertyValueConverter());
+    }
+
+    private void addConverter(PropertyValueConverter converter) {
+        this.converters.add(converter);
+        this.propertyValueInfoService.addPropertyValueInfoConverter(converter);
+    }
+
+    @Deactivate
+    public void deactivate() {
+        this.converters.forEach(this.propertyValueInfoService::removePropertyValueInfoConverter);
     }
 
     @Reference

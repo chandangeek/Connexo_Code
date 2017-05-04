@@ -17,11 +17,14 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.upl.io.SocketService;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -38,14 +41,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -85,7 +85,7 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
         ConnectionTypePluggableClass connectionTypePluggableCass5 = createMockedConnectionTypePluggableCass(inConnectionType2);
 
         List<ConnectionType> deviceProtocolSupportedConnectionTypes = Arrays.asList(outboundConnectionType1, outboundConnectionType3, inConnectionType2);
-        when(deviceProtocol.getSupportedConnectionTypes()).thenReturn(deviceProtocolSupportedConnectionTypes);
+        doReturn(deviceProtocolSupportedConnectionTypes).when(deviceProtocol).getSupportedConnectionTypes();
         when(protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.of(deviceProtocolPluggableClass));
         List<ConnectionTypePluggableClass> allConnectionTypePluggableClasses = Arrays.asList(connectionTypePluggableCass1, connectionTypePluggableCass2, connectionTypePluggableCass3, connectionTypePluggableCass4, connectionTypePluggableCass5);
         when(protocolPluggableService.findAllConnectionTypePluggableClasses()).thenReturn(allConnectionTypePluggableClasses);
@@ -123,7 +123,7 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
 
     @Test
     public void getSupportedConnectionTypesWhenDeviceProtocolDoesNotSupportConnectionTypesTest() {
-        when(deviceProtocol.getSupportedConnectionTypes()).thenReturn(Collections.<ConnectionType>emptyList());
+        doReturn(Collections.<ConnectionType>emptyList()).when(deviceProtocol).getSupportedConnectionTypes();
         List<Map<String, Object>> response = target("/devicecommunicationprotocols/1/connectiontypes").request().get(List.class);
 
         assertThat(response).hasSize(0);
@@ -131,7 +131,7 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
 
     @Test
     public void getOutboundConnectionTypesWhenDeviceProtocolDoesNotSupportOutboundConnectionTypesTest() throws UnsupportedEncodingException {
-        when(deviceProtocol.getSupportedConnectionTypes()).thenReturn(Arrays.asList(inConnectionType1, inConnectionType2));
+        doReturn(Arrays.asList(inConnectionType1, inConnectionType2)).when(deviceProtocol).getSupportedConnectionTypes();
         List<Map<String, Object>> response = target("/devicecommunicationprotocols/1/connectiontypes").queryParam("filter", ExtjsFilter.filter().property("direction", "outbound").create()).request().get(List.class);
 
         assertThat(response).hasSize(0);
@@ -139,7 +139,7 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
 
     @Test
     public void getInboundConnectionTypesWhenDeviceProtocolDoesNotSupportInboundConnectionTypesTest() throws UnsupportedEncodingException {
-        when(deviceProtocol.getSupportedConnectionTypes()).thenReturn(Arrays.asList(outboundConnectionType1, outboundConnectionType2));
+        doReturn(Arrays.asList(outboundConnectionType1, outboundConnectionType2)).when(deviceProtocol).getSupportedConnectionTypes();
         List<Map<String, Object>> response = target("/devicecommunicationprotocols/1/connectiontypes").queryParam("filter", ExtjsFilter.filter().property("direction", "inbound").create()).request().get(List.class);
 
         assertThat(response).hasSize(0);

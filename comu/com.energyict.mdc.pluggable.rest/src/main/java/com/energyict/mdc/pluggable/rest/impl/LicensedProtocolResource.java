@@ -6,8 +6,8 @@ package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.protocol.api.LicensedProtocol;
-import com.energyict.mdc.protocol.api.tasks.support.DeviceDescriptionSupport;
+import com.energyict.mdc.protocol.LicensedProtocol;
+import com.energyict.mdc.upl.DeviceDescriptionSupport;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.annotation.security.RolesAllowed;

@@ -6,6 +6,7 @@ package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyType;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
@@ -20,7 +21,7 @@ public class UsagePointPropertyValueConverter implements PropertyValueConverter 
     }
 
     @Override
-    public SimplePropertyType getPropertyType(PropertySpec propertySpec) {
+    public PropertyType getPropertyType(PropertySpec propertySpec) {
         return SimplePropertyType.USAGEPOINT;
     }
 
