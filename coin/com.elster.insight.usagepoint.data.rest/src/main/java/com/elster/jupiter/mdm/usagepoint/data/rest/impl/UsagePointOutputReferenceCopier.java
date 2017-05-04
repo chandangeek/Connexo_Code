@@ -60,12 +60,14 @@ public class UsagePointOutputReferenceCopier {
 
     public List<OutputChannelDataInfo> get(ReferenceChannelDataInfo referenceChannelDataInfo) {
         this.referenceChannelDataInfo = referenceChannelDataInfo;
-        ReadingType readingType = meteringService.getReadingType(referenceChannelDataInfo.readingType)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_READING_TYPE_FOR_MRID, "readingType", referenceChannelDataInfo.readingType));
+
         UsagePoint usagePoint = resourceHelper.findUsagePointByName(referenceChannelDataInfo.referenceUsagePoint)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_USAGE_POINT_WITH_NAME, "usagePoint", referenceChannelDataInfo.referenceUsagePoint));
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "usagePoint", referenceChannelDataInfo.referenceUsagePoint));
         MetrologyPurpose purpose = resourceHelper.findMetrologyPurpose(referenceChannelDataInfo.referencePurpose)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_METROLOGY_PURPOSE, "referencePurpose", referenceChannelDataInfo.referencePurpose));
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "referencePurpose", referenceChannelDataInfo.referencePurpose));
+        ReadingType readingType = meteringService.getReadingType(referenceChannelDataInfo.readingType)
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "readingType", referenceChannelDataInfo.readingType));
+
         resultReadings = new ArrayList<>();
 
         correctedRanges = getCorrectedTimeStampsForReference(referenceChannelDataInfo.startDate, referenceChannelDataInfo.intervals);
@@ -81,14 +83,15 @@ public class UsagePointOutputReferenceCopier {
             MetrologyContract metrologyContract = resourceHelper.findMetrologyContract(effectiveMetrologyConfigurationOnUsagePoint, purpose)
                     .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.METROLOGYPURPOSE_IS_NOT_FOUND_ON_USAGEPOINT, "referencePurpose", purpose.getName(), usagePoint
                             .getName()));
+            if (readingTypeComparator.compare(readingType, sourceChannel.getMainReadingType())!=0) {
+                throw new LocalizedFieldValidationException(MessageSeeds.READINGTYPES_DONT_MATCH, "readingType");
+            }
             ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().stream().filter(output -> output.getReadingType().equals(readingType))
                     .findFirst()
                     .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_USAGEPOINT, "readingType", referenceChannelDataInfo.readingType));
             AggregatedChannel referenceChannel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType())
                     .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_USAGEPOINT, "readingType", referenceChannelDataInfo.readingType));
-            if (readingTypeComparator.compare(referenceChannel.getMainReadingType(), sourceChannel.getMainReadingType())!=0) {
-                throw new LocalizedFieldValidationException(MessageSeeds.READINGTYPES_DONT_MATCH, "readingType");
-            }
+
             Map<Instant, IntervalReadingRecord> sourceRecords = sourceChannel
                     .getIntervalReadings(Ranges.copy(referenceRange.intersection(effectiveMetrologyConfigurationOnUsagePoint.getRange())).asOpenClosed()).stream()
                     .filter(readingRecord -> correctedRanges.keySet().stream().anyMatch(r -> r.upperEndpoint().equals(readingRecord.getTimeStamp())))
