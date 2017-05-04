@@ -9,10 +9,7 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.TopologyService;
-
-import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -45,6 +42,7 @@ public class ChannelInfoFactory {
         if (!slaveChannel.isPresent()) {
             info.lastValueTimestamp = channel.getLastDateTime().orElse(null);
         } else {
+            info.dataloggerSlaveName = slaveChannel.get().getDevice().getName();
             info.lastValueTimestamp = slaveChannel.get().getLastDateTime().orElse(null);
         }
         info.readingType = readingTypeInfoFactory.from(channel.getReadingType());
@@ -63,10 +61,10 @@ public class ChannelInfoFactory {
         info.useMultiplier = channel.getChannelSpec().isUseMultiplier();
         info.multiplier = channel.getMultiplier(clock.instant()).orElseGet(() -> null);
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
-        List<DataLoggerChannelUsage> dataLoggerChannelUsages = topologyService.findDataLoggerChannelUsagesForChannels(channel, Range.atLeast(clock.instant()));
-        if (!dataLoggerChannelUsages.isEmpty()) {
-            info.dataloggerSlaveName = dataLoggerChannelUsages.get(0).getDataLoggerReference().getOrigin().getName();
-        }
+//        List<DataLoggerChannelUsage> dataLoggerChannelUsages = topologyService.findDataLoggerChannelUsagesForChannels(channel, Range.atLeast(clock.instant()));
+//        if (!dataLoggerChannelUsages.isEmpty()) {
+//            info.dataloggerSlaveName = dataLoggerChannelUsages.get(0).getPhysicalGatewayReference().getOrigin().getName();
+//        }
         return info;
     }
 

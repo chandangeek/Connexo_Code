@@ -112,7 +112,7 @@ public enum MessageSeeds implements MessageSeed {
     PROCESS_STATUS_ABORTED(290, "ProcessStatusAborted", "Aborted"),
     PROCESS_STATUS_SUSPENDED(291, "ProcessStatusSuspended", "Suspended"),
     OVERLAPPING_COMTASKS_IN_COMSCHEDULES(292, "OverlappingComTasks", "There are overlapping communication tasks in the schedules"),
-    NO_SUCH_PROTOCOL_PROPERTIES(293, "NoSuchProtocolDialectProperties", "\"No protocol dialect with name '{0}'"),
+    NO_SUCH_VALIDATION_RULE(293, "noSuchValidationRule", "No validation rule with id {0}"),
     NO_SUCH_READINGTYPE(294, "noReadingType", "No reading type with MRID {0}"),
     READINGTYPES_DONT_MATCH(295, "ReadingTypesDontMatch", "Reading types don''t match"),
     READINGTYPE_NOT_FOUND_ON_DEVICE(296, "ReadingTypeNotFoundOnDevice", "Reading type not found on device"),
@@ -121,7 +121,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_READINGTYPE_ON_CHANNEL(299, "noSuchReadingTypeOnChannel", "Device''s channel doesn''t provide reading type {0}"),
     VALIDATION_RULE_IS_NOT_APPLICABLE_TO_READINGTYPE(300, "ValidationRuleIsNotApplicableToReadingType", "Validation rule with id {0} is not applicable to reading type {1}"),
     ESTIMATION_RULE_IS_NOT_APPLICABLE_TO_READINGTYPE(301, "EstimationRuleIsNotApplicableToReadingType", "Estimation rule with id {0} is not applicable to reading type {1}"),
-    NO_CALCULATED_READINGTYPE_ON_CHANNEL(302, "noCalculatedReadingTypeOnChannel", "Device''s channel with id {0} doesn''t provide calculated reading type"),
+    NO_SUCH_PROTOCOL_PROPERTIES(302, "NoSuchProtocolDialectProperties", "No protocol dialect with name '{0}'"),
+    UPDATE_OF_DEVICE_FAILED(303, "UpdateOfDeviceFailed", "Update of device failed"),
+    NO_CALCULATED_READINGTYPE_ON_CHANNEL(304, "noCalculatedReadingTypeOnChannel", "Device''s channel with id {0} doesn''t provide calculated reading type"),
     ;
 
     private final int number;

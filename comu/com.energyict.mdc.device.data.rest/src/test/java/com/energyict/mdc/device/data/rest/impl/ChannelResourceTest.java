@@ -1085,6 +1085,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         mockPropertyValueInfoService();
         ReadingType readingType = mockReadingType("0.0.0...");
         when(channel.getReadingType()).thenReturn(readingType);
+        when(deviceConfiguration.getId()).thenReturn(15L);
 
         when(estimationRuleSet.getId()).thenReturn(15L);
         when(estimationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
