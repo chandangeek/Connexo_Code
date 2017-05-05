@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -18,6 +19,9 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementChangeMessageHandler;
 import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
@@ -27,6 +31,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
 import javax.inject.Inject;
+import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -86,8 +91,14 @@ public class Installer implements FullInstaller {
                 this::createMasterData,
                 logger
         );
+        doTry(
+                "Create Connection task completed event subscriber",
+                this::addCommunicationTestEventSubscriber,
+                logger
+        );
         installerV10_2.install(dataModelUpgrader, logger);
         userService.addModulePrivileges(installerV10_2);
+
     }
 
     private void addJupiterEventSubscribers() {
@@ -160,4 +171,19 @@ public class Installer implements FullInstaller {
             eventType.createIfNotExists(this.eventService);
         }
     }
+
+    private void addCommunicationTestEventSubscriber() {
+        Optional<DestinationSpec> destinationSpec = this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS);
+        if (destinationSpec.isPresent()) {
+            DestinationSpec jupiterEvents = destinationSpec.get();
+            Stream.of(
+                    Pair.of(SubscriberTranslationKeys.TEST_COMMUNICATION_COMPLETED_EVENT, whereCorrelationId().isEqualTo("com/energyict/mdc/connectiontask/COMPLETION")))
+                    .filter(subscriber -> !jupiterEvents.getSubscribers()
+                            .stream()
+                            .anyMatch(s -> s.getName().equals(subscriber.getFirst())))
+                    .forEach(subscriber -> this.doSubscriber(jupiterEvents, subscriber));
+        }
+    }
+
+
 }

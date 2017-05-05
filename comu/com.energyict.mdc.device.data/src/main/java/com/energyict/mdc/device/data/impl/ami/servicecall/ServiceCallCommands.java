@@ -37,8 +37,6 @@ public class ServiceCallCommands {
         loadControlTerminate(DisableLoadLimitServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EndDeviceControlTypeMapping.LOAD_CONTROL_TERMINATE),
 
         renewKey(KeyRenewalServiceCallHandler.SERVICE_CALL_HANDLER_NAME, KeyRenewalServiceCallHandler.VERSION, EndDeviceControlTypeMapping.KEY_RENEWAL)
-        //testCommunication(TestCommunicationServiceCallHandler.SERVICE_CALL_HANDLER_NAME, TestCommunicationServiceCallHandler.VERSION, EndDeviceControlTypeMapping.OTHER)
-
         ;
 
         private final String typeName;

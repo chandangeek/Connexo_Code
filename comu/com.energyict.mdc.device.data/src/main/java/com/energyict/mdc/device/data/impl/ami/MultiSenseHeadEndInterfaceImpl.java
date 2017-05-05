@@ -23,6 +23,7 @@ import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.servicecall.*;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.CommunicationTestServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -414,10 +415,34 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
 
     @Override
     public CompletionOptions runCommunicationTask(Device multiSenseDevice, List<ComTaskExecution> comTaskExecutions, Instant instant, ServiceCall parentServiceCall) {
-        ServiceCall serviceCall = getOnDemandReadServiceCall(multiSenseDevice, comTaskExecutions.size()
+        ServiceCall serviceCall = getCommunicationTestServiceCall(multiSenseDevice, comTaskExecutions.size()
                 , instant, Optional.ofNullable(parentServiceCall));
         serviceCall.requestTransition(DefaultState.ONGOING);
         comTaskExecutions.forEach(comTaskExecution -> this.scheduleComTaskExecution(comTaskExecution, instant));
         return new CompletionOptionsImpl(serviceCall);
+    }
+
+    private ServiceCall getCommunicationTestServiceCall(Device device, int estimatedTasks, Instant triggerDate, Optional<ServiceCall> parentServiceCall) {
+        CompletionOptionsServiceCallDomainExtension completionOptionsServiceCallDomainExtension = new CompletionOptionsServiceCallDomainExtension();
+        CommunicationTestServiceCallDomainExtension communicationTestServiceCallDomainExtension = new CommunicationTestServiceCallDomainExtension();
+        communicationTestServiceCallDomainExtension.setExpectedTasks(new BigDecimal(estimatedTasks));
+        communicationTestServiceCallDomainExtension.setCompletedTasks(BigDecimal.ZERO);
+        communicationTestServiceCallDomainExtension.setSuccessfulTasks(BigDecimal.ZERO);
+        communicationTestServiceCallDomainExtension.setTriggerDate(new BigDecimal(triggerDate.toEpochMilli()));
+
+        ServiceCallType serviceCallType = serviceCallService.findServiceCallType(CommunicationTestServiceCallHandler.SERVICE_CALL_HANDLER_NAME, CommunicationTestServiceCallHandler.VERSION)
+                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
+                        .format()));
+
+        ServiceCallBuilder serviceCallBuilder = parentServiceCall.isPresent() ? parentServiceCall.get()
+                .newChildCall(serviceCallType) : serviceCallType.newServiceCall();
+
+        ServiceCall serviceCall = serviceCallBuilder
+                .extendedWith(communicationTestServiceCallDomainExtension)
+                .extendedWith(completionOptionsServiceCallDomainExtension)
+                .targetObject(device)
+                .create();
+        serviceCall.requestTransition(DefaultState.PENDING);
+        return serviceCall;
     }
 }
