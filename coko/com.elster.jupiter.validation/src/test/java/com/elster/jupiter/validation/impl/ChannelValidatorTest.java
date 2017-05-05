@@ -24,6 +24,7 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.After;
@@ -102,8 +103,8 @@ public class ChannelValidatorTest {
 
         channelValidator.validateRule(rule);
 
-        verify(channel).createReadingQuality(validationQuality, readingType, readingRecord);
-        verify(channel).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, readingRecord);
+        verify(channel).createReadingQualityForRecords(validationQuality, readingType, Arrays.asList(readingRecord));
+        verify(channel).createReadingQualityForRecords(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, Arrays.asList(readingRecord));
     }
 
     @Test
@@ -119,8 +120,8 @@ public class ChannelValidatorTest {
 
         channelValidator.validateRule(rule);
 
-        verify(channel).createReadingQuality(validationQuality, readingType, readingRecord);
-        verify(channel).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, readingRecord);
+        verify(channel).createReadingQualityForRecords(validationQuality, readingType, Collections.singletonList(readingRecord));
+        verify(channel).createReadingQualityForRecords(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, Collections.singletonList(readingRecord));
     }
 
     @Test
@@ -169,7 +170,7 @@ public class ChannelValidatorTest {
 
         channelValidator.validateRule(rule);
 
-        verify(channel).createReadingQuality(validationQuality, readingType, readingRecord);
+        verify(channel).createReadingQualityForRecords(validationQuality, readingType, Collections.singletonList(readingRecord));
     }
 
     @Test
