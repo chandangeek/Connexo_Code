@@ -182,7 +182,17 @@ public interface DeviceType extends HasId, HasName {
 
     boolean isDirectlyAddressable();
 
+    /**
+     * Devicetype used for data logger slave devices Yes/No
+     * @return true is this device type is for data logger slave devices, false if not
+     */
     boolean isDataloggerSlave();
+
+    /**
+     * Device type used for submeter elements (= virtual slaves of a regular device for 'ad hoc' configuration of datasources
+     * @return true is this device type is used for submeter elements within a regular device, for if not
+     */
+    boolean isMultiElementSlave();
 
     void setDeviceTypePurpose(DeviceTypePurpose deviceTypePurpose);
 
@@ -359,6 +369,8 @@ public interface DeviceType extends HasId, HasName {
         DeviceConfigurationBuilder gatewayType(GatewayType gatewayType);
 
         DeviceConfigurationBuilder dataloggerEnabled(boolean dataloggerEnabled);
+
+        DeviceConfigurationBuilder multiElementEnabled(boolean multiElementEnabled);
 
         DeviceConfigurationBuilder validateOnStore(boolean validateOnStore);
     }

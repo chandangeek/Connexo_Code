@@ -23,10 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-/**
- * User: gde
- * Date: 5/11/12
- */
 @ProviderType
 public interface DeviceConfiguration extends HasId, HasName, DeviceCommunicationConfiguration {
 
@@ -101,21 +97,21 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     boolean hasCommunicationFunction(DeviceCommunicationFunction function);
 
-    public boolean canActAsGateway();
+    boolean canActAsGateway();
 
-    public void setCanActAsGateway(boolean actAsGateway);
+    void setCanActAsGateway(boolean actAsGateway);
 
-    public boolean isDirectlyAddressable();
+    boolean isDirectlyAddressable();
 
-    public void setDirectlyAddressable(boolean directlyAddressable);
+    void setDirectlyAddressable(boolean directlyAddressable);
 
     DeviceConfValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet);
 
-    public void removeValidationRuleSet(ValidationRuleSet validationRuleSet);
+    void removeValidationRuleSet(ValidationRuleSet validationRuleSet);
 
-    public List<ValidationRuleSet> getValidationRuleSets();
+    List<ValidationRuleSet> getValidationRuleSets();
 
-    public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages();
+    List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages();
 
     DeviceConfigurationEstimationRuleSetUsage addEstimationRuleSet(EstimationRuleSet estimationRuleSet);
 
@@ -127,11 +123,11 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     List<DeviceConfigurationEstimationRuleSetUsage> getDeviceConfigEstimationRuleSetUsages();
 
-    public List<ValidationRule> getValidationRules(Collection<? extends ReadingType> readingTypes);
+    List<ValidationRule> getValidationRules(Collection<? extends ReadingType> readingTypes);
 
-    public GatewayType getGatewayType();
+    GatewayType getGatewayType();
 
-    public void setGatewayType(GatewayType gatewayType);
+    void setGatewayType(GatewayType gatewayType);
 
     /**
      * Gets the general protocol properties that have been specified on
@@ -139,15 +135,15 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
      *
      * @return The {@link DeviceProtocolConfigurationProperties}
      */
-    public DeviceProtocolConfigurationProperties getDeviceProtocolProperties();
+    DeviceProtocolConfigurationProperties getDeviceProtocolProperties();
 
-    public long getVersion();
+    long getVersion();
 
-    public void setDataloggerEnabled(boolean enabled);
+    void setDataloggerEnabled(boolean enabled);
 
-    public boolean getValidateOnStore();
+    boolean getValidateOnStore();
 
-    public void setValidateOnStore(boolean validateOnStore);
+    void setValidateOnStore(boolean validateOnStore);
 
     /**
      * Indicate whether or not this DeviceConfiguration allows itself to be
@@ -156,5 +152,15 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
      * @return true if this DeviceConfiguration can be a Datalogger, false otherwise
      */
     boolean isDataloggerEnabled();
+
+    /**
+     * Indicate whether or not this DeviceConfiguration allows itself to be
+     * used as a Multi-Element meter
+     *
+     * @return true if this DeviceConfiguration can be a Multi-Element meter, false otherwise
+     */
+    boolean isMultiElementEnabled();
+
+    void setMultiElementEnabled(boolean enabled);
 
 }

@@ -40,15 +40,13 @@ public final class DeviceConfigChangeEngine {
      * @return the calculated DeviceConfigChangeActions
      */
     public List<DeviceConfigChangeAction> calculateDeviceConfigChangeActionsForConflicts(DeviceType deviceType) {
-        if (!deviceType.isDataloggerSlave()) {
+        if (!deviceType.isDataloggerSlave() && !deviceType.isMultiElementSlave()) {
             List<DeviceConfigChangeAction> deviceConfigChangeActions = new ArrayList<>();
             deviceType.getConfigurations().stream()
                     .filter(DeviceConfiguration::isActive) // only perform the check on active device configurations
-                    .filter(not(DeviceConfiguration::isDataloggerEnabled))  // don't do the calculation for dataLogger enabled devices
                     .forEach(
                             origin -> deviceType.getConfigurations().stream()
                                     .filter(DeviceConfiguration::isActive) // only active configs
-                                    .filter(not(DeviceConfiguration::isDataloggerEnabled)) // don't do the calculation for datalogger enabled devices
                                     .filter(destinationConfig -> destinationConfig.getId() != origin.getId())
                                     .forEach(destination -> calculateForPossibleConflictingAttributes(origin, destination, deviceConfigChangeActions))
                     );

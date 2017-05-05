@@ -41,8 +41,8 @@ public class DataloggerSlaveException extends LocalizedException {
         return dataloggerSlaveException;
     }
 
-    public static DataloggerSlaveException cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration) {
-        DataloggerSlaveException dataloggerSlaveException = new DataloggerSlaveException(thesaurus, MessageSeeds.DATALOGGER_ENABLED_CANNOT_CHANGE_ON_ACTIVE_CONFIG);
+    public static DataloggerSlaveException cannotChangeDataloggerFunctionalityEnabledOnceTheConfigIsActive(Thesaurus thesaurus, MessageSeeds seed, DeviceConfiguration deviceConfiguration) {
+        DataloggerSlaveException dataloggerSlaveException = new DataloggerSlaveException(thesaurus, seed);
         dataloggerSlaveException.set("deviceConfiguration", deviceConfiguration);
         return dataloggerSlaveException;
     }
