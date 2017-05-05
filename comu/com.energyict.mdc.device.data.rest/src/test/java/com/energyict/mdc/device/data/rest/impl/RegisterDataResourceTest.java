@@ -161,6 +161,7 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(readingQualityEstimated.hasEstimatedCategory()).thenReturn(true);
         when(estimationRule.getId()).thenReturn(13L);
         when(estimationRule.getName()).thenReturn("EstimationRule");
+        when(estimationRule.getComment()).thenReturn(Optional.empty());
         EstimationRuleSet estimationRuleSet = mock(EstimationRuleSet.class);
         when(estimationRuleSet.getId()).thenReturn(15L);
         when(estimationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);

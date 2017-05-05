@@ -10,7 +10,6 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
@@ -22,7 +21,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
@@ -44,7 +42,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
 import static java.util.stream.Collectors.toList;
@@ -235,7 +232,7 @@ public class DeviceComTaskResource {
         List<ComTaskExecutionSession> comTaskExecutionSessions = communicationTaskService.findSessionsByComTaskExecutionAndComTask(comTaskExecution, comTask).from(queryParameters).find();
         for (ComTaskExecutionSession comTaskExecutionSession : comTaskExecutionSessions) {
             ComTaskExecutionSessionInfo comTaskExecutionSessionInfo = comTaskExecutionSessionInfoFactory.from(comTaskExecutionSession);
-            comTaskExecutionSessionInfo.comSession = comSessionInfoFactory.from(comTaskExecutionSession.getComSession());
+            comTaskExecutionSessionInfo.comSession = comSessionInfoFactory.from(comTaskExecutionSession.getComSession(), journalEntryInfoFactory);
             infos.add(comTaskExecutionSessionInfo);
         }
         return PagedInfoList.fromPagedList("comTaskExecutionSessions", infos, queryParameters);
@@ -258,7 +255,7 @@ public class DeviceComTaskResource {
         for (ComTaskExecutionSession comTaskExecutionSession : comTaskExecutionSessions) {
             if (comTaskExecutionSession.getId() == comTaskExecutionSessionId) {
                 ComTaskExecutionSessionInfo comTaskExecutionSessionInfo = comTaskExecutionSessionInfoFactory.from(comTaskExecutionSession);
-                comTaskExecutionSessionInfo.comSession = comSessionInfoFactory.from(comTaskExecutionSession.getComSession());
+                comTaskExecutionSessionInfo.comSession = comSessionInfoFactory.from(comTaskExecutionSession.getComSession(), journalEntryInfoFactory);
                 return comTaskExecutionSessionInfo;
             }
         }
@@ -284,7 +281,14 @@ public class DeviceComTaskResource {
         ComTaskExecutionSession comTaskExecutionSession = findComTaskExecutionSessionOrThrowException(sessionId, comTask);
         EnumSet<ComServer.LogLevel> logLevels = EnumSet.noneOf(ComServer.LogLevel.class);
         if (jsonQueryFilter.hasProperty(LOG_LEVELS_FILTER_PROPERTY)) {
-            jsonQueryFilter.getPropertyList(LOG_LEVELS_FILTER_PROPERTY, new LogLevelAdapter()).stream().forEach(logLevels::add);
+            jsonQueryFilter.getPropertyList(LOG_LEVELS_FILTER_PROPERTY, new LogLevelAdapter())
+                    .stream()
+                    .forEach(logLevels::add);
+            if(logLevels.contains(ComServer.LogLevel.DEBUG)){
+                logLevels.add(ComServer.LogLevel.ERROR);
+                logLevels.add(ComServer.LogLevel.WARN);
+                logLevels.add(ComServer.LogLevel.INFO);
+            }
         } else {
             logLevels = EnumSet.allOf(ComServer.LogLevel.class);
         }

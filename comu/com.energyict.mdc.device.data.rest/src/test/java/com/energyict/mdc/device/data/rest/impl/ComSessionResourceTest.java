@@ -22,9 +22,8 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -37,6 +36,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
@@ -222,7 +224,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
 
         ArgumentCaptor<Set> captor = ArgumentCaptor.forClass(Set.class);
         verify(comSession1).getJournalEntries(captor.capture());
-        assertThat(captor.getAllValues().get(0)).containsExactly(ComServer.LogLevel.INFO,ComServer.LogLevel.DEBUG);
+        assertThat(captor.getAllValues().get(0)).containsExactly(ComServer.LogLevel.ERROR, ComServer.LogLevel.WARN, ComServer.LogLevel.INFO, ComServer.LogLevel.DEBUG);
     }
 
     private void setupJournalMocking() {

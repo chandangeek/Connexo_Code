@@ -71,6 +71,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.util.time.ExecutionTimerService;
@@ -95,6 +96,8 @@ import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.device.topology.impl.TopologyModule;
+import com.energyict.mdc.device.topology.impl.multielement.MultiElementDeviceModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -280,6 +283,8 @@ public class InMemoryIntegrationPersistence {
                 new ServiceCallRestModule(),
                 new CalendarModule(),
                 new CalendarRestModule(),
+                new TopologyModule(),
+                new MultiElementDeviceModule(),
                 new PropertyValueInfoServiceModule()
         );
         this.transactionService = injector.getInstance(TransactionService.class);
@@ -582,7 +587,7 @@ public class InMemoryIntegrationPersistence {
             bind(LicenseService.class).toInstance(licenseService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LogService.class).toInstance(mock(LogService.class));
-            bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
+            bind(CronExpressionParser.class).toInstance(new DefaultCronExpressionParser());
             bind(IssueService.class).toInstance(issueService);
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(DataModel.class).toProvider(() -> dataModel);

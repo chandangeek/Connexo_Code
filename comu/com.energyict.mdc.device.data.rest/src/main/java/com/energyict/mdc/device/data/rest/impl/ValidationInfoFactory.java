@@ -8,9 +8,12 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MeteringTranslationService;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
@@ -57,6 +60,7 @@ public class ValidationInfoFactory {
     private final ResourceHelper resourceHelper;
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
     private final ReadingQualityInfoFactory readingQualityInfoFactory;
+    private final MeteringService meteringService;
 
     @Inject
     public ValidationInfoFactory(MeteringTranslationService meteringTranslationService,
@@ -65,7 +69,7 @@ public class ValidationInfoFactory {
                                  PropertyValueInfoService propertyValueInfoService,
                                  ResourceHelper resourceHelper,
                                  ReadingTypeInfoFactory readingTypeInfoFactory,
-                                 ReadingQualityInfoFactory readingQualityInfoFactory) {
+                                 ReadingQualityInfoFactory readingQualityInfoFactory, MeteringService meteringService) {
         this.meteringTranslationService = meteringTranslationService;
         this.validationRuleInfoFactory = validationRuleInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
@@ -73,6 +77,7 @@ public class ValidationInfoFactory {
         this.resourceHelper = resourceHelper;
         this.readingTypeInfoFactory = readingTypeInfoFactory;
         this.readingQualityInfoFactory = readingQualityInfoFactory;
+        this.meteringService = meteringService;
     }
 
     DetailedValidationRuleInfo createDetailedValidationRuleInfo(ValidationRule validationRule, Long total) {
@@ -338,6 +343,12 @@ public class ValidationInfoFactory {
             veeReadingInfo.editedInApp = resourceHelper.getApplicationInfo(modificationFlag.getLast());
         }
         veeReadingInfo.isConfirmed = isConfirmedData(reading, readingQualities);
+        readingQualities.stream().filter(readingQuality -> readingQuality.getComment() != null)
+                .findFirst()
+                .ifPresent(readingQuality -> {
+                    veeReadingInfo.commentId = getEstimationCommentIdByValue(readingQuality.getComment());
+                    veeReadingInfo.commentValue = readingQuality.getComment();
+        });
         return veeReadingInfo;
     }
 
@@ -444,4 +455,13 @@ public class ValidationInfoFactory {
         }
         return null;
     }
+
+    private long getEstimationCommentIdByValue(String commentValue) {
+        return meteringService.getAllReadingQualityComments(ReadingQualityCommentCategory.ESTIMATION)
+                .stream()
+                .filter(readingQualityComment -> readingQualityComment.getComment().equals(commentValue))
+                .map(ReadingQualityComment::getId)
+                .findFirst().orElse(0L);
+    }
+
 }

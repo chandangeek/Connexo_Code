@@ -4,12 +4,10 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.topology.TopologyService;
 
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +18,7 @@ public class DataLoggerSlaveDeviceInfo {
     public long id;
     public String name;
     public String deviceTypeName;
+    public String deviceTypePurpose; // Datalogger slave/ Multi-element Slave
     public long deviceConfigurationId;
     public long deviceTypeId;
     public String deviceConfigurationName;
@@ -72,32 +71,22 @@ public class DataLoggerSlaveDeviceInfo {
         return fromExistingLink;
     }
 
-    static DataLoggerSlaveDeviceInfo from(Device device, BatchService batchService, TopologyService topologyService, Clock clock) {
-        DataLoggerSlaveDeviceInfo info = new DataLoggerSlaveDeviceInfo();
-        info.id = device.getId();
-        info.name = device.getName();
-        info.deviceTypeName = device.getDeviceType().getName();
-        info.deviceTypeId = device.getDeviceType().getId();
-        info.deviceConfigurationId = device.getDeviceConfiguration().getId();
-        info.deviceConfigurationName = device.getDeviceConfiguration().getName();
-        info.serialNumber = device.getSerialNumber();
-        info.manufacturer = device.getManufacturer();
-        info.modelNbr = device.getModelNumber();
-        info.modelVersion = device.getManufacturer();
-        info.yearOfCertification = device.getYearOfCertification();
-        info.version = device.getVersion();
-        info.fromExistingLink = true;
-        info.batch = device.getBatch().map(Batch::getName).orElse(null);
-        info.linkingTimeStamp = topologyService.findDataloggerReference(device, clock.instant())
-                .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint().toEpochMilli())
-                .orElse(null);
-        topologyService.findLastDataloggerReference(device).ifPresent(dataLoggerReference -> {
-            if (dataLoggerReference.isTerminated()) {
-                info.unlinkingTimeStamp = dataLoggerReference.getRange().upperEndpoint().toEpochMilli();
-            }
-        });
-        device.getLifecycleDates().getReceivedDate().ifPresent((shipmentDate) -> info.shipmentDate = shipmentDate.toEpochMilli());
-        return info;
+    DataLoggerSlaveDeviceInfo(Device device){
+        this.id = device.getId();
+        this.name = device.getName();
+        this.deviceTypeName = device.getDeviceType().getName();
+        this.deviceTypeId = device.getDeviceType().getId();
+        this.deviceTypePurpose = (device.getDeviceType().isDataloggerSlave() ? DeviceTypePurpose.DATALOGGER_SLAVE.name() : (device.getDeviceType().isMultiElementSlave() ? DeviceTypePurpose.MULTI_ELEMENT_SLAVE.name(): DeviceTypePurpose.REGULAR.name()));
+        this.deviceConfigurationId = device.getDeviceConfiguration().getId();
+        this.deviceConfigurationName = device.getDeviceConfiguration().getName();
+        this.serialNumber = device.getSerialNumber();
+        this.manufacturer = device.getManufacturer();
+        this.modelNbr = device.getModelNumber();
+        this.modelVersion = device.getManufacturer();
+        this.yearOfCertification = device.getYearOfCertification();
+        this.version = device.getVersion();
+        this.fromExistingLink = true;
+        this.batch = device.getBatch().map(Batch::getName).orElse(null);
+        device.getLifecycleDates().getReceivedDate().ifPresent((shipmentDate) -> this.shipmentDate = shipmentDate.toEpochMilli());
     }
-
 }
