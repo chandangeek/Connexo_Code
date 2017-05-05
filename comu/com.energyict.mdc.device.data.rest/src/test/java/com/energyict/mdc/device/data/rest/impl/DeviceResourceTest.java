@@ -71,6 +71,7 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -1513,7 +1514,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLoggerChannel.getId()).thenReturn(2L);
         when(dataLogger.getChannels()).thenReturn(Collections.singletonList(dataLoggerChannel));
 
-        Device slave1 = mockDeviceForTopologyTest("slave1");
+        Device slave1 = mockDeviceForTopologyTest("slave1", dataLogger);
         Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
         when(slaveChannel1.getDevice()).thenReturn(slave1);
         when(slaveChannel1.getId()).thenReturn(1L);
@@ -1522,6 +1523,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceConfiguration deviceConfig = dataLogger.getDeviceConfiguration();
 
         when(deviceConfig.isDataloggerEnabled()).thenReturn(true);
+        when(deviceConfig.isMultiElementEnabled()).thenReturn(false);
         when(dataLogger.getUsagePoint()).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfig));
@@ -1539,6 +1541,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         slaveInfo1.deviceTypeName = "firstSlaveDeviceType";
         slaveInfo1.deviceConfigurationId = 2L;
         slaveInfo1.deviceConfigurationName = "firstSlaveDeviceConfiguration";
+        slaveInfo1.deviceTypePurpose = DeviceTypePurpose.DATALOGGER_SLAVE.name();
         slaveInfo1.serialNumber = "100";
         slaveInfo1.yearOfCertification = 1960;
         slaveInfo1.version = 1;
@@ -1660,7 +1663,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         when(dataLogger.getChannels()).thenReturn(Collections.singletonList(dataLoggerChannel));
 
-        Device slave1 = mockDeviceForTopologyTest("slave1");
+        Device slave1 = mockDeviceForTopologyTest("slave1", dataLogger);
         Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
         when(slaveChannel1.getDevice()).thenReturn(slave1);
         when(slaveChannel1.getId()).thenReturn(1L);
@@ -1993,7 +1996,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLoggerRegister.getLastReading()).thenReturn(Optional.empty());
         when(dataLogger.getRegisters()).thenReturn(Collections.singletonList(dataLoggerRegister));
 
-        Device slave1 = mockDeviceForTopologyTest("slave1");
+        Device slave1 = mockDeviceForTopologyTest("slave1", dataLogger);
         when(slave1.getmRID()).thenReturn("firstSlave");
         NumericalRegisterSpec slave1RegisterSpec = mock(NumericalRegisterSpec.class);
         when(slave1RegisterSpec.getRegisterType()).thenReturn(registerType);
@@ -2081,7 +2084,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLoggerRegister.getLastReading()).thenReturn(Optional.empty());
         when(dataLogger.getRegisters()).thenReturn(Collections.singletonList(dataLoggerRegister));
 
-        Device slave1 = mockDeviceForTopologyTest("slave1");
+        Device slave1 = mockDeviceForTopologyTest("slave1", dataLogger);
         when(slave1.getmRID()).thenReturn("firstSlave");
 
         Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
@@ -2178,7 +2181,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLoggerRegister.getDeviceObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
         when(dataLogger.getRegisters()).thenReturn(Collections.singletonList(dataLoggerRegister));
 
-        Device slave1 = mockDeviceForTopologyTest("slave1");
+        Device slave1 = mockDeviceForTopologyTest("slave1", dataLogger);
         when(slave1.getmRID()).thenReturn("firstSlave");
         NumericalRegisterSpec slave1RegisterSpec = mock(NumericalRegisterSpec.class);
         when(slave1RegisterSpec.getRegisterType()).thenReturn(registerType);
@@ -2380,6 +2383,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getId()).thenReturn(1L);
         when(device.getName()).thenReturn(name);
         DeviceType deviceType = mock(DeviceType.class);
+        if (gateway != null){
+            when(deviceType.isDataloggerSlave()).thenReturn(true);
+        }
         when(deviceType.getName()).thenReturn(name + "DeviceType");
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getName()).thenReturn(name + "DeviceConfig");

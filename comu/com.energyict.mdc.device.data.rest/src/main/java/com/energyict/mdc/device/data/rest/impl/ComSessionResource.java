@@ -136,7 +136,7 @@ public class ComSessionResource {
             jsonQueryFilter.getPropertyList(LOG_LEVELS_FILTER_PROPERTY, new LogLevelAdapter())
                     .stream()
                     .forEach(logLevels::add);
-            if(logLevels.contains(ComServer.LogLevel.DEBUG)){
+            if (logLevels.contains(ComServer.LogLevel.DEBUG)) {
                 logLevels.add(ComServer.LogLevel.ERROR);
                 logLevels.add(ComServer.LogLevel.WARN);
                 logLevels.add(ComServer.LogLevel.INFO);

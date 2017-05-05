@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class DeviceAttributesInfoFactory {
@@ -75,97 +76,100 @@ public class DeviceAttributesInfoFactory {
         CoordinatesInfo coordinatesInfo = new CoordinatesInfo(device);
         info.geoCoordinates = new DeviceAttributeInfo<>();
         info.geoCoordinates.displayValue = coordinatesInfo;
-        fillAvailableAndEditable(info.geoCoordinates, DeviceAttribute.GEOCOORDINATES, state);
+        fillAvailableAndEditable(info.geoCoordinates, DeviceAttribute.GEOCOORDINATES, state, device.getDeviceType().isMultiElementSlave());
 
         EditLocationInfo editLocationInfo = new EditLocationInfo(meteringService, locationService, thesaurus, device);
         info.location = new DeviceAttributeInfo<>();
         info.location.displayValue = editLocationInfo;
-        fillAvailableAndEditable(info.location, DeviceAttribute.LOCATION, state);
+        fillAvailableAndEditable(info.location, DeviceAttribute.LOCATION, state, device.getDeviceType().isMultiElementSlave());
+
 
         info.name = new DeviceAttributeInfo<>();
         info.name.displayValue = device.getName();
-        fillAvailableAndEditable(info.name, DeviceAttribute.NAME, state);
+        fillAvailableAndEditable(info.name, DeviceAttribute.NAME, state, false);
 
         info.mrid = new DeviceAttributeInfo<>();
         info.mrid.displayValue = device.getmRID();
-        fillAvailableAndEditable(info.mrid, DeviceAttribute.MRID, state);
+        fillAvailableAndEditable(info.mrid, DeviceAttribute.MRID, state, device.getDeviceType().isMultiElementSlave());
 
         info.deviceType = new DeviceAttributeInfo<>();
         info.deviceType.displayValue = device.getDeviceType().getName();
         info.deviceType.attributeId = device.getDeviceType().getId();
-        fillAvailableAndEditable(info.deviceType, DeviceAttribute.DEVICE_TYPE, state);
+        fillAvailableAndEditable(info.deviceType, DeviceAttribute.DEVICE_TYPE, state, device.getDeviceType().isMultiElementSlave());
 
         info.deviceConfiguration = new DeviceAttributeInfo<>();
         info.deviceConfiguration.displayValue = device.getDeviceConfiguration().getName();
         info.deviceConfiguration.attributeId = device.getDeviceConfiguration().getId();
-        fillAvailableAndEditable(info.deviceConfiguration, DeviceAttribute.DEVICE_CONFIGURATION, state);
+        fillAvailableAndEditable(info.deviceConfiguration, DeviceAttribute.DEVICE_CONFIGURATION, state, device.getDeviceType().isMultiElementSlave());
 
         info.serialNumber = new DeviceAttributeInfo<>();
         info.serialNumber.displayValue = device.getSerialNumber();
-        fillAvailableAndEditable(info.serialNumber, DeviceAttribute.SERIAL_NUMBER, state);
+        fillAvailableAndEditable(info.serialNumber, DeviceAttribute.SERIAL_NUMBER, state, device.getDeviceType().isMultiElementSlave());
 
         info.manufacturer = new DeviceAttributeInfo<>();
         info.manufacturer.displayValue = device.getManufacturer();
-        fillAvailableAndEditable(info.manufacturer, DeviceAttribute.MANUFACTURER, state);
+        fillAvailableAndEditable(info.manufacturer, DeviceAttribute.MANUFACTURER, state, device.getDeviceType().isMultiElementSlave());
 
         info.modelNbr = new DeviceAttributeInfo<>();
         info.modelNbr.displayValue = device.getModelNumber();
-        fillAvailableAndEditable(info.modelNbr, DeviceAttribute.MODEL_NUMBER, state);
+        fillAvailableAndEditable(info.modelNbr, DeviceAttribute.MODEL_NUMBER, state, device.getDeviceType().isMultiElementSlave());
 
         info.modelVersion = new DeviceAttributeInfo<>();
         info.modelVersion.displayValue = device.getModelVersion();
-        fillAvailableAndEditable(info.modelVersion, DeviceAttribute.MODEL_VERSION, state);
+        fillAvailableAndEditable(info.modelVersion, DeviceAttribute.MODEL_VERSION, state, device.getDeviceType().isMultiElementSlave());
 
         info.multiplier = new DeviceAttributeInfo<>();
         info.multiplier.displayValue = device.getMultiplier();
-        fillAvailableAndEditable(info.multiplier, DeviceAttribute.MULTIPLIER, state);
+        fillAvailableAndEditable(info.multiplier, DeviceAttribute.MULTIPLIER, state, device.getDeviceType().isMultiElementSlave());
 
         info.yearOfCertification = new DeviceAttributeInfo<>();
         info.yearOfCertification.displayValue = device.getYearOfCertification();
-        fillAvailableAndEditable(info.yearOfCertification, DeviceAttribute.YEAR_OF_CERTIFICATION, state);
+        fillAvailableAndEditable(info.yearOfCertification, DeviceAttribute.YEAR_OF_CERTIFICATION, state, device.getDeviceType().isMultiElementSlave());
 
         info.lifeCycleState = new DeviceAttributeInfo<>();
         info.lifeCycleState.displayValue = getStateName(state);
         info.lifeCycleState.attributeId = state.getId();
-        fillAvailableAndEditable(info.lifeCycleState, DeviceAttribute.LIFE_CYCLE_STATE, state);
+        fillAvailableAndEditable(info.lifeCycleState, DeviceAttribute.LIFE_CYCLE_STATE, state, false);
 
         info.batch = new DeviceAttributeInfo<>();
         device.getBatch().ifPresent(batch -> {
             info.batch.attributeId = batch.getId();
             info.batch.displayValue = batch.getName();
         });
-        fillAvailableAndEditable(info.batch, DeviceAttribute.BATCH, state);
+        fillAvailableAndEditable(info.batch, DeviceAttribute.BATCH, state, device.getDeviceType().isMultiElementSlave());
 
         info.usagePoint = new DeviceAttributeInfo<>();
         device.getUsagePoint().ifPresent(usagePoint -> {
             info.usagePoint.attributeId = usagePoint.getId();
             info.usagePoint.displayValue = usagePoint.getName();
         });
-        fillAvailableAndEditable(info.usagePoint, DeviceAttribute.USAGE_POINT, state);
+        fillAvailableAndEditable(info.usagePoint, DeviceAttribute.USAGE_POINT, state, device.getDeviceType().isMultiElementSlave());
 
         CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
         info.shipmentDate = new DeviceAttributeInfo<>();
         info.shipmentDate.displayValue = lifecycleDates.getReceivedDate().orElse(null);
-        fillAvailableAndEditable(info.shipmentDate, DeviceAttribute.SHIPMENT_DATE, state);
+        fillAvailableAndEditable(info.shipmentDate, DeviceAttribute.SHIPMENT_DATE, state, device.getDeviceType().isMultiElementSlave());
 
         info.installationDate = new DeviceAttributeInfo<>();
         info.installationDate.displayValue = lifecycleDates.getInstalledDate().orElse(null);
-        fillAvailableAndEditable(info.installationDate, DeviceAttribute.INSTALLATION_DATE, state);
+        fillAvailableAndEditable(info.installationDate, DeviceAttribute.INSTALLATION_DATE, state, false);
 
         info.deactivationDate = new DeviceAttributeInfo<>();
         info.deactivationDate.displayValue = lifecycleDates.getRemovedDate().orElse(null);
-        fillAvailableAndEditable(info.deactivationDate, DeviceAttribute.DEACTIVATION_DATE, state);
+        fillAvailableAndEditable(info.deactivationDate, DeviceAttribute.DEACTIVATION_DATE, state, false);
 
         info.decommissioningDate = new DeviceAttributeInfo<>();
         info.decommissioningDate.displayValue = lifecycleDates.getRetiredDate().orElse(null);
-        fillAvailableAndEditable(info.decommissioningDate, DeviceAttribute.DECOMMISSIONING_DATE, state);
+        fillAvailableAndEditable(info.decommissioningDate, DeviceAttribute.DECOMMISSIONING_DATE, state, false);
 
         return info;
     }
 
-    private void fillAvailableAndEditable(DeviceAttributeInfo attribute, DeviceAttribute mapping, State state) {
+    private void fillAvailableAndEditable(DeviceAttributeInfo attribute, DeviceAttribute mapping, State state, boolean alwaysDisabled) {
         attribute.available = mapping.isAvailableForState(state);
-        attribute.editable = mapping.isEditableForState(state);
+        if (!alwaysDisabled){
+            attribute.editable = mapping.isEditableForState(state);
+        }
     }
 
     private String getStateName(State state) {

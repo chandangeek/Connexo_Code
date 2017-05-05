@@ -20,7 +20,7 @@ public class ChannelHistoryInfo {
     public static ChannelHistoryInfo from(DataLoggerChannelUsage dataLoggerChannelUsage) {
         ChannelHistoryInfo channelHistoryInfo = new ChannelHistoryInfo();
         List<? extends ReadingType> slaveChannelReadingTypes = dataLoggerChannelUsage.getSlaveChannel().getReadingTypes();
-        Optional<Channel> slaveChannel = dataLoggerChannelUsage.getDataLoggerReference()
+        Optional<Channel> slaveChannel = dataLoggerChannelUsage.getPhysicalGatewayReference()
                 .getOrigin()
                 .getChannels()
                 .stream()
@@ -28,7 +28,7 @@ public class ChannelHistoryInfo {
                 .findFirst();
         slaveChannel.ifPresent(channel -> {
             channelHistoryInfo.channelId = channel.getId();
-            channelHistoryInfo.deviceName = dataLoggerChannelUsage.getDataLoggerReference().getOrigin().getName();
+            channelHistoryInfo.deviceName = dataLoggerChannelUsage.getPhysicalGatewayReference().getOrigin().getName();
             if (dataLoggerChannelUsage.getRange().hasLowerBound()) {
                 channelHistoryInfo.startDate = dataLoggerChannelUsage.getRange().lowerEndpoint().toEpochMilli();
             }
