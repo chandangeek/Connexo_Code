@@ -89,9 +89,11 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow', {
                                         var estimator = implementationCombo.getStore().getById(newValue),
                                             errorLabel = implementationCombo.up('reading-estimation-with-rule-window').down('#error-label'),
                                             hasEmptyRequiredProperties;
+
                                         Ext.suspendLayouts();
                                         if (estimator) {
                                             me.down('property-form').loadRecord(estimator);
+                                            me.down('#estimation-comment').commentId = estimator.commentId;
                                             me.down('#estimation-comment').show();
                                             hasEmptyRequiredProperties = estimator.properties().getRange().find(function(property) {
                                                 return property.get('required') && Ext.isEmpty(property.get('value'));
