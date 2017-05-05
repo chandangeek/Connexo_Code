@@ -586,10 +586,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             mainStatus = false,
             bulkStatus = false,
             canEditingComment = false,
-            flagForComment = function (value) {
-                if (value === 'EDITED' ||
-                    value === 'ESTIMATED' ||
-                    value === 'REMOVED') {
+            flagForComment = function (flag) {
+                if (flag === 'EDITED' ||
+                    flag === 'ESTIMATED' ||
+                    flag === 'REMOVED') {
                     return true;
                 } else {
                     return false;
@@ -603,8 +603,12 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         //menu.down('#estimate-value').setVisible(mainStatus || bulkStatus || menu.record.get('estimatedNotSaved') === true);
         //menu.down('#estimate-value-with-rule').setVisible(estimationRulesCount && (mainStatus || bulkStatus));
-        
-        if (menu.record.get('mainModificationState') && menu.record.get('mainModificationState').flag) {
+        var canEditingComment = menu.record.get('mainValidationInfo')
+            ? menu.record.get('mainValidationInfo').estimatedByRule
+            : menu.record.get('bulkValidationInfo')
+            ? menu.record.get('bulkValidationInfo').estimatedByRule
+            : false;
+        if (!canEditingComment && menu.record.get('mainModificationState') && menu.record.get('mainModificationState').flag) {
             canEditingComment = flagForComment(menu.record.get('mainModificationState').flag);
         }
         if (!canEditingComment && menu.record.get('bulkModificationState') && menu.record.get('bulkModificationState').flag) {
@@ -1462,7 +1466,12 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         if (menu.down('#edit-estimation-comment')) {
             menu.down('#edit-estimation-comment').setVisible(
                 _.find(selectedRecords, function (record) {
-                    var canEditingComment;
+                    var canEditingComment = record.get('mainValidationInfo')
+                        ? record.get('mainValidationInfo').estimatedByRule
+                        : record.get('bulkValidationInfo')
+                        ? record.get('bulkValidationInfo').estimatedByRule
+                        : false;
+
                     if (!canEditingComment) {
                         if (record.get('mainModificationState') && record.get('mainModificationState').flag) {
                             canEditingComment = flagForComment(record.get('mainModificationState').flag);
@@ -1471,7 +1480,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             canEditingComment = flagForComment(record.get('bulkModificationState').flag);
                         }
                     }
-
                     return canEditingComment;
                 })
             );
