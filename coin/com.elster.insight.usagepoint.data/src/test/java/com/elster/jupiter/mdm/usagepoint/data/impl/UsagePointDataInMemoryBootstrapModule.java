@@ -5,6 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -83,6 +84,7 @@ public class UsagePointDataInMemoryBootstrapModule {
                 new DomainUtilModule(),
                 new NlsModule(),
                 new UserModule(),
+                new BpmModule(),
                 clock == null ? new UtilModule() : new UtilModule(clock),
                 new ThreadSecurityModule(),
                 new PubSubModule(),
