@@ -170,7 +170,7 @@ public class ChannelValidatorTest {
 
         channelValidator.validateRule(rule);
 
-        verify(channel).createReadingQuality(validationQuality, readingType, readingRecord);
+        verify(channel).createReadingQualityForRecords(validationQuality, readingType, Collections.singletonList(readingRecord));
     }
 
     @Test
