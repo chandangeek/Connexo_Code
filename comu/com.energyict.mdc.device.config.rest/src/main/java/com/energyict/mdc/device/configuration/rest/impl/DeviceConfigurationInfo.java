@@ -8,8 +8,8 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
-import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.upl.DeviceFunction;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
@@ -36,7 +36,8 @@ public class DeviceConfigurationInfo {
     public GatewayType gatewayType;
     @JsonUnwrapped // As requested by ExtJS people
     public DeviceProtocolInfo deviceProtocolInfo;
-
+    @XmlJavaTypeAdapter(DeviceFunctionAdapter.class)
+    public DeviceFunction deviceFunction;
     public VersionInfo<Long> parent;
     public Boolean dataloggerEnabled;
     public Boolean multiElementEnabled;

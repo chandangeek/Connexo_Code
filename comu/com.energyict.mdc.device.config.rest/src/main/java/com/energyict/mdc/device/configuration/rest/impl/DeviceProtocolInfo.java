@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AdvancedDeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.DeviceFunction;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -26,11 +26,7 @@ import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
 import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.api.security.SecuritySuite;
 
-import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -43,6 +39,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import org.junit.Test;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -181,7 +180,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class,  withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        SecuritySuite securitySuite = mock(SecuritySuite.class);
+        com.energyict.mdc.upl.security.SecuritySuite securitySuite = mock(com.energyict.mdc.upl.security.SecuritySuite.class);
         when(securitySuite.getId()).thenReturn(3001);
         when(securitySuite.getAuthenticationAccessLevels()).thenReturn(Collections.singletonList(DeviceProtocolAuthenticationAccessLevels.ONE));
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(Collections.singletonList(securitySuite));
@@ -242,7 +241,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class,  withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        SecuritySuite securitySuite = mock(SecuritySuite.class);
+        com.energyict.mdc.upl.security.SecuritySuite securitySuite = mock(com.energyict.mdc.upl.security.SecuritySuite.class);
         when(securitySuite.getId()).thenReturn(3001);
         when(securitySuite.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(DeviceProtocolEncryptionAccessLevels.ONE));
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(Collections.singletonList(securitySuite));
@@ -329,7 +328,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class,  withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        SecuritySuite securitySuite = mock(SecuritySuite.class);
+        com.energyict.mdc.upl.security.SecuritySuite securitySuite = mock(com.energyict.mdc.upl.security.SecuritySuite.class);
         when(securitySuite.getId()).thenReturn(3001);
         when(securitySuite.getRequestSecurityLevels()).thenReturn(Collections.singletonList(DeviceProtocolRequestSecurityLevels.ONE));
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(Collections.singletonList(securitySuite));
@@ -363,7 +362,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class,  withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        SecuritySuite securitySuite = mock(SecuritySuite.class);
+        com.energyict.mdc.upl.security.SecuritySuite securitySuite = mock(com.energyict.mdc.upl.security.SecuritySuite.class);
         when(securitySuite.getId()).thenReturn(3001);
         when(securitySuite.getResponseSecurityLevels()).thenReturn(Collections.singletonList(DeviceProtocolResponseSecurityLevels.ONE));
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(Collections.singletonList(securitySuite));
@@ -403,7 +402,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class,  withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        SecuritySuite securitySuite = mock(SecuritySuite.class);
+        com.energyict.mdc.upl.security.SecuritySuite securitySuite = mock(com.energyict.mdc.upl.security.SecuritySuite.class);
         when(securitySuite.getId()).thenReturn(3001);
         when(securitySuite.getResponseSecurityLevels()).thenReturn(Collections.singletonList(DeviceProtocolResponseSecurityLevels.ONE));
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(Collections.singletonList(securitySuite));
@@ -590,7 +589,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         }
     }
 
-    private enum DeviceProtocolAuthenticationAccessLevels implements AuthenticationDeviceAccessLevel {
+    private enum DeviceProtocolAuthenticationAccessLevels implements com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel {
         ONE {
             @Override
             public int getId() {
@@ -652,7 +651,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
 
     }
 
-    private enum DeviceProtocolSecuritySuite implements SecuritySuite {
+    private enum DeviceProtocolSecuritySuite implements com.energyict.mdc.upl.security.SecuritySuite {
         ONE {
             @Override
             public int getId() {
@@ -667,38 +666,43 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         };
 
         @Override
-        public String getTranslation() {
+        public String getTranslationKey() {
             return "DeviceProtocolSecuritySuite" + this.name();
         }
 
         @Override
-        public List<PropertySpec> getSecurityProperties() {
+        public String getDefaultTranslation() {
+            return "DeviceProtocolSecuritySuite" + this.name();
+        }
+
+        @Override
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Collections.emptyList();
         }
 
 
         @Override
-        public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+        public List<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
             return Collections.emptyList();
         }
 
         @Override
-        public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        public List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
             return Collections.emptyList();
         }
 
         @Override
-        public List<RequestSecurityLevel> getRequestSecurityLevels() {
+        public List<com.energyict.mdc.upl.security.RequestSecurityLevel> getRequestSecurityLevels() {
             return Collections.emptyList();
         }
 
         @Override
-        public List<ResponseSecurityLevel> getResponseSecurityLevels() {
+        public List<com.energyict.mdc.upl.security.ResponseSecurityLevel> getResponseSecurityLevels() {
             return Collections.emptyList();
         }
     }
 
-    private enum DeviceProtocolRequestSecurityLevels implements RequestSecurityLevel {
+    private enum DeviceProtocolRequestSecurityLevels implements com.energyict.mdc.upl.security.RequestSecurityLevel {
         ONE {
             @Override
             public int getId() {
@@ -713,17 +717,22 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         };
 
         @Override
-        public String getTranslation() {
+        public String getTranslationKey() {
             return "DeviceProtocolRequestSecurityLevels" + this.name();
         }
 
         @Override
-        public List<PropertySpec> getSecurityProperties() {
+        public String getDefaultTranslation() {
+            return "DeviceProtocolRequestSecurityLevels" + this.name();
+        }
+
+        @Override
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Collections.emptyList();
         }
     }
 
-    private enum DeviceProtocolResponseSecurityLevels implements ResponseSecurityLevel {
+    private enum DeviceProtocolResponseSecurityLevels implements com.energyict.mdc.upl.security.ResponseSecurityLevel {
         ONE {
             @Override
             public int getId() {
@@ -738,12 +747,17 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         };
 
         @Override
-        public String getTranslation() {
+        public String getTranslationKey() {
             return "DeviceProtocolResponseSecurityLevels" + this.name();
         }
 
         @Override
-        public List<PropertySpec> getSecurityProperties() {
+        public String getDefaultTranslation() {
+            return "DeviceProtocolResponseSecurityLevels" + this.name();
+        }
+
+        @Override
+        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Collections.emptyList();
         }
     }

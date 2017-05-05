@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -30,6 +29,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
 import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.api.security.SecuritySuite;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -51,24 +51,25 @@ import javax.ws.rs.core.UriInfo;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
 public class SecurityPropertySetResource {
 
     private final ResourceHelper resourceHelper;
-    private final Thesaurus thesaurus;
     private final UserService userService;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final SecurityPropertySetInfoFactory securityPropertySetInfoFactory;
+    private final ProtocolPluggableService protocolPluggableService;
 
     @Inject
-    public SecurityPropertySetResource(ResourceHelper resourceHelper, Thesaurus thesaurus, UserService userService, MdcPropertyUtils mdcPropertyUtils, SecurityPropertySetInfoFactory securityPropertySetInfoFactory) {
+    public SecurityPropertySetResource(ResourceHelper resourceHelper, UserService userService, MdcPropertyUtils mdcPropertyUtils, SecurityPropertySetInfoFactory securityPropertySetInfoFactory, ProtocolPluggableService protocolPluggableService) {
         this.resourceHelper = resourceHelper;
-        this.thesaurus = thesaurus;
         this.userService = userService;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.securityPropertySetInfoFactory = securityPropertySetInfoFactory;
+        this.protocolPluggableService = protocolPluggableService;
     }
 
     @GET
@@ -162,7 +163,7 @@ public class SecurityPropertySetResource {
         if (info.properties != null && !info.properties.isEmpty()) {
             for (PropertySpec propertySpec : securityPropertySet.getPropertySpecs()) {
                 KeyAccessorType keyAccessor = (KeyAccessorType) mdcPropertyUtils.findPropertyValue(propertySpec, info.properties);  // Cast to KeyAccessorType should work fine
-                                                                                                                                    // unless front-end has send wrong data, but then it's ok to throw an error
+                // unless front-end has send wrong data, but then it's ok to throw an error
                 Optional<ConfigurationSecurityProperty> existingSecurityProperty = configurationSecurityProperties.stream()
                         .filter(property -> property.getName().equals(propertySpec.getName()))
                         .findFirst();
@@ -210,7 +211,10 @@ public class SecurityPropertySetResource {
     private List<SecuritySuite> supportedSecuritySuites(DeviceProtocol deviceProtocol) {
         List<SecuritySuite> securitySuites = Collections.emptyList();
         if (deviceProtocol instanceof AdvancedDeviceProtocolSecurityCapabilities) {
-            securitySuites = ((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites();
+            securitySuites = ((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()
+                    .stream()
+                    .map(this.protocolPluggableService::adapt)
+                    .collect(Collectors.toList());
         }
         return securitySuites;
     }
@@ -226,9 +230,11 @@ public class SecurityPropertySetResource {
 
         List<AuthenticationDeviceAccessLevel> deviceAccessLevels = deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> {
             DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
-            return (deviceProtocol instanceof AdvancedDeviceProtocolSecurityCapabilities && securitySuiteIdOptional.isPresent())
-                    ? findSecuritySuiteByIdOrThrowException(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol), securitySuiteIdOptional.get()).getAuthenticationAccessLevels()
-                    : deviceProtocol.getAuthenticationAccessLevels();
+            List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> authenticationDeviceAccessLevels =
+                    (deviceProtocol instanceof AdvancedDeviceProtocolSecurityCapabilities && securitySuiteIdOptional.isPresent())
+                            ? findSecuritySuiteByIdOrThrowException(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol), securitySuiteIdOptional.get()).getAuthenticationAccessLevels()
+                            : deviceProtocol.getAuthenticationAccessLevels();
+            return authenticationDeviceAccessLevels.stream().map(this.protocolPluggableService::adapt).collect(Collectors.toList());
         }).orElse(Collections.emptyList());
         return PagedInfoList.fromPagedList("data", SecurityLevelInfo.from(deviceAccessLevels), queryParameters);
     }
@@ -244,9 +250,11 @@ public class SecurityPropertySetResource {
 
         List<EncryptionDeviceAccessLevel> deviceAccessLevels = deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> {
             DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
-            return (deviceProtocol instanceof AdvancedDeviceProtocolSecurityCapabilities && securitySuiteIdOptional.isPresent())
-                    ? findSecuritySuiteByIdOrThrowException(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol), securitySuiteIdOptional.get()).getEncryptionAccessLevels()
-                    : deviceProtocol.getEncryptionAccessLevels();
+            List<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel> encryptionDeviceAccessLevels =
+                    (deviceProtocol instanceof AdvancedDeviceProtocolSecurityCapabilities && securitySuiteIdOptional.isPresent())
+                            ? findSecuritySuiteByIdOrThrowException(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol), securitySuiteIdOptional.get()).getEncryptionAccessLevels()
+                            : deviceProtocol.getEncryptionAccessLevels();
+            return encryptionDeviceAccessLevels.stream().map(this.protocolPluggableService::adapt).collect(Collectors.toList());
         }).orElse(Collections.emptyList());
         return PagedInfoList.fromPagedList("data", SecurityLevelInfo.from(deviceAccessLevels), queryParameters);
     }
@@ -262,11 +270,13 @@ public class SecurityPropertySetResource {
 
         List<RequestSecurityLevel> deviceAccessLevels = deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> {
             DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
-            return (deviceProtocol instanceof AdvancedDeviceProtocolSecurityCapabilities)
-                    ? securitySuiteIdOptional.isPresent()
-                    ? findSecuritySuiteByIdOrThrowException(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol), securitySuiteIdOptional.get()).getRequestSecurityLevels()
-                    : ((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getRequestSecurityLevels()
-                    : Collections.<RequestSecurityLevel>emptyList();
+            List<com.energyict.mdc.upl.security.RequestSecurityLevel> requestSecurityLevels =
+                    deviceProtocol instanceof AdvancedDeviceProtocolSecurityCapabilities
+                            ? securitySuiteIdOptional.isPresent()
+                            ? findSecuritySuiteByIdOrThrowException(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol), securitySuiteIdOptional.get()).getRequestSecurityLevels()
+                            : ((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getRequestSecurityLevels()
+                            : Collections.<com.energyict.mdc.upl.security.RequestSecurityLevel>emptyList();
+            return requestSecurityLevels.stream().map(this.protocolPluggableService::adapt).collect(Collectors.toList());
         }).orElse(Collections.emptyList());
         return PagedInfoList.fromPagedList("data", SecurityLevelInfo.from(deviceAccessLevels), queryParameters);
     }
@@ -282,11 +292,13 @@ public class SecurityPropertySetResource {
 
         List<ResponseSecurityLevel> deviceAccessLevels = deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> {
             DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
-            return (deviceProtocol instanceof AdvancedDeviceProtocolSecurityCapabilities)
-                    ? securitySuiteIdOptional.isPresent()
-                    ? findSecuritySuiteByIdOrThrowException(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol), securitySuiteIdOptional.get()).getResponseSecurityLevels()
-                    : ((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getResponseSecurityLevels()
-                    : Collections.<ResponseSecurityLevel>emptyList();
+            List<com.energyict.mdc.upl.security.ResponseSecurityLevel> responseSecurityLevels =
+                    deviceProtocol instanceof AdvancedDeviceProtocolSecurityCapabilities
+                            ? securitySuiteIdOptional.isPresent()
+                            ? findSecuritySuiteByIdOrThrowException(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol), securitySuiteIdOptional.get()).getResponseSecurityLevels()
+                            : ((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getResponseSecurityLevels()
+                            : Collections.<com.energyict.mdc.upl.security.ResponseSecurityLevel>emptyList();
+            return responseSecurityLevels.stream().map(this.protocolPluggableService::adapt).collect(Collectors.toList());
         }).orElse(Collections.emptyList());
         return PagedInfoList.fromPagedList("data", SecurityLevelInfo.from(deviceAccessLevels), queryParameters);
     }
@@ -308,9 +320,9 @@ public class SecurityPropertySetResource {
         return PagedInfoList.fromPagedList("data", mdcPropertyUtils.convertPropertySpecsToPropertyInfos(builder.getPropertySpecs(), TypedProperties.empty()), queryParameters);
     }
 
-    private SecuritySuite findSecuritySuiteByIdOrThrowException(AdvancedDeviceProtocolSecurityCapabilities advancedDeviceProtocolSecurityCapabilities, long id) {
+    private com.energyict.mdc.upl.security.SecuritySuite findSecuritySuiteByIdOrThrowException(AdvancedDeviceProtocolSecurityCapabilities advancedDeviceProtocolSecurityCapabilities, long id) {
         return advancedDeviceProtocolSecurityCapabilities.getSecuritySuites().stream()
-                .filter(securitySuite -> securitySuite.getId() == id)
+                .filter(level -> level.getId() == id)
                 .findFirst()
                 .orElseThrow(() -> new WebApplicationException("No security suite with id " + id, Response.Status.NOT_FOUND));
     }
