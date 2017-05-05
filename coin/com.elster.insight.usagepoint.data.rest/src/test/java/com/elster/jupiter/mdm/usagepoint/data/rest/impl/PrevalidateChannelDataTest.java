@@ -5,10 +5,12 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -87,6 +89,8 @@ public class PrevalidateChannelDataTest extends UsagePointDataRestApplicationJer
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(CONTRACT_ID, readingType, OUTPUT_ID);
         UsagePoint usagePoint = mockUsagePoint(USAGEPOINT_NAME, metrologyConfiguration);
         ChannelsContainer channelsContainer = mockChannelsContainer(usagePoint);
+        DataAggregationService.MetrologyContractDataEditor editor = FakeBuilder.initBuilderStub(usagePoint, DataAggregationService.MetrologyContractDataEditor.class);
+        when(dataAggregationService.edit(eq(usagePoint), any(MetrologyContract.class), any(ReadingTypeDeliverable.class), eq(QualityCodeSystem.MDM))).thenReturn(editor);
 
         when(channelsContainer.getChannel(readingType)).thenReturn(Optional.of(channel));
     }
@@ -123,6 +127,7 @@ public class PrevalidateChannelDataTest extends UsagePointDataRestApplicationJer
         when(usagePoint.getName()).thenReturn(name);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
         when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(effectiveMC));
+        when(usagePoint.getEffectiveMetrologyConfigurations(any())).thenReturn(Collections.singletonList(effectiveMC));
         when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
         when(meteringService.findUsagePointByName(name)).thenReturn(Optional.of(usagePoint));
         return usagePoint;

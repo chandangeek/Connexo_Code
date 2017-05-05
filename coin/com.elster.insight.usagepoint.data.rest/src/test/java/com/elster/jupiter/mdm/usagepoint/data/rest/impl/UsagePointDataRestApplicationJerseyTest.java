@@ -85,6 +85,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -246,6 +247,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
+        when(readingType.getIntervalLength()).thenReturn(Optional.empty());
         return readingType;
     }
 
