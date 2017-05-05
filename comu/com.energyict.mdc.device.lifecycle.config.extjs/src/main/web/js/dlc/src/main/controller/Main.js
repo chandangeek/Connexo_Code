@@ -24,13 +24,8 @@ Ext.define('Dlc.main.controller.Main', {
     ],
 
     init: function () {
-        this.initHistorians();
         this.initMenu();
         this.callParent(arguments);
-    },
-
-    initHistorians: function () {
-        var historian = this.getController('Dlc.main.controller.history.DeviceLifeCycle');
     },
 
     initMenu: function () {
