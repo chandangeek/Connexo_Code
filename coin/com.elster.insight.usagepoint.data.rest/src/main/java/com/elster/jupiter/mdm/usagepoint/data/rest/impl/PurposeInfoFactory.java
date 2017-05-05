@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -13,7 +14,9 @@ import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -46,7 +49,7 @@ public class PurposeInfoFactory {
         status.name = metrologyContractStatus.getName();
         purposeInfo.status = status;
         effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).ifPresent(channelsContainer ->
-                purposeInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, channelsContainer.getChannels(), null));
+                purposeInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, channelsContainer));
         if (withValidationTasks) {
             purposeInfo.dataValidationTasks = validationService.findValidationTasksQuery()
                     .select(where("metrologyContract").isEqualTo(metrologyContract))
@@ -57,6 +60,18 @@ public class PurposeInfoFactory {
         }
         purposeInfo.parent = new VersionInfo<>(effectiveMetrologyConfiguration.getUsagePoint()
                 .getId(), effectiveMetrologyConfiguration.getUsagePoint().getVersion());
+        purposeInfo.eventNames = new ArrayList<>();
+
+        List<Long> longs = metrologyContract.getDeliverables()
+                .stream()
+                .map(readingTypeDeliverable -> (long) readingTypeDeliverable.getReadingType().getTou())
+                .collect(Collectors.toList());
+
+        List<Event> eventList = effectiveMetrologyConfiguration.getMetrologyConfiguration().getEventSets().stream()
+                .flatMap(eventSet -> eventSet.getEvents().stream()).collect(Collectors.toList());
+
+
+        eventList.stream().filter(event -> longs.contains(event.getCode())).forEach(event2 -> purposeInfo.eventNames.add(purposeInfo.eventNames.size(),event2.getName()));
         return purposeInfo;
     }
 }

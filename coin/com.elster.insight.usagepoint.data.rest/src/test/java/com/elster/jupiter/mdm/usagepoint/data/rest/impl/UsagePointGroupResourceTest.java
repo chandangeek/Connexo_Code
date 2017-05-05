@@ -9,6 +9,7 @@ import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -31,7 +32,6 @@ import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.search.impl.SearchBuilderImpl;
 import com.elster.jupiter.search.impl.SearchMonitor;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -674,7 +674,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         Optional<Location> locationOptional = Optional.ofNullable(location).map(UsagePointGroupResourceTest::mockLocation);
         when(usagePoint.getLocation()).thenReturn(locationOptional);
         when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());
-        UsagePointState usagePointState = mock(UsagePointState.class);
+        State usagePointState = mock(State.class);
         when(usagePoint.getState()).thenReturn(usagePointState);
         return usagePoint;
     }

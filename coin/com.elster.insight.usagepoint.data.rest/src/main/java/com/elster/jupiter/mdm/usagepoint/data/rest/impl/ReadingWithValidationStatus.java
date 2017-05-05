@@ -21,21 +21,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.streams.Predicates.not;
-
 public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
 
     private final ZonedDateTime readingTimeStamp;
-    private final ChannelGeneralValidation channelGeneralValidation;
 
     private T persistedReadingRecord;
     private T calculatedReadingRecord;
-    private T previousReadingRecord;
     private DataValidationStatus validationStatus;
 
-    public ReadingWithValidationStatus(ZonedDateTime readingTimeStamp, ChannelGeneralValidation channelGeneralValidation) {
+    public ReadingWithValidationStatus(ZonedDateTime readingTimeStamp) {
         this.readingTimeStamp = readingTimeStamp;
-        this.channelGeneralValidation = channelGeneralValidation;
     }
 
     public void setValidationStatus(DataValidationStatus validationStatus) {
@@ -54,10 +49,6 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
         this.calculatedReadingRecord = readingRecord;
     }
 
-    public void setPreviousReadingRecord(T previousReadingRecord) {
-        this.previousReadingRecord = previousReadingRecord;
-    }
-
     public Instant getTimeStamp() {
         return this.readingTimeStamp.toInstant();
     }
@@ -70,27 +61,10 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
         return getReading().map(BaseReading::getValue).orElse(null);
     }
 
-    public BigDecimal getPreviousValue(){
-        return getPreviousReading().map(BaseReading::getValue).orElse(null);
-    }
-
-    public BigDecimal getDeltaValue(){
-        BigDecimal value = getValue();
-        BigDecimal previousValue = getPreviousValue();
-        if(value != null && previousValue != null) {
-            return value.subtract(previousValue);
-        }
-        return null;
-    }
-
     public Optional<T> getReading() {
         return Optional.ofNullable(persistedReadingRecord)
                 .map(Optional::of)
                 .orElse(Optional.ofNullable(calculatedReadingRecord));
-    }
-
-    public Optional<T> getPreviousReading() {
-            return Optional.ofNullable(this.previousReadingRecord);
     }
 
     public Optional<BigDecimal> getCalculatedValue() {
@@ -99,13 +73,6 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
 
     public Optional<Instant> getEventDate() {
         return Optional.of(this.getTimeStamp());
-    }
-    public boolean isChannelValidationActive() {
-        return this.channelGeneralValidation.isValidationActive;
-    }
-
-    public Optional<Instant> getChannelLastChecked() {
-        return Optional.ofNullable(this.channelGeneralValidation.lastChecked);
     }
 
     public Optional<Pair<ReadingModificationFlag, ReadingQuality>> getReadingModificationFlag() {
@@ -129,14 +96,14 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
         if (this.validationStatus != null) {
             List<ReadingQuality> persistedReadingQualities = this.validationStatus.getReadingQualities().stream()
                     .map(ReadingQuality.class::cast)
-                    .filter(not(this::hasValidatedOkReadingQualityType))
+                    .filter(readingQuality -> !hasValidatedOkReadingQualityType(readingQuality))
                     .collect(Collectors.toList());
             readingQualities.addAll(persistedReadingQualities);
         }
         return readingQualities;
     }
 
-    private boolean hasValidatedOkReadingQualityType(ReadingQuality readingQuality) {
+    static boolean hasValidatedOkReadingQualityType(ReadingQuality readingQuality) {
         ReadingQualityType type = readingQuality.getType();
         return type.category().map(QualityCodeCategory.VALID::equals).orElse(false)
                 && type.qualityIndex().map(QualityCodeIndex.VALIDATED::equals).orElse(false);
@@ -146,17 +113,4 @@ public abstract class ReadingWithValidationStatus<T extends BaseReadingRecord> {
         return Optional.ofNullable(this.persistedReadingRecord);
     }
 
-    protected ZonedDateTime getReadingTimeStamp() {
-        return this.readingTimeStamp;
-    }
-
-    public static class ChannelGeneralValidation {
-        private boolean isValidationActive;
-        private Instant lastChecked;
-
-        public ChannelGeneralValidation(boolean isValidationActive, Instant lastChecked) {
-            this.isValidationActive = isValidationActive;
-            this.lastChecked = lastChecked;
-        }
-    }
 }

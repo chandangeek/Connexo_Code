@@ -24,10 +24,10 @@ import com.elster.jupiter.util.Ranges;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,16 +40,15 @@ public class EstimationHelper {
     private final EstimationService estimationService;
     private final ExceptionFactory exceptionFactory;
     private final PropertyValueInfoService propertyValueInfoService;
-    private final Clock clock;
     private final OutputChannelDataInfoFactory channelDataInfoFactory;
     private final Thesaurus thesaurus;
 
     @Inject
-    public EstimationHelper(EstimationService estimationService, ExceptionFactory exceptionFactory, PropertyValueInfoService propertyValueInfoService, Thesaurus thesaurus, Clock clock, OutputChannelDataInfoFactory channelDataInfoFactory) {
+    public EstimationHelper(EstimationService estimationService, ExceptionFactory exceptionFactory, PropertyValueInfoService propertyValueInfoService,
+                            Thesaurus thesaurus, OutputChannelDataInfoFactory channelDataInfoFactory) {
         this.estimationService = estimationService;
         this.exceptionFactory = exceptionFactory;
         this.propertyValueInfoService = propertyValueInfoService;
-        this.clock = clock;
         this.channelDataInfoFactory = channelDataInfoFactory;
         this.thesaurus = thesaurus;
     }
@@ -69,8 +68,7 @@ public class EstimationHelper {
                 propertySpec.validateValue(value);
                 propertyMap.put(propertySpec.getName(), value);
             } catch (Exception ex) {
-                invalidProperties.put(propertySpec.getName(), thesaurus.getFormat(MessageSeeds.INVALID_ESTIMATOR_PROPERTY_VALUE)
-                        .format());
+                invalidProperties.put("properties." + propertySpec.getName(), thesaurus.getFormat(MessageSeeds.INVALID_ESTIMATOR_PROPERTY_VALUE).format());
             }
         }
         try {
@@ -93,7 +91,7 @@ public class EstimationHelper {
         return estimationService.previewEstimate(system, channelsContainer, range, readingType, estimator);
     }
 
-    List<OutputChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, Collection<Range<Instant>> ranges, List<EstimationResult> results) {
+    List<OutputChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, Collection<Range<Instant>> ranges, List<EstimationResult> results, boolean markAsProjected) {
         List<Instant> failedTimestamps = new ArrayList<>();
         List<OutputChannelDataInfo> channelDataInfos = new ArrayList<>();
 
@@ -105,7 +103,10 @@ public class EstimationHelper {
         for (EstimationResult result : results) {
             for (EstimationBlock block : result.estimated()) {
                 for (Estimatable estimatable : block.estimatables()) {
-                    getChannelDataInfo(estimatable, channelData).ifPresent(channelDataInfos::add);
+                    getChannelDataInfo(estimatable, channelData).ifPresent(info ->  {
+                        info.isProjected = markAsProjected;
+                        channelDataInfos.add(info);
+                    });
                 }
             }
             for (EstimationBlock block : result.remainingToBeEstimated()) {

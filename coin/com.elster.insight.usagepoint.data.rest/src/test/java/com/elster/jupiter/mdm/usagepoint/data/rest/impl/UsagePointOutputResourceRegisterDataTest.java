@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.calendar.Category;
+import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -94,7 +96,14 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
     @Before
     public void before() {
+        Category timeOfUseCategory = mock(Category.class);
+        when(this.calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.name())).thenReturn(Optional.of(timeOfUseCategory));
+        UsagePoint.UsedCalendars usedCalendars = mock(UsagePoint.UsedCalendars.class);
+        when(usedCalendars.getCalendar(any(Instant.class), any(Category.class))).thenReturn(Optional.empty());
+        when(this.usagePoint.getUsedCalendars()).thenReturn(usedCalendars);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+        when(channel1.getZoneId()).thenReturn(ZoneId.systemDefault());
+        when(channel2.getZoneId()).thenReturn(ZoneId.systemDefault());
 
         when(meteringService.findUsagePointByName(any())).thenReturn(Optional.empty());
         when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
@@ -171,9 +180,15 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
         evaluator = mock(ValidationEvaluator.class);
         when(validationService.getEvaluator()).thenReturn(evaluator);
-        when(evaluator.getValidationStatus(eq(EnumSet.of(QualityCodeSystem.MDM)), any(Channel.class), any(),
-                eq(Range.openClosed(TIME_STAMP_BEFORE_1, READING_TIME_STAMP_3))))
+        when(evaluator
+                .getValidationStatus(
+                        eq(EnumSet.of(QualityCodeSystem.MDM)),
+                        any(Channel.class),
+                        any(),
+                        eq(Range.openClosed(TIME_STAMP_BEFORE_1, READING_TIME_STAMP_3))))
                 .thenReturn(Collections.emptyList());
+        when(evaluator.getLastChecked(eq(channelsContainer1), any(ReadingType.class))).thenReturn(Optional.of(READING_TIME_STAMP_1));
+        when(evaluator.getLastChecked(eq(channelsContainer2), any(ReadingType.class))).thenReturn(Optional.empty());
     }
 
     private String defaultFilter() throws UnsupportedEncodingException {

@@ -10,6 +10,7 @@ import com.elster.jupiter.validation.rest.DataValidationTaskMinimalInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -27,7 +28,7 @@ public class PurposeInfo {
     public UsagePointValidationStatusInfo validationInfo;
     public List<DataValidationTaskMinimalInfo> dataValidationTasks;
     public List<com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo> readingTypeDeliverables;
-
+    public ArrayList<String> eventNames;
     public PurposeInfo() {
     }
 }

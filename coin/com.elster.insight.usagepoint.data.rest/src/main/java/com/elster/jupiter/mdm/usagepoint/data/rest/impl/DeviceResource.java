@@ -80,7 +80,8 @@ public class DeviceResource {
         String dbSearchText = (searchText != null && !searchText.isEmpty()) ? ("*" + searchText + "*") : "*";
         MeterFilter filter = new MeterFilter();
         filter.setName(dbSearchText);
-        filter.setExcludedStates("dlc.default.decommissioned", "dlc.default.removed");
+        //todo: dependency on metrologyconf on usagepoint (gaps allowed or not) and stages of the meter
+        //filter.setExcludedStates("dlc.default.decommissioned", "dlc.default.removed");
         Finder<Meter> finder = meteringService.findMeters(filter);
         return Response.ok().entity(toMeterInfos(params.getStart().isPresent()
                 && params.getLimit().isPresent() ? finder.from(params).find() : finder.paged(start, limit).find(), start, limit)).build();

@@ -30,4 +30,6 @@ public class EstimationRuleInfo {
     public Boolean deleted;
 
     public IdWithNameInfo application;
+
+    public boolean markProjected;
 }
