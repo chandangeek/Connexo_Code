@@ -10,7 +10,6 @@ import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -25,16 +24,9 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -46,6 +38,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -84,7 +86,7 @@ public abstract class PersistenceIntegrationTest {
     protected SecurityPropertySet securityPropertySet;
     @Mock
     protected DeviceProtocolPluggableClass deviceProtocolPluggableClass;
-    List<DeviceMessageSpec> deviceMessageIds;
+    List<DeviceMessageSpec> deviceMessageSpecs;
     @Mock
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
     @Mock
@@ -116,27 +118,27 @@ public abstract class PersistenceIntegrationTest {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
 
-        deviceMessageIds = new ArrayList<>();
+        deviceMessageSpecs = new ArrayList<>();
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec0 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
         when(deviceMessageSpec0.getId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE.dbValue());
-        deviceMessageIds.add(deviceMessageSpec0);
+        deviceMessageSpecs.add(deviceMessageSpec0);
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
         when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN.dbValue());
-        deviceMessageIds.add(deviceMessageSpec1);
+        deviceMessageSpecs.add(deviceMessageSpec1);
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec2 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
         when(deviceMessageSpec2.getId()).thenReturn(DeviceMessageId.CONTACTOR_ARM.dbValue());
-        deviceMessageIds.add(deviceMessageSpec2);
+        deviceMessageSpecs.add(deviceMessageSpec2);
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec3 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
         when(deviceMessageSpec3.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT.dbValue());
-        deviceMessageIds.add(deviceMessageSpec3);
+        deviceMessageSpecs.add(deviceMessageSpec3);
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec4 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
         when(deviceMessageSpec4.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.dbValue());
-        deviceMessageIds.add(deviceMessageSpec4);
+        deviceMessageSpecs.add(deviceMessageSpec4);
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec5 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
         when(deviceMessageSpec5.getId()).thenReturn(DeviceMessageId.DISPLAY_SET_MESSAGE_WITH_OPTIONS.dbValue());
-        deviceMessageIds.add(deviceMessageSpec5);
+        deviceMessageSpecs.add(deviceMessageSpec5);
 
-        when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageSpecs);
         com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class);
         int anySecurityLevel = 0;
         when(authenticationAccessLevel.getId()).thenReturn(anySecurityLevel);
@@ -160,7 +162,11 @@ public abstract class PersistenceIntegrationTest {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfigurationBuilder.isDirectlyAddressable(true);
         deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(deviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageSpecs
+                .stream()
+                .map(DeviceMessageSpec::getId)
+                .map(DeviceMessageId::havingId)
+                .forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
 
         DeviceType.DeviceConfigurationBuilder dataLoggerEnabledDeviceConfigurationBuilder = dataLoggerEnabledDeviceType.newConfiguration(DATA_LOGGER_ENABLED_DEVICE_CONFIGURATION_NAME);
@@ -168,7 +174,11 @@ public abstract class PersistenceIntegrationTest {
         dataLoggerEnabledDeviceConfigurationBuilder.dataloggerEnabled(true);
 
         dataLoggerEnabledDeviceConfiguration = dataLoggerEnabledDeviceConfigurationBuilder.add();
-        deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(dataLoggerEnabledDeviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageSpecs
+                .stream()
+                .map(DeviceMessageSpec::getId)
+                .map(DeviceMessageId::havingId)
+                .forEach(dataLoggerEnabledDeviceConfiguration::createDeviceMessageEnablement);
         ReadingType activeEnergy = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.1.8.0.255"), Unit.get("kWh"));
         RegisterType registerType1 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(activeEnergy).get();
         ReadingType reactiveEnergy = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.2.8.0.255"), Unit.get("kWh"));
@@ -183,7 +193,11 @@ public abstract class PersistenceIntegrationTest {
         dataLoggerSlaveDeviceConfigurationBuilder.isDirectlyAddressable(true);
         dataLoggerSlaveDeviceConfiguration = dataLoggerSlaveDeviceConfigurationBuilder.add();
         dataLoggerSlaveDeviceType.addRegisterType(registerType1);
-        deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(dataLoggerSlaveDeviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageSpecs
+                .stream()
+                .map(DeviceMessageSpec::getId)
+                .map(DeviceMessageId::havingId)
+                .forEach(dataLoggerSlaveDeviceConfiguration::createDeviceMessageEnablement);
         dataLoggerSlaveDeviceConfiguration.createNumericalRegisterSpec(registerType1).overflowValue(BigDecimal.valueOf(1000L)).numberOfFractionDigits(0).add();
         dataLoggerSlaveDeviceConfiguration.activate();
 

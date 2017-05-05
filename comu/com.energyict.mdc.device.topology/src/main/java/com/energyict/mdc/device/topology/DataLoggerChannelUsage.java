@@ -11,7 +11,7 @@ public interface DataLoggerChannelUsage extends Effectivity {
     /**
      * @return the PhysicalGatewayReference this DataloggerChannelUsage makes part of
      */
-    DataLoggerReference getDataLoggerReference();
+    PhysicalGatewayReference getPhysicalGatewayReference();
 
     /**
      * @return  The data logger's channel that is used

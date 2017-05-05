@@ -55,7 +55,7 @@ public enum MessageSeeds implements MessageSeed {
         this.level = level;
     }
 
-    static MessageSeeds forKey(String key){
+    public static MessageSeeds forKey(String key){
         return Stream.of(values()).filter(x -> x.getKey().equals(key)).findFirst().orElseThrow(() -> new IllegalArgumentException("Invalid key: "+key));
     }
 
@@ -103,6 +103,10 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DATA_LOGGER_SLAVE_NOT_LINKED_AT = "DataLoggerLinkException.slave.already.unlinked";
         public static final String DATA_LOGGER_UNIQUE_KEY_VIOLATION = "DataLoggerLinkException.unique.key.violation";
         public static final String DATA_LOGGER_SLAVE_WAS_ALREADY_LINKED = "DataLoggerLinkException.slave.was.already.linked";
+        public static final String DEVICE_CANNOT_BE_MULTI_ELEMENT_METER_FOR_ITSELF = "multi.element.meter.not.submeter";
+        public static final String NOT_A_MULTI_ELEMENT_SUBMETER_DEVICE = "multi.element.device.no.submeter.device";
+        public static final String GATEWAY_NOT_MULTI_ELEMENT_ENABLED = "gateway.not.multi.element.enabled";
+        public static final String MULTI_ELEMENT_DEVICE_CHANNEL_ALREADY_REFERENCED = "multi.element.device.channel.already.referenced";
     }
 
 }
