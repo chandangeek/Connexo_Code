@@ -4,11 +4,9 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.fsm.Stage;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
@@ -33,6 +31,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -310,10 +309,11 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
 
     @Test
     public void testGetAllProcesses() {
-        List<StateChangeBusinessProcess> processes = Arrays.asList(
-                mockProcess(1L, "processName 1", "deploymentId 1", "processId 1"),
-                mockProcess(2L, "processName 2", "deploymentId 2", "processId 2"));
-        when(finiteStateMachineService.findStateChangeBusinessProcesses()).thenReturn(processes);
+        List<BpmProcessDefinition> processes = Arrays.asList(
+                mockProcess(1L, "processName 1", "device", "1.0"),
+                mockProcess(2L, "processName 2", "device", "2.0"));
+
+        when(bpmService.getActiveBpmProcessDefinitions(anyString())).thenReturn(processes);
 
         String response = target("/lifecycle/processes").request().get(String.class);
 
@@ -321,12 +321,10 @@ public class UsagePointLifeCycleResourceTest extends UsagePointLifeCycleApplicat
         assertThat(model.<Number>get("$.total")).isEqualTo(2);
         assertThat(model.<Number>get("$.processes[0].id")).isEqualTo(1);
         assertThat(model.<String>get("$.processes[0].name")).isEqualTo("processName 1");
-        assertThat(model.<String>get("$.processes[0].deploymentId")).isEqualTo("deploymentId 1");
-        assertThat(model.<String>get("$.processes[0].processId")).isEqualTo("processId 1");
+        assertThat(model.<String>get("$.processes[0].version")).isEqualTo("1.0");
         assertThat(model.<Number>get("$.processes[1].id")).isEqualTo(2);
         assertThat(model.<String>get("$.processes[1].name")).isEqualTo("processName 2");
-        assertThat(model.<String>get("$.processes[1].deploymentId")).isEqualTo("deploymentId 2");
-        assertThat(model.<String>get("$.processes[1].processId")).isEqualTo("processId 2");
+        assertThat(model.<String>get("$.processes[1].version")).isEqualTo("2.0");
     }
 
     @Test

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.rest.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -53,6 +54,7 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
     private UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private UsagePointLifeCycleService usagePointLifeCycleService;
     private FiniteStateMachineService finiteStateMachineService;
+    private BpmService bpmService;
     private MeteringService meteringService;
     private UsagePointMicroActionFactory usagePointMicroActionFactory;
 
@@ -77,6 +79,11 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(UsagePointLifeCycleApplication.COMPONENT_NAME, Layer.REST)
                 .join(nlsService.getThesaurus(UsagePointLifeCycleConfigurationService.COMPONENT_NAME, Layer.DOMAIN));
+    }
+
+    @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
     }
 
     @Reference
@@ -129,6 +136,7 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
             bind(usagePointLifeCycleConfigurationService).to(UsagePointLifeCycleConfigurationService.class);
             bind(usagePointLifeCycleService).to(UsagePointLifeCycleService.class);
             bind(finiteStateMachineService).to(FiniteStateMachineService.class);
+            bind(bpmService).to(BpmService.class);
             bind(meteringService).to(MeteringService.class);
             bind(usagePointMicroActionFactory).to(UsagePointMicroActionFactory.class);
         }

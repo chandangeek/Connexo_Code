@@ -4,11 +4,12 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
+
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 
 public class BusinessProcessInfoFactory {
 
-    public BusinessProcessInfo from(StateChangeBusinessProcess process) {
-        return new BusinessProcessInfo(process.getId(), process.getName(), process.getDeploymentId(), process.getProcessId());
+    public BusinessProcessInfo from(BpmProcessDefinition process) {
+        return new BusinessProcessInfo(process.getId(), process.getProcessName(), process.getVersion());
     }
 }
