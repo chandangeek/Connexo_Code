@@ -5,6 +5,8 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.validation.ValidationResult;
+
+import static com.elster.jupiter.validators.impl.Utils.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
@@ -14,37 +16,37 @@ public class MainCheckValidatorWithThresholdTest extends MainCheckValidatorTest 
     @Test
     public void identicalReadingsValidationTest() {
 
-        validateWithReadings(new MainCheckValidatorRule()
+        validateWithReadings(new ValidatorRule()
                 .withCheckPurpose(CHECK_PURPOSE)
-                .withValuedDifference(bigDecimal(10D))
+                .withValuedDifference(BIG_DECIMAL_10)
                 .passIfNoRefData(false)
                 .useValidatedData(false)
-                .withMinThreshold(bigDecimal(15D)));
+                .withMinThreshold(BIG_DECIMAL_15));
 
-        validateWithReadings(new MainCheckValidatorRule()
+        validateWithReadings(new ValidatorRule()
                 .withCheckPurpose(CHECK_PURPOSE)
-                .withValuedDifference(bigDecimal(30D))
+                .withValuedDifference(BIG_DECIMAL_30)
                 .passIfNoRefData(false)
                 .useValidatedData(false)
-                .withMinThreshold(bigDecimal(15D)));
+                .withMinThreshold(BIG_DECIMAL_15));
 
     }
 
-    private void validateWithReadings(MainCheckValidatorRule rule){
+    private void validateWithReadings(ValidatorRule rule){
         ChannelReadings mainChannelReadings = new ChannelReadings(5);
-        mainChannelReadings.setReadingValue(0, bigDecimal(10D), instant("20160101000000"));
-        mainChannelReadings.setReadingValue(1, bigDecimal(20D), instant("20160102000000"));
-        mainChannelReadings.setReadingValue(2, bigDecimal(30D), instant("20160103000000"));
-        mainChannelReadings.setReadingValue(3, bigDecimal(1D), instant("20160104000000"));
-        mainChannelReadings.setReadingValue(4, bigDecimal(2D), instant("20160105000000"));
+        mainChannelReadings.setReadingValue(0, BIG_DECIMAL_10, INSTANT_2016_FEB_01);
+        mainChannelReadings.setReadingValue(1, BIG_DECIMAL_20, INSTANT_2016_FEB_02);
+        mainChannelReadings.setReadingValue(2, BIG_DECIMAL_30, INSTANT_2016_FEB_03);
+        mainChannelReadings.setReadingValue(3, BIG_DECIMAL_1, INSTANT_2016_FEB_04);
+        mainChannelReadings.setReadingValue(4, BIG_DECIMAL_2, INSTANT_2016_FEB_05);
 
         // NOTE: check channel readings are not validated!
         ValidatedChannelReadings checkReadings = new ValidatedChannelReadings(5);
-        checkReadings.setReadingValue(0, bigDecimal(10D), instant("20160101000000"));
-        checkReadings.setReadingValue(1, bigDecimal(20D), instant("20160102000000"));
-        checkReadings.setReadingValue(2, bigDecimal(30D), instant("20160103000000"));
-        checkReadings.setReadingValue(3, bigDecimal(3D), instant("20160104000000"));
-        checkReadings.setReadingValue(4, bigDecimal(4D), instant("20160105000000"));
+        checkReadings.setReadingValue(0, BIG_DECIMAL_10, INSTANT_2016_FEB_01);
+        checkReadings.setReadingValue(1, BIG_DECIMAL_20, INSTANT_2016_FEB_02);
+        checkReadings.setReadingValue(2, BIG_DECIMAL_30, INSTANT_2016_FEB_03);
+        checkReadings.setReadingValue(3, BIG_DECIMAL_3, INSTANT_2016_FEB_04);
+        checkReadings.setReadingValue(4, BIG_DECIMAL_4, INSTANT_2016_FEB_05);
 
         ValidationConfiguration validationConfiguration = new ValidationConfiguration(rule, mainChannelReadings, checkReadings);
         MainCheckValidator validator = initValidator(validationConfiguration);

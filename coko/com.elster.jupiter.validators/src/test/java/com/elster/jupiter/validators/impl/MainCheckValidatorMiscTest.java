@@ -15,6 +15,13 @@ import java.util.logging.Logger;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static com.elster.jupiter.validators.impl.Utils.BIG_DECIMAL_10;
+import static com.elster.jupiter.validators.impl.Utils.BIG_DECIMAL_100;
+import static com.elster.jupiter.validators.impl.Utils.BIG_DECIMAL_20;
+import static com.elster.jupiter.validators.impl.Utils.BIG_DECIMAL_30;
+import static com.elster.jupiter.validators.impl.Utils.INSTANT_2016_FEB_01;
+import static com.elster.jupiter.validators.impl.Utils.INSTANT_2016_FEB_02;
+import static com.elster.jupiter.validators.impl.Utils.INSTANT_2016_FEB_03;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Matchers.any;
@@ -36,10 +43,10 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
 
     @Test
     public void testNoPuprose() {
-        validateWithReadings(new MainCheckValidatorTest.MainCheckValidatorRule()
+        validateWithReadings(new ValidatorRule()
                 .withCheckPurpose(CHECK_PURPOSE)
                 .withNotExistingCheckPurpose(notEsistingPurpose)
-                .withValuedDifference(bigDecimal(100D))
+                .withValuedDifference(BIG_DECIMAL_100)
                 .passIfNoRefData(false)
                 .useValidatedData(false)
                 .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 1 Jan 2016 12:00 AM until Sun, 7 Feb 2016 12:00 AM\" using method \"Main/check comparison\" on [Daily] Secondary Delta A+ (kWh) since the specified purpose doesnt exist on the Usage point name", false);
@@ -47,10 +54,10 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
 
     @Test
     public void testNoChannel() {
-        validateWithReadings(new MainCheckValidatorTest.MainCheckValidatorRule()
+        validateWithReadings(new ValidatorRule()
                 .withCheckPurpose(CHECK_PURPOSE)
                 .withNotExistingCheckChannel()
-                .withValuedDifference(bigDecimal(100D))
+                .withValuedDifference(BIG_DECIMAL_100)
                 .passIfNoRefData(false)
                 .useValidatedData(false)
                 .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 1 Jan 2016 12:00 AM until Sun, 7 Feb 2016 12:00 AM\" using method \"Main/check comparison\" on [Daily] Secondary Delta A+ (kWh) since check output with matching reading type on the specified purpose doesnt exist on Usage point name", false);
@@ -58,9 +65,9 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
 
     @Test
     public void testChannelWithMissingDataPass() {
-        validateWithReadings(new MainCheckValidatorTest.MainCheckValidatorRule()
+        validateWithReadings(new ValidatorRule()
                 .withCheckPurpose(CHECK_PURPOSE)
-                .withValuedDifference(bigDecimal(100D))
+                .withValuedDifference(BIG_DECIMAL_100)
                 .passIfNoRefData(false)
                 .useValidatedData(false)
                 .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 1 Jan 2016 12:00 AM until Sun, 7 Feb 2016 12:00 AM\" using method \"Main/check comparison\" on Usage point name/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
@@ -68,9 +75,9 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
 
     @Test
     public void testChannelWithMissingDataNotPass() {
-        validateWithReadings(new MainCheckValidatorTest.MainCheckValidatorRule()
+        validateWithReadings(new ValidatorRule()
                 .withCheckPurpose(CHECK_PURPOSE)
-                .withValuedDifference(bigDecimal(100D))
+                .withValuedDifference(BIG_DECIMAL_100)
                 .passIfNoRefData(true)
                 .useValidatedData(false)
                 .withNoMinThreshold(), "WARNING: Failed to validate period \"Fri, 1 Jan 2016 12:00 AM until Sun, 7 Feb 2016 12:00 AM\" using method \"Main/check comparison\" on Usage point name/[Daily] Secondary Delta A+ (kWh) since data from check output is missing or not validated", true);
@@ -91,13 +98,6 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
 
     @Override
     MainCheckValidator initValidator(ValidationConfiguration validationConfiguration) {
-        /*
-        when(thesaurus.getString(anyString(),anyString())).thenReturn("Main/check comparison");
-        Arrays.stream(MessageSeeds.values()).forEach(messageSeeds -> {
-            NlsMessageFormat nlsMessageFormat = createNlsMessageFormat(messageSeeds);
-            when(thesaurus.getFormat(messageSeeds)).thenReturn(nlsMessageFormat);
-        });
-        */
         MainCheckValidator validator = new MainCheckValidator(thesaurus, propertySpecService, validationConfiguration.rule
                 .createProperties(), validationConfiguration.metrologyConfigurationService, validationConfiguration.validationService);
         mockLogger(validator);
@@ -105,19 +105,19 @@ public class MainCheckValidatorMiscTest extends MainCheckValidatorTest {
         return validator;
     }
 
-    private void validateWithReadings(MainCheckValidatorRule rule, String warning, boolean missingData) {
+    private void validateWithReadings(ValidatorRule rule, String warning, boolean missingData) {
         ChannelReadings mainChannelReadings = new ChannelReadings(3);
-        mainChannelReadings.setReadingValue(0, bigDecimal(10D), instant("20160201000000"));
-        mainChannelReadings.setReadingValue(1, bigDecimal(20D), instant("20160202000000"));
-        mainChannelReadings.setReadingValue(2, bigDecimal(30D), instant("20160203000000"));
+        mainChannelReadings.setReadingValue(0, BIG_DECIMAL_10, INSTANT_2016_FEB_01);
+        mainChannelReadings.setReadingValue(1, BIG_DECIMAL_20, INSTANT_2016_FEB_02);
+        mainChannelReadings.setReadingValue(2, BIG_DECIMAL_30, INSTANT_2016_FEB_03);
 
         // NOTE: check channel readings are not validated!
         ValidatedChannelReadings checkReadings = new ValidatedChannelReadings(3);
-        checkReadings.setReadingValue(0, bigDecimal(10D), instant("20160201000000"));
+        checkReadings.setReadingValue(0, BIG_DECIMAL_10, INSTANT_2016_FEB_01);
         if (!missingData) {
-            checkReadings.setReadingValue(1, bigDecimal(20D), instant("20160202000000"));
+            checkReadings.setReadingValue(1, BIG_DECIMAL_20, INSTANT_2016_FEB_02);
         }
-        checkReadings.setReadingValue(2, bigDecimal(30D), instant("20160203000000"));
+        checkReadings.setReadingValue(2, BIG_DECIMAL_30, INSTANT_2016_FEB_03);
 
         ValidationConfiguration validationConfiguration = new ValidationConfiguration(rule, mainChannelReadings, checkReadings);
         MainCheckValidator validator = initValidator(validationConfiguration);
