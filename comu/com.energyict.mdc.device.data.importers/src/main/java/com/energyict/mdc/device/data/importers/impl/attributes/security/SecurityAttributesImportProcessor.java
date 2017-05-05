@@ -18,12 +18,10 @@ import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter;
 import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter.PropertiesConverterConfig;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImportProcessor<SecurityAttributesImportRecord> {
+public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImportProcessor<SecurityAttributesImportRecord> { //TODO
 
     private final PropertiesConverterConfig propertiesConverterConfig;
 
@@ -44,7 +42,7 @@ public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImp
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SECURITY_SETTINGS_ON_DEVICE, data.getLineNumber(), data.getSecuritySettingsName()));
         TypedProperties typedProperties = getUpdatedProperties(device, deviceConfigSecurityPropertySet, data);
         try {
-            device.setSecurityProperties(deviceConfigSecurityPropertySet, typedProperties);
+//            device.setSecurityProperties(deviceConfigSecurityPropertySet, typedProperties);
             device.save();
         } catch (Exception e) {
             throw new ProcessorException(MessageSeeds.SECURITY_ATTRIBUTES_NOT_SET, data.getLineNumber(), data.getDeviceIdentifier());
@@ -58,16 +56,16 @@ public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImp
     }
 
     private void logMissingPropertiesIfIncomplete(SecurityAttributesImportRecord data, FileImportLogger logger, Device device, SecurityPropertySet deviceConfigSecurityPropertySet, TypedProperties typedProperties) {
-        if (device.getSecurityProperties(deviceConfigSecurityPropertySet).stream().anyMatch(securityProperty -> !securityProperty.isComplete())) {
-            String missingProperties = deviceConfigSecurityPropertySet.getPropertySpecs().stream()
-                    .filter(PropertySpec::isRequired)
-                    .map(PropertySpec::getName)
-                    .filter(propertySpec -> !typedProperties.hasValueFor(propertySpec))
-                    .collect(Collectors.joining(", "));
-            if (!missingProperties.isEmpty()) {
-                logger.warning(MessageSeeds.REQUIRED_SECURITY_ATTRIBUTES_MISSED, data.getLineNumber(), missingProperties);
-            }
-        }
+//        if (device.getSecurityProperties(deviceConfigSecurityPropertySet).stream().anyMatch(securityProperty -> !securityProperty.isComplete())) {
+//            String missingProperties = deviceConfigSecurityPropertySet.getPropertySpecs().stream()
+//                    .filter(PropertySpec::isRequired)
+//                    .map(PropertySpec::getName)
+//                    .filter(propertySpec -> !typedProperties.hasValueFor(propertySpec))
+//                    .collect(Collectors.joining(", "));
+//            if (!missingProperties.isEmpty()) {
+//                logger.warning(MessageSeeds.REQUIRED_SECURITY_ATTRIBUTES_MISSED, data.getLineNumber(), missingProperties);
+//            }
+//        }
     }
 
     private TypedProperties getUpdatedProperties(Device device, SecurityPropertySet deviceConfigSecurityPropertySet, SecurityAttributesImportRecord data) {
@@ -85,9 +83,9 @@ public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImp
 
     private TypedProperties getTypedPropertiesForSecurityPropertySet(Device device, SecurityPropertySet securityPropertySet) {
         TypedProperties typedProperties = TypedProperties.empty();
-        for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
-            typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
-        }
+//        for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
+//            typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
+//        }
         return typedProperties;
     }
 
