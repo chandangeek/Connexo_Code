@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.MacException;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.upl.offline.Offline;
 
+import java.util.List;
 import java.util.Optional;
 
 /**

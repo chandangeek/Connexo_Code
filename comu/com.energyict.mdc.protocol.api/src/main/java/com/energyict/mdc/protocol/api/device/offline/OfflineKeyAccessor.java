@@ -2,7 +2,6 @@ package com.energyict.mdc.protocol.api.device.offline;
 
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.SecurityValueWrapper;
-
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.Offline;
 
