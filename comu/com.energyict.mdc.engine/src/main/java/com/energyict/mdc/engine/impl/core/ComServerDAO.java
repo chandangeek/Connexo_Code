@@ -24,7 +24,6 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
@@ -44,6 +43,8 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateAlias;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -78,15 +79,15 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     ComServer getThisComServer();
 
     /**
-     * Gets the {@link SecurityProperty security properties} that have been
+     * Gets the {@link DeviceProtocolSecurityPropertySet} that has been
      * created against the Device that is currently connected to the ComServer
      * via the specified {@link InboundComPort}.
      *
      * @param deviceIdentifier The object that uniquely identifies the Device
-     * @param inboundComPort   The InboundComPort
-     * @return The List of SecurityProperty or null if the Device is not ready for inbound communication
+     * @param inboundComPort The InboundComPort
+     * @return The DeviceProtocolSecurityPropertySet or null if the Device is not ready for inbound communication
      */
-    List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
+    DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
 
     /**
      * Returns the dialect properties of the first comtask of a given device or <code>null</code>.

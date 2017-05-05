@@ -70,6 +70,7 @@ import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComJobFactory;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
@@ -79,7 +80,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
@@ -103,6 +103,8 @@ import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateAlias;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -171,6 +173,10 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private TransactionService getTransactionService() {
         return this.serviceProvider.transactionService();
+    }
+
+    private IdentificationService getIdentificationService() {
+        return this.serviceProvider.identificationService();
     }
 
     @Override
@@ -485,9 +491,10 @@ public class ComServerDAOImpl implements ComServerDAO {
     public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
         handleCertificatePropertyValue(propertyValue);
 
+        //TODO: foresee useful implementation
         //Now update the given security property.
-        Device device = this.findDevice(deviceIdentifier);
-        device.setSecurityProperty(propertyName, propertyValue);
+//        Device device = this.findDevice(deviceIdentifier);
+//        device.setSecurityProperty(propertyName, propertyValue)
     }
 
     @Override
@@ -829,8 +836,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier identifier, InboundComPort comPort) {
-        Device device = this.findDevice(identifier);
+    public DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
+        Device device = this.findDevice(deviceIdentifier);
         InboundConnectionTask connectionTask = this.getInboundConnectionTask(comPort, device);
         if (connectionTask == null) {
             return null;
@@ -839,7 +846,16 @@ public class ComServerDAOImpl implements ComServerDAO {
             if (securityPropertySet == null) {
                 return null;
             } else {
-                return device.getSecurityProperties(securityPropertySet);
+               return new DeviceProtocolSecurityPropertySetImpl(
+                        securityPropertySet.getClient(),
+                        securityPropertySet.getAuthenticationDeviceAccessLevel().getId(),
+                        securityPropertySet.getEncryptionDeviceAccessLevel().getId(),
+                        securityPropertySet.getSecuritySuite() != null ? securityPropertySet.getSecuritySuite().getId() : -1,
+                        securityPropertySet.getRequestSecurityLevel() != null ? securityPropertySet.getRequestSecurityLevel().getId() : -1,
+                        securityPropertySet.getResponseSecurityLevel() != null ? securityPropertySet.getResponseSecurityLevel().getId() : -1,
+                        securityPropertySet.getConfigurationSecurityProperties(),
+                        device.getKeyAccessors(),
+                        getIdentificationService());
             }
         }
     }
@@ -880,7 +896,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     /**
-     * Gets the {@link SecurityProperty} that needs to be used when
+     * Gets the {@link SecurityPropertySet} that needs to be used when
      * the Device is communicating to the ComServer
      * via the specified {@link InboundConnectionTask}.
      *

@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.engine;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
@@ -171,11 +169,6 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
     @Override
     public void daisyChainedLogOff() {
         //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        return Optional.empty();
     }
 
     @Override

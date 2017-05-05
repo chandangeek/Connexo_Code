@@ -207,6 +207,10 @@
             <artifactId>org.osgi.compendium</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pki</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
