@@ -71,12 +71,12 @@ public class DataLoggerSlaveDeviceInfo {
         return fromExistingLink;
     }
 
-    DataLoggerSlaveDeviceInfo(Device device){
+    DataLoggerSlaveDeviceInfo(Device device) {
         this.id = device.getId();
         this.name = device.getName();
         this.deviceTypeName = device.getDeviceType().getName();
         this.deviceTypeId = device.getDeviceType().getId();
-        this.deviceTypePurpose = (device.getDeviceType().isDataloggerSlave() ? DeviceTypePurpose.DATALOGGER_SLAVE.name() : (device.getDeviceType().isMultiElementSlave() ? DeviceTypePurpose.MULTI_ELEMENT_SLAVE.name(): DeviceTypePurpose.REGULAR.name()));
+        this.deviceTypePurpose = (device.getDeviceType().isDataloggerSlave() ? DeviceTypePurpose.DATALOGGER_SLAVE.name() : (device.getDeviceType().isMultiElementSlave() ? DeviceTypePurpose.MULTI_ELEMENT_SLAVE.name() : DeviceTypePurpose.REGULAR.name()));
         this.deviceConfigurationId = device.getDeviceConfiguration().getId();
         this.deviceConfigurationName = device.getDeviceConfiguration().getName();
         this.serialNumber = device.getSerialNumber();

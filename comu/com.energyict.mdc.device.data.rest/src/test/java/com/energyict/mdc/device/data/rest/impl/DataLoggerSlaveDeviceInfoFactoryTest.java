@@ -6,7 +6,6 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.obis.ObisCode;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -19,15 +18,15 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.obis.ObisCode;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.Test;
-import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;

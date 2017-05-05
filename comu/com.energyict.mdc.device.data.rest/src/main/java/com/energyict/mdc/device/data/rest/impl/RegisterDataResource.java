@@ -5,10 +5,13 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.EndDeviceStage;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.services.ListPager;
@@ -19,13 +22,21 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
@@ -70,7 +81,7 @@ public class RegisterDataResource {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         Range<Instant> intervalReg;
-        if(filter.getInteger("intervalEnd") == 0) {
+        if (filter.getInteger("intervalEnd") == 0) {
             intervalReg = Range.atLeast(filter.getInstant("intervalStart"));
         } else {
             intervalReg = Range.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));

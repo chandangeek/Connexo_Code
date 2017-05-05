@@ -17,7 +17,6 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;

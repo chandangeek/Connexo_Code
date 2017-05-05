@@ -10,6 +10,8 @@ import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -55,7 +57,6 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -80,6 +81,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -159,6 +161,7 @@ public class DeviceResource {
     private final CalendarService calendarService;
     private final DeviceMessageService deviceMessageService;
     private final Clock clock;
+    private final Thesaurus thesaurus;
     private final DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory;
 
     @Inject
@@ -204,6 +207,7 @@ public class DeviceResource {
             CalendarService calendarService,
             DeviceMessageService deviceMessageService,
             Clock clock,
+            Thesaurus thesaurus,
             DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.resourceHelper = resourceHelper;
@@ -247,10 +251,12 @@ public class DeviceResource {
         this.calendarService = calendarService;
         this.deviceMessageService = deviceMessageService;
         this.clock = clock;
+        this.thesaurus = thesaurus;
         this.dataLoggerSlaveDeviceInfoFactory = dataLoggerSlaveDeviceInfoFactory;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getAllDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
@@ -261,7 +267,7 @@ public class DeviceResource {
             if (!params.getQueryParameters().isEmpty()) {
                 String name = params.getFirst("name");
                 if (name != null) {
-                    condition = condition.and(where("name").likeIgnoreCase( name.length()==0 ? "*" : "*" + name + "*" ));
+                    condition = condition.and(where("name").likeIgnoreCase(name.length() == 0 ? "*" : "*" + name + "*"));
                 }
             }
         } else if (uriParams.containsKey("filter")) {
@@ -280,7 +286,8 @@ public class DeviceResource {
         }
     }
 
-    @POST @Transactional
+    @POST
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE)
@@ -297,7 +304,7 @@ public class DeviceResource {
         } else {
             newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), name, shipmentDate);
         }
-        if (!newDevice.getDeviceType().isMultiElementSlave()){
+        if (!newDevice.getDeviceType().isMultiElementSlave()) {
             newDevice.setSerialNumber(serialNumber);
             newDevice.setManufacturer(manufacturer);
             newDevice.setModelNumber(modelNbr);
@@ -310,7 +317,8 @@ public class DeviceResource {
         return newDevice;
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/changedeviceconfig")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -362,7 +370,7 @@ public class DeviceResource {
                 updateDataLoggerChannels(info, device);
                 device.save();
                 context.commit();
-            }catch(IllegalArgumentException e){
+            } catch (IllegalArgumentException e) {
                 throw exceptionFactory.newExceptionSupplier(Response.Status.NOT_ACCEPTABLE, MessageSeeds.UPDATE_OF_DEVICE_FAILED).get();
             }
         }
@@ -381,12 +389,13 @@ public class DeviceResource {
         }
     }
 
-    private void updateDataLoggerChannels(DeviceInfo info, Device dataLogger){
+    private void updateDataLoggerChannels(DeviceInfo info, Device dataLogger) {
         boolean masterIsDataLogger = dataLogger.getDeviceConfiguration().isDataloggerEnabled();
         boolean masterIsMultiElementDevice = dataLogger.getDeviceConfiguration().isMultiElementEnabled();
         if (masterIsDataLogger || masterIsMultiElementDevice) {
-            final List<Device> currentDataLoggerSlaves = topologyService.findDataLoggerSlaves(dataLogger);;
-            final List<Device>currentMultiElementSlaves = multiElementDeviceService.findMultiElementSlaves(dataLogger);
+            final List<Device> currentDataLoggerSlaves = topologyService.findDataLoggerSlaves(dataLogger);
+            ;
+            final List<Device> currentMultiElementSlaves = multiElementDeviceService.findMultiElementSlaves(dataLogger);
             info.dataLoggerSlaveDevices.stream()
                     .filter(DataLoggerSlaveDeviceInfo::unlinked)
                     .forEach(dataLoggerSlaveDeviceInfo -> currentDataLoggerSlaves.stream().filter(slave -> slave.getId() == dataLoggerSlaveDeviceInfo.id).findAny()
@@ -400,14 +409,14 @@ public class DeviceResource {
         }
     }
 
-    private void setDataLogger(DataLoggerSlaveDeviceInfo slaveDeviceInfo, Device dataLogger){
+    private void setDataLogger(DataLoggerSlaveDeviceInfo slaveDeviceInfo, Device dataLogger) {
         if (!slaveDeviceInfo.placeHolderForUnlinkedDataLoggerChannelsAndRegisters()) {
             Device slave;
             if (slaveDeviceInfo.id == 0 && slaveDeviceInfo.version == 0) {
                 validateBeforeCreatingNewSlaveViaWizard(slaveDeviceInfo.name);
                 slave = newDevice(slaveDeviceInfo.deviceConfigurationId, slaveDeviceInfo.batch, slaveDeviceInfo.name,
-                        slaveDeviceInfo.serialNumber, slaveDeviceInfo.manufacturer, slaveDeviceInfo.modelNbr, slaveDeviceInfo.modelVersion , slaveDeviceInfo.yearOfCertification, Instant.ofEpochMilli(slaveDeviceInfo.shipmentDate));
-                if (slave.getDeviceType().isMultiElementSlave()){
+                        slaveDeviceInfo.serialNumber, slaveDeviceInfo.manufacturer, slaveDeviceInfo.modelNbr, slaveDeviceInfo.modelVersion, slaveDeviceInfo.yearOfCertification, Instant.ofEpochMilli(slaveDeviceInfo.shipmentDate));
+                if (slave.getDeviceType().isMultiElementSlave()) {
                     multiElementDeviceService.syncSlaves(dataLogger);
                 }
             } else {
@@ -435,7 +444,7 @@ public class DeviceResource {
                     topologyService.setDataLogger(slave, dataLogger, Instant.ofEpochMilli(slaveDeviceInfo.linkingTimeStamp), channelMap, registerMap);
                 }
                 if (slave.getDeviceType().isMultiElementSlave()) {
-                    multiElementDeviceService.addSlave(slave, dataLogger, Instant.ofEpochMilli(slaveDeviceInfo.linkingTimeStamp) , channelMap, registerMap);
+                    multiElementDeviceService.addSlave(slave, dataLogger, Instant.ofEpochMilli(slaveDeviceInfo.linkingTimeStamp), channelMap, registerMap);
                 }
             }
         }
@@ -454,31 +463,31 @@ public class DeviceResource {
         }
     }
 
-    private Pair<Channel, Channel> slaveDataLoggerChannelPair(Device slave, DataLoggerSlaveChannelInfo info){
-       return Pair.of(channelInfoToChannel(slave, info.slaveChannel), channelInfoToChannel(info.dataLoggerChannel));
+    private Pair<Channel, Channel> slaveDataLoggerChannelPair(Device slave, DataLoggerSlaveChannelInfo info) {
+        return Pair.of(channelInfoToChannel(slave, info.slaveChannel), channelInfoToChannel(info.dataLoggerChannel));
     }
 
-    private Optional<DataLoggerSlaveDeviceInfo> getTerminatedSlaveDeviceInfo(Device slave, DeviceInfo info){
+    private Optional<DataLoggerSlaveDeviceInfo> getTerminatedSlaveDeviceInfo(Device slave, DeviceInfo info) {
         return info.dataLoggerSlaveDevices.stream().filter((dataLoggerSlaveDeviceInfo) -> dataLoggerSlaveDeviceInfo.id == slave.getId() && dataLoggerSlaveDeviceInfo.unlinked()).findFirst();
     }
 
-    private Pair<Register, Register> slaveDataLoggerRegisterPair(Device slave, DataLoggerSlaveRegisterInfo info){
-       return Pair.of(registerInfoToRegister(slave, info.slaveRegister), registerInfoToRegister(info.dataLoggerRegister));
+    private Pair<Register, Register> slaveDataLoggerRegisterPair(Device slave, DataLoggerSlaveRegisterInfo info) {
+        return Pair.of(registerInfoToRegister(slave, info.slaveRegister), registerInfoToRegister(info.dataLoggerRegister));
     }
 
-    private Channel channelInfoToChannel(ChannelInfo info){
-        return resourceHelper.findChannelOnDeviceOrThrowException(info.parent.id, info.id );
+    private Channel channelInfoToChannel(ChannelInfo info) {
+        return resourceHelper.findChannelOnDeviceOrThrowException(info.parent.id, info.id);
     }
 
-    private Channel channelInfoToChannel(Device device, ChannelInfo info){
-        return resourceHelper.findChannelOnDeviceOrThrowException(device, info.id );
+    private Channel channelInfoToChannel(Device device, ChannelInfo info) {
+        return resourceHelper.findChannelOnDeviceOrThrowException(device, info.id);
     }
 
-    private Register registerInfoToRegister(RegisterInfo info){
+    private Register registerInfoToRegister(RegisterInfo info) {
         return resourceHelper.findRegisterOnDeviceOrThrowException(info.deviceName, info.id);
     }
 
-    private Register registerInfoToRegister(Device slave, RegisterInfo info){
+    private Register registerInfoToRegister(Device slave, RegisterInfo info) {
         return resourceHelper.findRegisterOnDeviceOrThrowException(slave, info.id);
     }
 
@@ -494,7 +503,7 @@ public class DeviceResource {
     }
 
     private void removeGateway(Device device) {
-        if (!device.getDeviceType().isDataloggerSlave()){
+        if (!device.getDeviceType().isDataloggerSlave()) {
             if (topologyService.getPhysicalGateway(device).isPresent()) {
                 topologyService.clearPhysicalGateway(device);
             }
@@ -511,7 +520,8 @@ public class DeviceResource {
         return slaves;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -520,7 +530,8 @@ public class DeviceResource {
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{name}/attributes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -529,7 +540,8 @@ public class DeviceResource {
         return Response.ok(deviceAttributesInfoFactory.from(device)).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{name}/attributes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE})
@@ -540,7 +552,8 @@ public class DeviceResource {
         return Response.ok(deviceAttributesInfoFactory.from(device)).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{name}/customproperties")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -550,13 +563,14 @@ public class DeviceResource {
         return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfos, queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{name}/customproperties/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public CustomPropertySetInfo getDeviceCustomProperty(@PathParam("name") String name, @PathParam("cpsId") long cpsId, @QueryParam("default") boolean defaultValues) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        if(defaultValues){
+        if (defaultValues) {
             return resourceHelper.getDeviceCustomPropertySetInfoWithDefaultValues(device, cpsId);
         } else {
             return resourceHelper.getDeviceCustomPropertySetInfos(device)
@@ -567,7 +581,8 @@ public class DeviceResource {
         }
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{name}/customproperties/{cpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -577,7 +592,8 @@ public class DeviceResource {
         return PagedInfoList.fromCompleteList("versions", customPropertySetInfoList, queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{name}/customproperties/{cpsId}/versions/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -590,7 +606,8 @@ public class DeviceResource {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{name}/customproperties/{cpsId}/currentinterval")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -601,7 +618,8 @@ public class DeviceResource {
         return IntervalInfo.from(interval.toClosedOpenRange());
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{name}/customproperties/{cpsId}/conflicts")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -612,7 +630,8 @@ public class DeviceResource {
         return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{name}/customproperties/{cpsId}/conflicts/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -623,7 +642,8 @@ public class DeviceResource {
         return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{name}/customproperties/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -634,7 +654,8 @@ public class DeviceResource {
         return Response.ok().build();
     }
 
-    @POST @Transactional
+    @POST
+    @Transactional
     @Path("/{name}/customproperties/{cpsId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS})
@@ -660,7 +681,8 @@ public class DeviceResource {
         return Response.ok().build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{name}/customproperties/{cpsId}/versions/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS})
@@ -686,7 +708,8 @@ public class DeviceResource {
         return Response.ok().build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{name}/privileges")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -713,7 +736,8 @@ public class DeviceResource {
      * @param name Device's name
      * @return List of categories + device message specs, indicating if message spec will be picked up by a comtask or not
      */
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{name}/messagecategories")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
@@ -731,12 +755,12 @@ public class DeviceResource {
                 .forEach(category -> {
                     List<DeviceMessageSpecInfo> deviceMessageSpecs =
                             device
-                                .getDeviceConfiguration()
-                                .getEnabledAndAuthorizedDeviceMessageSpecsIn(category)
-                                .stream()
-                                .sorted(Comparator.comparing(DeviceMessageSpec::getName))
-                                .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
-                                .collect(Collectors.toList());
+                                    .getDeviceConfiguration()
+                                    .getEnabledAndAuthorizedDeviceMessageSpecsIn(category)
+                                    .stream()
+                                    .sorted(Comparator.comparing(DeviceMessageSpec::getName))
+                                    .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
+                                    .collect(Collectors.toList());
                     if (!deviceMessageSpecs.isEmpty()) {
                         DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(category);
                         info.deviceMessageSpecs = deviceMessageSpecs;
@@ -922,7 +946,8 @@ public class DeviceResource {
         throw exceptionFactory.newException(MessageSeeds.BAD_REQUEST);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{name}/topology/communication")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
@@ -943,21 +968,24 @@ public class DeviceResource {
         return PagedInfoList.fromPagedList("slaveDevices", topologyList, queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{name}/dataloggerslaves")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getDataLoggerSlaves(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        return PagedInfoList.fromCompleteList("dataLoggerSlaveDevices",  getDataLoggerSlavesForDevice(device), queryParameters);
-    }
-    // Returns all data logger slaves and multi-element slaves for a device
-    private List<DeviceTopologyInfo> getDataLoggerSlavesForDevice(Device device) {
-        return (device.getDeviceConfiguration().isDataloggerEnabled() || device.getDeviceConfiguration().isMultiElementEnabled() ? resourceHelper.getDataLoggerSlaves(device): Collections.emptyList());
+        return PagedInfoList.fromCompleteList("dataLoggerSlaveDevices", getDataLoggerSlavesForDevice(device), queryParameters);
     }
 
-    @GET @Transactional
+    // Returns all data logger slaves and multi-element slaves for a device
+    private List<DeviceTopologyInfo> getDataLoggerSlavesForDevice(Device device) {
+        return (device.getDeviceConfiguration().isDataloggerEnabled() || device.getDeviceConfiguration().isMultiElementEnabled() ? resourceHelper.getDataLoggerSlaves(device) : Collections.emptyList());
+    }
+
+    @GET
+    @Transactional
     @Path("/unlinkeddataloggerslaves")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public DataLoggerSlaveDeviceInfos getUnlinkedSlaves(@BeanParam JsonQueryParameters queryParameters) {
         String searchText = queryParameters.getLike();
@@ -974,7 +1002,7 @@ public class DeviceResource {
         // a. Datalogger slave devices
         String regex = '*' + dbSearchText.replace(' ', '*') + '*';
         Condition a = Where.where("name").likeIgnoreCase(regex)
-            .and(Where.where("deviceType.deviceTypePurpose").isEqualTo(DeviceTypePurpose.DATALOGGER_SLAVE));
+                .and(Where.where("deviceType.deviceTypePurpose").isEqualTo(DeviceTypePurpose.DATALOGGER_SLAVE));
         // b. that are not linked yet to a data logger
         Condition b = ListOperator.NOT_IN.contains(topologyService.findAllEffectiveDataLoggerSlaveDevices().asSubQuery("origin"), "id");
         return a.and(b);
@@ -1108,9 +1136,17 @@ public class DeviceResource {
         if (!allowedOptions.contains(ProtocolSupportedCalendarOptions.ACTIVATE_PASSIVE_CALENDAR)) {
             throw exceptionFactory.newException(MessageSeeds.COMMAND_NOT_ALLOWED_OR_SUPPORTED);
         }
+
+        DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.ACTIVATE_CALENDAR_PASSIVE.dbValue()).get();
+        PropertySpec activityCalendarActivationDatePropertySpec = deviceMessageSpec.getPropertySpecs()
+                .stream()
+                .filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(Date.class))
+                .findAny()
+                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE).format(deviceMessageSpec.getName())));
+
         DeviceMessage deviceMessage = device.newDeviceMessage(DeviceMessageId.ACTIVATE_CALENDAR_PASSIVE)
                 .setReleaseDate(Instant.now(clock))
-                .addProperty(DeviceMessageConstants.activityCalendarActivationDateAttributeName, Date.from(Instant.ofEpochMilli(activationDate)))
+                .addProperty(activityCalendarActivationDatePropertySpec.getName(), Date.from(Instant.ofEpochMilli(activationDate)))
                 .add();
         boolean willBePickedUpByPlannedComtask = deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage);
         boolean willBePickedUpByComtask = willBePickedUpByPlannedComtask || deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
@@ -1172,30 +1208,69 @@ public class DeviceResource {
 
     private DeviceMessage sendNewMessage(Device device, DeviceMessageId deviceMessageId, SendCalendarInfo sendCalendarInfo, AllowedCalendar calendar) {
         Device.DeviceMessageBuilder messageBuilder = device.newDeviceMessage(deviceMessageId);
+        DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()).get();
 
-        if (isSpecialDays(deviceMessageId)) {
-            messageBuilder.addProperty(DeviceMessageConstants.specialDaysAttributeName, calendar.getCalendar().get());
-        } else {
-            messageBuilder.addProperty(DeviceMessageConstants.activityCalendarNameAttributeName, calendar.getName())
-                    .addProperty(DeviceMessageConstants.activityCalendarAttributeName, calendar.getCalendar().get());
+        //Find the message attribute of type 'reference' (to a DeviceMessageFile or Calendar). This is the 'activityCalendar' attribute.
+        Optional<PropertySpec> calendarPropertySpec = deviceMessageSpec
+                .getPropertySpecs()
+                .stream()
+                .filter(propertySpec -> propertySpec.getValueFactory().isReference())
+                .findAny();
+
+        calendarPropertySpec.ifPresent(propertySpec -> messageBuilder.addProperty(propertySpec.getName(), calendar.getCalendar().get()));
+
+        if (!isSpecialDays(deviceMessageId)) {
+            //Find the message attribute of type 'String' without any possible values. This is the 'activityCalendarName' attribute.
+            Optional<PropertySpec> activityCalendarNamePropertySpec = deviceMessageSpec
+                    .getPropertySpecs()
+                    .stream()
+                    .filter(propertySpec -> (propertySpec.getValueFactory().getValueType().equals(String.class) && ((propertySpec.getPossibleValues() == null) || propertySpec.getPossibleValues().getAllValues().isEmpty())))
+                    .findAny();
+
+            activityCalendarNamePropertySpec.ifPresent(propertySpec -> messageBuilder.addProperty(propertySpec.getName(), calendar.getName()));
         }
 
         if (sendCalendarInfo.releaseDate != null) {
             messageBuilder.setReleaseDate(sendCalendarInfo.releaseDate);
         }
         if (needsActivationDate(deviceMessageId)) {
-            Date date = Date.from(sendCalendarInfo.activationDate);
-            messageBuilder.addProperty(DeviceMessageConstants.activityCalendarActivationDateAttributeName,
-                    date);
+            //Find the message attribute of type 'Date'. This is the 'activityCalendarActivationDate' attribute.
+            Optional<PropertySpec> activityCalendarActivationDatePropertySpec = deviceMessageSpec
+                    .getPropertySpecs()
+                    .stream()
+                    .filter(propertySpec -> (propertySpec.getValueFactory().getValueType().equals(Date.class)))
+                    .findAny();
+
+
+            if (activityCalendarActivationDatePropertySpec.isPresent()) {
+                Date date = Date.from(sendCalendarInfo.activationDate);
+                messageBuilder.addProperty(activityCalendarActivationDatePropertySpec.get().getName(), date);
+            }
         }
+
         if (needsType(deviceMessageId)) {
-            messageBuilder.addProperty(DeviceMessageConstants.activityCalendarTypeAttributeName,
-                    sendCalendarInfo.type);
+            //Find the message attribute of type 'String' with possible values. This is the 'activityCalendarType' attribute.
+            Optional<PropertySpec> activityCalendarTypePropertySpec = deviceMessageSpec
+                    .getPropertySpecs()
+                    .stream()
+                    .filter(propertySpec -> (propertySpec.getValueFactory().getValueType().equals(String.class) && ((propertySpec.getPossibleValues() != null) && !propertySpec.getPossibleValues().getAllValues().isEmpty())))
+                    .findAny();
+
+            activityCalendarTypePropertySpec.ifPresent(propertySpec -> messageBuilder.addProperty(propertySpec.getName(), sendCalendarInfo.type));
         }
+
         if (needsContract(deviceMessageId)) {
-            messageBuilder.addProperty(DeviceMessageConstants.contractAttributeName,
-                    sendCalendarInfo.contract);
+
+            //Find the message attribute of type 'BigDecimal'. This is the 'contract' attribute.
+            Optional<PropertySpec> contractPropertySpec = deviceMessageSpec
+                    .getPropertySpecs()
+                    .stream()
+                    .filter(propertySpec -> (propertySpec.getValueFactory().getValueType().equals(BigDecimal.class)))
+                    .findAny();
+
+            contractPropertySpec.ifPresent(propertySpec -> messageBuilder.addProperty(propertySpec.getName(), sendCalendarInfo.contract));
         }
+
         return messageBuilder.add();
     }
 
@@ -1216,7 +1291,8 @@ public class DeviceResource {
         return predicate;
     }
 
-    private Predicate<Device> addPropertyStringFilterIfAvailabale(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, String> extractor) {
+    private Predicate<Device> addPropertyStringFilterIfAvailabale(JsonQueryFilter filter, String
+            name, Predicate<Device> predicate, Function<Device, String> extractor) {
         Pattern filterPattern = getFilterPattern(filter.getString(name));
         if (filterPattern != null) {
             return predicate.and(d -> {
@@ -1230,7 +1306,8 @@ public class DeviceResource {
         return predicate;
     }
 
-    private Predicate<Device> addPropertyListFilterIfAvailable(JsonQueryFilter filter, String name, Predicate<Device> predicate, Function<Device, Long> extractor) {
+    private Predicate<Device> addPropertyListFilterIfAvailable(JsonQueryFilter filter, String
+            name, Predicate<Device> predicate, Function<Device, Long> extractor) {
         if (filter.hasProperty(name)) {
             List<Long> list = filter.getLongList(name);
             if (list != null) {
@@ -1258,6 +1335,7 @@ public class DeviceResource {
      * @param filter the filter expression
      * @return search pattern
      */
+
     private Pattern getFilterPattern(String filter) {
         if (filter != null) {
             filter = Pattern.quote(filter.replace('%', '*'));

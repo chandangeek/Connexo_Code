@@ -21,7 +21,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
