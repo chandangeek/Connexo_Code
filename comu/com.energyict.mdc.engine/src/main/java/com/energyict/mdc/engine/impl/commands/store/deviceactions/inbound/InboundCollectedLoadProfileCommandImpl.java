@@ -7,6 +7,8 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.LoadProfileCommandImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
@@ -41,6 +43,8 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
      * load profile step (verify, read LP, check bad time, create events)
      * <p>
      * Instead, only the collected data is stored, and events are created when relevant.
+     * Also, the proper reading type MRIDs are added to the channel info.
+     * The proper issues are created if the obiscodes or the number of channels mismatch.
      */
     @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
@@ -49,21 +53,61 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
                 CollectedLoadProfile collectedLoadProfile = (CollectedLoadProfile) dataItem;
 
                 List<OfflineLoadProfile> allOfflineLoadProfiles = getGroupedDeviceCommand().getOfflineDevice().getAllOfflineLoadProfiles();
-                Optional<OfflineLoadProfile> offlineLoadProfile = allOfflineLoadProfiles
+                Optional<OfflineLoadProfile> optionalOfflineLoadProfile = allOfflineLoadProfiles
                         .stream()
                         .filter(lp -> lp.getObisCode().equals(collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode()))
                         .findAny();
 
-                if (offlineLoadProfile.isPresent()) {
-                    //Add the proper reading types to the channel infos, based on the given obiscode and unit.
-                    for (ChannelInfo channelInfo : collectedLoadProfile.getChannelInfo()) {
-                        Optional<OfflineLoadProfileChannel> offlineLoadProfileChannel = offlineLoadProfile.get()
-                                .getAllOfflineChannels()
-                                .stream()
-                                .filter(channel -> channel.getObisCode().equals(channelInfo.getChannelObisCode()))
-                                .findAny();
-                        offlineLoadProfileChannel.ifPresent(offlineLoadProfileChannel1 -> channelInfo.setReadingTypeMRID(offlineLoadProfileChannel1.getReadingTypeMRID()));
+                if (optionalOfflineLoadProfile.isPresent()) {
+                    OfflineLoadProfile offlineLoadProfile = optionalOfflineLoadProfile.get();
+                    int configuredNumberOfChannels = offlineLoadProfile.getAllOfflineChannels().size();
+                    int receivedNumberOfChannels = collectedLoadProfile.getChannelInfo().size();
+                    if (configuredNumberOfChannels != receivedNumberOfChannels) {
+                        //We received a wrong number of channels
+                        addIssue(
+                                getIssueService().newProblem(
+                                        offlineLoadProfile.getObisCode(),
+                                        MessageSeeds.LOAD_PROFILE_NUMBER_OF_CHANNELS_MISMATCH,
+                                        offlineLoadProfile.getObisCode(),
+                                        receivedNumberOfChannels,
+                                        configuredNumberOfChannels),
+                                CompletionCode.ConfigurationError
+                        );
+                    } else {
+                        //Add the proper reading types to the channel infos, based on the given obiscode and unit.
+                        for (ChannelInfo channelInfo : collectedLoadProfile.getChannelInfo()) {
+                            Optional<OfflineLoadProfileChannel> offlineLoadProfileChannel = offlineLoadProfile
+                                    .getAllOfflineChannels()
+                                    .stream()
+                                    .filter(channel -> channel.getObisCode().equals(channelInfo.getChannelObisCode()))
+                                    .findAny();
+
+                            if (offlineLoadProfileChannel.isPresent()) {
+                                channelInfo.setReadingTypeMRID(offlineLoadProfileChannel.get().getReadingTypeMRID());
+                            } else {
+                                //The received LP contains an unknown channel obiscode
+                                addIssue(
+                                        getIssueService().newProblem(
+                                                collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode(),
+                                                MessageSeeds.LOAD_PROFILE_CHANNEL_MISSING,
+                                                channelInfo.getChannelObisCode(),
+                                                collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode()
+                                        ),
+                                        CompletionCode.ConfigurationError
+                                );
+                            }
+                        }
                     }
+                } else {
+                    //We received a load profile with an obiscode that is not configured in Connexo
+                    addIssue(
+                            getIssueService().newProblem(
+                                    collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode(),
+                                    MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE,
+                                    collectedLoadProfile.getLoadProfileIdentifier().getProfileObisCode()
+                            ),
+                            CompletionCode.ConfigurationError
+                    );
                 }
 
                 this.addCollectedDataItem(dataItem);

@@ -24,7 +24,6 @@ import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
@@ -319,8 +318,10 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                                 loadProfileConfiguration.getObisCode(),
                                 MessageSeeds.LOAD_PROFILE_NUMBER_OF_CHANNELS_MISMATCH,
                                 loadProfileConfiguration.getObisCode(),
-                                loadProfileReader.getChannelInfos().size(),
-                                loadProfileConfiguration.getNumberOfChannels()));
+                                loadProfileConfiguration.getNumberOfChannels(),
+                                loadProfileReader.getChannelInfos().size()
+                        )
+                );
             }
         }
         return issues;
