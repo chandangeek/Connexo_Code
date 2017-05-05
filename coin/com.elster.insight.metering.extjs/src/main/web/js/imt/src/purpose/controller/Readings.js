@@ -284,8 +284,8 @@ Ext.define('Imt.purpose.controller.Readings', {
             };
 
         Ext.suspendLayouts();
-        menu.down('#estimate-value').setVisible(validationResult);
-        menu.down('#estimate-value-with-rule').setVisible(validationResult && estimationRulesCount);
+        //menu.down('#estimate-value').setVisible(validationResult);
+        //menu.down('#estimate-value-with-rule').setVisible(validationResult && estimationRulesCount);
 
         if (menu.record.get('modificationState') && menu.record.get('modificationState').flag) {
             canEditingComment = flagForComment(menu.record.get('modificationState').flag);
@@ -535,8 +535,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
 
         Ext.suspendLayouts();
-        menu.down('#estimate-value').setVisible(canEstimate);
-        menu.down('#estimate-value-with-rule').setVisible(canEstimateWithRule);
+        //menu.down('#estimate-value').setVisible(canEstimate);
+        //menu.down('#estimate-value-with-rule').setVisible(canEstimateWithRule);
         menu.down('#edit-estimation-comment').setVisible(canEditingComment);
         menu.down('#copy-form-value').setVisible(canCopyFromReference);
         menu.down('#confirm-value').setVisible(canConfirm);

@@ -31,7 +31,7 @@ Ext.define('Imt.dashboard.view.widget.FlaggedItems', {
                 emptyText: me.emptyText,
                 style: {
                     margin: '0px !important',
-                    left: '5px',
+                    'padding-left': '5px',
                     top: '-1px'
                 },
                 tpl: new Ext.XTemplate(

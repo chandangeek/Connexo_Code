@@ -258,6 +258,7 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
                 onDependenciesLoad();
             }
         });
+        me.usagePointLifeCycleState = null;
     },
 
     showUsagePointLifeCycleStatePreview: function (selectionModel, record) {
@@ -322,15 +323,21 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
 
         if (!Ext.isEmpty(stateId)) {
             dependenciesCounter++;
-            stateModel.load(stateId, {
-                success: function (record) {
-                    me.usagePointLifeCycleState = record;
-                    me.getApplication().fireEvent('loadlifecyclestate', record);
-                    onDependenciesLoad();
-                }
-            });
+            if(me.usagePointLifeCycleState){
+                me.getApplication().fireEvent('loadlifecyclestate', me.usagePointLifeCycleState);
+                onDependenciesLoad();
+            } else {
+                stateModel.load(stateId, {
+                    success: function (record) {
+                        me.usagePointLifeCycleState = record;
+                        me.getApplication().fireEvent('loadlifecyclestate', record);
+                        onDependenciesLoad();
+                    }
+                });
+            }
         } else {
-            me.usagePointLifeCycleState = Ext.create(stateModel);
+            me.usagePointLifeCycleState = me.usagePointLifeCycleState || Ext.create(stateModel);
+
         }
 
         me.getStore('Imt.usagepointlifecycle.store.Stages').load(onDependenciesLoad);
