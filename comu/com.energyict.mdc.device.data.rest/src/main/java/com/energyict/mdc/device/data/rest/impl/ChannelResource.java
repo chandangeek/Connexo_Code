@@ -32,7 +32,6 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -103,7 +102,6 @@ public class ChannelResource {
     private final TopologyService topologyService;
     private final MeteringService meteringService;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
-    private final DeviceConfigurationService deviceConfigurationService;
     private final TransactionService transactionService;
     private final Provider<ChannelValidationResource> channelValidationResourceProvider;
     private final Provider<ChannelEstimationResource> channelEstimationResourceProvider;
@@ -127,7 +125,6 @@ public class ChannelResource {
         this.topologyService = topologyService;
         this.meteringService = meteringService;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
-        this.deviceConfigurationService = deviceConfigurationService;
         this.transactionService = transactionService;
         this.channelValidationResourceProvider = channelValidationResourceProvider;
         this.channelEstimationResourceProvider = channelEstimationResourceProvider;
@@ -628,7 +625,7 @@ public class ChannelResource {
                     .estimateBulkChannelData(editedReadings.getEstimatedBulkReadings())
                     .complete();
 
-            // validate
+            // validate edited interval
             Optional<Range<Instant>> validationRange = determineValidationRange(editedReadings, info.validateUntil);
             if (!validationRange.isPresent()) {
                 return Response.status(Response.Status.BAD_REQUEST).build();
