@@ -561,13 +561,15 @@ public class UsagePointOutputResource {
                 }
 
                 Map<com.elster.jupiter.rest.util.IntervalInfo, PurposeOutputsDataInfo> tempMap = new HashMap<>();
-                readingsMap.stream()
-                        .forEach(pair -> {
-                            if (tempMap.containsKey(pair.getLast().interval)) {
-                                purposeOutputsDataInfoFactory.addValues(tempMap.get(pair.getLast().interval), pair.getFirst(), pair.getLast().value);
-                            } else {
-                                tempMap.put(pair.getLast().interval, purposeOutputsDataInfoFactory.createPurposeOutputsDataInfo(pair.getFirst(), pair.getLast().value, pair.getLast().interval));
-                            }
+                readingsMap.forEach(pair -> {
+                        if (tempMap.keySet().stream().anyMatch(val ->val.end.equals(pair.getLast().interval.end))){
+                            purposeOutputsDataInfoFactory.addValues(tempMap.entrySet().stream()
+                                    .filter(entry -> entry.getKey().end.equals(pair.getLast().interval.end))
+                                    .map(Map.Entry::getValue)
+                                    .findFirst().orElse(new PurposeOutputsDataInfo()), pair.getFirst(), pair.getLast().value);
+                        } else {
+                            tempMap.put(pair.getLast().interval, purposeOutputsDataInfoFactory.createPurposeOutputsDataInfo(pair.getFirst(), pair.getLast().value, pair.getLast().interval));
+                        }
                         });
                 outputsDataInfos = tempMap.entrySet().stream()
                         .sorted((k1, k2) -> k2.getKey().start.compareTo(k1.getKey().start))
