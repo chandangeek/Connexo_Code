@@ -5,16 +5,17 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceMessageConverterAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.NonExistingMessageConverter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLProtocolAdapter;
+import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+
+import com.energyict.protocol.MessageProtocol;
 
 /**
  * Adapter between a {@link MessageProtocol}
@@ -36,11 +37,15 @@ public class MeterProtocolMessageAdapter extends AbstractDeviceMessageConverterA
         }
 
         if (MessageProtocol.class.isAssignableFrom(clazz)) {
-            setMessageProtocol((MessageProtocol) meterProtocol);
+            if (meterProtocol instanceof MessageProtocol) {
+                setMessageProtocol((MessageProtocol) meterProtocol);
+            }
             Object messageConverter = createNewMessageConverterInstance(getDeviceMessageConverterMappingFor(clazz.getName()));
             if (LegacyMessageConverter.class.isAssignableFrom(messageConverter.getClass())) {
                 final LegacyMessageConverter legacyMessageConverter = (LegacyMessageConverter) messageConverter;
-                legacyMessageConverter.setMessagingProtocol((MessageProtocol) meterProtocol);
+                if (meterProtocol instanceof MessageProtocol) {
+                    legacyMessageConverter.setMessagingProtocol((MessageProtocol) meterProtocol);
+                }
                 setLegacyMessageConverter(legacyMessageConverter);
             } else {
                 setLegacyMessageConverter(new NonExistingMessageConverter());

@@ -48,6 +48,9 @@ import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
+import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
+import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingException;
@@ -72,6 +75,9 @@ import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpec
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLRequestSecurityLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLResponseSecurityLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLSecuritySuiteLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.TranslationKeys;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactoryImpl;
@@ -875,6 +881,21 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     @Override
     public EncryptionDeviceAccessLevel adapt(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel uplLevel) {
         return new UPLEncryptionLevelAdapter(uplLevel);
+    }
+
+    @Override
+    public SecuritySuite adapt(com.energyict.mdc.upl.security.SecuritySuite uplLevel) {
+        return new UPLSecuritySuiteLevelAdapter(uplLevel);
+    }
+
+    @Override
+    public RequestSecurityLevel adapt(com.energyict.mdc.upl.security.RequestSecurityLevel uplLevel) {
+        return new UPLRequestSecurityLevelAdapter(uplLevel);
+    }
+
+    @Override
+    public ResponseSecurityLevel adapt(com.energyict.mdc.upl.security.ResponseSecurityLevel uplLevel) {
+        return new UPLResponseSecurityLevelAdapter(uplLevel);
     }
 
     @Override

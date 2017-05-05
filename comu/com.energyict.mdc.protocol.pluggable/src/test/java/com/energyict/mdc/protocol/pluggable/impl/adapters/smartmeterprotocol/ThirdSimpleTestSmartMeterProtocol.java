@@ -6,10 +6,8 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
-
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MeterEvent;
@@ -20,6 +18,7 @@ import com.energyict.protocol.RegisterValue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -30,11 +29,6 @@ public class ThirdSimpleTestSmartMeterProtocol implements SmartMeterProtocol {
 
     public ThirdSimpleTestSmartMeterProtocol() {
         super();
-    }
-
-    @Override
-    public void validateProperties() throws InvalidPropertyException, MissingPropertyException {
-        // nothing to do
     }
 
     @Override
@@ -88,12 +82,12 @@ public class ThirdSimpleTestSmartMeterProtocol implements SmartMeterProtocol {
     }
 
     @Override
-    public void setCache(Object cacheObject) {
+    public void setCache(Serializable cacheObject) {
         // nothing to do
     }
 
     @Override
-    public Object getCache() {
+    public Serializable getCache() {
         return null;  // nothing to do
     }
 
@@ -137,4 +131,13 @@ public class ThirdSimpleTestSmartMeterProtocol implements SmartMeterProtocol {
         return "";
     }
 
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+
+    }
 }
