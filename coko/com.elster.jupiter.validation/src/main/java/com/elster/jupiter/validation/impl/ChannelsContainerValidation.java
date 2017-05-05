@@ -7,11 +7,11 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * Manages validation for the channels container by concrete rule set.
  */
-public interface ChannelsContainerValidation extends HasId, Effectivity {
+public interface ChannelsContainerValidation extends HasId {
 
     ValidationRuleSet getRuleSet();
 
@@ -50,13 +50,13 @@ public interface ChannelsContainerValidation extends HasId, Effectivity {
 
     void makeObsolete();
 
-    void validate();
-
-    void validate(Instant until);
-
     void validate(Collection<Channel> channels);
 
     void validate(Collection<Channel> channels, Instant until);
+
+    void validate(RangeSet<Instant> ranges);
+
+    void validate(Collection<Channel> channels, RangeSet<Instant> ranges);
 
     void updateLastChecked(Instant lastChecked);
 
@@ -76,6 +76,4 @@ public interface ChannelsContainerValidation extends HasId, Effectivity {
     Instant getMinLastChecked();
 
     Instant getMaxLastChecked();
-
-    void setIntervalEnd(Instant end);
 }

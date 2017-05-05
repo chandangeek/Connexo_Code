@@ -67,19 +67,13 @@ public class ChannelValidationContainer {
     static Optional<Instant> getLastCheckedForChannel(List<ChannelValidation> channelValidations) {
         return Optional.ofNullable(channelValidations.stream()
                 .filter(ChannelValidation::hasActiveRules)
-                .filter(ChannelValidationContainer::isIncompleteRange)
+                .filter(channelValidation -> !channelValidation.isLastValidationComplete())
                 .map(ChannelValidation::getLastChecked)
                 .min(Comparator.naturalOrder()).orElseGet(() -> channelValidations.stream()
                         .filter(ChannelValidation::hasActiveRules)
                         .map(ChannelValidation::getLastChecked)
                         .max(Comparator.naturalOrder())
                         .orElse(null)));
-    }
-
-    static boolean isIncompleteRange(ChannelValidation channelValidation) {
-        return channelValidation.getChannelsContainerValidation().getRange().contains(channelValidation.getLastChecked())
-                && (!channelValidation.getChannelsContainerValidation().getRange().hasUpperBound()
-                || channelValidation.getLastChecked().isBefore(channelValidation.getChannelsContainerValidation().getRange().upperEndpoint()));
     }
 
     boolean isEmpty() {

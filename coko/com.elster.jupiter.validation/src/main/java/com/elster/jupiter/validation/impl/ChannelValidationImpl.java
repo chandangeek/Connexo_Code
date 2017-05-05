@@ -15,6 +15,7 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -29,6 +30,7 @@ final class ChannelValidationImpl implements ChannelValidation {
     private long channelId;
     private Reference<ChannelsContainerValidation> channelsContainerValidation = ValueReference.absent();
     private Instant lastChecked;
+    private boolean lastValidationComplete;
     @SuppressWarnings("unused")
     private boolean activeRules;
     private Channel channel;
@@ -147,12 +149,25 @@ final class ChannelValidationImpl implements ChannelValidation {
     }
 
     @Override
-    public void validate(Range<Instant> range) {
+    public void validate(RangeSet<Instant> ranges) {
+        ranges.asRanges().stream()
+                .map(this::validate)
+                .max(Comparator.naturalOrder())
+                .ifPresent(this::updateLastChecked);
+        lastValidationComplete = ranges.subRangeSet(Range.greaterThan(getLastChecked())).asRanges().isEmpty();
+    }
+
+    @Override
+    public boolean isLastValidationComplete() {
+        return lastValidationComplete;
+    }
+
+    private Instant validate(Range<Instant> range) {
         if (range.hasUpperBound() && lastChecked.isBefore(range.upperEndpoint())) {
             Range<Instant> dataRange = Ranges.copy(Range.openClosed(lastChecked, range.upperEndpoint()).intersection(range)).asOpenClosed();
             List<? extends ValidationRuleSetVersion> versions = getChannelsContainerValidation().getRuleSet().getRuleSetVersions();
 
-            Instant newLastChecked = versions.stream()
+            return versions.stream()
                     .map(currentVersion -> Ranges.nonEmptyIntersection(dataRange, currentVersion.getRange())
                             .flatMap(rangeToValidate -> {
                                 ChannelValidator validator = new ChannelValidator(getChannel(), rangeToValidate);
@@ -167,8 +182,7 @@ final class ChannelValidationImpl implements ChannelValidation {
                     // not to validate with later version until all data are validated within the range of the previous one,
                     // and to keep the latest resulting lastChecked as master lastChecked.
                     .orElse(range.upperEndpoint());
-
-            updateLastChecked(newLastChecked);
         }
+        return lastChecked;
     }
 }
