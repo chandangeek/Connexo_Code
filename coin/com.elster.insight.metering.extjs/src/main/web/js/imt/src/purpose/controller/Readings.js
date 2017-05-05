@@ -272,7 +272,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule,
             canClearProjected = menu.record.get('isProjected') === true,
             canMarkProjected = menu.record.get('isProjected') === false && (menu.record.isModified('value') || menu.record.get('ruleId') !== 0 || !Ext.isEmpty(menu.record.get('modificationState'))),
-            canEditingComment = false,
+            canEditingComment = menu.record.get('estimatedByRule'),
             flagForComment = function (value) {
                 if (value === 'EDITED' ||
                     value === 'ESTIMATED' ||
@@ -287,7 +287,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         //menu.down('#estimate-value').setVisible(validationResult);
         //menu.down('#estimate-value-with-rule').setVisible(validationResult && estimationRulesCount);
 
-        if (menu.record.get('modificationState') && menu.record.get('modificationState').flag) {
+        if (!canEditingComment && menu.record.get('modificationState') && menu.record.get('modificationState').flag) {
             canEditingComment = flagForComment(menu.record.get('modificationState').flag);
         }
         if (menu.record.get('confirmed') || menu.record.isModified('value')) {
@@ -504,6 +504,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             if (canEstimate && canConfirm && canReset) {
                 return false;
             }
+            canEditingComment = canEditingComment ? record.get('estimatedByRule') : false;
             if (!canEditingComment) {
                 if (record.get('modificationState') && record.get('modificationState').flag) {
                     canEditingComment = flagForComment(record.get('modificationState').flag);
