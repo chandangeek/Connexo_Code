@@ -153,7 +153,7 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
             case "DeviceIdentifierAndProtocolInfoParts": {
                 DeviceIdentifier deviceIdentifier = (DeviceIdentifier) introspector.getValue("device");
                 String[] messageProtocolInfoParts = (String[]) introspector.getValue("protocolInfo");
-                this.deviceDataModelService.deviceService()
+                return this.deviceDataModelService.deviceService()
                         .findDeviceByIdentifier(deviceIdentifier)
                         .map(device -> this.findByDeviceAndProtocolInfoParts(device, messageProtocolInfoParts))
                         .orElseGet(Collections::emptyList);

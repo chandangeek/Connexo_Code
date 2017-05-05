@@ -5,7 +5,6 @@
 package com.energyict.mdc.device.data.impl.configchange;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.groups.GroupEventData;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;

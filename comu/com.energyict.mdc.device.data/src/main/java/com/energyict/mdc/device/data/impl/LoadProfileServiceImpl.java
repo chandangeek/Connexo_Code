@@ -41,7 +41,7 @@ public class LoadProfileServiceImpl implements ServerLoadProfileService {
     }
 
     @Reference
-    public void setDataModelService(DeviceDataModelService deviceDataModelService){
+    public void setDataModelService(DeviceDataModelService deviceDataModelService) {
         this.deviceDataModelService = deviceDataModelService;
     }
 
@@ -79,15 +79,17 @@ public class LoadProfileServiceImpl implements ServerLoadProfileService {
             case "DeviceIdentifierAndObisCode": {
                 DeviceIdentifier deviceIdentifier = (DeviceIdentifier) introspector.getValue("device");
                 ObisCode loadProfileObisCode = (ObisCode) introspector.getValue("obisCode");
-                this.deviceDataModelService.deviceService()
+                return this.deviceDataModelService.deviceService()
                         .findDeviceByIdentifier(deviceIdentifier)
-                        .map(Currying.use(this::findByDeviceAndObisCode).with(loadProfileObisCode));
+                        .map(Currying.use(this::findByDeviceAndObisCode).with(loadProfileObisCode))
+                        .orElse(Optional.empty());
             }
             case "FirstLoadProfileOnDevice": {
                 DeviceIdentifier deviceIdentifier = (DeviceIdentifier) introspector.getValue("device");
-                this.deviceDataModelService.deviceService()
+                return this.deviceDataModelService.deviceService()
                         .findDeviceByIdentifier(deviceIdentifier)
-                        .map(this::findFirstOnDevice);
+                        .map(this::findFirstOnDevice)
+                        .orElse(Optional.empty());
             }
             default: {
                 throw new UnsupportedLoadProfileIdentifierTypeName();

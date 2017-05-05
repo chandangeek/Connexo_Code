@@ -6,7 +6,6 @@ import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-
 import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
@@ -32,11 +31,7 @@ public class RegisterServiceImpl implements RegisterService {
     public Optional<Register> find(RegisterIdentifier identifier) {
         try {
             Optional<Device> device = deviceDataModelService.deviceService().findDeviceByIdentifier(identifier.getDeviceIdentifier());
-            if (device.isPresent()) {
-                return this.find(identifier.forIntrospection(), device.get());
-            } else {
-                return Optional.empty();
-            }
+            return device.flatMap(device1 -> this.find(identifier.forIntrospection(), device1));
         } catch (UnsupportedRegisterIdentifierTypeName | IllegalArgumentException e) {
             return Optional.empty();
         }

@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.impl.gogo;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -21,11 +22,9 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -38,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -159,22 +159,47 @@ public class DeviceDataGoGoCommands {
         DeviceMessageId deviceMessageId = DeviceMessageId.ACTIVITY_CALENDER_SEND;
         DeviceMessageSpec deviceMessageSpec = this.deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()).get();
         try (TransactionContext context = this.transactionService.getContext()) {
+
+            //Find the message attribute of type 'String' without any possible values. This is the 'activityCalendarName' attribute.
+            PropertySpec activityCalendarNamePropertySpec = deviceMessageSpec
+                    .getPropertySpecs()
+                    .stream()
+                    .filter(isStringPropertySpecWithoutPossibleValues())
+                    .findAny()
+                    .orElseThrow(() -> new IllegalArgumentException("DeviceMessageSpec '" + deviceMessageSpec.getName() + "' (ID: '" + deviceMessageId.dbValue() + "') must have a string attribute for the activity calendar name"));
+
+            //Find the message attribute of type 'reference' (to a DeviceMessageFile or Calendar). This is the 'activityCalendar' attribute.
+            PropertySpec activityCalendarPropertySpec = deviceMessageSpec
+                    .getPropertySpecs()
+                    .stream()
+                    .filter(isCalendarOrMessageFileSpec())
+                    .findAny()
+                    .orElseThrow(() -> new IllegalArgumentException("DeviceMessageSpec '" + deviceMessageSpec.getName() + "' (ID: '" + deviceMessageId.dbValue() + "') must have a reference attribute for the activity calendar"));
+
             DeviceMessage message =
                     device
-                        .newDeviceMessage(deviceMessageId)
-                        .setReleaseDate(releaseDate)
-                        .addProperty(
-                                DeviceMessageConstants.activityCalendarNameAttributeName,
-                                calendar.getName())
-                        .addProperty(
-                                DeviceMessageConstants.activityCalendarAttributeName,
-                                calendar)
-                        .add();
+                            .newDeviceMessage(deviceMessageId)
+                            .setReleaseDate(releaseDate)
+                            .addProperty(
+                                    activityCalendarNamePropertySpec.getName(),
+                                    calendar.getName())
+                            .addProperty(
+                                    activityCalendarPropertySpec.getName(),
+                                    calendar)
+                            .add();
             System.out.println("message created with id " + message.getId());
             context.commit();
         } finally {
             this.threadPrincipalService.clear();
         }
+    }
+
+    private Predicate<PropertySpec> isStringPropertySpecWithoutPossibleValues() {
+        return propertySpec -> propertySpec.getValueFactory().getValueType().equals(String.class) && (propertySpec.getPossibleValues() == null || propertySpec.getPossibleValues().getAllValues().isEmpty());
+    }
+
+    private Predicate<PropertySpec> isCalendarOrMessageFileSpec() {
+        return propertySpec -> (propertySpec.getValueFactory().isReference());
     }
 
     private Device findDeviceOrThrowException(long deviceId) {
@@ -192,8 +217,7 @@ public class DeviceDataGoGoCommands {
     private Instant instantFromString(String aString) {
         try {
             return LocalDate.parse(aString, DateTimeFormatter.ISO_LOCAL_DATE).atStartOfDay(ZoneId.systemDefault()).toInstant();
-        }
-        catch (DateTimeParseException e) {
+        } catch (DateTimeParseException e) {
             System.out.printf("%s cannot be parsed from format " + DateTimeFormatter.ISO_LOCAL_DATE.toString(), aString);
             throw e;
         }

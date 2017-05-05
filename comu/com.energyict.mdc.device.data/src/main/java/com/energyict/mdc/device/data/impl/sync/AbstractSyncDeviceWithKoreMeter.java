@@ -216,7 +216,7 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
         return newMeterActivation;
     }
 
-    protected void meterActivationRestarted(){
+    protected void meterActivationRestarted() {
         this.eventService.postEvent(EventType.RESTARTED_METERACTIVATION.topic(), device);
     }
 
