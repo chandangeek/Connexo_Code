@@ -34,10 +34,11 @@ public interface KeyAccessor<T extends SecurityValueWrapper> {
     KeyAccessorType getKeyAccessorType();
 
     /**
-     * The actual value is the value to be used at present
+     * The actual value is the value to be used at present. A KeyAccessor could also exist with only a tempValue, without
+     * actual.
      * @return The current value
      */
-    T getActualValue();
+    Optional<T> getActualValue();
 
     /**
      * Sets a new current value.
@@ -70,9 +71,16 @@ public interface KeyAccessor<T extends SecurityValueWrapper> {
     void swapValues();
 
     /**
-     * The temp value and all keys and/or certificates it contains is destroyed
+     * The temp value and all keys and/or certificates it contains is destroyed. The accessor is no longer considered
+     * tobe in state 'swapped'
      */
     void clearTempValue();
+
+    /**
+     * The actual value and all keys and/or certificates it contains is destroyed. This method does not affect the
+     * 'swapped' state of the accessor
+     */
+    void clearActualValue();
 
     /**
      * Allows for the key accessor to be updated only

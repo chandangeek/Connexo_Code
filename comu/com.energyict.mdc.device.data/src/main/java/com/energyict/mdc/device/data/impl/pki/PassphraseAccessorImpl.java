@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.pki.PassphraseWrapper;
 import com.elster.jupiter.pki.PkiService;
-import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.energyict.mdc.device.data.PassphraseAccessor;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
@@ -38,8 +37,11 @@ public class PassphraseAccessorImpl extends AbstractKeyAccessorImpl<PassphraseWr
     }
 
     @Override
-    public PassphraseWrapper getActualValue() {
-        return (PassphraseWrapper) actualPassphraseWrapperReference.get();
+    public Optional<PassphraseWrapper> getActualValue() {
+        if (actualPassphraseWrapperReference==null) {
+            return Optional.empty();
+        }
+        return (Optional<PassphraseWrapper>) actualPassphraseWrapperReference.getOptional();
     }
 
     @Override
@@ -77,11 +79,21 @@ public class PassphraseAccessorImpl extends AbstractKeyAccessorImpl<PassphraseWr
 
     @Override
     public void clearTempValue() {
-        if (tempPassphraseWrapperReference.isPresent()) {
+        if (getTempValue().isPresent()) {
             super.clearTempValue();
-            SymmetricKeyWrapper symmetricKeyWrapper = (SymmetricKeyWrapper) this.tempPassphraseWrapperReference.get();
+            PassphraseWrapper passphraseWrapper = (PassphraseWrapper) this.tempPassphraseWrapperReference.get();
             this.tempPassphraseWrapperReference = null;
-            symmetricKeyWrapper.delete();
+            passphraseWrapper.delete();
+            this.save();
+        }
+    }
+
+    @Override
+    public void clearActualValue() {
+        if (getActualValue().isPresent()) {
+            PassphraseWrapper passphraseWrapper = (PassphraseWrapper) this.actualPassphraseWrapperReference.get();
+            this.actualPassphraseWrapperReference = null;
+            passphraseWrapper.delete();
             this.save();
         }
     }

@@ -37,8 +37,11 @@ public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricK
     }
 
     @Override
-    public SymmetricKeyWrapper getActualValue() {
-        return (SymmetricKeyWrapper) actualSymmetricKeyWrapperReference.get();
+    public Optional<SymmetricKeyWrapper> getActualValue() {
+        if (actualSymmetricKeyWrapperReference==null) {
+            return Optional.empty();
+        }
+        return (Optional<SymmetricKeyWrapper>) actualSymmetricKeyWrapperReference.getOptional();
     }
 
     @Override
@@ -76,10 +79,20 @@ public class SymmetricKeyAccessorImpl extends AbstractKeyAccessorImpl<SymmetricK
 
     @Override
     public void clearTempValue() {
-        if (tempSymmetricKeyWrapperReference.isPresent()) {
+        if (getTempValue().isPresent()) {
             super.clearTempValue();
             SymmetricKeyWrapper symmetricKeyWrapper = (SymmetricKeyWrapper) this.tempSymmetricKeyWrapperReference.get();
             this.tempSymmetricKeyWrapperReference = null;
+            symmetricKeyWrapper.delete();
+            this.save();
+        }
+    }
+
+    @Override
+    public void clearActualValue() {
+        if (getActualValue().isPresent()) {
+            SymmetricKeyWrapper symmetricKeyWrapper = (SymmetricKeyWrapper) this.actualSymmetricKeyWrapperReference.get();
+            this.actualSymmetricKeyWrapperReference = null;
             symmetricKeyWrapper.delete();
             this.save();
         }
