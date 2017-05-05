@@ -83,6 +83,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.After;
@@ -221,8 +222,8 @@ public class ValidationAddRemoveIT {
 
             validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                 @Override
-                public List<ValidationRuleSet> resolve(ValidationContext validationContext) {
-                    return Collections.singletonList(validationRuleSet);
+                public Map<ValidationRuleSet, List<Range<Instant>>> resolve(ValidationContext validationContext) {
+                    return Collections.singletonMap(validationRuleSet, Collections.singletonList(Range.atLeast(Instant.EPOCH)));
                 }
 
                 @Override
