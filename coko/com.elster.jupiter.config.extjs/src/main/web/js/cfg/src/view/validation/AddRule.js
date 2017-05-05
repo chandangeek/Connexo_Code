@@ -43,9 +43,16 @@ Ext.define('Cfg.view.validation.AddRule', {
                 itemId: 'addRuleTitle',
                 items: [
                     {
+                        xtype: 'uni-form-info-message',
+                        itemId: 'not-all-meters-specified-message',
+                        text: Uni.I18n.translate('validation.rule.info', 'CFG', "Mandatory attributes can be required on the reading type level"),
+                        margin: '0 0 10 0',
+                        width: 600
+                    },
+                    {
                         xtype: 'form',
                         itemId: 'addRuleForm',
-                        padding: '10 10 0 10',
+                        padding: '10 10 0 0',
                         layout: {
                             type: 'vbox'
                         },
@@ -154,8 +161,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     xtype: 'button',
                                     itemId: 'addReadingTypeButton',
                                     text: Uni.I18n.translate('validation.addReadingTypes', 'CFG', 'Add reading types'),
-                                    action: 'addReadingTypes',
-                                    margin: '0 0 0 10'
+                                    action: 'addReadingTypes'
                                 }
                             ]
                         },
