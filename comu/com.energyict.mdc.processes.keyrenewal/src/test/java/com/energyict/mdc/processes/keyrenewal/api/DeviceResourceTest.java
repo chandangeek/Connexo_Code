@@ -5,10 +5,7 @@
 package com.energyict.mdc.processes.keyrenewal.api;
 
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -19,6 +16,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.processes.keyrenewal.api.servicecall.ServiceCallCommands;
 import org.junit.Before;
@@ -60,7 +58,7 @@ public class DeviceResourceTest {
     @Mock
     UriInfo uriInfo;
     @Mock
-    UsagePoint usagePoint;
+    Device device;
     @Mock
     ServiceCall serviceCall;
     @Mock
@@ -69,6 +67,8 @@ public class DeviceResourceTest {
     MeterActivation meterActivation;
     @Mock
     Meter meter;
+    @Mock
+    EndDevice endDevice;
 
     ExceptionFactory exceptionFactory;
     private DeviceResource deviceResource;
@@ -78,10 +78,7 @@ public class DeviceResourceTest {
         setUpThesaurus();
         exceptionFactory = new ExceptionFactory(thesaurus);
         deviceResource = new DeviceResource(deviceService, exceptionFactory, transactionService, serviceCallCommands, headEndController, meteringService);
-
         when(transactionService.getContext()).thenReturn(mock(TransactionContext.class));
-        when(meteringService.findEndDeviceByMRID(INVALID_DEVICE_MRID)).thenReturn(Optional.empty());
-        when(meteringService.findUsagePointByMRID(DEVICE_MRID)).thenReturn(Optional.of(usagePoint));
         when(serviceCallCommands.createRenewKeyServiceCall(any(), any())).thenReturn(serviceCall);
     }
 
@@ -116,19 +113,11 @@ public class DeviceResourceTest {
         });
     }
 
-    @Test
-    public void testInvalidDevice() throws Exception {
-        // Business method
-        Response response = deviceResource.renewKey(INVALID_DEVICE_MRID, new DeviceCommandInfo(), uriInfo);
-
-        // Asserts
-        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.NO_SUCH_DEVICE.getDefaultFormat());
-        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
-    }
-
 
     @Test
-    public void testIncompleteDeviceCommandInfo() throws Exception {
+    public void testIncompleteDeviceCommandInfoRenew() throws Exception {
+        when(deviceService.findDeviceByMrid(DEVICE_MRID)).thenReturn(Optional.of(device));
+        when(meteringService.findEndDeviceByMRID(DEVICE_MRID)).thenReturn(Optional.of(endDevice));
         // Business method
         Response response = deviceResource.renewKey(DEVICE_MRID, new DeviceCommandInfo(), uriInfo);
 
@@ -139,5 +128,138 @@ public class DeviceResourceTest {
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
 
+    @Test
+    public void testIncompleteDeviceCommandInfoNoSuccessUriRenew() throws Exception {
+        when(deviceService.findDeviceByMrid(DEVICE_MRID)).thenReturn(Optional.of(device));
+        when(meteringService.findEndDeviceByMRID(DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        DeviceCommandInfo deviceCommandInfo = new DeviceCommandInfo();
+        deviceCommandInfo.callbackError = "success";
+        // Business method
+        Response response = deviceResource.renewKey(DEVICE_MRID, deviceCommandInfo, uriInfo);
+
+        // Asserts
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.CALL_BACK_SUCCESS_URI_NOT_SPECIFIED.getDefaultFormat());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void testIncompleteDeviceCommandInfoTestCom() throws Exception {
+        when(deviceService.findDeviceByMrid(DEVICE_MRID)).thenReturn(Optional.of(device));
+        when(meteringService.findEndDeviceByMRID(DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        // Business method
+        Response response = deviceResource.testCommunication(DEVICE_MRID, new DeviceCommandInfo(), uriInfo);
+
+        // Asserts
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.CALL_BACK_ERROR_URI_NOT_SPECIFIED.getDefaultFormat());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void testIncompleteDeviceCommandInfoNoSuccessUriTestCom() throws Exception {
+        when(deviceService.findDeviceByMrid(DEVICE_MRID)).thenReturn(Optional.of(device));
+        when(meteringService.findEndDeviceByMRID(DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        DeviceCommandInfo deviceCommandInfo = new DeviceCommandInfo();
+        deviceCommandInfo.callbackError = "success";
+        // Business method
+        Response response = deviceResource.testCommunication(DEVICE_MRID, deviceCommandInfo, uriInfo);
+
+        // Asserts
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.CALL_BACK_SUCCESS_URI_NOT_SPECIFIED.getDefaultFormat());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void testInvalidDeviceRenew() throws Exception {
+        when(deviceService.findDeviceByMrid(INVALID_DEVICE_MRID)).thenReturn(Optional.empty());
+        // Business method
+        Response response = deviceResource.renewKey(INVALID_DEVICE_MRID, new DeviceCommandInfo(), uriInfo);
+
+        // Asserts
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.NO_SUCH_DEVICE.getDefaultFormat());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void testInvalidEndDeviceRenew() throws Exception {
+        when(deviceService.findDeviceByMrid(INVALID_DEVICE_MRID)).thenReturn(Optional.of(device));
+        when(meteringService.findEndDeviceByMRID(INVALID_DEVICE_MRID)).thenReturn(Optional.empty());
+        // Business method
+        Response response = deviceResource.renewKey(INVALID_DEVICE_MRID, new DeviceCommandInfo(), uriInfo);
+
+        // Asserts
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.NO_SUCH_DEVICE.getDefaultFormat());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void testInvalidDeviceTestCom() throws Exception {
+        when(deviceService.findDeviceByMrid(INVALID_DEVICE_MRID)).thenReturn(Optional.empty());
+        // Business method
+        Response response = deviceResource.testCommunication(INVALID_DEVICE_MRID, new DeviceCommandInfo(), uriInfo);
+
+        // Asserts
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.NO_SUCH_DEVICE.getDefaultFormat());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void testInvalidEndDeviceTestCom() throws Exception {
+        when(deviceService.findDeviceByMrid(INVALID_DEVICE_MRID)).thenReturn(Optional.of(device));
+        when(meteringService.findEndDeviceByMRID(INVALID_DEVICE_MRID)).thenReturn(Optional.empty());
+        // Business method
+        Response response = deviceResource.testCommunication(INVALID_DEVICE_MRID, new DeviceCommandInfo(), uriInfo);
+
+        // Asserts
+        verify(serviceCallCommands).rejectServiceCall(serviceCall, MessageSeeds.NO_SUCH_DEVICE.getDefaultFormat());
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void testRenewKey() throws Exception {
+        when(deviceService.findDeviceByMrid(DEVICE_MRID)).thenReturn(Optional.of(device));
+        when(meteringService.findEndDeviceByMRID(DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        DeviceCommandInfo deviceCommandInfo = new DeviceCommandInfo();
+        deviceCommandInfo.callbackError = "errorURL";
+        deviceCommandInfo.command = "RENEW_KEY";
+        deviceCommandInfo.callbackSuccess = "successURL";
+        deviceCommandInfo.keyAccessorType = "AK";
+
+        // Business method
+        Response response = deviceResource.renewKey(DEVICE_MRID, deviceCommandInfo, uriInfo);
+
+        // Asserts
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.WAITING);
+        verify(headEndController).performOperations(endDevice, serviceCall, deviceCommandInfo, device);
+        assertEquals(Response.Status.ACCEPTED.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void testCommunicationTest() throws Exception {
+        when(deviceService.findDeviceByMrid(DEVICE_MRID)).thenReturn(Optional.of(device));
+        when(meteringService.findEndDeviceByMRID(DEVICE_MRID)).thenReturn(Optional.of(endDevice));
+        DeviceCommandInfo deviceCommandInfo = new DeviceCommandInfo();
+        deviceCommandInfo.callbackError = "errorURL";
+        deviceCommandInfo.command = "RENEW_KEY";
+        deviceCommandInfo.callbackSuccess = "successURL";
+        deviceCommandInfo.keyAccessorType = "AK";
+
+        // Business method
+        Response response = deviceResource.testCommunication(DEVICE_MRID, deviceCommandInfo, uriInfo);
+
+        // Asserts
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.PENDING);
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.ONGOING);
+        verify(serviceCallCommands).requestTransition(serviceCall, DefaultState.WAITING);
+        verify(headEndController).performTestCommunication(endDevice, serviceCall, deviceCommandInfo, device);
+        assertEquals(Response.Status.ACCEPTED.getStatusCode(), response.getStatus());
+    }
 
 }

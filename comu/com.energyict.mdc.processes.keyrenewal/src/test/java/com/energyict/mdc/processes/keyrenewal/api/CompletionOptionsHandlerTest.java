@@ -207,13 +207,33 @@ public class CompletionOptionsHandlerTest {
     }
 
     @Test
-    @Expected(value = IllegalArgumentException.class, message = "Not possible to send back the response, as the callback uri was not specified")
-    public void testInvalidCallBackURI() throws Exception {
+    @Expected(value = IllegalArgumentException.class, message = "Not possible to send back the error response, as the error callback uri was not specified")
+    public void testInvalidErrorCallBackURI() throws Exception {
         when(keyRenewalDomainExtension.providedResponse()).thenReturn(PROVIDED_RESPONSE);
-        when(keyRenewalDomainExtension.getCallbackSuccess()).thenReturn(null);
+        when(keyRenewalDomainExtension.getCallbackSuccess()).thenReturn(CALL_BACK_SUCCESS);
         when(keyRenewalDomainExtension.getCallbackError()).thenReturn(null);
         when(serviceCall.getExtensionFor(any(KeyRenewalCustomPropertySet.class))).thenReturn(Optional.of(keyRenewalDomainExtension));
 
+        // Business method
+        completionOptionsHandler.process(message);
+    }
+
+    @Test
+    @Expected(value = IllegalArgumentException.class, message = "Not possible to send back the success response, as the success callback uri was not specified")
+    public void testInvalidSuccessCallBackURI() throws Exception {
+        when(keyRenewalDomainExtension.providedResponse()).thenReturn(PROVIDED_RESPONSE);
+        when(keyRenewalDomainExtension.getCallbackSuccess()).thenReturn(null);
+        when(keyRenewalDomainExtension.getCallbackError()).thenReturn(CALL_BACK_ERROR);
+        when(serviceCall.getState()).thenReturn(DefaultState.SUCCESSFUL);
+        doReturn(Optional.of(device)).when(serviceCall).getTargetObject();
+        completionMessageInfo = new CompletionMessageInfo(Long.toString(SERVICE_CALL_ID));
+        completionMessageInfo.setCompletionMessageStatus(CompletionMessageStatus.SUCCESS);
+        jsonService = mock(JsonService.class);
+        when(jsonService.serialize(any())).then(i -> i.getArgumentAt(0, CompletionMessageInfo.class).toString());
+        when(jsonService.deserialize(any(byte[].class), any(Class.class))).thenReturn(completionMessageInfo);
+        CompletionOptionsHandler actualHandler = new CompletionOptionsHandler(jsonService, serviceCallService, thesaurus, bpmService);
+        completionOptionsHandler = Mockito.spy(actualHandler);
+        when(serviceCall.getExtensionFor(any(KeyRenewalCustomPropertySet.class))).thenReturn(Optional.of(keyRenewalDomainExtension));
         // Business method
         completionOptionsHandler.process(message);
     }
@@ -232,16 +252,12 @@ public class CompletionOptionsHandlerTest {
         CompletionOptionsHandler actualHandler = new CompletionOptionsHandler(jsonService, serviceCallService, thesaurus, bpmService);
         completionOptionsHandler = Mockito.spy(actualHandler);
 
-        /*when(client.target(anyString())).thenReturn(webTarget);
-        when(webTarget.request()).thenReturn(webTargetBuilder);
-        when(completionOptionsHandler.newJerseyClient()).thenReturn(client);*/
         when(bpmService.getBpmServer()).thenReturn(bpmServer);
 
         // Business method
         completionOptionsHandler.process(message);
 
         // Asserts
-        ArgumentCaptor<Entity> argumentCaptor = ArgumentCaptor.forClass(Entity.class);
         verify(bpmServer).doPost(CALL_BACK_SUCCESS, "ResponseInfo{status=SUCCESS, reason=null}");
 
         ArgumentCaptor<KeyRenewalDomainExtension> domainExtensionArgumentCaptor = ArgumentCaptor.forClass(KeyRenewalDomainExtension.class);

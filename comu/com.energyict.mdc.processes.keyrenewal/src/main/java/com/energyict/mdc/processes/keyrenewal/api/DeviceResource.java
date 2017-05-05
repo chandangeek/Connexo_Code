@@ -124,7 +124,6 @@ public class DeviceResource {
         return endDevice.getHeadEndInterface().orElseThrow(exceptionFactory.newExceptionSupplier(com.energyict.mdc.processes.keyrenewal.api.MessageSeeds.NO_HEAD_END_INTERFACE, endDevice.getMRID()));
     }
 
-
     /**
      * Validate the specified DeviceCommandInfo contains valid data
      */

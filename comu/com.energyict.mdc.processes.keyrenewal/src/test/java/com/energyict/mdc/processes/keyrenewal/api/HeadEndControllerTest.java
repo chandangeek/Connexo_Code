@@ -20,7 +20,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
@@ -30,6 +29,8 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import org.junit.Before;
@@ -39,35 +40,34 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.MessageFormat;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class HeadEndControllerTest {
 
-   /* private static final TranslationKey CONTACTOR_ACTIVATION_DATE_ATTRIBUTE_TRANSLATION_KEY = new TranslationKey() {
+    private static final TranslationKey KEY_ACCESSORTYPE_ATTRIBUTE_TRANSLATION_KEY = new TranslationKey() {
         @Override
         public String getKey() {
-            return DeviceMessageConstants.contactorActivationDateAttributeName;
+            return DeviceMessageConstants.keyAccessorTypeAttributeName;
         }
 
         @Override
         public String getDefaultFormat() {
-            return "Activation date";
+            return "keyAccessorType";
         }
-    };*/
+    };
 
     private static final String END_DEVICE_MRID = "endDeviceMRID";
     private static final String END_DEVICE_CONTROL_TYPE = "Renew key";
+    private static final String KEY_ACCESSOR_TYPE = "AK";
     private static final Long SERVICE_CALL_ID = 1L;
 
     @Rule
@@ -103,17 +103,22 @@ public class HeadEndControllerTest {
     DestinationSpec destinationSpec;
     @Mock
     CompletionOptions completionOptions;
+    @Mock
+    MultiSenseHeadEndInterface multiSenseHeadEndInterface;
+    @Mock
+    ComTaskExecution comTaskExecution;
 
     ExceptionFactory exceptionFactory;
+
     private HeadEndController headEndController;
     private PropertySpecService propertySpecService;
-    private PkiService pkiService;
+
 
     @Before
     public void setUp() throws Exception {
         setUpThesaurus();
         exceptionFactory = new ExceptionFactory(thesaurus);
-        headEndController = new HeadEndController(messageService, exceptionFactory);
+        headEndController = spy(new HeadEndController(messageService, exceptionFactory));
 
         when(endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
         when(endDevice.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));
@@ -124,6 +129,7 @@ public class HeadEndControllerTest {
 
         when(messageService.getDestinationSpec(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION)).thenReturn(Optional.of(destinationSpec));
         when(headEndInterface.sendCommand(any(EndDeviceCommand.class), any(Instant.class), any(ServiceCall.class))).thenReturn(completionOptions);
+        when(multiSenseHeadEndInterface.runCommunicationTask(any(Device.class), anyList(), any(Instant.class), any(ServiceCall.class))).thenReturn(completionOptions);
         when(serviceCall.getId()).thenReturn(SERVICE_CALL_ID);
 
         this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
@@ -172,50 +178,65 @@ public class HeadEndControllerTest {
     @Test
     public void testRenewKeyOperation() throws Exception {
         DeviceCommandInfo deviceCommandInfo = new DeviceCommandInfo();
-        deviceCommandInfo.keyAccessorType = "test";
+        deviceCommandInfo.keyAccessorType = KEY_ACCESSOR_TYPE;
+        deviceCommandInfo.activationDate = Instant.now();
 
+        Mockito.doReturn(keyAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);
 
         when(commandFactory.createKeyRenewalCommand(endDevice, keyAccessorType)).thenReturn(endDeviceCommand);
-        //TODO change property
-        /*PropertySpec keyAccessorTypeSpec = propertySpecService
+        PropertySpec keyAccessorTypeSpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
-                .named(CONTACTOR_ACTIVATION_DATE_ATTREIBUTE_TRANSLATION_KEY)
+                .named(KEY_ACCESSORTYPE_ATTRIBUTE_TRANSLATION_KEY)
                 .fromThesaurus(thesaurus)
                 .markRequired()
-                .finish();*/
-      //  when(endDeviceCommand.getCommandArgumentSpecs()).thenReturn(Collections.singletonList(keyAccessorTypeSpec));
+                .finish();
+        when(endDeviceCommand.getCommandArgumentSpecs()).thenReturn(Collections.singletonList(keyAccessorTypeSpec));
 
         // Business method
         headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, device);
 
         // Asserts
-        verify(commandFactory).createConnectCommand(endDevice, Instant.now());
-        verify(headEndInterface).sendCommand(endDeviceCommand, Instant.now(), serviceCall);
+        verify(commandFactory).createKeyRenewalCommand(endDevice, keyAccessorType);
+        verify(headEndInterface).sendCommand(endDeviceCommand, deviceCommandInfo.activationDate, serviceCall);
         verify(completionOptions).whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), destinationSpec);
-    }
-
-
-    @Test
-    @Expected(value = LocalizedException.class, message = "Could not find the command argument spec " + DeviceMessageConstants.overThresholdDurationAttributeName + " for command " + END_DEVICE_CONTROL_TYPE)
-    public void testCommandArgumentSpecNotFound() throws Exception {
-        DeviceCommandInfo deviceCommandInfo = new DeviceCommandInfo();
-
-
-        when(commandFactory.createConnectCommand(endDevice, Instant.now())).thenReturn(endDeviceCommand);
-        when(endDeviceCommand.getCommandArgumentSpecs()).thenReturn(Collections.emptyList());
-
-        // Business method
-        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, device);
     }
 
     @Test
     @Expected(value = LocalizedException.class, message = "Could not find destination spec with name " + CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION)
     public void testDestinationSpecNotFound() throws Exception {
         DeviceCommandInfo deviceCommandInfo = new DeviceCommandInfo();
+        deviceCommandInfo.keyAccessorType = KEY_ACCESSOR_TYPE;
+        deviceCommandInfo.activationDate = Instant.now();
+
+        Mockito.doReturn(keyAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);
 
         when(messageService.getDestinationSpec(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION)).thenReturn(Optional.empty());
 
         // Business method
         headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, device);
+    }
+
+    @Test
+    public void testCommunicationTestOperation() throws Exception {
+        DeviceCommandInfo deviceCommandInfo = new DeviceCommandInfo();
+        deviceCommandInfo.keyAccessorType = KEY_ACCESSOR_TYPE;
+        deviceCommandInfo.activationDate = Instant.now();
+
+        List<ComTaskExecution> comtasks = new ArrayList<>();
+        comtasks.add(comTaskExecution);
+
+        when(endDevice.getHeadEndInterface()).thenReturn(Optional.of(multiSenseHeadEndInterface));
+
+        Mockito.doReturn(keyAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);
+        Mockito.doReturn(comtasks).when(headEndController).getComTaskExecutions(device, keyAccessorType);
+        Mockito.doReturn(comtasks).when(headEndController).getFilteredList(comtasks);
+
+
+        // Business method
+        headEndController.performTestCommunication(endDevice, serviceCall, deviceCommandInfo, device);
+
+        // Asserts
+        verify(multiSenseHeadEndInterface).runCommunicationTask(device, comtasks, deviceCommandInfo.activationDate, serviceCall);
+        verify(completionOptions).whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), destinationSpec);
     }
 }

@@ -64,10 +64,10 @@ public class HeadEndController {
 
     public void performTestCommunication(EndDevice endDevice, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
         MultiSenseHeadEndInterface headEndInterface = (MultiSenseHeadEndInterface) getHeadEndInterface(endDevice);
-        performTestCommunication(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
+        performTestCommunication(headEndInterface, serviceCall, deviceCommandInfo, device);
     }
 
-    private void performTestCommunication(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
+    private void performTestCommunication(HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
         serviceCall.log(LogLevel.INFO, "Handling test communication.");
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutions(device, getKeyAccessorType(deviceCommandInfo.keyAccessorType, device));
         CompletionOptions completionOptions = ((MultiSenseHeadEndInterface) headEndInterface).runCommunicationTask(device, getFilteredList(comTaskExecutions), deviceCommandInfo.activationDate, serviceCall);
@@ -91,12 +91,12 @@ public class HeadEndController {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COULD_NOT_FIND_DESTINATION_SPEC, CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION));
     }
 
-    private KeyAccessorType getKeyAccessorType(String keyAccessType, Device device) {
+    protected KeyAccessorType getKeyAccessorType(String keyAccessType, Device device) {
         return device.getDeviceType().getKeyAccessorTypes().stream().filter(keyAcccessorType -> keyAcccessorType.getName().equals(keyAccessType)).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.UNKNOWN_KEYACCESSORTYPE));
     }
 
-    private List<ComTaskExecution> getComTaskExecutions(Device device, KeyAccessorType keyAccessorType) {
+    protected List<ComTaskExecution> getComTaskExecutions(Device device, KeyAccessorType keyAccessorType) {
         List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
         if (device.getDeviceProtocolProperties().hasValueFor(keyAccessorType.getName())) {
             comTaskExecutions = device.getComTaskExecutions();
@@ -119,7 +119,7 @@ public class HeadEndController {
         return comTaskExecutions;
     }
 
-    private List<ComTaskExecution> getFilteredList(List<ComTaskExecution> comTaskExecutions) {
+    protected List<ComTaskExecution> getFilteredList(List<ComTaskExecution> comTaskExecutions) {
         List<ComTaskExecution> comTaskExecutionList = new ArrayList<>();
         ComTaskExecution comTaskExec = null;
         int priority = 0;
