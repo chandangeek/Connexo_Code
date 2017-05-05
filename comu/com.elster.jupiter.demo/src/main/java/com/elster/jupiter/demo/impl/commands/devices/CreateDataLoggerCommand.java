@@ -17,6 +17,7 @@ import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
 import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
+import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -32,6 +33,8 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -215,7 +218,7 @@ public class CreateDataLoggerCommand {
                 .filter(ps -> "EncryptionKey".equals(ps.getName()))
                 .findFirst()
                 .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
-        device.setSecurityProperties(securityPropertySetHigh, typedProperties);
+//        device.setSecurityProperties(securityPropertySetHigh, typedProperties); //TODO
 
         SecurityPropertySet securityPropertySetNone =
                 configuration
@@ -225,7 +228,7 @@ public class CreateDataLoggerCommand {
                         .findFirst()
                         .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SecurityPropertySetTpl.NO_SECURITY.getName() + "."));
         TypedProperties typedPropertiesNone = TypedProperties.empty();
-        device.setSecurityProperties(securityPropertySetNone, typedProperties);
+//        device.setSecurityProperties(securityPropertySetNone, typedProperties); //TODO
         device.save();
     }
 

@@ -20,7 +20,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -37,6 +36,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
@@ -265,6 +265,6 @@ public class CreateA3DeviceCommand {
                 .filter(ps -> "Password".equals(ps.getName()))
                 .findFirst()
                 .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00000000000000000000")));
-        device.setSecurityProperties(securityPropertySet, typedProperties);
+//        device.setSecurityProperties(securityPropertySet, typedProperties); //TODO
     }
 }

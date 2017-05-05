@@ -12,7 +12,6 @@ import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
@@ -185,10 +184,6 @@ public class CreateG3SlaveCommand {
              configuration.createSecurityPropertySet(SECURITY_SET_NAME)
                      .authenticationLevel(3)    //HIGH_LEVEL_MD5
                      .encryptionLevel(0)        //NO_ENCRYPTION
-                     .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1)
-                     .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
-                     .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1)
-                     .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2)
                      .build();
         }
     }
@@ -212,7 +207,7 @@ public class CreateG3SlaveCommand {
                     .findFirst()
                     .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("1234567890123456")));
 
-            device.setSecurityProperties(securityPropertySet, typedProperties);
+//            device.setSecurityProperties(securityPropertySet, typedProperties); //TODO
 
             device.save();
         }

@@ -186,6 +186,6 @@ public class CreateG3GatewayCommand {
                 .filter(ps -> "EncryptionKey".equals(ps.getName()))
                 .findFirst()
                 .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
-        device.setSecurityProperties(securityPropertySet, typedProperties);
+//        device.setSecurityProperties(securityPropertySet, typedProperties); //TODO
     }
 }

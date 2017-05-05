@@ -9,7 +9,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 
-import java.math.BigDecimal;
 import java.util.function.Consumer;
 
 public class SecurityPropertiesDevicePostBuilder implements Consumer<Device> {
@@ -19,7 +18,7 @@ public class SecurityPropertiesDevicePostBuilder implements Consumer<Device> {
         DeviceConfiguration configuration = device.getDeviceConfiguration();
         for (SecurityPropertySet securityPropertySet : configuration.getSecurityPropertySets()) {
             TypedProperties typedProperties = TypedProperties.empty();
-            device.setSecurityProperties(securityPropertySet, typedProperties);
+//            device.setSecurityProperties(securityPropertySet, typedProperties); //TODO
             device.save();
         }
     }
