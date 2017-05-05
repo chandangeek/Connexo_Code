@@ -387,6 +387,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     if (!value) {
                         this.hide();
                     } else {
+                        this.show();
                         return value;
                     }
                 }

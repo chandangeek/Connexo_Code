@@ -180,7 +180,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             icon = '<span class="icon-flag5" style="margin-left:10px; color: #dedc49; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('validationStatus.informative', 'IMT', 'Informative') + '"></span>';
         }
-        if ((!Ext.isEmpty(estimatedByRule)) && !record.get('removedNotSaved') &&  (!record.isModified('value') || record.isModified('isProjected'))) {
+        if ((!Ext.isEmpty(estimatedByRule)) && !record.get('removedNotSaved') &&  (!record.isModified('value') || record.isModified('isProjected')) && status !== 'suspect') {
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
                 + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated on {0} at {1}', [
                     Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
@@ -189,7 +189,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             if (record.get('isProjected')) {
                 icon = this.addProjectedFlag(icon);
             }
-        } else if (record.get('estimatedNotSaved') && record.get('ruleId') > 0) {
+        } else if (record.get('estimatedNotSaved') && record.get('ruleId') > 0 && status !== 'suspect') {
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="' + estimationComment + '"></span>';
             if (record.get('isProjected')) {
                 icon = this.addProjectedFlag(icon);
