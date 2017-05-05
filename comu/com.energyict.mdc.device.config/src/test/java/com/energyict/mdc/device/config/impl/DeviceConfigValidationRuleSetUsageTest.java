@@ -95,7 +95,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -211,25 +210,6 @@ public class DeviceConfigValidationRuleSetUsageTest {
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
     }
 
-    private class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(LicenseService.class).toInstance(licenseService);
-            bind(IssueService.class).toInstance(issueService);
-            bind(PropertySpecService.class).toInstance(propertySpecService);
-            bind(ConnectionTypeService.class).toInstance(connectionTypeService);
-            bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
-            bind(DeviceProtocolMessageService.class).toInstance(deviceProtocolMessageService);
-            bind(DeviceProtocolSecurityService.class).toInstance(deviceProtocolSecurityService);
-            bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
-            bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
-            bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-        }
-    }
-
     @Test
     public void testDeviceConfigValidationRuleSetUsage() {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
@@ -338,7 +318,6 @@ public class DeviceConfigValidationRuleSetUsageTest {
             bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
             bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
-            bind(UserService.class).toInstance(userService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
