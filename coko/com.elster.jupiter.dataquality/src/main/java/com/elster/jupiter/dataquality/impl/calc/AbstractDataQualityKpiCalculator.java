@@ -144,7 +144,7 @@ abstract class AbstractDataQualityKpiCalculator implements DataQualityKpiCalcula
                 .flatMap(Collection::stream)
                 .map(ValidationRuleSetVersion::getRules)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toMap(this::getReadingQualityType, Function.identity()));
+                .collect(Collectors.toMap(this::getReadingQualityType, Function.identity(), (r1, r2) -> r1));
     }
 
     private Map<ReadingQualityType, EstimationRule> mapReadingQualitiesToEstimationRules() {
@@ -153,7 +153,7 @@ abstract class AbstractDataQualityKpiCalculator implements DataQualityKpiCalcula
                 .stream()
                 .map(EstimationRuleSet::getRules)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toMap(this::getReadingQualityType, Function.identity()));
+                .collect(Collectors.toMap(this::getReadingQualityType, Function.identity(), (r1, r2) -> r1));
     }
 
     private ReadingQualityType getReadingQualityType(ValidationRule validationRule) {
@@ -302,6 +302,13 @@ abstract class AbstractDataQualityKpiCalculator implements DataQualityKpiCalcula
                     .mapToLong(LongCounter::getValue)
                     .sum();
 
+            long projected = channels.stream()
+                    .map(channelToKey(calculateDate, DataQualityMetric.PredefinedDataQualityMetric.PROJECTED))
+                    .map(counterMap::get)
+                    .filter(Objects::nonNull)
+                    .mapToLong(LongCounter::getValue)
+                    .sum();
+
             dataMap.computeIfAbsent(DataQualityKpiMemberType.PredefinedKpiMemberType.CHANNEL, newMap()).put(calculateInstant, BigDecimal.valueOf(channelSuspects));
             dataMap.computeIfAbsent(DataQualityKpiMemberType.PredefinedKpiMemberType.REGISTER, newMap()).put(calculateInstant, BigDecimal.valueOf(registerSuspects));
             dataMap.computeIfAbsent(DataQualityKpiMemberType.PredefinedKpiMemberType.SUSPECT, newMap()).put(calculateInstant, BigDecimal.valueOf(totalSuspects));
@@ -311,6 +318,7 @@ abstract class AbstractDataQualityKpiCalculator implements DataQualityKpiCalcula
             dataMap.computeIfAbsent(DataQualityKpiMemberType.PredefinedKpiMemberType.REMOVED, newMap()).put(calculateInstant, BigDecimal.valueOf(removed));
             dataMap.computeIfAbsent(DataQualityKpiMemberType.PredefinedKpiMemberType.ESTIMATED, newMap()).put(calculateInstant, BigDecimal.valueOf(estimated));
             dataMap.computeIfAbsent(DataQualityKpiMemberType.PredefinedKpiMemberType.CONFIRMED, newMap()).put(calculateInstant, BigDecimal.valueOf(confirmed));
+            dataMap.computeIfAbsent(DataQualityKpiMemberType.PredefinedKpiMemberType.PROJECTED, newMap()).put(calculateInstant, BigDecimal.valueOf(projected));
 
             for (Validator validator : validators) {
                 long amount = channels.stream()
