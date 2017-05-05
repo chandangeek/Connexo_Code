@@ -1,6 +1,11 @@
 package com.energyict.mdc.upl.security;
 
+import com.energyict.mdc.upl.properties.PropertySpec;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Insert your comments here.
@@ -26,5 +31,17 @@ public interface AdvancedDeviceProtocolSecurityCapabilities extends DeviceProtoc
      * Note that not all these levels are supported in all security suites.
      */
     List<ResponseSecurityLevel> getResponseSecurityLevels();
+
+    @Override
+    default List<PropertySpec> getSecurityProperties() {
+        Set<PropertySpec> allSecurityPropertySpecs = new HashSet<>();
+        for (SecuritySuite securitySuite : getSecuritySuites()) {
+            securitySuite.getAuthenticationAccessLevels().forEach(accessLevel -> allSecurityPropertySpecs.addAll(accessLevel.getSecurityProperties()));
+            securitySuite.getEncryptionAccessLevels().forEach(accessLevel -> allSecurityPropertySpecs.addAll(accessLevel.getSecurityProperties()));
+            securitySuite.getRequestSecurityLevels().forEach(accessLevel -> allSecurityPropertySpecs.addAll(accessLevel.getSecurityProperties()));
+            securitySuite.getResponseSecurityLevels().forEach(accessLevel -> allSecurityPropertySpecs.addAll(accessLevel.getSecurityProperties()));
+        }
+        return new ArrayList<>(allSecurityPropertySpecs);
+    }
 
 }

@@ -3,8 +3,11 @@ package com.energyict.mdc.upl.security;
 import com.energyict.mdc.upl.properties.PropertySpec;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Provides functionality to expose the security capabilities of a {@link com.energyict.mdc.upl.DeviceProtocol}.
@@ -15,7 +18,7 @@ import java.util.Optional;
 public interface DeviceProtocolSecurityCapabilities extends Serializable {
 
     /**
-     * Gets <b>ALL</b> the {@link PropertySpec properties}
+     * Gets <b>ALL</b> the {@link PropertySpec property specs}
      * that can be set on a device for this DeviceSecuritySupport.
      * Note that the {@link PropertySpec#isRequired() 'required'}
      * aspect of the PropertySpec is ignored because it is possible
@@ -36,17 +39,25 @@ public interface DeviceProtocolSecurityCapabilities extends Serializable {
      *
      * @return The list of security properties
      */
-    List<PropertySpec> getSecurityProperties();
+    default List<PropertySpec> getSecurityProperties() {    //TODO: check if the ones who overwrite this are still needed?
+        Set<PropertySpec> allSecurityPropertySpecs = new HashSet<>();
+        getAuthenticationAccessLevels().forEach(accessLevel -> allSecurityPropertySpecs.addAll(accessLevel.getSecurityProperties()));
+        getEncryptionAccessLevels().forEach(accessLevel -> allSecurityPropertySpecs.addAll(accessLevel.getSecurityProperties()));
+        return new ArrayList<>(allSecurityPropertySpecs);
+    }
 
     /**
      * Returns the security {@link PropertySpec} with the specified name
      * or an empty Optional if no such PropertySpec exists.
      *
      * @param name The name of the security property specification
-     * @return The PropertySpec
+     * @return The PropertySpec or an empty Optional if no such PropertySpec exists
      */
     default Optional<PropertySpec> getSecurityPropertySpec(String name) {
-        return this.getSecurityProperties().stream().filter(propertySpec -> propertySpec.getName().equals(name)).findAny();
+        return getSecurityProperties()
+                .stream()
+                .filter(propertySpec -> propertySpec.getName().equals(name))
+                .findAny();
     }
 
     /**
@@ -70,5 +81,19 @@ public interface DeviceProtocolSecurityCapabilities extends Serializable {
      * @return The List of EncryptionDeviceAccessLevel
      */
     List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels();
+
+    /**
+     * Returns an optional {@link PropertySpec} containing the
+     * {@link PropertySpec} to use for the 'client'. This property
+     * spec can then be used to validate the value of the client field.
+     *
+     * If 'client' should not be used(~ communication with the device doesn't
+     * need a client), then an empty Optional will be returned.
+     *
+     * @return The 'client' PropertySpec or an empty Optional in case the 'client' is not supported
+     */
+    default Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty(); // By default, no support for client - TODO: foresee useful implementation on the protocols who need this (in UPL)
+    }
 
 }
