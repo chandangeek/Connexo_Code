@@ -366,6 +366,7 @@ class ReadingStorerImpl implements ReadingStorer {
     private boolean doDeltaUpdates(ChannelContract channel, Instant instant, Object[] toUpdate, Object[] previous) {
         return deltaDerivations.get(channel)
                 .stream()
+                .filter(derivation -> derivation.getDerivationRule().isDelta())
                 .map(derivation -> doDeltaUpdate(channel, instant, toUpdate, previous, derivation))
                 .reduce(false, (a, b) -> a | b);
     }
@@ -374,7 +375,7 @@ class ReadingStorerImpl implements ReadingStorer {
         int index = derivation.getIndex() + channel.getRecordSpecDefinition().slotOffset();
         BigDecimal previousBulk = getBigDecimal(previous[index + 1]);
         BigDecimal currentBulk = getBigDecimal(toUpdate[index + 1]);
-        IReadingType bulkReadingType = (IReadingType) derivation.getReadingType().getBulkReadingType().get();
+        IReadingType bulkReadingType = (IReadingType) channel.getBulkQuantityReadingType().get();
 
         Function<BigDecimal, BigDecimal> overflowCorrection = getOverflowCorrection(channel, bulkReadingType, instant, previousBulk, currentBulk);
 
