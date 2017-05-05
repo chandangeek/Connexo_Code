@@ -3,6 +3,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
     alias: 'widget.metrology-configuration-with-meters-info',
     requires: [
         'Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterActivationsField',
+        'Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterActivationsNoMetrologyGrid',
         'Imt.metrologyconfiguration.view.PurposesField'
     ],
     title: Uni.I18n.translate('general.meterRoles', 'IMT', 'Meter roles'),
