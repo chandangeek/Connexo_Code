@@ -20,6 +20,12 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'isReadyForLinkingMC', type: 'boolean', defaultValue: true},
         {name: 'state', persist: false},
         {
+            name: 'calendars',
+            type: 'auto',
+            defaultValue: null,
+            useNull: true
+        },
+        {
             name: 'extendedGeoCoordinates',
             type: 'auto'
         },

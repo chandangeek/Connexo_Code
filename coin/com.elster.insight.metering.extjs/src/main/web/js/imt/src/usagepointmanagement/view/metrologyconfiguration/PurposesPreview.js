@@ -36,6 +36,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesPreview
                 itemId: 'purpose-preview-formula-components',
                 fieldLabel: Uni.I18n.translate('general.attributes', 'IMT', 'Attributes')
             }
+
         ];
         me.callParent(arguments);
     },
@@ -46,7 +47,8 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesPreview
             attributesContainer = me.down('#purpose-preview-formula-components'),
             purposeName = record.get('name'),
             meterRoles = me.prepareMeterRoles(record.get('meterRoles')),
-            attributes = me.prepareAttributes(purposeName, usagePoint);
+            attributes = me.prepareAttributes(purposeName, usagePoint),
+            timeOfUseEvents = me.prepareTOUEvents(record.get('eventNames'));
 
         Ext.suspendLayouts();
         me.setTitle(Ext.String.htmlEncode(purposeName));
@@ -57,7 +59,8 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesPreview
 
         attributesContainer.removeAll();
         attributesContainer.add(attributes);
-        attributesContainer.setVisible(!Ext.isEmpty(attributes));
+        attributesContainer.add(timeOfUseEvents);
+        attributesContainer.setVisible(!Ext.isEmpty(attributes) || !Ext.isEmpty(timeOfUseEvents));
         Ext.resumeLayouts(true);
     },
 
@@ -100,6 +103,16 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesPreview
                 + Imt.util.CommonFields.prepareCustomPropertyInfoIcon(property.customPropertySetName)
             }
         });
+    },
+
+    prepareTOUEvents: function(timeOfUseEvents){
+        if(!Ext.isEmpty(timeOfUseEvents)){
+            return {
+                fieldLabel: Uni.I18n.translate('general.eventName', 'IMT', 'Time of use events'),
+                htmlEncode: false,
+                value: timeOfUseEvents.join('<BR>')
+            }
+        }
     },
 
     getAppropriateCustomProperties: function (readingTypeDeliverables, usagePointCustomPropertySets) {

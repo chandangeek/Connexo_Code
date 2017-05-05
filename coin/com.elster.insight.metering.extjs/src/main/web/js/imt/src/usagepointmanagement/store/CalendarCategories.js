@@ -4,7 +4,7 @@
 
 Ext.define('Imt.usagepointmanagement.store.CalendarCategories', {
     extend: 'Ext.data.Store',
-    fields: ['id', 'name'],
+    fields: ['id', 'name','displayName'],
     proxy: {
         type: 'rest',
         url: '/api/cal/categories/usedcategories',

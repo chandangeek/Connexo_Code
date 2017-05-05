@@ -8,7 +8,8 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
     views: [
         'Imt.metrologyconfiguration.view.validation.ValidationConfiguration',
         'Imt.metrologyconfiguration.view.validation.AddValidationRuleSetsToPurpose',
-        'Imt.metrologyconfiguration.view.validation.ValidationSchedule'
+        'Imt.metrologyconfiguration.view.validation.ValidationSchedule',
+        'Imt.metrologyconfiguration.view.StatesInfoWindow'
     ],
 
     models: [
@@ -53,7 +54,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
             'add-validation-rule-sets-to-purpose purpose-rules-grid': {
                 select: this.showRulePreview
             },
-            'add-validation-rule-sets-to-purpose #add-validation-rule-sets-to-purpose-add-button': {
+            'add-validation-rule-sets-to-purpose #addButton': {
                 click: this.addRuleSetsToPurpose
             }
         });
@@ -155,9 +156,11 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             metrologyConfigurationController = me.getController('Imt.metrologyconfiguration.controller.View'),
             purposesWithLinkedRuleSetsStore = me.getStore('Imt.metrologyconfiguration.store.PurposesWithValidationRuleSets'),
-            rulesStore = me.getStore('Imt.store.ValidationRules');
+            rulesStore = me.getStore('Imt.store.ValidationRules'),
+            usagePointStatesStore = me.getStore('Imt.rulesets.store.UsagePointStatesToAdd');
 
         pageMainContent.setLoading();
+        usagePointStatesStore.load();
         metrologyConfigurationController.loadMetrologyConfiguration(id, {
             success: function (metrologyConfiguration) {
                 purposesWithLinkedRuleSetsStore.getProxy().extraParams = {
@@ -167,6 +170,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
                     me.getModel('Imt.metrologyconfiguration.model.PurposeWithValidationRuleSets').getProxy().extraParams = {
                         metrologyConfigurationId: router.arguments.mcid
                     };
+
                     me.getModel('Imt.metrologyconfiguration.model.PurposeWithValidationRuleSets').load(purposesWithLinkedRuleSetsStore.first().getId(), {
                         success: function (purpose) {
                             var widget = Ext.widget('add-validation-rule-sets-to-purpose', {
@@ -174,6 +178,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
                                 router: router,
                                 metrologyConfig: metrologyConfiguration,
                                 purposesStore: purposesWithLinkedRuleSetsStore,
+                                usagePointStatesStore: usagePointStatesStore,
                                 purposeWithLinkableRuleSets: purpose,
                                 rulesStore: rulesStore
                             });
@@ -208,19 +213,34 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
         var me = this,
             purposesCombo = me.getAddValidationRuleSetsView().down('#purpose-combo'),
             purpose = purposesCombo.findRecordByValue(purposesCombo.getValue()),
-            records = me.getAddValidationRuleSetsView().down('add-validation-rule-sets-to-purpose-grid').getSelectionModel().getSelection();
+            records = me.getAddValidationRuleSetsView().down('add-validation-rule-sets-to-purpose-grid').getSelectedRecords(),
+            statesGrid = me.getAddValidationRuleSetsView().down('add-usage-point-states-grid'),
+            statesErrorMessage = me.getAddValidationRuleSetsView().down('#add-usage-point-states-error'),
+            states = statesGrid.getSelectedRecords(),
+            statesData = _.map(states, function (state) {
+                return state.getRecordData();
+            });
 
-        purpose.estimationRuleSets().removeAll();
-        purpose.validationRuleSets().removeAll();
-        purpose.validationRuleSets().add(records);
-        purpose.save({
-            success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('validationRuleSets.count.added', records.length, 'IMT', 'No validation rule sets added',
-                    '{0} validation rule set added',
-                    '{0} validation rule sets added'));
-                me.getController('Uni.controller.history.Router').getRoute('administration/metrologyconfiguration/view/validation').forward();
-            }
-        });
+        if(!statesGrid.allStatesSelected && !states.length){
+            statesErrorMessage.show()
+        } else {
+            statesErrorMessage.hide();
+            Ext.Array.each(records,function(record){
+                record.set('lifeCycleStates', statesData);
+            });
+            purpose.estimationRuleSets().removeAll();
+            purpose.validationRuleSets().removeAll();
+            purpose.validationRuleSets().add(records);
+            purpose.save({
+                success: function () {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('validationRuleSets.count.added', records.length, 'IMT', 'No validation rule sets added',
+                        '{0} validation rule set added',
+                        '{0} validation rule sets added'));
+                    me.getController('Uni.controller.history.Router').getRoute('administration/metrologyconfiguration/view/validation').forward();
+                }
+            });
+        }
+
     },
 
     showRulesTab: function(panel) {

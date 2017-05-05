@@ -15,6 +15,7 @@ Ext.define('Imt.purpose.model.Reading', {
         {name: 'validationRules', type: 'auto'},
         {name: 'confirmedNotSaved', type: 'auto'},
         {name: 'estimatedNotSaved', type: 'auto'},
+        {name: 'estimatedCommentNotSaved', type: 'auto'},
         {name: 'commentId', type: 'int'},
         {name: 'commentValue', type: 'auto'},
         {name: 'removedNotSaved', type: 'auto'},
@@ -28,6 +29,8 @@ Ext.define('Imt.purpose.model.Reading', {
         {name: 'readingQualities', type: 'auto', defaultValue: null},
         {name: 'modificationFlag', type: 'auto'},
         {name: 'modificationDate', type: 'auto'},
+        {name: 'calendarName', type: 'string'},
+        {name: 'partOfTimeOfUseGap', type: 'auto'},
         'plotband',
         {
             name: 'readingProperties',
@@ -76,8 +79,22 @@ Ext.define('Imt.purpose.model.Reading', {
                     estimatedByRule: data.estimatedByRule,
                     isConfirmed: data.isConfirmed,
                     validationResult: data.validationResult,
-                    ruleId: data.ruleId,
+                    ruleId: data.ruleId
                 }
+            }
+        },
+        {
+            name: 'mainCommentValue',
+            type: 'string',
+            persist: false,
+            mapping: function (data) {
+                var result = null,
+                    mainValidationInfo = data.mainValidationInfo;
+
+                if (mainValidationInfo && mainValidationInfo.commentValue) {
+                    result = mainValidationInfo.commentValue;
+                }
+                return result;
             }
         },
         {

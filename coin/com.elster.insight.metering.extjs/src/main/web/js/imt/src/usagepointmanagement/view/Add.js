@@ -16,7 +16,6 @@ Ext.define('Imt.usagepointmanagement.view.Add', {
 
     initComponent: function () {
         var me = this;
-
         me.side = {
             ui: 'medium',
             layout: {
