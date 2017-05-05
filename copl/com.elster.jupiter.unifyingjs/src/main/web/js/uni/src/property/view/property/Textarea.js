@@ -8,16 +8,24 @@ Ext.define('Uni.property.view.property.Textarea', {
     getEditCmp: function () {
         var me = this;
         return {
-            xtype: 'textareafield',
-            name: this.getName(),
-            itemId: me.key + 'textareafield',
+            xtype: 'container',
+            layout: 'vbox',
             width: me.width,
             height: 150,
-            msgTarget: 'under',
-            readOnly: me.isReadOnly,
-            inputType: me.inputType,
-            allowBlank: me.allowBlank,
-            blankText: me.blankText
+            required: me.required,
+            items: [
+                {
+                    xtype: 'textareafield',
+                    name: this.getName(),
+                    itemId: me.key + 'textareafield',
+                    width: me.width,
+                    height: 148,
+                    msgTarget: 'under',
+                    readOnly: me.isReadOnly,
+                    inputType: me.inputType,
+                    allowBlank: me.allowBlank,
+                    blankText: me.blankText
+                }]
         }
     },
 

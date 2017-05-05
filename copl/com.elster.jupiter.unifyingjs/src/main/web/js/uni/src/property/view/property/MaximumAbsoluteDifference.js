@@ -44,6 +44,7 @@ Ext.define('Uni.property.view.property.MaximumAbsoluteDifference', {
                         {
                             xtype: 'numberfield',
                             value: 0,
+                            minValue: 0,
                             width: 100,
                             itemId: 'value_number_field_' + me.key,
                             listeners: {

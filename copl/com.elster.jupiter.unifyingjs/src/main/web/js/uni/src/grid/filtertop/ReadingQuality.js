@@ -33,6 +33,8 @@ Ext.define('Uni.grid.filtertop.ReadingQuality', {
         '<span class="icon-flag5" style="color:#dedc49;"></span>',
         '<tpl case="edited">',
         '<span class="icon-pencil4" style="color:#686868"></span>',
+        '<tpl case="projected">',
+        '<span style="font-weight:bold; cursor: default">P</span>',
         '</tpl>',
         '</div>',
         '</li>',

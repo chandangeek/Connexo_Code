@@ -25,6 +25,10 @@ Ext.define('Uni.override.form.field.ComboBoxOverride', {
                 return '{' + displayField  + ':htmlEncode}';
             }
         });
+        if (me.editable && Ext.isEmpty(me.emptyText)) {
+            me.emptyText = Uni.I18n.translate('general.selectValue', 'UNI', 'Select a value ...');
+        }
+
         this.callParent(arguments);
     }
 });
