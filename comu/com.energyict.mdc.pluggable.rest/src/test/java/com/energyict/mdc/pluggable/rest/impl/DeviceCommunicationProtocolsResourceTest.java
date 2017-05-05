@@ -22,9 +22,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.upl.io.SocketService;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -40,6 +37,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -162,9 +163,9 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
 
         ConnectionType tlsConnectionType = mock(ConnectionType.class);
         when(tlsConnectionType.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
-        when(tlsConnectionType.getDirection()).thenReturn(ConnectionType.Direction.OUTBOUND);
+        when(tlsConnectionType.getDirection()).thenReturn(ConnectionType.ConnectionTypeDirection.OUTBOUND);
         List<ConnectionType> deviceProtocolSupportedConnectionTypes = Collections.singletonList(tlsConnectionType);
-        when(deviceProtocol.getSupportedConnectionTypes()).thenReturn(deviceProtocolSupportedConnectionTypes);
+        doReturn(deviceProtocolSupportedConnectionTypes).when(deviceProtocol.getSupportedConnectionTypes());
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         DeviceType deviceType = mock(DeviceType.class);
         KeyAccessorType kat1 = mockKeyAccessorType("key1", 1L);

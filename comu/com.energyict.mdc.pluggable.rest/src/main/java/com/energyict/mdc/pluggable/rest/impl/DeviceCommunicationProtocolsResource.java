@@ -108,10 +108,17 @@ public class DeviceCommunicationProtocolsResource {
         List<ConnectionTypePluggableClass> allConnectionTypePluggableClassesToCheck = this.protocolPluggableService.findAllConnectionTypePluggableClasses();
         List<ConnectionTypeInfo> infos = new ArrayList<>();
         ConnectionType.ConnectionTypeDirection connectionTypeDirection = ConnectionType.ConnectionTypeDirection.fromString(queryFilter.getString("direction"));
+        Optional<DeviceConfiguration> deviceConfig = Optional.empty();
+        if (queryFilter.getLong("deviceConfigId") != null) {
+            try {
+                deviceConfig = deviceConfigurationService.findDeviceConfiguration(queryFilter.getLong("deviceConfigId"));
+            } catch (NumberFormatException e) {
+                deviceConfig = Optional.empty();
+            }
+        }
         for (ConnectionType supportedConnectionType : supportedConnectionTypes) {
             if (ConnectionType.ConnectionTypeDirection.NULL.equals(connectionTypeDirection) || supportedConnectionType.getDirection().equals(connectionTypeDirection)) {
                 for (ConnectionTypePluggableClass registeredConnectionTypePluggableClass : allConnectionTypePluggableClassesToCheck) {
-
                     Class clazz;
                     if (supportedConnectionType instanceof UPLConnectionTypeAdapter) {
                         clazz = ((UPLConnectionTypeAdapter) supportedConnectionType).getUplConnectionType().getClass();
@@ -120,7 +127,7 @@ public class DeviceCommunicationProtocolsResource {
                     }
 
                     if (registeredConnectionTypePluggableClass.getJavaClassName().equals(clazz.getCanonicalName())) {
-                        infos.add(ConnectionTypeInfo.from(registeredConnectionTypePluggableClass, uriInfo, mdcPropertyUtils));
+                        infos.add(ConnectionTypeInfo.from(registeredConnectionTypePluggableClass, uriInfo, mdcPropertyUtils, deviceConfig));
                     }
                 }
             }
@@ -151,7 +158,8 @@ public class DeviceCommunicationProtocolsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
-    public DeviceCommunicationProtocolInfo createDeviceCommunicationProtocol(@Context final UriInfo uriInfo, final DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) throws WebApplicationException {
+    public DeviceCommunicationProtocolInfo createDeviceCommunicationProtocol(@Context final UriInfo uriInfo, final DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) throws
+            WebApplicationException {
         try {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass =
                     protocolPluggableService.newDeviceProtocolPluggableClass(
