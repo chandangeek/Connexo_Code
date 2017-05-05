@@ -5,12 +5,15 @@
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryFlag;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryType;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataModificationSummaryFlags;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointEstimation;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointValidation;
 import com.elster.jupiter.mdm.usagepoint.data.ValidChannelDataSummaryFlags;
 import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoritesService;
@@ -18,6 +21,7 @@ import com.elster.jupiter.mdm.usagepoint.data.impl.favorites.FavoritesServiceImp
 import com.elster.jupiter.mdm.usagepoint.data.security.Privileges;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -61,12 +65,14 @@ import java.util.stream.Stream;
         property = {"name=" + UsagePointDataModelService.COMPONENT_NAME},
         immediate = true)
 public class UsagePointDataModelServiceImpl implements UsagePointDataModelService, MessageSeedProvider, TranslationKeyProvider {
+
     private volatile DataModel dataModel;
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MeteringService meteringService;
     private volatile ValidationService validationService;
+    private volatile EstimationService estimationService;
     private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile UpgradeService upgradeService;
     private volatile MessageService messageService;
@@ -88,6 +94,7 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
                                           Clock clock,
                                           MeteringService meteringService,
                                           ValidationService validationService,
+                                          EstimationService estimationService,
                                           NlsService nlsService,
                                           CustomPropertySetService customPropertySetService,
                                           UsagePointConfigurationService usagePointConfigurationService,
@@ -99,6 +106,7 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
         setClock(clock);
         setMeteringService(meteringService);
         setValidationService(validationService);
+        setEstimationService(estimationService);
         setNlsService(nlsService);
         setCustomPropertySetService(customPropertySetService);
         setUsagePointConfigurationService(usagePointConfigurationService);
@@ -124,6 +132,7 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
                 bind(FavoritesService.class).toInstance(favoritesService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(ValidationService.class).toInstance(validationService);
+                bind(EstimationService.class).toInstance(estimationService);
                 bind(UpgradeService.class).toInstance(upgradeService);
                 bind(UserService.class).toInstance(userService);
                 bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
@@ -151,8 +160,8 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
     }
 
     private void createServices() {
-        usagePointDataCompletionService = new UsagePointDataCompletionServiceImpl(this, validationService);
-        favoritesService = new FavoritesServiceImpl(this, threadPrincipalService);
+        usagePointDataCompletionService = new UsagePointDataCompletionServiceImpl(thesaurus, validationService);
+        favoritesService = new FavoritesServiceImpl(dataModel, threadPrincipalService);
     }
 
     private void registerServices(BundleContext bundleContext) {
@@ -194,6 +203,11 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
     @Reference
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
+    }
+
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
     }
 
     @Reference
@@ -250,17 +264,20 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
     }
 
     @Override
-    public Clock clock() {
-        return clock;
+    public UsagePointValidation forValidation(UsagePoint usagePoint) {
+        return dataModel.getInstance(UsagePointValidationImpl.class).init(usagePoint);
     }
 
     @Override
-    public DataModel dataModel() {
-        return dataModel;
+    public UsagePointEstimation forEstimation(UsagePoint usagePoint) {
+        return dataModel.getInstance(UsagePointEstimationImpl.class).init(usagePoint);
     }
 
-    @Override
-    public Thesaurus thesaurus() {
-        return thesaurus;
+    FavoritesService getFavoritesService() {
+        return favoritesService;
+    }
+
+    UsagePointDataCompletionService getUsagePointDataCompletionService() {
+        return usagePointDataCompletionService;
     }
 }

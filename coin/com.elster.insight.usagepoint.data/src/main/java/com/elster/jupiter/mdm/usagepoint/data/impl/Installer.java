@@ -25,14 +25,14 @@ public class Installer implements FullInstaller {
     private final MessageService messageService;
     private final Thesaurus thesaurus;
     private final UserService userService;
-    private final UsagePointGroupPrivilegesProvider usagePointGroupPrivilegesProvider;
+    private final PrivilegesProviderV10_3 privilegesProviderV103;
 
     @Inject
     public Installer(DataModel dataModel, UserService userService, MessageService messageService,
-                     Thesaurus thesaurus, UsagePointGroupPrivilegesProvider usagePointGroupPrivilegesProvider) {
+                     Thesaurus thesaurus, PrivilegesProviderV10_3 privilegesProviderV103) {
         this.dataModel = dataModel;
         this.userService = userService;
-        this.usagePointGroupPrivilegesProvider = usagePointGroupPrivilegesProvider;
+        this.privilegesProviderV103 = privilegesProviderV103;
         this.messageService = messageService;
         this.thesaurus = thesaurus;
     }
@@ -42,7 +42,7 @@ public class Installer implements FullInstaller {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         doTry(
                 "Add module privileges",
-                () -> userService.addModulePrivileges(usagePointGroupPrivilegesProvider),
+                () -> userService.addModulePrivileges(privilegesProviderV103),
                 logger
         );
         doTry(
@@ -50,7 +50,7 @@ public class Installer implements FullInstaller {
                 () -> {
                     DestinationSpec itemizerDestination = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE")
                             .orElseThrow(() -> new IllegalStateException("Queue table spec MSG_RAWQUEUETABLE does not exist."))
-                            .createDestinationSpec(UsagePointDataModelService.BULK_ITEMIZER_QUEUE_DESTINATION, RETRY_DELAY);
+                            .createDestinationSpec(UsagePointDataModelServiceImpl.BULK_ITEMIZER_QUEUE_DESTINATION, RETRY_DELAY);
                     itemizerDestination.activate();
                     itemizerDestination.subscribe(Subscribers.BULK_ITEMIZER, UsagePointDataModelService.COMPONENT_NAME, Layer.DOMAIN);
                 },
@@ -61,7 +61,7 @@ public class Installer implements FullInstaller {
                 () -> {
                     DestinationSpec handlingDestination = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE")
                             .orElseThrow(() -> new IllegalStateException("Queue table spec MSG_RAWQUEUETABLE does not exist."))
-                            .createDestinationSpec(UsagePointDataModelService.BULK_HANDLING_QUEUE_DESTINATION, RETRY_DELAY);
+                            .createDestinationSpec(UsagePointDataModelServiceImpl.BULK_HANDLING_QUEUE_DESTINATION, RETRY_DELAY);
                     handlingDestination.activate();
                     handlingDestination.subscribe(Subscribers.BULK_HANDLER, UsagePointDataModelService.COMPONENT_NAME, Layer.DOMAIN);
                 },

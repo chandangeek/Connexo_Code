@@ -126,8 +126,7 @@ public class UsagePointDataCompletionServiceImplTest {
         when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.all()));
 
         UsagePointDataModelService usagePointDataModelService = mock(UsagePointDataModelService.class);
-        when(usagePointDataModelService.thesaurus()).thenReturn(thesaurus);
-        usagePointDataCompletionService = new UsagePointDataCompletionServiceImpl(usagePointDataModelService, validationService);
+        usagePointDataCompletionService = new UsagePointDataCompletionServiceImpl(thesaurus, validationService);
 
         when(validationService.getLastChecked(channel)).thenReturn(Optional.of(LAST_CHECKED));
         when(channel.isRegular()).thenReturn(true);
