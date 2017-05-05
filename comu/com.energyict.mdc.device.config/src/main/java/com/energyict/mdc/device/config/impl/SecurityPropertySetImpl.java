@@ -35,6 +35,8 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
 import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.api.security.SecuritySuite;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -52,6 +54,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
 import static java.util.stream.Collectors.toList;
@@ -91,6 +94,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Valid
     private List<ConfigurationSecurityProperty> configurationSecurityProperties = new ArrayList<>();
     private final ThreadPrincipalService threadPrincipalService;
+    private final ProtocolPluggableService protocolPluggableService;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -101,10 +105,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private Instant modTime;
 
     @Inject
-    public SecurityPropertySetImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus,
-                                   ThreadPrincipalService threadPrincipalService) {
+    public SecurityPropertySetImpl(
+            DataModel dataModel, EventService eventService, Thesaurus thesaurus,
+            ThreadPrincipalService threadPrincipalService, ProtocolPluggableService protocolPluggableService) {
         super(SecurityPropertySet.class, dataModel, eventService, thesaurus);
         this.threadPrincipalService = threadPrincipalService;
+        this.protocolPluggableService = protocolPluggableService;
     }
 
     @Override
@@ -230,13 +236,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      * does not have an AuthenticationDeviceAccessLevel with the specified id
      */
     private AuthenticationDeviceAccessLevel findAuthenticationLevel(int id) {
-        List<AuthenticationDeviceAccessLevel> levels = this.getDeviceProtocol().getAuthenticationAccessLevels();
-        for (AuthenticationDeviceAccessLevel level : levels) {
-            if (id == level.getId()) {
-                return level;
-            }
-        }
-        return new NoAuthentication();
+        return this.getDeviceProtocol().getAuthenticationAccessLevels().stream()
+                .filter(level -> level.getId() == id)
+                .findAny()
+                .map(this.protocolPluggableService::adapt)
+                .map(AuthenticationDeviceAccessLevel.class::cast)
+                .orElse(new NoAuthentication());
     }
 
     @Override
@@ -260,13 +265,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      * does not have an EncryptionDeviceAccessLevel with the specified id
      */
     private EncryptionDeviceAccessLevel findEncryptionLevel(int id) {
-        List<EncryptionDeviceAccessLevel> levels = this.getDeviceProtocol().getEncryptionAccessLevels();
-        for (EncryptionDeviceAccessLevel level : levels) {
-            if (id == level.getId()) {
-                return level;
-            }
-        }
-        return new NoEncryption();
+        return this.getDeviceProtocol().getEncryptionAccessLevels().stream()
+                .filter(level -> level.getId() == id)
+                .findAny()
+                .map(this.protocolPluggableService::adapt)
+                .orElse(new NoEncryption());
     }
 
     @Override
@@ -296,12 +299,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      */
     private SecuritySuite findSecuritySuite(int id) {
         if (this.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
-            List<SecuritySuite> securitySuites = ((AdvancedDeviceProtocolSecurityCapabilities) this.getDeviceProtocol()).getSecuritySuites();
-            for (SecuritySuite suite : securitySuites) {
-                if (id == suite.getId()) {
-                    return suite;
-                }
-            }
+            return ((AdvancedDeviceProtocolSecurityCapabilities) this.getDeviceProtocol()).getSecuritySuites().stream()
+                    .filter(level -> level.getId() == id)
+                    .findAny()
+                    .map(this.protocolPluggableService::adapt)
+                    .orElse(new NoSecuritySuite());
         }
         return new NoSecuritySuite();
     }
@@ -328,12 +330,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      */
     private RequestSecurityLevel findRequestSecurityLevel(int id) {
         if (this.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
-            List<RequestSecurityLevel> requestSecurityLevels = ((AdvancedDeviceProtocolSecurityCapabilities) this.getDeviceProtocol()).getRequestSecurityLevels();
-            for (RequestSecurityLevel level : requestSecurityLevels) {
-                if (id == level.getId()) {
-                    return level;
-                }
-            }
+            return ((AdvancedDeviceProtocolSecurityCapabilities) this.getDeviceProtocol()).getRequestSecurityLevels().stream()
+                    .filter(level -> level.getId() == id)
+                    .findAny()
+                    .map(this.protocolPluggableService::adapt)
+                    .orElse(new NoRequestSecurity());
         }
         return new NoRequestSecurity();
     }
@@ -360,12 +361,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      */
     private ResponseSecurityLevel findResponseSecurityLevel(int id) {
         if (this.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
-            List<ResponseSecurityLevel> responseSecurityLevels = ((AdvancedDeviceProtocolSecurityCapabilities) this.getDeviceProtocol()).getResponseSecurityLevels();
-            for (ResponseSecurityLevel level : responseSecurityLevels) {
-                if (id == level.getId()) {
-                    return level;
-                }
-            }
+            return ((AdvancedDeviceProtocolSecurityCapabilities) this.getDeviceProtocol()).getResponseSecurityLevels().stream()
+                    .filter(level -> level.getId() == id)
+                    .findAny()
+                    .map(this.protocolPluggableService::adapt)
+                    .orElse(new NoResponseSecurity());
         }
         return new NoResponseSecurity();
     }
@@ -635,10 +635,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
     static class LevelsAreSupportedValidator implements ConstraintValidator<LevelMustBeProvidedIfSupportedByDevice, SecurityPropertySetImpl> {
 
+        private final ProtocolPluggableService protocolPluggableService;
         private final Thesaurus thesaurus;
 
         @Inject
-        LevelsAreSupportedValidator(Thesaurus thesaurus) {
+        LevelsAreSupportedValidator(ProtocolPluggableService protocolPluggableService, Thesaurus thesaurus) {
+            this.protocolPluggableService = protocolPluggableService;
             this.thesaurus = thesaurus;
         }
 
@@ -665,7 +667,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             if (value.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
                 levels = value.getSecuritySuite().getEncryptionAccessLevels();
             } else {
-                levels = value.getDeviceProtocol().getEncryptionAccessLevels();
+                levels = value.getDeviceProtocol().getEncryptionAccessLevels().stream().map(this.protocolPluggableService::adapt).collect(Collectors.toList());
             }
             return levels.isEmpty() ? Collections.singletonList(new NoEncryption()) : levels;
         }
@@ -684,7 +686,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             if (value.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
                 levels = value.getSecuritySuite().getAuthenticationAccessLevels();
             } else {
-                levels = value.getDeviceProtocol().getAuthenticationAccessLevels();
+                levels = value.getDeviceProtocol().getAuthenticationAccessLevels().stream().map(this.protocolPluggableService::adapt).collect(Collectors.toList());
             }
             return levels.isEmpty() ? Collections.singletonList(new NoAuthentication()) : levels;
         }
@@ -701,7 +703,10 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         private List<SecuritySuite> supportedSecuritySuites(SecurityPropertySetImpl value) {
             List<SecuritySuite> securitySuites = null;
             if (value.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
-                securitySuites = ((AdvancedDeviceProtocolSecurityCapabilities) value.getDeviceProtocol()).getSecuritySuites();
+                securitySuites = ((AdvancedDeviceProtocolSecurityCapabilities) value.getDeviceProtocol()).getSecuritySuites()
+                        .stream()
+                        .map(this.protocolPluggableService::adapt)
+                        .collect(Collectors.toList());
             }
             return (securitySuites == null || securitySuites.isEmpty()) ? Collections.singletonList(new NoSecuritySuite()) : securitySuites;
         }
@@ -756,9 +761,8 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         @Override
         public boolean isValid(SecurityPropertySetImpl value, ConstraintValidatorContext context) {
-            Optional<PropertySpec> clientPropertySpecOptional = value.getDeviceProtocol().getClientSecurityPropertySpec();
-            if (clientPropertySpecOptional.isPresent()) {
-                PropertySpec clientPropertySpec = clientPropertySpecOptional.get();
+            if (value.getDeviceProtocol().getClientSecurityPropertySpec().isPresent()) {
+                PropertySpec clientPropertySpec = new UPLToConnexoPropertySpecAdapter(value.getDeviceProtocol().getClientSecurityPropertySpec().get());
                 try {
                     Object actualValue = value.client;
                     try {

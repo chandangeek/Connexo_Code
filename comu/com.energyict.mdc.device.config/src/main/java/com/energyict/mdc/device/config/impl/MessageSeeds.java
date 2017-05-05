@@ -170,7 +170,7 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT(15018, Keys.CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT, "You can''t remove the connection method because it is used by a communication task"),
     TIME_OF_USE_CALENDAR_ONLY(15019, Keys.TIME_OF_USE_CALENDAR_ONLY, "You can only add Time of Use calendars to a device type"),
     MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE(15020, Keys.MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before activate a multi-element submeter device configuration "),
-    MULTI_ELEMENT_ENABLEMENT_CANNOT_CHANGE_ON_ACTIVE_CONFIG(15021, Keys.MULTI_ELEMENT_ENABLED_CANNOT_CHANGE_ON_ACTIVE_CONFIG, "You can''t change the multi-element functionality on an active device configuration")
+    MULTI_ELEMENT_ENABLEMENT_CANNOT_CHANGE_ON_ACTIVE_CONFIG(15021, Keys.MULTI_ELEMENT_ENABLED_CANNOT_CHANGE_ON_ACTIVE_CONFIG, "You can''t change the multi-element functionality on an active device configuration"),
     INVALID_VALUE(15022, Keys.INVALID_VALUE, "Invalid value"),
     SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC(15023, Keys.SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC, "The security setting does not contain a specification for this attribute", Level.SEVERE),
     SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING(15024, Keys.SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING, "This field is required", Level.SEVERE),

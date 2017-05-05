@@ -39,8 +39,6 @@ import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -63,11 +61,6 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -99,22 +92,16 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.ValueFactory;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.fest.assertions.api.Assertions;
-import org.fest.assertions.core.Condition;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -137,15 +124,6 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -158,6 +136,11 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityPropertySetImplCrudIT {
 
+    @Rule
+    public final TestRule transactional = new TransactionalRule(transactionService);
+    @Rule
+    public TestRule itWillHitTheFan = new ExpectedConstraintViolationRule();
+
     private static InMemoryBootstrapModule bootstrapModule;
     private static EventAdmin eventAdmin;
     private static BundleContext bundleContext;
@@ -166,18 +149,37 @@ public class SecurityPropertySetImplCrudIT {
     private static DeviceConfigurationServiceImpl deviceConfigurationService;
     private static Injector injector;
     private static SpyEventService eventService;
-    @Rule
-    public final TestRule transactional = new TransactionalRule(transactionService);
-    @Rule
-    public TestRule itWillHitTheFan = new ExpectedConstraintViolationRule();
+
     @Mock
     private MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
     private DeviceProtocol deviceProtocol;
     @Mock
-    private com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel authLevel, authLevel2;
+    private AuthenticationDeviceAccessLevel authLevel, authLevel2;
     @Mock
-    private com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel encLevel;
+    private EncryptionDeviceAccessLevel encLevel;
+    @Mock
+    private PropertySpec spec1, spec2, spec3;
+    @Mock
+    private PropertySpec clientPropertySpec;
+    @Mock
+    private ValueFactory valueFactory;
+
+    private static class MockModule extends AbstractModule {
+
+        @Override
+        protected void configure() {
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+
+            bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+        }
+    }
 
     @BeforeClass
     public static void initializeDatabase() {
@@ -312,7 +314,7 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     @Before
-    public void initializeMocks() throws InvalidValueException {
+    public void initializeMocks() throws InvalidValueException, PropertyValidationException {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.of(deviceProtocolPluggableClass));
         Mockito.when(valueFactory.fromStringValue(Mockito.any(String.class)))
@@ -332,7 +334,6 @@ public class SecurityPropertySetImplCrudIT {
         when(spec1.getName()).thenReturn("spec1");
         when(spec2.getName()).thenReturn("spec2");
         when(spec3.getName()).thenReturn("spec3");
-        when(authLevel.getId()).thenReturn(1);
         when(authLevel.getSecurityProperties()).thenReturn(Collections.singletonList(spec1));
         when(authLevel2.getId()).thenReturn(2);
         when(authLevel2.getSecurityProperties()).thenReturn(Arrays.asList(spec1, spec2));
@@ -576,7 +577,7 @@ public class SecurityPropertySetImplCrudIT {
                 .encryptionLevel(2)         // Has spec2 and spec3
                 .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
-        Set<PropertySpec> propertySpecs = propertySet.getPropertySpecs();
+        Set<com.elster.jupiter.properties.PropertySpec> propertySpecs = propertySet.getPropertySpecs();
 
         assertThat(propertySpecs.size()).isEqualTo(3);
     }
@@ -713,7 +714,7 @@ public class SecurityPropertySetImplCrudIT {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INVALID_VALUE + "}")
-    public void testCreateWithInvalidClient() throws InvalidValueException {
+    public void testCreateWithInvalidClient() throws InvalidValueException, PropertyValidationException {
         when(clientPropertySpec.validateValue(Mockito.any())).thenReturn(false);
 
         DeviceType deviceType = createDeviceType("MyType");
@@ -830,7 +831,7 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testAuthenticationLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideAuthenticationLevels() {
         DeviceConfiguration deviceConfiguration;
-        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel>emptyList());
+        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.<AuthenticationDeviceAccessLevel>emptyList());
         DeviceType deviceType = createDeviceType("MyType");
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
@@ -865,7 +866,7 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testEncryptionLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideEncryptionLevels() {
         DeviceConfiguration deviceConfiguration;
-        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel>emptyList());
+        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.<EncryptionDeviceAccessLevel>emptyList());
         DeviceType deviceType = createDeviceType("MyType");
         KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
         KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
@@ -947,185 +948,7 @@ public class SecurityPropertySetImplCrudIT {
         return deviceConfiguration;
     }
 
-    @Test
-    @Transactional
-    public void simpleConflictTest() {
-        int authenticationLevel = 1;
-        int encryptionLevel = 2;
-        DeviceType deviceType = createDeviceType("simpleConflictTest");
-
-
-        DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
-
-        DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
-
-        DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
-
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).hasSize(2);
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return matchConfigs(deviceConfigConflictMapping, deviceConfiguration1, deviceConfiguration2)
-                        && deviceConfigConflictMapping.getConflictingSecuritySetSolutions().size() == 1
-                        && matchSecurityPropertySets(securityPropertySet1, securityPropertySet2, deviceConfigConflictMapping);
-            }
-        });
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return matchConfigs(deviceConfigConflictMapping, deviceConfiguration2, deviceConfiguration1)
-                        && deviceConfigConflictMapping.getConflictingSecuritySetSolutions().size() == 1
-                        && matchSecurityPropertySets(securityPropertySet2, securityPropertySet1, deviceConfigConflictMapping);
-            }
-        });
-    }
-
-    private DeviceConfiguration createActiveConfiguration(DeviceType deviceType, String name) {
-        DeviceConfiguration deviceConfiguration1 = deviceType.newConfiguration(name).add();
-        deviceConfiguration1.activate();
-        return deviceConfiguration1;
-    }
-
-    @Test
-    @Transactional
-    public void resolveConflictsWhenDeviceConfigBecomesInactiveTest() {
-        int authenticationLevel = 1;
-        int encryptionLevel = 2;
-        DeviceType deviceType = createDeviceType("simpleConflictTest");
-
-        DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
-
-        DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
-
-        deviceConfiguration1.deactivate();
-
-        DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).isEmpty();
-    }
-
-    @Test
-    @Transactional
-    public void resolveSecuritySetConflictWhenRemovalOfSecuritySetTest() {
-        int authenticationLevel = 1;
-        int encryptionLevel = 2;
-        DeviceType deviceType = createDeviceType("simpleConflictTest");
-
-        DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
-
-        DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
-
-        deviceConfiguration1.removeSecurityPropertySet(securityPropertySet1);
-
-        DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).isEmpty();
-    }
-
-    @Test
-    @Transactional
-    public void solvedMappingsAreNotRemovedWhenNewConflictArisesTest() {
-        int authenticationLevel = 1;
-        int encryptionLevel = 2;
-        DeviceType deviceType = createDeviceType("simpleConflictTest");
-
-        DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
-
-        DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
-
-        DeviceConfigConflictMapping deviceConfigConflictMapping1 = deviceType.getDeviceConfigConflictMappings().get(0);
-        ConflictingSecuritySetSolution conflictingSecuritySetSolution1 = deviceConfigConflictMapping1.getConflictingSecuritySetSolutions().get(0);
-        conflictingSecuritySetSolution1.markSolutionAsRemove();
-        DeviceConfigConflictMapping deviceConfigConflictMapping2 = deviceType.getDeviceConfigConflictMappings().get(1);
-        ConflictingSecuritySetSolution conflictingSecuritySetSolution2 = deviceConfigConflictMapping2.getConflictingSecuritySetSolutions().get(0);
-        conflictingSecuritySetSolution2.markSolutionAsRemove();
-
-        DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).hasSize(2);
-
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return deviceConfigConflictMapping.getConflictingSecuritySetSolutions()
-                        .get(0).getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE)
-                        && deviceConfigConflictMapping.isSolved();
-            }
-        });
-
-        // Logic that we want to test: if new SecuritySet is added, new conflicts will be calculated. Existing solved conflicts should still remain
-        DeviceConfiguration thirdConfig = createActiveConfiguration(deviceType, "ThirdConfig");
-        SecurityPropertySet securityPropertySet3 = createSecurityPropertySet(thirdConfig, "Blablabla", authenticationLevel, encryptionLevel);
-
-        DeviceType finalDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
-        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).hasSize(6);
-
-        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return deviceConfigConflictMapping.getConflictingSecuritySetSolutions()
-                        .get(0).getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE)
-                        && deviceConfigConflictMapping.isSolved();
-            }
-        });
-
-        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return deviceConfigConflictMapping.isSolved();
-            }
-        });
-
-        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(4, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return !deviceConfigConflictMapping.isSolved();
-            }
-        });
-
-    }
-
-    private boolean matchSecurityPropertySets(SecurityPropertySet originSecurityPropertySet, SecurityPropertySet destinationSecurityPropertySet, DeviceConfigConflictMapping deviceConfigConflictMapping) {
-        return deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).getOriginDataSource().getId() == originSecurityPropertySet.getId();
-//                && deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).getDestinationDataSource().getId() == destinationSecurityPropertySet.getId();
-    }
-
-    private boolean matchConfigs(DeviceConfigConflictMapping deviceConfigConflictMapping, DeviceConfiguration originConfig, DeviceConfiguration destinationConfig) {
-        return deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == originConfig.getId()
-                && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == destinationConfig.getId();
-    }
-
-    private SecurityPropertySet createSecurityPropertySet(DeviceConfiguration deviceConfiguration, String setName, int authenticationLevel, int encryptionLevel) {
-        return deviceConfiguration.createSecurityPropertySet(setName)
-                .authenticationLevel(authenticationLevel)
-                .encryptionLevel(encryptionLevel)
-                .addUserAction(VIEWDEVICESECURITYPROPERTIES1)
-                .build();
-    }
-
-
     public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
     }
 
-    private static class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-
-            bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
-            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
-            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
-        }
-
-    }
 }

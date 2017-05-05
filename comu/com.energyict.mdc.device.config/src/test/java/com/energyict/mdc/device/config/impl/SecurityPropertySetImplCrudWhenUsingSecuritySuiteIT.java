@@ -68,7 +68,6 @@ import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurati
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.impl.MasterDataModule;
@@ -81,17 +80,17 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.security.AdvancedDeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
-import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
-import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.security.RequestSecurityLevel;
+import com.energyict.mdc.upl.security.ResponseSecurityLevel;
+import com.energyict.mdc.upl.security.SecuritySuite;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -157,7 +156,7 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
     @Mock
     private ResponseSecurityLevel responseSecurityLevel1, responseSecurityLevel2;
     @Mock
-    private PropertySpec spec1, spec2, spec3, spec4, spec5, spec6;
+    private com.energyict.mdc.upl.properties.PropertySpec spec1, spec2, spec3, spec4, spec5, spec6;
 
     private static class MockModule extends AbstractModule {
 
@@ -219,7 +218,6 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
                     new SearchModule(),
                     new TaskModule(),
                     new DeviceConfigurationModule(),
-                    new MdcIOModule(),
                     new EngineModelModule(),
                     new IssuesModule(),
                     new BasicPropertiesModule(),
@@ -809,7 +807,7 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testSecuritySuiteShouldNotBeSpecifiedWhenProtocolDoesNotProvideEncryptionLevels() {
         DeviceConfiguration deviceConfiguration;
-        when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(Collections.<SecuritySuite>emptyList());
+        when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(Collections.<com.energyict.mdc.upl.security.SecuritySuite>emptyList());
         DeviceType deviceType = createDeviceType("MyType");
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");

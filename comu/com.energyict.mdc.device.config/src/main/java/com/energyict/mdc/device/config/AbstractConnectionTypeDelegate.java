@@ -8,12 +8,14 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+
+import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.util.List;
 import java.util.Optional;
@@ -56,6 +58,11 @@ abstract public class AbstractConnectionTypeDelegate implements ConnectionType {
     }
 
     @Override
+    public ComChannel connect() throws ConnectionException {
+        return this.connectionType.connect();
+    }
+
+    @Override
     public ComChannel connect(List<ConnectionProperty> properties) throws ConnectionException {
         return this.connectionType.connect(properties);
     }
@@ -66,7 +73,7 @@ abstract public class AbstractConnectionTypeDelegate implements ConnectionType {
     }
 
     @Override
-    public Direction getDirection() {
+    public ConnectionTypeDirection getDirection() {
         return this.connectionType.getDirection();
     }
 
@@ -83,5 +90,16 @@ abstract public class AbstractConnectionTypeDelegate implements ConnectionType {
     @Override
     public Optional<PropertySpec> getPropertySpec(String name) {
         return this.connectionType.getPropertySpec(name);
+    }
+
+    @Override
+    public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
+        return this.connectionType.getUPLPropertySpecs();
+    }
+
+    @Override
+    public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
+        this.connectionType.setUPLProperties(properties);
+
     }
 }

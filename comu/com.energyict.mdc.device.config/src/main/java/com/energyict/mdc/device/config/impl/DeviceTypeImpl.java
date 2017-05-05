@@ -65,6 +65,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -100,8 +101,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         DEVICE_LIFE_CYCLE("deviceLifeCycle"),
         FILE_MANAGEMENT_ENABLED("fileManagementEnabled"),
         DEVICE_MESSAGE_FILES("deviceMessageFiles"),
-        KEY_ACCESSOR_TYPE("keyAccessors"),
-        DEVICE_MESSAGE_FILES("deviceMessageFiles");
+        KEY_ACCESSOR_TYPE("keyAccessors");
 
         private final String javaFieldName;
 
@@ -129,7 +129,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterTypeUsage> registerTypeUsages = new ArrayList<>();
     private List<AllowedCalendar> allowedCalendars = new ArrayList<>();
-    private List<KeyAccessorType> keyAccessors = new ArrayList<>();
     @Valid
     private List<DeviceConfigConflictMappingImpl> deviceConfigConflictMappings = new ArrayList<>();
     @Valid
@@ -139,6 +138,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private boolean deviceProtocolPluggableClassChanged = false;
     private boolean fileManagementEnabled = false;
     private List<ServerDeviceMessageFile> deviceMessageFiles = new ArrayList<>();
+    private List<KeyAccessorType> keyAccessors = new ArrayList<>();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
