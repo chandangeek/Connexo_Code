@@ -65,6 +65,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationPurposeDetails
 
         formulaComponentsContainer.removeAll();
         formulaComponentsContainer.add(formulaComponents);
+        formulaComponentsContainer.add(Imt.util.CommonFields.prepareEventName(record.get('eventNames')));
         Ext.resumeLayouts(true);
 
         me.callParent(arguments);

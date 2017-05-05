@@ -27,6 +27,10 @@ Ext.define('Imt.usagepointmanagement.view.Navigation', {
                 text: Uni.I18n.translate('general.linkMetrologyConfiguration', 'IMT', 'Link metrology configuration')
             },
             {
+                itemId: 'navigation-calendar-info',
+                text: Uni.I18n.translate('general.navigation.calendar', 'IMT', 'Calendars')
+            },
+            {
                 itemId: 'navigation-life-cycle-transition-info',
                 text: Uni.I18n.translate('general.lifeCycleTransition', 'IMT', 'Life cycle transition')
             }

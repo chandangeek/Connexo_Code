@@ -9,7 +9,8 @@ Ext.define('Imt.dataquality.view.Filter', {
         'Imt.dataquality.store.Validators',
         'Imt.dataquality.store.Estimators',
         'Imt.dataquality.store.MetrologyConfigurations',
-        'Imt.dataquality.store.Purposes'
+        'Imt.dataquality.store.Purposes',
+        'Imt.dataquality.store.ReadingQuality'
     ],
     xtype: 'imt-quality-filter',
     store: 'Imt.dataquality.store.DataQuality',
@@ -62,6 +63,7 @@ Ext.define('Imt.dataquality.view.Filter', {
             },
             {
                 type: 'readingquality',
+                store: 'Imt.dataquality.store.ReadingQuality',
                 dataIndex: 'readingQuality',
                 emptyText: Uni.I18n.translate('general.readingQuality', 'IMT', 'Reading quality'),
                 itemId: 'imt-filter-reading-quality'

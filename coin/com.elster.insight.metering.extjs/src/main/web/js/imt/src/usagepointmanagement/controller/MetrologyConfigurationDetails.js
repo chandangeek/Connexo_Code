@@ -69,7 +69,6 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
 
     showPreview: function (selectionModel, record) {
         var me = this;
-
         me.getPage().down('purposes-preview').loadRecord(record, me.usagePoint);
     },
 

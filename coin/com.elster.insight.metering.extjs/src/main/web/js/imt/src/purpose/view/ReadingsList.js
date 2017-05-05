@@ -12,7 +12,8 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         'Imt.purpose.view.SingleReadingActionMenu',
         'Imt.purpose.view.MultipleReadingsActionMenu',
         'Uni.grid.column.Edited',
-        'Imt.purpose.util.TooltipRenderer'
+        'Imt.purpose.util.TooltipRenderer',
+        'Uni.grid.plugin.CopyPasteForGrid'
     ],
     selModel: {
         mode: 'MULTI'
@@ -31,6 +32,10 @@ Ext.define('Imt.purpose.view.ReadingsList', {
 
         me.plugins = [
             {
+                ptype: 'gridviewcopypaste',
+                editColumnDataIndex: 'value'
+            },
+            {
                 ptype: 'bufferedrenderer',
                 trailingBufferZone: 12,
                 leadingBufferZone: 24
@@ -38,18 +43,23 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             {
                 ptype: 'cellediting',
                 clicksToEdit: 1,
-                pluginId: 'cellplugin'
+                pluginId: 'cellplugin',
+                onSpecialKey: Ext.emptyFn // workaround to fix CXO-6274
             }
         ];
-
+        me.on('beforeedit',function(editor,e){
+            if(Ext.isEmpty(e.record.get('readinqQualities')) && Ext.isEmpty(e.record.get('value'))){
+                return false;
+            }
+        });
         me.columns = [
             {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'IMT', 'End of interval'),
                 dataIndex: 'interval',
                 renderer: function (interval, metaData, record) {
                     var text = interval.end
-                            ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))])
-                            : '-';
+                        ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))])
+                        : '-';
 
                     return text + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
                 },
@@ -66,7 +76,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                     stripCharsRe: /[^0-9\.]/,
                     selectOnFocus: true,
                     validateOnChange: true,
-                    fieldStyle: 'text-align: right'
+                    fieldStyle: 'text-align: right',
                 },
                 align: 'right',
                 dataIndex: 'value'
@@ -82,7 +92,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 header: Uni.I18n.translate('device.readingData.lastUpdate', 'IMT', 'Last update'),
                 dataIndex: 'reportedDateTime',
                 flex: 1,
-                renderer: function(value){
+                renderer: function (value) {
                     var date = new Date(value);
                     return Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
                 }
@@ -95,6 +105,9 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 menu: {
                     xtype: 'purpose-readings-data-action-menu',
                     itemId: 'purpose-readings-data-action-menu'
+                },
+                isDisabled: function(grid, rowIndex, colIndex, clickedItem, record) {
+                    return record.get('partOfTimeOfUseGap');
                 }
             }
         ];
@@ -137,17 +150,26 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         me.callParent(arguments);
     },
 
+    addProjectedFlag: function (icon) {
+        icon += '<span style="margin-left:27px; position:absolute; font-weight:bold; cursor: default" data-qtip="'
+            + Uni.I18n.translate('reading.estimated.projected', 'IMT', 'Projected') + '">P</span>';
+        return icon;
+    },
+
     formatColumn: function (v, metaData, record) {
         var status = record.get('validationResult') ? record.get('validationResult').split('.')[1] : '',
             value = Ext.isEmpty(v) ? '-' : v,
             estimatedByRule = record.get('estimatedByRule'),
             icon = '';
-
-        if (status === 'notValidated') {
+        if (record.get('confirmedNotSaved') || record.isModified('isProjected')) {
+            metaData.tdCls = 'x-grid-dirty-cell';
+        }
+        if (record.get('partOfTimeOfUseGap')) {
+            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
+                + Uni.I18n.translate('reading.tou.gap', 'IMT', 'Data not calculated, calendar \''+ record.get('calendarName') +'\' only uses data specified in the formula.') + '"></span>';
+        } else if (status === 'notValidated') {
             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + '"></span>';
-        } else if (record.get('confirmedNotSaved')) {
-            metaData.tdCls = 'x-grid-dirty-cell';
         } else if (status === 'suspect') {
             icon = '<span class="icon-flag5" style="margin-left:10px; color:red; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + '"></span>';
@@ -155,17 +177,27 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             icon = '<span class="icon-flag5" style="margin-left:10px; color: #dedc49; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('validationStatus.informative', 'IMT', 'Informative') + '"></span>';
         }
-        if (!Ext.isEmpty(estimatedByRule) && !record.isModified('value')) {
+        if ((!Ext.isEmpty(estimatedByRule)) && !record.get('removedNotSaved') &&  (!record.isModified('value') || record.isModified('isProjected'))) {
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
-                + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}',[
+                + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}', [
                     estimatedByRule.application.name,
                     Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
                     Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
                 ], false) + '"></span>';
-        } else if (record.get('isConfirmed') && !record.isModified('value')) {
+            if (record.get('isProjected') === true) {
+                icon = this.addProjectedFlag(icon);
+            }
+        } else if (record.get('estimatedNotSaved') && record.get('ruleId') > 0) {
+            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;"></span>';
+            if (record.get('isProjected') === true) {
+                icon = this.addProjectedFlag(icon);
+            }
+        } else if ((record.get('isConfirmed') || record.get('confirmedNotSaved')) && !record.isModified('value')) {
             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.confirmed', 'IMT', 'Confirmed') + '"></span>';
+        } else if ((record.get('modificationFlag') && record.get('modificationDate') || record.isModified('value')) && record.get('isProjected') === true) {
+            icon = this.addProjectedFlag(icon);
         }
-        return value + icon;
+        return value + icon + '<span>&nbsp;&nbsp;&nbsp;</span>';
     }
 });
