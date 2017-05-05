@@ -4,9 +4,11 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.CustomPropertyNode;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -24,6 +26,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.Range;
 
 import java.net.URL;
 import java.time.Clock;
@@ -44,6 +47,7 @@ public class MetrologyConfigurationInfo {
     public IdWithNameInfo status;
     public List<MeterRoleInfo> meterRoles;
     public List<PurposeInfo> purposes;
+    public boolean requiresCalendar;
 
     @JsonIgnore
     public Thesaurus thesaurus;
@@ -72,6 +76,7 @@ public class MetrologyConfigurationInfo {
                 .sorted(Comparator.comparing(info -> info.name))
                 .collect(Collectors.toList());
         this.status = statusInfo();
+        this.requiresCalendar = metrologyConfiguration.requiresCalendarOnUsagePoint();
     }
 
     private IdWithNameInfo statusInfo() {
@@ -131,6 +136,17 @@ public class MetrologyConfigurationInfo {
                 .sorted(Comparator.comparing(ReadingTypeDeliverable::getName))
                 .map(readingTypeDeliverableFactory::asInfo)
                 .collect(Collectors.toList());
+        info.eventNames = new ArrayList<>();
+        List<Long> longs = metrologyContract.getDeliverables()
+                .stream()
+                .map(readingTypeDeliverable -> (long) readingTypeDeliverable.getReadingType().getTou())
+                .collect(Collectors.toList());
+
+        List<Event> eventList = metrologyContract.getMetrologyConfiguration().getEventSets().stream()
+                .flatMap(eventSet -> eventSet.getEvents().stream()).collect(Collectors.toList());
+
+
+        eventList.stream().filter(event -> longs.contains(event.getCode())).forEach(event2 -> info.eventNames.add(info.eventNames.size(),event2.getName()));
         return info;
     }
 
@@ -211,6 +227,7 @@ public class MetrologyConfigurationInfo {
         this.name = usagePointMetrologyConfiguration.getName();
         this.version = usagePointMetrologyConfiguration.getVersion();
         this.customPropertySets = customPropertySets;
+        this.requiresCalendar = usagePointMetrologyConfiguration.requiresCalendarOnUsagePoint();
     }
 
     public MetrologyConfigurationInfo(UsagePointMetrologyConfiguration usagePointMetrologyConfiguration) {

@@ -7,7 +7,6 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.util.Pair;
@@ -48,21 +47,21 @@ public enum ReadingModificationFlag {
                         () -> new EnumMap<>(ReadingModificationFlag.class)));
 
         if (flags.containsKey(ADDED)) {
-            if(calculatedReading.isPresent()){
+            if (calculatedReading.isPresent()) {
                 return Pair.of(EDITED, flags.get(ADDED));
             } else {
                 return Pair.of(ADDED, flags.get(ADDED));
             }
         }
         else  if (flags.containsKey(EDITED)) {
-            if(calculatedReading.isPresent()){
+            if (calculatedReading.isPresent()) {
                 return Pair.of(EDITED, flags.get(EDITED));
             } else {
                 return Pair.of(ADDED, flags.get(EDITED));
             }
         }
         else if (flags.containsKey(REMOVED)) {
-            if(calculatedReading.isPresent()){
+            if (calculatedReading.isPresent()) {
                 return Pair.of(RESET, flags.get(REMOVED));
             } else {
                 return Pair.of(REMOVED, flags.get(REMOVED));

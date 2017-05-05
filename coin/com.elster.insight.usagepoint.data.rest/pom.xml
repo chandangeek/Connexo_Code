@@ -192,10 +192,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>usagepoint.calendar</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>calendar</artifactId>
         </dependency>
         <dependency>
@@ -209,6 +205,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>appserver.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering</artifactId>
         </dependency>
 
         <!-- test dependencies -->
