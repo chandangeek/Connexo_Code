@@ -34,8 +34,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
-
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.math.BigDecimal;
@@ -199,7 +197,7 @@ public class CreateDataLoggerCommand {
                         .findFirst()
                         .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5.getName() + "."));
         TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password("ntaSim"));
+        typedProperties.setProperty("Password", new Password("ntaSim"));
         securityPropertySetHigh
                 .getPropertySpecs()
                 .stream()
