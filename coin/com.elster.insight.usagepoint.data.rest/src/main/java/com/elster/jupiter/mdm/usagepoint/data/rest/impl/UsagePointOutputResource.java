@@ -455,7 +455,7 @@ public class UsagePointOutputResource {
             if (!validationRange.isPresent()) {
                 return Response.status(Response.Status.BAD_REQUEST).build();
             }
-            List<PrevalidatedChannelDataInfo> infos = usagePoint.getEffectiveMetrologyConfigurations(validationRange.get()).stream()
+            List<PrevalidatedChannelDataInfo> infos = usagePoint.getEffectiveMetrologyConfigurations().stream()
                     .flatMap(effectiveMC -> findMetrologyContractForPurpose(effectiveMC, metrologyContract.getMetrologyPurpose())
                             .flatMap(effectiveMC::getChannelsContainer).map(Stream::of).orElse(Stream.empty()))
                     .flatMap(channelsContainer -> validateChannel(channelsContainer, readingType, validationRange.get()))
@@ -485,6 +485,9 @@ public class UsagePointOutputResource {
 
     private Stream<? extends DataValidationStatus> validateChannel(ChannelsContainer channelsContainer, ReadingType readingType, Range<Instant> validationRange) {
         Range<Instant> containerRange = channelsContainer.getInterval().toOpenClosedRange();
+        if (!containerRange.isConnected(validationRange)) {
+            return Stream.empty();
+        }
         Range<Instant> rangeToPrevalidate = containerRange.intersection(validationRange);
         Channel channel = channelsContainer.getChannel(readingType).get();
         validationService.validate(

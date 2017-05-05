@@ -127,7 +127,6 @@ public class PrevalidateChannelDataTest extends UsagePointDataRestApplicationJer
         when(usagePoint.getName()).thenReturn(name);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
         when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(effectiveMC));
-        when(usagePoint.getEffectiveMetrologyConfigurations(any())).thenReturn(Collections.singletonList(effectiveMC));
         when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
         when(meteringService.findUsagePointByName(name)).thenReturn(Optional.of(usagePoint));
         return usagePoint;
