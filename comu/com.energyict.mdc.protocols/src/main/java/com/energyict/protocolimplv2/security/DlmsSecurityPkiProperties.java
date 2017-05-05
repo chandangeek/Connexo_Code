@@ -14,7 +14,6 @@ import com.elster.jupiter.pki.KeyAccessorType;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -115,18 +114,18 @@ public class DlmsSecurityPkiProperties extends CommonBaseDeviceSecurityPropertie
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        this.password = (String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.PASSWORD.javaName());
-        this.authenticationKey.set((KeyAccessorType) propertyValues.getProperty(DeviceSecurityProperty.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.javaName()));
-        this.encryptionKey.set((KeyAccessorType) propertyValues.getProperty(DeviceSecurityProperty.ENCRYPTION_KEY_WITH_KEY_ACCESSOR.javaName()));
+        this.password = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.PASSWORD.toString());
+        this.authenticationKey.set((KeyAccessorType) propertyValues.getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString()));
+        this.encryptionKey.set((KeyAccessorType) propertyValues.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString()));
     }
 
     @Override
     protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
         if (!is(this.password).empty()) {
-            setTypedPropertyValueTo(propertySetValues, DeviceSecurityProperty.PASSWORD.javaName(), this.password);
+            setTypedPropertyValueTo(propertySetValues, SecurityPropertySpecName.PASSWORD.toString(), this.password);
         }
-        this.setReferencePropertyIfNotNull(propertySetValues, DeviceSecurityProperty.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.javaName(), this.authenticationKey);
-        this.setReferencePropertyIfNotNull(propertySetValues, DeviceSecurityProperty.ENCRYPTION_KEY_WITH_KEY_ACCESSOR.javaName(), this.encryptionKey);
+        this.setReferencePropertyIfNotNull(propertySetValues, SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), this.authenticationKey);
+        this.setReferencePropertyIfNotNull(propertySetValues, SecurityPropertySpecName.ENCRYPTION_KEY.toString(), this.encryptionKey);
     }
 
     @Override

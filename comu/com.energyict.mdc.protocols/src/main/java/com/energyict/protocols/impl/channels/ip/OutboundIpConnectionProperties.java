@@ -140,7 +140,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         TLS_CLIENT_CERTIFICATE {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.TLS_CLIENT_CERTIFICATE.propertySpecName();
+                return "tlsClientCertificate"; //TODO: rework
             }
 
             @Override

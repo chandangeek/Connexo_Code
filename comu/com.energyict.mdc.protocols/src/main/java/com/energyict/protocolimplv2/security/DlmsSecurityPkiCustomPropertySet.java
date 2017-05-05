@@ -7,12 +7,14 @@ package com.energyict.protocolimplv2.security;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.SecurityCustomPropertySet;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link CustomPropertySet} interface for {@link DlmsSecuritySupport}.
@@ -48,10 +50,18 @@ public class DlmsSecurityPkiCustomPropertySet extends SecurityCustomPropertySet<
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService, this.thesaurus),
-                DeviceSecurityProperty.ENCRYPTION_KEY_WITH_KEY_ACCESSOR.getPropertySpec(this.propertySpecService, this.thesaurus),
-                DeviceSecurityProperty.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.getPropertySpec(this.propertySpecService, this.thesaurus));
+        //The property specs for this security set are defined in the 9.1 protocol code base
+        DeviceProtocolSecurityCapabilities dlmsSecuritySupport = new com.energyict.protocolimplv2.security.DlmsSecuritySupport(propertySpecService);
+
+        return dlmsSecuritySupport.getSecurityProperties()
+                .stream()
+                .map(UPLToConnexoPropertySpecAdapter::new)
+                .collect(Collectors.toList());
+
+//        return Arrays.asList(
+//                DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService, this.thesaurus),
+//                DeviceSecurityProperty.ENCRYPTION_KEY_WITH_KEY_ACCESSOR.getPropertySpec(this.propertySpecService, this.thesaurus),
+//                DeviceSecurityProperty.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.getPropertySpec(this.propertySpecService, this.thesaurus));
     }
 
 }
