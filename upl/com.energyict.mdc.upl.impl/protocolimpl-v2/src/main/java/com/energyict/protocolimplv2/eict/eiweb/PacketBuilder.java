@@ -163,12 +163,12 @@ public class PacketBuilder {
         for (int i = 0; i < this.data.length; i++) {
             dataStringBuilder.append(Integer.toHexString(this.data[i] & LOWER_BYTE_BIT_MASK)).append(" ");
         }
-        this.logger.finest(limitToVarchar2Length(dataStringBuilder));
+        this.logger.finest("Data = " + limitToVarchar2Length(dataStringBuilder));
     }
 
     private String limitToVarchar2Length(StringBuilder dataStringBuilder) {
         String data = dataStringBuilder.toString();
-        return data.substring(0, Math.max(4000, data.length()));
+        return data.substring(0, Math.min(4000, data.length()));
     }
 
     public void parse(String id, String seq, String utc, String code, String statebits, String mask, String value, String ip, String sn, String xmlctr)
