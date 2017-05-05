@@ -9,10 +9,7 @@ import javax.validation.ConstraintValidatorContext;
 
 /**
  * Provides an implementation for the {@link IsPresent} contraint
- * when applied to Reference fields.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-05-15 (12:26)
+ * when applied to Reference fields
  */
 public class IsPresentReferenceValidator implements ConstraintValidator<IsPresent, Reference> {
 

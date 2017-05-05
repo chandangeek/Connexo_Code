@@ -9,12 +9,12 @@ import javax.validation.ConstraintValidatorContext;
 
 /**
  * Provides an implementation for the {@link IsPresent} contraint
- * when applied to Reference fields.
+ * when applied to RefAny fields.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-15 (12:26)
  */
-class IsPresentRefAnyValidator implements ConstraintValidator<IsPresent, Reference> {
+public class IsPresentRefAnyValidator implements ConstraintValidator<IsPresent, RefAny> {
 
     @Override
     public void initialize(IsPresent constraintAnnotation) {
@@ -22,8 +22,8 @@ class IsPresentRefAnyValidator implements ConstraintValidator<IsPresent, Referen
     }
 
     @Override
-    public boolean isValid(Reference value, ConstraintValidatorContext context) {
-        return value.isPresent();
+    public boolean isValid(RefAny refAny, ConstraintValidatorContext constraintValidatorContext) {
+        return refAny != null && refAny.isPresent();
     }
 
 }
