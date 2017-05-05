@@ -42,6 +42,7 @@ import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,9 +50,6 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static java.util.Comparator.naturalOrder;
-import static java.util.Comparator.nullsLast;
 
 public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel {
 
