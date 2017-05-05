@@ -2,8 +2,9 @@ package com.energyict.mdc.protocol.api.device.offline;
 
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.SecurityValueWrapper;
-import com.energyict.mdc.common.Offline;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.Offline;
 
 import java.util.Optional;
 
@@ -39,6 +40,6 @@ public interface OfflineKeyAccessor<T extends SecurityValueWrapper> extends Offl
      *
      * @return the deviceIdentifier
      */
-    DeviceIdentifier<?> getDeviceIdentifier();
+    DeviceIdentifier getDeviceIdentifier();
 
 }

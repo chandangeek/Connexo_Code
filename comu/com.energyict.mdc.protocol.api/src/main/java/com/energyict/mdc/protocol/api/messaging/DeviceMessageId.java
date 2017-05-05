@@ -10,7 +10,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * Models the unique identifier of a {@link MessageSpec}.
+ * Models the unique identifier of a MessageSpec.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-15 (09:22)
