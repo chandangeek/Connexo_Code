@@ -27,6 +27,7 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,9 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
     /**
      * @param channels supports only 1 or 2 cim channels due to {@link #createDataValidationStatusListFor(Instant, boolean, Iterator, Iterator)},
      * 1st must be main channel, 2nd must be bulk.
+     *
+     * @param readings only needed to add transient reading qualities "validated and ok" validation statuses for readings that have no reading qualities at all.
+     * You can pass {@link Collections#emptyList()} if you are not interested in "validated and ok" statuses.
      */
     @Override
     public List<DataValidationStatus> getValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, List<CimChannel> channels,
