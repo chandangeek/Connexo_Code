@@ -345,7 +345,7 @@ Ext.define('Pkj.controller.TrustStores', {
                         Ext.resumeLayouts(true);
                     }
                 } else {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificatesImport.success', 'MDC', 'Certificates imported'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.certificatesImport.success', 'PKJ', 'Certificates imported'));
                     me.navigateToTrustStoreAndCertificatesPage();
                 }
             }
