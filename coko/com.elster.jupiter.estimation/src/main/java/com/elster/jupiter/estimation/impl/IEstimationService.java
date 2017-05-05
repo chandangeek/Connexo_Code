@@ -5,6 +5,7 @@
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.estimation.EstimationPropertyResolver;
 import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResolver;
 import com.elster.jupiter.estimation.EstimationService;
@@ -42,4 +43,6 @@ interface IEstimationService extends EstimationService {
     List<EstimationTask> findByDeviceGroup(EndDeviceGroup endDeviceGroup, int skip, int limit);
 
     List<EstimationResolver> getEstimationResolvers();
+
+    List<EstimationPropertyResolver> getEstimationPropertyResolvers();
 }
