@@ -19,6 +19,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -152,22 +154,29 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     public void update() {
         dataModel.mapper(ReadingQualityRecord.class).update(this);
-        eventService.postEvent(EventType.READING_QUALITY_UPDATED.topic(), new LocalEventSource(this));
+        notifyUpdated();
     }
 
     public void update(String... fieldNames) {
         dataModel.mapper(ReadingQualityRecord.class).update(this, fieldNames);
-        eventService.postEvent(EventType.READING_QUALITY_UPDATED.topic(), new LocalEventSource(this));
+        notifyUpdated();
     }
 
     void doSave() {
         if (id == 0) {
             dataModel.mapper(ReadingQualityRecord.class).persist(this);
-            eventService.postEvent(EventType.READING_QUALITY_CREATED.topic(), new LocalEventSource(this));
+            notifyCreated();
         } else {
             dataModel.mapper(ReadingQualityRecord.class).update(this);
-            eventService.postEvent(EventType.READING_QUALITY_UPDATED.topic(), new LocalEventSource(this));
+            notifyUpdated();
         }
+    }
+
+
+    static void saveAll(DataModel model, List<ReadingQualityRecordImpl> records) {
+        List<ReadingQualityRecord> myRecords = new ArrayList<>(records);
+        model.mapper(ReadingQualityRecord.class).persist(myRecords);
+        records.forEach(ReadingQualityRecordImpl::notifyCreated);
     }
 
     @Override
@@ -179,6 +188,14 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
     public void delete() {
         dataModel.mapper(ReadingQualityRecord.class).remove(this);
         notifyDeleted();
+    }
+
+    private void notifyCreated() {
+        eventService.postEvent(EventType.READING_QUALITY_CREATED.topic(), new LocalEventSource(this));
+    }
+
+    private void notifyUpdated() {
+        eventService.postEvent(EventType.READING_QUALITY_UPDATED.topic(), new LocalEventSource(this));
     }
 
     void notifyDeleted() {

@@ -20,7 +20,6 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.JournaledChannelReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
@@ -586,6 +585,22 @@ public final class ChannelImpl implements SimpleChannelContract {
         ReadingQualityRecordImpl readingQualityRecord = ReadingQualityRecordImpl.from(dataModel, type, getCimChannel(readingType).orElseThrow(IllegalArgumentException::new), timestamp);
         readingQualityRecord.doSave();
         return readingQualityRecord;
+    }
+
+    @Override
+    public List<ReadingQualityRecord> createReadingQualityForRecords(ReadingQualityType type, ReadingType readingType, List<BaseReadingRecord> records) {
+        CimChannel cimChannel = getCimChannel(readingType).orElseThrow(IllegalArgumentException::new);
+        List<ReadingQualityRecordImpl> collect = records.stream().map(baseReading -> ReadingQualityRecordImpl.from(dataModel, type, cimChannel, baseReading)).collect(Collectors.toList());
+        ReadingQualityRecordImpl.saveAll(dataModel, collect);
+        return new ArrayList<>(collect);
+    }
+
+    @Override
+    public List<ReadingQualityRecord> createReadingQualityForTimestamps(ReadingQualityType type, ReadingType readingType, List<Instant> timestamps) {
+        CimChannel cimChannel = getCimChannel(readingType).orElseThrow(IllegalArgumentException::new);
+        List<ReadingQualityRecordImpl> collect = timestamps.stream().map(instant -> ReadingQualityRecordImpl.from(dataModel, type, cimChannel, instant)).collect(Collectors.toList());
+        ReadingQualityRecordImpl.saveAll(dataModel, collect);
+        return new ArrayList<>(collect);
     }
 
     ReadingQualityRecord copyReadingQuality(ReadingQualityRecord source) {
