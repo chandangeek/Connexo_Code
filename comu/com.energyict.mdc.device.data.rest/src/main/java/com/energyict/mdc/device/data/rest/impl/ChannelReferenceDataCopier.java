@@ -66,11 +66,15 @@ public class ChannelReferenceDataCopier {
         if (readingTypeComparator.compare(readingType, sourceChannel.getReadingType()) != 0) {
             throw new LocalizedFieldValidationException(MessageSeeds.READINGTYPES_DONT_MATCH, "readingType");
         }
-        Channel referenceChannel = referenceDevice.getChannels().stream()
-                .filter(ch -> ch.getCalculatedReadingType(referenceChannelDataInfo.startDate)
-                        .filter(refernceReadingType -> refernceReadingType.equals(readingType))
-                        .isPresent())
+        Channel referenceChannel = Optional.ofNullable(referenceDevice.getChannels().stream()
+                .filter(ch -> ch.getReadingType().equals(readingType))
                 .findFirst()
+                .orElseGet(() -> referenceDevice.getChannels().stream()
+                        .filter(ch -> ch.getCalculatedReadingType(referenceChannelDataInfo.startDate)
+                                .filter(refernceReadingType -> refernceReadingType.equals(readingType))
+                                .isPresent())
+                        .findFirst()
+                        .orElse(null)))
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_DEVICE, "readingType"));
 
 
