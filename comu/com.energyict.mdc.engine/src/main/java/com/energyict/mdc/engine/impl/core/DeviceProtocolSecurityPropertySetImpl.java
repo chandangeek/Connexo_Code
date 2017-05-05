@@ -12,8 +12,8 @@ import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineKeyAccessorImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
-import com.energyict.mdc.protocol.api.security.AdvancedDeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +39,6 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
         this.requestSecurityLevel = requestSecurityLevel;
         this.responseSecurityLevel = responseSecurityLevel;
         this.constructSecurityProperties(configurationSecurityProperties, keyAccessors, identificationService);
-
     }
 
     private void constructSecurityProperties(List<ConfigurationSecurityProperty> configurationSecurityProperties, List<KeyAccessor> keyAccessors, IdentificationService identificationService) {

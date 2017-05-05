@@ -8,13 +8,13 @@ import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessor;
-import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import javax.crypto.SecretKey;
 import java.sql.SQLException;
@@ -51,9 +51,9 @@ public class DeviceProtocolSecurityPropertySetImplTest {
 
     @Before
     public void initializeMocksAndFactories() throws SQLException {
-        TransactionService transactionService = new FakeTransactionService();
+        TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
         when(this.serviceProvider.transactionService()).thenReturn(transactionService);
-        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+//        when(this.deviceIdentifier.findDevice()).thenReturn(this.device); TODO: mock deviceService so it can resolve device identifiers
     }
 
     @Test

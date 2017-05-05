@@ -9,8 +9,10 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.engine.impl.core.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.tasks.ClockTask;
@@ -22,6 +24,7 @@ import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -55,6 +58,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     private volatile DeviceService deviceService;
     private volatile TopologyService topologyService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile IdentificationService identificationService;
 
     @Activate
     public void activate() {
@@ -89,6 +93,11 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
+    }
+
+    @Reference
+    public void setIdentificationService(IdentificationService identificationService) {
+        this.identificationService = identificationService;
     }
 
     @Override
@@ -168,11 +177,30 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private Collection<SecurityProperty> securityProperties(Device device, com.energyict.mdc.device.config.SecurityPropertySet securityPropertySet) {
-        return device
-                .getSecurityProperties(securityPropertySet)
-                .stream()
-                .map(SecurityPropertyAdapter::new)
-                .collect(Collectors.toList());
+        TypedProperties securityProperties = new DeviceProtocolSecurityPropertySetImpl(
+                securityPropertySet.getClient(),
+                securityPropertySet.getAuthenticationDeviceAccessLevel().getId(),
+                securityPropertySet.getEncryptionDeviceAccessLevel().getId(),
+                securityPropertySet.getSecuritySuite().getId(),
+                securityPropertySet.getRequestSecurityLevel().getId(),
+                securityPropertySet.getResponseSecurityLevel().getId(),
+                securityPropertySet.getConfigurationSecurityProperties(),
+                device.getKeyAccessors(),
+                identificationService
+        ).getSecurityProperties();
+
+        return securityProperties.propertyNames().stream()
+                .map(propertyName -> new SecurityProperty() {
+                    @Override
+                    public String name() {
+                        return propertyName;
+                    }
+
+                    @Override
+                    public Object value() {
+                        return securityProperties.getTypedProperty(propertyName);
+                    }
+                }).collect(Collectors.toList());
     }
 
     @Override
@@ -745,24 +773,6 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
         @Override
         public int hashCode() {
             return Objects.hash(this.id());
-        }
-    }
-
-    private static class SecurityPropertyAdapter implements SecurityProperty {
-        private final com.energyict.mdc.protocol.api.security.SecurityProperty actual;
-
-        private SecurityPropertyAdapter(com.energyict.mdc.protocol.api.security.SecurityProperty actual) {
-            this.actual = actual;
-        }
-
-        @Override
-        public String name() {
-            return this.actual.getName();
-        }
-
-        @Override
-        public Object value() {
-            return TypedPropertiesValueAdapter.adaptToUPLValue(this.actual.getValue());
         }
     }
 

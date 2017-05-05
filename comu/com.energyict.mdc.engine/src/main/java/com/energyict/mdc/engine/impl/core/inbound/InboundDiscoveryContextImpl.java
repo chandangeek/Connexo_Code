@@ -15,7 +15,6 @@ import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ObjectMapperService;
@@ -32,6 +31,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -223,8 +223,12 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     }
 
     @Override
-    public DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier) {
-        return this.getInboundDAO().getDeviceProtocolSecurityPropertySet(deviceIdentifier, this.getComPort());
+    public DeviceMasterDataExtractor getDeviceMasterDataExtractor() {
+        return deviceMasterDataExtractor;
+    }
+
+    public void setDeviceMasterDataExtractor(DeviceMasterDataExtractor deviceMasterDataExtractor) {
+        this.deviceMasterDataExtractor = deviceMasterDataExtractor;
     }
 
     @Override
@@ -282,8 +286,8 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     }
 
     @Override
-    public Optional<List<? extends com.energyict.mdc.upl.security.SecurityProperty>> getProtocolSecurityProperties(DeviceIdentifier deviceIdentifier) {
-        return Optional.ofNullable(comServerDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, getComPort()));
+    public Optional<DeviceProtocolSecurityPropertySet> getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier) {
+        return Optional.ofNullable(comServerDAO.getDeviceProtocolSecurityPropertySet(deviceIdentifier, getComPort()));
     }
 
     @Override

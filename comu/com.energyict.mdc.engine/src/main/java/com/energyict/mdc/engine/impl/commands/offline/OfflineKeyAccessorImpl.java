@@ -4,16 +4,16 @@ import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessor;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.Optional;
 
 public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements OfflineKeyAccessor {
 
     /**
-     * The {@link com.energyict.mdc.protocol.api.device.BaseLogBook} which is going offline
+     * The {@link KeyAccessor} which is going offline
      */
     private final KeyAccessor<T> keyAccessor;
     private IdentificationService identificationService;
@@ -48,7 +48,7 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
 
 
     @Override
-    public DeviceIdentifier<?> getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         return this.identificationService.createDeviceIdentifierForAlreadyKnownDevice(device);
     }
 

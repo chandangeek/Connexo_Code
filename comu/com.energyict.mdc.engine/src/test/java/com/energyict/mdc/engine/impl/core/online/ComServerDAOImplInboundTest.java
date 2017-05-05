@@ -17,6 +17,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -25,12 +26,14 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -221,8 +224,6 @@ public class ComServerDAOImplInboundTest {
         when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
-        SecurityProperty expectedSecurityProperty = mock(SecurityProperty.class);
-        List<SecurityProperty> expectedSecurityProperties = Collections.singletonList(expectedSecurityProperty);
         Device device = mock(Device.class);
         when(device.getInboundConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -242,7 +243,7 @@ public class ComServerDAOImplInboundTest {
         assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(1);
         assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(2);
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().size()).isEqualTo(1);
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getLocalValue("Password")).isEqualTo("MyPassword");
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty("Password")).isEqualTo("MyPassword");
     }
 
     @Test(expected = CanNotFindForIdentifier.class)
