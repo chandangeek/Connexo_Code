@@ -37,7 +37,7 @@ public class MetrologyConfigurationInfoFactory {
         info.id = metrologyConfiguration.getId();
         info.name = metrologyConfiguration.getName();
         info.description = metrologyConfiguration.getDescription();
-        info.isGapAllowed = metrologyConfiguration.are1GapsAllowed();
+        info.isGapAllowed = metrologyConfiguration.asdaasd();
         info.status = asInfo(metrologyConfiguration.getStatus());
         info.serviceCategory = asInfo(metrologyConfiguration.getServiceCategory());
         info.version = metrologyConfiguration.getVersion();
