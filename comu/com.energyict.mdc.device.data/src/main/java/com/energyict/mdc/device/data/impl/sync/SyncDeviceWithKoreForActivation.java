@@ -23,17 +23,15 @@ import java.util.Optional;
 
 public class SyncDeviceWithKoreForActivation extends AbstractSyncDeviceWithKoreMeter {
 
-    private DeviceImpl device;
-
     @Inject
     public SyncDeviceWithKoreForActivation(DeviceImpl device, ServerDeviceService deviceService, MdcReadingTypeUtilService readingTypeUtilService, EventService eventService, Instant start) {
         super(deviceService, readingTypeUtilService, eventService, start);
-        this.device = device;
+        super.setDevice(device);
     }
 
     @Override
     MeterActivation doActivateMeter(Instant generalizedActivationDate) {
-        Optional<MeterActivation> affectedMeterActivation = device.getMeterActivationsMostRecentFirst()
+        Optional<MeterActivation> affectedMeterActivation = getDevice().getMeterActivationsMostRecentFirst()
                 .stream()
                 .filter(ma -> ma.getRange().contains(generalizedActivationDate))
                 .findFirst();
@@ -41,18 +39,19 @@ public class SyncDeviceWithKoreForActivation extends AbstractSyncDeviceWithKoreM
         if (affectedMeterActivation.isPresent()) { // if we already have meter activation, it is possible that it has data
             newActivation = affectedMeterActivation.get().split(generalizedActivationDate);
             removeReadingQualities(newActivation.getChannelsContainer().getChannels());
-            device.refreshMeter();
+            ((DeviceImpl) getDevice()).refreshMeter();
+            getDevice().getKoreHelper().setCurrentMeterActivation(Optional.of(newActivation));
+            meterActivationRestarted();
         } else {
-            newActivation = device.getKoreHelper().activateMeter(generalizedActivationDate);
+            newActivation = getDevice().getKoreHelper().activateMeter(generalizedActivationDate);
         }
-        device.getKoreHelper().reloadCurrentMeterActivation();
+        getDevice().getKoreHelper().reloadCurrentMeterActivation();
         return newActivation;
     }
 
     @Override
     public void syncWithKore(DeviceImpl device) {
         super.setDevice(device);
-        this.device = device;
         this.activateMeter(getStart());
     }
 
@@ -66,7 +65,7 @@ public class SyncDeviceWithKoreForActivation extends AbstractSyncDeviceWithKoreM
      *
      * @param channels
      */
-    private static void removeReadingQualities(List<Channel> channels) {
+    private void removeReadingQualities(List<Channel> channels) {
         channels.stream()
                 .flatMap(channel -> channel.findReadingQualities()
                         // TODO: think of what systems should be taken into account when removing validation related qualities

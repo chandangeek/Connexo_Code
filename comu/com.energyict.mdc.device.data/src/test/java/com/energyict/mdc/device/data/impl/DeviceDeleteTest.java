@@ -41,6 +41,9 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LockService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.properties.ChannelEstimationRuleOverriddenPropertiesImpl;
+import com.energyict.mdc.device.data.impl.properties.ChannelValidationRuleOverriddenPropertiesImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
@@ -196,11 +199,15 @@ public class DeviceDeleteTest {
     private MeterRole meterRole;
     @Mock
     private LockService lockService;
+    @Mock
+    private DataMapper<ChannelValidationRuleOverriddenPropertiesImpl> validationOverriddenPropertiesDataMapper;
+    @Mock
+    private DataMapper<ChannelEstimationRuleOverriddenPropertiesImpl> estimationOverriddenPropertiesDataMapper;
 
     @Before
     public void setup() {
         when(dataModel.mapper(DeviceImpl.class)).thenReturn(dataMapper);
-        when(this.dataModel.getInstance(DeviceImpl.DeviceEstimationImpl.class)).thenReturn(new DeviceImpl.DeviceEstimationImpl(this.dataModel, this.estimationService));
+        when(this.dataModel.getInstance(DeviceEstimationImpl.class)).thenReturn(new DeviceEstimationImpl(this.dataModel, this.estimationService));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
@@ -239,6 +246,9 @@ public class DeviceDeleteTest {
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
         when(finiteStateMachine.getId()).thenReturn(633L);
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
+
+        when(dataModel.mapper(ChannelValidationRuleOverriddenPropertiesImpl.class)).thenReturn(validationOverriddenPropertiesDataMapper);
+        when(dataModel.mapper(ChannelEstimationRuleOverriddenPropertiesImpl.class)).thenReturn(estimationOverriddenPropertiesDataMapper);
     }
 
     @Test
