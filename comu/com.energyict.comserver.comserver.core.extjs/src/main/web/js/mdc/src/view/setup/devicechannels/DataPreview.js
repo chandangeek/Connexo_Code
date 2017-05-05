@@ -103,6 +103,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             detailRecord.set('multiplier', record.get('multiplier'));
             detailRecord.set('mainCommentValue', record.get('mainCommentValue'));
             detailRecord.set('bulkCommentValue', record.get('bulkCommentValue'));
+            debugger;
             me.down('#values-panel').loadRecord(detailRecord);
             me.setLoading(false);
         });
@@ -510,6 +511,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                         if (!value) {
                             this.hide();
                         } else {
+                            this.show();
                             return value;
                         }
                     }
@@ -557,6 +559,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                             if (!value) {
                                 this.hide();
                             } else {
+                                this.show();
                                 return value;
                             }
                         }
