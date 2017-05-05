@@ -286,7 +286,8 @@ public enum TransitionType {
                     MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
                     MicroCheck.ALL_DATA_VALIDATED,
                     MicroCheck.ALL_DATA_VALID,
-                    MicroCheck.NO_ACTIVE_SERVICE_CALLS);
+                    MicroCheck.NO_ACTIVE_SERVICE_CALLS,
+                    MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES);
         }
         @Override
         public Set<MicroAction> optionalActions() {
@@ -313,7 +314,8 @@ public enum TransitionType {
                     MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
                     MicroCheck.ALL_DATA_VALIDATED,
                     MicroCheck.ALL_DATA_VALID,
-                    MicroCheck.NO_ACTIVE_SERVICE_CALLS);
+                    MicroCheck.NO_ACTIVE_SERVICE_CALLS,
+                    MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES);
         }
         @Override
         public Set<MicroAction> optionalActions() {
@@ -340,7 +342,6 @@ public enum TransitionType {
                     MicroAction.REMOVE_DEVICE);
         }
     },
-   // RECYCLE(DefaultState.DECOMMISSIONED, DefaultState.IN_STOCK),
     DELETE_FROM_IN_STOCK(DefaultState.IN_STOCK, DefaultState.REMOVED){
        @Override
        public Set<MicroAction> requiredActions() {

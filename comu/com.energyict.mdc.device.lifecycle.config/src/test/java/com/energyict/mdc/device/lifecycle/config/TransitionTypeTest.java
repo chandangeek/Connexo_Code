@@ -176,12 +176,13 @@ public class TransitionTypeTest {
     }
     @Test
     public void testOptionalPreTransitionChecksDeactivateAndDecommission(){
-        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).hasSize(5);
+        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).hasSize(6);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_DATA_VALIDATED);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_DATA_VALID);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).contains(MicroCheck.NO_ACTIVE_SERVICE_CALLS);
+        assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES);
     }
     @Test
     public void testMandatoryPreTransitionActionsDeActivateAndDecommission(){
@@ -209,12 +210,13 @@ public class TransitionTypeTest {
 
     @Test
     public void testOptionalPreTransitionChecksDecommission(){
-        assertThat(TransitionType.DECOMMISSION.optionalChecks()).hasSize(5);
+        assertThat(TransitionType.DECOMMISSION.optionalChecks()).hasSize(6);
         assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED);
         assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED);
         assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_DATA_VALIDATED);
         assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_DATA_VALID);
         assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.NO_ACTIVE_SERVICE_CALLS);
+        assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.NO_LINKED_MULTI_ELEMENT_SLAVES);
     }
     @Test
     public void testOptionalPreTransitionActionsDecommission(){
