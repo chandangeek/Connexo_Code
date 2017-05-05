@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -35,7 +34,7 @@ public class SecurityPropertiesAreValid extends ConsolidatedServerMicroCheck {
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp, State state) {
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
         if (!device.securityPropertiesAreValid()) {
             return Optional.of(newViolation());
         }

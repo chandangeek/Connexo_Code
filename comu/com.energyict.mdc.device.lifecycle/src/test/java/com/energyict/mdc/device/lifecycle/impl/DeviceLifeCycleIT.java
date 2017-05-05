@@ -42,13 +42,10 @@ import static org.mockito.Mockito.when;
  */
 public class DeviceLifeCycleIT extends PersistenceIntegrationTest {
 
-    private static final String DEVICE_NAME = "deviceName";
-
     @Before
     public void restoreDefaultLifeCycle() {
         inMemoryPersistence.getService(OrmService.class).invalidateCache(FiniteStateMachineService.COMPONENT_NAME, TableSpecs.FSM_FINITE_STATE_MACHINE.name());
         this.changeInitialState(DefaultState.IN_STOCK);
-
     }
 
     @Test

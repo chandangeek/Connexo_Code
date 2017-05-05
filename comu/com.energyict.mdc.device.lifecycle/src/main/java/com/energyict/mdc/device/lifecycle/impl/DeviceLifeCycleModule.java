@@ -13,6 +13,7 @@ import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -31,6 +32,7 @@ public class DeviceLifeCycleModule extends AbstractModule {
         requireBinding(ThreadPrincipalService.class);
         requireBinding(PropertySpecService.class);
         requireBinding(TopologyService.class);
+        requireBinding(MultiElementDeviceService.class);
         requireBinding(UserService.class);
         requireBinding(TransactionService.class);
         requireBinding(DeviceLifeCycleConfigurationService.class);

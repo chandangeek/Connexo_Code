@@ -53,7 +53,7 @@ public class AllDataValidatedTest {
         doReturn(Optional.empty()).when(this.device).getCurrentMeterActivation();
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isPresent();
@@ -68,7 +68,7 @@ public class AllDataValidatedTest {
         when(validationService.validationEnabled(meter)).thenReturn(false);
 
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -84,7 +84,7 @@ public class AllDataValidatedTest {
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
         when(validationEvaluator.isAllDataValidated(channelsContainer)).thenReturn(true);
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
         assertThat(violation).isEmpty();
@@ -100,7 +100,7 @@ public class AllDataValidatedTest {
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
         when(validationEvaluator.isAllDataValidated(channelsContainer)).thenReturn(false);
         // Business method
-        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now(), null);
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         assertThat(violation).isPresent();
         assertThat(violation.get().getCheck()).isEqualTo(MicroCheck.ALL_DATA_VALIDATED);

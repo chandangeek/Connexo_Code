@@ -5,12 +5,8 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
-import com.elster.jupiter.fsm.Stage;
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.metering.EndDeviceStage;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -395,7 +391,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                         .collect(Collectors.toList());
         microCheckFactory.from(MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY)
                 .evaluate(device, effectiveTimestamp, action.getStateTransition().getTo())
-                .ifPresent(violation -> violations.add(violation));
+                .ifPresent(violations::add);
         if (!violations.isEmpty()) {
             throw new MultipleMicroCheckViolationsException(this.thesaurus, MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, violations);
         }
@@ -414,7 +410,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
      * @return The violation or an empty Optional if the ServerMicroCheck succeeds
      */
     private Optional<DeviceLifeCycleActionViolation> execute(ServerMicroCheck check, Device device, Instant effectiveTimestamp) {
-        return check.evaluate(device, effectiveTimestamp, null);
+        return check.evaluate(device, effectiveTimestamp);
     }
 
     private void executeMicroActions(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {

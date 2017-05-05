@@ -23,12 +23,14 @@ import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceIsLinkedWithUs
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.GeneralProtocolPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.MetrologyConfigurationInCorrectStateIfAny;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.NoActiveServiceCalls;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.NoLinkedMultiElementSlaves;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ProtocolDialectPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ScheduledCommunicationTaskAvailable;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.SecurityPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.SharedScheduledCommunicationTaskAvailable;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.SlaveDeviceHasGateway;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -47,6 +49,7 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
 
     private volatile Thesaurus thesaurus;
     private volatile TopologyService topologyService;
+    private volatile MultiElementDeviceService multiElementDeviceService;
     private volatile ValidationService validationService;
     private volatile MeteringService meteringService;
     private volatile ServiceCallService serviceCallService;
@@ -58,10 +61,11 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
 
     // For testing purposes
     @Inject
-    public MicroCheckFactoryImpl(NlsService nlsService, TopologyService topologyService, ValidationService validationService, MeteringService meteringService) {
+    public MicroCheckFactoryImpl(NlsService nlsService, TopologyService topologyService, MultiElementDeviceService multiElementDeviceService, ValidationService validationService, MeteringService meteringService) {
         this();
         this.setNlsService(nlsService);
         this.setTopologyService(topologyService);
+        this.setMultiElementDeviceService(multiElementDeviceService);
         this.setValidationService(validationService);
         this.setMeteringService(meteringService);
     }
@@ -74,6 +78,11 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
     @Reference
     public void setTopologyService(TopologyService topologyService) {
         this.topologyService = topologyService;
+    }
+
+    @Reference
+    public void setMultiElementDeviceService(MultiElementDeviceService multiElementDeviceService) {
+        this.multiElementDeviceService = multiElementDeviceService;
     }
 
     @Reference
@@ -141,6 +150,9 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             }
             case METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY: {
                 return new MetrologyConfigurationInCorrectStateIfAny(thesaurus);
+            }
+            case NO_LINKED_MULTI_ELEMENT_SLAVES:{
+                return new NoLinkedMultiElementSlaves(thesaurus, multiElementDeviceService);
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroCheck: " + check);

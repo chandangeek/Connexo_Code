@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeterActivation;
@@ -43,7 +42,7 @@ public class AllLoadProfileDataCollected extends TranslatableServerMicroCheck {
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp, State state) {
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
         return this.evaluateLoadProfiles(device, effectiveTimestamp);
     }
 

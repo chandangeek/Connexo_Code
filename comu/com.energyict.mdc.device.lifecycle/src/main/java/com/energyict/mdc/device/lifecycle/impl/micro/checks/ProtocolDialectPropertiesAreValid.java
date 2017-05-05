@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -33,7 +32,7 @@ public class ProtocolDialectPropertiesAreValid extends ConsolidatedServerMicroCh
     }
 
     @Override
-    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp, State state) {
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
         Set<PropertySpec> requiredPropertySpecs = device.getDeviceConfiguration().getPartialConnectionTasks().stream().map(PartialConnectionTask::getProtocolDialectConfigurationProperties)
                 .flatMap(protocolDialectConfigurationProperties -> protocolDialectConfigurationProperties.getPropertySpecs().stream())
                 .filter(PropertySpec::isRequired)
