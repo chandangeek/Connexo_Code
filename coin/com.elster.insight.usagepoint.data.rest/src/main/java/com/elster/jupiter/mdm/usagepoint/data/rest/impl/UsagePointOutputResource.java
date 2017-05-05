@@ -143,23 +143,7 @@ public class UsagePointOutputResource {
     private static final String INTERVAL_END = "intervalEnd";
 
     @Inject
-    UsagePointOutputResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory,
-                             EstimationHelper estimationHelper,
-                             ValidationService validationService,
-                             OutputInfoFactory outputInfoFactory,
-                             OutputChannelDataInfoFactory outputChannelDataInfoFactory,
-                             OutputRegisterDataInfoFactory outputRegisterDataInfoFactory,
-                             PurposeInfoFactory purposeInfoFactory,
-                             ValidationStatusFactory validationStatusFactory,
-                             Clock clock,
-                             TimeService timeService,
-                             EstimationService estimationService,
-                             MeteringService meteringService,
-                             DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
-                             EstimationTaskInfoFactory estimationTaskInfoFactory,
-                             PurposeOutputsDataInfoFactory purposeOutputsDataInfoFactory,
-                             EstimationRuleInfoFactory estimationRuleInfoFactory, UsagePointConfigurationService usagePointConfigurationService, Thesaurus thesaurus) {
-    UsagePointOutputResource(
+   UsagePointOutputResource(
             ResourceHelper resourceHelper, ExceptionFactory exceptionFactory,
             EstimationHelper estimationHelper,
             ValidationService validationService,
@@ -174,6 +158,8 @@ public class UsagePointOutputResource {
             MeteringService meteringService,
             DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
             CalendarService calendarService,
+            PurposeOutputsDataInfoFactory purposeOutputsDataInfoFactory,
+            Thesaurus thesaurus,
             EstimationTaskInfoFactory estimationTaskInfoFactory,
             EstimationRuleInfoFactory estimationRuleInfoFactory,
             UsagePointConfigurationService usagePointConfigurationService,
@@ -233,25 +219,8 @@ public class UsagePointOutputResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
-        Range<Instant> interval = null;
         if (filter.hasFilters()) {
             Instant now = clock.instant();
-            int periodId = filter.getInteger("periodId");
-            Range<Instant> relativePeriodInterval = timeService.findRelativePeriod(periodId)
-                    .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_RELATIVEPERIOD_FOR_ID, periodId))
-                    .getOpenClosedInterval(ZonedDateTime.ofInstant(now, clock.getZone()));
-            Range<Instant> upToNow = Range.atMost(now);
-            if (!relativePeriodInterval.isConnected(upToNow)) {
-                throw exceptionFactory.newException(MessageSeeds.RELATIVEPERIOD_IS_IN_THE_FUTURE, periodId);
-            } else if (!relativePeriodInterval.intersection(upToNow).isEmpty()) {
-                interval = getUsagePointAdjustedDataRange(usagePoint, relativePeriodInterval.intersection(upToNow)).orElse(Range.openClosed(now, now));
-            }
-        }
-        outputInfoList = outputInfoFactory.deliverablesAsOutputInfo(effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, interval)
-                .stream()
-                .sorted(Comparator.comparing(info -> info.name))
-                .collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
             if (filter.hasProperty("periodId")) {
                 int periodId = filter.getInteger("periodId");
                 Range<Instant> interval = timeService.findRelativePeriod(periodId)
@@ -262,9 +231,8 @@ public class UsagePointOutputResource {
                     throw exceptionFactory.newException(MessageSeeds.RELATIVEPERIOD_IS_IN_THE_FUTURE, periodId);
                 } else if (!interval.intersection(upToNow).isEmpty()) {
                     Range<Instant> adjustedInterval = getUsagePointAdjustedDataRange(usagePoint, interval.intersection(upToNow)).orElse(Range.openClosed(now, now));
-                    outputInfoList = metrologyContract.getDeliverables()
+                    outputInfoList = outputInfoFactory.deliverablesAsOutputInfo(effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, adjustedInterval)
                             .stream()
-                            .map(deliverable -> outputInfoFactory.asInfo(deliverable, effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, adjustedInterval))
                             .sorted(Comparator.comparing(info -> info.name))
                             .collect(Collectors.toList());
                 }
@@ -307,17 +275,15 @@ public class UsagePointOutputResource {
                                         deliverable.getReadingType().getMacroPeriod().getId() == timeIntervalId)
                                 .collect(Collectors.toList());
                     }
-                    outputInfoList.addAll(deliverables
+                    outputInfoList.addAll(outputInfoFactory.deliverablesAsOutputInfo(configuration, contract, requestedInterval)
                             .stream()
-                            .map(deliverable -> outputInfoFactory.asInfo(deliverable, configuration, contract, requestedInterval))
                             .sorted(Comparator.comparing(info -> info.name))
                             .collect(Collectors.toList()));
                 }
             }
-        } else {///no filters
-            outputInfoList = metrologyContract.getDeliverables()
+        } else {
+            outputInfoList = outputInfoFactory.deliverablesAsOutputInfo(effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, null)
                     .stream()
-                    .map(deliverable -> outputInfoFactory.asInfo(deliverable, effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, null))
                     .sorted(Comparator.comparing(info -> info.name))
                     .collect(Collectors.toList());
         }
@@ -493,7 +459,8 @@ public class UsagePointOutputResource {
         }
     }
 
-    private Optional<AggregatedChannel.AggregatedIntervalReadingRecord> findRecordWithContainingRange(List<AggregatedChannel.AggregatedIntervalReadingRecord> records, Instant timestamp) {
+
+
     @GET
     @Transactional
     @Path("/{purposeId}/outputs/data")
@@ -581,7 +548,7 @@ public class UsagePointOutputResource {
                     for (Pair pair : deliverablesWithOutputId) {
                         AggregatedChannel channel = (AggregatedChannel) pair.getLast();
                         ReadingTypeDeliverable deliverable = (ReadingTypeDeliverable) pair.getFirst();
-                        putChannelDataFromMetrologyConfiguration(outputChannelDataMap, contract, deliverable.getReadingType(), filter, configuration);
+                        putChannelDataFromMetrologyConfiguration(usagePoint,outputChannelDataMap, contract, deliverable.getReadingType(), filter, configuration);
                         outputChannelDataInfoList = outputChannelDataMap.values().stream()
                                 .filter(getSuspectsFilter(filter, this::hasSuspects))
                                 .filter(reading -> reading.getValue() != null)
@@ -615,7 +582,7 @@ public class UsagePointOutputResource {
 
     }
 
-    private Optional<IntervalReadingRecord> findRecordWithContainingRange(List<IntervalReadingRecord> records, Instant timestamp) {
+    private Optional<AggregatedChannel.AggregatedIntervalReadingRecord> findRecordWithContainingRange(List<AggregatedChannel.AggregatedIntervalReadingRecord> records, Instant timestamp) {
         return records
                 .stream()
                 .filter(record -> this.equalTimestamp(record, timestamp))
