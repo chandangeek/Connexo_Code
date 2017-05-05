@@ -16,11 +16,12 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -44,9 +45,7 @@ public class MetrologyContractValidationRuleSetResolver implements ValidationRul
     }
 
     @Override
-    public Map<ValidationRuleSet, List<Range<Instant>>> resolve(ValidationContext validationContext) {
-        Map<ValidationRuleSet, List<Range<Instant>>> result = new HashMap<>();
-
+    public Map<ValidationRuleSet, RangeSet<Instant>> resolve(ValidationContext validationContext) {
         if (validationContext.getMetrologyContract().isPresent() && validationContext.getUsagePoint().isPresent()) {
             return getRuleSets(validationContext.getUsagePoint().get(), Collections.singletonList(validationContext.getMetrologyContract().get()));
         }
@@ -60,11 +59,11 @@ public class MetrologyContractValidationRuleSetResolver implements ValidationRul
                 return getRuleSets(validationContext.getChannelsContainer().getUsagePoint().get(), metrologyConfiguration.get().getContracts());
             }
         }
-        return result;
+        return Collections.emptyMap();
     }
 
-    private Map<ValidationRuleSet, List<Range<Instant>>> getRuleSets(UsagePoint usagePoint, List<MetrologyContract> metrologyContracts) {
-        Map<ValidationRuleSet, List<Range<Instant>>> result = new HashMap<>();
+    private Map<ValidationRuleSet, RangeSet<Instant>> getRuleSets(UsagePoint usagePoint, List<MetrologyContract> metrologyContracts) {
+        Map<ValidationRuleSet, RangeSet<Instant>> result = new HashMap<>();
         List<Instant> stateChanges = getUsagePointStateChangeRequests(usagePoint).stream()
                 .map(UsagePointStateChangeRequest::getTransitionTime)
                 .sorted(Instant::compareTo)
@@ -84,7 +83,8 @@ public class MetrologyContractValidationRuleSetResolver implements ValidationRul
                                 if (result.containsKey(e)) {
                                     result.get(e).add(range);
                                 } else {
-                                    result.put(e, new ArrayList<>(Collections.singletonList(range)));
+                                    result.put(e, TreeRangeSet.create());
+                                    result.get(e).add(range);
                                 }
                             })
             );
