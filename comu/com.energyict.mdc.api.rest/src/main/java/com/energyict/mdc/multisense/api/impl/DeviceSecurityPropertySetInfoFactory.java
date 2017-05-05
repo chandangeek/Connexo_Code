@@ -9,12 +9,9 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
@@ -27,8 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITH_PRIVILEGES;
-import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.SHOW_VALUES;
 import static java.util.stream.Collectors.toList;
 
 public class DeviceSecurityPropertySetInfoFactory extends SelectableFieldFactory<DeviceSecurityPropertySetInfo, Pair<Device,SecurityPropertySet>> {
@@ -98,22 +93,14 @@ public class DeviceSecurityPropertySetInfoFactory extends SelectableFieldFactory
             deviceSecurityPropertySetInfo.device = deviceInfoFactory.asLink(source.getFirst(), Relation.REF_PARENT, uriInfo)));
         map.put("configuredSecurityPropertySet", ((deviceSecurityPropertySetInfo, source, uriInfo) ->
                 deviceSecurityPropertySetInfo.configuredSecurityPropertySet = configurationSecurityPropertySetInfoFactory.asLink(source.getLast(), Relation.REF_RELATION, uriInfo)));
-
-        map.put("complete", (deviceSecurityPropertySetInfo, source, uriInfo) -> {
-            deviceSecurityPropertySetInfo.complete = source.getFirst().getSecurityProperties(source.getLast()).stream().map(SecurityProperty::isComplete).reduce(Boolean.TRUE, (a,b)->a && b);
-        });
-        map.put("effectivePeriod", (deviceSecurityPropertySetInfo, source, uriInfo) -> {
-            List<SecurityProperty> securityProperties = source.getFirst().getSecurityProperties(source.getLast());
-            deviceSecurityPropertySetInfo.effectivePeriod = securityProperties.isEmpty()?null:IntervalInfo.from(securityProperties.get(0).getActivePeriod().toClosedOpenRange());
-        });
         map.put("properties", (deviceSecurityPropertySetInfo, source, uriInfo) -> {
             deviceSecurityPropertySetInfo.properties = new ArrayList<>();
-            List<SecurityProperty> securityProperties = source.getFirst().getSecurityProperties(source.getLast());
-            TypedProperties typedProperties = TypedProperties.empty();
-            for (SecurityProperty securityProperty : securityProperties) {
-                typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
-            }
-            mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, source.getLast().getPropertySpecs(), typedProperties, deviceSecurityPropertySetInfo.properties, SHOW_VALUES, WITH_PRIVILEGES);
+//            List<ConfigurationSecurityProperty> securityProperties = source.getFirst().getSecurityProperties(source.getLast());
+//            TypedProperties typedProperties = TypedProperties.empty();
+//            for (ConfigurationSecurityProperty securityProperty : securityProperties) {
+//                typedProperties.setProperty(securityProperty.getName(), securityProperty.getKeyAccessor());   //TODO
+//            }
+//            mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, source.getLast().getPropertySpecs(), typedProperties, deviceSecurityPropertySetInfo.properties, SHOW_VALUES, WITH_PRIVILEGES);
         });
         return map;
     }

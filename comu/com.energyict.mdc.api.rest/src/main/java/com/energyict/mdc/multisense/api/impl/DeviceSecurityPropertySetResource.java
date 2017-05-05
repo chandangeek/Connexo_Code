@@ -166,7 +166,7 @@ public class DeviceSecurityPropertySetResource {
             }
         }
 
-        device.setSecurityProperties(securityPropertySet, typedProperties);
+//        device.setSecurityProperties(securityPropertySet, typedProperties); //TODO
         device.save();
         return deviceSecurityPropertySetInfoFactory.from(device, securityPropertySet, uriInfo, Collections.emptyList());
     }
