@@ -28,9 +28,11 @@ interface IEstimationService extends EstimationService {
 
     Thesaurus getThesaurus();
 
+    EstimationReportImpl previewEstimateForSuspects(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, Logger logger);
+
     EstimationReportImpl previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, Logger logger);
 
-    EstimationReportImpl previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, ReadingType readingType, Logger logger);
+    EstimationReportImpl previewEstimate(QualityCodeSystem system, ChannelsContainer channelsContainer, Range<Instant> period, ReadingType readingType, Logger logger, boolean suspectsOnly);
 
     DestinationSpec getDestination();
 
