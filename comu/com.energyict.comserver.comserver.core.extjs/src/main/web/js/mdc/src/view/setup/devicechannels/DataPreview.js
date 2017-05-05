@@ -22,8 +22,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     updateForm: function(record) {
         var me = this,
             intervalEnd = record.get('interval_end'),
-            title = Uni.DateTime.formatDateTime(intervalEnd,"long","short");
-        mainValidationInfo,
+            title = Uni.DateTime.formatDateTime(intervalEnd,Uni.DateTime.LONG,Uni.DateTime.SHORT),
+            mainValidationInfo,
             bulkValidationInfo,
             dataQualities,
             dataQualitiesForChannels = false,            
