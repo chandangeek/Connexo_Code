@@ -768,7 +768,7 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                 if (store.getTotalCount() > store.getCount()) {
                     el.appendChild({
                         tag: 'li',
-                        html: Uni.I18n.translate('issues.limitNotification', 'DSH', 'Keep typing to narrow down'),
+                        html: Uni.I18n.translate('issues.limitNotification', 'MDC', 'Keep typing to narrow down'),
                         cls: Ext.baseCSSPrefix + 'boundlist-item combo-limit-notification'
                     });
                 }
