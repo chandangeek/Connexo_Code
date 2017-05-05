@@ -24,24 +24,24 @@ public interface DeviceAccessLevel {
     /**
      * Represents a non-used DeviceAccessLevel.
      */
-    public static final int NOT_USED_DEVICE_ACCESS_LEVEL_ID = -1;
+    int NOT_USED_DEVICE_ACCESS_LEVEL_ID = -1;
 
     /**
      * Indicates that a (slave device) security set can inherit its properties from the master device's security set
      */
-    public static final int CAN_INHERIT_PROPERTIES_FROM_MASTER_ID = -100;
+    int CAN_INHERIT_PROPERTIES_FROM_MASTER_ID = -100;
 
     /**
      * Returns a number that uniquely identifies
      * this DeviceAccessLevel within the scope of the
      * {@link DeviceProtocol}
      * that returned this DeviceAccessLevel.
-     * <p/>
+     * <p>
      * <b>Note</b> that the ID may not be equal to the {@link #NOT_USED_DEVICE_ACCESS_LEVEL_ID}
      *
      * @return The identifier
      */
-    public int getId ();
+    int getId();
 
     /**
      * Returns the human
@@ -51,7 +51,7 @@ public interface DeviceAccessLevel {
      *
      * @return The translation resource bundle
      */
-    public String getTranslation();
+    String getTranslation();
 
     /**
      * Gets the List of {@link PropertySpec properties}
@@ -61,6 +61,6 @@ public interface DeviceAccessLevel {
      *
      * @return The List of PropertySpec
      */
-    public List<PropertySpec> getSecurityProperties ();
+    List<PropertySpec> getSecurityProperties();
 
 }

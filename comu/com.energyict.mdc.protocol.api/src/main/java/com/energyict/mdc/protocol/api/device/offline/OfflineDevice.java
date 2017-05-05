@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.MacException;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.upl.offline.Offline;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -27,5 +28,12 @@ public interface OfflineDevice extends Offline, com.energyict.mdc.upl.offline.Of
     DeviceProtocolPluggableClass getDeviceProtocolPluggableClass();
 
     Optional<MacException> getMacException();
+
+    /**
+     * Get a list of all offlineKeyAccessors
+     *
+     * @return a list of offlineKeyAccessors
+     */
+    List<OfflineKeyAccessor> getAllOfflineKeyAccessors();
 
 }

@@ -6,4 +6,5 @@ package com.energyict.mdc.protocol.api.security;
 
 public interface AdvancedDeviceProtocolSecurityCapabilities extends DeviceProtocolSecurityCapabilities, com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities {
 
+
 }

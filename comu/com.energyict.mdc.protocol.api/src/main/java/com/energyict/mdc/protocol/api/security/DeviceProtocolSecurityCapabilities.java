@@ -6,12 +6,9 @@ package com.energyict.mdc.protocol.api.security;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.upl.meterdata.Device;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -28,7 +25,7 @@ public interface DeviceProtocolSecurityCapabilities extends com.energyict.mdc.up
      * Returns the {@link CustomPropertySet} that provides the storage area
      * for the properties of a {@link Device} that has these security capabilities
      * or an empty Optional if there are no properties.
-     * In that case, {@link #getSecurityPropertySpecs()} should return
+     * In that case, {@link #getSecurityProperties()} should return
      * an empty collection as well for consistency.
      * <p>
      * Note that none of the properties should be 'required'
@@ -50,11 +47,7 @@ public interface DeviceProtocolSecurityCapabilities extends com.energyict.mdc.up
      *
      * @return The CustomPropertySet
      */
-    Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet();
-
-    default List<PropertySpec> getSecurityPropertySpecs() {
-        return this.getCustomPropertySet()
-                .map(CustomPropertySet::getPropertySpecs)
-                .orElseGet(Collections::emptyList);
+    default Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
+        return Optional.empty(); // TODO: remove all usages
     }
 }
