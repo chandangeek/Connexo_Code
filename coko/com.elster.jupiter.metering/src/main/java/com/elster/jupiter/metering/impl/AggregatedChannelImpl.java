@@ -9,6 +9,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -43,17 +44,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static java.util.Comparator.naturalOrder;
-import static java.util.Comparator.nullsLast;
 
 public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel {
 
@@ -312,6 +308,16 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     }
 
     @Override
+    public List<ReadingQualityRecord> createReadingQualityForRecords(ReadingQualityType type, ReadingType readingType, List<BaseReadingRecord> records) {
+        return persistedChannel.createReadingQualityForRecords(type, readingType, records);
+    }
+
+    @Override
+    public List<ReadingQualityRecord> createReadingQualityForTimestamps(ReadingQualityType type, ReadingType readingType, List<Instant> timestamps) {
+        return persistedChannel.createReadingQualityForTimestamps(type, readingType, timestamps);
+    }
+
+    @Override
     public ReadingQualityFetcher findReadingQualities() {
         return persistedChannel.findReadingQualities();
     }
@@ -373,19 +379,17 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     @Override
     public Instant getLastDateTime() {
         Instant persistedChannelLastDateTime = this.persistedChannel.getLastDateTime();
-        CalculatedMetrologyContractData calculatedMetrologyContractData = this.dataAggregationService.calculate(this.usagePoint, this.metrologyContract, this.channelsContainer.getRange());
-        if (!calculatedMetrologyContractData.isEmpty()) {
-            List<? extends BaseReadingRecord> deliverableData = calculatedMetrologyContractData.getCalculatedDataFor(this.deliverable);
-            if (!deliverableData.isEmpty()) {
-                Instant calculatedLastDateTime = deliverableData.get(deliverableData.size() - 1).getTimeStamp();
-                if (persistedChannelLastDateTime == null || calculatedLastDateTime.compareTo(persistedChannelLastDateTime) >= 0) {
-                    return calculatedLastDateTime;
-                } else {
-                    return persistedChannelLastDateTime;
-                }
-            }
+        MetrologyContractCalculationIntrospector introspect = this.dataAggregationService.introspect(this.usagePoint, this.metrologyContract, this.channelsContainer.getRange());
+        Optional<Instant> max = introspect.getChannelUsagesFor(this.deliverable)
+                .stream()
+                .map(MetrologyContractCalculationIntrospector.ChannelUsage::getChannel)
+                .map(Channel::getLastDateTime)
+                .max(Comparator.naturalOrder());
+        if (max.isPresent()) {
+            return persistedChannelLastDateTime == null || max.get().compareTo(persistedChannelLastDateTime) >= 0 ? max.get() : persistedChannelLastDateTime;
+        } else {
+            return persistedChannelLastDateTime;
         }
-        return persistedChannelLastDateTime;
     }
 
     @Override
