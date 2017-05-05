@@ -13,16 +13,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class EstimateChannelDataInfo {
-    @JsonProperty("estimatorImpl")
+
     public String estimatorImpl;
 
-    @JsonProperty("properties")
     public List<PropertyInfo> properties;
 
-    @JsonProperty("intervals")
     public List<IntervalInfo> intervals;
 
-    @JsonProperty("readingType")
     public ReadingTypeInfo readingType;
 
     @JsonProperty("markAsProjected")
