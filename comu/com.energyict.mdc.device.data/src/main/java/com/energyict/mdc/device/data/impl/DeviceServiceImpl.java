@@ -77,6 +77,7 @@ import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
+
 import org.osgi.service.event.EventConstants;
 
 import javax.inject.Inject;

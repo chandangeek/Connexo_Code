@@ -19,6 +19,11 @@ public class UPLSecurityPropertySetAdapter implements SecurityPropertySet {
     }
 
     @Override
+    public String getClient() {
+        return cxoSecurityPropertySet.getClient();
+    }
+
+    @Override
     public com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel getAuthenticationDeviceAccessLevel() {
         return new CXOAuthenticationLevelAdapter(cxoSecurityPropertySet.getAuthenticationDeviceAccessLevel());
     }
@@ -40,19 +45,17 @@ public class UPLSecurityPropertySetAdapter implements SecurityPropertySet {
 
     @Override
     public int getSecuritySuiteId() {
-        //TODO port DLMS Suite1/2 security and support in the framework for it
-        return 0;   //Always use suite 0 for now
+        return cxoSecurityPropertySet.getSecuritySuite().getId();
     }
+
 
     @Override
     public int getRequestSecurityLevelId() {
-        //TODO port DLMS Suite1/2 security and support in the framework for it
-        return -1;
+        return cxoSecurityPropertySet.getRequestSecurityLevel().getId();
     }
 
     @Override
     public int getResponseSecurityLevelId() {
-        //TODO port DLMS Suite1/2 security and support in the framework for it
-        return -1;
+       return cxoSecurityPropertySet.getResponseSecurityLevel().getId();
     }
 }

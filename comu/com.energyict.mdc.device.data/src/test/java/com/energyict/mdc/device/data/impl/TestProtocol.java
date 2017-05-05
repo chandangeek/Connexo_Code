@@ -35,6 +35,7 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -44,7 +45,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public class TestProtocol implements DeviceProtocol {
 
@@ -55,10 +55,6 @@ public class TestProtocol implements DeviceProtocol {
     public TestProtocol(PropertySpecService propertySpecService) {
         super();
         this.propertySpecService = propertySpecService;
-    }
-
-    public static CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>> getCustomPropertySet(PropertySpecService propertySpecService) {
-        return new BasicAuthenticationCustomPropertySet(propertySpecService);
     }
 
     @Override
