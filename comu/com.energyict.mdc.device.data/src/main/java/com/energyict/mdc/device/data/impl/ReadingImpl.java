@@ -7,8 +7,8 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.Reading;
+import com.energyict.mdc.device.data.Register;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -30,7 +30,8 @@ public abstract class ReadingImpl implements Reading {
 
     /**
      * Creates a new Reading that is marked as not validated.
-     *  @param actualReading The actual ReadingRecord from the Jupiter Kore bundle
+     *
+     * @param actualReading The actual ReadingRecord from the Jupiter Kore bundle
      * @param register the register for which this reading is applicable
      * @param previousReading The previous ReadingRecord from the Jupiter Kore bundle
      */
@@ -44,6 +45,7 @@ public abstract class ReadingImpl implements Reading {
 
     /**
      * Creates a new Reading that is marked as validated.
+     *
      * @param actualReading The actual ReadingRecord from the Jupiter Kore bundle
      * @param validationStatus The List of ReadingQuality
      * @param register the register for which this reading is applicable
@@ -58,7 +60,7 @@ public abstract class ReadingImpl implements Reading {
     }
 
     @Override
-    public ReadingType getType () {
+    public ReadingType getType() {
         return this.actualReading.getReadingType();
     }
 
@@ -93,18 +95,8 @@ public abstract class ReadingImpl implements Reading {
     }
 
     @Override
-    public Instant getJournalTime() {
-        return actualReading.getJournalTime();
-    }
-
-    @Override
-    public String getUserName() {
-        return actualReading.getUserName();
-    }
-
-    @Override
     public Optional<Instant> getEventDate() {
-        return getRegister().hasEventDate()? Optional.of(getTimeStamp()):Optional.empty();
+        return getRegister().hasEventDate() ? Optional.of(getTimeStamp()) : Optional.empty();
     }
 
     Register<?, ?> getRegister() {

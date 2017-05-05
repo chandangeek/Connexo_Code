@@ -31,7 +31,7 @@ public class LimitsExceededForCommandException extends LocalizedException {
         String and = ' ' + thesaurus.getFormat(TranslationKeys.AND).format() + ' ';
 
         ExceededCommandRule exceededCommandRule = exceededCommandRules.get(0);
-        this.message = thesaurus.getFormat(MessageSeeds.LIMITS_EXCEEDED).format(getFancyLimits(exceededCommandRule, and), exceededCommandRule.getName());
+        this.message = thesaurus.getSimpleFormat(MessageSeeds.LIMITS_EXCEEDED).format(getFancyLimits(exceededCommandRule, and), exceededCommandRule.getName());
         if (exceededCommandRules.size() > 1) {
             exceededCommandRules.remove(0);
             List<String> otherMessages = exceededCommandRules.stream()

@@ -9,6 +9,7 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.JournaledRegisterReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -94,8 +95,7 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         List<R> atMostOne = this.getReadings(Range.singleton(timestamp));
         if (atMostOne.isEmpty()) {
             return Optional.empty();
-        }
-        else {
+        } else {
             return Optional.of(atMostOne.get(0));
         }
     }
@@ -115,7 +115,7 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
     }
 
     private List<R> getHistoryReadings(Range<Instant> interval, boolean changedDataOnly) {
-        List<ReadingRecord> koreReadings = this.device.getHistoryReadingsFor(this, interval);
+        List<? extends ReadingRecord> koreReadings = this.device.getHistoryReadingsFor(this, interval);
         List<Optional<DataValidationStatus>> validationStatuses = this.getHistoryValidationStatuses(this, interval, koreReadings);
         List<R> readings = this.toReadings(koreReadings, validationStatuses);
         return changedDataOnly ? this.filterChangedData(readings) : readings;
@@ -132,8 +132,7 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         List<DataValidationStatus> validationStatuses = this.getValidationStatus(Collections.singletonList(reading), Range.closed(reading.getTimeStamp(), reading.getTimeStamp()));
         if (validationStatuses.isEmpty()) {
             return Optional.empty();
-        }
-        else {
+        } else {
             return Optional.of(validationStatuses.get(0));
         }
     }
@@ -142,7 +141,7 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         return this.device.forValidation().getValidationStatus(this, readings, interval);
     }
 
-    private List<Optional<DataValidationStatus>> getHistoryValidationStatuses(Register<?, ?> register, Range<Instant> interval, List<ReadingRecord> readings) {
+    private List<Optional<DataValidationStatus>> getHistoryValidationStatuses(Register<?, ?> register, Range<Instant> interval, List<? extends ReadingRecord> readings) {
         Map<ReadingRecord, List<ReadingQualityRecord>> historyReadingQualities = this.getHistoryReadingQualities(interval, readings, register);
         return readings
                 .stream()
@@ -150,21 +149,21 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
                 .collect(Collectors.toList());
     }
 
-    private Map<ReadingRecord, List<ReadingQualityRecord>> getHistoryReadingQualities(Range<Instant> interval, List<ReadingRecord> readings, Register<?, ?> register) {
+    private Map<ReadingRecord, List<ReadingQualityRecord>> getHistoryReadingQualities(Range<Instant> interval, List<? extends ReadingRecord> readings, Register<?, ?> register) {
         Map<ReadingRecord, List<ReadingQualityRecord>> mapReadingQualityRecord = new HashMap<>();
         readings.stream().forEach(readingRecord -> mapReadingQualityRecord.put(readingRecord, new ArrayList<>()));
 
         List<? extends ReadingQualityRecord> readingQualities = this.device.getMeter().get().getReadingQualities(interval);
         List<JournalEntry<? extends ReadingQualityRecord>> readingQualitiesJournal = this.device.getMeter().get().getReadingQualitiesJournal(interval,
                 Collections.singletonList(register.getRegisterSpec().getRegisterType().getReadingType()),
-                readings.stream().map(r -> r.getChannel().getId()).distinct().collect(Collectors.toList()));
+                readings.stream().map(r -> ((JournaledRegisterReadingRecord) r).getChannel()).distinct().collect(Collectors.toList()));
         List<ReadingQualityRecord> allReadingQuality = readingQualities.stream()
                 .filter(r -> r.getReadingType() == register.getRegisterSpec().getRegisterType().getReadingType())
                 .collect(Collectors.toList());
-        allReadingQuality.addAll(readingQualitiesJournal.stream().map(j -> j.get()).collect(Collectors.toList()));
+        allReadingQuality.addAll(readingQualitiesJournal.stream().map(JournalEntry::get).collect(Collectors.toList()));
 
         allReadingQuality.stream().forEach(rqj -> {
-            Optional<ReadingRecord> journalReadingOptional = Optional.empty();
+            Optional<? extends ReadingRecord> journalReadingOptional = Optional.empty();
             journalReadingOptional = ((rqj.getTypeCode().compareTo("2.5.258") == 0) || ((rqj.getTypeCode().compareTo("2.5.259") == 0))) ?
                     readings.stream().sorted((a, b) -> b.getReportedDateTime().compareTo(a.getReportedDateTime())).filter(x -> x.getReportedDateTime().compareTo(rqj.getTimestamp()) <= 0).findFirst() :
                     readings.stream().sorted((a, b) -> a.getReportedDateTime().compareTo(b.getReportedDateTime())).filter(x -> x.getReportedDateTime().compareTo(rqj.getTimestamp()) >= 0).findFirst();
@@ -190,7 +189,7 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         return this.device.forValidation().getHistoryValidationStatus(this, readings, readingQualityRecords, interval);
     }
 
-    private List<R> toReadings(List<ReadingRecord> koreReadings) {
+    private List<R> toReadings(List<? extends ReadingRecord> koreReadings) {
         List<R> readings = new ArrayList<>(koreReadings.size());
 
         ReadingRecord previous = null;
@@ -205,19 +204,19 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         }
         return readings;
     }
-    private List<R> toReadings(List<ReadingRecord> koreReadings, List<Optional<DataValidationStatus>> validationStatuses) {
+
+    private List<R> toReadings(List<? extends ReadingRecord> koreReadings, List<Optional<DataValidationStatus>> validationStatuses) {
         List<R> readings = new ArrayList<>(koreReadings.size());
-        for (Pair<ReadingRecord, Optional<DataValidationStatus>> koreReadingAndStatus : DualIterable.endWithShortest(koreReadings, validationStatuses)) {
+        for (Pair<? extends ReadingRecord, Optional<DataValidationStatus>> koreReadingAndStatus : DualIterable.endWithShortest(koreReadings, validationStatuses)) {
             readings.add(this.toReading(koreReadingAndStatus));
         }
         return readings;
     }
 
-    private R toReading (Pair<ReadingRecord, Optional<DataValidationStatus>> koreReadingAndStatus) {
+    private R toReading(Pair<? extends ReadingRecord, Optional<DataValidationStatus>> koreReadingAndStatus) {
         if (koreReadingAndStatus.getLast().isPresent()) {
             return this.newValidatedReading(koreReadingAndStatus.getFirst(), koreReadingAndStatus.getLast().get(), null);
-        }
-        else {
+        } else {
             return this.newUnvalidatedReading(koreReadingAndStatus.getFirst(), null);
         }
     }
@@ -334,7 +333,7 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         }
 
         private void updateBillingTimeStampChange(BaseReading modified, Instant editTimeStamp) {
-            if(isBilling() && !editTimeStamp.equals(modified.getTimeStamp())){
+            if (isBilling() && !editTimeStamp.equals(modified.getTimeStamp())) {
                 this.removeReading(editTimeStamp);
             }
         }
@@ -358,8 +357,8 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
             Channel channel = this.register.device.findOrCreateKoreChannel(timestamp, this.register);
             BaseReadingRecord reading =
                     channel
-                        .getReading(timestamp)
-                        .orElseThrow(() -> new IllegalArgumentException("No reading for register " + this.register.getRegisterSpec().getReadingType().getAliasName() + " @ " + timestamp));
+                            .getReading(timestamp)
+                            .orElseThrow(() -> new IllegalArgumentException("No reading for register " + this.register.getRegisterSpec().getReadingType().getAliasName() + " @ " + timestamp));
             this.obsolete.computeIfAbsent(channel, c -> new ArrayList<>()).add(reading);
             return this;
         }
@@ -374,7 +373,7 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
 
         private void addOrEdit(BaseReading reading) {
             this.register.device
-                .findOrCreateKoreChannel(reading.getTimeStamp(), this.register)
+                    .findOrCreateKoreChannel(reading.getTimeStamp(), this.register)
                     .editReadings(handlingSystem, Collections.singletonList(reading));
         }
 

@@ -12,12 +12,18 @@ import com.elster.jupiter.validation.ValidationRuleSetResolver;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 
+import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.mdc.device.config.validationruleSetResolver", service = ValidationRuleSetResolver.class)
 public class DeviceConfigValidationRuleSetResolver implements ValidationRuleSetResolver {
@@ -36,14 +42,16 @@ public class DeviceConfigValidationRuleSetResolver implements ValidationRuleSetR
     }
 
     @Override
-    public List<ValidationRuleSet> resolve(ValidationContext validationContext) {
-        if (hasMdcMeter(validationContext.getMeter())) {
+    public Map<ValidationRuleSet, List<Range<Instant>>> resolve(ValidationContext validationContext) {
+        if (hasMdcMeter(validationContext.getMeter()) && validationContext.getMeter().get().getLifecycleDates().getReceivedDate().isPresent()) {
             return deviceService
                     .findDeviceById(Long.valueOf(validationContext.getMeter().get().getAmrId()))
-                    .map(device -> device.getDeviceConfiguration().getValidationRuleSets())
-                    .orElse(Collections.emptyList());
+                    .map(device -> device.getDeviceConfiguration().getValidationRuleSets().stream()
+                            .collect(Collectors.toMap(Function.identity(), e ->
+                                    (List<Range<Instant>>) (new ArrayList<>(Collections.singletonList(Range.atLeast(validationContext.getMeter().get().getLifecycleDates().getReceivedDate().get())))), (a, b) -> a)))
+                    .orElse(Collections.emptyMap());
         } else {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
     }
 

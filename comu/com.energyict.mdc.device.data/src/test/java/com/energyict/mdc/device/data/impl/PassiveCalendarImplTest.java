@@ -57,7 +57,7 @@ public class PassiveCalendarImplTest extends PersistenceIntegrationTest {
     private Calendar createCalendar() {
         CalendarService calendarService = inMemoryPersistence.
                 getCalendarService();
-        Category category = calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.getDefaultDisplayName()).get();
+        Category category = calendarService.findCategoryByName(OutOfTheBoxCategory.TOU.name()).get();
         EventSet eventSet = calendarService.newEventSet("eventset")
                 .addEvent("On peak").withCode(3)
                 .addEvent("Off peak").withCode(5)
@@ -65,9 +65,7 @@ public class PassiveCalendarImplTest extends PersistenceIntegrationTest {
                 .add();
 
         return calendarService
-                .newCalendar(CALENDAR_NAME, Year.of(2010), eventSet)
-                .category(category)
-                .endYear(Year.of(2020))
+                .newCalendar(CALENDAR_NAME, category, Year.of(2010), eventSet)
                 .description("Description remains to be completed :-)")
                 .mRID("Calendar")
                 .newDayType("Summer weekday")

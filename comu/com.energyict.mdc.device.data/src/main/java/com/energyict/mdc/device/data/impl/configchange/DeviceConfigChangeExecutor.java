@@ -5,6 +5,8 @@
 package com.energyict.mdc.device.data.impl.configchange;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.groups.GroupEventData;
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -20,14 +22,14 @@ import java.util.stream.Stream;
  */
 public final class DeviceConfigChangeExecutor {
 
+    private final EventService eventService;
     private final DeviceService deviceService;
     private final Clock clock;
-    private final EventService eventService;
 
     public DeviceConfigChangeExecutor(DeviceService deviceService, Clock clock, EventService eventService) {
         this.deviceService = deviceService;
-        this.clock = clock;
         this.eventService = eventService;
+        this.clock = clock;
     }
 
     public Device execute(ServerDeviceForConfigChange device, DeviceConfiguration destinationDeviceConfiguration) {
@@ -66,6 +68,7 @@ public final class DeviceConfigChangeExecutor {
     private void prepareForChangeDeviceConfig(ServerDeviceForConfigChange device, DeviceConfiguration destinationDeviceConfiguration, Instant configChangeTimeStamp) {
         this.deviceService.findAndLockDeviceByIdAndVersion(device.getId(), device.getVersion());
         device.validateDeviceCanChangeConfig(destinationDeviceConfiguration);
+        this.eventService.postEvent(EventType.DEVICE_CONFIG_CHANGE_VALIDATE.topic(), Pair.of(device, destinationDeviceConfiguration));
     }
 
 }
