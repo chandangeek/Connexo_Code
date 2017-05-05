@@ -50,6 +50,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                             htmlEncode: false,
                             name: 'connectionSummary',
                             fieldLabel: Uni.I18n.translate('deviceconnectionhistory.connectionSummary', 'MDC', 'Connection summary'),
+                            width: '100%',
                             itemId: 'connection-summary',
                             labelWidth: 250
                         },
