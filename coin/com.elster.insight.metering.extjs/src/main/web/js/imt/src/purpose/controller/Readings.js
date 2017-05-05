@@ -838,8 +838,8 @@ Ext.define('Imt.purpose.controller.Readings', {
             propertyForm = window.down('#property-form'),
             model = Ext.create('Imt.purpose.model.ChannelDataEstimate'),
             commentCombo = window.down('#estimation-comment'),
-            commentId = commentCombo.getValue(),
-            commentValue = commentCombo.getRawValue(),
+            commentId = commentCombo.commentId,
+            commentValue = commentCombo.getValue(),
             record = window.record,
             markAsProjected,
             intervalsArray = [];
