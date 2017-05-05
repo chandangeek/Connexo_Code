@@ -308,6 +308,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                                     securityAction: 'save'
                                 });
                                 form.down('form#myForm').loadRecord(securitySetting);
+                                me.getApplication().fireEvent('loadSecuritySetting', securitySetting);
                                 me.getApplication().fireEvent('changecontentevent', form);
                             }
                         });
