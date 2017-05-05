@@ -63,7 +63,7 @@ public class DeviceProtocolPluggableClassRegistrar extends PluggableClassRegistr
                 }
             }
             catch (Exception e) {
-                this.logError(() -> "Failure to register device protocol " + toLogMessage(licensedProtocol) + "see error message below:");
+                this.logError(() -> "Failure to register device protocol " + toLogMessage(licensedProtocol) + " see error message below:");
                 handleCreationException(licensedProtocol.getClassName(), e);
             }
         }

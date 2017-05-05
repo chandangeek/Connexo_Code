@@ -37,6 +37,7 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -231,7 +232,15 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(deviceProtocolSecurityPropertySet.getSecurityProperties());
-        DeviceProtocolSecurityPropertySetImpl adaptedSecurityPropertySet = new DeviceProtocolSecurityPropertySetImpl(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel(), deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel(), adaptedProperties);
+        DeviceProtocolSecurityPropertySetImpl adaptedSecurityPropertySet = new DeviceProtocolSecurityPropertySetImpl(
+                deviceProtocolSecurityPropertySet.getClient(),
+                deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel(),
+                deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel(),
+                deviceProtocolSecurityPropertySet.getSecuritySuite(),
+                deviceProtocolSecurityPropertySet.getRequestSecurityLevel(),
+                deviceProtocolSecurityPropertySet.getResponseSecurityLevel(),
+                adaptedProperties
+        );
         deviceProtocol.setSecurityPropertySet(adaptedSecurityPropertySet);
     }
 

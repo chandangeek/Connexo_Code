@@ -4,14 +4,10 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
-import com.energyict.mdc.upl.meterdata.Device;
-import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -22,8 +18,6 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Simple implementation of a {@link DeviceSecuritySupport} component.
@@ -36,6 +30,9 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
 
     public static final int AUTHENTICATION_DEVICE_ACCESS_LEVEL_ID = 1000;
     public static final int ENCRYPTION_DEVICE_ACCESS_LEVEL_ID = 2000;
+    public static final String FIRST = "first";
+    public static final String SECOND = "second";
+    public static final String THIRD = "third";
 
     private final PropertySpecService propertySpecService;
 
@@ -43,16 +40,6 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
     public SimpleTestDeviceSecuritySupport(PropertySpecService propertySpecService) {
         super();
         this.propertySpecService = propertySpecService;
-    }
-
-    @Override
-    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        return Optional.of(new SimpleTestDeviceCustomPropertySet(this.propertySpecService));
-    }
-
-    @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return getSecurityPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList());
     }
 
     @Override
@@ -94,7 +81,26 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
 
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.singletonList(new ConnexoToUPLPropertSpecAdapter(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.propertySpec(propertySpecService)));
+            return Arrays.asList(
+                    new ConnexoToUPLPropertSpecAdapter(
+                            propertySpecService
+                            .stringSpec()
+                            .named(FIRST, FIRST)
+                            .describedAs(FIRST)
+                            .finish()),
+                    new ConnexoToUPLPropertSpecAdapter(
+                            propertySpecService
+                            .stringSpec()
+                            .named(SECOND, SECOND)
+                            .describedAs(SECOND)
+                            .finish()),
+                    new ConnexoToUPLPropertSpecAdapter(
+                            propertySpecService
+                            .stringSpec()
+                            .named(THIRD, THIRD)
+                            .describedAs(THIRD)
+                            .finish())
+            );
         }
     }
 
@@ -118,9 +124,25 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
         @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    new ConnexoToUPLPropertSpecAdapter(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.propertySpec(propertySpecService)),
-                    new ConnexoToUPLPropertSpecAdapter(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.propertySpec(propertySpecService)));
+                    new ConnexoToUPLPropertSpecAdapter(
+                            propertySpecService
+                            .stringSpec()
+                            .named(FIRST, FIRST)
+                            .describedAs(FIRST)
+                            .finish()                     ),
+                    new ConnexoToUPLPropertSpecAdapter(
+                            propertySpecService
+                            .stringSpec()
+                            .named(SECOND, SECOND)
+                            .describedAs(SECOND)
+                            .finish()                    ),
+                    new ConnexoToUPLPropertSpecAdapter(
+                            propertySpecService
+                            .stringSpec()
+                            .named(THIRD, THIRD)
+                            .describedAs(THIRD)
+                            .finish()                     )
+            );
         }
     }
-
 }

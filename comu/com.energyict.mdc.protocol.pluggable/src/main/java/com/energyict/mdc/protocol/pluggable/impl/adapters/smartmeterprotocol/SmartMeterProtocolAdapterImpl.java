@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -66,6 +64,7 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -493,15 +492,6 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     }
 
     @Override
-    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        if (this.delegateSecurityToActualProtocol()) {
-            return this.getDeviceSecuritySupport().getCustomPropertySet();
-        } else {
-            return this.smartMeterProtocolSecuritySupportAdapter.getCustomPropertySet();
-        }
-    }
-
-    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         if (this.delegateSecurityToActualProtocol()) {
             return getDeviceSecuritySupport().getAuthenticationAccessLevels();
@@ -516,20 +506,6 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
             return getDeviceSecuritySupport().getEncryptionAccessLevels();
         } else {
             return this.smartMeterProtocolSecuritySupportAdapter.getEncryptionAccessLevels();
-        }
-    }
-
-    @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-        return getDeviceSecuritySupport().getSecurityProperties();
-    }
-
-    @Override
-    public Optional<com.energyict.mdc.upl.properties.PropertySpec> getSecurityPropertySpec(String name) {
-        if (this.delegateSecurityToActualProtocol()) {
-            return getDeviceSecuritySupport().getSecurityPropertySpec(name);
-        } else {
-            return this.smartMeterProtocolSecuritySupportAdapter.getSecurityPropertySpec(name);
         }
     }
 

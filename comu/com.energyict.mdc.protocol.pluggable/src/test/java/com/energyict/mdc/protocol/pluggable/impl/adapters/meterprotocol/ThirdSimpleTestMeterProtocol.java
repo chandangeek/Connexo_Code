@@ -5,7 +5,6 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cbo.Quantity;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
@@ -13,6 +12,8 @@ import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+
+import com.energyict.cbo.Quantity;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
@@ -185,12 +186,32 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
         return new DeviceProtocolSecurityPropertySet() {
             @Override
+            public String getClient() {
+                return null;
+            }
+
+            @Override
             public int getAuthenticationDeviceAccessLevel() {
                 return 0;
             }
 
             @Override
             public int getEncryptionDeviceAccessLevel() {
+                return 0;
+            }
+
+            @Override
+            public int getSecuritySuite() {
+                return 0;
+            }
+
+            @Override
+            public int getRequestSecurityLevel() {
+                return 0;
+            }
+
+            @Override
+            public int getResponseSecurityLevel() {
                 return 0;
             }
 

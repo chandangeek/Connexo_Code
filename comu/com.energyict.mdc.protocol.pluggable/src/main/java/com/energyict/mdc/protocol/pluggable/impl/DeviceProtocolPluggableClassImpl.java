@@ -177,16 +177,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     }
 
     public void registerCustomPropertySets() {
-        this.registerSecurityCustomPropertySet();
         this.registerDialectCustomPropertySets();
-    }
-
-    private void registerSecurityCustomPropertySet() {
-        this.newInstance().getCustomPropertySet().ifPresent(this::registerSecuritySet);
-    }
-
-    private void registerSecuritySet(CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>> customPropertySet) {
-        this.customPropertySetService.addSystemCustomPropertySet(customPropertySet);
     }
 
     private void registerDialectCustomPropertySets() {
@@ -208,12 +199,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     @Override
     public void delete() {
         super.delete();
-        this.unregisterSecurityCustomPropertySet();
         this.unregisterDialectCustomPropertySet();
-    }
-
-    private void unregisterSecurityCustomPropertySet() {
-        this.newInstance().getCustomPropertySet().ifPresent(this::unregisterSecuritySet);
     }
 
     private void unregisterDialectCustomPropertySet() {

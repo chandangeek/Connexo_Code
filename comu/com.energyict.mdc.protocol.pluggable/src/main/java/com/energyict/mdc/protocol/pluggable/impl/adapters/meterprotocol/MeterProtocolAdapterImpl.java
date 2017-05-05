@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
@@ -71,6 +69,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -499,24 +498,6 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        if (this.delegateSecurityToActualProtocol()) {
-            return getDeviceSecuritySupport().getSecurityPropertySpecs();
-        } else {
-            return this.meterProtocolSecuritySupportAdapter.getSecurityPropertySpecs();
-        }
-    }
-
-    @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-        if (this.delegateSecurityToActualProtocol()) {
-            return getDeviceSecuritySupport().getSecurityProperties();
-        } else {
-            return this.meterProtocolSecuritySupportAdapter.getSecurityProperties();
-        }
-    }
-
-    @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return new ArrayList<>(getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList()));
     }
@@ -541,14 +522,6 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
             return getDeviceSecuritySupport().getEncryptionAccessLevels();
         } else {
             return this.meterProtocolSecuritySupportAdapter.getEncryptionAccessLevels();
-        }
-    }
-
-    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        if (this.delegateSecurityToActualProtocol()) {
-            return this.getDeviceSecuritySupport().getCustomPropertySet();
-        } else {
-            return this.meterProtocolSecuritySupportAdapter.getCustomPropertySet();
         }
     }
 

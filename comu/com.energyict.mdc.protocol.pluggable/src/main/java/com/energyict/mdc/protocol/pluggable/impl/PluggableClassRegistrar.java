@@ -49,7 +49,7 @@ public abstract class PluggableClassRegistrar {
         LOGGER.fine(() -> "Completed registration of " + count + " " + type + " pluggable classes");
     }
     protected void creationFailed (LicensedProtocol licensedProtocol) {
-        LOGGER.severe(() -> "Failure to register device protocol " + this.toLogMessage(licensedProtocol) + "see error message below:");
+        LOGGER.severe(() -> "Failure to register device protocol " + this.toLogMessage(licensedProtocol) + " see error message below:");
     }
 
     protected void alreadyExists (LicensedProtocol licensedProtocol) {

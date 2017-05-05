@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 import com.elster.jupiter.orm.MacException;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.LoadProfileType;
@@ -40,6 +41,13 @@ public class UPLOfflineDeviceAdapter implements OfflineDevice {
     @Override
     public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
         // Todo: let's wait and see, I think we can get away with this
+        return null;
+    }
+
+    @Override
+    public List<OfflineKeyAccessor> getAllOfflineKeyAccessors() {
+        // Todo: let's wait and see, I think we can get away with this
+        // Todo: probably will have to move OfflineKeyAccessor also to upl
         return null;
     }
 
