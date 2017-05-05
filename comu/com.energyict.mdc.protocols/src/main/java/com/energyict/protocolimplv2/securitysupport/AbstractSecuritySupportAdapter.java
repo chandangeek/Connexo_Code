@@ -2,13 +2,13 @@ package com.energyict.protocolimplv2.securitysupport;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -69,10 +69,6 @@ public abstract class AbstractSecuritySupportAdapter {
         return getSecuritySupport().getEncryptionAccessLevels();
     }
 
-    public List<PropertySpec> getSecurityProperties() {
-        return getSecuritySupport().getSecurityProperties();
-    }
-
     public com.energyict.mdc.upl.properties.TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         if (getSecuritySupport() instanceof LegacySecurityPropertyConverter) {
             //Conversion is delegated to the 9.1 protocol code
@@ -90,12 +86,32 @@ public abstract class AbstractSecuritySupportAdapter {
             return new DeviceProtocolSecurityPropertySet() {
 
                 @Override
+                public String getClient() {
+                    return null;
+                }
+
+                @Override
                 public int getAuthenticationDeviceAccessLevel() {
                     return 0;
                 }
 
                 @Override
                 public int getEncryptionDeviceAccessLevel() {
+                    return 0;
+                }
+
+                @Override
+                public int getSecuritySuite() {
+                    return 0;
+                }
+
+                @Override
+                public int getRequestSecurityLevel() {
+                    return 0;
+                }
+
+                @Override
+                public int getResponseSecurityLevel() {
                     return 0;
                 }
 

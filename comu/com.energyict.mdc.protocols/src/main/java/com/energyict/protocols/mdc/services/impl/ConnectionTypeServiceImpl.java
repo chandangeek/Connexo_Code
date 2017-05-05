@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLConnectionTypeAdapter;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 import com.energyict.protocols.impl.channels.TranslationKeys;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

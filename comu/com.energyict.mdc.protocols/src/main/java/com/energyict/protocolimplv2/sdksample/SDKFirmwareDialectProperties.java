@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
+
 import test.com.energyict.protocolimplv2.sdksample.SDKFirmwareTaskProtocolDialectProperties;
 
 import javax.validation.constraints.Size;
