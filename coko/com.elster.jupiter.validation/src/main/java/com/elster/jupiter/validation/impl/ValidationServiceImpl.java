@@ -55,6 +55,7 @@ import com.elster.jupiter.validation.EventType;
 import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationPropertyResolver;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
@@ -124,6 +125,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
     private final List<ValidationRuleSetResolver> ruleSetResolvers = new CopyOnWriteArrayList<>();
+    private final List<ValidationPropertyResolver> validationPropertyResolvers = new CopyOnWriteArrayList<>();
     private DestinationSpec destinationSpec;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
@@ -375,13 +377,22 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         meterValidation.save();
     }
 
+    /**
+     * Please consider {@link #moveLastCheckedBefore(ChannelsContainer, Instant)} instead.
+     */
+    @Deprecated
     @Override
     public void updateLastChecked(ChannelsContainer channelsContainer, Instant date) {
         updatedChannelsContainerValidationsFor(new ValidationContextImpl(channelsContainer)).updateLastChecked(Objects.requireNonNull(date));
     }
 
+    @Override
+    public void moveLastCheckedBefore(ChannelsContainer channelsContainer, Instant date) {
+        updatedChannelsContainerValidationsFor(new ValidationContextImpl(channelsContainer)).moveLastCheckedBefore(date);
+    }
+
     /**
-     * Please consider {@link #moveLastCheckedBefore(Channel, Instant)} instead
+     * Please consider {@link #moveLastCheckedBefore(Channel, Instant)} instead.
      */
     @Deprecated
     @Override
@@ -455,9 +466,9 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     @Override
-    public void validate(ValidationContext validationContext, Instant date) {
+    public void validate(ValidationContext validationContext, Instant validateAtMostFrom) {
         ChannelsContainerValidationList container = updatedChannelsContainerValidationsFor(validationContext);
-        container.moveLastCheckedBefore(date);
+        container.moveLastCheckedBefore(validateAtMostFrom);
         container.validate();
     }
 
@@ -737,6 +748,20 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     public void removeValidationRuleSetResolver(ValidationRuleSetResolver resolver) {
         ruleSetResolvers.remove(resolver);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addValidationPropertyResolver(ValidationPropertyResolver resolver) {
+        validationPropertyResolvers.add(resolver);
+    }
+
+    public void removeValidationPropertyResolver(ValidationPropertyResolver resolver) {
+        validationPropertyResolvers.remove(resolver);
+    }
+
+    @Override
+    public List<ValidationPropertyResolver> getValidationPropertyResolvers() {
+        return Collections.unmodifiableList(validationPropertyResolvers);
     }
 
     DataModel getDataModel() {

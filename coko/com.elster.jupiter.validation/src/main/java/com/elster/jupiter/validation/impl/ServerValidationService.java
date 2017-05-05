@@ -7,7 +7,10 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.validation.ValidationPropertyResolver;
 import com.elster.jupiter.validation.ValidationService;
+
+import java.util.List;
 
 /**
  * Adds behavior to the {@link ValidationService} interface
@@ -23,5 +26,7 @@ public interface ServerValidationService extends ValidationService {
     DataModel dataModel();
 
     KpiService kpiService();
+
+    List<ValidationPropertyResolver> getValidationPropertyResolvers();
 
 }

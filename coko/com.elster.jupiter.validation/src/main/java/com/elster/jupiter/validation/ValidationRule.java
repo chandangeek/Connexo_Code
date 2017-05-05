@@ -63,6 +63,8 @@ public interface ValidationRule {
 
     List<PropertySpec> getPropertySpecs();
 
+    List<PropertySpec> getPropertySpecs(ValidationPropertyDefinitionLevel level);
+
     boolean isObsolete();
 
     ReadingQualityType getReadingQualityType();

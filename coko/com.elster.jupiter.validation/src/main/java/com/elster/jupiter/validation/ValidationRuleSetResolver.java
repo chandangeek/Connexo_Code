@@ -4,8 +4,11 @@
 
 package com.elster.jupiter.validation;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.util.List;
 
+@ConsumerType
 public interface ValidationRuleSetResolver {
 
     List<ValidationRuleSet> resolve(ValidationContext validationContext);

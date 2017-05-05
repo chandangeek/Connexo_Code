@@ -9,7 +9,6 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.orm.DataModel;
@@ -29,9 +28,7 @@ import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -56,9 +53,7 @@ public class ChannelValidationImplTest extends EqualsContractTest {
     @Mock
     private DataModel dataModel;
     @Mock
-    private MeteringService meteringService;
-    @Mock
-    private ChannelsContainer channelsContainer, channelsContainer1;
+    private ChannelsContainer channelsContainer;
     @Mock
     private ReadingQualityRecord readingQuality;
 
@@ -72,12 +67,7 @@ public class ChannelValidationImplTest extends EqualsContractTest {
     }
 
     private void setUp() {
-        when(dataModel.getInstance(ChannelValidationImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                return new ChannelValidationImpl();
-            }
-        });
+        when(dataModel.getInstance(ChannelValidationImpl.class)).thenAnswer(invocation -> new ChannelValidationImpl());
         when(channel.getChannelsContainer()).thenReturn(channelsContainer);
         when(channel1.getChannelsContainer()).thenReturn(channelsContainer);
         when(channel.getId()).thenReturn(1L);
@@ -90,8 +80,7 @@ public class ChannelValidationImplTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        ChannelValidationImpl channelValidation = new ChannelValidationImpl().init(channelsContainerValidation, channel);
-        return channelValidation;
+        return new ChannelValidationImpl().init(channelsContainerValidation, channel);
     }
 
     @Override

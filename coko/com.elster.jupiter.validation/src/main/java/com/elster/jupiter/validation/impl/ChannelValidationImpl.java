@@ -9,6 +9,8 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
 import com.google.common.collect.ImmutableSet;
@@ -84,7 +86,7 @@ final class ChannelValidationImpl implements ChannelValidation {
                 .collect(Collectors.toList());
     }
 
-    private List<IValidationRule> activeRulesOfVersion(IValidationRuleSetVersion version) {
+    private List<IValidationRule> activeRulesOfVersion(ValidationRuleSetVersion version) {
         return version.getRules().stream()
                 .map(IValidationRule.class::cast)
                 .filter(rule -> rule.appliesTo(getChannel()))
@@ -152,16 +154,20 @@ final class ChannelValidationImpl implements ChannelValidation {
             List<? extends ValidationRuleSetVersion> versions = getChannelsContainerValidation().getRuleSet().getRuleSetVersions();
 
             Instant newLastChecked = versions.stream()
-                    .map(IValidationRuleSetVersion.class::cast)
-                    .filter(cv -> dataRange.isConnected(Range.openClosed(cv.getNotNullStartDate(), cv.getNotNullEndDate())))
-                    .flatMap(currentVersion -> {
-                        Range<Instant> versionRange = Range.openClosed(currentVersion.getNotNullStartDate(), currentVersion.getNotNullEndDate());
-                        Range<Instant> rangeToValidate = dataRange.intersection(versionRange);
-                        ChannelValidator validator = new ChannelValidator(getChannel(), rangeToValidate);
-                        return activeRulesOfVersion(currentVersion).stream()
-                                .map(validator::validateRule);
-                    })
-                    .min(Comparator.naturalOrder()).orElse(end);
+                    .map(currentVersion -> Ranges.nonEmptyIntersection(dataRange, currentVersion.getRange())
+                            .flatMap(rangeToValidate -> {
+                                ChannelValidator validator = new ChannelValidator(getChannel(), rangeToValidate);
+                                return activeRulesOfVersion(currentVersion).stream()
+                                        .map(validator::validateRule)
+                                        .min(Comparator.naturalOrder()); // minimum by rules
+                            }))
+                    .flatMap(Functions.asStream())
+                    .min(Comparator.naturalOrder()) // minimum by versions TODO CXO-6665: wat?
+                    // it prevents from validation with several versions at one shot.
+                    // as per agreement with Igor Nesterov, a proper behavior might be
+                    // not to validate with later version until all data are validated within the range of the previous one,
+                    // and to keep the latest resulting lastChecked as master lastChecked.
+                    .orElse(end);
 
             updateLastChecked(newLastChecked);
         }
