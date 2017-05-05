@@ -67,7 +67,6 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.YesNoAnswer;
@@ -205,7 +204,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         createServices(bundleContext, createDefaultLocationTemplate);
         registerDatabaseTables();
         registerDataModel(bundleContext);
-        registerUsagePointSearchDoamin();
+        registerUsagePointSearchDomain();
         installDataModel();
         registerServices(bundleContext);
         cacheCalendarTimeSeriesCacheHandlerDestinationSpec();
@@ -353,7 +352,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         }
     }
 
-    private void registerUsagePointSearchDoamin() {
+    private void registerUsagePointSearchDomain() {
         this.searchService.register(this.usagePointRequirementsSearchDomain);
     }
 

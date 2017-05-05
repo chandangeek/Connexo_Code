@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableList;
 import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
-import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.EnumSet;
 import java.util.logging.Logger;
@@ -102,6 +101,7 @@ public class UpgraderV10_3 implements Upgrader {
         installerV10_3.install(dataModelUpgrader, Logger.getLogger(UpgraderV10_3.class.getName()));
         userService.addModulePrivileges(privilegesProviderV10_3);
         installerV10_3.installDefaultStageSets();
+        installerV10_3.createQueues();
     }
 
     private void installTemplates() {

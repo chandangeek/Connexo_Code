@@ -48,6 +48,8 @@ public interface MetrologyConfigurationService {
 
     Optional<MeterRole> findMeterRole(String key);
 
+    List<MeterRole> getMeterRoles();
+
     ReadingTypeTemplate.ReadingTypeTemplateAttributeSetter createReadingTypeTemplate(String name);
 
     List<ReadingTypeTemplate> getReadingTypeTemplates();
