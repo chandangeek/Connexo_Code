@@ -301,8 +301,8 @@ public class ResourceHelper {
     }
 
     public void performMeterActivations(UsagePointInfo info, UsagePoint usagePoint) {
+        UsagePointMeterActivator linker = usagePoint.linkMeters();
         if (info.meterActivations != null && !info.meterActivations.isEmpty()) {
-            UsagePointMeterActivator linker = usagePoint.linkMeters();
             info.meterActivations
                     .stream()
                     .filter(meterActivation -> meterActivation.meterRole != null && !Checks.is(meterActivation.meterRole.id)
@@ -318,8 +318,17 @@ public class ResourceHelper {
                             replaceOrActivateMeter(linker, usagePoint, activationTime, meterActivation.meter.name, meterRole);
                         }
                     });
-            linker.complete();
+        }else {
+            usagePoint.getMeterActivations().stream()
+                    .forEach(m -> {
+                Optional<MeterRole> meterRole = m.getMeterRole();
+                if(meterRole.isPresent()) {
+                    validateUnlinkMeters(usagePoint, meterRole.get());
+                    linker.clear(meterRole.get());
+                }
+            });
         }
+        linker.completeRemoveOrAdd();
 
     }
 
@@ -423,5 +432,9 @@ public class ResourceHelper {
             default:
                 return new IdWithNameInfo(system.name(), system.name());
         }
+    }
+
+    public List<MeterRole> getMeterRoles() {
+        return meteringService.getMeterRoles();
     }
 }
