@@ -14,6 +14,7 @@ Ext.define('Mdc.securityaccessors.model.DeviceSecurityCertificate', {
         {name: 'description', type: 'string'},
         {name: 'expirationTime', type: 'int'},
         {name: 'modificationDate', type: 'int'},
+        {name: 'lastReadDate', type: 'int', useNull:true},
         {name: 'status', type: 'string'},
         {name: 'swapped', type: 'boolean', defaultValue:false},
         {name: 'hasTempValue', type: 'boolean', defaultValue:false}

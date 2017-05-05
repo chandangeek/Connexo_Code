@@ -1053,7 +1053,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'editDeviceKey',
                                     callback: function (route) {
                                         this.getApplication().on('deviceKeyLoaded', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name')));
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
                                             return true;
                                         }, {single: true});
                                         return this;
@@ -1075,7 +1075,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'editDeviceCertificate',
                                     callback: function (route) {
                                         this.getApplication().on('deviceCertificateLoaded', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name')));
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
                                             return true;
                                         }, {single: true});
                                         return this;

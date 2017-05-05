@@ -238,6 +238,7 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             activeInfo = me.getCertificatePreview().down('#mdc-device-security-accessor-preview-active-info'),
             passiveInfo = me.getCertificatePreview().down('#mdc-device-security-accessor-preview-passive-info');
 
+        Ext.suspendLayouts();
         me.getCertificatePreview().doLoadRecord(record);
         if (actionsMenu) {
             actionsMenu.record = record;
@@ -265,6 +266,7 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
         if (tempPropertiesAvailable) {
             passiveCertificatesForm.initProperties(record.tempProperties());
         }
+        Ext.resumeLayouts(true);
     },
 
     onMenuAction: function(menu, menuItem) {
@@ -398,14 +400,20 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                 var propStore = me.deviceCertificateRecord.currentProperties(),
                     attrCount = propStore.getCount(),
                     propRecord = undefined,
-                    activeAliasCombo = undefined;
+                    activeAliasCombo = undefined,
+                    passiveAliasCombo = undefined,
+                    aliasesStore = Ext.getStore('Mdc.securityaccessors.store.CertificateAliases') || Ext.create('Mdc.securityaccessors.store.CertificateAliases'),
+                    trustStoreField = undefined,
+                    passiveTrustStoreField = undefined,
+                    trustStoreId = undefined,
+                    trustStoreName = undefined;
+
+                delete aliasesStore.getProxy().extraParams['trustStore'];
                 if (attrCount>0) {
                     for (var i=0; i<attrCount; i++) {
                         propRecord = propStore.getAt(i);
                         if (propRecord.raw.key === 'alias') {
-                            var aliasesStore = Ext.getStore('Mdc.securityaccessors.store.CertificateAliases') || Ext.create('Mdc.securityaccessors.store.CertificateAliases');
                             aliasesStore.getProxy().setUrl(propRecord.raw.propertyTypeInfo.propertyValuesResource.possibleValuesURI);
-
                             activeAliasCombo = {
                                 xtype: 'combobox',
                                 fieldLabel: propRecord.raw.name,
@@ -434,25 +442,35 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                                     }
                                 }
                             };
-                            me.getEditActiveCertificateAttributesContainer().add(activeAliasCombo);
-
                         } else if (propRecord.raw.key === 'trustStore') {
-
+                            aliasesStore.getProxy().setExtraParam('trustStore', propRecord.raw.propertyValueInfo.value.id);
+                            trustStoreField = {
+                                xtype: 'displayfield',
+                                fieldLabel: propRecord.raw.name,
+                                value: propRecord.raw.propertyValueInfo.value ? propRecord.raw.propertyValueInfo.value.name : '-'
+                            };
+                            trustStoreId = propRecord.raw.propertyValueInfo.value ? propRecord.raw.propertyValueInfo.value.id : undefined;
+                            trustStoreName = propRecord.raw.propertyValueInfo.value ? propRecord.raw.propertyValueInfo.value.name : undefined;
                         }
                     }
+                    if (trustStoreField) {
+                        me.getEditActiveCertificateAttributesContainer().add(trustStoreField);
+                    }
+                    me.getEditActiveCertificateAttributesContainer().add(activeAliasCombo);
                 }
 
                 propStore = me.deviceCertificateRecord.tempProperties();
                 attrCount = propStore.getCount();
                 propRecord = undefined;
+                aliasesStore = Ext.getStore('Mdc.securityaccessors.store.CertificateAliases') || Ext.create('Mdc.securityaccessors.store.CertificateAliases');
+                delete aliasesStore.getProxy().extraParams['trustStore'];
+
                 if (attrCount>0) {
                     for (var i=0; i<attrCount; i++) {
                         propRecord = propStore.getAt(i);
                         if (propRecord.raw.key === 'alias') {
-                            var aliasesStore = Ext.getStore('Mdc.securityaccessors.store.CertificateAliases') || Ext.create('Mdc.securityaccessors.store.CertificateAliases');
                             aliasesStore.getProxy().setUrl(propRecord.raw.propertyTypeInfo.propertyValuesResource.possibleValuesURI);
-
-                            me.getEditPassiveCertificateAttributesContainer().add({
+                            passiveAliasCombo = {
                                 xtype: 'combobox',
                                 fieldLabel: propRecord.raw.name,
                                 labelWidth: 200,
@@ -479,11 +497,29 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                                         fn: me.comboLimitNotification
                                     }
                                 }
-                            });
+                            };
                         } else if (propRecord.raw.key === 'trustStore') {
-
+                            if (trustStoreId && trustStoreName) {
+                                if (!propRecord.raw.propertyValueInfo.value) {
+                                    propRecord.raw.propertyValueInfo.value = {};
+                                }
+                                if (propRecord.raw.propertyValueInfo.value) {
+                                    propRecord.raw.propertyValueInfo.value.id = trustStoreId;
+                                    propRecord.raw.propertyValueInfo.value.name = trustStoreName;
+                                }
+                            }
+                            aliasesStore.getProxy().setExtraParam('trustStore', propRecord.raw.propertyValueInfo.value.id);
+                            passiveTrustStoreField = {
+                                xtype: 'displayfield',
+                                fieldLabel: propRecord.raw.name,
+                                value: propRecord.raw.propertyValueInfo.value ? propRecord.raw.propertyValueInfo.value.name : '-'
+                            };
                         }
                     }
+                    if (passiveTrustStoreField) {
+                        me.getEditPassiveCertificateAttributesContainer().add(passiveTrustStoreField);
+                    }
+                    me.getEditPassiveCertificateAttributesContainer().add(passiveAliasCombo);
                 }
 
                 viewport.setLoading(false);
@@ -570,7 +606,10 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             passiveAliasCombo = me.getEditPassiveCertificateAttributesContainer().down('#mdc-passive-alias-combo'),
             errorMsgPnl = me.getEditDeviceCertificatePanel().down('uni-form-error-message'),
             key,
-            value;
+            value,
+            trustStoreId = undefined,
+            trustStoreName = undefined,
+            aliasHasValue = false;
 
         viewport.setLoading();
         errorMsgPnl.hide();
@@ -580,20 +619,48 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
             key = property.get('key');
             if (key === 'alias') {
                 value = activeAliasCombo.getValue();
+                aliasHasValue = !Ext.isEmpty(value);
                 propertyValue = property.getPropertyValue();
                 propertyValue.set('value', value);
-                propertyValue.set('propertyHasValue', !Ext.isEmpty(value));
+                propertyValue.set('propertyHasValue', aliasHasValue);
+            } else if (key === 'trustStore') {
+                trustStoreId = property.raw.propertyValueInfo.value.id;
+                trustStoreName = property.raw.propertyValueInfo.value.name;
             }
         });
+        me.deviceCertificateRecord.currentProperties().each(function (property) {
+            key = property.get('key');
+            if (key === 'trustStore' && !aliasHasValue) {
+                propertyValue = property.getPropertyValue();
+                propertyValue.set('value', null);
+                propertyValue.set('propertyHasValue', false);
+            }
+        });
+
+        aliasHasValue = false;
         me.deviceCertificateRecord.tempProperties().each(function (property) {
             key = property.get('key');
             if (key === 'alias') {
                 value = passiveAliasCombo.getValue();
+                aliasHasValue = !Ext.isEmpty(value);
                 propertyValue = property.getPropertyValue();
                 propertyValue.set('value', value);
-                propertyValue.set('propertyHasValue', !Ext.isEmpty(value));
+                propertyValue.set('propertyHasValue', aliasHasValue);
             }
         });
+        me.deviceCertificateRecord.tempProperties().each(function (property) {
+            key = property.get('key');
+            if (key === 'trustStore' && trustStoreId && trustStoreName && aliasHasValue) {
+                propertyValue = property.getPropertyValue();
+                propertyValue.set('value', {id: trustStoreId, name: trustStoreName});
+                propertyValue.set('propertyHasValue', true);
+            } else if (key === 'trustStore' && !aliasHasValue) {
+                propertyValue = property.getPropertyValue();
+                propertyValue.set('value', null);
+                propertyValue.set('propertyHasValue', false);
+            }
+        });
+
         me.deviceCertificateRecord.endEdit();
         me.deviceCertificateRecord.save({
             success: function () {
@@ -607,15 +674,15 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
                         var parts = error.id.split('.');
                         if (parts[0] === 'currentProperties') {
                             me.deviceCertificateRecord.currentProperties().each(function (property) {
-                                if (parts[1] === property.get('key')) {
-                                    activePropsForm.down('[fieldLabel=' + property.name + ']').markInvalid(error.msg);
+                                if (parts[1] === 'alias') {
+                                    activeAliasCombo.markInvalid(error.msg);
                                     return false;
                                 }
                             });
                         } else if (parts[0] === 'tempProperties') {
                             me.deviceCertificateRecord.tempProperties().each(function (property) {
-                                if (parts[1] === property.get('key')) {
-                                    passivePropsForm.down('[fieldLabel='+property.name+']').markInvalid(error.msg);
+                                if (parts[1] === 'alias') {
+                                    passiveAliasCombo.markInvalid(error.msg);
                                     return false;
                                 }
                             });
