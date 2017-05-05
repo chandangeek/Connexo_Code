@@ -86,6 +86,11 @@ Ext.define('Imt.purpose.model.Reading', {
             mapping: 'interval.end',
             dateFormat: 'time',
             type: 'date'
+        },
+        {
+            name: 'potentialSuspect',
+            persist: false,
+            defaultValue: false
         }
     ]
 });

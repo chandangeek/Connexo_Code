@@ -114,6 +114,9 @@ Ext.define('Imt.purpose.controller.Readings', {
             '#readings-list #save-changes-button': {
                 click: this.saveChannelDataChanges
             },
+            '#readings-list #pre-validate-button': {
+                click: this.preValidateReadings
+            },
             'reading-copy-from-reference-window #copy-reading-button': {
                 click: this.copyFromReferenceUpdateGrid
             },
@@ -132,6 +135,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
     },
     valueBeforeEdit: 0,
+    numberOfPotentialSuspects: 0,
 
     chooseBulkAction: function (menu, item) {
         var me = this,
@@ -263,6 +267,8 @@ Ext.define('Imt.purpose.controller.Readings', {
 
         me.getReadingsList().down('#save-changes-button').setDisabled(disabled);
         me.getReadingsList().down('#undo-button').setDisabled(disabled);
+        me.getReadingsList().down('#pre-validate-button').setDisabled(disabled);
+        me.numberOfPotentialSuspects = 0;
     },
 
     checkSuspect: function (menu) {
@@ -328,7 +334,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 event.column.getEditor().allowBlank = true;
             }
 
-            if (event.record.isModified('value') && this.valueBeforeEdit !== event.record.get('value')) {
+            if ((event.record.isModified('value') && this.valueBeforeEdit !== event.record.get('value')) || event.record.get('potentialSuspect')) {
                 grid.down('#save-changes-button').isDisabled() && me.showButtons();
 
                 Ext.suspendLayouts(true);
@@ -342,7 +348,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                     }
                     updatedObj = {
                         y: parseFloat(value),
-                        color: 'rgba(112,187,81,0.3)',
+                        color: event.record.get('potentialSuspect') ? 'rgba(255, 0, 0, 0.3)' : 'rgba(112,187,81,0.3)',
                         value: value
                     };
                     point.update(updatedObj);
@@ -398,6 +404,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         if (!store.getUpdatedRecords().length) {
             grid.down('#save-changes-button').disable();
             grid.down('#undo-button').disable();
+            grid.down('#pre-validate-button').disable();
         }
         Ext.resumeLayouts();
     },
@@ -407,12 +414,15 @@ Ext.define('Imt.purpose.controller.Readings', {
         router.getRoute().forward(router.arguments, Uni.util.QueryString.getQueryStringValues());
     },
 
-    saveChannelDataChanges: function () {
+    saveChannelDataChanges: function (getConfirmationWindow) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             changedData = me.getChangedData(me.getStore('Imt.purpose.store.Readings')),
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
+        if (Ext.isFunction(getConfirmationWindow)) {
+            getConfirmationWindow().close();
+        }
         if (!Ext.isEmpty(changedData)) {
             viewport.setLoading();
             Ext.Ajax.request({
@@ -422,7 +432,12 @@ Ext.define('Imt.purpose.controller.Readings', {
                 timeout: 300000,
                 success: function () {
                     router.getRoute().forward(router.arguments, Uni.util.QueryString.getQueryStringValues());
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.successSavingMessage', 'IMT', 'Channel data have been saved'));
+                    if (me.numberOfPotentialSuspects > 0) {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('channelData.successMsg.potentialSuspects.', me.numberOfPotentialSuspects, 'IMT', null,
+                            'Channel data have been saved with {0} potential suspect', 'Channel data have been saved with {0} potential suspects'));
+                    } else {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.successSavingMessage', 'IMT', 'Channel data have been saved'));
+                    }
                 },
                 failure: function (response) {
                     viewport.setLoading(false);
@@ -1087,5 +1102,126 @@ Ext.define('Imt.purpose.controller.Readings', {
             }
         });
 
+    },
+
+    preValidateReadings: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            store = me.getStore('Imt.purpose.store.Readings'),
+            viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            changedData = me.getChangedData(store),
+            jsonData = {
+                validateUntil: store.getAt(0).get('interval').end,
+                editedReadings: me.getChangedData(store)
+            },
+            firstModifiedReadingTimestamp = changedData[changedData.length - 1].interval.end;
+
+        viewport.setLoading();
+        Ext.Ajax.request({
+            url: Ext.String.format('/api/udr/usagepoints/{0}/purposes/{1}/outputs/{2}/channelData/prevalidate', router.arguments.usagePointId, router.arguments.purposeId, router.arguments.outputId),
+            method: 'PUT',
+            jsonData: Ext.encode(jsonData),
+            success: function (response) {
+                var responseText = Ext.decode(response.responseText, true);
+                if (responseText.potentialSuspects) {
+                    responseText.potentialSuspects.length ? me.showPotentialSuspectsWindow(firstModifiedReadingTimestamp, responseText) : me.showEmptyPotentialSuspectsWindow(firstModifiedReadingTimestamp);
+                }
+            },
+            callback: function () {
+                viewport.setLoading(false);
+            }
+        });
+    },
+
+    showEmptyPotentialSuspectsWindow: function (firstModifiedReadingTimestamp) {
+        var me = this,
+            confirmationWindow = Ext.widget('confirmation-window', {
+                itemId: 'empty-potential-suspects-window',
+                closeAction: 'destroy',
+                green: true,
+                confirmText: Uni.I18n.translate('general.saveChanges', 'IMT', 'Save changes'),
+                cancelText: Uni.I18n.translate('general.close', 'IMT', 'Close'),
+                confirmation: me.saveChannelDataChanges.bind(me, getConfirmationWindow),
+                listeners: {
+                    close: me.resetPotentialSuspects.bind(me)
+                }
+            });
+
+        confirmationWindow.show({
+            title: Uni.I18n.translate('preValidate.noPotentialSuspectsFound', 'IMT', 'No potential suspect readings found.'),
+            msg: Uni.I18n.translate('preValidate.noPotentialSuspectsFoundMsg', 'IMT', 'No potential suspect readings found in visible part of data starting from {0}.', [Uni.DateTime.formatDateTimeShort(firstModifiedReadingTimestamp)], false),
+            icon: 'icon-checkmark'
+        });
+
+        function getConfirmationWindow() {
+            return confirmationWindow
+        }
+    },
+
+    showPotentialSuspectsWindow: function (firstModifiedReadingTimestamp, response) {
+        var me = this,
+            confirmationWindow = Ext.widget('confirmation-window', {
+                itemId: 'potential-suspects-window',
+                closeAction: 'destroy',
+                cancelText: Uni.I18n.translate('general.close', 'IMT', 'Close'),
+                noConfirmBtn: true,
+                listeners: {
+                    close: me.applyPotentialSuspects.bind(me, response.potentialSuspects)
+                }
+            });
+
+        confirmationWindow.show({
+            title: Uni.I18n.translatePlural('preValidate.potentialSuspectsFound', response.total, 'IMT', null, '{0} potential suspect reading found.', '{0} potential suspect readings found.'),
+            msg: Uni.I18n.translate('preValidate.potentialSuspectsFoundMsg', 'IMT', 'There are potential suspects in visible part of data starting from {0}.', [Uni.DateTime.formatDateTimeShort(firstModifiedReadingTimestamp)], false)
+        });
+    },
+
+    applyPotentialSuspects: function (potentialSuspects) {
+        var me = this,
+            grid = me.getReadingsList(),
+            store = grid.getStore(),
+            record,
+            index;
+
+        me.resetPotentialSuspects();
+        Ext.suspendLayouts();
+        potentialSuspects.forEach(function(potentialSuspect) {
+            index = store.findBy(function(item) {
+                return item.get('interval').end === potentialSuspect.readingTime;
+            });
+            record = store.getAt(index);
+            record.beginEdit();
+            record.set('potentialSuspect', true);
+            record.set('validationRules', potentialSuspect.validationRules);
+            record.endEdit(true);
+            grid.getView().refreshNode(index);
+            me.resumeEditorFieldValidation(grid.editingPlugin, {
+                record: record
+            });
+        });
+        Ext.resumeLayouts(true);
+        me.numberOfPotentialSuspects = potentialSuspects.length;
+    },
+
+    resetPotentialSuspects: function () {
+        var me = this,
+            grid = me.getReadingsList(),
+            store = grid.getStore();
+
+        me.numberOfPotentialSuspects = 0;
+        Ext.suspendLayouts();
+        store.getRange().forEach(function(reading) {
+            if (reading.get('potentialSuspect')) {
+                reading.beginEdit();
+                reading.set('potentialSuspect', false);
+                reading.set('validationRules', []);
+                reading.endEdit(true);
+                grid.getView().refreshNode(store.indexOf(reading));
+                me.resumeEditorFieldValidation(grid.editingPlugin, {
+                    record: reading
+                });
+            }
+        });
+        Ext.resumeLayouts(true);
     }
 });
