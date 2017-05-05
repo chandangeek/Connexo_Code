@@ -59,7 +59,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.customattributeset', 'MDC', 'Custom attribute set'),
                                 itemId: 'custom-attribute-set-displayfield-id',
                                 xtype: 'custom-attribute-set-displayfield',
-                                name: 'customPropertySet'
+                                name: 'customPropertySet',
+                                renderer: function (value) {
+                                    return value && value.length > 0 ? value : '-';
+                                }
                             }
                         ]
                     },
