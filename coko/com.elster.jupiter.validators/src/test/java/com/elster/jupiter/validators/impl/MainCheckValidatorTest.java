@@ -7,6 +7,7 @@ package com.elster.jupiter.validators.impl;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -64,171 +65,21 @@ abstract public class MainCheckValidatorTest {
     */
     Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
 
-    private static DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-
     @Mock
     MetrologyPurpose CHECK_PURPOSE;
 
+    @Mock
+    MetrologyPurpose validatingMetrologyPurpose;
+
     protected PropertySpecService propertySpecService = new PropertySpecServiceImpl();
 
-    protected Range<Instant> range = Range.closed(instant("20160101000000"),instant("20160207000000"));
+    protected Range<Instant> range = Range.closed(Utils.instant("20160101000000"),Utils.instant("20160207000000"));
 
     MainCheckValidator initValidator(ValidationConfiguration validationConfiguration) {
-        /*
-        when(thesaurus.getString(anyString(),anyString())).thenReturn("Main/check comparison");
-        Arrays.stream(MessageSeeds.values()).forEach(messageSeeds -> {
-            NlsMessageFormat nlsMessageFormat = createNlsMessageFormat(messageSeeds);
-            when(thesaurus.getFormat(messageSeeds)).thenReturn(nlsMessageFormat);
-        });
-        */
         MainCheckValidator validator = new MainCheckValidator(thesaurus, propertySpecService, validationConfiguration.rule
                 .createProperties(), validationConfiguration.metrologyConfigurationService, validationConfiguration.validationService);
         validator.init(validationConfiguration.checkChannel, validationConfiguration.readingType, range);
         return validator;
-    }
-
-    NlsMessageFormat createNlsMessageFormat(MessageSeeds messageSeeds){
-        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
-        when(nlsMessageFormat.format(anyVararg())).thenAnswer(invocationOnMock -> {
-            return String.format(messageSeeds.getDefaultFormat().replaceAll("\\{.}","%s"),invocationOnMock.getArguments());
-        });
-        return nlsMessageFormat;
-    }
-
-
-    BigDecimal bigDecimal(Double value) {
-        return BigDecimal.valueOf(value);
-    }
-
-    static Instant instant(String value) {
-        return LocalDate.from(dateTimeFormat.parse(value)).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
-    }
-
-    /**
-     * Describes validation rule
-     */
-    class MainCheckValidatorRule {
-        MetrologyPurpose checkPurpose;
-        MetrologyPurpose notExistingCheckPurpose;
-        TwoValuesDifference twoValuesDifference;
-        NoneOrBigDecimal minThreshold;
-        boolean passIfNoData;
-        boolean useValidatedData;
-        boolean noCheckChannel;
-
-        MainCheckValidatorRule withCheckPurpose(MetrologyPurpose checkPurpose) {
-            this.checkPurpose = checkPurpose;
-            return this;
-        }
-
-        MainCheckValidatorRule withNotExistingCheckPurpose(MetrologyPurpose notExistingCheckPurpose) {
-            this.notExistingCheckPurpose = notExistingCheckPurpose;
-            return this;
-        }
-
-        MainCheckValidatorRule withNotExistingCheckChannel(){
-            noCheckChannel = true;
-            return this;
-        }
-
-        MainCheckValidatorRule withValuedDifference(BigDecimal value) {
-            this.twoValuesDifference = new TwoValuesDifference(TwoValuesDifference.Type.ABSOLUTE, value);
-            return this;
-        }
-
-        MainCheckValidatorRule withPercentDifference(Double percent) {
-            this.twoValuesDifference = new TwoValuesDifference(TwoValuesDifference.Type.RELATIVE, new BigDecimal(percent));
-            return this;
-        }
-
-        MainCheckValidatorRule passIfNoRefData(boolean passIfNoData) {
-            this.passIfNoData = passIfNoData;
-            return this;
-        }
-
-        MainCheckValidatorRule useValidatedData(boolean useValidatedData) {
-            this.useValidatedData = useValidatedData;
-            return this;
-        }
-
-        MainCheckValidatorRule withNoMinThreshold() {
-            this.minThreshold = NoneOrBigDecimal.none();
-            return this;
-        }
-
-        MainCheckValidatorRule withMinThreshold(BigDecimal minThreshold) {
-            this.minThreshold = NoneOrBigDecimal.of(minThreshold);
-            return this;
-        }
-
-        Map<String, Object> createProperties() {
-            return ImmutableMap.of(MainCheckValidator.CHECK_PURPOSE, notExistingCheckPurpose==null?checkPurpose:notExistingCheckPurpose,
-                    MainCheckValidator.MAX_ABSOLUTE_DIFF, twoValuesDifference,
-                    MainCheckValidator.MIN_THRESHOLD, minThreshold,
-                    MainCheckValidator.PASS_IF_NO_REF_DATA, passIfNoData,
-                    MainCheckValidator.USE_VALIDATED_DATA, useValidatedData);
-        }
-    }
-
-    /**
-     * Describes the sequence of channel readings
-     */
-    class ChannelReadings {
-
-        List<IntervalReadingRecord> readings = new ArrayList<>();
-
-        ChannelReadings(int readingsCount) {
-            IntStream.rangeClosed(1,readingsCount).forEach(c -> readings.add(null));
-        }
-
-        void setReadingValue(int index, BigDecimal value, Instant readingTime) {
-            IntervalReadingRecord reading = mock(IntervalReadingRecord.class);
-            when(reading.getTimeStamp()).thenReturn(readingTime);
-            when(reading.getValue()).thenReturn(value);
-            readings.remove(index);
-            readings.add(index, reading);
-        }
-
-        Channel mockChannel() {
-            Channel channel = mock(Channel.class);
-            when(channel.getIntervalReadings(range)).thenReturn(readings.stream()
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList()));
-            return channel;
-        }
-
-    }
-
-    class ValidatedChannelReadings extends ChannelReadings {
-
-        List<DataValidationStatus> validationStatuses = new ArrayList<>();
-
-        ValidatedChannelReadings(int readingsCount) {
-            super(readingsCount);
-            IntStream.rangeClosed(1,readingsCount).forEach(c -> validationStatuses.add(null));
-        }
-
-        void setReadingValue(int index, BigDecimal value, Instant readingTime) {
-            setReadingValue(index, value, readingTime, ValidationResult.NOT_VALIDATED);
-        }
-
-        void setReadingValue(int index, BigDecimal value, Instant readingTime, ValidationResult validationResult) {
-            super.setReadingValue(index, value, readingTime);
-            DataValidationStatus dataValidationStatus = mock(DataValidationStatus.class);
-            when(dataValidationStatus.getReadingTimestamp()).thenReturn(readingTime);
-            when(dataValidationStatus.getValidationResult()).thenReturn(validationResult);
-            validationStatuses.remove(index);
-            validationStatuses.add(index, dataValidationStatus);
-        }
-
-        ValidationEvaluator mockEvaluator() {
-            ValidationEvaluator evaluator = mock(ValidationEvaluator.class);
-            when(evaluator.getValidationStatus(anyObject(),
-                    anyObject(),
-                    anyObject()))
-                    .thenReturn(validationStatuses.stream().filter(Objects::nonNull).collect(Collectors.toList()));
-            return evaluator;
-        }
     }
 
     /**
@@ -237,7 +88,7 @@ abstract public class MainCheckValidatorTest {
     class ValidationConfiguration {
 
         // internal properties - input
-        MainCheckValidatorRule rule;
+        ValidatorRule rule;
         ChannelReadings mainChannelReadings;
         ValidatedChannelReadings checkChannelReadings;
 
@@ -248,7 +99,7 @@ abstract public class MainCheckValidatorTest {
         ValidationService validationService;
         MetrologyConfigurationService metrologyConfigurationService;
 
-        public ValidationConfiguration(MainCheckValidatorRule rule, ChannelReadings mainChannelReadings, ValidatedChannelReadings checkChannelReadings) {
+        public ValidationConfiguration(ValidatorRule rule, ChannelReadings mainChannelReadings, ValidatedChannelReadings checkChannelReadings) {
             this.rule = rule;
             this.mainChannelReadings = mainChannelReadings;
             this.checkChannelReadings = checkChannelReadings;
@@ -262,11 +113,14 @@ abstract public class MainCheckValidatorTest {
             mainChannel = mock(Channel.class);
             UsagePoint usagePoint = mock(UsagePoint.class);
             when(usagePoint.getName()).thenReturn("Usage point name");
-            ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+            MetrologyContractChannelsContainer channelsContainer = mock(MetrologyContractChannelsContainer.class);
+            MetrologyContract validatingMetrologyContract = mock(MetrologyContract.class);
+            when(validatingMetrologyContract.getMetrologyPurpose()).thenReturn(validatingMetrologyPurpose);
+            when(channelsContainer.getMetrologyContract()).thenReturn(validatingMetrologyContract);
             EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
             UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
-            MetrologyContract metrologyContract = mock(MetrologyContract.class);
 
+            MetrologyContract metrologyContract = mock(MetrologyContract.class);
             when(metrologyContract.getMetrologyPurpose()).thenReturn(rule.checkPurpose);
             when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
             when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
@@ -276,7 +130,7 @@ abstract public class MainCheckValidatorTest {
             when(effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)).thenReturn(Optional
                     .of(channelsContainer));
 
-            checkChannel = checkChannelReadings.mockChannel();
+            checkChannel = checkChannelReadings.mockChannel(range);
 
             when(checkChannel.getChannelsContainer()).thenReturn(channelsContainer);
 
