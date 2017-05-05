@@ -6,20 +6,14 @@ package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 
-public enum TranslationKeys implements TranslationKey {
+public enum ReadingQualitiesTranslationKeys implements TranslationKey {
 
-    MISSING_VALUES_VALIDATOR(MissingValuesValidator.class.getName(), "Check missing values"),
-    READING_QUALITIES_VALIDATOR(ReadingQualitiesValidator.class.getName(), "Reading qualities"),
-    REGISTER_INCREASE_VALIDATOR(RegisterIncreaseValidator.class.getName(), "Register increase"),
-    REGISTER_INCREASE_VALIDATOR_FAIL_EQUAL_DATA(RegisterIncreaseValidator.class.getName() + "." + RegisterIncreaseValidator.FAIL_EQUAL_DATA, "Fail equal data"),
-    THRESHOLD_VALIDATOR(ThresholdValidator.class.getName(), "Threshold violation"),
-    THRESHOLD_VALIDATOR_MIN(ThresholdValidator.class.getName() + "." + ThresholdValidator.MIN, "Minimum"),
-    THRESHOLD_VALIDATOR_MAX(ThresholdValidator.class.getName() + "." + ThresholdValidator.MAX, "Maximum"),
+    READING_QUALITIES(ReadingQualitiesValidator.class.getName() + "." + ReadingQualitiesValidator.READING_QUALITIES, "Reading qualities"),
 
     ALL_INDEXES("ReadingQualityAllIndexes", "All indexes"),
     ALL_SYSTEMS("ReadingQualityAllSystems", "All systems"),
-    DATAVALID("ReadingQualityDataValid", "Data valid"),
     VALIDATED("ReadingQualityValidated", "Validated"),
+    DATAVALID("ReadingQualityDataValid", "Data valid"),
     DIAGNOSTICSFLAG("ReadingQualityDiagnosticsFlag", "Diagnostics flag"),
     BATTERYLOW("ReadingQualityBatteryLow", "Battery low"),
     SENSORFAILURE("ReadingQualitySensorFailure", "Sensor failure"),
@@ -109,7 +103,7 @@ public enum TranslationKeys implements TranslationKey {
     private String key;
     private String defaultFormat;
 
-    TranslationKeys(String key, String defaultFormat) {
+    ReadingQualitiesTranslationKeys(String key, String defaultFormat) {
         this.key = key;
         this.defaultFormat = defaultFormat;
     }

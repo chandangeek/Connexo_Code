@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
 Export-Package: com.elster.jupiter.validators
-Private-Package: com.elster.jupiter.validators.impl
+Private-Package: com.elster.jupiter.validators.impl.*

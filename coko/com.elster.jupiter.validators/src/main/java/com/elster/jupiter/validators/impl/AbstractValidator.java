@@ -11,35 +11,34 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.MissingRequiredProperty;
 
 import java.time.Instant;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-abstract class AbstractValidator implements IValidator {
+public abstract class AbstractValidator implements IValidator {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
     protected final Map<String, Object> properties;
 
-    AbstractValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public AbstractValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.properties = Collections.emptyMap();
     }
 
-    AbstractValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
+    public AbstractValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
-        for (String propertyName : getRequiredProperties()) {
-            checkRequiredProperty(propertyName, properties);
-        }
         this.properties = properties;
+    }
+
+    protected void checkRequiredProperties() {
+        getRequiredProperties().forEach(propertyName -> checkRequiredProperty(propertyName, properties));
     }
 
     @Override
@@ -52,11 +51,11 @@ abstract class AbstractValidator implements IValidator {
         return Collections.emptyMap();
     }
 
-    final Thesaurus getThesaurus() {
+    public final Thesaurus getThesaurus() {
         return thesaurus;
     }
 
-    final PropertySpecService getPropertySpecService() {
+    public final PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
 
@@ -84,10 +83,4 @@ abstract class AbstractValidator implements IValidator {
     public NlsKey getNlsKey() {
         return SimpleNlsKey.key(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN, getBaseKey());
     }
-
-    @Override
-    public List<Pair<? extends NlsKey, String>> getExtraTranslations() {
-        return Collections.emptyList();
-    }
-
 }

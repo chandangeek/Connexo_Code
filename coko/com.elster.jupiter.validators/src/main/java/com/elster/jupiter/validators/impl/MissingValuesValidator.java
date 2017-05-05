@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.validation.ValidationResult;
@@ -29,12 +30,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * This Validator will interpret Intervals as being closed. i.e. start and end time are included in the interval. So when validating missing readings for a five minute interval over a period of five minutes will expect 2 readings.
- * <p/>
+ * This Validator will interpret Intervals as being closed. i.e. start and end time are included in the interval.
+ * So when validating missing readings for a five minute interval over a period of five minutes will expect 2 readings.
  */
 class MissingValuesValidator extends AbstractValidator {
-
-    private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
 
     private Set<Instant> instants;
     private ReadingType readingType;
@@ -90,7 +89,7 @@ class MissingValuesValidator extends AbstractValidator {
 
     @Override
     public String getDefaultFormat() {
-        return TranslationKeys.MISSING_VALUES_VALIDATOR.getDefaultFormat();
+        return "Check missing values";
     }
 
     @Override
@@ -106,12 +105,12 @@ class MissingValuesValidator extends AbstractValidator {
     }
 
     @Override
-    public List<String> getRequiredProperties() {
-        return Collections.emptyList();
+    public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
+        return ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     }
 
     @Override
-    public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
-        return QUALITY_CODE_SYSTEMS;
+    public List<TranslationKey> getExtraTranslationKeys() {
+        return Collections.emptyList();
     }
 }
