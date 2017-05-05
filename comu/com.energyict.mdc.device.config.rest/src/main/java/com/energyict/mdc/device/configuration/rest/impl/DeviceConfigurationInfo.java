@@ -40,6 +40,7 @@ public class DeviceConfigurationInfo {
     public DeviceFunction deviceFunction;
     public VersionInfo<Long> parent;
     public Boolean dataloggerEnabled;
+    public Boolean multiElementEnabled;
 
     public DeviceConfigurationInfo() {
     }
@@ -59,7 +60,7 @@ public class DeviceConfigurationInfo {
         version = deviceConfiguration.getVersion();
         parent = new VersionInfo<>(deviceConfiguration.getDeviceType().getId(), deviceConfiguration.getDeviceType().getVersion());
         dataloggerEnabled = deviceConfiguration.isDataloggerEnabled();
-
+        multiElementEnabled = deviceConfiguration.isMultiElementEnabled();
         deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().ifPresent(deviceProtocolPluggableClass -> {
             this.deviceProtocolInfo = new DeviceProtocolInfo(deviceProtocolPluggableClass);
             DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
@@ -88,6 +89,7 @@ public class DeviceConfigurationInfo {
             deviceConfiguration.setDirectlyAddressable(this.isDirectlyAddressable);
         }
         deviceConfiguration.setDataloggerEnabled(dataloggerEnabled);
+        deviceConfiguration.setMultiElementEnabled(multiElementEnabled);
         deviceConfiguration.setValidateOnStore(this.validateOnStore);
     }
 }
