@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 

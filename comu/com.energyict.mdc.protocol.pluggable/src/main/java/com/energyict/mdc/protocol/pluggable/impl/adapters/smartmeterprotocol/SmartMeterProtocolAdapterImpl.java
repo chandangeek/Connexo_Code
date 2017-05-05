@@ -64,6 +64,7 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -509,20 +510,6 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-        return getDeviceSecuritySupport().getSecurityProperties();
-    }
-
-    @Override
-    public Optional<com.energyict.mdc.upl.properties.PropertySpec> getSecurityPropertySpec(String name) {
-        if (this.delegateSecurityToActualProtocol()) {
-            return getDeviceSecuritySupport().getSecurityPropertySpec(name);
-        } else {
-            return this.smartMeterProtocolSecuritySupportAdapter.getSecurityPropertySpec(name);
-        }
-    }
-
-    @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         if (this.delegateSecurityToActualProtocol()) {
             getDeviceSecuritySupport().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
@@ -543,15 +530,6 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
 
     protected void setSmartMeterProtocolSecuritySupportAdapter(SmartMeterProtocolSecuritySupportAdapter smartMeterProtocolSecuritySupportAdapter) {
         this.smartMeterProtocolSecuritySupportAdapter = smartMeterProtocolSecuritySupportAdapter;
-    }
-
-    @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        if (this.delegateSecurityToActualProtocol()) {
-            return getDeviceSecuritySupport().getSecurityPropertySpecs();
-        } else {
-            return this.smartMeterProtocolSecuritySupportAdapter.getSecurityPropertySpecs();
-        }
     }
 
     // Publish the protected method as public

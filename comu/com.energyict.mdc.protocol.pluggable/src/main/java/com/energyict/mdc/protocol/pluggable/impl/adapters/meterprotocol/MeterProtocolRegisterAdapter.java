@@ -15,6 +15,7 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
+
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
 

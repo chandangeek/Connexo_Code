@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
@@ -14,8 +12,6 @@ import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.upl.meterdata.Device;
-import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
@@ -23,7 +19,6 @@ import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Abstract class for implementing the {@link DeviceSecuritySupport} interface
@@ -57,30 +52,16 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
         this.legacySecuritySupport = legacySecuritySupport;
     }
 
+    public void setLegacySecurityPropertyConverter(LegacySecurityPropertyConverter legacySecurityPropertyConverter) {
+        this.legacySecurityPropertyConverter = legacySecurityPropertyConverter;
+    }
+
     private boolean checkExistingSecuritySupport() {
         return this.legacySecuritySupport != null;
     }
 
-    protected boolean checkExistingSecurityPropertyConverter() {
+    private boolean checkExistingSecurityPropertyConverter() {
         return this.legacySecurityPropertyConverter != null;
-    }
-
-    @Override
-    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        if (checkExistingSecuritySupport()) {
-            return this.legacySecuritySupport.getCustomPropertySet();
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public List<PropertySpec> getSecurityProperties() {
-        if (checkExistingSecuritySupport()) {
-            return this.legacySecuritySupport.getSecurityProperties();
-        } else {
-            return Collections.emptyList();
-        }
     }
 
     @Override
@@ -122,10 +103,6 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
 
     protected LegacySecurityPropertyConverter getLegacySecurityPropertyConverter() {
         return this.legacySecurityPropertyConverter;
-    }
-
-    public void setLegacySecurityPropertyConverter(LegacySecurityPropertyConverter legacySecurityPropertyConverter) {
-        this.legacySecurityPropertyConverter = legacySecurityPropertyConverter;
     }
 
     /**

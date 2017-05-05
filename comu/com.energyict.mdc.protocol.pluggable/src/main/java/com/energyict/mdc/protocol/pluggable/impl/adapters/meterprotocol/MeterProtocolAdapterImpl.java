@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
@@ -71,6 +69,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -495,24 +494,6 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
             this.meterProtocol.setProperties(this.propertiesAdapter.getProperties().toStringProperties());
         } catch (InvalidPropertyException | MissingPropertyException e) {
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
-        }
-    }
-
-    @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        if (this.delegateSecurityToActualProtocol()) {
-            return getDeviceSecuritySupport().getSecurityPropertySpecs();
-        } else {
-            return this.meterProtocolSecuritySupportAdapter.getSecurityPropertySpecs();
-        }
-    }
-
-    @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-        if (this.delegateSecurityToActualProtocol()) {
-            return getDeviceSecuritySupport().getSecurityProperties();
-        } else {
-            return this.meterProtocolSecuritySupportAdapter.getSecurityProperties();
         }
     }
 

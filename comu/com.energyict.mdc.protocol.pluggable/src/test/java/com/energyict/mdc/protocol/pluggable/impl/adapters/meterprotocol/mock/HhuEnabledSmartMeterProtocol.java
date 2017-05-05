@@ -5,6 +5,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock;
 
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+
 import com.energyict.protocol.HHUEnabler;
 
 public interface HhuEnabledSmartMeterProtocol extends SmartMeterProtocol, HHUEnabler {
