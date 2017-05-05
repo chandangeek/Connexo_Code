@@ -5,14 +5,11 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
-
 import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocolimplv2.common.CommonV2TranslationKeys;
+import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 
 import java.math.BigDecimal;
 
@@ -42,19 +39,19 @@ public class MirrorTcpDeviceProtocolDialectProperties extends CommonDeviceProtoc
     }
 
     enum ActualFields {
-        RETRIES("retries", DlmsProtocolProperties.RETRIES, CommonV2TranslationKeys.RETRIES, "RETRIES") {
+        RETRIES("retries", DlmsProtocolProperties.RETRIES, "RETRIES") {
             @Override
             public void addTo(Table table) {
                 this.addAsBigDecimalColumnTo(table);
             }
         },
-        TIMEOUT_PROPERTY("timeoutMillis", DlmsProtocolProperties.TIMEOUT, CommonV2TranslationKeys.TIMEOUT, "TIMEOUTMILLIS") {
+        TIMEOUT_PROPERTY("timeoutMillis", DlmsProtocolProperties.TIMEOUT, "TIMEOUTMILLIS") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
             }
         },
-        ROUND_TRIP_CORRECTION("roundTripCorrection", DlmsProtocolProperties.ROUND_TRIP_CORRECTION, CommonV2TranslationKeys.ROUNDTRIP_CORRECTION, "ROUND_TRIP_CORRECTION") {
+        ROUND_TRIP_CORRECTION("roundTripCorrection", DlmsProtocolProperties.ROUND_TRIP_CORRECTION, "ROUND_TRIP_CORRECTION") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
@@ -63,13 +60,11 @@ public class MirrorTcpDeviceProtocolDialectProperties extends CommonDeviceProtoc
 
         private final String javaName;
         private final String propertySpecName;
-        private final TranslationKey translationKey;
         private final String databaseName;
 
-        ActualFields(String javaName, String propertySpecName, TranslationKey translationKey, String databaseName) {
+        ActualFields(String javaName, String propertySpecName, String databaseName) {
             this.javaName = javaName;
             this.propertySpecName = propertySpecName;
-            this.translationKey = translationKey;
             this.databaseName = databaseName;
         }
 

@@ -6,7 +6,6 @@ package com.energyict.protocolimplv2.ace4000;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.tasks.ACE4000DeviceProtocolDialect;
@@ -42,16 +41,14 @@ class ACE4000DeviceProtocolDialectProperties extends CommonDeviceProtocolDialect
     }
 
     enum ActualFields {
-        TIMEOUT_PROPERTY("timeoutMillis", ACE4000PropertySupport.TranslationKeys.TIMEOUT, "TIMEOUTMILLIS"),
-        RETRIES("retries", ACE4000PropertySupport.TranslationKeys.RETRIES, "RETRIES");
+        TIMEOUT_PROPERTY("timeoutMillis", "TIMEOUTMILLIS"),
+        RETRIES("retries", "RETRIES");
 
         private final String javaName;
-        private final TranslationKey nameTranslationKey;
         private final String databaseName;
 
-        ActualFields(String javaName, TranslationKey nameTranslationKey, String databaseName) {
+        ActualFields(String javaName, String databaseName) {
             this.javaName = javaName;
-            this.nameTranslationKey = nameTranslationKey;
             this.databaseName = databaseName;
         }
 

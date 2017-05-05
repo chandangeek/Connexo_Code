@@ -6,7 +6,6 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.time.TimeDuration;
@@ -42,17 +41,15 @@ class SDKTimeDialectProperties extends CommonDeviceProtocolDialectProperties {
     }
 
     enum ActualFields {
-        CLOCK_OFFSET_WHEN_READING("clockOffsetWhenReading", SDKTranslationKeys.CLOCK_OFFSET_WHEN_READING, "ClockOffsetWhenReading", "CLOCK_OFFSET_WHEN_READING"),
-        CLOCK_OFFSET_WHEN_WRITING("clockOffsetWhenWriting", SDKTranslationKeys.CLOCK_OFFSET_WHEN_WRITING, "ClockOffsetWhenWriting", "CLOCK_OFFSET_WHEN_WRITING");
+        CLOCK_OFFSET_WHEN_READING("clockOffsetWhenReading", "ClockOffsetWhenReading", "CLOCK_OFFSET_WHEN_READING"),
+        CLOCK_OFFSET_WHEN_WRITING("clockOffsetWhenWriting", "ClockOffsetWhenWriting", "CLOCK_OFFSET_WHEN_WRITING");
 
         private final String javaName;
-        private final TranslationKey nameTranslationKey;
         private final String propertySpecName;
         private final String databaseName;
 
-        ActualFields(String javaName, TranslationKey nameTranslationKey, String propertySpecName, String databaseName) {
+        ActualFields(String javaName, String propertySpecName, String databaseName) {
             this.javaName = javaName;
-            this.nameTranslationKey = nameTranslationKey;
             this.propertySpecName = propertySpecName;
             this.databaseName = databaseName;
         }

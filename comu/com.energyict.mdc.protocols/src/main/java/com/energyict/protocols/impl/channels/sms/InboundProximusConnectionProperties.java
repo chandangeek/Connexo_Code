@@ -7,13 +7,11 @@ package com.energyict.protocols.impl.channels.sms;
 import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
-import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.validation.constraints.Size;
 
@@ -36,14 +34,14 @@ public class InboundProximusConnectionProperties extends AbstractVersionedPersis
     @Override
     public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.connectionProvider.set(connectionProvider);
-        this.phoneNumber = (String) propertyValues.getProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName());
-        this.callHomeId = (String) propertyValues.getProperty(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName());
+        this.phoneNumber = (String) propertyValues.getProperty(Fields.PHONE_NUMBER.propertySpecName());
+        this.callHomeId = (String) propertyValues.getProperty(Fields.CALL_HOME_ID.propertySpecName());
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName(), this.phoneNumber);
-        propertySetValues.setProperty(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), this.callHomeId);
+        propertySetValues.setProperty(Fields.PHONE_NUMBER.propertySpecName(), this.phoneNumber);
+        propertySetValues.setProperty(Fields.CALL_HOME_ID.propertySpecName(), this.callHomeId);
     }
 
     @Override
@@ -64,11 +62,6 @@ public class InboundProximusConnectionProperties extends AbstractVersionedPersis
             }
 
             @Override
-            public TranslationKey nameTranslationKey() {
-                throw new UnsupportedOperationException("ConnectionProvider should not be exposed as a PropertySpec");
-            }
-
-            @Override
             public String databaseName() {
                 return "CONNECTIONPROVIDER";
             }
@@ -81,12 +74,7 @@ public class InboundProximusConnectionProperties extends AbstractVersionedPersis
         PHONE_NUMBER {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.INBOUND_PROXIMUS_PHONE_NUMBER.propertySpecName();
-            }
-
-            @Override
-            public TranslationKey nameTranslationKey() {
-                return ConnectionTypePropertySpecName.INBOUND_PROXIMUS_PHONE_NUMBER;
+                return InboundProximusSmsConnectionType.DEVICE_PHONE_NUMBER_PROPERTY_NAME;
             }
 
             @Override
@@ -97,12 +85,7 @@ public class InboundProximusConnectionProperties extends AbstractVersionedPersis
         CALL_HOME_ID {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.INBOUND_PROXIMUS_CALL_HOME_ID.propertySpecName();
-            }
-
-            @Override
-            public TranslationKey nameTranslationKey() {
-                return ConnectionTypePropertySpecName.INBOUND_PROXIMUS_CALL_HOME_ID;
+                return LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME;
             }
 
             @Override
@@ -116,8 +99,6 @@ public class InboundProximusConnectionProperties extends AbstractVersionedPersis
         }
 
         public abstract String propertySpecName();
-
-        public abstract TranslationKey nameTranslationKey();
 
         public abstract String databaseName();
 

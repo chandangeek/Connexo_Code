@@ -12,7 +12,6 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLConnectionTypeAdapter;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 import com.energyict.protocols.impl.channels.TranslationKeys;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -74,7 +73,6 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService, Transla
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>();
         Collections.addAll(keys, TranslationKeys.values());
-        Collections.addAll(keys, ConnectionTypePropertySpecName.values());
         return keys;
     }
 

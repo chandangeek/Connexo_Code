@@ -5,25 +5,22 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.security.AdvancedDeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
-import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
-import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.upl.security.RequestSecurityLevel;
+import com.energyict.mdc.upl.security.ResponseSecurityLevel;
+import com.energyict.mdc.upl.security.SecuritySuite;
 
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 
 /**
- *
- *
  * @author khe
  * @since 28/01/2016 - 17:39
  */
-public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupportAdapter implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter, AdvancedDeviceProtocolSecurityCapabilities {
+public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupportAdapter implements LegacySecurityPropertyConverter, AdvancedDeviceProtocolSecurityCapabilities {
 
     @Inject
     public DlmsSecuritySuite1And2Support(PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -32,23 +29,17 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupportAdapte
 
     @Override
     public List<SecuritySuite> getSecuritySuites() {
-        return null;
-        //TODO adapt
-        //return getSecuritySupport().getSecuritySuites();
+        return getSecuritySupport().getSecuritySuites();
     }
 
     @Override
     public List<RequestSecurityLevel> getRequestSecurityLevels() {
-        return null;
-        //TODO adapt
-        //return getSecuritySupport().getRequestSecurityLevels();
+        return getSecuritySupport().getRequestSecurityLevels();
     }
 
     @Override
     public List<ResponseSecurityLevel> getResponseSecurityLevels() {
-        return null;
-        //TODO adapt
-        //return getSecuritySupport().getResponseSecurityLevels();
+        return getSecuritySupport().getResponseSecurityLevels();
     }
 
     @Override

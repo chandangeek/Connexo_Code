@@ -11,7 +11,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
-import com.energyict.protocolimplv2.abnt.AbntTranslationKeys;
 
 import java.math.BigDecimal;
 
@@ -50,25 +49,25 @@ class AbntDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectPro
     }
 
     enum ActualFields {
-        RETRIES("retries", DlmsProtocolProperties.RETRIES, AbntTranslationKeys.RETRIES, "RETRIES") {
+        RETRIES("retries", DlmsProtocolProperties.RETRIES, "RETRIES") {
             @Override
             public void addTo(Table table) {
                 this.addAsBigDecimalColumnTo(table);
             }
         },
-        TIMEOUT_PROPERTY("timeoutMillis", DlmsProtocolProperties.TIMEOUT, AbntTranslationKeys.TIMEOUT, "TIMEOUTMILLIS") {
+        TIMEOUT_PROPERTY("timeoutMillis", DlmsProtocolProperties.TIMEOUT, "TIMEOUTMILLIS") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
             }
         },
-        FORCED_DELAY("forcedDelay", DlmsProtocolProperties.FORCED_DELAY, AbntTranslationKeys.FORCED_DELAY, "FORCED_DELAY") {
+        FORCED_DELAY("forcedDelay", DlmsProtocolProperties.FORCED_DELAY, "FORCED_DELAY") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
             }
         },
-        DELAY_AFTER_ERROR("delayAfterError", DlmsProtocolProperties.DELAY_AFTER_ERROR, AbntTranslationKeys.DELAY_AFTER_ERROR, "DELAY_AFTER_ERROR") {
+        DELAY_AFTER_ERROR("delayAfterError", DlmsProtocolProperties.DELAY_AFTER_ERROR, "DELAY_AFTER_ERROR") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
@@ -77,13 +76,11 @@ class AbntDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectPro
 
         private final String javaName;
         private final String propertySpecName;
-        private final AbntTranslationKeys translationKey;
         private final String databaseName;
 
-        ActualFields(String javaName, String propertySpecName, AbntTranslationKeys translationKey, String databaseName) {
+        ActualFields(String javaName, String propertySpecName, String databaseName) {
             this.javaName = javaName;
             this.propertySpecName = propertySpecName;
-            this.translationKey = translationKey;
             this.databaseName = databaseName;
         }
 
@@ -124,5 +121,4 @@ class AbntDeviceProtocolDialectProperties extends CommonDeviceProtocolDialectPro
                     .add();
         }
     }
-
 }

@@ -7,13 +7,10 @@ package com.energyict.protocols.impl.channels.sms;
 import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
-import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.validation.constraints.Size;
 
@@ -29,33 +26,33 @@ public class OutboundProximusConnectionProperties extends AbstractVersionedPersi
     @SuppressWarnings("unused")
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String phoneNumber;
+    private String SMS_phoneNumber;
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String connectionUrl;
+    private String API_connectionURL;
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String source;
+    private String API_source;
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String authentication;
+    private String API_authentication;
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String serviceCode;
+    private String API_serviceCode;
 
     @Override
     public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.connectionProvider.set(connectionProvider);
-        this.phoneNumber = (String) propertyValues.getProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName());
-        this.connectionUrl = (String) propertyValues.getProperty(Fields.CONNECTION_URL.propertySpecName());
-        this.source = (String) propertyValues.getProperty(Fields.SOURCE.propertySpecName());
-        this.authentication = (String) propertyValues.getProperty(Fields.AUTHENTICATION.propertySpecName());
-        this.serviceCode = (String) propertyValues.getProperty(Fields.SERVICE_CODE.propertySpecName());
+        this.SMS_phoneNumber = (String) propertyValues.getProperty(Fields.PHONE_NUMBER.propertySpecName());
+        this.API_connectionURL = (String) propertyValues.getProperty(Fields.CONNECTION_URL.propertySpecName());
+        this.API_source = (String) propertyValues.getProperty(Fields.SOURCE.propertySpecName());
+        this.API_authentication = (String) propertyValues.getProperty(Fields.AUTHENTICATION.propertySpecName());
+        this.API_serviceCode = (String) propertyValues.getProperty(Fields.SERVICE_CODE.propertySpecName());
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName(), this.phoneNumber);
-        propertySetValues.setProperty(Fields.CONNECTION_URL.propertySpecName(), this.connectionUrl);
-        propertySetValues.setProperty(Fields.SOURCE.propertySpecName(), this.source);
-        propertySetValues.setProperty(Fields.AUTHENTICATION.propertySpecName(), this.authentication);
-        propertySetValues.setProperty(Fields.SERVICE_CODE.propertySpecName(), this.serviceCode);
+        propertySetValues.setProperty(Fields.PHONE_NUMBER.propertySpecName(), this.SMS_phoneNumber);
+        propertySetValues.setProperty(Fields.CONNECTION_URL.propertySpecName(), this.API_connectionURL);
+        propertySetValues.setProperty(Fields.SOURCE.propertySpecName(), this.API_source);
+        propertySetValues.setProperty(Fields.AUTHENTICATION.propertySpecName(), this.API_authentication);
+        propertySetValues.setProperty(Fields.SERVICE_CODE.propertySpecName(), this.API_serviceCode);
     }
 
     @Override
@@ -76,11 +73,6 @@ public class OutboundProximusConnectionProperties extends AbstractVersionedPersi
             }
 
             @Override
-            public TranslationKey nameTranslationKey() {
-                throw new UnsupportedOperationException("ConnectionProvider should not be exposed as a PropertySpec");
-            }
-
-            @Override
             public String databaseName() {
                 return "CONNECTIONPROVIDER";
             }
@@ -93,12 +85,7 @@ public class OutboundProximusConnectionProperties extends AbstractVersionedPersi
         PHONE_NUMBER {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_PROXIMUS_PHONE_NUMBER.propertySpecName();
-            }
-
-            @Override
-            public TranslationKey nameTranslationKey() {
-                return ConnectionTypePropertySpecName.OUTBOUND_PROXIMUS_PHONE_NUMBER;
+                return OutboundProximusSmsConnectionType.PHONE_NUMBER_PROPERTY_NAME;
             }
 
             @Override
@@ -109,12 +96,7 @@ public class OutboundProximusConnectionProperties extends AbstractVersionedPersi
         SOURCE {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_PROXIMUS_SOURCE.propertySpecName();
-            }
-
-            @Override
-            public TranslationKey nameTranslationKey() {
-                return ConnectionTypePropertySpecName.OUTBOUND_PROXIMUS_SOURCE;
+                return OutboundProximusSmsConnectionType.SOURCE_PROPERTY_NAME;
             }
 
             @Override
@@ -125,12 +107,7 @@ public class OutboundProximusConnectionProperties extends AbstractVersionedPersi
         AUTHENTICATION {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_PROXIMUS_AUTHENTICATION.propertySpecName();
-            }
-
-            @Override
-            public TranslationKey nameTranslationKey() {
-                return ConnectionTypePropertySpecName.OUTBOUND_PROXIMUS_AUTHENTICATION;
+                return OutboundProximusSmsConnectionType.AUTHENTICATION_PROPERTY_NAME;
             }
 
             @Override
@@ -141,12 +118,7 @@ public class OutboundProximusConnectionProperties extends AbstractVersionedPersi
         SERVICE_CODE {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_PROXIMUS_SERVICE_CODE.propertySpecName();
-            }
-
-            @Override
-            public TranslationKey nameTranslationKey() {
-                return ConnectionTypePropertySpecName.OUTBOUND_PROXIMUS_SERVICE_CODE;
+                return OutboundProximusSmsConnectionType.SERVICE_CODE_PROPERTY_NAME;
             }
 
             @Override
@@ -157,12 +129,7 @@ public class OutboundProximusConnectionProperties extends AbstractVersionedPersi
         CONNECTION_URL {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.OUTBOUND_PROXIMUS_CONNECTION_URL.propertySpecName();
-            }
-
-            @Override
-            public TranslationKey nameTranslationKey() {
-                return ConnectionTypePropertySpecName.OUTBOUND_PROXIMUS_CONNECTION_URL;
+                return OutboundProximusSmsConnectionType.CONNECTION_URL_PROPERTY_NAME;
             }
 
             @Override
@@ -176,8 +143,6 @@ public class OutboundProximusConnectionProperties extends AbstractVersionedPersi
         }
 
         public abstract String propertySpecName();
-
-        public abstract TranslationKey nameTranslationKey();
 
         public abstract String databaseName();
 

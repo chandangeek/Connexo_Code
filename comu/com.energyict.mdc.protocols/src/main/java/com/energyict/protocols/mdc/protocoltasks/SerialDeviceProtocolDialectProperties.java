@@ -12,7 +12,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
-import com.energyict.protocolimplv2.common.CommonV2TranslationKeys;
 
 import java.math.BigDecimal;
 
@@ -55,34 +54,34 @@ public class SerialDeviceProtocolDialectProperties extends CommonDeviceProtocolD
 
     public enum ActualFields {
 
-        ADDRESSING_MODE("addressingMode", DlmsProtocolProperties.ADDRESSING_MODE, CommonV2TranslationKeys.ADDRESSING_MODE, "ADDRESSINGMODE") {
+        ADDRESSING_MODE("addressingMode", DlmsProtocolProperties.ADDRESSING_MODE, "ADDRESSINGMODE") {
             @Override
             public void addTo(Table table) {
                 this.addAsBigDecimalColumnTo(table);
             }
         },
 
-        INFORMATION_FIELD_SIZE("informationFieldSize", DlmsProtocolProperties.INFORMATION_FIELD_SIZE, CommonV2TranslationKeys.INFORMATION_FIELD_SIZE, "INFOFIELDSIZE") {
+        INFORMATION_FIELD_SIZE("informationFieldSize", DlmsProtocolProperties.INFORMATION_FIELD_SIZE, "INFOFIELDSIZE") {
             @Override
             public void addTo(Table table) {
                 this.addAsBigDecimalColumnTo(table);
             }
         },
 
-        RETRIES("retries", DlmsProtocolProperties.RETRIES, CommonV2TranslationKeys.RETRIES, "RETRIES") {
+        RETRIES("retries", DlmsProtocolProperties.RETRIES, "RETRIES") {
             @Override
             public void addTo(Table table) {
                 this.addAsBigDecimalColumnTo(table);
             }
         },
-        TIMEOUT_PROPERTY("timeoutMillis", DlmsProtocolProperties.TIMEOUT, CommonV2TranslationKeys.TIMEOUT, "TIMEOUTMILLIS") {
+        TIMEOUT_PROPERTY("timeoutMillis", DlmsProtocolProperties.TIMEOUT, "TIMEOUTMILLIS") {
             @Override
             public void addTo(Table table) {
                 this.addAsTimeDurationColumnTo(table);
             }
         },
 
-        ROUND_TRIP_CORRECTION("roundTripCorrection", DlmsProtocolProperties.ROUND_TRIP_CORRECTION, CommonV2TranslationKeys.ROUNDTRIP_CORRECTION, "ROUNDTRIPCORRECTION") {
+        ROUND_TRIP_CORRECTION("roundTripCorrection", DlmsProtocolProperties.ROUND_TRIP_CORRECTION, "ROUNDTRIPCORRECTION") {
             @Override
             public void addTo(Table table) {
                 this.addAsBigDecimalColumnTo(table);
@@ -91,13 +90,11 @@ public class SerialDeviceProtocolDialectProperties extends CommonDeviceProtocolD
 
         private final String javaName;
         private final String propertySpecName;
-        private final CommonV2TranslationKeys translationKey;
         private final String databaseName;
 
-        ActualFields(String javaName, String propertySpecName, CommonV2TranslationKeys translationKey, String databaseName) {
+        ActualFields(String javaName, String propertySpecName, String databaseName) {
             this.javaName = javaName;
             this.propertySpecName = propertySpecName;
-            this.translationKey = translationKey;
             this.databaseName = databaseName;
         }
 
