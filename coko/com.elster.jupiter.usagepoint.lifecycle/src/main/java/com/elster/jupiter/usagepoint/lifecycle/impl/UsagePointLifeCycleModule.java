@@ -12,6 +12,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
@@ -40,22 +41,24 @@ public class UsagePointLifeCycleModule extends AbstractModule {
         requireBinding(TaskService.class);
         requireBinding(UserService.class);
 
-        bind(ServerUsagePointLifeCycleService.class).to(UsagePointLifeCycleServiceImpl.class).in(Scopes.SINGLETON);
+        bind(UsagePointLifeCycleServiceImpl.class).in(Scopes.SINGLETON);
+        bind(ServerUsagePointLifeCycleService.class).toProvider(UsagePointLifeCycleServiceProvider.class);
         bind(UsagePointLifeCycleService.class).toProvider(UsagePointLifeCycleServiceProvider.class);
+        bind(UsagePointLifeCycleBuilder.class).toProvider(UsagePointLifeCycleServiceProvider.class);
         bind(UsagePointMicroActionFactory.class).to(UsagePointMicroActionFactoryImpl.class).in(Scopes.SINGLETON);
         bind(UsagePointMicroCheckFactory.class).to(UsagePointMicroCheckFactoryImpl.class).in(Scopes.SINGLETON);
     }
 
-    private static class UsagePointLifeCycleServiceProvider implements Provider<UsagePointLifeCycleService> {
-        private final ServerUsagePointLifeCycleService lifeCycleService;
+    private static class UsagePointLifeCycleServiceProvider implements Provider<UsagePointLifeCycleServiceImpl> {
+        private final UsagePointLifeCycleServiceImpl lifeCycleService;
 
         @Inject
-        private UsagePointLifeCycleServiceProvider(ServerUsagePointLifeCycleService lifeCycleService) {
+        private UsagePointLifeCycleServiceProvider(UsagePointLifeCycleServiceImpl lifeCycleService) {
             this.lifeCycleService = lifeCycleService;
         }
 
         @Override
-        public UsagePointLifeCycleService get() {
+        public UsagePointLifeCycleServiceImpl get() {
             return this.lifeCycleService;
         }
     }

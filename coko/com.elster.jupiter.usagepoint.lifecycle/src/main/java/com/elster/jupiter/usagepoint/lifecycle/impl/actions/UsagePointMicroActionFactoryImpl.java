@@ -15,6 +15,7 @@ import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
+import com.elster.jupiter.validation.ValidationService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component(name = "UsagePointMicroActionFactoryImpl",
         service = {UsagePointMicroActionFactory.class},
@@ -38,6 +40,7 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
     private DataModel dataModel;
     private Thesaurus thesaurus;
     private PropertySpecService propertySpecService;
+    private volatile ValidationService validationService;
 
     private final Map<String, Class<? extends MicroAction>> microActionMapping = new HashMap<>();
 
@@ -48,10 +51,12 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
     @Inject
     public UsagePointMicroActionFactoryImpl(UpgradeService upgradeService,
                                             NlsService nlsService,
-                                            PropertySpecService propertySpecService) {
+                                            PropertySpecService propertySpecService,
+                                            ValidationService validationService) {
         setUpgradeService(upgradeService);
         setNlsService(nlsService);
         setPropertySpecService(propertySpecService);
+        setValidationService(validationService);
         activate();
     }
 
@@ -71,10 +76,16 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
         this.propertySpecService = propertySpecService;
     }
 
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(getModule());
-        addMicroActionMappings();
+        streamMicroActionClasses()
+                .forEach(this::addMicroActionMapping);
     }
 
     private Module getModule() {
@@ -84,12 +95,14 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(ValidationService.class).toInstance(validationService);
             }
         };
     }
 
-    private void addMicroActionMappings() {
-        addMicroActionMapping(SetConnectionStateAction.class);
+    private Stream<Class<? extends ExecutableMicroAction>> streamMicroActionClasses() {
+        return Stream.of(SetConnectionStateAction.class,
+                ResetValidationResultsAction.class);
     }
 
     private void addMicroActionMapping(Class<? extends ExecutableMicroAction> clazz) {

@@ -44,7 +44,7 @@ public class MessageSeedsTest {
     }
 
     @Test
-    public void testKeyDoesNotStartOrEndWithANonPrintableChar() {
+    public void testKeyDoesntStartOrEndWithANonPrintableChar() {
         for (MessageSeeds messageSeed : MessageSeeds.values()) {
             String key = messageSeed.getKey();
             assertThat(key.trim().length())
@@ -72,7 +72,7 @@ public class MessageSeedsTest {
     }
 
     @Test
-    public void testDefaultFormatDoesNotStartOrEndWithANonPrintableChar() {
+    public void testDefaultFormatDoesntStartOrEndWithANonPrintableChar() {
         for (MessageSeeds messageSeed : MessageSeeds.values()) {
             String defaultFormat = messageSeed.getDefaultFormat();
             assertThat(defaultFormat.trim().length())
@@ -80,6 +80,14 @@ public class MessageSeedsTest {
                     .isNotZero()
                     .as(messageSeed.name() + " default format should not start or end with a non-printable character")
                     .isEqualTo(defaultFormat.length());
+        }
+    }
+
+    @Test
+    public void testAllMessageSeedDefaultFormatsAreWithinLengthLimit() {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+            assertThat(messageSeed.getDefaultFormat().length()).as(messageSeed.name() + " default format is longer than max of 256")
+                    .isLessThanOrEqualTo(256);
         }
     }
 }

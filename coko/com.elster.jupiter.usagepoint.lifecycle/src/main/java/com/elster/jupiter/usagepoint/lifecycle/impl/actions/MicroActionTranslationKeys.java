@@ -10,7 +10,10 @@ public enum MicroActionTranslationKeys implements TranslationKey {
     SET_CONNECTION_STATE_NAME(Keys.NAME_PREFIX + SetConnectionStateAction.class.getSimpleName(), "Set connection state"),
     SET_CONNECTION_STATE_DESCRIPTION(Keys.DESCRIPTION_PREFIX + SetConnectionStateAction.class.getSimpleName(), "Set connection state to one of the available states."),
     SET_CONNECTION_STATE_PROPERTY_NAME("set.connection.state.property.name", "Connection state"),
-    SET_CONNECTION_STATE_PROPERTY_MESSAGE("set.connection.state.property.message", "Incorrect value for ''Connection state''"),;
+    SET_CONNECTION_STATE_PROPERTY_MESSAGE("set.connection.state.property.message", "Incorrect value for ''Connection state''"),
+    RESET_VALIDATION_RESULTS_NAME(Keys.NAME_PREFIX + ResetValidationResultsAction.class.getSimpleName(), "Reset validation results"),
+    RESET_VALIDATION_RESULTS_DESCRIPTION(Keys.DESCRIPTION_PREFIX + ResetValidationResultsAction.class.getSimpleName(),
+            "Shift last validation date on all the outputs of a usage point to the point in time equal to the transition date.");
 
     private final String key;
     private final String defaultFormat;
