@@ -9,6 +9,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.orm.JournalEntry;
@@ -216,6 +217,8 @@ public interface MeteringService {
      * @return The GasDayOptions
      */
     Optional<GasDayOptions> getGasDayOptions();
+
+    List<MeterRole> getMeterRoles();
 
     List<ReadingQualityComment> getAllReadingQualityComments(ReadingQualityCommentCategory category);
 
