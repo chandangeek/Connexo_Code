@@ -163,7 +163,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(mock.getStatus()).thenReturn(status);
         when(mock.getVersion()).thenReturn(1L);
         when(mock.getDescription()).thenReturn("some description");
-        when(mock.isGapAllowed()).thenReturn(true);
+        when(mock.areGapsAllowed()).thenReturn(true);
 
         MeterRole role = mock(MeterRole.class);
         when(role.getKey()).thenReturn(DefaultMeterRole.DEFAULT.getKey());
