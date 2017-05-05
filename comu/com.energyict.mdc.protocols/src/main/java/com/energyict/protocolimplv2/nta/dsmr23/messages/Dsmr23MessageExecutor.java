@@ -407,14 +407,13 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         OfflineKeyAccessor masterKey = offlineKeyAccessors.stream().filter(e -> e.getKeyAccessorType().getName().equals(masterKeyName)).findFirst().get();
 
         TypedProperties securityProperties = getSecurityProperties();
-        //TODO silvie uncomment
- //       if (((KeyAccessorType)securityProperties.getTypedProperty(DlmsSecuritySupportCryptography.DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME)).getName().equals(keyAccessorType)) {
-            renewKey(keyAccessor, masterKey, 2);
-   //     }
-   /*     if (((KeyAccessorType)securityProperties.getTypedProperty(DlmsSecuritySupportCryptography.DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME)).getName().equals(keyAccessorType)) {
-            renewKey(keyAccessor, masterKey, 0);
-        }*/
 
+        if (((KeyAccessorType)securityProperties.getTypedProperty(DlmsSecuritySupportCryptography.DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME)).getName().equals(keyAccessorType)) {
+            renewKey(keyAccessor, masterKey, 2);
+        }
+        if (((KeyAccessorType)securityProperties.getTypedProperty(DlmsSecuritySupportCryptography.DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME)).getName().equals(keyAccessorType)) {
+            renewKey(keyAccessor, masterKey, 0);
+        }
     }
 
     private void renewKey(OfflineKeyAccessor keyAccessor, OfflineKeyAccessor masterKey, int type) throws IOException {
