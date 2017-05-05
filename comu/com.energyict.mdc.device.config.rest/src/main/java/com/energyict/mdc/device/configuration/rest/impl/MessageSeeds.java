@@ -145,7 +145,8 @@ public enum MessageSeeds implements MessageSeed {
             "activate a datalogger slave device configuration"),
     DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE(225, Keys.DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before " +
             "you can activate a datalogger device configuration"),
-    NO_SUCH_KEY_ACCESSOR_TYPE(226, "NoSuchKeyAccessorType", "No such security accessor");
+    NO_SUCH_KEY_ACCESSOR_TYPE(226, "NoSuchKeyAccessorType", "No such security accessor"),
+    INVALID_VALUE(227, "InvalidValue", "Invalid value");
 
     private final int number;
     private final String key;
