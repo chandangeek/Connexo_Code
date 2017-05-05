@@ -62,6 +62,8 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -190,8 +192,10 @@ public class ValidationPerformanceIT {
                     .create();
             validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                 @Override
-                public Map<ValidationRuleSet, List<Range<Instant>>> resolve(ValidationContext validationContext) {
-                    return Collections.singletonMap(validationRuleSet, Collections.singletonList(Range.atLeast(date1)));
+                public Map<ValidationRuleSet, RangeSet<Instant>> resolve(ValidationContext validationContext) {
+                    RangeSet<Instant> rangeSet = TreeRangeSet.create();
+                    rangeSet.add(Range.atLeast(date1));
+                    return Collections.singletonMap(validationRuleSet, rangeSet);
                 }
 
                 @Override

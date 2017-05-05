@@ -64,6 +64,8 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -192,9 +194,11 @@ public class RegisterValidationEvaluatorIT {
                     .create();
             validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                 @Override
-                public Map<ValidationRuleSet, List<Range<Instant>>> resolve(ValidationContext validationContext) {
+                public Map<ValidationRuleSet, RangeSet<Instant>> resolve(ValidationContext validationContext) {
+                    RangeSet<Instant> rangeSet = TreeRangeSet.create();
+                    rangeSet.add(Range.atLeast(date1));
                     return Stream.of(mdcValidationRuleSet, mdmValidationRuleSet)
-                            .collect(Collectors.toMap(e -> e, e -> Collections.singletonList(Range.atLeast(date1))));
+                            .collect(Collectors.toMap(e -> e, e -> rangeSet));
                 }
 
                 @Override
