@@ -181,6 +181,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                     name: 'connectionSummary',
                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.connectionSummary', 'MDC', 'Connection summary'),
                     itemId: 'com-task-connection-summary',
+                    width: '100%',
                     labelWidth: 250
                 },
                 {
