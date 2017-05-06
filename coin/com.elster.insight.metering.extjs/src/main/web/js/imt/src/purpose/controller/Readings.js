@@ -278,7 +278,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule,
             canClearProjected = menu.record.get('isProjected') === true,
             canMarkProjected = menu.record.get('isProjected') === false && (menu.record.isModified('value') || menu.record.get('ruleId') !== 0 || !Ext.isEmpty(menu.record.get('modificationState'))),
-            canEditingComment = false,
+            canEditingComment = menu.record.get('estimatedByRule'),
             flagForComment = function (value) {
                 if (value === 'EDITED' ||
                     value === 'ESTIMATED' ||
@@ -290,10 +290,10 @@ Ext.define('Imt.purpose.controller.Readings', {
             };
 
         Ext.suspendLayouts();
-        menu.down('#estimate-value').setVisible(validationResult);
-        menu.down('#estimate-value-with-rule').setVisible(validationResult && estimationRulesCount);
+        //menu.down('#estimate-value').setVisible(validationResult);
+        //menu.down('#estimate-value-with-rule').setVisible(validationResult && estimationRulesCount);
 
-        if (menu.record.get('modificationState') && menu.record.get('modificationState').flag) {
+        if (!canEditingComment && menu.record.get('modificationState') && menu.record.get('modificationState').flag) {
             canEditingComment = flagForComment(menu.record.get('modificationState').flag);
         }
         if (menu.record.get('confirmed') || menu.record.isModified('value')) {
@@ -516,6 +516,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             if (canEstimate && canConfirm && canReset) {
                 return false;
             }
+            canEditingComment = canEditingComment ? record.get('estimatedByRule') : false;
             if (!canEditingComment) {
                 if (record.get('modificationState') && record.get('modificationState').flag) {
                     canEditingComment = flagForComment(record.get('modificationState').flag);
@@ -547,8 +548,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
 
         Ext.suspendLayouts();
-        menu.down('#estimate-value').setVisible(canEstimate);
-        menu.down('#estimate-value-with-rule').setVisible(canEstimateWithRule);
+        //menu.down('#estimate-value').setVisible(canEstimate);
+        //menu.down('#estimate-value-with-rule').setVisible(canEstimateWithRule);
         menu.down('#edit-estimation-comment').setVisible(canEditingComment);
         menu.down('#copy-form-value').setVisible(canCopyFromReference);
         menu.down('#confirm-value').setVisible(canConfirm);
@@ -674,7 +675,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             commentCombo = window.down('#estimation-comment-box'),
             commentId = commentCombo.getValue(),
             commentValue = commentCombo.getRawValue(),
-            readings = [];
+            readings = window.records;
 
         form.updateRecord(model);
         model.getProxy().extraParams = {
@@ -683,10 +684,8 @@ Ext.define('Imt.purpose.controller.Readings', {
             outputId: router.arguments.outputId
         };
 
-        if (!Array.isArray(window.records)) {
-            readings.push(window.records);
-        } else {
-            readings = window.records;
+        if (!Array.isArray(readings)) {
+            readings = [readings];
         }
         _.each(readings, function (reading) {
             intervals.push(reading.get('interval'));
@@ -809,14 +808,12 @@ Ext.define('Imt.purpose.controller.Readings', {
             commentValue = commentCombo.getRawValue(),
             record = window.record,
             markAsProjected,
-            commentId,
             intervalsArray = [];
 
 
         !window.down('#form-errors').isHidden() && window.down('#form-errors').hide();
         !window.down('#error-label').isHidden() && window.down('#error-label').hide();
 
-        commentId = window.down('#estimation-comment-box').getValue();
         markAsProjected = window.down('#markProjected').getValue();
         propertyForm.clearInvalid();
 
@@ -854,8 +851,8 @@ Ext.define('Imt.purpose.controller.Readings', {
             propertyForm = window.down('#property-form'),
             model = Ext.create('Imt.purpose.model.ChannelDataEstimate'),
             commentCombo = window.down('#estimation-comment'),
-            commentId = commentCombo.getValue(),
-            commentValue = commentCombo.getRawValue(),
+            commentId = commentCombo.commentId,
+            commentValue = commentCombo.getValue(),
             record = window.record,
             markAsProjected,
             intervalsArray = [];
@@ -912,19 +909,11 @@ Ext.define('Imt.purpose.controller.Readings', {
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
-                        if (commentId !== -1) {
-                            readings.set('commentId', commentId);
-                            readings.set('commentValue', commentValue);
-                        }
                         me.updateEstimatedValues(record, readings, responseText[0], ruleId, action);
                     } else {
                         Ext.Array.each(responseText, function (estimatedReading) {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
-                                    if (commentId !== -1) {
-                                        readings.set('commentId', commentId);
-                                        readings.set('commentValue', commentValue);
-                                    }
                                     me.updateEstimatedValues(record, reading, estimatedReading, ruleId, action);
                                     return true;
                                 }
