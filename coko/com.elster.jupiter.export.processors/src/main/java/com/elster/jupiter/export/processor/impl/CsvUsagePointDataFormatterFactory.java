@@ -66,6 +66,7 @@ public class CsvUsagePointDataFormatterFactory extends StandardCsvDataFormatterF
     public List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 getTagProperty(),
+                getUpdateTagProperty(),
                 getSeparatorProperty()
         );
     }
