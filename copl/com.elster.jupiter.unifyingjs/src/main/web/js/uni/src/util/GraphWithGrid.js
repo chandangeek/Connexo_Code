@@ -38,7 +38,7 @@ Ext.define('Uni.util.GraphWithGrid', {
         }
     },
 
-    onRowSelect: function (record) {
+    onRowSelect: function (record, event, doNotSelect) {
         var me = this,
             index = me.down('grid').getStore().indexOf(record),
             graphView = me.down('highstockFixGraphView'),
@@ -62,10 +62,10 @@ Ext.define('Uni.util.GraphWithGrid', {
             };
         
         if (index > -1) {
-            if (graphView.chart) {
+            if (graphView.chart && !doNotSelect) {
                 selectPoint();
             } else if (graphView.rendered) {
-                me.on('graphrendered', selectPoint, me, {singelton: true});
+                me.on('graphrendered', selectPoint, me, {single: true});
             }
         }
     },
