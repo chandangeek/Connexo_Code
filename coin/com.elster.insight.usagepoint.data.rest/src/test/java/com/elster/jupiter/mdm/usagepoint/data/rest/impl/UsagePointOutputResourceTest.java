@@ -452,8 +452,8 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         assertThat(response.getStatus()).isEqualTo(200);
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(model.<Integer>get("$.intervals[0].id")).isEqualTo(11);
-        assertThat(model.<String>get("$.intervals[0].name")).isEqualTo("Daily");
+        assertThat(model.<Integer>get("$.intervals[0].id")).isEqualTo(2);
+        assertThat(model.<String>get("$.intervals[0].name")).isEqualTo("15-minute");
     }
 
     @Test
@@ -464,6 +464,6 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
         assertThat(model.<String>get("$.units[0].id")).isEqualTo("-2:5");
-        assertThat(model.<String>get("$.units[0].name")).isEqualTo("A");
+        assertThat(model.<String>get("$.units[0].name")).isEqualTo("cA");
     }
 }

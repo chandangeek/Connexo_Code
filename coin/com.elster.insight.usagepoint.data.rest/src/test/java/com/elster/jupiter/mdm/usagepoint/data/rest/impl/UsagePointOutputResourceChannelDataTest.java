@@ -226,12 +226,12 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
                 .create();
     }
 
-    private String buildFilterForData(Instant start, Instant end, IdWithNameInfo interval, IdWithNameInfo unit, boolean includeBulk) throws UnsupportedEncodingException {
+    private String buildFilterForData(Instant start, Instant end, Long intervalId, String unitId, boolean includeBulk) throws UnsupportedEncodingException {
         return ExtjsFilter.filter()
                 .property("intervalStart", start.toEpochMilli())
                 .property("intervalEnd", end.toEpochMilli())
-                .property("timeInterval", interval.id.toString())
-                .property("unit", unit.id.toString())
+                .property("timeInterval", intervalId)
+                .property("unit", unitId)
                 .property("bulk", String.valueOf(includeBulk))
                 .create();
     }
@@ -661,19 +661,16 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
                 });
         // Business method
         String json = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/data")
-                .queryParam("filter", buildFilterForData(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint(), intervalInfo, unitInfo, true)).request().get(String.class);
+                .queryParam("filter", buildFilterForData(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint(), 11L, "-2:5", true)).request().get(String.class);
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(3);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(2);
         assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(INTERVAL_3.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(INTERVAL_3.upperEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Map>get("$.data[0].channelData")).containsEntry("0",10);
-        assertThat(jsonModel.<Long>get("$.data[1].interval.start")).isEqualTo(INTERVAL_2.lowerEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Long>get("$.data[1].interval.end")).isEqualTo(INTERVAL_2.upperEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Map>get("$.data[1].channelData")).containsEntry("0",null);
-        assertThat(jsonModel.<Long>get("$.data[2].interval.start")).isEqualTo(INTERVAL_1.lowerEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Long>get("$.data[2].interval.end")).isEqualTo(INTERVAL_1.upperEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Map>get("$.data[2].channelData")).containsEntry("0",1);
+        assertThat(jsonModel.<Map>get("$.data[0].channelData")).containsEntry("1",10);
+        assertThat(jsonModel.<Long>get("$.data[1].interval.start")).isEqualTo(INTERVAL_1.lowerEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.data[1].interval.end")).isEqualTo(INTERVAL_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Map>get("$.data[1].channelData")).containsEntry("1",1);
     }
 
     @Test

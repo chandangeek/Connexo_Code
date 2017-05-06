@@ -247,11 +247,11 @@ public class UsagePointOutputResource {
                     if (filter.hasProperty("bulk") && filter.getBoolean("bulk") == true) {
                         deliverables = contract.getDeliverables().stream()
                                 .filter(deliverable -> deliverable.getReadingType().isRegular())
-                                .filter(deliverable -> deliverable.getReadingType().isCumulative())
                                 .collect(Collectors.toList());
                     } else {
                         deliverables = contract.getDeliverables().stream()
                                 .filter(deliverable -> deliverable.getReadingType().isRegular())
+                                .filter(deliverable -> !deliverable.getReadingType().isCumulative())
                                 .collect(Collectors.toList());
                     }
                     if (filter.hasProperty("unit")) {
@@ -275,9 +275,9 @@ public class UsagePointOutputResource {
                                         deliverable.getReadingType().getMacroPeriod().getId() == timeIntervalId)
                                 .collect(Collectors.toList());
                     }
-                    outputInfoList.addAll(outputInfoFactory.deliverablesAsOutputInfo(configuration, contract, requestedInterval)
-                            .stream()
-                            .sorted(Comparator.comparing(info -> info.name))
+
+                    outputInfoList.addAll(deliverables.stream()
+                            .map(deliverable -> outputInfoFactory.asFullInfo(deliverable,configuration, contract))
                             .collect(Collectors.toList()));
                 }
             }
@@ -483,12 +483,9 @@ public class UsagePointOutputResource {
             Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
             if (requestedInterval != null) {
                 ValidationEvaluator evaluator = validationService.getEvaluator();
-                List<List<PurposeOutputsDataInfo>> channelInfos = new ArrayList<List<PurposeOutputsDataInfo>>();
                 List<Pair<Long, OutputChannelDataInfo>> readingsMap = new ArrayList<>();
-                List<AggregatedChannel> channels = new ArrayList<>();
                 for (EffectiveMetrologyConfigurationOnUsagePoint configuration : effectiveMetrologyConfigurationsOnUsagePoints) {
                     MetrologyContract contract = resourceHelper.findMetrologyContractOrThrowException(configuration, contractId);
-                    ChannelsContainer channelsContainer = configuration.getChannelsContainer(contract).get();
                     List<ReadingTypeDeliverable> deliverables = new ArrayList<>();
                     if (filter.hasProperty("timeInterval")) {
                         timeIntervalId = filter.getLong("timeInterval");
@@ -497,7 +494,6 @@ public class UsagePointOutputResource {
                             if (includeBulk == true) {
                                 deliverables = contract.getDeliverables().stream()
                                         .filter(deliverable -> deliverable.getReadingType().isRegular())
-                                        .filter(deliverable -> deliverable.getReadingType().isCumulative())
                                         .collect(Collectors.toList());
                             } else {
                                 deliverables = contract.getDeliverables().stream()
