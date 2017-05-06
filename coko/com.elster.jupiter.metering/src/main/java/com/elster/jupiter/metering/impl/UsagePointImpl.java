@@ -7,6 +7,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
+`import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -16,6 +17,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ConnectionState;
@@ -29,6 +31,7 @@ import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -70,6 +73,7 @@ import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationServi
 import com.elster.jupiter.metering.impl.config.ServerReadingTypeDeliverable;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -89,6 +93,8 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.conditions.Comparison;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
@@ -1361,6 +1367,26 @@ public class UsagePointImpl implements ServerUsagePoint {
         return this.state.effective(instant)
                 .map(UsagePointStateTemporalImpl::getState)
                 .orElseThrow(() -> new IllegalArgumentException("Usage point has no state at " + instant));
+    }
+
+    @Override
+    public List<JournalEntry<? extends ReadingQualityRecord>> getReadingQualitiesJournalFromAggregatedChannel(Range<Instant> range, AggregatedChannel aggregatedChannel) {
+        List<JournalEntry<? extends ReadingQualityRecord>> result = new ArrayList<>();
+        List<Comparison> comparisons = new ArrayList<>();
+        List<? extends ReadingType> readingTypes = aggregatedChannel.getReadingTypes();
+
+        comparisons.add(Operator.GREATERTHAN.compare("readingtimestamp", range.lowerEndpoint().toEpochMilli()));
+        comparisons.add(Operator.LESSTHANOREQUAL.compare("readingtimestamp", range.upperEndpoint().toEpochMilli()));
+        if (readingTypes.size() > 0) {
+            comparisons.add(Operator.IN.compare("readingtype", readingTypes.stream().map(IdentifiedObject::getMRID).collect(Collectors.toList()).toArray()));
+        }
+        comparisons.add(Operator.IN.compare("channelid", aggregatedChannel.getId()));
+
+        List<JournalEntry<ReadingQualityRecord>> journalEntries = dataModel.mapper(ReadingQualityRecord.class)
+                .at(Instant.EPOCH)
+                .find(comparisons);
+        result.addAll(journalEntries);
+        return result;
     }
 
     @Override

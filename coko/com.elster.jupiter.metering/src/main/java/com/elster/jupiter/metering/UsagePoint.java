@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -307,6 +308,8 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     UsedCalendars getUsedCalendars();
 
     UsagePointLifeCycle getLifeCycle();
+
+    List<JournalEntry<? extends ReadingQualityRecord>> getReadingQualitiesJournalFromAggregatedChannel(Range<Instant> range, AggregatedChannel aggregatedChannel);
 
     interface UsagePointConfigurationBuilder {
 
