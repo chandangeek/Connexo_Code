@@ -15,10 +15,13 @@ import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 class EditedChannelReadingSet {
 
@@ -52,6 +55,16 @@ class EditedChannelReadingSet {
 
     Set<Instant> getRemoveCandidates() {
         return Collections.unmodifiableSet(removeCandidates);
+    }
+
+    Optional<Instant> getFirstEditedReadingTime() {
+        return Stream.of(
+                removeCandidates.stream(),
+                editedReadings.stream().map(BaseReading::getTimeStamp),
+                estimatedReadings.stream().map(BaseReading::getTimeStamp),
+                confirmedReadings.stream().map(BaseReading::getTimeStamp))
+                .flatMap(Function.identity())
+                .min(Comparator.naturalOrder());
     }
 
     private void processInfo(OutputChannelDataInfo channelDataInfo) {

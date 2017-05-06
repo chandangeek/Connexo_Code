@@ -473,12 +473,7 @@ public class UsagePointOutputResource {
         if (validateUntil == null) {
             return Optional.empty();
         }
-        return Stream.of(
-                editedReadings.getRemoveCandidates().stream(),
-                editedReadings.getEditedReadings().stream().map(BaseReading::getTimeStamp),
-                editedReadings.getEstimatedReadings().stream().map(BaseReading::getTimeStamp))
-                .flatMap(Function.identity())
-                .min(Comparator.naturalOrder())
+        return editedReadings.getFirstEditedReadingTime()
                 .filter(firstEditedReadingTime -> firstEditedReadingTime.compareTo(validateUntil) <= 0)
                 .map(firstEditedReadingTime -> Range.closed(firstEditedReadingTime, validateUntil));
     }
