@@ -63,7 +63,10 @@ public class ChannelReferenceDataCopier {
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "referenceDevice", referenceChannelDataInfo.referenceDevice));
         ReadingType readingType = meteringService.getReadingType(referenceChannelDataInfo.readingType)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "readingType", referenceChannelDataInfo.readingType));
-        if (readingTypeComparator.compare(readingType, sourceChannel.getReadingType()) != 0) {
+        if ((!sourceChannel.getCalculatedReadingType(referenceChannelDataInfo.startDate).isPresent()
+                && readingTypeComparator.compare(readingType, sourceChannel.getReadingType()) != 0)
+                || (sourceChannel.getCalculatedReadingType(referenceChannelDataInfo.startDate).isPresent()
+                && readingTypeComparator.compare(readingType, sourceChannel.getCalculatedReadingType(referenceChannelDataInfo.startDate).get()) != 0)) {
             throw new LocalizedFieldValidationException(MessageSeeds.READINGTYPES_DONT_MATCH, "readingType");
         }
         Channel referenceChannel = Optional.ofNullable(referenceDevice.getChannels().stream()
@@ -76,7 +79,6 @@ public class ChannelReferenceDataCopier {
                         .findFirst()
                         .orElse(null)))
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_DEVICE, "readingType"));
-
 
         resultReadings = new ArrayList<>();
         correctedRanges = getCorrectedTimeStampsForReference(referenceChannelDataInfo.startDate, referenceChannelDataInfo.intervals);
@@ -106,7 +108,7 @@ public class ChannelReferenceDataCopier {
                     .flatMap(r -> Optional.ofNullable(referenceReadings.get(r.upperEndpoint())))
                     .ifPresent(referenceReading -> {
                         ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(sourceChannel, record, isValidationActive, deviceValidation, null);
-                        ChannelDataInfo referenceDataInfo = deviceDataInfoFactory.createChannelDataInfo(sourceChannel, referenceReading, isValidationActive, deviceValidation, null);
+                        ChannelDataInfo referenceDataInfo = deviceDataInfoFactory.createChannelDataInfo(referenceChannel, referenceReading, isValidationActive, deviceValidation, null);
                         channelDataInfo.value = referenceDataInfo.value
                                 .scaleByPowerOfTen(referenceChannel.getReadingType().getMultiplier().getMultiplier() - sourceChannel.getReadingType().getMultiplier().getMultiplier());
                         channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
