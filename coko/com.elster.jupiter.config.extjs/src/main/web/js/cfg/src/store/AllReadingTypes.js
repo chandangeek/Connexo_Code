@@ -17,19 +17,5 @@ Ext.define('Cfg.store.AllReadingTypes', {
             type: 'json',
             root: 'readingTypes'
         }
-    },
-
-    listeners: {
-        beforeload: function(store, operation){
-            var me = this,
-                filter = [
-                {
-                    property: me.proxy.extraParams.property,
-                    value: '*'+operation.params.value+'*'
-                }
-            ];
-
-            me.proxy.extraParams.filter = JSON.stringify(filter);
-        }
     }
 });

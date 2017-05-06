@@ -23,6 +23,17 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
     initComponent: function () {
         var me = this;
 
+        me.addReadingTypeFilter = function (combobox) {
+            var filter = [
+                {
+                    property: 'fullAliasName',
+                    value: '*' + combobox.getRawValue() + '*'
+                }
+            ];
+
+            combobox.getStore().getProxy().extraParams.filter = JSON.stringify(filter);
+        };
+
         me.items = {
             xtype: 'form',
             itemId: 'reading-copy-window-form',
@@ -69,7 +80,15 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
                     minChars: 1,
                     editable: true,
                     typeAhead: true,
-                    emptyText: Uni.I18n.translate('copyFromReference.selectReadingType', 'CFG', 'Select reading type')
+                    emptyText: Uni.I18n.translate('copyFromReference.selectReadingType', 'CFG', 'Select reading type'),
+                    listeners: {
+                        expand: function (combobox) {
+                            me.addReadingTypeFilter(combobox);
+                        },
+                        change: function (combobox) {
+                            me.addReadingTypeFilter(combobox);
+                        }
+                    }
                 },
                 {
                     xtype: 'fieldcontainer',
