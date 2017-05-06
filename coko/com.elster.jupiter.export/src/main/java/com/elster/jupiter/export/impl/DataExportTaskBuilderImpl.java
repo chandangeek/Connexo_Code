@@ -100,8 +100,8 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
                 MeterReadingSelectorConfig.Updater updater = MeterReadingSelectorConfigImpl.from(dataModel, exportTask, exportPeriod)
                         .startUpdate()
                         .setEndDeviceGroup(endDeviceGroup)
-                        .setUpdatePeriod(updatePeriod)
                         .setValidatedDataOption(validatedDataOption)
+                        .setUpdatePeriod(updatePeriod)
                         .setExportUpdate(exportUpdate)
                         .setExportContinuousData(exportContinuousData)
                         .setUpdateWindow(updateWindow)
@@ -125,6 +125,9 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
                         .setValidatedDataOption(validatedDataOption)
                         .setExportContinuousData(exportContinuousData)
                         .setExportOnlyIfComplete(exportComplete)
+                        .setUpdatePeriod(updatePeriod)
+                        .setExportUpdate(exportUpdate)
+                        .setUpdateWindow(updateWindow)
                         .setMetrologyPurpose(metrologyPurpose);
                 readingTypes.forEach(updater::addReadingType);
                 exportTask.setStandardDataSelectorConfig(updater.complete());
@@ -265,6 +268,12 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         }
 
         @Override
+        public UsagePointReadingSelectorBuilder fromUpdatePeriod(RelativePeriod relativePeriod) {
+            updatePeriod = relativePeriod;
+            return this;
+        }
+
+        @Override
         public UsagePointReadingSelectorBuilderImpl fromMetrologyPurpose(MetrologyPurpose purpose) {
             metrologyPurpose = purpose;
             return this;
@@ -283,8 +292,20 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         }
 
         @Override
+        public UsagePointReadingSelectorBuilder exportUpdate(boolean update) {
+            exportUpdate = update;
+            return this;
+        }
+
+        @Override
         public UsagePointReadingSelectorBuilderImpl continuousData(boolean continuous) {
             exportContinuousData = continuous;
+            return this;
+        }
+
+        @Override
+        public UsagePointReadingSelectorBuilder withUpdateWindow(RelativePeriod window) {
+            updateWindow = window;
             return this;
         }
 

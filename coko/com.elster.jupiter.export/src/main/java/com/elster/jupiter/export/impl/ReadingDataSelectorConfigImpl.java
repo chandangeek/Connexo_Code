@@ -14,6 +14,9 @@ import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.JournalEntry;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.RelativePeriod;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -24,6 +27,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,6 +35,10 @@ abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigI
 
     private MissingDataOption exportOnlyIfComplete;
     private ValidatedDataOption validatedDataOption;
+
+    private boolean exportUpdate;
+    private Reference<RelativePeriod> updatePeriod = ValueReference.absent();
+    private Reference<RelativePeriod> updateWindow = ValueReference.absent();
 
     @Valid
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_READING_TYPE + "}")
@@ -52,6 +60,21 @@ abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigI
     @Override
     public List<? extends IReadingTypeDataExportItem> getExportItems() {
         return Collections.unmodifiableList(exportItems);
+    }
+
+    @Override
+    public boolean isExportUpdate() {
+        return exportUpdate;
+    }
+
+    @Override
+    public Optional<RelativePeriod> getUpdatePeriod() {
+        return updatePeriod.getOptional();
+    }
+
+    @Override
+    public Optional<RelativePeriod> getUpdateWindow() {
+        return updateWindow.getOptional();
     }
 
     @Override
@@ -123,6 +146,24 @@ abstract class ReadingDataSelectorConfigImpl extends StandardDataSelectorConfigI
         @Override
         public ReadingDataSelectorConfig.Updater setExportOnlyIfComplete(MissingDataOption exportOnlyIfCompleteFlag) {
             exportOnlyIfComplete = exportOnlyIfCompleteFlag;
+            return this;
+        }
+
+        @Override
+        public ReadingDataSelectorConfig.Updater setExportUpdate(boolean exportUpdateFlag) {
+            exportUpdate = exportUpdateFlag;
+            return this;
+        }
+
+        @Override
+        public ReadingDataSelectorConfig.Updater setUpdatePeriod(RelativePeriod period) {
+            updatePeriod.set(period);
+            return this;
+        }
+
+        @Override
+        public ReadingDataSelectorConfig.Updater setUpdateWindow(RelativePeriod window) {
+            updateWindow.set(window);
             return this;
         }
 

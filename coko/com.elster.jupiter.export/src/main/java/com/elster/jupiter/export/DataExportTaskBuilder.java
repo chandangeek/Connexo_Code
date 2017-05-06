@@ -100,6 +100,8 @@ public interface DataExportTaskBuilder {
 
         UsagePointReadingSelectorBuilder fromExportPeriod(RelativePeriod relativePeriod);
 
+        UsagePointReadingSelectorBuilder fromUpdatePeriod(RelativePeriod relativePeriod);
+
         UsagePointReadingSelectorBuilder fromUsagePointGroup(UsagePointGroup usagePointGroup);
 
         UsagePointReadingSelectorBuilder fromMetrologyPurpose(MetrologyPurpose metrologyPurpose);
@@ -108,7 +110,11 @@ public interface DataExportTaskBuilder {
 
         UsagePointReadingSelectorBuilder withValidatedDataOption(ValidatedDataOption validatedDataOption);
 
+        UsagePointReadingSelectorBuilder exportUpdate(boolean exportUpdate);
+
         UsagePointReadingSelectorBuilder continuousData(boolean exportContinuousData);
+
+        UsagePointReadingSelectorBuilder withUpdateWindow(RelativePeriod updateWindow);
 
         UsagePointReadingSelectorBuilder exportComplete(MissingDataOption exportComplete);
 

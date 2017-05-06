@@ -5,9 +5,11 @@
 package com.elster.jupiter.export;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.time.RelativePeriod;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface ReadingDataSelectorConfig extends DataSelectorConfig {
@@ -19,6 +21,12 @@ public interface ReadingDataSelectorConfig extends DataSelectorConfig {
     Set<ReadingType> getReadingTypes(Instant at);
 
     List<? extends ReadingTypeDataExportItem> getExportItems();
+
+    boolean isExportUpdate();
+
+    Optional<RelativePeriod> getUpdatePeriod();
+
+    Optional<RelativePeriod> getUpdateWindow();
 
     ValidatedDataOption getValidatedDataOption();
 
@@ -38,5 +46,10 @@ public interface ReadingDataSelectorConfig extends DataSelectorConfig {
 
         Updater setExportOnlyIfComplete(MissingDataOption missingDataOption);
 
+        Updater setExportUpdate(boolean exportUpdate);
+
+        Updater setUpdatePeriod(RelativePeriod updatePeriod);
+
+        Updater setUpdateWindow(RelativePeriod updateWindow);
     }
 }

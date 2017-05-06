@@ -9,6 +9,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataSelectorConfig;
+import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.MeterReadingValidationData;
 import com.elster.jupiter.export.MissingDataOption;
@@ -35,6 +36,8 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -58,6 +61,7 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.export.impl.IntervalReadingImpl.intervalReading;
 import static com.elster.jupiter.export.impl.ReadingImpl.reading;
+import static com.elster.jupiter.util.streams.ExtraCollectors.toImmutableRangeSet;
 
 abstract class AbstractItemDataSelector implements ItemDataSelector {
 
@@ -145,6 +149,10 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
 
     List<BaseReadingRecord> getReadings(IReadingTypeDataExportItem item, Range<Instant> exportInterval) {
         return new ArrayList<>(item.getReadingContainer().getReadings(exportInterval, item.getReadingType()));
+    }
+
+    List<BaseReadingRecord> getReadingsUpdatedSince(IReadingTypeDataExportItem item, Range<Instant> exportInterval, Instant since) {
+        return new ArrayList<>(item.getReadingContainer().getReadingsUpdatedSince(exportInterval, item.getReadingType(), since));
     }
 
     private DateTimeFormatter getTimeFormatter(Locale locale) {
@@ -398,6 +406,76 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
                 })
                 .collect(Collectors.toMap(DataValidationStatus::getReadingTimestamp, Function.identity()));
         return new MeterReadingValidationData(statusMap);
+    }
+
+    @Override
+    public Optional<MeterReadingData> selectDataForUpdate(DataExportOccurrence occurrence, IReadingTypeDataExportItem item, Instant since) {
+        if (!isExportUpdates(occurrence)) {
+            return Optional.empty();
+        }
+
+        Range<Instant> updateInterval = determineUpdateInterval(occurrence, item);
+        List<? extends BaseReadingRecord> readings = getReadingsUpdatedSince(item, updateInterval, since);
+
+        String itemDescription = item.getDescription();
+
+        Optional<RelativePeriod> updateWindow = item.getSelector().getStrategy().getUpdateWindow();
+        if (updateWindow.isPresent()) {
+            RelativePeriod window = updateWindow.get();
+            RangeSet<Instant> rangeSet = readings.stream()
+                    .map(baseReadingRecord -> window.getOpenClosedInterval(
+                            ZonedDateTime.ofInstant(baseReadingRecord.getTimeStamp(), item.getReadingContainer().getZoneId())))
+                    .collect(toImmutableRangeSet());
+            readings = rangeSet.asRanges().stream()
+                    .flatMap(range -> {
+                        List<? extends BaseReadingRecord> found = getReadings(item, range);
+                        if (getExportStrategy(occurrence).get().getMissingDataOption().equals(MissingDataOption.EXCLUDE_ITEM)) {
+                            handleValidatedDataOption(item, item.getSelector().getStrategy(), found, range, itemDescription);
+                            if (!isComplete(item, range, found)) {
+                                return Stream.empty();
+                            }
+                        }
+                        return found.stream();
+                    })
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
+
+        if (!readings.isEmpty()) {
+            MeterReadingImpl meterReading = asMeterReading(item, readings);
+            MeterReadingValidationData meterReadingValidationData = getValidationData(item, readings, updateInterval);
+            return Optional.of(new MeterReadingData(item, meterReading, meterReadingValidationData, structureMarkerForUpdate()));
+        }
+        return Optional.empty();
+    }
+
+    private boolean isExportUpdates(DataExportOccurrence occurrence) {
+        return getExportStrategy(occurrence).map(DataExportStrategy::isExportUpdate).orElse(false);
+    }
+
+    private Range<Instant> determineUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
+        TreeRangeSet<Instant> base = TreeRangeSet.create();
+        Range<Instant> baseRange = determineBaseUpdateInterval(occurrence, item);
+        base.add(baseRange);
+        base.remove(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval());
+        return base.asRanges().stream().findFirst().orElse(baseRange);
+    }
+
+    private Range<Instant> determineBaseUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
+        return getExportStrategy(occurrence)
+                .filter(DataExportStrategy::isExportUpdate)
+                .flatMap(DataExportStrategy::getUpdatePeriod)
+                .map(relativePeriod -> relativePeriod.getOpenClosedInterval(
+                        ZonedDateTime.ofInstant(occurrence.getTriggerTime(), item.getReadingContainer().getZoneId())))
+                .orElse(null);
+    }
+
+    private StructureMarker structureMarkerForUpdate() {
+        return DefaultStructureMarker.createRoot(getClock(), "update");
+    }
+
+    private Optional<DataExportStrategy> getExportStrategy(DataExportOccurrence dataExportOccurrence) {
+        IExportTask exportTask = (IExportTask) dataExportOccurrence.getTask();
+        return exportTask.getReadingDataSelectorConfig().map(ReadingDataSelectorConfig::getStrategy);
     }
 
     abstract Set<QualityCodeSystem> getQualityCodeSystems();

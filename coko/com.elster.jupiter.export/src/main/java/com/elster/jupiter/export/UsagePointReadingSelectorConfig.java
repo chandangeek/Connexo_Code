@@ -41,6 +41,12 @@ public interface UsagePointReadingSelectorConfig extends ReadingDataSelectorConf
 
         Updater setMetrologyPurpose(MetrologyPurpose metrologyPurpose);
 
+        Updater setExportUpdate(boolean exportUpdate);
+
+        Updater setUpdatePeriod(RelativePeriod updatePeriod);
+
+        Updater setUpdateWindow(RelativePeriod updateWindow);
+
         @Override
         UsagePointReadingSelectorConfig complete();
     }

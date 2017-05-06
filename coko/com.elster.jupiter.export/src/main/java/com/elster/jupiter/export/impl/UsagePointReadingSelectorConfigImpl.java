@@ -71,7 +71,8 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
 
     @Override
     public DataExportStrategy getStrategy() {
-        return new DataExportStrategyImpl(false, isExportContinuousData(), isExportOnlyIfComplete(), getValidatedDataOption(), null, null);
+        return new DataExportStrategyImpl(isExportUpdate(), isExportContinuousData(), isExportOnlyIfComplete(), getValidatedDataOption(), getUpdatePeriod().orElse(null), getUpdateWindow()
+                .orElse(null));
     }
 
     @Override
@@ -175,6 +176,24 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
         @Override
         public UsagePointReadingSelectorConfig.Updater addReadingType(ReadingType readingType) {
             super.addReadingType(readingType);
+            return this;
+        }
+
+        @Override
+        public UsagePointReadingSelectorConfig.Updater setExportUpdate(boolean exportUpdateFlag) {
+            super.setExportUpdate(exportUpdateFlag);
+            return this;
+        }
+
+        @Override
+        public UsagePointReadingSelectorConfig.Updater setUpdatePeriod(RelativePeriod period) {
+            super.setUpdatePeriod(period);
+            return this;
+        }
+
+        @Override
+        public UsagePointReadingSelectorConfig.Updater setUpdateWindow(RelativePeriod window) {
+            super.setUpdateWindow(window);
             return this;
         }
 

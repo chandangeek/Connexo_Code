@@ -30,7 +30,6 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -44,10 +43,6 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
-
-    private boolean exportUpdate;
-    private Reference<RelativePeriod> updatePeriod = ValueReference.absent();
-    private Reference<RelativePeriod> updateWindow = ValueReference.absent();
 
     @Inject
     MeterReadingSelectorConfigImpl(DataModel dataModel) {
@@ -70,21 +65,6 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
     @Override
     public EndDeviceGroup getEndDeviceGroup() {
         return endDeviceGroup.get();
-    }
-
-    @Override
-    public boolean isExportUpdate() {
-        return exportUpdate;
-    }
-
-    @Override
-    public Optional<RelativePeriod> getUpdatePeriod() {
-        return updatePeriod.getOptional();
-    }
-
-    @Override
-    public Optional<RelativePeriod> getUpdateWindow() {
-        return updateWindow.getOptional();
     }
 
     @Override
@@ -172,19 +152,19 @@ class MeterReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl imple
 
         @Override
         public MeterReadingSelectorConfig.Updater setUpdatePeriod(RelativePeriod period) {
-            updatePeriod.set(period);
+            super.setUpdatePeriod(period);
             return this;
         }
 
         @Override
         public MeterReadingSelectorConfig.Updater setUpdateWindow(RelativePeriod window) {
-            updateWindow.set(window);
+            super.setUpdateWindow(window);
             return this;
         }
 
         @Override
         public MeterReadingSelectorConfig.Updater setExportUpdate(boolean exportUpdateFlag) {
-            exportUpdate = exportUpdateFlag;
+            super.setExportUpdate(exportUpdateFlag);
             return this;
         }
 

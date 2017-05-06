@@ -6,8 +6,6 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.export.DataExportOccurrence;
-import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -25,7 +23,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -42,12 +39,6 @@ class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
     }
 
     @Override
-    public Optional<MeterReadingData> selectDataForUpdate(DataExportOccurrence occurrence, IReadingTypeDataExportItem item, Instant since) {
-        // not supported yet
-        return Optional.empty();
-    }
-
-    @Override
     List<BaseReadingRecord> getReadings(IReadingTypeDataExportItem item, Range<Instant> exportInterval) {
         List<BaseReadingRecord> readings;
         // data aggregation engine requires to wrap getReadings() call in transaction
@@ -58,6 +49,16 @@ class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
         return readings.stream()
                 .filter(reading -> instants.contains(reading.getTimeStamp()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    List<BaseReadingRecord> getReadingsUpdatedSince(IReadingTypeDataExportItem item, Range<Instant> exportInterval, Instant since) {
+        List<BaseReadingRecord> readings;
+        // data aggregation engine requires to wrap getReadings() call in transaction
+        try (TransactionContext context = getTransactionService().getContext()) {
+            readings = super.getReadingsUpdatedSince(item, exportInterval, since);
+        }
+        return readings;
     }
 
     @Override

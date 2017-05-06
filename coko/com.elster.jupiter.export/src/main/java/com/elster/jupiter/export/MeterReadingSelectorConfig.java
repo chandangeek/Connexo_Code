@@ -14,12 +14,6 @@ public interface MeterReadingSelectorConfig extends ReadingDataSelectorConfig {
 
     EndDeviceGroup getEndDeviceGroup();
 
-    boolean isExportUpdate();
-
-    Optional<RelativePeriod> getUpdatePeriod();
-
-    Optional<RelativePeriod> getUpdateWindow();
-
     @Override
     Updater startUpdate();
 
