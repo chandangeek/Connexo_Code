@@ -352,9 +352,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                         value: value
                     };
                     point.update(updatedObj, !doNotSelect);
-                    if (!doNotSelect) {
-                        point.select(false);
-                    }
+                    point.select(false);
                     me.getOutputReadings().down('#output-readings-preview-container').fireEvent('rowselect', event.record, null, doNotSelect);
                 }
 
