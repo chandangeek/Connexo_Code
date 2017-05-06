@@ -21,8 +21,11 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 class EditedChannelReadingSet {
 
@@ -67,6 +70,18 @@ class EditedChannelReadingSet {
 
     List<Instant> getRemoveCandidates() {
         return Collections.unmodifiableList(removeCandidates);
+    }
+
+    Optional<Instant> getFirstEditedReadingTime() {
+        return Stream.of(
+                removeCandidates.stream(),
+                editedReadings.stream().map(BaseReading::getTimeStamp),
+                editedBulkReadings.stream().map(BaseReading::getTimeStamp),
+                estimatedReadings.stream().map(BaseReading::getTimeStamp),
+                estimatedBulkReadings.stream().map(BaseReading::getTimeStamp),
+                confirmedReadings.stream().map(BaseReading::getTimeStamp))
+                .flatMap(Function.identity())
+                .min(Comparator.naturalOrder());
     }
 
     EditedChannelReadingSet init(List<ChannelDataInfo> channelDataInfos) {

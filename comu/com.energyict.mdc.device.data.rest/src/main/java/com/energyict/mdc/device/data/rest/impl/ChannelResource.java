@@ -79,11 +79,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @DeviceStagesRestricted(
         value = {EndDeviceStage.POST_OPERATIONAL},
@@ -650,14 +648,7 @@ public class ChannelResource {
         if (validateUntil == null) {
             return Optional.empty();
         }
-        return Stream.of(
-                editedReadings.getRemoveCandidates().stream(),
-                editedReadings.getEditedReadings().stream().map(BaseReading::getTimeStamp),
-                editedReadings.getEditedBulkReadings().stream().map(BaseReading::getTimeStamp),
-                editedReadings.getEstimatedReadings().stream().map(BaseReading::getTimeStamp),
-                editedReadings.getEstimatedBulkReadings().stream().map(BaseReading::getTimeStamp))
-                .flatMap(Function.identity())
-                .min(Comparator.naturalOrder())
+        return editedReadings.getFirstEditedReadingTime()
                 .filter(firstEditedReadingTime -> firstEditedReadingTime.compareTo(validateUntil) <= 0)
                 .map(firstEditedReadingTime -> Range.closed(firstEditedReadingTime, validateUntil));
     }
@@ -699,7 +690,7 @@ public class ChannelResource {
         ReadingType readingType = isBulk ? channel.getReadingType() :
                 // TODO: This should be changed in scope of CXO-6664
                 channel.getReadingType().getCalculatedReadingType().orElse(channel.getReadingType());
-                // .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CALCULATED_READINGTYPE_ON_CHANNEL, channel.getId()));
+        // .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CALCULATED_READINGTYPE_ON_CHANNEL, channel.getId()));
         List<EstimationRuleInfo> infos = device.getDeviceConfiguration().getEstimationRuleSets()
                 .stream()
                 .map(estimationRuleSet -> estimationRuleSet.getRules(Collections.singleton(readingType)))
