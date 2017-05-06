@@ -245,6 +245,8 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.standardDataSelector = new StandardDataSelectorInfo();
         info.standardDataSelector.deviceGroup = new IdWithNameInfo();
         info.standardDataSelector.deviceGroup.id = 5;
+        info.standardDataSelector.exportComplete = MissingDataOption.EXCLUDE_ITEM;
+        info.standardDataSelector.validatedDataOption = ValidatedDataOption.EXCLUDE_ITEM;
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
         info.dataSelector = new SelectorInfo();
@@ -578,7 +580,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.standardDataSelector.usagePointGroup.id = 5;
         info.standardDataSelector.purpose = new LongIdWithNameInfo();
         info.standardDataSelector.purpose.id = 1L;
-        info.standardDataSelector.exportComplete = MissingDataOption.EXCLUDE_ITEM;
+        info.standardDataSelector.exportComplete = MissingDataOption.EXCLUDE_OBJECT;
         info.standardDataSelector.exportContinuousData = true;
         info.standardDataSelector.exportPeriod = new RelativePeriodInfo();
         info.standardDataSelector.exportPeriod.id = exportPeriodId;
