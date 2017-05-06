@@ -22,6 +22,7 @@ import com.elster.jupiter.mdm.usagepoint.data.security.Privileges;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -198,6 +199,11 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupService) {
+        // just a dependency
     }
 
     @Reference
