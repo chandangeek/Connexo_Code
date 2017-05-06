@@ -373,8 +373,12 @@ Ext.define('Dxp.controller.Tasks', {
                             eventTypes.setVisible(false);
                             dataValidation.setVisible(true);
                             missingData.setVisible(true);
-                            updatedData.setVisible(false);
-                            updatedValuesData.setVisible(false);
+                            updatedData.setVisible(true);
+                            if (record.getData().exportUpdate === 'false') {
+                                updatedValuesData.setVisible(false);
+                            } else {
+                                updatedValuesData.setVisible(true);
+                            }
                             continuousDataPreview.setVisible(true);
                             break;
                         case 'DEFAULT_EVENTS':
@@ -517,8 +521,13 @@ Ext.define('Dxp.controller.Tasks', {
                         previewForm.down('#data-selector-eventTypes-preview').hide();
                         previewForm.down('#data-selector-exportPeriod-preview').show();
                         previewForm.down('#continuousData-preview').show();
-                        previewForm.down('#updated-data').hide();
-                        previewForm.down('#updated-values').hide();
+                        previewForm.down('#updated-data').show();
+                        // previewForm.down('#updated-values').hide();
+                        if (record.getData().task.standardDataSelector.exportUpdate === false) {
+                            previewForm.down('#updated-values').hide();
+                        } else {
+                            previewForm.down('#updated-values').show();
+                        }
                         previewForm.down('#data-selector-export-complete').show();
                         previewForm.down('#data-selector-validated-data').show();
                         break;
@@ -1279,8 +1288,14 @@ Ext.define('Dxp.controller.Tasks', {
                     eventTypes.hide();
                     dataValidation.show();
                     missingData.show();
-                    updatedData.hide();
-                    updatedValuesData.hide();
+                    updatedData.show();
+                    // updatedData.hide();
+                    // updatedValuesData.hide();
+                    if (record.getData().standardDataSelector.exportUpdate === false) {
+                        updatedValuesData.hide();
+                    } else {
+                        updatedValuesData.show();
+                    }
                     break;
                 case 'DEFAULT_EVENTS':
                     selectorPropertyForm.hide();
@@ -1662,7 +1677,7 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#data-selector-properties').setVisible(false);
         page.down('#data-selector-validated-data').setVisible(true);
         page.down('#data-selector-export-complete').setVisible(true);
-        page.down('#updated-data-container').setVisible(false);
+        page.down('#updated-data-container').setVisible(true);
         page.down('#continuous-data-container').setVisible(true);
         page.down('#skip-window-up-complete-data-radiofield').setVisible(true);
         page.down('#skip-window-up-validated-data-radiofield').setVisible(true);
@@ -2134,6 +2149,8 @@ Ext.define('Dxp.controller.Tasks', {
                         arrReadingTypes.push(record.getData().readingType);
                     });
 
+                    var timeFrameValue = form.down('#export-updated').getValue().updatedDataAndOrAdjacentData;
+
                     record.set('standardDataSelector', {
                         usagePointGroup: {
                             id: form.down('#usage-point-group-combo').getValue(),
@@ -2154,6 +2171,11 @@ Ext.define('Dxp.controller.Tasks', {
                             id: form.down('#update-window').getValue(),
                             name: form.down('#update-window').getRawValue()
                         },
+                        exportAdjacentData: timeFrameValue,
+                        updateWindow: timeFrameValue ? {
+                            id: form.down('#timeFrame').getValue(),
+                            name: form.down('#timeFrame').getRawValue()
+                        } : {},
                         exportContinuousData: form.down('#continuous-data-radiogroup').getValue().exportContinuousData,
                         readingTypes: arrReadingTypes
                     });
