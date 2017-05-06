@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -77,7 +78,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceService(deviceService);
 
-        Map<ValidationRuleSet, List<Range<Instant>>> setMap = resolver.resolve(validationContext);
+        Map<ValidationRuleSet, RangeSet<Instant>> setMap = resolver.resolve(validationContext);
         assertThat(setMap).containsOnlyKeys(ruleSet);
     }
 
@@ -87,7 +88,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceService(deviceService);
 
-        Map<ValidationRuleSet, List<Range<Instant>>> setMap = resolver.resolve(validationContext);
+        Map<ValidationRuleSet, RangeSet<Instant>> setMap = resolver.resolve(validationContext);
         assertThat(setMap).isEmpty();
     }
 
@@ -97,7 +98,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceService(deviceService);
 
-        Map<ValidationRuleSet, List<Range<Instant>>> setMap = resolver.resolve(validationContext);
+        Map<ValidationRuleSet, RangeSet<Instant>> setMap = resolver.resolve(validationContext);
         assertThat(setMap).isEmpty();
     }
 
@@ -107,7 +108,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceService(deviceService);
 
-        Map<ValidationRuleSet, List<Range<Instant>>> setMap = resolver.resolve(validationContext);
+        Map<ValidationRuleSet, RangeSet<Instant>> setMap = resolver.resolve(validationContext);
         assertThat(setMap).isEmpty();
     }
 }

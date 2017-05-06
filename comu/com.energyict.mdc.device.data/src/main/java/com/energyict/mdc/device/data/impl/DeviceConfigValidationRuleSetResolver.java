@@ -13,13 +13,13 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -42,13 +42,16 @@ public class DeviceConfigValidationRuleSetResolver implements ValidationRuleSetR
     }
 
     @Override
-    public Map<ValidationRuleSet, List<Range<Instant>>> resolve(ValidationContext validationContext) {
+    public Map<ValidationRuleSet, RangeSet<Instant>> resolve(ValidationContext validationContext) {
         if (hasMdcMeter(validationContext.getMeter()) && validationContext.getMeter().get().getLifecycleDates().getReceivedDate().isPresent()) {
             return deviceService
                     .findDeviceById(Long.valueOf(validationContext.getMeter().get().getAmrId()))
                     .map(device -> device.getDeviceConfiguration().getValidationRuleSets().stream()
-                            .collect(Collectors.toMap(Function.identity(), e ->
-                                    (List<Range<Instant>>) (new ArrayList<>(Collections.singletonList(Range.atLeast(validationContext.getMeter().get().getLifecycleDates().getReceivedDate().get())))), (a, b) -> a)))
+                            .collect(Collectors.toMap(Function.identity(), e -> {
+                                RangeSet<Instant> rangeSet = TreeRangeSet.create();
+                                rangeSet.add(Range.atLeast(validationContext.getMeter().get().getLifecycleDates().getReceivedDate().get()));
+                                return rangeSet;
+                            }, (a, b) -> a)))
                     .orElse(Collections.emptyMap());
         } else {
             return Collections.emptyMap();
