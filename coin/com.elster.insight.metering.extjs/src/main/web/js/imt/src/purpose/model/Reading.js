@@ -12,7 +12,7 @@ Ext.define('Imt.purpose.model.Reading', {
         {name: 'dataValidated', type: 'auto'},
         {name: 'action', type: 'auto'},
         {name: 'validationResult', type: 'auto'},
-        {name: 'validationRules', type: 'auto'},
+        {name: 'validationRules', type: 'auto', persist: false},
         {name: 'confirmedNotSaved', type: 'auto'},
         {name: 'estimatedNotSaved', type: 'auto'},
         {name: 'estimatedCommentNotSaved', type: 'auto'},

@@ -320,7 +320,7 @@ Ext.define('Imt.purpose.controller.Readings', {
     },
 
 
-    resumeEditorFieldValidation: function (editor, event) {
+    resumeEditorFieldValidation: function (editor, event, doNotSelect) {
         var me = this;
 
         if (me.getReadingsGraph() && me.getReadingsGraph().chart) {
@@ -337,7 +337,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             if ((event.record.isModified('value') && this.valueBeforeEdit !== event.record.get('value')) || event.record.get('potentialSuspect')) {
                 grid.down('#save-changes-button').isDisabled() && me.showButtons();
 
-                Ext.suspendLayouts(true);
+                Ext.suspendLayouts();
                 if (!value) {
                     point.update({y: null});
                     event.record.set('value', '0');
@@ -351,14 +351,16 @@ Ext.define('Imt.purpose.controller.Readings', {
                         color: event.record.get('potentialSuspect') ? 'rgba(255, 0, 0, 0.3)' : 'rgba(112,187,81,0.3)',
                         value: value
                     };
-                    point.update(updatedObj);
-                    point.select(false);
-                    me.getOutputReadings().down('#output-readings-preview-container').fireEvent('rowselect', event.record);
+                    point.update(updatedObj, !doNotSelect);
+                    if (!doNotSelect) {
+                        point.select(false);
+                    }
+                    me.getOutputReadings().down('#output-readings-preview-container').fireEvent('rowselect', event.record, null, doNotSelect);
                 }
 
-                if (!event.record.get('estimatedNotSaved')) {
+                /*if (!event.record.get('estimatedNotSaved')) {
                     event.record.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
-                }
+                }*/
                 if (event.column) {
                     event.record.set('validationResult', 'validationStatus.ok');
                     event.record.set('isProjected', false);
@@ -367,7 +369,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                     grid.getView().refreshNode(grid.getStore().indexOf(event.record));
                     event.record.get('confirmed') && event.record.set('confirmed', false);
                 }
-                Ext.resumeLayouts();
+                Ext.resumeLayouts(true);
             } else if (condition) {
                 me.resetChanges(event.record, point);
             }
@@ -446,46 +448,41 @@ Ext.define('Imt.purpose.controller.Readings', {
     },
 
     getChangedData: function (store) {
-        var me = this,
-            changedData = [],
-            changedRecord = {},
-            confirmedObj = {};
+        var changedData = [],
+            changedRecord,
+            confirmedObj;
 
         Ext.Array.each(store.getUpdatedRecords(), function (record) {
-            confirmedObj = {};
+            confirmedObj = null;
             changedRecord = {
                 interval: record.get('interval')
             };
 
-            if (record.isModified('value')) {
-                Ext.merge(changedRecord, _.pick(record.getData(), 'value'));
-            }
-            if (record.isModified('ruleId')) {
-                Ext.merge(changedRecord, _.pick(record.getData(), 'value', 'ruleId'));
-            }
-            if (record.isModified('isProjected')) {
-                Ext.merge(changedRecord, _.pick(record.getData(), 'value', 'isProjected'));
-            }
-            if (record.isModified('collectedValue')) {
-                Ext.merge(changedRecord, _.pick(record.getData(), 'collectedValue', 'isProjected'));
-            }
-
             if (record.get('removedNotSaved')) {
                 confirmedObj = {
                     interval: record.get('interval'),
-                    value: null
+                    value: null,
+                    commentId: record.get('commentId') ? record.get('commentId') : undefined
                 };
             } else if (record.get('confirmed')) {
                 confirmedObj = {
                     interval: record.get('interval'),
                     isConfirmed: record.get('confirmedNotSaved') || false
                 };
+            } else if (record.get('ruleId')) {
+                Ext.merge(changedRecord, _.pick(record.getData(), 'value', 'ruleId', 'isProjected'));
+            } else if (record.isModified('value') || record.isModified('isProjected')) {
+                Ext.merge(changedRecord, _.pick(record.getData(), 'value', 'isProjected'));
+            } else if (record.isModified('collectedValue')) {
+                Ext.merge(changedRecord, _.pick(record.getData(), 'collectedValue', 'isProjected'));
             }
 
-            changedRecord = Ext.merge(confirmedObj, changedRecord);
-            changedRecord.value = record.get('collectedValue') ? record.get('collectedValue') : record.get('value');
-            changedRecord.commentId = record.get('commentId') ? record.get('commentId') : undefined;
-            changedData.push(changedRecord);
+            if (confirmedObj) {
+                changedData.push(confirmedObj);
+            } else {
+                changedRecord.commentId = record.get('commentId') ? record.get('commentId') : undefined;
+                changedData.push(changedRecord);
+            }
         });
 
         return changedData;
@@ -1200,8 +1197,9 @@ Ext.define('Imt.purpose.controller.Readings', {
             grid.getView().refreshNode(index);
             me.resumeEditorFieldValidation(grid.editingPlugin, {
                 record: record
-            });
+            }, true);
         });
+        me.getReadingsGraph().chart.redraw();
         Ext.resumeLayouts(true);
         me.numberOfPotentialSuspects = potentialSuspects.length;
     },
@@ -1222,7 +1220,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 grid.getView().refreshNode(store.indexOf(reading));
                 me.resumeEditorFieldValidation(grid.editingPlugin, {
                     record: reading
-                });
+                }, true);
             }
         });
         Ext.resumeLayouts(true);
