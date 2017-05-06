@@ -243,6 +243,9 @@ public class DataExportTaskResource {
                     DataExportTaskBuilder.UsagePointReadingSelectorBuilder selectorBuilder = builder.selectingUsagePointReadings()
                             .fromUsagePointGroup(usagePointGroup(info.standardDataSelector.usagePointGroup.id))
                             .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
+                            .fromUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
+                            .withUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow))
+                            .exportUpdate(info.standardDataSelector.exportUpdate)
                             .continuousData(info.standardDataSelector.exportContinuousData)
                             .exportComplete(info.standardDataSelector.exportComplete)
                             .withValidatedDataOption(info.standardDataSelector.validatedDataOption);
@@ -376,6 +379,9 @@ public class DataExportTaskResource {
             UsagePointReadingSelectorConfig.Updater updater = config.startUpdate()
                     .setUsagePointGroup(usagePointGroup(info.standardDataSelector.usagePointGroup.id))
                     .setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
+                    .setExportUpdate(info.standardDataSelector.exportUpdate)
+                    .setUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
+                    .setUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow))
                     .setExportContinuousData(info.standardDataSelector.exportContinuousData)
                     .setExportOnlyIfComplete(info.standardDataSelector.exportComplete)
                     .setValidatedDataOption(info.standardDataSelector.validatedDataOption);
