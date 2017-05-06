@@ -911,8 +911,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         window.down('#readingType-field').getStore().getProxy().extraParams = {
             page: 1,
             start: 0,
-            limit: 50,
-            property: 'fullAliasName'
+            limit: 50
         };
     },
 
@@ -1223,6 +1222,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
                         if (comment) {
+                            reading.set('estimatedCommentNotSaved', true);
                             readings.get(validationInfoName).commentId = comment.commentId;
                             readings.get(validationInfoName).commentValue = comment.commentValue;
                         }
@@ -1232,6 +1232,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
                                     if (comment) {
+                                        reading.set('estimatedCommentNotSaved', true);
                                         reading.get(validationInfoName).commentId = comment.commentId;
                                         reading.get(validationInfoName).commentValue = comment.commentValue;
                                     }
@@ -1776,6 +1777,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         reading.set('mainModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
         reading.get('mainValidationInfo').estimatedByRule = false;
         reading.get('mainValidationInfo').validationResult = 'validationStatus.ok';
+        reading.set('estimatedCommentNotSaved', true);
         reading.endEdit(true);
 
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
