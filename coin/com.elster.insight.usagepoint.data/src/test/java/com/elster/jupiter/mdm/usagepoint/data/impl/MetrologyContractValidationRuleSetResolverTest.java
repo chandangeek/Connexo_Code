@@ -15,6 +15,8 @@ import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -60,7 +62,7 @@ public class MetrologyContractValidationRuleSetResolverTest {
         when(validationContext.getChannelsContainer()).thenReturn(channelsContainer);
         when(validationContext.getMetrologyContract()).thenReturn(Optional.empty());
         when(validationContext.getChannelsContainer().getUsagePoint()).thenReturn(Optional.empty());
-        Map<ValidationRuleSet, List<Range<Instant>>> validationRuleSets = testInstance().resolve(validationContext);
+        Map<ValidationRuleSet, RangeSet<Instant>> validationRuleSets = testInstance().resolve(validationContext);
 
         assertThat(validationRuleSets).isEmpty();
     }
@@ -102,12 +104,16 @@ public class MetrologyContractValidationRuleSetResolverTest {
         List<ValidationRuleSet> validationRuleSets2 = Collections.singletonList(validationRuleSet2);
         when(usagePointConfigurationService.getValidationRuleSets(metrologyContract, state2)).thenReturn(validationRuleSets2);
 
-        Map<ValidationRuleSet, List<Range<Instant>>> resolvedValidationRuleSets = testInstance().resolve(validationContext);
+        Map<ValidationRuleSet, RangeSet<Instant>> resolvedValidationRuleSets = testInstance().resolve(validationContext);
 
         assertThat(resolvedValidationRuleSets).isNotEmpty();
         assertThat(resolvedValidationRuleSets).hasSize(2);
         assertThat(resolvedValidationRuleSets).containsKeys(validationRuleSet1, validationRuleSet2);
-        assertThat(resolvedValidationRuleSets.get(validationRuleSet1)).containsExactlyElementsOf(Collections.singletonList(Range.openClosed(stateTransition1, stateTransition2)));
-        assertThat(resolvedValidationRuleSets.get(validationRuleSet2)).containsExactlyElementsOf(Collections.singletonList(Range.atLeast(stateTransition2)));
+        RangeSet<Instant> rangeSet1 = TreeRangeSet.create();
+        rangeSet1.add(Range.openClosed(stateTransition1, stateTransition2));
+        RangeSet<Instant> rangeSet2 = TreeRangeSet.create();
+        rangeSet2.add(Range.atLeast(stateTransition2));
+        assertThat(resolvedValidationRuleSets.get(validationRuleSet1)).isEqualTo(rangeSet1);
+        assertThat(resolvedValidationRuleSets.get(validationRuleSet2)).isEqualTo(rangeSet2);
     }
 }
