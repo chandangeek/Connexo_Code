@@ -15,9 +15,10 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
         var me = this;
 
         me.grid = {
-            xtype: 'meter-activations-grid',
+            xtype: me.hasMetrologyConfiguration() ? 'meter-activations-grid' : 'meter-activations-no-metrology-grid',
             itemId: 'meter-activations-grid',
             meterRoles: me.meterRoles,
+            usagePoint: me.usagePoint,
             maxHeight: 500,
             listeners: {
                 edit: Ext.bind(me.onMeterActivationEdit, me)
@@ -53,6 +54,10 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                     }
                 }
             );
+
+        if (me.hasMetrologyConfiguration() == false) {
+            data.push({isAddRow: true});
+        }
         store.loadData(data);
         store.fireEvent('load', data);
     },
@@ -118,5 +123,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
 
             me.fireEvent('meterActivationsChange', allMetersSpecified);
         }
+    },
+
+    hasMetrologyConfiguration: function () {
+        return this.usagePoint.get('metrologyConfiguration') != null;
     }
 });
