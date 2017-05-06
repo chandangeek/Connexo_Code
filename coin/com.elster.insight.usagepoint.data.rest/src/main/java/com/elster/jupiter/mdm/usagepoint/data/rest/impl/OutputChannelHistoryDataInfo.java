@@ -19,22 +19,6 @@ public class OutputChannelHistoryDataInfo extends OutputChannelDataInfo {
     @JsonProperty("version")
     public long version;
 
-    public OutputChannelHistoryDataInfo(OutputChannelDataInfo channelDataInfo) {
-        this.interval = channelDataInfo.interval;
-        this.value = channelDataInfo.value;
-        this.calculatedValue = channelDataInfo.calculatedValue;
-        this.reportedDateTime = channelDataInfo.reportedDateTime;
-        this.dataValidated = channelDataInfo.dataValidated;
-        this.isConfirmed = channelDataInfo.isConfirmed;
-        this.validationResult = channelDataInfo.validationResult;
-        this.action = channelDataInfo.action;
-        this.validationRules = channelDataInfo.validationRules;
-        this.modificationFlag = channelDataInfo.modificationFlag;
-        this.modificationDate = channelDataInfo.modificationDate;
-        this.editedInApp = channelDataInfo.editedInApp;
-        this.readingQualities = channelDataInfo.readingQualities;
-        this.estimatedByRule = channelDataInfo.estimatedByRule;
-        this.isProjected = channelDataInfo.isProjected;
-        this.ruleId = channelDataInfo.ruleId;
+    public OutputChannelHistoryDataInfo() {
     }
 }

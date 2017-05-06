@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -34,6 +35,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -857,9 +859,9 @@ public class UsagePointOutputResource {
         return Collections.emptyList();
     }
 
-    private Map<BaseReadingRecord, ChannelReadingWithValidationStatus> putHistoricalChannelData(JsonQueryFilter filter, UsagePoint usagePoint, MetrologyContract metrologyContract, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint, ReadingType readingType, boolean changedDataOnly) {
+    private List<JournaledReadingRecord> putHistoricalChannelData(JsonQueryFilter filter, UsagePoint usagePoint, MetrologyContract metrologyContract, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint, ReadingType readingType, boolean changedDataOnly) {
         if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
-            Map<BaseReadingRecord, ChannelReadingWithValidationStatus> result = new HashMap<>();
+            List<JournaledReadingRecord> result = new ArrayList<>();
             Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
             effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(metrologyContract)
                     .ifPresent(channelsContainer -> {
@@ -867,16 +869,16 @@ public class UsagePointOutputResource {
                         if (containerRange.isConnected(requestedInterval)) {
                             Range<Instant> effectiveInterval = containerRange.intersection(requestedInterval);
                             effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingType)
-                                    .ifPresent(aggregatedChannel -> result.putAll(collectHistoryFromAggregatedChannel(channelsContainer, usagePoint,
+                                    .ifPresent(aggregatedChannel -> result.addAll(collectHistoryFromAggregatedChannel(channelsContainer, usagePoint,
                                             readingType, aggregatedChannel, effectiveInterval, changedDataOnly)));
                         }
                     });
             return result;
         }
-        return Collections.emptyMap();
+        return Collections.emptyList();
     }
 
-    private Map<BaseReadingRecord, ChannelReadingWithValidationStatus> collectHistoryFromAggregatedChannel(ChannelsContainer channelsContainer, UsagePoint usagePoint, ReadingType readingType,
+    private List<JournaledReadingRecord> collectHistoryFromAggregatedChannel(ChannelsContainer channelsContainer, UsagePoint usagePoint, ReadingType readingType,
                                                                                                  AggregatedChannel aggregatedChannel, Range<Instant> effectiveInterval, boolean changedDataOnly) {
         List<? extends BaseReadingRecord> journaledChannelReadingRecords = aggregatedChannel.getJournaledChannelReadings(readingType, effectiveInterval);
         ValidationEvaluator evaluator = validationService.getEvaluator();
@@ -890,44 +892,96 @@ public class UsagePointOutputResource {
                 .collect(Collectors.toMap(
                         Function.identity(),
                         readingWithValidationStatusFactory::createChannelReading, (r1, r2) -> r1, TreeMap::new));
-        List<DataValidationStatus> dataValidationStatuses = evaluator.getValidationStatus(
-                EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC),
-                aggregatedChannel,
-                journaledChannelReadingRecords,
-                effectiveInterval);
 
-        dataValidationStatuses.forEach(dataValidationStatus -> {
-            ChannelReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(dataValidationStatus.getReadingTimestamp());
-            if (readingWithValidationStatus != null) {
-                readingWithValidationStatus.setValidationStatus(dataValidationStatus);
-            }
-        });
-
-        return collectHistoricalData(journaledChannelReadingRecords, preFilledChannelDataMap, changedDataOnly);
+        return collectHistoricalData(usagePoint, evaluator, aggregatedChannel, effectiveInterval, journaledChannelReadingRecords, preFilledChannelDataMap, changedDataOnly);
     }
 
-    private Map<BaseReadingRecord, ChannelReadingWithValidationStatus> collectHistoricalData(List<? extends BaseReadingRecord> journaledChannelReadingRecords, Map<Instant, ChannelReadingWithValidationStatus> preFilledChannelDataMap, boolean changedDataOnly) {
-        Map<Instant, List<BaseReadingRecord>> historicalReadings = mapJournaledRecordsByTimestamp(journaledChannelReadingRecords);
+    private void setReadingQualitiesAndValidationStatuses(Map<Instant, List<JournaledReadingRecord>> historicalReadings, UsagePoint usagePoint, ValidationEvaluator evaluator, AggregatedChannel aggregatedChannel, List<? extends BaseReadingRecord> journaledChannelReadingRecords,
+                                                          Range<Instant> effectiveInterval, Map<Instant, ChannelReadingWithValidationStatus> preFilledChannelDataMap) {
+        List<JournalEntry<? extends ReadingQualityRecord>> readingQualitiesJournal = usagePoint
+                .getReadingQualitiesJournalFromAggregatedChannel(effectiveInterval, aggregatedChannel);
+        List<? extends ReadingQualityRecord> readingQualityRecords = journaledChannelReadingRecords.stream()
+                .flatMap(record -> record.getReadingQualities().stream())
+                .collect(Collectors.toList());
+
+        setReadingQualities(aggregatedChannel.getReadingTypes(), readingQualitiesJournal, historicalReadings, readingQualityRecords);
+
+        historicalReadings.forEach((instant, journaledReadingRecords) -> journaledReadingRecords.forEach(record -> {
+            List<ReadingQualityRecord> readingQualityList = (List<ReadingQualityRecord>)record.getReadingQualities();
+            DataValidationStatus dataValidationStatus = evaluator.getValidationStatus(
+                    EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC),
+                    aggregatedChannel,
+                    instant,
+                    readingQualityList);
+            record.setValidationStatus(dataValidationStatus);
+            record.setInterval(preFilledChannelDataMap.get(instant).getTimePeriod());
+        }));
+    }
+
+    private void setReadingQualities(List<? extends ReadingType> readingTypes, List<JournalEntry<? extends ReadingQualityRecord>> readingQualitiesJournal, Map<Instant,
+            List<JournaledReadingRecord>> historicalReadings, List<? extends ReadingQualityRecord> readingQualities) {
+        final List<JournalEntry<? extends ReadingQualityRecord>> finalReadingQualitiesJournal = readingQualitiesJournal;
+        historicalReadings.entrySet().forEach(value -> {
+            List<? extends ReadingQualityRecord> readingQualityList = readingQualities.stream()
+                    .filter(readingQuality -> value.getKey().equals(readingQuality.getReadingTimestamp()))
+                    .filter(readingQuality -> readingTypes.contains(readingQuality.getReadingType()))
+                    .collect(Collectors.toList());
+            List<? extends ReadingQualityRecord> journaledReadingQualities = finalReadingQualitiesJournal.stream()
+                    .filter(journaledReadingQuality -> value.getKey().equals(journaledReadingQuality.get().getReadingTimestamp()))
+                    .filter(journaledReadingQuality -> readingTypes.contains(journaledReadingQuality.get()
+                            .getReadingType()))
+                    .map(JournalEntry::get)
+                    .collect(Collectors.toList());
+            List<? extends ReadingQualityRecord> mergedReadingQualities = new ArrayList<>();
+            mergedReadingQualities.addAll(new ArrayList(readingQualityList));
+            mergedReadingQualities.addAll(new ArrayList(journaledReadingQualities));
+            mergedReadingQualities.forEach(mergedReadingQuality -> {
+                Optional<? extends BaseReadingRecord> journaledReadingRecord;
+                if (mergedReadingQuality.getTypeCode().compareTo("3.5.258") == 0 || mergedReadingQuality.getTypeCode()
+                        .compareTo("3.5.259") == 0) {
+                    journaledReadingRecord = value.getValue().stream()
+                            .sorted(Comparator.comparing(BaseReading::getTimeStamp).reversed())
+                            .filter(record -> record.getTimeStamp().equals(mergedReadingQuality.getReadingTimestamp()))
+                            .findFirst();
+                } else {
+                    journaledReadingRecord = value.getValue().stream()
+                            .sorted(Comparator.comparing(BaseReading::getTimeStamp))
+                            .filter(record -> record.getTimeStamp().equals(mergedReadingQuality.getReadingTimestamp()))
+                            .findFirst();
+                }
+                journaledReadingRecord.ifPresent(journalReadingRecord -> {
+                    List<ReadingQualityRecord> qualityRecords = (List<ReadingQualityRecord>)((JournaledReadingRecord)journalReadingRecord).getReadingRecordQualities();
+                    qualityRecords.add(mergedReadingQuality);
+                    ((JournaledReadingRecord)journaledReadingRecord.get()).setReadingQualityRecords(qualityRecords);
+                });
+            });
+        });
+    }
+
+    private List<JournaledReadingRecord> collectHistoricalData(UsagePoint usagePoint, ValidationEvaluator evaluator, AggregatedChannel aggregatedChannel, Range<Instant> effectiveInterval, List<? extends BaseReadingRecord> journaledChannelReadingRecords, Map<Instant, ChannelReadingWithValidationStatus> preFilledChannelDataMap, boolean changedDataOnly) {
+        Map<Instant, List<JournaledReadingRecord>> historicalReadings = mapJournaledRecordsByTimestamp(journaledChannelReadingRecords);
         if (changedDataOnly) {
             historicalReadings = historicalReadings.entrySet()
                     .stream()
                     .filter(entry -> entry.getValue().size() > 1)
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         }
+        setReadingQualitiesAndValidationStatuses(historicalReadings, usagePoint, evaluator, aggregatedChannel, journaledChannelReadingRecords, effectiveInterval, preFilledChannelDataMap);
 
         Map<BaseReadingRecord, ChannelReadingWithValidationStatus> map = new HashMap<>();
         historicalReadings.entrySet().stream().map(Map.Entry::getValue)
                 .forEach(baseReadingRecords ->
                         baseReadingRecords.forEach(baseReadingRecord ->
                                 map.put(baseReadingRecord, preFilledChannelDataMap.get(baseReadingRecord.getTimeStamp()))));
+        List<JournaledReadingRecord> result = historicalReadings.entrySet().stream().flatMap(value -> value.getValue().stream()).collect(Collectors.toList());
 
-        return map;
+        return result;
     }
 
-    private Map<Instant, List<BaseReadingRecord>> mapJournaledRecordsByTimestamp(List<? extends BaseReadingRecord> records) {
-        Map<Instant, List<BaseReadingRecord>> result = new HashMap<>();
-        records.forEach(record -> {
-            List<BaseReadingRecord> readingRecords = result.get(record.getTimeStamp());
+    private Map<Instant, List<JournaledReadingRecord>> mapJournaledRecordsByTimestamp(List<? extends BaseReadingRecord> records) {
+        Map<Instant, List<JournaledReadingRecord>> result = new HashMap<>();
+        records.stream().map(JournaledReadingRecord::new).forEach(record -> {
+            List<JournaledReadingRecord> readingRecords = result.get(record.getTimeStamp());
             if (readingRecords == null) {
                 readingRecords = new ArrayList<>();
                 readingRecords.add(record);
