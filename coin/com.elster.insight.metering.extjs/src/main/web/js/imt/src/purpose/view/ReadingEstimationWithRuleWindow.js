@@ -63,12 +63,14 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
                                     fn: function (implementationCombo, newValue) {
                                         var estimator = implementationCombo.getStore().getById(newValue),
                                             errorLabel = implementationCombo.up('reading-estimation-with-rule-window').down('#error-label'),
+                                            commentField = me.down('#estimation-comment'),
                                             hasEmptyRequiredProperties;
 
                                         if (estimator) {
                                             me.down('property-form').loadRecord(estimator);
-                                            me.down('#estimation-comment').commentId = estimator.commentId;
-                                            me.down('#estimation-comment').show();
+                                            commentField.commentId = estimator.get('commentId');
+                                            commentField.setValue(estimator.get('commentValue'));
+                                            commentField.show();
                                             hasEmptyRequiredProperties = estimator.properties().getRange().find(function(property) {
                                                 return property.get('required') && Ext.isEmpty(property.get('value'));
                                             });
@@ -132,10 +134,7 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
                             itemId: 'estimation-comment',
                             fieldLabel: Uni.I18n.translate('general.estimationComment', 'IMT', 'Estimation comment'),
                             name: 'commentValue',
-                            hidden: true,
-                            renderer: function (value) {
-                                return value ? value : '-';
-                            }
+                            hidden: true
                         }
                     ]
                 },
