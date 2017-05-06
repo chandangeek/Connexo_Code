@@ -60,18 +60,23 @@ public class ChannelReferenceDataCopier {
         boolean isValidationActive = deviceValidation.isValidationActive();
 
         Device referenceDevice = resourceHelper.findDeviceByName(referenceChannelDataInfo.referenceDevice)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_DEVICE, "referenceDevice", referenceChannelDataInfo.referenceDevice));
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "referenceDevice", referenceChannelDataInfo.referenceDevice));
         ReadingType readingType = meteringService.getReadingType(referenceChannelDataInfo.readingType)
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.NO_SUCH_READINGTYPE, "readingType", referenceChannelDataInfo.readingType));
-        Channel referenceChannel = referenceDevice.getChannels().stream()
-                .filter(ch -> ch.getCalculatedReadingType(referenceChannelDataInfo.startDate)
-                        .filter(refernceReadingType -> refernceReadingType.equals(readingType))
-                        .isPresent())
-                .findFirst()
-                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_DEVICE, "readingType"));
-        if (readingTypeComparator.compare(referenceChannel.getReadingType(), sourceChannel.getReadingType()) != 0) {
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "readingType", referenceChannelDataInfo.readingType));
+        if (readingTypeComparator.compare(readingType, sourceChannel.getReadingType()) != 0) {
             throw new LocalizedFieldValidationException(MessageSeeds.READINGTYPES_DONT_MATCH, "readingType");
         }
+        Channel referenceChannel = Optional.ofNullable(referenceDevice.getChannels().stream()
+                .filter(ch -> ch.getReadingType().equals(readingType))
+                .findFirst()
+                .orElseGet(() -> referenceDevice.getChannels().stream()
+                        .filter(ch -> ch.getCalculatedReadingType(referenceChannelDataInfo.startDate)
+                                .filter(refernceReadingType -> refernceReadingType.equals(readingType))
+                                .isPresent())
+                        .findFirst()
+                        .orElse(null)))
+                .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.READINGTYPE_NOT_FOUND_ON_DEVICE, "readingType"));
+
 
         resultReadings = new ArrayList<>();
         correctedRanges = getCorrectedTimeStampsForReference(referenceChannelDataInfo.startDate, referenceChannelDataInfo.intervals);
@@ -93,8 +98,8 @@ public class ChannelReferenceDataCopier {
                 .filter(reading -> readingTimeStamps.contains(reading.getRange().upperEndpoint()))
                 .flatMap(e -> e.getReadingQualities().values().stream().flatMap(Collection::stream))
                 .filter(ReadingQualityRecord::isSuspect)
-                .filter(readingTimeStamps::contains)
-                .collect(Collectors.toMap(ReadingQualityRecord::getTimestamp, Function.identity(), (a, b) -> a));
+                .filter(readingQualityRecord -> readingTimeStamps.contains(readingQualityRecord.getReadingTimestamp()))
+                .collect(Collectors.toMap(ReadingQualityRecord::getReadingTimestamp, Function.identity(), (a, b) -> a));
 
         sourceReadings.forEach(record -> {
             Optional.ofNullable(correctedRanges.get(record.getRange()))
