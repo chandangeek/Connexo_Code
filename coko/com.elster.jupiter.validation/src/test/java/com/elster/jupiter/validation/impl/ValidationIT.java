@@ -32,6 +32,8 @@ import com.elster.jupiter.validation.ValidatorFactory;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -89,6 +91,8 @@ public class ValidationIT {
 
     private MeterActivation meterActivation;
 
+    private RangeSet<Instant> rangeSet = TreeRangeSet.create();
+
     @BeforeClass
     public static void beforeClass() {
         inMemoryBootstrapModule.activate();
@@ -101,6 +105,7 @@ public class ValidationIT {
 
     @Before
     public void before() {
+        rangeSet.add(Range.atLeast(Instant.EPOCH));
         MeteringService meteringService = inMemoryBootstrapModule.get(MeteringService.class);
         ReadingType readingType1 = meteringService.getReadingType(READING_TYPE_1).get();
         ReadingType readingType2 = meteringService.getReadingType(READING_TYPE_2).get();
@@ -115,7 +120,7 @@ public class ValidationIT {
         ValidationServiceImpl validationService = getValidationService();
         validationService.addResource(validatorFactory);
         ValidationRuleSet validationRuleSet = createValidationRuleSet(readingType1, readingType2, readingType3, validationService);
-        when(validationRuleSetResolver.resolve(any())).thenReturn(Collections.singletonMap(validationRuleSet, Collections.singletonList(Range.atLeast(Instant.EPOCH))));
+        when(validationRuleSetResolver.resolve(any())).thenReturn(Collections.singletonMap(validationRuleSet, rangeSet));
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
 
         validationService.activateValidation(meter);

@@ -5,6 +5,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -49,7 +50,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationContext;
@@ -64,6 +65,8 @@ import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -91,7 +94,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMapOf;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -118,8 +120,6 @@ public class ValidationOnStoreIT {
     @Mock
     private BundleContext bundleContext;
     @Mock
-    private UserService userService;
-    @Mock
     private EventAdmin eventAdmin;
     @Mock
     private ValidatorFactory validatorFactory;
@@ -143,7 +143,6 @@ public class ValidationOnStoreIT {
 
         @Override
         protected void configure() {
-            bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
@@ -159,6 +158,8 @@ public class ValidationOnStoreIT {
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
                     new IdsModule(),
+                    new UserModule(),
+                    new BpmModule(),
                     new FiniteStateMachineModule(),
                     new UsagePointLifeCycleConfigurationModule(),
                     new MeteringModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
@@ -185,7 +186,6 @@ public class ValidationOnStoreIT {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        when(userService.findGroup(anyString())).thenReturn(Optional.empty());
         when(validatorFactory.available()).thenReturn(Arrays.asList(MIN_MAX, CONSECUTIVE_ZEROES));
         when(validatorFactory.createTemplate(eq(MIN_MAX))).thenReturn(minMax);
         when(validatorFactory.createTemplate(eq(CONSECUTIVE_ZEROES))).thenReturn(conseqZero);
@@ -238,8 +238,10 @@ public class ValidationOnStoreIT {
 
                 validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                     @Override
-                    public Map<ValidationRuleSet, List<Range<Instant>>> resolve(ValidationContext validationContext) {
-                        return Collections.singletonMap(validationRuleSet, Collections.singletonList(Range.atLeast(date1)));
+                    public Map<ValidationRuleSet, RangeSet<Instant>> resolve(ValidationContext validationContext) {
+                        RangeSet<Instant> rangeSet = TreeRangeSet.create();
+                        rangeSet.add(Range.atLeast(date1));
+                        return Collections.singletonMap(validationRuleSet, rangeSet);
                     }
 
                     @Override

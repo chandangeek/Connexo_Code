@@ -122,10 +122,6 @@ public enum TableSpecs {
             Table<ChannelsContainerValidation> table = dataModel.addTable(name(), ChannelsContainerValidation.class);
             table.map(ChannelsContainerValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            ImmutableList.Builder<Column> builder =  ImmutableList.builder();
-            builder.add(table.column("STARTTIME").number().installValue("0").notNull().conversion(NUMBER2LONG).since(version(10, 3)).map("interval.start").add());
-            builder.add(table.column("ENDTIME").number().installValue("1000000000000000000").notNull().conversion(NUMBER2LONG).since(version(10, 3)).map("interval.end").add());
-            List<Column> intervalColumns =  builder.build();
             Column ruleSetColumn = table.column("RULESETID").number().conversion(NUMBER2LONG).add();
             Column meterActivationColumn = table.column("METERACTIVATIONID").number().conversion(NUMBER2LONG).upTo(version(10, 2)).add();
             Column channelContainer = table.column("CHANNEL_CONTAINER").number().conversion(NUMBER2LONG).since(version(10, 2)).previously(meterActivationColumn).add();
@@ -136,7 +132,7 @@ public enum TableSpecs {
             table.foreignKey("VAL_FK_MA_VALIDATION_MA").references(ChannelsContainer.class).onDelete(RESTRICT).map("channelsContainer").on(channelContainer).add();
             table.foreignKey("VAL_FK_MA_VALIDATION_VRS").references(VAL_VALIDATIONRULESET.name()).on(ruleSetColumn).onDelete(DeleteRule.RESTRICT)
                     .map("ruleSet", ValidationRuleSetVersionImpl.class, ValidationRuleImpl.class, ReadingTypeInValidationRule.class).add();
-            table.unique("VAL_MA_VALIDATION_U").on(ruleSetColumn, channelContainer, obsoleteColumn, intervalColumns.get(0)).add();
+            table.unique("VAL_MA_VALIDATION_U").on(ruleSetColumn, channelContainer, obsoleteColumn).add();
         }
     },
     VAL_CH_VALIDATION {
@@ -149,6 +145,7 @@ public enum TableSpecs {
             Column channelsContainerValidationColumn = table.column("MAV_ID").number().conversion(NUMBER2LONG).add();
             table.column("LASTCHECKED").number().conversion(NUMBER2INSTANT).map("lastChecked").add();
             table.column("ACTIVERULES").bool().map("activeRules").add();
+            table.column("LAST_VALIDATION_COMPLETE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).installValue("'N'").since(version(10, 3)).map("lastValidationComplete").add();
             table.primaryKey("VAL_PK_CH_VALIDATION").on(idColumn).add();
             table.foreignKey("VAL_FK_CH_VALIDATION_CH").references(Channel.class).onDelete(RESTRICT).on(channelRef).map("channel").add();
             table.foreignKey("VAL_FK_CH_VALIDATION_MA_VAL")

@@ -112,7 +112,7 @@ public class ChannelsContainerValidationImplTest {
         when(channelsContainer.getStart()).thenReturn(DATE1);
         when(channelsContainer.getMeter()).thenReturn(Optional.empty());
 
-        channelsContainerValidation = new ChannelsContainerValidationImpl(dataModel, clock).init(channelsContainer, Range.atLeast(Instant.EPOCH));
+        channelsContainerValidation = new ChannelsContainerValidationImpl(dataModel, clock).init(channelsContainer);
         channelsContainerValidation.setRuleSet(validationRuleSet);
         channelsContainerValidation.save();
     }
@@ -121,14 +121,14 @@ public class ChannelsContainerValidationImplTest {
     public void testValidateWithoutChannels() throws Exception {
         when(channelsContainer.getChannels()).thenReturn(Collections.emptyList());
 
-        channelsContainerValidation.validate();
+        channelsContainerValidation.validate(Collections.emptyList());
 
         assertThat(channelsContainerValidation.getLastRun()).isEqualTo(DATE3);
     }
 
     @Test
     public void testValidateNoRulesApply() throws Exception {
-        channelsContainerValidation.validate();
+        channelsContainerValidation.validate(Collections.emptyList());
 
         assertThat(channelsContainerValidation.getChannelValidations()).isEmpty();
     }
@@ -143,7 +143,7 @@ public class ChannelsContainerValidationImplTest {
         when(intervalReadingRecord.getTimeStamp()).thenReturn(DATE4);
         when(validator.validate(any(IntervalReadingRecord.class))).thenReturn(ValidationResult.VALID);
 
-        channelsContainerValidation.validate();
+        channelsContainerValidation.validate(Collections.singletonList(channel1));
 
         assertThat(channelsContainerValidation.getChannelValidations()).hasSize(1);
         ChannelValidation channelValidation = channelsContainerValidation.getChannelValidations().iterator().next();
@@ -158,7 +158,7 @@ public class ChannelsContainerValidationImplTest {
         when(channel1.getLastDateTime()).thenReturn(DATE4);
         when(channel2.getLastDateTime()).thenReturn(DATE4);
 
-        channelsContainerValidation.validate();
+        channelsContainerValidation.validate(Arrays.asList(channel1, channel2));
 
         assertThat(channelsContainerValidation.getChannelValidations()).hasSize(2);
         Iterator<ChannelValidation> iterator = channelsContainerValidation.getChannelValidations().iterator();

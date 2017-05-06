@@ -12,14 +12,14 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -50,7 +50,6 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
     private Instant lastRun;
     private List<ChannelValidation> channelValidations = new ArrayList<>();
     private Instant obsoleteTime;
-    private Interval interval;
     private final DataModel dataModel;
     private final Clock clock;
     private boolean active = true;
@@ -61,15 +60,8 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
         this.clock = clock;
     }
 
-    ChannelsContainerValidationImpl init(ChannelsContainer channelsContainer, Range<Instant> range) {
-        this.channelsContainer.set(channelsContainer);
-        this.interval = Interval.of(range);
-        return this;
-    }
-
     ChannelsContainerValidationImpl init(ChannelsContainer channelsContainer) {
         this.channelsContainer.set(channelsContainer);
-        this.interval = channelsContainer.getInterval();
         return this;
     }
 
@@ -140,42 +132,42 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
         return Collections.unmodifiableSet(new HashSet<>(channelValidations));
     }
 
-    @Override
-    public void validate() {
-        this.validate(getChannelsContainer().getChannels());
-    }
-
     public void validate(Collection<Channel> channels) {
         if (isActive()) {
-            getChannelsContainer().getChannels().forEach(channel -> validateChannel(channel, channel.getLastDateTime()));
+            channels.forEach(channel -> validateChannel(channel, getDefaultRangeSet(channel.getLastDateTime())));
             lastRun = Instant.now(clock);
             save();
         }
-    }
-
-    @Override
-    public void validate(Instant until) {
-        this.validate(getChannelsContainer().getChannels(), until);
     }
 
     @Override
     public void validate(Collection<Channel> channels, Instant until) {
         if (isActive()) {
-            channels.forEach(channel -> validateChannel(channel, until));
+            channels.forEach(channel -> validateChannel(channel, getDefaultRangeSet(until)));
             lastRun = Instant.now(clock);
             save();
         }
     }
 
-    private void validateChannel(Channel channel, Instant validateUntil) {
-        Range<Instant> range = interval.toOpenClosedRange();
-        if (validateUntil != null && range.contains(validateUntil)) {
-            range = Ranges.copy(range).withClosedUpperBound(validateUntil);
+    @Override
+    public void validate(RangeSet<Instant> ranges) {
+        this.validate(getChannelsContainer().getChannels(), ranges);
+    }
+
+    @Override
+    public void validate(Collection<Channel> channels, RangeSet<Instant> ranges) {
+        if (isActive()) {
+            channels.stream().filter(channel -> channel.getLastDateTime() != null).forEach(channel -> validateChannel(channel, ranges));
+            lastRun = Instant.now(clock);
+            save();
         }
+    }
+
+    private void validateChannel(Channel channel, RangeSet<Instant> ranges) {
         List<IValidationRule> activeRules = getActiveRules();
         if (hasApplicableRules(channel, activeRules)) {
             ChannelValidationImpl channelValidation = findOrAddValidationFor(channel);
-            channelValidation.validate(range);
+            channelValidation.validate(ranges.subRangeSet(Range.atMost(channel.getLastDateTime())));
             channelValidation.setActiveRules(true);
         } else {
             ChannelValidationImpl channelValidation = findValidationFor(channel);
@@ -183,6 +175,12 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
                 channelValidation.setActiveRules(false);
             }
         }
+    }
+
+    private RangeSet<Instant> getDefaultRangeSet(Instant until) {
+        RangeSet<Instant> ranges = TreeRangeSet.create();
+        ranges.add(Range.openClosed(getChannelsContainer().getStart(), until));
+        return ranges;
     }
 
     private boolean hasApplicableRules(Channel channel, List<IValidationRule> activeRules) {
@@ -334,14 +332,5 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
             lastRun = null;
         }
         save();
-    }
-
-    @Override
-    public Interval getInterval() {
-        return interval;
-    }
-
-    public void setIntervalEnd(Instant end){
-        interval = Interval.of(Range.openClosed(interval.toOpenClosedRange().lowerEndpoint(), end));
     }
 }
