@@ -160,12 +160,16 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
 
         List<ListMultimap<Instant, ReadingQualityRecord>> readingQualityMaps = new ArrayList<>(2);
         ListMultimap<Instant, ReadingQualityRecord> readingQualitiesList = ArrayListMultimap.create();
-        readingQualities.get(0).stream().forEach(readingQualityRecord -> readingQualitiesList.put(timeStamp, readingQualityRecord));
-        readingQualityMaps.add(readingQualitiesList);
-        ListMultimap<Instant, ReadingQualityRecord> readingQualitiesBulkList = ArrayListMultimap.create();
-        readingQualities.get(1).stream().forEach(readingQualityRecord -> readingQualitiesBulkList.put(timeStamp, readingQualityRecord));
-        readingQualityMaps.add(readingQualitiesBulkList);
 
+        Iterator<List<ReadingQualityRecord>> iterator = readingQualities.iterator();
+
+        iterator.next().forEach(readingQualityRecord -> readingQualitiesList.put(timeStamp, readingQualityRecord));
+        readingQualityMaps.add(readingQualitiesList);
+        if (iterator.hasNext()) {
+            ListMultimap<Instant, ReadingQualityRecord> readingQualitiesBulkList = ArrayListMultimap.create();
+            iterator.next().forEach(readingQualityRecord -> readingQualitiesBulkList.put(timeStamp, readingQualityRecord));
+            readingQualityMaps.add(readingQualitiesBulkList);
+        }
         return getValidationStatusForTimeStamp(timeStamp, channels, configured,
                 readingQualityMaps, validationRuleMaps, mainChannelValidationsPerSystemMultimap);
     }
