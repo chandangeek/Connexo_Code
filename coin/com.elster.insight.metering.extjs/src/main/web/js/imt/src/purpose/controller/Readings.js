@@ -648,8 +648,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         window.down('#readingType-field').getStore().getProxy().extraParams = {
             page: 1,
             start: 0,
-            limit: 50,
-            property: 'fullAliasName'
+            limit: 50
         };
     },
 
@@ -706,6 +705,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                             reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
                             reading.set('validationResult', 'validationStatus.ok');
                             if (commentId !== -1) {
+                                reading.set('estimatedCommentNotSaved', true);
                                 reading.set('commentId', commentId);
                                 reading.set('commentValue', commentValue);
                             }
@@ -901,6 +901,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
                         if (comment) {
+                            readings.set('estimatedCommentNotSaved', true);
                             readings.set('commentId', comment.commentId);
                             readings.set('commentValue', comment.commentValue);
                         }
@@ -910,6 +911,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
                                     if (comment) {
+                                        readings.set('estimatedCommentNotSaved', true);
                                         readings.set('commentId', comment.commentId);
                                         readings.set('commentValue', comment.commentValue);
                                     }
@@ -987,6 +989,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
             reading.set('validationResult', 'validationStatus.ok');
             reading.set('estimatedByRule', false);
+            reading.set('estimatedCommentNotSaved', true);
         }
         reading.set('value', correctedInterval.value);
         reading.set('isProjected', model.get('projected'));
