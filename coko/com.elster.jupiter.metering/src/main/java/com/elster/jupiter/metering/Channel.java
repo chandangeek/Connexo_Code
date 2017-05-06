@@ -59,6 +59,10 @@ public interface Channel {
 
     ReadingQualityRecord createReadingQuality(ReadingQualityType type, ReadingType readingType, Instant timestamp);
 
+    List<ReadingQualityRecord> createReadingQualityForRecords(ReadingQualityType type, ReadingType readingType, List<BaseReadingRecord> records);
+
+    List<ReadingQualityRecord> createReadingQualityForTimestamps(ReadingQualityType type, ReadingType readingType, List<Instant> timestamps);
+
 
     /**
      * Initializes a new search of {@link ReadingQualityRecord ReadingQualityRecords}
