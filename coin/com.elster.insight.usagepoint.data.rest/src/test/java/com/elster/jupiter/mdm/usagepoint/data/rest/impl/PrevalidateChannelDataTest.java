@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.time.Interval;
@@ -80,6 +81,8 @@ public class PrevalidateChannelDataTest extends UsagePointDataRestApplicationJer
     @Mock
     private ValidationEvaluator validationEvaluator;
 
+    private DataAggregationService.MetrologyContractDataEditor editor = FakeBuilder.initBuilderStub(null, DataAggregationService.MetrologyContractDataEditor.class);
+
     @Before
     public void before() {
         when(transactionService.getContext()).thenReturn(transactionContext);
@@ -89,7 +92,6 @@ public class PrevalidateChannelDataTest extends UsagePointDataRestApplicationJer
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(CONTRACT_ID, readingType, OUTPUT_ID);
         UsagePoint usagePoint = mockUsagePoint(USAGEPOINT_NAME, metrologyConfiguration);
         ChannelsContainer channelsContainer = mockChannelsContainer(usagePoint);
-        DataAggregationService.MetrologyContractDataEditor editor = FakeBuilder.initBuilderStub(usagePoint, DataAggregationService.MetrologyContractDataEditor.class);
         when(dataAggregationService.edit(eq(usagePoint), any(MetrologyContract.class), any(ReadingTypeDeliverable.class), eq(QualityCodeSystem.MDM))).thenReturn(editor);
 
         when(channelsContainer.getChannel(readingType)).thenReturn(Optional.of(channel));
@@ -163,7 +165,9 @@ public class PrevalidateChannelDataTest extends UsagePointDataRestApplicationJer
         editedReading.value = BigDecimal.ONE;
         OutputChannelDataInfo estimatedReading = new OutputChannelDataInfo();
         estimatedReading.interval = IntervalInfo.from(Range.openClosed(TIMESTAMP.plus(3, ChronoUnit.DAYS), TIMESTAMP.plus(4, ChronoUnit.DAYS)));
-        estimatedReading.value = BigDecimal.ONE;
+        estimatedReading.value = BigDecimal.TEN;
+        estimatedReading.ruleId = 1L;
+        estimatedReading.isConfirmed = false;
         info.editedReadings = Arrays.asList(editedReading, estimatedReading);
 
         // mock validation result
@@ -173,7 +177,8 @@ public class PrevalidateChannelDataTest extends UsagePointDataRestApplicationJer
                 mockDataValidationStatus(TIMESTAMP.plus(3, ChronoUnit.DAYS), ValidationResult.SUSPECT, mockValidationRule("Missing")),
                 mockDataValidationStatus(TIMESTAMP.plus(4, ChronoUnit.DAYS), ValidationResult.VALID)
         );
-        when(validationEvaluator.getValidationStatus(eq(ImmutableSet.of(QualityCodeSystem.MDM)), eq(channel), anyList(), any(Range.class))).thenReturn(dataValidationStatuses);
+        Range<Instant> expectedValidationRange = Range.closed(Instant.ofEpochMilli(editedReading.interval.end), info.validateUntil);
+        when(validationEvaluator.getValidationStatus(eq(ImmutableSet.of(QualityCodeSystem.MDM)), eq(channel), anyList(), eq(expectedValidationRange))).thenReturn(dataValidationStatuses);
 
         // Business method
         Response response = target(URL).request().put(Entity.json(info));
@@ -185,6 +190,17 @@ public class PrevalidateChannelDataTest extends UsagePointDataRestApplicationJer
         verify(transactionContext).close();
         verify(transactionContext, never()).commit();
 
+        // verify that readings are saved
+        ArgumentCaptor<List> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
+        verify(editor).updateAll(listArgumentCaptor.capture());
+        assertThat(listArgumentCaptor.getValue()).hasSize(1);
+        assertThat(((BaseReadingImpl) listArgumentCaptor.getValue().get(0)).getValue()).isEqualTo(BigDecimal.ONE);
+        listArgumentCaptor = ArgumentCaptor.forClass(List.class);
+        verify(editor).estimateAll(listArgumentCaptor.capture());
+        assertThat(listArgumentCaptor.getValue()).hasSize(1);
+        assertThat(((BaseReadingImpl) listArgumentCaptor.getValue().get(0)).getValue()).isEqualTo(BigDecimal.TEN);
+        verify(editor).save();
+
         // verify that validation has been performed on a correct range
         ArgumentCaptor<ValidationContext> validationContextArgumentCaptor = ArgumentCaptor.forClass(ValidationContext.class);
         ArgumentCaptor<Range> rangeArgumentCaptor = ArgumentCaptor.forClass(Range.class);
@@ -192,7 +208,7 @@ public class PrevalidateChannelDataTest extends UsagePointDataRestApplicationJer
         assertThat(validationContextArgumentCaptor.getValue().getChannelsContainer()).isEqualTo(channelsContainer);
         assertThat(validationContextArgumentCaptor.getValue().getReadingType()).isEqualTo(Optional.of(readingType));
         assertThat(validationContextArgumentCaptor.getValue().getQualityCodeSystems()).isEqualTo(ImmutableSet.of(QualityCodeSystem.MDM));
-        assertThat(rangeArgumentCaptor.getValue()).isEqualTo(Range.closed(TIMESTAMP.plus(1, ChronoUnit.DAYS), TIMESTAMP.plus(5, ChronoUnit.DAYS)));
+        assertThat(rangeArgumentCaptor.getValue()).isEqualTo(expectedValidationRange);
 
         // verify returned payload
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
