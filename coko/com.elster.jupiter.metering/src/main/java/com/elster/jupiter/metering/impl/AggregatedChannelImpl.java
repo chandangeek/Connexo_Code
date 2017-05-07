@@ -323,7 +323,9 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<BaseReadingRecord> getReadingsUpdatedSince(ReadingType readingType, Range<Instant> interval, Instant since) {
-        throw new UnsupportedOperationException();
+        return getReadings(readingType, interval).stream()
+                .filter(reading -> reading.getReportedDateTime().isAfter(since))
+                .collect(Collectors.toList());
     }
 
     @Override
