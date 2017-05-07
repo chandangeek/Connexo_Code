@@ -5,13 +5,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 
-import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingTypeComparator;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
