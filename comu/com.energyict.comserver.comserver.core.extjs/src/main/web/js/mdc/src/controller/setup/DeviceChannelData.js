@@ -735,18 +735,14 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             if (record.get('mainValidationInfo') && record.get('mainValidationInfo').commentId) {
                 confirmedObj.value = record.get('value');
                 confirmedObj.interval = record.get('interval');
-                confirmedObj.mainValidationInfo = {
-                    commentId: record.get('mainValidationInfo').commentId,
-                    isConfirmed: record.get('mainValidationInfo').confirmedNotSaved || false
-                };
+                confirmedObj.mainValidationInfo.commentId = record.get('mainValidationInfo').commentId;
+                confirmedObj.mainValidationInfo.isConfirmed = record.get('mainValidationInfo').confirmedNotSaved || false;
             }
             if (record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentId) {
                 confirmedObj.value = record.get('value');
                 confirmedObj.interval = record.get('interval');
-                confirmedObj.bulkValidationInfo = {
-                    commentId: record.get('bulkValidationInfo').commentId,
-                    isConfirmed: record.get('bulkValidationInfo').confirmedNotSaved || false
-                };
+                confirmedObj.bulkValidationInfo.commentId = record.get('bulkValidationInfo').commentId;
+                confirmedObj.bulkValidationInfo.isConfirmed = record.get('bulkValidationInfo').confirmedNotSaved || false;
             }
             changedData.push(confirmedObj);
         });
@@ -1092,6 +1088,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             estimateBulk = false,
             record = window.record,
             intervalsArray = [],
+            validationInfoName,
             comment = null;
 
         if (commentId !== -1) {
@@ -1222,7 +1219,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
                         if (comment) {
-                            reading.set('estimatedCommentNotSaved', true);
+                            readings.set('estimatedCommentNotSaved', true);
                             readings.get(validationInfoName).commentId = comment.commentId;
                             readings.get(validationInfoName).commentValue = comment.commentValue;
                         }
@@ -1298,6 +1295,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 reading.set('bulkModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
             } else if (action === 'estimate') {
                 reading.get('bulkValidationInfo').estimatedByRule = true;
+                reading.set('bulkModificationState', Uni.util.ReadingEditor.modificationState(null));
             }
         } else {
             reading.set('value', estimatedReading.value);
@@ -1308,6 +1306,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             if (action === 'estimate') {
                 reading.get('mainValidationInfo').estimatedByRule = true;
                 reading.get('mainValidationInfo').estimatedNotSaved = true;
+                reading.set('mainModificationState', Uni.util.ReadingEditor.modificationState(null));
             }
 
         }
