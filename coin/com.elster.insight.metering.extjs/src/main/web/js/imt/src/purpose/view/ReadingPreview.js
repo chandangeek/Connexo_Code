@@ -71,8 +71,13 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     }
                     break;
                 case 'suspect':
-                    validationResultText = '(' + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + ')' +
-                        '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';
+                    if (!Ext.isEmpty(estimatedByRule)) {
+                        validationResultText = '(' + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + ')' +
+                            '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>' + me.getEstimationFlagWithTooltip(estimatedByRule, record);
+                    } else {
+                        validationResultText = '(' + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + ')' +
+                            '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';
+                    }
                     break;
                 case 'ok':
                     validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect') + ')';
@@ -139,7 +144,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         var icon;
 
         icon = '<span class="icon-flag5" style="margin-left:10px; color:#33CC33;" data-qtip="'
-            + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}', [
+            + Uni.I18n.translate('reading.estimatedWithTime', 'IMT', 'Estimated in {0} on {1} at {2}', [
                 estimatedByRule.application.name,
                 Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
                 Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
@@ -373,6 +378,22 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                         return this.getEstimatedByRule(rec.get('estimatedByRule'));
                     } else {
                         field.hide();
+                    }
+                }
+            }
+        );
+
+        valuesItems.push(
+            {
+                itemId: 'estimation-comment-field',
+                name: 'mainCommentValue',
+                fieldLabel: Uni.I18n.translate('general.estimationComment', 'IMT', 'Estimation comment'),
+                renderer: function (value) {
+                    if (!value) {
+                        this.hide();
+                    } else {
+                        this.show();
+                        return value;
                     }
                 }
             }
