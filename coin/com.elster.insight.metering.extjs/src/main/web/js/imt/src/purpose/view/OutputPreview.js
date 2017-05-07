@@ -87,7 +87,7 @@ Ext.define('Imt.purpose.view.OutputPreview', {
         if (!Ext.isEmpty(validationInfo.lastChecked)) {
             data.lastChecked = Uni.DateTime.formatDateTimeLong(new Date(validationInfo.lastChecked));
         }
-debugger;
+
         data.suspects = me.prepareRulesInfo(validationInfo.suspectReason);
         data.informatives = me.prepareRulesInfo(validationInfo.informativeReason);
         data.estimates = me.prepareRulesInfo(validationInfo.estimateReason, true);
