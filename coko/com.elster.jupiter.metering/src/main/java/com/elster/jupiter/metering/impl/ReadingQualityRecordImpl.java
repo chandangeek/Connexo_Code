@@ -69,6 +69,12 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
         return this;
     }
 
+    ReadingQualityRecordImpl init(ReadingQualityType type, CimChannel cimChannel, BaseReading baseReading, String comment) {
+        init(type, cimChannel, baseReading);
+        this.comment = comment;
+        return this;
+    }
+
     ReadingQualityRecordImpl init(ReadingQualityType type, CimChannel cimChannel, Instant timestamp) {
         this.channel.set(cimChannel.getChannel());
         this.readingType.set((IReadingType) cimChannel.getReadingType());
@@ -84,6 +90,10 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     static ReadingQualityRecordImpl from(DataModel dataModel, ReadingQualityType type, CimChannel cimChannel, Instant timestamp) {
         return dataModel.getInstance(ReadingQualityRecordImpl.class).init(type, cimChannel, timestamp);
+    }
+
+    static ReadingQualityRecordImpl from(DataModel dataModel, ReadingQualityType type, CimChannel cimChannel, BaseReading baseReading, String comment) {
+        return dataModel.getInstance(ReadingQualityRecordImpl.class).init(type, cimChannel, baseReading, comment);
     }
 
     @Override

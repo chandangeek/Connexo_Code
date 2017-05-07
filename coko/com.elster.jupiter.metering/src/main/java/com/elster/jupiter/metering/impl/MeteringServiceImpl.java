@@ -46,8 +46,11 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.ReadingQualityComment;
+import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -582,6 +585,24 @@ public class MeteringServiceImpl implements ServerMeteringService {
                 .forEach(vault -> vault.setRetentionDays(purgeConfiguration.dailyDays()));
     }
 
+    @Override
+    public List<ReadingQualityComment> getAllReadingQualityComments(ReadingQualityCommentCategory category) {
+        return dataModel.mapper(ReadingQualityComment.class).select(Where.where("category").isEqualTo(category));
+    }
+
+    @Override
+    public ReadingQualityComment createReadingQualityComment(ReadingQualityCommentCategory category, String comment) {
+        ReadingQualityCommentImpl readingQualityComment = dataModel.getInstance(ReadingQualityCommentImpl.class);
+        readingQualityComment.init(comment, category);
+        dataModel.persist(readingQualityComment);
+        return readingQualityComment;
+    }
+
+    @Override
+    public Optional<ReadingQualityComment> findReadingQualityComment(long id) {
+        return this.dataModel.mapper(ReadingQualityComment.class).getOptional(id);
+    }
+
     private Predicate<Vault> testRetention(Optional<Period> periodHolder) {
         return vault -> periodHolder.filter(period -> !vault.getRetention().equals(period)).isPresent();
     }
@@ -738,6 +759,12 @@ public class MeteringServiceImpl implements ServerMeteringService {
     public Optional<GasDayOptions> getGasDayOptions() {
         return this.dataModel.mapper(GasDayOptions.class).getOptional(GasDayOptionsImpl.SINGLETON_ID);
     }
+
+    @Override
+    public List<MeterRole> getMeterRoles() {
+        return dataModel.mapper(MeterRole.class).find();
+    }
+
 
     @Override
     public boolean isCalendarEffectiveForAnyUsagePoint(Calendar calendar) {

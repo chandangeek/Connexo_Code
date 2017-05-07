@@ -44,6 +44,8 @@ public interface CimChannel {
 
     ReadingQualityRecord createReadingQuality(ReadingQualityType type, Instant timestamp);
 
+    ReadingQualityRecord createReadingQuality(ReadingQualityType type, BaseReading baseReading, String comment);
+
     /**
      * Initializes a new search of {@link ReadingQualityRecord ReadingQualityRecords}
      *

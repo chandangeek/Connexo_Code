@@ -157,8 +157,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                                 Function.identity()));
 
         // return elements, sorted by timestamp
-        TreeMap<Instant, IntervalReadingRecord> orderedReadings = new TreeMap<>();
-        orderedReadings.putAll(calculatedReadings);
+        Map<Instant, IntervalReadingRecord> orderedReadings = new TreeMap<>(calculatedReadings);
         orderedReadings.putAll(persistedReadings);
 
         return new ArrayList<>(orderedReadings.values());
