@@ -154,4 +154,11 @@ public class OutputChannelDataInfoFactory {
                 .map(ReadingQualityComment::getId)
                 .findFirst().orElse(0L);
     }
+
+    public PrevalidatedChannelDataInfo createPrevalidatedChannelDataInfo(DataValidationStatus dataValidationStatus) {
+        PrevalidatedChannelDataInfo info = new PrevalidatedChannelDataInfo();
+        info.readingTime = dataValidationStatus.getReadingTimestamp();
+        info.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
+        return info;
+    }
 }
