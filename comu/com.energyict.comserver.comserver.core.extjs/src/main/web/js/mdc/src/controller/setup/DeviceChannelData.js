@@ -123,6 +123,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     channelModel: null,
     fromSpecification: false,
     hasEstimationRule: false,
+    numberOfPotentialSuspects: 0,
 
     tabLookupTable: {
         spec: 0,
@@ -158,6 +159,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             },
             '#deviceLoadProfileChannelData #undo-button': {
                 click: this.undoChannelDataChanges
+            },
+            '#deviceLoadProfileChannelData #pre-validate-button': {
+                click: this.preValidateReadings
             },
             'reading-copy-from-reference-window #copy-reading-button': {
                 click: this.copyFromReferenceUpdateGrid
@@ -637,14 +641,19 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         me.getPage().down('#save-changes-button').enable();
         me.getPage().down('#undo-button').enable();
+        me.getPage().down('#pre-validate-button').enable();
+        me.numberOfPotentialSuspects = 0;
     },
 
-    saveChannelDataChanges: function () {
+    saveChannelDataChanges: function (getConfirmationWindow) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             changedData = me.getChangedData(me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData')),
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
+        if (Ext.isFunction(getConfirmationWindow)) {
+            getConfirmationWindow().close();
+        }
         viewport.setLoading();
         if (!Ext.isEmpty(changedData)) {
             Ext.Ajax.request({
@@ -654,7 +663,12 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 timeout: 300000,
                 success: function () {
                     router.getRoute().forward(router.arguments, Uni.util.QueryString.getQueryStringValues());
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.successSavingMessage', 'MDC', 'Channel data have been saved'));
+                    if (me.numberOfPotentialSuspects > 0) {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('channelData.successMsg.potentialSuspects.', me.numberOfPotentialSuspects, 'MDC', null,
+                            'Channel data have been saved with {0} potential suspect', 'Channel data have been saved with {0} potential suspects'));
+                    } else {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.successSavingMessage', 'MDC', 'Channel data have been saved'));
+                    }
                 },
                 failure: function (response) {
                     viewport.setLoading(false);
@@ -760,7 +774,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         this.showPreview(context.grid.getSelectionModel(), context.record);
     },
 
-    resumeEditorFieldValidation: function (editor, event) {
+    resumeEditorFieldValidation: function (editor, event, doNotSelect) {
         var me = this,
             chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart,
             point = chart.get(event.record.get('interval').start),
@@ -775,10 +789,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
 
 
-        if (event.record.isModified('value')) {
+        if (event.record.isModified('value') || (event.record.get('potentialSuspect') && doNotSelect)) {
             me.getPage().down('#save-changes-button').isDisabled() && me.showButtons();
 
-            Ext.suspendLayouts(true);
+            Ext.suspendLayouts();
             if (!event.record.get('value')) {
                 point.update({y: null});
             } else {
@@ -789,11 +803,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 updatedObj = {
                     y: value,
                     collectedValue: collectedValue,
-                    color: 'rgba(112,187,81,0.3)'
+                    color: event.record.get('potentialSuspect') ? 'rgba(255, 0, 0, 0.3)' : 'rgba(112,187,81,0.3)'
                 };
-                point.update(updatedObj);
+                point.update(updatedObj, !doNotSelect);
                 point.select(false);
-                me.getPage().down('#channel-data-preview-container').fireEvent('rowselect', event.record);
+                me.getPage().down('#channel-data-preview-container').fireEvent('rowselect', event.record, null, doNotSelect);
             }
 
             if (event.column) {
@@ -804,7 +818,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 grid.getView().refreshNode(grid.getStore().indexOf(event.record));
                 event.record.get('confirmed') && event.record.set('confirmed', false);
             }
-            Ext.resumeLayouts();
+            Ext.resumeLayouts(true);
         } else if (!event.record.isModified('collectedValue') && condition) {
             me.resetChanges(event.record, point);
         }
@@ -816,6 +830,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             grid = me.getPage().down('deviceLoadProfileChannelDataGrid'),
             store = grid.getStore(),
             color = '#70BB51';
+
+        if (record.get('potentialSuspect') || record.get('bulkPotentialSuspect')) {
+            record.beginEdit();
+            record.set('potentialSuspect', false);
+            record.set('bulkPotentialSuspect', false);
+            record.set('validationRules', []);
+            record.set('bulkValidationRules', []);
+            record.endEdit(true);
+        }
 
         if (record.get('mainValidationInfo').estimatedByRule) {
             color = '#568343';
@@ -838,6 +861,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         if (!store.getUpdatedRecords().length) {
             me.getPage().down('#save-changes-button').disable();
             me.getPage().down('#undo-button').disable();
+            me.getPage().down('#pre-validate-button').disable();
         }
     },
 
@@ -1845,6 +1869,144 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 app.fireEvent('rule-with-attributes-loaded', rule);
                 app.fireEvent('changecontentevent', widget);
             }
+        }
+    },
+
+    preValidateReadings: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            store = me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'),
+            viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            changedData = me.getChangedData(store),
+            jsonData = {
+                validateUntil: store.getAt(0).get('interval').end,
+                editedReadings: me.getChangedData(store)
+            },
+            firstModifiedReadingTimestamp = changedData[changedData.length - 1].interval.end;
+
+        viewport.setLoading();
+        Ext.Ajax.request({
+            url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data/prevalidate', router.arguments.deviceId, router.arguments.channelId),
+            method: 'PUT',
+            jsonData: Ext.encode(jsonData),
+            success: function (response) {
+                var responseText = Ext.decode(response.responseText, true);
+                if (responseText.potentialSuspects) {
+                    responseText.potentialSuspects.length ? me.showPotentialSuspectsWindow(firstModifiedReadingTimestamp, responseText) : me.showEmptyPotentialSuspectsWindow(firstModifiedReadingTimestamp);
+                }
+            },
+            callback: function () {
+                viewport.setLoading(false);
+            }
+        });
+    },
+
+    showEmptyPotentialSuspectsWindow: function (firstModifiedReadingTimestamp) {
+        var me = this,
+            confirmationWindow = Ext.widget('confirmation-window', {
+                itemId: 'empty-potential-suspects-window',
+                closeAction: 'destroy',
+                green: true,
+                confirmText: Uni.I18n.translate('general.saveChanges', 'MDC', 'Save changes'),
+                cancelText: Uni.I18n.translate('general.close', 'MDC', 'Close'),
+                confirmation: me.saveChannelDataChanges.bind(me, getConfirmationWindow),
+                listeners: {
+                    close: function () {
+                        Ext.ComponentQuery.query('#contentPanel')[0].setLoading();
+                        Ext.defer(me.resetPotentialSuspects, 100, me, [true]);
+                    }
+                }
+            });
+
+        confirmationWindow.show({
+            title: Uni.I18n.translate('preValidate.noPotentialSuspectsFound', 'MDC', 'No potential suspect readings found.'),
+            msg: Uni.I18n.translate('preValidate.noPotentialSuspectsFoundMsg', 'MDC', 'No potential suspect readings found in visible part of data starting from {0}.', [Uni.DateTime.formatDateTimeShort(firstModifiedReadingTimestamp)], false),
+            icon: 'icon-checkmark'
+        });
+
+        function getConfirmationWindow() {
+            return confirmationWindow
+        }
+    },
+
+    showPotentialSuspectsWindow: function (firstModifiedReadingTimestamp, response) {
+        var me = this,
+            mainPage = Ext.ComponentQuery.query('#contentPanel')[0],
+            confirmationWindow = Ext.widget('confirmation-window', {
+                itemId: 'potential-suspects-window',
+                closeAction: 'destroy',
+                cancelText: Uni.I18n.translate('general.close', 'MDC', 'Close'),
+                noConfirmBtn: true,
+                listeners: {
+                    close: function () {
+                        mainPage.setLoading();
+                        Ext.defer(function() {
+                            var me = this,
+                                grid = me.getPage().down('#deviceLoadProfileChannelDataGrid'),
+                                store = grid.getStore(),
+                                record,
+                                index;
+
+                            me.resetPotentialSuspects();
+                            Ext.suspendLayouts();
+                            response.potentialSuspects.forEach(function(potentialSuspect) {
+                                index = store.findBy(function(item) {
+                                    return item.get('interval').end === potentialSuspect.readingTime;
+                                });
+                                record = store.getAt(index);
+                                record.beginEdit();
+                                record.set('potentialSuspect', Boolean(potentialSuspect.validationRules.length));
+                                record.set('bulkPotentialSuspect', Boolean(potentialSuspect.bulkValidationRules.length));
+                                record.set('validationRules', potentialSuspect.validationRules);
+                                record.set('bulkValidationRules', potentialSuspect.bulkValidationRules);
+                                record.endEdit(true);
+                                grid.getView().refreshNode(index);
+                                me.resumeEditorFieldValidation(grid.editingPlugin, {
+                                    record: record
+                                }, true);
+                            });
+                            me.getPage().down('#deviceLoadProfileChannelGraphView').chart.redraw();
+                            Ext.resumeLayouts(true);
+                            me.numberOfPotentialSuspects = response.potentialSuspects.length;
+                            mainPage.setLoading(false);
+                        }, 100, me);
+                    }
+                }
+            });
+
+        confirmationWindow.show({
+            title: Uni.I18n.translatePlural('preValidate.potentialSuspectsFound', response.total, 'MDC', null, '{0} potential suspect reading found.', '{0} potential suspect readings found.'),
+            msg: Uni.I18n.translate('preValidate.potentialSuspectsFoundMsg', 'MDC', 'There are potential suspects in visible part of data starting from {0}.', [Uni.DateTime.formatDateTimeShort(firstModifiedReadingTimestamp)], false)
+        });
+    },
+
+    resetPotentialSuspects: function (redrawChart) {
+        var me = this,
+            grid = me.getPage().down('#deviceLoadProfileChannelDataGrid'),
+            store = grid.getStore();
+
+        me.numberOfPotentialSuspects = 0;
+        if (redrawChart) {
+            Ext.suspendLayouts();
+        }
+        store.getRange().forEach(function(reading) {
+            if (reading.get('potentialSuspect') || reading.get('bulkPotentialSuspect')) {
+                reading.beginEdit();
+                reading.set('potentialSuspect', false);
+                reading.set('bulkPotentialSuspect', false);
+                reading.set('validationRules', []);
+                reading.set('bulkValidationRules', []);
+                reading.endEdit(true);
+                grid.getView().refreshNode(store.indexOf(reading));
+                me.resumeEditorFieldValidation(grid.editingPlugin, {
+                    record: reading
+                }, true);
+            }
+        });
+        if (redrawChart) {
+            me.getPage().down('#deviceLoadProfileChannelGraphView').chart.redraw();
+            Ext.resumeLayouts(true);
+            Ext.ComponentQuery.query('#contentPanel')[0].setLoading(false);
         }
     }
 });
