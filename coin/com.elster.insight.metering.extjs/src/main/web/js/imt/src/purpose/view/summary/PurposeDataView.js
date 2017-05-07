@@ -207,7 +207,6 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
 
     onOutputsPageChanged: function (page, pageSize) {
         var me = this;
-        debugger;
         me.outputs.clearFilter(true);
         me.outputs.filterBy(function (record) {
             return pageSize * page <=  record.index && record.index < pageSize * (page + 1);
