@@ -103,6 +103,7 @@ public class ChannelResource {
     private final TransactionService transactionService;
     private final Provider<ChannelValidationResource> channelValidationResourceProvider;
     private final Provider<ChannelEstimationResource> channelEstimationResourceProvider;
+    private final ChannelReferenceDataCopier channelReferenceDataCopier;
 
     @Inject
     public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper,
@@ -111,7 +112,7 @@ public class ChannelResource {
                            EstimationHelper estimationHelper, TopologyService topologyService, MeteringService meteringService,
                            EstimationRuleInfoFactory estimationRuleInfoFactory, DeviceConfigurationService deviceConfigurationService,
                            TransactionService transactionService, Provider<ChannelValidationResource> channelValidationResourceProvider,
-                           Provider<ChannelEstimationResource> channelEstimationResourceProvider) {
+                           Provider<ChannelEstimationResource> channelEstimationResourceProvider, ChannelReferenceDataCopier channelReferenceDataCopier) {
         this.exceptionFactory = exceptionFactory;
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
@@ -126,6 +127,7 @@ public class ChannelResource {
         this.transactionService = transactionService;
         this.channelValidationResourceProvider = channelValidationResourceProvider;
         this.channelEstimationResourceProvider = channelEstimationResourceProvider;
+        this.channelReferenceDataCopier = channelReferenceDataCopier;
     }
 
     @GET
@@ -676,7 +678,7 @@ public class ChannelResource {
                                                                      ReferenceChannelDataInfo referenceChannelDataInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-        return new ChannelReferenceDataCopier(meteringService, resourceHelper, deviceDataInfoFactory, channel).get(referenceChannelDataInfo);
+        return channelReferenceDataCopier.copy(channel, referenceChannelDataInfo);
     }
 
     @GET

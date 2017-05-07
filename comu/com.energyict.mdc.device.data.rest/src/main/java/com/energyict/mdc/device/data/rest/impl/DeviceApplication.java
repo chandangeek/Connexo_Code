@@ -612,6 +612,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(ReadingQualityInfoFactory.class).to(ReadingQualityInfoFactory.class);
             bind(ChannelValidationRuleInfoFactory.class).to(ChannelValidationRuleInfoFactory.class);
             bind(ChannelEstimationRuleInfoFactory.class).to(ChannelEstimationRuleInfoFactory.class);
+            bind(ChannelReferenceDataCopier.class).to(ChannelReferenceDataCopier.class);
         }
     }
 }
