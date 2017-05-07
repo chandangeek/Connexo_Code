@@ -25,6 +25,7 @@ import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
@@ -945,8 +946,9 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(effectiveMC1.getRange()).thenReturn(Range.all());
         when(effectiveMC1.overlaps(any())).thenReturn(true);
         when(effectiveMC1.isEffectiveAt(Instant.ofEpochMilli(REFERENCE_INTERVAL_END))).thenReturn(true);
-        ReadingQualityFetcher readingQualityFetcher = mock(ReadingQualityFetcher.class);
+        ReadingQualityWithTypeFetcher readingQualityFetcher = mock(ReadingQualityWithTypeFetcher.class);
         when(channel1.findReadingQualities()).thenReturn(readingQualityFetcher);
+        doReturn(readingQualityFetcher).when(readingQualityFetcher).ofQualityIndex(QualityCodeIndex.SUSPECT);
         when(readingQualityFetcher.inTimeInterval(any())).thenReturn(readingQualityFetcher);
         when(readingQualityFetcher.stream()).thenReturn(Stream.empty());
 

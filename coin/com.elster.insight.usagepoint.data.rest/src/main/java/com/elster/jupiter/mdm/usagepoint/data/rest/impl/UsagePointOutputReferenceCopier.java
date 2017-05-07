@@ -5,7 +5,9 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.AggregatedChannel;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -23,6 +25,7 @@ import com.elster.jupiter.util.Ranges;
 
 import com.google.common.collect.Range;
 
+import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
@@ -38,28 +41,20 @@ public class UsagePointOutputReferenceCopier {
     private final ResourceHelper resourceHelper;
     private final OutputChannelDataInfoFactory outputChannelDataInfoFactory;
     private final MeteringService meteringService;
-    private final AggregatedChannel sourceChannel;
-
-    private ReferenceChannelDataInfo referenceChannelDataInfo;
-    private List<OutputChannelDataInfo> resultReadings = new ArrayList<>();
-    private Map<Range<Instant>, Range<Instant>> correctedRanges;
-    private Range<Instant> referenceRange;
-    private List<Instant> readingTimeStamps;
 
     private final ReadingTypeComparator readingTypeComparator = ReadingTypeComparator.ignoring(ReadingTypeComparator.Attribute.Multiplier);
 
+    @Inject
     public UsagePointOutputReferenceCopier(MeteringService meteringService,
                                            ResourceHelper resourceHelper,
-                                           OutputChannelDataInfoFactory outputChannelDataInfoFactory,
-                                           AggregatedChannel sourceChannel) {
+                                           OutputChannelDataInfoFactory outputChannelDataInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.outputChannelDataInfoFactory = outputChannelDataInfoFactory;
         this.meteringService = meteringService;
-        this.sourceChannel = sourceChannel;
     }
 
-    public List<OutputChannelDataInfo> get(ReferenceChannelDataInfo referenceChannelDataInfo) {
-        this.referenceChannelDataInfo = referenceChannelDataInfo;
+    public List<OutputChannelDataInfo> copy(AggregatedChannel sourceChannel, ReferenceChannelDataInfo referenceChannelDataInfo) {
+        List<OutputChannelDataInfo> resultReadings = new ArrayList<>();
 
         UsagePoint usagePoint = resourceHelper.findUsagePointByName(referenceChannelDataInfo.referenceUsagePoint)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "referenceUsagePoint", referenceChannelDataInfo.referenceUsagePoint));
@@ -68,14 +63,12 @@ public class UsagePointOutputReferenceCopier {
         ReadingType readingType = meteringService.getReadingType(referenceChannelDataInfo.readingType)
                 .orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "readingType", referenceChannelDataInfo.readingType));
 
-        resultReadings = new ArrayList<>();
-
-        correctedRanges = getCorrectedTimeStampsForReference(referenceChannelDataInfo.startDate, referenceChannelDataInfo.intervals);
-        readingTimeStamps = correctedRanges.values().stream().filter(Range::hasUpperBound).map(Range::upperEndpoint).collect(Collectors.toList());
+        Map<Range<Instant>, Range<Instant>> correctedRanges = getCorrectedTimeStampsForReference(referenceChannelDataInfo.startDate, referenceChannelDataInfo.intervals);
+        List<Instant> readingTimeStamps = correctedRanges.values().stream().filter(Range::hasUpperBound).map(Range::upperEndpoint).collect(Collectors.toList());
         if (readingTimeStamps.isEmpty()) {
             return Collections.emptyList();
         }
-        referenceRange = correctedRanges.values().stream().reduce(Range::span).get();
+        Range<Instant> referenceRange = correctedRanges.values().stream().reduce(Range::span).get();
 
         List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfigurations = usagePoint.getEffectiveMetrologyConfigurations(referenceRange).stream()
                 .filter(emc -> emc.getRange().isConnected(referenceRange) && readingTimeStamps.stream().anyMatch(emc::isEffectiveAt)).collect(Collectors.toList());
@@ -96,23 +89,26 @@ public class UsagePointOutputReferenceCopier {
                     .getIntervalReadings(Ranges.copy(referenceRange.intersection(effectiveMetrologyConfigurationOnUsagePoint.getRange())).asOpenClosed()).stream()
                     .filter(readingRecord -> correctedRanges.keySet().stream().anyMatch(r -> r.upperEndpoint().equals(readingRecord.getTimeStamp())))
                     .collect(Collectors.toMap(BaseReading::getTimeStamp, Function.identity(), (a, b) -> a));
-            Map<Instant, IntervalReadingRecord> referenceRecords = referenceChannel
-                    .getIntervalReadings(Ranges.copy(referenceRange.intersection(effectiveMetrologyConfigurationOnUsagePoint.getRange())).asOpenClosed()).stream()
-                    .filter(readingRecord -> readingTimeStamps.contains(readingRecord.getTimeStamp()))
-                    .collect(Collectors.toMap(BaseReading::getTimeStamp, Function.identity(), (a, b) -> a));
             Map<Instant, ReadingQualityRecord> referenceReadingQualities = referenceChannel.findReadingQualities()
+                    .ofQualityIndex(QualityCodeIndex.SUSPECT)
                     .inTimeInterval(Ranges.copy(referenceRange.intersection(effectiveMetrologyConfigurationOnUsagePoint.getRange())).asOpenClosed()).stream()
                     .filter(ReadingQualityRecord::isSuspect)
                     .filter(readingQualityRecord -> readingTimeStamps.contains(readingQualityRecord.getReadingTimestamp()))
                     .collect(Collectors.toMap(ReadingQualityRecord::getReadingTimestamp, Function.identity(), (a, b) -> a));
+            Map<Instant, IntervalReadingRecord> referenceRecords = referenceChannel
+                    .getIntervalReadings(Ranges.copy(referenceRange.intersection(effectiveMetrologyConfigurationOnUsagePoint.getRange())).asOpenClosed()).stream()
+                    .filter(readingRecord -> readingTimeStamps.contains(readingRecord.getTimeStamp()))
+                    .filter(readingRecord -> referenceChannelDataInfo.allowSuspectData
+                            || !Optional.ofNullable(referenceReadingQualities.get(readingRecord.getTimeStamp())).isPresent())
+                    .collect(Collectors.toMap(BaseReading::getTimeStamp, Function.identity(), (a, b) -> a));
 
             correctedRanges.entrySet().stream().filter(e -> effectiveMetrologyConfigurationOnUsagePoint.overlaps(e.getValue())).forEach(range -> {
                 Optional<IntervalReadingRecord> referenceRecord = Optional.ofNullable(referenceRecords.get(range.getValue().upperEndpoint()));
                 Optional<IntervalReadingRecord> sourceRecord = Optional.ofNullable(sourceRecords.get(range.getKey().upperEndpoint()));
                 if (sourceRecord.isPresent() && referenceRecord.isPresent()) {
-                    copyRecord(sourceRecord.get(), referenceRecord.get(), referenceReadingQualities);
+                    resultReadings.add(copyRecord(sourceRecord.get(), referenceRecord.get(), referenceChannelDataInfo));
                 } else if (referenceRecord.isPresent()) {
-                    copyRecord(referenceRecord.get(), range.getKey(), referenceReadingQualities);
+                    resultReadings.add(copyRecord(referenceRecord.get(), range.getKey(), sourceChannel, referenceChannelDataInfo));
                 }
             });
         }
@@ -123,41 +119,22 @@ public class UsagePointOutputReferenceCopier {
         }
     }
 
-    private void copyRecord(IntervalReadingRecord referenceReading, Range<Instant> sourceInterval, Map<Instant, ReadingQualityRecord> referenceReadingQualities) {
+    private OutputChannelDataInfo copyRecord(IntervalReadingRecord referenceReading, Range<Instant> sourceInterval, Channel sourceChannel, ReferenceChannelDataInfo referenceChannelDataInfo) {
         OutputChannelDataInfo channelDataInfo = new OutputChannelDataInfo();
         channelDataInfo.value = referenceReading.getValue()
                 .scaleByPowerOfTen(referenceReading.getReadingType().getMultiplier().getMultiplier() - sourceChannel.getMainReadingType().getMultiplier().getMultiplier());
-        if (referenceChannelDataInfo.commentId != null) {
-            resourceHelper.getReadingQualityComment(referenceChannelDataInfo.commentId)
-                    .ifPresent(comment -> {
-                        channelDataInfo.commentId = comment.getId();
-                        channelDataInfo.commentValue = comment.getComment();
-                    });
-        }
         channelDataInfo.isProjected = referenceChannelDataInfo.projectedValue;
         channelDataInfo.interval = IntervalInfo.from(sourceInterval);
-        if (referenceChannelDataInfo.allowSuspectData || !Optional.ofNullable(referenceReadingQualities.get(referenceReading.getTimeStamp()))
-                .filter(ReadingQualityRecord::isSuspect)
-                .isPresent()) {
-            resultReadings.add(channelDataInfo);
-        }
+        return channelDataInfo;
     }
 
-    private void copyRecord(IntervalReadingRecord sourceRecord, IntervalReadingRecord referenceReading, Map<Instant, ReadingQualityRecord> referenceReadingQualities) {
+    private OutputChannelDataInfo copyRecord(IntervalReadingRecord sourceRecord, IntervalReadingRecord referenceReading, ReferenceChannelDataInfo referenceChannelDataInfo) {
         OutputChannelDataInfo channelDataInfo = outputChannelDataInfoFactory.createUpdatedChannelDataInfo(sourceRecord, referenceReading.getValue()
-                        .scaleByPowerOfTen(referenceReading.getReadingType().getMultiplier().getMultiplier() - sourceRecord
-                                .getReadingType()
-                                .getMultiplier()
-                                .getMultiplier()),
-                referenceChannelDataInfo.projectedValue, referenceChannelDataInfo.commentId != null
-                        ? resourceHelper.getReadingQualityComment(referenceChannelDataInfo.commentId)
-                        : Optional.empty());
+                        .scaleByPowerOfTen(referenceReading.getReadingType().getMultiplier().getMultiplier() - sourceRecord.getReadingType().getMultiplier().getMultiplier()),
+                referenceChannelDataInfo.projectedValue,
+                Optional.empty());
         channelDataInfo.isProjected = referenceChannelDataInfo.projectedValue;
-        if (referenceChannelDataInfo.allowSuspectData || !Optional.ofNullable(referenceReadingQualities.get(referenceReading.getTimeStamp()))
-                .filter(ReadingQualityRecord::isSuspect)
-                .isPresent()) {
-            resultReadings.add(channelDataInfo);
-        }
+        return channelDataInfo;
     }
 
     private Map<Range<Instant>, Range<Instant>> getCorrectedTimeStampsForReference(Instant referenceStartDate, List<IntervalInfo> intervals) {

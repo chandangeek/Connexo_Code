@@ -451,6 +451,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(ChannelEstimationRuleInfoFactory.class).to(ChannelEstimationRuleInfoFactory.class);
             bind(MetrologyConfigurationHistoryInfoFactory.class).to(MetrologyConfigurationHistoryInfoFactory.class);
             bind(userService).to(UserService.class);
+            bind(UsagePointOutputReferenceCopier.class).to(UsagePointOutputReferenceCopier.class);
         }
     }
 }

@@ -35,7 +35,6 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
-import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -122,6 +121,7 @@ public class UsagePointOutputResource {
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
     private final UsagePointConfigurationService usagePointConfigurationService;
     private final DataAggregationService dataAggregationService;
+    private final UsagePointOutputReferenceCopier usagePointOutputReferenceCopier;
 
     private final Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider;
     private final Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider;
@@ -149,7 +149,7 @@ public class UsagePointOutputResource {
             EstimationRuleInfoFactory estimationRuleInfoFactory,
             UsagePointConfigurationService usagePointConfigurationService,
             DataAggregationService dataAggregationService,
-            Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider,
+            UsagePointOutputReferenceCopier usagePointOutputReferenceCopier, Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider,
             Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
@@ -170,6 +170,7 @@ public class UsagePointOutputResource {
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.dataAggregationService = dataAggregationService;
+        this.usagePointOutputReferenceCopier = usagePointOutputReferenceCopier;
         this.usagePointOutputValidationResourceProvider = usagePointOutputValidationResourceProvider;
         this.usagePointOutputEstimationResourceProvider = usagePointOutputEstimationResourceProvider;
     }
@@ -552,7 +553,7 @@ public class UsagePointOutputResource {
         }
         AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
 
-        return new UsagePointOutputReferenceCopier(meteringService, resourceHelper, outputChannelDataInfoFactory, channel).get(referenceChannelDataInfo);
+        return usagePointOutputReferenceCopier.copy(channel, referenceChannelDataInfo);
     }
 
     @GET
