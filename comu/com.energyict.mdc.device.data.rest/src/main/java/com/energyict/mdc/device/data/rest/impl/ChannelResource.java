@@ -18,7 +18,6 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -31,7 +30,6 @@ import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -69,10 +67,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -82,7 +78,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -107,6 +102,7 @@ public class ChannelResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final Provider<ChannelValidationResource> channelValidationResourceProvider;
     private final Provider<ChannelEstimationResource> channelEstimationResourceProvider;
+    private final ChannelReferenceDataCopier channelReferenceDataCopier;
 
     @Inject
     public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper,
@@ -115,7 +111,7 @@ public class ChannelResource {
                            EstimationHelper estimationHelper, TopologyService topologyService, MeteringService meteringService,
                            EstimationRuleInfoFactory estimationRuleInfoFactory, DeviceConfigurationService deviceConfigurationService,
                            Provider<ChannelValidationResource> channelValidationResourceProvider,
-                           Provider<ChannelEstimationResource> channelEstimationResourceProvider) {
+                           Provider<ChannelEstimationResource> channelEstimationResourceProvider, ChannelReferenceDataCopier channelReferenceDataCopier) {
         this.exceptionFactory = exceptionFactory;
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
@@ -130,6 +126,7 @@ public class ChannelResource {
         this.deviceConfigurationService = deviceConfigurationService;
         this.channelValidationResourceProvider = channelValidationResourceProvider;
         this.channelEstimationResourceProvider = channelEstimationResourceProvider;
+        this.channelReferenceDataCopier = channelReferenceDataCopier;
     }
 
     @GET
@@ -703,7 +700,7 @@ public class ChannelResource {
                                                                      ReferenceChannelDataInfo referenceChannelDataInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-        return new ChannelReferenceDataCopier(meteringService, resourceHelper, deviceDataInfoFactory, channel).get(referenceChannelDataInfo);
+        return channelReferenceDataCopier.copy(channel, referenceChannelDataInfo);
     }
 
     @GET
