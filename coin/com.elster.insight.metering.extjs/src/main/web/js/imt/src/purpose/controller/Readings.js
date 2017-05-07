@@ -334,7 +334,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                 event.column.getEditor().allowBlank = true;
             }
 
-            if ((event.record.isModified('value') && this.valueBeforeEdit !== event.record.get('value')) || event.record.get('potentialSuspect')) {
+            if ((event.record.isModified('value') && this.valueBeforeEdit !== event.record.get('value')) || (event.record.get('potentialSuspect') && doNotSelect)) {
                 grid.down('#save-changes-button').isDisabled() && me.showButtons();
 
                 Ext.suspendLayouts();
@@ -356,14 +356,13 @@ Ext.define('Imt.purpose.controller.Readings', {
                     me.getOutputReadings().down('#output-readings-preview-container').fireEvent('rowselect', event.record, null, doNotSelect);
                 }
 
-                /*if (!event.record.get('estimatedNotSaved')) {
-                    event.record.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
-                }*/
                 if (event.column) {
                     event.record.set('validationResult', 'validationStatus.ok');
                     event.record.set('isProjected', false);
                     event.record.set('ruleId', 0);
-
+                    if (!event.record.get('estimatedNotSaved')) {
+                        event.record.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+                    }
                     grid.getView().refreshNode(grid.getStore().indexOf(event.record));
                     event.record.get('confirmed') && event.record.set('confirmed', false);
                 }
@@ -381,6 +380,14 @@ Ext.define('Imt.purpose.controller.Readings', {
             grid = me.getReadingsList(),
             store = grid.getStore(),
             color = '#70BB51';
+
+        if (record.get('potentialSuspect')) {
+            record.beginEdit();
+            record.set('potentialSuspect', false);
+            record.set('validationRules', []);
+            record.endEdit(true);
+        }
+
         if (!Ext.isEmpty(record.get('estimatedByRule'))) {
             color = '#568343';
         } else if (properties.notValidated) {
@@ -1130,7 +1137,10 @@ Ext.define('Imt.purpose.controller.Readings', {
                 cancelText: Uni.I18n.translate('general.close', 'IMT', 'Close'),
                 confirmation: me.saveChannelDataChanges.bind(me, getConfirmationWindow),
                 listeners: {
-                    close: me.resetPotentialSuspects.bind(me)
+                    close: function () {
+                        Ext.ComponentQuery.query('#contentPanel')[0].setLoading();
+                        Ext.defer(me.resetPotentialSuspects, 100, me, [true]);
+                    }
                 }
             });
 
@@ -1147,13 +1157,44 @@ Ext.define('Imt.purpose.controller.Readings', {
 
     showPotentialSuspectsWindow: function (firstModifiedReadingTimestamp, response) {
         var me = this,
+            mainPage = Ext.ComponentQuery.query('#contentPanel')[0],
             confirmationWindow = Ext.widget('confirmation-window', {
                 itemId: 'potential-suspects-window',
                 closeAction: 'destroy',
                 cancelText: Uni.I18n.translate('general.close', 'IMT', 'Close'),
                 noConfirmBtn: true,
                 listeners: {
-                    close: me.applyPotentialSuspects.bind(me, response.potentialSuspects)
+                    close: function () {
+                        mainPage.setLoading();
+                        Ext.defer(function() {
+                            var me = this,
+                                grid = me.getReadingsList(),
+                                store = grid.getStore(),
+                                record,
+                                index;
+
+                            me.resetPotentialSuspects();
+                            Ext.suspendLayouts();
+                            response.potentialSuspects.forEach(function(potentialSuspect) {
+                                index = store.findBy(function(item) {
+                                    return item.get('interval').end === potentialSuspect.readingTime;
+                                });
+                                record = store.getAt(index);
+                                record.beginEdit();
+                                record.set('potentialSuspect', true);
+                                record.set('validationRules', potentialSuspect.validationRules);
+                                record.endEdit(true);
+                                grid.getView().refreshNode(index);
+                                me.resumeEditorFieldValidation(grid.editingPlugin, {
+                                    record: record
+                                }, true);
+                            });
+                            me.getReadingsGraph().chart.redraw();
+                            Ext.resumeLayouts(true);
+                            me.numberOfPotentialSuspects = response.potentialSuspects.length;
+                            mainPage.setLoading(false);
+                        }, 100, me);
+                    }
                 }
             });
 
@@ -1163,41 +1204,15 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
     },
 
-    applyPotentialSuspects: function (potentialSuspects) {
-        var me = this,
-            grid = me.getReadingsList(),
-            store = grid.getStore(),
-            record,
-            index;
-
-        me.resetPotentialSuspects();
-        Ext.suspendLayouts();
-        potentialSuspects.forEach(function(potentialSuspect) {
-            index = store.findBy(function(item) {
-                return item.get('interval').end === potentialSuspect.readingTime;
-            });
-            record = store.getAt(index);
-            record.beginEdit();
-            record.set('potentialSuspect', true);
-            record.set('validationRules', potentialSuspect.validationRules);
-            record.endEdit(true);
-            grid.getView().refreshNode(index);
-            me.resumeEditorFieldValidation(grid.editingPlugin, {
-                record: record
-            }, true);
-        });
-        me.getReadingsGraph().chart.redraw();
-        Ext.resumeLayouts(true);
-        me.numberOfPotentialSuspects = potentialSuspects.length;
-    },
-
-    resetPotentialSuspects: function () {
+    resetPotentialSuspects: function (redrawChart) {
         var me = this,
             grid = me.getReadingsList(),
             store = grid.getStore();
 
-        me.numberOfPotentialSuspects = 0;
-        Ext.suspendLayouts();
+        if (redrawChart) {
+            me.numberOfPotentialSuspects = 0;
+            Ext.suspendLayouts();
+        }
         store.getRange().forEach(function(reading) {
             if (reading.get('potentialSuspect')) {
                 reading.beginEdit();
@@ -1210,6 +1225,10 @@ Ext.define('Imt.purpose.controller.Readings', {
                 }, true);
             }
         });
-        Ext.resumeLayouts(true);
+        if (redrawChart) {
+            me.getReadingsGraph().chart.redraw();
+            Ext.resumeLayouts(true);
+            Ext.ComponentQuery.query('#contentPanel')[0].setLoading(false);
+        }
     }
 });
