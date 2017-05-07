@@ -157,6 +157,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     case 'suspect':
                         validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.suspect', 'MDC', 'Suspect') + ')' +
                             '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';
+                        if (validationInfo.estimatedByRule) {
+                            validationResultText += '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:green;"></span>';
+                        }
                         break;
                     case 'ok':
                         validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'MDC', 'Not suspect') + ')';
