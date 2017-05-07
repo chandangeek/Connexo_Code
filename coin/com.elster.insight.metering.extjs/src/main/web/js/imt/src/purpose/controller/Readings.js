@@ -970,6 +970,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         if (action === 'estimate') {
             reading.set('estimatedNotSaved', true);
             reading.set('estimatedByRule', true);
+            reading.set('modificationState', Uni.util.ReadingEditor.modificationState(null));
         }
         reading.set('isProjected', estimatedReading.isProjected);
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
