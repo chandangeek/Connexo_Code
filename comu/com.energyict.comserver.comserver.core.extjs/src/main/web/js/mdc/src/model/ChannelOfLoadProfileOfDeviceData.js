@@ -150,6 +150,24 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                 }
                 return result;
             }
+        },
+        {
+            name: 'potentialSuspect',
+            persist: false,
+            defaultValue: false
+        },
+        {
+            name: 'bulkPotentialSuspect',
+            persist: false,
+            defaultValue: false
+        },
+        {
+            name: 'validationRules',
+            persist: false
+        },
+        {
+            name: 'bulkValidationRules',
+            persist: false
         }
     ],
 

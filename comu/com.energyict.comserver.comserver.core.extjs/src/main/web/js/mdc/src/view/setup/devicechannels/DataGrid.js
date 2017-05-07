@@ -184,6 +184,13 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 items: [
                     {
                         xtype: 'button',
+                        itemId: 'pre-validate-button',
+                        text: Uni.I18n.translate('general.preValidate', 'MDC', 'Pre-validate'),
+                        privileges: Mdc.privileges.Device.administrateDeviceData,
+                        disabled: true
+                    },
+                    {
+                        xtype: 'button',
                         itemId: 'save-changes-button',
                         text: Uni.I18n.translate('general.saveChanges', 'MDC', 'Save changes'),
                         privileges: Mdc.privileges.Device.administrateDeviceData,
@@ -219,6 +226,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             validationInfo = validationFlag ? record.get(validationInfo) : validationInfo,
             status = validationInfo.validationResult ? validationInfo.validationResult.split('.')[1] : '',
             icon = '',
+            validationRules = validationFlag === 'mainValidationInfo' ? record.get('validationRules') : record.get('bulkValidationRules'),
             app,
             date,
             tooltipText,
@@ -260,7 +268,25 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.confirmed', 'MDC', 'Confirmed') + '"></span>';
         }
+        if ((record.get('potentialSuspect') || record.get('bulkPotentialSuspect')) && validationRules.length) {
+            icon = this.addPotentialSuspectFlag(icon, record, validationRules);
+        }
+        return value + icon + '<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    },
 
-        return value + icon;
+    addPotentialSuspectFlag: function (icon, record, validationRules) {
+        var validationRulesToken = '',
+            tooltip;
+
+        if (validationRules.length === 1) {
+            validationRulesToken = validationRules[0].name;
+        } else {
+            validationRulesToken = validationRules.reduce(function(previousValue, currentValue) {
+                return (Ext.isObject(previousValue) ? previousValue.name : previousValue) + ', ' + currentValue.name;
+            });
+        }
+        tooltip = Uni.I18n.translate('general.potentialSuspect', 'MDC', 'Potential suspect') + '.<br>' + Uni.I18n.translate('general.validationRules', 'MDC', 'Validation rules') + ': ' + validationRulesToken;
+        icon += '<span class="icon-flag6" style="margin-left:27px; color: red; position:absolute;" data-qtip="' + tooltip + '"></span>';
+        return icon;
     }
 });
