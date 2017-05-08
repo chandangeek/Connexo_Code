@@ -81,6 +81,7 @@ public class EstimationTaskBuilder extends NamedBuilder<EstimationTask, Estimati
         taskBuilder.setEndDeviceGroup(deviceGroup);
         taskBuilder.setScheduleExpression(scheduleExpression);
         taskBuilder.setNextExecution(nextExecution);
+        taskBuilder.setRevalidate(false);
 
         EstimationTask task = taskBuilder.create();
         applyPostBuilders(task);
