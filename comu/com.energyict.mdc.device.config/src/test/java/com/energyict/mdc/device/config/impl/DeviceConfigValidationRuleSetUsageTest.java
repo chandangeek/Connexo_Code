@@ -40,6 +40,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -139,6 +140,8 @@ public class DeviceConfigValidationRuleSetUsageTest {
     private InboundDeviceProtocolService inboundDeviceProtocolService;
     @Mock
     private LicensedProtocolService licensedProtocolService;
+    @Mock
+    private UserService userService;
 
     @Before
     public void setup() {
@@ -209,25 +212,6 @@ public class DeviceConfigValidationRuleSetUsageTest {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
-    }
-
-    private class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(LicenseService.class).toInstance(licenseService);
-            bind(IssueService.class).toInstance(issueService);
-            bind(PropertySpecService.class).toInstance(propertySpecService);
-            bind(ConnectionTypeService.class).toInstance(connectionTypeService);
-            bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
-            bind(DeviceProtocolMessageService.class).toInstance(deviceProtocolMessageService);
-            bind(DeviceProtocolSecurityService.class).toInstance(deviceProtocolSecurityService);
-            bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
-            bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
-            bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-        }
     }
 
     @Test
