@@ -52,15 +52,18 @@ public class Installer implements FullInstaller {
     private final EventService eventService;
     private final MessageService messageService;
     private final InstallerV10_2Impl installerV10_2;
+    private final PrivilegesProviderV10_3 privilegesProviderV10_3;
 
     @Inject
-    public Installer(DataModel dataModel, UserService userService, EventService eventService, MessageService messageService, InstallerV10_2Impl installerV10_2) {
+    public Installer(DataModel dataModel, UserService userService, EventService eventService, MessageService messageService,
+                     InstallerV10_2Impl installerV10_2, PrivilegesProviderV10_3 privilegesProviderV10_3) {
         super();
         this.dataModel = dataModel;
         this.userService = userService;
         this.eventService = eventService;
         this.messageService = messageService;
         this.installerV10_2 = installerV10_2;
+        this.privilegesProviderV10_3 = privilegesProviderV10_3;
     }
 
     @Override
@@ -88,6 +91,7 @@ public class Installer implements FullInstaller {
         );
         installerV10_2.install(dataModelUpgrader, logger);
         userService.addModulePrivileges(installerV10_2);
+        userService.addModulePrivileges(privilegesProviderV10_3);
     }
 
     private void addJupiterEventSubscribers() {
