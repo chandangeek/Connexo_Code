@@ -82,7 +82,6 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -160,8 +159,7 @@ public class InMemoryIntegrationPersistence {
                 StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler(
                         this.injector.getInstance(EventService.class),
                         this.injector.getInstance(BpmService.class),
-                        this.injector.getInstance(StateTransitionPropertiesProvider.class),
-                        this.injector.getInstance(HttpAuthenticationService.class));
+                        this.injector.getInstance(StateTransitionPropertiesProvider.class));
                 ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionTriggerEventTopicHandler);
                 com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler meteringTopicHandler =
                         new com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler(Clock.systemDefaultZone(),
