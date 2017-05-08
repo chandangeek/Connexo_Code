@@ -26,6 +26,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -63,6 +64,9 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         this.addPropertyValueInfoConverter(new DurationPropertyValueConverter(thesaurus));
         this.addPropertyValueInfoConverter(new TemporalAmountPropertyValueConverter(thesaurus));
         this.addPropertyValueInfoConverter(new TimeDurationPropertyValueConverter(thesaurus));
+        this.addPropertyValueInfoConverter(new NoneOrBigDecimalValueConverter());
+        this.addPropertyValueInfoConverter(new TwoValuesDifferenceValueConverter());
+        this.addPropertyValueInfoConverter(new NoneOrTimeDurationPropertyValueConverter(thesaurus));
     }
 
     @Override
@@ -99,9 +103,14 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
 
     @Override
     public PropertyInfo getPropertyInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider) {
+        return getPropertyInfo(propertySpec, propertyValueProvider, null);
+    }
+
+    @Override
+    public PropertyInfo getPropertyInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider, Function<String, Object> inheritedPropertyValueProvider) {
         PropertyType propertyType = getConverter(propertySpec).getPropertyType(propertySpec);
         PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo(propertyType, null, getPredefinedPropertyValueInfo(propertySpec, propertyType), null);
-        PropertyValueInfo propertyValueInfo = getPropertyValueInfo(propertySpec, propertyValueProvider);
+        PropertyValueInfo propertyValueInfo = getPropertyValueInfo(propertySpec, propertyValueProvider, inheritedPropertyValueProvider);
         return new PropertyInfo(propertySpec.getDisplayName(), propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
     }
 
@@ -115,9 +124,13 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
 
     @Override
     public List<PropertyInfo> getPropertyInfos(List<PropertySpec> propertySpecs, Map<String, Object> propertyValues) {
-        return propertySpecs
-                .stream()
-                .map(propertySpec -> getPropertyInfo(propertySpec, propertyValues::get))
+        return getPropertyInfos(propertySpecs, propertyValues, Collections.emptyMap());
+    }
+
+    @Override
+    public List<PropertyInfo> getPropertyInfos(List<PropertySpec> propertySpecs, Map<String, Object> propertyValues, Map<String, Object> inheritedPropertyValues) {
+        return propertySpecs.stream()
+                .map(propertySpec -> getPropertyInfo(propertySpec, propertyValues::get, inheritedPropertyValues::get))
                 .collect(Collectors.toList());
     }
 
@@ -136,17 +149,22 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         return new PropertyValueInfoServiceImpl();
     }
 
-    private PropertyValueInfo getPropertyValueInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider) {
+    private PropertyValueInfo getPropertyValueInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider, Function<String, Object> inheritedPropertyProvider) {
         Object propertyValue = getPropertyValue(propertySpec, propertyValueProvider);
+        Object inheritedValue = getPropertyValue(propertySpec, inheritedPropertyProvider);
         Object defaultValue = getDefaultValue(propertySpec);
-        return new PropertyValueInfo<>(propertyValue, defaultValue);
+        return new PropertyValueInfo<>(propertyValue, inheritedValue, defaultValue, null);
     }
 
     private Object getPropertyValue(PropertySpec propertySpec, Function<String, Object> propertyValueProvider) {
         if (propertyValueProvider == null) {
             return null;
         }
-        return getConverter(propertySpec).convertValueToInfo(propertySpec, propertyValueProvider.apply(propertySpec.getName()));
+        Object domainValue = propertyValueProvider.apply(propertySpec.getName());
+        if (domainValue == null) {
+            return null;
+        }
+        return getConverter(propertySpec).convertValueToInfo(propertySpec, domainValue);
     }
 
     private Object getDefaultValue(PropertySpec propertySpec) {
@@ -197,7 +215,8 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
             }
         }
 
-        return new PredefinedPropertyValuesInfo<>(possibleObjects, possibleValues.getSelectionMode(), propertySpec.getPossibleValues().isExhaustive(), propertySpec.getPossibleValues().isEditable());
+        return new PredefinedPropertyValuesInfo<>(possibleObjects, possibleValues.getSelectionMode(), propertySpec.getPossibleValues()
+                .isExhaustive(), propertySpec.getPossibleValues().isEditable());
     }
 
     private boolean hasValue(PropertyInfo propertyInfo) {

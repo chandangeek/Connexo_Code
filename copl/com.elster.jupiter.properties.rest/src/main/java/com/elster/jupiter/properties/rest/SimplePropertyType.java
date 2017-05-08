@@ -8,8 +8,11 @@ import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListReadingQualityFactory;
 import com.elster.jupiter.properties.ListValueFactory;
 import com.elster.jupiter.properties.LongFactory;
+import com.elster.jupiter.properties.NoneOrBigDecimalValueFactory;
+import com.elster.jupiter.properties.NoneOrTimeDurationValueFactory;
 import com.elster.jupiter.properties.RelativePeriodFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
+import com.elster.jupiter.properties.TwoValuesDifferenceValueFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.units.Quantity;
@@ -43,7 +46,10 @@ public enum SimplePropertyType implements PropertyType {
     BPM_PROCESS(HasIdAndName.class),
     TEMPORALAMOUNT(TemporalAmount.class),   //Property indicating a long period (See java.time.Period)
     DURATION(Duration.class),               //Property indicating a short duration (See java.time.Duration)
-    TIMEDURATION(TimeDuration.class);       //Property that can indicate any kind of duration/period
+    TIMEDURATION(TimeDuration.class),       //Property that can indicate any kind of duration/period
+    TWO_VALUES_DIFFERENCE(TwoValuesDifferenceValueFactory.class),
+    NONE_OR_BIGDECIMAL(NoneOrBigDecimalValueFactory.class),
+    NONE_OR_TIMEDURATION(NoneOrTimeDurationValueFactory.class);
 
     private Class typeClass;
 
