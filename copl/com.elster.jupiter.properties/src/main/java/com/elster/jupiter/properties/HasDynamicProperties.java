@@ -20,7 +20,7 @@ public interface HasDynamicProperties {
      *
      * @return The List of PropertySpec
      */
-    List<PropertySpec> getPropertySpecs ();
+    List<PropertySpec> getPropertySpecs();
 
     /**
      * Returns the {@link PropertySpec} with the specified name
@@ -28,9 +28,9 @@ public interface HasDynamicProperties {
      *
      * @param name The name of the property specification
      * @return The PropertySpec or <code>null</code>
-     *         if no such PropertySpec exists
+     * if no such PropertySpec exists
      */
-    default Optional<PropertySpec> getPropertySpec (String name) {
+    default Optional<PropertySpec> getPropertySpec(String name) {
         return getPropertySpecs()
                 .stream()
                 .filter(propertySpec -> propertySpec.getName().equals(name))
