@@ -13,15 +13,15 @@ import com.energyict.mdc.upl.properties.TypedProperties;
  * Date: 21/01/13
  * Time: 15:24
  */
-public interface DeviceProtocolSecurityPropertySet {    //TODO: remove the defaults again and foresee implementation in all protocols!
+public interface DeviceProtocolSecurityPropertySet {
 
     /**
-     * Gets the
-     * @return
+     * Gets the configured 'client' or null in case the {@link com.energyict.mdc.upl.DeviceProtocol}
+     * doesn't support client.
+     *
+     * @return the client String or null
      */
-    default String getClient() {
-        return null;
-    }
+    String getClient();
 
     /**
      * Gets the configured {@link AuthenticationDeviceAccessLevel}
@@ -36,33 +36,6 @@ public interface DeviceProtocolSecurityPropertySet {    //TODO: remove the defau
      * @return the ID of the {@link EncryptionDeviceAccessLevel}
      */
     int getEncryptionDeviceAccessLevel();
-
-    /**
-     * Gets the configured {@link SecuritySuite}
-     *
-     * @return the ID of the {@link SecuritySuite}
-     */
-    default int getSecuritySuite() {
-        return -1;
-    }
-
-    /**
-     * Gets the configured {@link RequestSecurityLevel}
-     *
-     * @return the ID of the {@link RequestSecurityLevel}
-     */
-    default int getRequestSecurityLevel() {
-        return -1;
-    }
-
-    /**
-     * Gets the configured {@link ResponseSecurityLevel}
-     *
-     * @return the ID of the {@link ResponseSecurityLevel}
-     */
-    default int getResponseSecurityLevel() {
-        return -1;
-    }
 
     /**
      * Gets the used security properties for this Device

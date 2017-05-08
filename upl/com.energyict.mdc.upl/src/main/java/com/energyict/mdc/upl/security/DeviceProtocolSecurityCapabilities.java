@@ -39,7 +39,7 @@ public interface DeviceProtocolSecurityCapabilities extends Serializable {
      *
      * @return The list of security properties
      */
-    default List<PropertySpec> getSecurityProperties() {    //TODO: check if the ones who overwrite this are still needed?
+    default List<PropertySpec> getSecurityProperties() {
         Set<PropertySpec> allSecurityPropertySpecs = new HashSet<>();
         getAuthenticationAccessLevels().forEach(accessLevel -> allSecurityPropertySpecs.addAll(accessLevel.getSecurityProperties()));
         getEncryptionAccessLevels().forEach(accessLevel -> allSecurityPropertySpecs.addAll(accessLevel.getSecurityProperties()));
@@ -92,8 +92,6 @@ public interface DeviceProtocolSecurityCapabilities extends Serializable {
      *
      * @return The 'client' PropertySpec or an empty Optional in case the 'client' is not supported
      */
-    default Optional<PropertySpec> getClientSecurityPropertySpec() {
-        return Optional.empty(); // By default, no support for client - TODO: foresee useful implementation on the protocols who need this (in UPL)
-    }
+    Optional<PropertySpec> getClientSecurityPropertySpec();
 
 }
