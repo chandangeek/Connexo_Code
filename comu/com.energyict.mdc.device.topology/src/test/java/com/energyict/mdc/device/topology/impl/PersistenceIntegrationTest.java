@@ -12,7 +12,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -147,7 +146,6 @@ public abstract class PersistenceIntegrationTest {
         when(encryptionAccessLevel.getId()).thenReturn(anySecurityLevel);
         when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encryptionAccessLevel));
         when(this.deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
-        when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.empty());
         when(clock.getZone()).thenReturn(utcTimeZone.toZoneId());
         when(clock.instant()).thenReturn(Instant.ofEpochMilli(0L));  // Create DeviceType as early as possible to support unit tests that go back in time
 
