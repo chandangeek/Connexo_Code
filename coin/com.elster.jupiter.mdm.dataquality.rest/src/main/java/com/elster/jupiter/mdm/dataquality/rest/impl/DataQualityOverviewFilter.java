@@ -172,6 +172,12 @@ public enum DataQualityOverviewFilter {
         void apply(JsonQueryFilter filter, DataQualityOverviewBuilder overviewBuilder, ResourceHelper resourceHelper) {
             super.applyFilterWithOperator(filter, overviewBuilder::withEditedAmount, resourceHelper);
         }
+    },
+    AMOUNT_OF_PROJECTED("amountOfProjected") {
+        @Override
+        void apply(JsonQueryFilter filter, DataQualityOverviewBuilder overviewBuilder, ResourceHelper resourceHelper) {
+            super.applyFilterWithOperator(filter, overviewBuilder::withProjectedAmount, resourceHelper);
+        }
     };
 
     private String jsonName;
