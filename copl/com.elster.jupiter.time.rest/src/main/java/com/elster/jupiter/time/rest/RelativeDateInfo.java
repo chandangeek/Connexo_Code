@@ -39,6 +39,12 @@ public class RelativeDateInfo {
     public Long atHour;
     @JsonProperty("atMinute")
     public Long atMinute;
+    @JsonProperty("onCurrentDayOfYear")
+    public Boolean onCurrentDayOfYear;
+    @JsonProperty("onDayOfYear")
+    public Long onDayOfYear;
+    @JsonProperty("onMonthOfYear")
+    public Long onMonthOfYear;
 
     public RelativeDateInfo() {}
 
@@ -112,6 +118,7 @@ public class RelativeDateInfo {
         List<RelativeOperation> operations = new ArrayList<>();
         boolean dayOfWeekEnabled = true;
         boolean dayOfMonthEnabled = true;
+        boolean dayOfYearEnabled = true;
         boolean hourEnabled = true;
         boolean minuteEnabled = true;
         if (startPeriodAgo != null && startAmountAgo != null && startTimeMode != null) {
@@ -124,26 +131,31 @@ public class RelativeDateInfo {
                 case "months":
                     operations.add(new RelativeOperation(RelativeField.MONTH, operator, startAmountAgo));
                     dayOfWeekEnabled = false;
+                    dayOfYearEnabled = false;
                     break;
                 case "weeks":
                     operations.add(new RelativeOperation(RelativeField.WEEK, operator, startAmountAgo));
                     dayOfMonthEnabled = false;
+                    dayOfYearEnabled = false;
                     break;
                 case "days":
                     operations.add(new RelativeOperation(RelativeField.DAY, operator, startAmountAgo));
                     dayOfWeekEnabled = false;
                     dayOfMonthEnabled = false;
+                    dayOfYearEnabled = false;
                     break;
                 case "hours":
                     operations.add(new RelativeOperation(RelativeField.HOUR, operator, startAmountAgo));
                     dayOfWeekEnabled = false;
                     dayOfMonthEnabled = false;
+                    dayOfYearEnabled = false;
                     hourEnabled = false;
                     break;
                 case "minutes":
                     operations.add(new RelativeOperation(RelativeField.MINUTES, operator, startAmountAgo));
                     dayOfWeekEnabled = false;
                     dayOfMonthEnabled = false;
+                    dayOfYearEnabled = false;
                     hourEnabled = false;
                     minuteEnabled = false;
                     break;
@@ -153,6 +165,7 @@ public class RelativeDateInfo {
             hourEnabled = false;
             minuteEnabled = false;
             dayOfMonthEnabled = false;
+            dayOfYearEnabled = false;
         }
         if (startFixedDay!= null && startFixedMonth!= null && startFixedYear !=null) {
             operations.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.EQUAL, startFixedDay));
@@ -160,6 +173,10 @@ public class RelativeDateInfo {
             operations.add(new RelativeOperation(RelativeField.YEAR, RelativeOperator.EQUAL, startFixedYear));
             dayOfWeekEnabled = false;
             dayOfMonthEnabled = false;
+            dayOfYearEnabled = false;
+        } else if (onDayOfYear != null && onMonthOfYear != null && dayOfYearEnabled) {
+            operations.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.EQUAL, onDayOfYear));
+            operations.add(new RelativeOperation(RelativeField.MONTH, RelativeOperator.EQUAL, onMonthOfYear));
         } else if (onDayOfMonth != null && dayOfMonthEnabled) {
             operations.add(new RelativeOperation(RelativeField.DAY, RelativeOperator.EQUAL, onDayOfMonth));
         }
