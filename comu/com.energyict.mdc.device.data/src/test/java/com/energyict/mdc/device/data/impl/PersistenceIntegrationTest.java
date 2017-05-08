@@ -19,16 +19,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -39,6 +29,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -78,7 +79,6 @@ public abstract class PersistenceIntegrationTest {
         deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(deviceProtocol.getCustomPropertySet()).thenReturn(Optional.empty());
         when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.empty());
     }
 

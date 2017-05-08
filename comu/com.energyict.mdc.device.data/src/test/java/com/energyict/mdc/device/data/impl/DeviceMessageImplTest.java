@@ -781,8 +781,8 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         }
 
         @Override
-        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.emptyList();
+        public Optional<com.energyict.mdc.upl.properties.PropertySpec> getClientSecurityPropertySpec() {
+            return Optional.empty();
         }
 
         @Override

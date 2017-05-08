@@ -86,13 +86,13 @@ public class SecurityPropertySetDeletionHandler implements TopicHandler {
      *
      * @param securityPropertySet The SecurityPropertySet that is about to be deleted
      */
-    private void validateNotUsedByDevice(SecurityPropertySet securityPropertySet) {
-        securityPropertySet.getDeviceConfiguration()
-                .getDeviceType()
-                .getDeviceProtocolPluggableClass()
-                .ifPresent(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol()
-                        .getCustomPropertySet()
-                        .ifPresent(cps -> this.validateNotUsedByDevice(securityPropertySet, cps)));
+    private void validateNotUsedByDevice(SecurityPropertySet securityPropertySet) { //TODO: how to replace this?
+//        securityPropertySet.getDeviceConfiguration()
+//                .getDeviceType()
+//                .getDeviceProtocolPluggableClass()
+//                .ifPresent(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol()
+//                        .getCustomPropertySet()
+//                        .ifPresent(cps -> this.validateNotUsedByDevice(securityPropertySet, cps)));
     }
 
     /**
