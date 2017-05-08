@@ -1037,25 +1037,6 @@ Ext.define('Mdc.controller.history.Setup', {
                             privileges: Ext.Array.merge(Mdc.privileges.Device.deviceOperator, Mdc.privileges.DeviceSecurity.viewOrEditLevels),
                             action: 'showDeviceSecuritySettings',
                             dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
-                            items: {
-                                edit: {
-                                    title: Uni.I18n.translate('securitySetting.edit', 'MDC', 'Edit security setting'),
-                                    route: '{securitySettingId}/edit',
-                                    controller: 'Mdc.controller.setup.DeviceSecuritySettings',
-                                    privileges: Mdc.privileges.DeviceSecurity.viewOrEditLevels,
-                                    action: 'showDeviceSecuritySettingEditView',
-                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
-                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.securitySettingsActions,
-                                    callback: function (route) {
-                                        this.getApplication().on('loadDeviceSecuritySetting', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
-                                            return true;
-                                        }, {single: true});
-
-                                        return this;
-                                    }
-                                }
-                            }
                         },
                         keys: {
                             title: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),

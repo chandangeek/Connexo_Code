@@ -10,8 +10,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingPreview',
     requires: [
         'Mdc.model.DeviceSecuritySetting',
         'Uni.property.form.Property',
-        'Uni.util.FormEmptyMessage',
-        'Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingActionMenu'
+        'Uni.util.FormEmptyMessage'
     ],
     layout: {
         type: 'card',
@@ -19,16 +18,6 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingPreview',
     },
 
     title: Uni.I18n.translate('general.details', 'MDC', 'Details'),
-
-    tools: [
-        {
-            xtype: 'uni-button-action',
-            privileges: Mdc.privileges.DeviceSecurity.viewOrEditLevels,
-            menu: {
-                xtype: 'device-security-setting-action-menu'
-            }
-        }
-    ],
 
     items: [
         {
@@ -72,15 +61,6 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingPreview',
                                     fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                     labelWidth: 200,
                                     name: 'name'
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
-                                    labelWidth: 200,
-                                    name: 'status',
-                                    renderer: function (value) {
-                                        return Ext.String.htmlEncode(value.name);
-                                    }
                                 },
                                 {
                                     xtype: 'displayfield',

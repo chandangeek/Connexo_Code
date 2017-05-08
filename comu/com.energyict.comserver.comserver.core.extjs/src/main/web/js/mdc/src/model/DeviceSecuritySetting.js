@@ -15,9 +15,7 @@ Ext.define('Mdc.model.DeviceSecuritySetting', {
         {name: 'authenticationLevel', type: 'auto', useNull: true},
         {name: 'encryptionLevel', type: 'auto', useNull: true},
         {name: 'requestSecurityLevel', type: 'auto', useNull: true},
-        {name: 'responseSecurityLevel', type: 'auto', useNull: true},
-        {name: 'status', type: 'auto', useNull: true},
-        {name: 'saveAsIncomplete', type: 'boolean', userNull: true}
+        {name: 'responseSecurityLevel', type: 'auto', useNull: true}
     ],
 
     associations: [

@@ -36,10 +36,9 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
             me.columns.push({
                 header: Uni.I18n.translate('securitySetting.client', 'MDC', 'Client'),
                 dataIndex: 'client',
-                flex: 3,
+                flex: 3
             });
         }
-
         if (me.deviceProtocolSupportSecuritySuites) {
             me.columns.push({
                 header: Uni.I18n.translate('securitySetting.securitySuite', 'MDC', 'Security suite'),

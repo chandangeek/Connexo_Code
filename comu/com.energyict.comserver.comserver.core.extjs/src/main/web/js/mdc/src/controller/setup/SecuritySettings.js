@@ -560,7 +560,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             preloader.show();
             form.updateRecord();
             propertyForm.updateRecord();
-            record.propertiesStore = propertyForm.getRecord().properties();
+            record.propertiesStore = propertyForm.getRecord() !== undefined ? propertyForm.getRecord().properties() : undefined;
 
             record.save({
                 backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/deviceconfigurations/view/securitysettings').buildUrl(),
