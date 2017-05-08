@@ -401,6 +401,14 @@ Ext.define('Uni.property.view.property.Base', {
             cfg.items.splice(0, 0, cmp);
         }
 
+        if (!me.isEdit && (me.property.get('overridden') || me.property.get('canBeOverridden'))) {
+            if (me.property.get('canBeOverridden') && me.property.get('required') && Ext.isEmpty(me.property.get('value'))) {
+                cfg.items.push(me.getUnspecifiedAttributeComp());
+            } else {
+                cfg.items.push(me.getOverriddenComp());
+            }
+        }
+
         Ext.apply(me, cfg);
         me.callParent(arguments);
 
@@ -458,6 +466,31 @@ Ext.define('Uni.property.view.property.Base', {
 
     customHandlerLogic: function(){
         //implement in propertycomponents that need custom logic on change;
+    },
+
+    getOverriddenComp: function() {
+        var me = this,
+            overridden = '<span class="icon-pencil4" style="margin-left: 10px; position: relative; top: 7px;" data-qtip="' +
+                Uni.I18n.translate('general.overridden', 'UNI', 'Overridden') + '"></span>',
+            canBeOverridden = '<span class="icon-pencil3" style="margin-left: 10px; position: relative; top: 7px;" data-qtip="' +
+                Uni.I18n.translate('general.canBeOverridden', 'UNI', 'Can be overridden') + '"></span>';
+
+        return {
+            xtype: 'component',
+            itemId: me.property.get('key') + '-overridden',
+            html: me.property.get('overridden') ? overridden : canBeOverridden
+        }
+    },
+
+    getUnspecifiedAttributeComp: function() {
+        var me = this;
+
+        return {
+            xtype: 'component',
+            itemId: me.property.get('key') + '-unspecified',
+            html: '<span class="icon-warning" style="margin-left: 10px; position: relative; top: 7px; color: #eb5642;" data-qtip="' +
+            Uni.I18n.translate('general.unspecifiedParameter', 'UNI', 'Unspecified parameter') + '"></span>'
+        }
     },
 
     /**
