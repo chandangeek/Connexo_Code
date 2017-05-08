@@ -146,6 +146,6 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
     }
 
     static ComTaskTpl[] excludeTopologyTpls() {
-        return EnumSet.of(READ_REGISTER_DATA, READ_LOAD_PROFILE_DATA, READ_LOG_BOOK_DATA, FIRMWARE_MANAGEMENT, COMMANDS).toArray(new ComTaskTpl[6]);
+        return EnumSet.of(READ_REGISTER_DATA, READ_LOAD_PROFILE_DATA, READ_LOG_BOOK_DATA, FIRMWARE_MANAGEMENT, COMMANDS).toArray(new ComTaskTpl[5]);
     }
 }
