@@ -72,6 +72,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistrati
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLDeviceMessageSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
@@ -906,7 +907,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
 
     @Override
     public com.energyict.mdc.upl.messages.DeviceMessageSpec adapt(DeviceMessageSpec connexoSpec) {
-        return new ConnexoDeviceMessageSpecAdapter(connexoSpec);
+        return connexoSpec instanceof UPLDeviceMessageSpecAdapter ? ((UPLDeviceMessageSpecAdapter) connexoSpec).getUplDeviceMessageSpec() : new ConnexoDeviceMessageSpecAdapter(connexoSpec);
     }
 
     @Override

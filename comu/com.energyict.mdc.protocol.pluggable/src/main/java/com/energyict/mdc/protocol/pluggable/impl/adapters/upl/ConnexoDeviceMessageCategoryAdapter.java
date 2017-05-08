@@ -1,16 +1,17 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLDeviceMessageSpecAdapter;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * Adapts a given Connexo DeviceMessageCategory to the UPL DeviceMessageCategory interface.
  * This is straight forward for most fields, except the DeviceMessageSpec that needs adaptation.
  * <p>
- *
  *
  * @author khe
  * @since 14/12/2016 - 12:50
@@ -46,8 +47,12 @@ public class ConnexoDeviceMessageCategoryAdapter implements com.energyict.mdc.up
     @Override
     public List<DeviceMessageSpec> getMessageSpecifications() {
         return cxoDeviceMessageCategory.getMessageSpecifications().stream()
-                .map(ConnexoDeviceMessageSpecAdapter::new)
+                .map(adaptDeviceMessageSpec())
                 .collect(Collectors.toList());
+    }
+
+    private Function<com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec, com.energyict.mdc.upl.messages.DeviceMessageSpec> adaptDeviceMessageSpec() {
+        return cxoDeviceMessageSpec -> cxoDeviceMessageSpec instanceof UPLDeviceMessageSpecAdapter ? ((UPLDeviceMessageSpecAdapter) cxoDeviceMessageSpec).getUplDeviceMessageSpec() : new ConnexoDeviceMessageSpecAdapter(cxoDeviceMessageSpec);
     }
 
     @Override
