@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -207,6 +208,7 @@ public class SecurityPropertySetImplCrudIT {
                     new PartyModule(),
                     new UserModule(),
                     new IdsModule(),
+                    new BpmModule(),
                     new UsagePointLifeCycleConfigurationModule(),
                     new MeteringModule(),
                     new InMemoryMessagingModule(),
@@ -947,6 +949,169 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration.save();
         return deviceConfiguration;
     }
+
+    @Test
+    @Transactional
+    public void simpleConflictTest() {
+        int authenticationLevel = 1;
+        int encryptionLevel = 2;
+        DeviceType deviceType = createDeviceType("simpleConflictTest");
+
+
+        DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
+        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
+
+        DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
+        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
+
+        DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
+
+        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).hasSize(2);
+        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
+            @Override
+            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
+                return matchConfigs(deviceConfigConflictMapping, deviceConfiguration1, deviceConfiguration2)
+                        && deviceConfigConflictMapping.getConflictingSecuritySetSolutions().size() == 1
+                        && matchSecurityPropertySets(securityPropertySet1, securityPropertySet2, deviceConfigConflictMapping);
+            }
+        });
+        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
+            @Override
+            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
+                return matchConfigs(deviceConfigConflictMapping, deviceConfiguration2, deviceConfiguration1)
+                        && deviceConfigConflictMapping.getConflictingSecuritySetSolutions().size() == 1
+                        && matchSecurityPropertySets(securityPropertySet2, securityPropertySet1, deviceConfigConflictMapping);
+            }
+        });
+    }
+
+    private DeviceConfiguration createActiveConfiguration(DeviceType deviceType, String name) {
+        DeviceConfiguration deviceConfiguration1 = deviceType.newConfiguration(name).add();
+        deviceConfiguration1.activate();
+        return deviceConfiguration1;
+    }
+
+    @Test
+    @Transactional
+    public void resolveConflictsWhenDeviceConfigBecomesInactiveTest() {
+        int authenticationLevel = 1;
+        int encryptionLevel = 2;
+        DeviceType deviceType = createDeviceType("simpleConflictTest");
+
+        DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
+        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
+
+        DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
+        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
+
+        deviceConfiguration1.deactivate();
+
+        DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
+        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void resolveSecuritySetConflictWhenRemovalOfSecuritySetTest() {
+        int authenticationLevel = 1;
+        int encryptionLevel = 2;
+        DeviceType deviceType = createDeviceType("simpleConflictTest");
+
+        DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
+        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
+
+        DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
+        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
+
+        deviceConfiguration1.removeSecurityPropertySet(securityPropertySet1);
+
+        DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
+        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void solvedMappingsAreNotRemovedWhenNewConflictArisesTest() {
+        int authenticationLevel = 1;
+        int encryptionLevel = 2;
+        DeviceType deviceType = createDeviceType("simpleConflictTest");
+
+        DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
+        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
+
+        DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
+        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
+
+        DeviceConfigConflictMapping deviceConfigConflictMapping1 = deviceType.getDeviceConfigConflictMappings().get(0);
+        ConflictingSecuritySetSolution conflictingSecuritySetSolution1 = deviceConfigConflictMapping1.getConflictingSecuritySetSolutions().get(0);
+        conflictingSecuritySetSolution1.markSolutionAsRemove();
+        DeviceConfigConflictMapping deviceConfigConflictMapping2 = deviceType.getDeviceConfigConflictMappings().get(1);
+        ConflictingSecuritySetSolution conflictingSecuritySetSolution2 = deviceConfigConflictMapping2.getConflictingSecuritySetSolutions().get(0);
+        conflictingSecuritySetSolution2.markSolutionAsRemove();
+
+        DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
+        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).hasSize(2);
+
+        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
+            @Override
+            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
+                return deviceConfigConflictMapping.getConflictingSecuritySetSolutions()
+                        .get(0).getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE)
+                        && deviceConfigConflictMapping.isSolved();
+            }
+        });
+
+        // Logic that we want to test: if new SecuritySet is added, new conflicts will be calculated. Existing solved conflicts should still remain
+        DeviceConfiguration thirdConfig = createActiveConfiguration(deviceType, "ThirdConfig");
+        SecurityPropertySet securityPropertySet3 = createSecurityPropertySet(thirdConfig, "Blablabla", authenticationLevel, encryptionLevel);
+
+        DeviceType finalDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
+        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).hasSize(6);
+
+        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
+            @Override
+            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
+                return deviceConfigConflictMapping.getConflictingSecuritySetSolutions()
+                        .get(0).getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE)
+                        && deviceConfigConflictMapping.isSolved();
+            }
+        });
+
+        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
+            @Override
+            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
+                return deviceConfigConflictMapping.isSolved();
+            }
+        });
+
+        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(4, new Condition<DeviceConfigConflictMapping>() {
+            @Override
+            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
+                return !deviceConfigConflictMapping.isSolved();
+            }
+        });
+
+    }
+
+    private boolean matchSecurityPropertySets(SecurityPropertySet originSecurityPropertySet, SecurityPropertySet destinationSecurityPropertySet, DeviceConfigConflictMapping deviceConfigConflictMapping) {
+        return deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).getOriginDataSource().getId() == originSecurityPropertySet.getId();
+//                && deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).getDestinationDataSource().getId() == destinationSecurityPropertySet.getId();
+    }
+
+
+    private boolean matchConfigs(DeviceConfigConflictMapping deviceConfigConflictMapping, DeviceConfiguration originConfig, DeviceConfiguration destinationConfig) {
+        return deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == originConfig.getId()
+                && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == destinationConfig.getId();
+    }
+
+    private SecurityPropertySet createSecurityPropertySet(DeviceConfiguration deviceConfiguration, String setName, int authenticationLevel, int encryptionLevel) {
+        return deviceConfiguration.createSecurityPropertySet(setName)
+                .authenticationLevel(authenticationLevel)
+                .encryptionLevel(encryptionLevel)
+                .addUserAction(VIEWDEVICESECURITYPROPERTIES1)
+                .build();
+    }
+
 
     public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
     }
