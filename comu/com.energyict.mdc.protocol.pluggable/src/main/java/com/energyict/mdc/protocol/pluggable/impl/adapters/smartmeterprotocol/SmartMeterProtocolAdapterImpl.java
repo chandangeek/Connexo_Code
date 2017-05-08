@@ -492,6 +492,15 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
     }
 
     @Override
+    public Optional<com.energyict.mdc.upl.properties.PropertySpec> getClientSecurityPropertySpec() {
+        if (this.delegateSecurityToActualProtocol()) {
+            return getDeviceSecuritySupport().getClientSecurityPropertySpec();
+        } else {
+            return this.smartMeterProtocolSecuritySupportAdapter.getClientSecurityPropertySpec();
+        }
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         if (this.delegateSecurityToActualProtocol()) {
             return getDeviceSecuritySupport().getAuthenticationAccessLevels();

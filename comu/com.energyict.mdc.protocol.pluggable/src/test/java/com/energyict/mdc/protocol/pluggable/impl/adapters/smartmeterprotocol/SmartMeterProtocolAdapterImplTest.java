@@ -284,7 +284,6 @@ public class SmartMeterProtocolAdapterImplTest {
     @Test
     public void getDeviceProtocolDialect() {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
-        when(((DeviceSecuritySupport) smartMeterProtocol).getCustomPropertySet()).thenReturn(Optional.empty());
         List<PropertySpec> optionalKeys = new ArrayList<>();
         optionalKeys.add(this.newStringPropertySpec("o1"));
         optionalKeys.add(this.newStringPropertySpec("o2"));

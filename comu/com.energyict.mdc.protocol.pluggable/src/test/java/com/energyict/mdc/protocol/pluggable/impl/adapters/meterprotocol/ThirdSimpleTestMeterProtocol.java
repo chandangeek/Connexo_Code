@@ -201,21 +201,6 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
             }
 
             @Override
-            public int getSecuritySuite() {
-                return 0;
-            }
-
-            @Override
-            public int getRequestSecurityLevel() {
-                return 0;
-            }
-
-            @Override
-            public int getResponseSecurityLevel() {
-                return 0;
-            }
-
-            @Override
             public TypedProperties getSecurityProperties() {
                 return TypedProperties.empty();
             }

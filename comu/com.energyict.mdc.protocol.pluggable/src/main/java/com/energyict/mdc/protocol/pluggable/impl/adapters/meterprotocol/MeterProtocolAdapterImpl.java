@@ -508,6 +508,15 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     @Override
+    public Optional<com.energyict.mdc.upl.properties.PropertySpec> getClientSecurityPropertySpec() {
+        if (this.delegateSecurityToActualProtocol()) {
+            return getDeviceSecuritySupport().getClientSecurityPropertySpec();
+        } else {
+            return this.meterProtocolSecuritySupportAdapter.getClientSecurityPropertySpec();
+        }
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         if (this.delegateSecurityToActualProtocol()) {
             return getDeviceSecuritySupport().getAuthenticationAccessLevels();

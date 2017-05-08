@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
@@ -19,6 +20,7 @@ import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Abstract class for implementing the {@link DeviceSecuritySupport} interface
@@ -62,6 +64,15 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
 
     private boolean checkExistingSecurityPropertyConverter() {
         return this.legacySecurityPropertyConverter != null;
+    }
+
+    @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        if (checkExistingSecuritySupport()) {
+            return this.legacySecuritySupport.getClientSecurityPropertySpec();
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override

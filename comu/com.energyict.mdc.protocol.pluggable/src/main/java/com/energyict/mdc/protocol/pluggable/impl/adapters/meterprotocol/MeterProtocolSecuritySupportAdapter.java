@@ -48,5 +48,4 @@ public class MeterProtocolSecuritySupportAdapter extends AbstractDeviceProtocolS
                 + DeviceProtocolSecurityCapabilities.class.getSimpleName() + " or "
                 + LegacySecurityPropertyConverter.class.getSimpleName();
     }
-
 }
