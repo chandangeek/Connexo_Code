@@ -11,6 +11,7 @@ Ext.define('Uni.view.menu.ActionsMenu', {
     minWidth: 20,
     defaultAlign: 'tr-br?',
     items: [],
+    noSort: false,
 
     SECTION_ACTION: 1,
     SECTION_EDIT: 2,
@@ -19,9 +20,12 @@ Ext.define('Uni.view.menu.ActionsMenu', {
 
     initComponent: function() {
         var me = this;
-        me.sortMenuItems();
+        if (!me.noSort) {
+            me.sortMenuItems();
+        }
         me.callParent(arguments);
         me.mon(me, 'beforeshow', me.onBeforeShow, me);
+        me.mon(me, 'refreshMenuSeparators', me.onBeforeShow, me);
     },
 
     sortMenuItems: function() {

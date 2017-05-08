@@ -117,15 +117,28 @@ Ext.define('Uni.property.view.property.Period', {
             resetButtonHidden = this.resetButtonHidden,
             button = me.getResetButton(),
             countValue,
-            timeUnitValue;
+            timeUnitValue,
+            rawValue = me.getProperty().raw['propertyValueInfo'],
+            initialValue = rawValue.value,
+            isChangedValue;
 
         if (me.isEdit) {
             button.setVisible(!resetButtonHidden);
             if (me.getField()) { countValue = me.getField().getValue(); }
             if (me.getComboField()) { timeUnitValue = me.getComboField().getValue(); }
+
+            if (countValue && timeUnitValue) {
+                if (initialValue && rawValue.inheritedValue) {
+                    isChangedValue = (initialValue.count !== countValue) || (initialValue.timeUnit !== timeUnitValue) || (initialValue.count !== rawValue.inheritedValue.count) || (initialValue.timeUnit !== rawValue.inheritedValue.timeUnit);
+                } else if (rawValue.inheritedValue) {
+                    isChangedValue = (rawValue.inheritedValue.count !== countValue) || (rawValue.inheritedValue.timeUnit !== timeUnitValue);
+                }
+            }
+
             if (!me.getProperty().get('isInheritedOrDefaultValue')
                 && typeof countValue !== 'undefined' && countValue !== null
                 && typeof timeUnitValue !== 'undefined' && timeUnitValue !== null
+                && isChangedValue
             ) {
                 if (Ext.isEmpty(me.getProperty().get('default'))) {
                     button.setTooltip(Uni.I18n.translate('general.restoreDefaultEmptyValue', 'UNI', 'Restore to default empty value'));

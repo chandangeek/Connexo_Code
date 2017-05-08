@@ -61,6 +61,7 @@ Ext.define('Uni.property.view.property.BaseCombo', {
             blankText: me.blankText,
             forceSelection: this.getProperty().isEditable() || me.getProperty().getExhaustive(),
             editable: this.getProperty().isEditable() || !me.getProperty().getExhaustive(),
+            emptyText: this.getProperty().isEditable() == false ? '' : Uni.I18n.translate('general.selectValue', 'UNI', 'Select a value ...'),
             listConfig: {
                 loadMask: true,
                 maxHeight: 300
