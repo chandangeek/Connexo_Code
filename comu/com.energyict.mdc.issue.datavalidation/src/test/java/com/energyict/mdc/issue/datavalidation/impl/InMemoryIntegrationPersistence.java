@@ -5,6 +5,8 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -15,8 +17,10 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
+import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.module.IssueModule;
 import com.elster.jupiter.kpi.impl.KpiModule;
@@ -153,8 +157,11 @@ public class InMemoryIntegrationPersistence {
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
             if(deviceConfigurationService == null) {
-                StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler(this.injector
-                        .getInstance(EventService.class));
+                StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler(
+                        this.injector.getInstance(EventService.class),
+                        this.injector.getInstance(BpmService.class),
+                        this.injector.getInstance(StateTransitionPropertiesProvider.class),
+                        this.injector.getInstance(HttpAuthenticationService.class));
                 ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionTriggerEventTopicHandler);
                 com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler meteringTopicHandler =
                         new com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler(Clock.systemDefaultZone(),
@@ -215,6 +222,7 @@ public class InMemoryIntegrationPersistence {
                 new TransactionModule(showSqlLogging),
                 new NlsModule(),
                 new UserModule(),
+                new BpmModule(),
                 new MeteringGroupsModule(),
                 new SearchModule(),
                 new IssuesModule(),
@@ -288,6 +296,8 @@ public class InMemoryIntegrationPersistence {
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(MessageInterpolator.class).toInstance(thesaurus);
 
+            bind(StateTransitionPropertiesProvider.class).toInstance(mock(StateTransitionPropertiesProvider.class));
+            bind(HttpAuthenticationService.class).toInstance(mock(HttpAuthenticationService.class));
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(LicenseService.class).toInstance(licenseService);
             if (deviceConfigurationService != null) {
