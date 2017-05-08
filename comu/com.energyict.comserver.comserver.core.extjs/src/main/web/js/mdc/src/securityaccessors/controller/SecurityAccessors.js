@@ -251,11 +251,16 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                         ? Uni.I18n.translate('securityaccessors.saveSecurityAccessorSuccess', 'MDC', 'Security accessor saved')
                         : Uni.I18n.translate('securityaccessors.addSecurityAccessorSuccess', 'MDC', 'Security accessor added'));
                     me.navigateToOverviewPage();
-                } else {
-                    if (responseText && responseText.errors) {
-                        errorMessage.show();
-                        form.getForm().markInvalid(responseText.errors);
+                } else if (responseText && responseText.errors) {
+                    errorMessage.show();
+                    if (Ext.isArray(responseText.errors)) {
+                        Ext.Array.each(responseText.errors, function (error) {
+                            if (error.id === 'duration') {
+                                form.down('#num-security-accessor-validity-period').markInvalid(error.msg);
+                            }
+                        })
                     }
+                    form.getForm().markInvalid(responseText.errors);
                 }
             }
         });
@@ -391,7 +396,6 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         securityAccessorRecordInEditWindow.getProxy().setUrl(me.deviceTypeId);
         securityAccessorRecordInEditWindow.save({
             callback: function (record, operation, success) {
-                var responseText = Ext.decode(operation.response.responseText, true);
                 if (success) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('securityaccessors.saveSecurityAccessorSuccess', 'MDC', 'Security accessor saved'));
                     me.recordSelected(me.getSecurityAccessorsGrid(), securityAccessorRecordInEditWindow);
