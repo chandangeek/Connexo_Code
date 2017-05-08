@@ -17,14 +17,13 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.protocol.ChannelInfo;
 
-import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Provides functionality to store {@link com.energyict.mdc.upl.meterdata.LoadProfile} data.
  * <p>
- *
+ * <p>
  * Date: 29/08/12
  * Time: 14:52
  */
@@ -44,38 +43,38 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.getClock(), this.getMdcReadingTypeUtilService(), comServerDAO);
-        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
-        if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
-            preStoredLoadProfile.updateCommand(this.meterDataStoreCommand);
-        } else if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED)) {
-            final Optional<OfflineLoadProfile> optionalLoadProfile = comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier());
-            java.util.Date lastReading = optionalLoadProfile.get().getLastReading() == null ? Date.from(getClock().instant()) : optionalLoadProfile.get().getLastReading();
-            this.addIssue(
-                    CompletionCode.Ok,
-                    this.getIssueService().newWarning(
-                            this,
-                            MessageSeeds.NO_NEW_LOAD_PROFILE_DATA_COLLECTED,
-                            optionalLoadProfile.get().getObisCode().toString(),
-                            optionalLoadProfile.get().getLastReading()));
-        } else if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH)) {
-            final Optional<OfflineLoadProfile> optionalLoadProfile = comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier());
-            this.addIssue(
-                    CompletionCode.ConfigurationError,
-                    this.getIssueService().newProblem(
-                            this,
-                            MessageSeeds.LOAD_PROFILE_CONFIGURATION_MISMATCH,
-                            optionalLoadProfile.get().getObisCode().toString(),
-                            optionalLoadProfile.get().interval().toString()));
-        }
-        else {
-            this.addIssue(
-                    CompletionCode.ConfigurationWarning,
-                    this.getIssueService().newWarning(
-                            this,
-                            MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE,
-                            comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier())
-                                    .map(offlineLoadProfile -> offlineLoadProfile.getObisCode().toString())
-                                    .orElse("")));
+        if (collectedLoadProfile.getChannelInfo().stream().noneMatch(channelInfo -> channelInfo.getReadingTypeMRID() == null || channelInfo.getReadingTypeMRID().isEmpty())) {
+            PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+            if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
+                preStoredLoadProfile.updateCommand(this.meterDataStoreCommand);
+            } else if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED)) {
+                final Optional<OfflineLoadProfile> optionalLoadProfile = comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier());
+                this.addIssue(
+                        CompletionCode.Ok,
+                        this.getIssueService().newWarning(
+                                this,
+                                MessageSeeds.NO_NEW_LOAD_PROFILE_DATA_COLLECTED,
+                                optionalLoadProfile.get().getObisCode().toString(),
+                                optionalLoadProfile.get().getLastReading()));
+            } else if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.LOAD_PROFILE_CONFIGURATION_MISMATCH)) {
+                final Optional<OfflineLoadProfile> optionalLoadProfile = comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier());
+                this.addIssue(
+                        CompletionCode.ConfigurationError,
+                        this.getIssueService().newProblem(
+                                this,
+                                MessageSeeds.LOAD_PROFILE_CONFIGURATION_MISMATCH,
+                                optionalLoadProfile.get().getObisCode().toString(),
+                                optionalLoadProfile.get().interval().toString()));
+            } else {
+                this.addIssue(
+                        CompletionCode.ConfigurationWarning,
+                        this.getIssueService().newWarning(
+                                this,
+                                MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE,
+                                comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier())
+                                        .map(offlineLoadProfile -> offlineLoadProfile.getObisCode().toString())
+                                        .orElse("")));
+            }
         }
     }
 
