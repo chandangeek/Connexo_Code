@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.securitysupport;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
@@ -13,6 +14,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Adapts the given UPL {@link DeviceProtocolSecurityCapabilities} (from protocols 9.1) to the CXO format (that has CPS support etc).
@@ -59,6 +61,11 @@ public abstract class AbstractSecuritySupportAdapter {
      */
     protected abstract DeviceProtocolSecurityCapabilities getSecuritySupport();
 
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        // The client security property spec is defined in the 9.1 protocol code base
+        return getSecuritySupport().getClientSecurityPropertySpec();
+    }
+
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         //The levels for this security set are defined in the 9.1 protocol code base
         return getSecuritySupport().getAuthenticationAccessLevels();
@@ -97,21 +104,6 @@ public abstract class AbstractSecuritySupportAdapter {
 
                 @Override
                 public int getEncryptionDeviceAccessLevel() {
-                    return 0;
-                }
-
-                @Override
-                public int getSecuritySuite() {
-                    return 0;
-                }
-
-                @Override
-                public int getRequestSecurityLevel() {
-                    return 0;
-                }
-
-                @Override
-                public int getResponseSecurityLevel() {
                     return 0;
                 }
 

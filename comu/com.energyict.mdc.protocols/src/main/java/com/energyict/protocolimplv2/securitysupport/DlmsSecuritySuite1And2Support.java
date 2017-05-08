@@ -1,11 +1,8 @@
 package com.energyict.protocolimplv2.securitysupport;
 
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.security.AdvancedDeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 import com.energyict.mdc.upl.security.RequestSecurityLevel;
@@ -14,7 +11,6 @@ import com.energyict.mdc.upl.security.SecuritySuite;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author khe
@@ -40,11 +36,6 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupportAdapte
     @Override
     public List<ResponseSecurityLevel> getResponseSecurityLevels() {
         return getSecuritySupport().getResponseSecurityLevels();
-    }
-
-    @Override
-    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        return Optional.of(new DlmsSecuritySuite1And2CustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     protected com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities getSecuritySupport() {
