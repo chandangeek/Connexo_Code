@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -131,6 +132,11 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityPropertySetImplCrudIT {
 
+    @Rule
+    public final TestRule transactional = new TransactionalRule(transactionService);
+    @Rule
+    public TestRule itWillHitTheFan = new ExpectedConstraintViolationRule();
+
     private static InMemoryBootstrapModule bootstrapModule;
     private static EventAdmin eventAdmin;
     private static BundleContext bundleContext;
@@ -139,10 +145,7 @@ public class SecurityPropertySetImplCrudIT {
     private static DeviceConfigurationServiceImpl deviceConfigurationService;
     private static Injector injector;
     private static SpyEventService eventService;
-    @Rule
-    public final TestRule transactional = new TransactionalRule(transactionService);
-    @Rule
-    public TestRule itWillHitTheFan = new ExpectedConstraintViolationRule();
+
     @Mock
     private MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
@@ -177,6 +180,7 @@ public class SecurityPropertySetImplCrudIT {
                     new PartyModule(),
                     new UserModule(),
                     new IdsModule(),
+                    new BpmModule(),
                     new UsagePointLifeCycleConfigurationModule(),
                     new MeteringModule(),
                     new InMemoryMessagingModule(),
@@ -931,6 +935,7 @@ public class SecurityPropertySetImplCrudIT {
         return deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).getOriginDataSource().getId() == originSecurityPropertySet.getId();
 //                && deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).getDestinationDataSource().getId() == destinationSecurityPropertySet.getId();
     }
+
 
     private boolean matchConfigs(DeviceConfigConflictMapping deviceConfigConflictMapping, DeviceConfiguration originConfig, DeviceConfiguration destinationConfig) {
         return deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == originConfig.getId()
