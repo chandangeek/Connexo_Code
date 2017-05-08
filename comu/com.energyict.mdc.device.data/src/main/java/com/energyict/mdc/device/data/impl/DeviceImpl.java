@@ -863,7 +863,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public String getModelNumber() {
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         if (currentKoreUpdater.isPresent()) {
-            currentKoreUpdater.get().getModelNumber();
+            return currentKoreUpdater.get().getModelNumber();
         } else if (meter.isPresent()) {
             return meter.get().getModelNumber();
         }
