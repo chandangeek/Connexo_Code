@@ -260,6 +260,7 @@ public class MultiElementDeviceServiceImpl implements MultiElementDeviceService,
 
     private void syncSlave(Device master, Device slave){
         slave.setManufacturer(master.getManufacturer());
+        slave.setSerialNumber(master.getSerialNumber());
         slave.setModelNumber(master.getModelNumber());
         slave.setModelVersion(master.getModelVersion());
         slave.setYearOfCertification(master.getYearOfCertification());
