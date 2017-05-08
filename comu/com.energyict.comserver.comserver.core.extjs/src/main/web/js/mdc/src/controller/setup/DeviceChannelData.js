@@ -1331,15 +1331,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
     },
 
-    showEditValidationRuleWithAttributes: function() {
+    showEditValidationRuleWithAttributes: function () {
         this.showEditRuleWithAttributes('validation');
     },
 
-    showEditEstimationRuleWithAttributes: function() {
+    showEditEstimationRuleWithAttributes: function () {
         this.showEditRuleWithAttributes('estimation');
     },
 
-    showEditRuleWithAttributes: function(type) {
+    showEditRuleWithAttributes: function (type) {
         var me = this,
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
@@ -1356,7 +1356,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             widget;
 
         mainView.setLoading();
-        ruleWithAttributesModel.getProxy().extraParams = {deviceId: Uni.util.Common.encodeURIComponent(router.arguments.deviceId), channelId: channelId, readingType: router.queryParams.readingType};
+        ruleWithAttributesModel.getProxy().extraParams = {
+            deviceId: Uni.util.Common.encodeURIComponent(router.arguments.deviceId),
+            channelId: channelId,
+            readingType: router.queryParams.readingType
+        };
         channelModel.getProxy().setExtraParam('deviceId', deviceId);
         deviceModel.load(deviceId, {
             success: function (record) {

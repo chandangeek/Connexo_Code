@@ -40,10 +40,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterValidation', {
                         return;
                     }
                     var widget = Ext.widget('tabbedDeviceRegisterView', {
-                            device: device,
-                            router: router,
-                            validationConfigurationStore: validationConfigurationStore
-                        });
+                        device: device,
+                        router: router,
+                        validationConfigurationStore: validationConfigurationStore
+                    });
 
                     me.getApplication().fireEvent('changecontentevent', widget);
 
@@ -135,7 +135,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterValidation', {
             widget;
 
         mainView.setLoading();
-        ruleWithAttributesModel.getProxy().extraParams = {deviceId: Uni.util.Common.encodeURIComponent(router.arguments.deviceId), registerId: registerId, readingType: router.queryParams.readingType};
+        ruleWithAttributesModel.getProxy().extraParams = {
+            deviceId: Uni.util.Common.encodeURIComponent(router.arguments.deviceId),
+            registerId: registerId,
+            readingType: router.queryParams.readingType
+        };
         registerModel.getProxy().setExtraParam('deviceId', deviceId);
         deviceModel.load(deviceId, {
             success: function (record) {

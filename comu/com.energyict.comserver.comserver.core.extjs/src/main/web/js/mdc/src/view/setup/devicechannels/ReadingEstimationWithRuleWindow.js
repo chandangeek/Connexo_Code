@@ -92,7 +92,7 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWithRuleWindow', {
 
                                         if (estimator) {
                                             me.down('property-form').loadRecord(estimator);
-                                            hasEmptyRequiredProperties = estimator.properties().getRange().find(function(property) {
+                                            hasEmptyRequiredProperties = estimator.properties().getRange().find(function (property) {
                                                 return property.get('required') && Ext.isEmpty(property.get('value'));
                                             });
                                             if (!!hasEmptyRequiredProperties) {
