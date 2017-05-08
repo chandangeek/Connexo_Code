@@ -181,8 +181,7 @@ public enum MessageSeeds implements MessageSeed {
     ACTUAL_VALUE_NOT_SET(2155, "NoActualValue", "The security accessor does not contain an actual value"),
     VETO_CERTIFICATE_DELETION(2156, "VetoCertificateDeletion", "This certificate is still in use."),
     VALIDATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2157, "ValidationPropertyCannotBeOverridden", "Validation rule property with key ''{0}'' can''t be overridden"),
-    ESTIMATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2158, "EstimationPropertyCannotBeOverridden", "Estimation rule property with key ''{0}'' can''t be overridden"),
-    ;
+    ESTIMATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2158, "EstimationPropertyCannotBeOverridden", "Estimation rule property with key ''{0}'' can''t be overridden"),;
 
     private final int number;
     private final String key;

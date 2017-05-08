@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -13,8 +14,6 @@ import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
-
-import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -103,7 +102,7 @@ public interface DeviceValidation {
      * Finds properties that are overridden on a specified {@link ValidationRule} and channel's {@link ReadingType}.
      *
      * @param validationRule target {@link ValidationRule}
-     * @param readingType target {@link ReadingType} of device's channel
+     * @param readingType    target {@link ReadingType} of device's channel
      * @return {@link ChannelValidationRuleOverriddenProperties} or Optional.empty() if no properties are overridden for specified validation rule and reading type
      */
     Optional<? extends ChannelValidationRuleOverriddenProperties> findOverriddenProperties(ValidationRule validationRule, ReadingType readingType);
@@ -127,7 +126,7 @@ public interface DeviceValidation {
      * which is a device's channel identified by {@link ReadingType} in this context.
      *
      * @param validationRule target {@link ValidationRule} for which the properties are going to be redefined
-     * @param readingType target {@link ReadingType} of device's channel
+     * @param readingType    target {@link ReadingType} of device's channel
      * @return {@link PropertyOverrider}
      */
     PropertyOverrider overridePropertiesFor(ValidationRule validationRule, ReadingType readingType);
