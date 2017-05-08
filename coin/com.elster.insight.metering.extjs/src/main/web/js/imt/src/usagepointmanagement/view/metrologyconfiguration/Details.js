@@ -89,7 +89,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                             store: 'Imt.usagepointmanagement.store.MeterRoles',
                             router: me.router,
                             style: 'padding-left: 0; padding-right: 0',
-                            hasLinkMetersButton: false
+                            hasLinkMetersButton: true
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -103,7 +103,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                                     xtype: 'button',
                                     text: Uni.I18n.translate('general.linkMeters', 'IMT', 'Link meters'),
                                     itemId: 'edit-meters',
-                                    privileges: hasEffectiveMCs && Imt.privileges.UsagePoint.canAdministrate(),
+                                    privileges: Imt.privileges.UsagePoint.canAdministrate(),
                                     href: me.router.getRoute('usagepoints/view/metrologyconfiguration/activatemeters').buildUrl()
                                 }
                             ],

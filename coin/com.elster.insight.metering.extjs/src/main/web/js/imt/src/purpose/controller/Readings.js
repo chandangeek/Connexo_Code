@@ -229,8 +229,8 @@ Ext.define('Imt.purpose.controller.Readings', {
             canMarkProjected = menu.record.get('isProjected') === false && (menu.record.isModified('value') || menu.record.get('ruleId') !== 0 || !Ext.isEmpty(menu.record.get('modificationState')));
 
         Ext.suspendLayouts();
-        menu.down('#estimate-value').setVisible(validationResult);
-        menu.down('#estimate-value-with-rule').setVisible(validationResult && estimationRulesCount);
+        //menu.down('#estimate-value').setVisible(validationResult);
+        //menu.down('#estimate-value-with-rule').setVisible(validationResult && estimationRulesCount);
         if (menu.record.get('confirmed') || menu.record.isModified('value')) {
             menu.down('#confirm-value').hide();
         } else {
@@ -429,8 +429,8 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
 
         Ext.suspendLayouts();
-        menu.down('#estimate-value').setVisible(canEstimate);
-        menu.down('#estimate-value-with-rule').setVisible(canEstimateWithRule);
+        //menu.down('#estimate-value').setVisible(canEstimate);
+        //menu.down('#estimate-value-with-rule').setVisible(canEstimateWithRule);
         menu.down('#confirm-value').setVisible(canConfirm);
         menu.down('#reset-value').setVisible(canReset);
         menu.down('#clear-projected').setVisible(canClearProjected);
