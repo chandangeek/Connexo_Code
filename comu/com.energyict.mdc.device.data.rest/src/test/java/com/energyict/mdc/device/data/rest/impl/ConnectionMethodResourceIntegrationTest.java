@@ -198,7 +198,6 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(deviceProtocol.getCustomPropertySet()).thenReturn(Optional.empty());
         registerConnectionTypePluggableClasses();
         initializeMocks();
     }

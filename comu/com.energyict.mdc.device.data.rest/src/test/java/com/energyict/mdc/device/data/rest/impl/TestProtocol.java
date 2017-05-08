@@ -72,8 +72,8 @@ public class TestProtocol implements DeviceProtocol {
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-        return Collections.emptyList();
+    public Optional<com.energyict.mdc.upl.properties.PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty();
     }
 
     @Override
