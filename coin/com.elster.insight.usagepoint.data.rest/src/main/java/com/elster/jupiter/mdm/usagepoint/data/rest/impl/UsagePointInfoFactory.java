@@ -264,7 +264,9 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.meterRoles = getMetersOnUsagePointInfo(usagePoint).stream()
                 .map(meterActivationInfo -> {
                     MeterRoleInfo mrInfo = meterActivationInfo.meterRole;
-                    mrInfo.meter = meterActivationInfo.meter.name;
+                    if(meterActivationInfo.meter != null) {
+                        mrInfo.meter = meterActivationInfo.meter.name;
+                    }
                     return mrInfo;
                 }).collect(Collectors.toList());
 

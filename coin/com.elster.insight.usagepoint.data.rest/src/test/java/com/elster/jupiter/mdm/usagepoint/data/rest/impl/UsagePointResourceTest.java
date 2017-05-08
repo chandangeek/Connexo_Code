@@ -635,7 +635,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         verify(linker).activate(eq(activationDate), eq(meter1), eq(meterRole1));
         verify(linker).activate(eq(activationDate), eq(meter2), eq(meterRole2));
-        verify(linker).complete();
+        verify(linker).completeRemoveOrAdd();
     }
 
     @Test
