@@ -23,7 +23,6 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfileReading;
-
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;

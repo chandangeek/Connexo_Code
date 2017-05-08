@@ -128,8 +128,6 @@ public enum MessageSeeds implements MessageSeed {
     COMMAND_SHOULD_HAVE_A_CONTRACT_ATTRIBUTE(306, "command.should.have.a.contract.attribute", "The device command '{0}' should have a 'Contract' attribute"),
     COMMAND_SHOULD_HAVE_A_TYPE_ATTRIBUTE(307, "command.should.have.a.type.attribute", "The device command '{0}' should have a 'Type' attribute"),
     COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE(308, "command.should.have.an.activation.date.attribute", "The device command '{0}' should have an 'Activation date' attribute"),;
-
-
     ;
 
     private final int number;

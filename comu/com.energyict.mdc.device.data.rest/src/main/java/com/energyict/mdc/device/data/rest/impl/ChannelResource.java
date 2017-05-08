@@ -28,7 +28,6 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -664,7 +663,7 @@ public class ChannelResource {
         ReadingType readingType = isBulk ? channel.getReadingType() :
                 // TODO: This should be changed in scope of CXO-6664
                 channel.getReadingType().getCalculatedReadingType().orElse(channel.getReadingType());
-                // .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CALCULATED_READINGTYPE_ON_CHANNEL, channel.getId()));
+        // .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CALCULATED_READINGTYPE_ON_CHANNEL, channel.getId()));
         List<EstimationRuleInfo> infos = device.getDeviceConfiguration().getEstimationRuleSets()
                 .stream()
                 .map(estimationRuleSet -> estimationRuleSet.getRules(Collections.singleton(readingType)))
