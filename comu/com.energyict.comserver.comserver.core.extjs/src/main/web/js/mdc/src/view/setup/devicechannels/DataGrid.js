@@ -49,6 +49,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 ptype: 'cellediting',
                 clicksToEdit: 1,
                 pluginId: 'cellplugin',
+                onSpecialKey: Ext.emptyFn, // workaround to fix CXO-6274
                 listeners: {
                     'beforeedit': function (e, f) {
                         return !f.record.get('slaveChannel');

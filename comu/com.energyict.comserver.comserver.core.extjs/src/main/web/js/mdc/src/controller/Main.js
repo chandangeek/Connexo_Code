@@ -103,6 +103,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DataLoggerSlaves',
         'Mdc.usagepointmanagement.controller.UsagePoint',
         'Mdc.usagepointmanagement.controller.ViewChannelsList',
+        'Mdc.usagepointmanagement.controller.ViewRegistersList',
         'Mdc.controller.setup.DeviceConflictingMapping',
         'Mdc.devicetypecustomattributes.controller.AttributeSets',
         'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersions',
@@ -119,9 +120,11 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.metrologyconfiguration.controller.AddView',
         'Mdc.usagepointmanagement.controller.UsagePointHistory',
         'Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities',
+        'Mdc.usagepointmanagement.controller.ViewRegisterDataAndReadingQualities',
         'Mdc.controller.setup.CommandLimitationRules',
         'Mdc.securityaccessors.controller.SecurityAccessors',
-        'Mdc.securityaccessors.controller.DeviceSecurityAccessors'
+        'Mdc.securityaccessors.controller.DeviceSecurityAccessors',
+        'Mdc.controller.setup.DeviceRegisterValidation'
     ],
 
     stores: [

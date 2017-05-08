@@ -46,6 +46,14 @@ Ext.define('Mdc.controller.setup.DeviceRegisterTab', {
         this.veto = true;
     },
 
+    initTabShowDeviceRegisterValidationView: function (deviceId, registerId) {
+        this.deviceId = deviceId;
+        this.registerId = registerId;
+        var c = this.getController('Mdc.controller.setup.DeviceRegisterValidation');
+        c.showDeviceRegisterValidationView(deviceId, registerId, this);
+        this.veto = true;
+    },
+
     changeTab: function (tabPanel,tab) {
         if(!this.veto) {
             var router = this.getController('Uni.controller.history.Router'),
@@ -67,6 +75,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterTab', {
                 route = 'devices/device/registers/register';
                 route && (route = router.getRoute(route));
                 route && route.forward(routeParams, filterParams);
+            } else if (tab.itemId === 'register-validation-configuration') {
+                routeParams.registerId = this.registerId;
+                route = 'devices/device/registers/validation';
+                route && (route = router.getRoute(route));
+                route && route.forward(routeParams);
             }
         } else {
             this.veto = false;
