@@ -383,7 +383,8 @@ class ReadingStorerImpl implements ReadingStorer {
             BigDecimal delta = currentBulk.subtract(previousBulk);
             delta = overflowCorrection.apply(delta);
             if (derivation.getDerivationRule().isMultiplied()) {
-                BigDecimal multiplier = getMultiplier(channel, instant, bulkReadingType);
+                Optional<ReadingType> derivationBulkReadingType = derivation.getReadingType().getBulkReadingType();
+                BigDecimal multiplier = getMultiplier(channel, instant, derivationBulkReadingType.isPresent() ? (IReadingType) derivationBulkReadingType.get() : bulkReadingType);
                 delta = delta.multiply(multiplier);
             }
             toUpdate[index] = delta;
