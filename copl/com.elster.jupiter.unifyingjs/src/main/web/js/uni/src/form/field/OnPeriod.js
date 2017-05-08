@@ -148,6 +148,105 @@ Ext.define('Uni.form.field.OnPeriod', {
                         forceSelection: true
                     }
                 ]
+            },
+            {
+                boxLabel: Uni.I18n.translate('form.field.onPeriod.optionCurrentOfYear.label', 'UNI', 'Current day of the year'),
+                itemId: 'option-current-of-year',
+                name: me.baseRadioName,
+                inputValue: 'currentdayofyear',
+                margin: '0 0 6 0'
+            },
+            {
+                xtype: 'container',
+                itemId: 'option-doy',
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
+                items: [
+                    {
+                        xtype: 'radio',
+                        name: me.baseRadioName,
+                        inputValue: 'dayofyear',
+                        margin: '0 6 0 0'
+                    },
+                    {
+                        xtype: 'label',
+                        text: Uni.I18n.translate('form.field.onPeriod.optionDayOfMonth.day', 'UNI', 'Day'),
+                        cls: Ext.baseCSSPrefix + 'form-item-label',
+                        style: {
+                            fontWeight: 'normal'
+                        }
+                    },
+                    {
+                        xtype: 'combobox',
+                        name: 'period-day-interval',
+                        displayField: 'name',
+                        valueField: 'value',
+                        queryMode: 'local',
+                        editable: false,
+                        hideLabel: true,
+                        value: 1,
+                        width: 64,
+                        margin: '0 6 0 6',
+                        store: new Ext.data.Store({
+                            fields: ['name', 'value'],
+                            data: (function () {
+                                var data = [];
+                                for (var i = 1; i <= 31; i++) {
+                                    data.push({
+                                        name: i,
+                                        value: i
+                                    });
+                                }
+                                return data;
+                            })()
+                        }),
+                        allowBlank: false,
+                        forceSelection: true
+                    },
+                    {
+                        xtype: 'label',
+                        text: Uni.I18n.translate('form.field.onPeriod.optionDayOfMonth.month', 'UNI', 'of the month'),
+                        cls: Ext.baseCSSPrefix + 'form-item-label',
+                        style: {
+                            fontWeight: 'normal'
+                        }
+                    },
+                    {
+                        xtype: 'combobox',
+                        name: 'period-month-interval',
+                        displayField: 'name',
+                        valueField: 'value',
+                        queryMode: 'local',
+                        editable: false,
+                        hideLabel: true,
+                        value: 1,
+                        width: 110,
+                        margin: '0 6 0 6',
+                        store: new Ext.data.Store({
+                            fields: ['name', 'value'],
+                            data: (function () {
+                                return [
+                                    {name: Uni.I18n.translate('general.month.january', 'UNI', 'January'), value: 1},
+                                    {name: Uni.I18n.translate('general.month.february', 'UNI', 'February'), value: 2},
+                                    {name: Uni.I18n.translate('general.month.march', 'UNI', 'March'), value: 3},
+                                    {name: Uni.I18n.translate('general.month.april', 'UNI', 'April'), value: 4},
+                                    {name: Uni.I18n.translate('general.month.may', 'UNI', 'May'), value: 5},
+                                    {name: Uni.I18n.translate('general.month.june', 'UNI', 'June'), value: 6},
+                                    {name: Uni.I18n.translate('general.month.july', 'UNI', 'July'), value: 7},
+                                    {name: Uni.I18n.translate('general.month.august', 'UNI', 'August'), value: 8},
+                                    {name: Uni.I18n.translate('general.month.september', 'UNI', 'September'), value: 9},
+                                    {name: Uni.I18n.translate('general.month.october', 'UNI', 'October'), value: 10},
+                                    {name: Uni.I18n.translate('general.month.november', 'UNI', 'November'), value: 11},
+                                    {name: Uni.I18n.translate('general.month.december', 'UNI', 'December'), value: 12}
+                                ];
+                            })()
+                        }),
+                        allowBlank: false,
+                        forceSelection: true
+                    }
+                ]
             }
         ];
     },
@@ -162,6 +261,13 @@ Ext.define('Uni.form.field.OnPeriod', {
             }
         }, me);
 
+        me.getOptionCurrentOfYearRadio().on('change', function (scope, newValue, oldValue) {
+            if (newValue) {
+                me.selectedValue = 'currentdayofyear';
+                me.fireEvent('periodchange', me.getOnValue());
+            }
+        }, me);
+
         me.getOptionDayOfMonthRadio().on('change', function (scope, newValue, oldValue) {
             if (newValue) {
                 me.selectedValue = 'dayofmonth';
@@ -171,6 +277,21 @@ Ext.define('Uni.form.field.OnPeriod', {
 
         me.getOptionDayOfMonthContainer().down('combobox').on('change', function () {
             me.selectOptionDayOfMonth();
+        }, me);
+
+        me.getOptionDayOfYearRadio().on('change', function (scope, newValue, oldValue) {
+            if (newValue) {
+                me.selectedValue = 'dayofyear';
+                me.fireEvent('periodchange', me.getOnValue());
+            }
+        }, me);
+
+        me.getOptionDayOfYearContainer().down('[name=period-day-interval]').on('change', function () {
+            me.selectOptionDayOfYear();
+        }, me);
+
+        me.getOptionDayOfYearContainer().down('[name=period-month-interval]').on('change', function () {
+            me.selectOptionDayOfYear();
         }, me);
 
         me.getOptionDayOfWeekRadio().on('change', function (scope, newValue, oldValue) {
@@ -207,6 +328,18 @@ Ext.define('Uni.form.field.OnPeriod', {
         }
     },
 
+    selectOptionDayOfYear: function (suspendEvent) {
+        this.selectedValue = 'dayofyear';
+
+        this.getOptionDayOfYearRadio().suspendEvents();
+        this.getOptionDayOfYearRadio().setValue(true);
+        this.getOptionDayOfYearRadio().resumeEvents();
+
+        if (!suspendEvent) {
+            this.fireEvent('periodchange', this.getValue());
+        }
+    },
+
     selectOptionDayOfWeek: function (suspendEvent) {
         this.selectedValue = 'dayofweek';
 
@@ -223,8 +356,16 @@ Ext.define('Uni.form.field.OnPeriod', {
         return this.down('#option-current');
     },
 
+    getOptionCurrentOfYearRadio: function () {
+        return this.down('#option-current-of-year');
+    },
+
     getOptionDayOfMonthRadio: function () {
         return this.getOptionDayOfMonthContainer().down('radio');
+    },
+
+    getOptionDayOfYearRadio: function () {
+        return this.getOptionDayOfYearContainer().down('radio');
     },
 
     getOptionDayOfWeekRadio: function () {
@@ -239,11 +380,24 @@ Ext.define('Uni.form.field.OnPeriod', {
         return this.down('#option-dow');
     },
 
+    getOptionDayOfYearContainer: function () {
+        return this.down('#option-doy');
+    },
+
     setOptionCurrentDisabled: function (disabled) {
         var me = this;
 
         me.getOptionCurrentRadio().setVisible(!disabled);
         me.getOptionCurrentRadio().setDisabled(disabled);
+
+        me.selectAvailableOption();
+    },
+
+    setOptionCurrentOfYearDisabled: function (disabled) {
+        var me = this;
+
+        me.getOptionCurrentOfYearRadio().setVisible(!disabled);
+        me.getOptionCurrentOfYearRadio().setDisabled(disabled);
 
         me.selectAvailableOption();
     },
@@ -262,6 +416,25 @@ Ext.define('Uni.form.field.OnPeriod', {
             me.getOptionDayOfMonthContainer().addCls(Ext.baseCSSPrefix + 'item-disabled');
         } else {
             me.getOptionDayOfMonthContainer().removeCls(Ext.baseCSSPrefix + 'item-disabled');
+        }
+
+        me.selectAvailableOption();
+    },
+
+    setOptionDayOfYearDisabled: function (disabled) {
+        var me = this,
+            radio = me.getOptionDayOfYearRadio(),
+            combo = me.getOptionDayOfYearContainer();
+
+        radio.setVisible(!disabled);
+        radio.setDisabled(disabled);
+        combo.setVisible(!disabled);
+        combo.setDisabled(disabled);
+
+        if (disabled) {
+            me.getOptionDayOfYearContainer().addCls(Ext.baseCSSPrefix + 'item-disabled');
+        } else {
+            me.getOptionDayOfYearContainer().removeCls(Ext.baseCSSPrefix + 'item-disabled');
         }
 
         me.selectAvailableOption();
@@ -288,7 +461,9 @@ Ext.define('Uni.form.field.OnPeriod', {
         var me = this,
             dayRadio = me.getOptionCurrentRadio(),
             monthRadio = me.getOptionDayOfMonthRadio(),
-            weekRadio = me.getOptionDayOfWeekRadio();
+            weekRadio = me.getOptionDayOfWeekRadio(),
+            dayOfYearRadio = me.getOptionCurrentOfYearRadio(),
+            yearRadio = me.getOptionDayOfYearRadio();
 
         if (!monthRadio.getValue() && dayRadio.getValue() && dayRadio.isDisabled()) {
             monthRadio.suspendEvents();
@@ -309,14 +484,44 @@ Ext.define('Uni.form.field.OnPeriod', {
         }
     },
 
+    refreshControls: function () {
+        var me = this,
+            dayRadio = me.getOptionCurrentRadio(),
+            monthRadio = me.getOptionDayOfMonthRadio(),
+            weekRadio = me.getOptionDayOfWeekRadio(),
+            dayOfYearRadio = me.getOptionCurrentOfYearRadio(),
+            yearRadio = me.getOptionDayOfYearRadio();
+
+        if ((!monthRadio.getValue() || !dayRadio.getValue()) && (dayRadio.isVisible() || monthRadio.isVisible())) {
+            dayRadio.suspendEvents();
+            dayRadio.setValue(true);
+            dayRadio.resumeEvents();
+        }
+
+        if (!weekRadio.getValue() && weekRadio.isVisible()) {
+            weekRadio.suspendEvents();
+            weekRadio.setValue(true);
+            weekRadio.resumeEvents();
+        }
+
+        if ((!yearRadio.getValue() || !dayOfYearRadio.getValue()) && (dayOfYearRadio.isVisible() || yearRadio.isVisible())) {
+            dayOfYearRadio.suspendEvents();
+            dayOfYearRadio.setValue(true);
+            dayOfYearRadio.resumeEvents();
+        }
+    },
+
     getOnValue: function () {
         var me = this,
             selectedValue = me.selectedValue,
+            dayOfYearValue = me.getOptionDayOfYearContainer().down('[name=period-day-interval]').disabled ? null : me.getOptionDayOfYearContainer().down('[name=period-day-interval]').getValue(),
+            monthOfYearValue = me.getOptionDayOfYearContainer().down('[name=period-month-interval]').disabled ? null : me.getOptionDayOfYearContainer().down('[name=period-month-interval]').getValue(),
             dayOfMonthValue = me.getOptionDayOfMonthContainer().down('combobox').disabled ? null : me.getOptionDayOfMonthContainer().down('combobox').getValue(),
             dayOfWeekValue = me.getOptionDayOfWeekContainer().down('combobox').disabled ? null : me.getOptionDayOfWeekContainer().down('combobox').getValue();
 
         var result = {
-            onCurrentDay: selectedValue === 'currentday'
+            onCurrentDay: selectedValue === 'currentday',
+            onCurrentDayOfYear: selectedValue === 'currentdayofyear'
         };
 
         if (selectedValue === 'dayofmonth') {
@@ -326,6 +531,11 @@ Ext.define('Uni.form.field.OnPeriod', {
         } else if (selectedValue === 'dayofweek') {
             Ext.apply(result, {
                 onDayOfWeek: dayOfWeekValue
+            });
+        } else if (selectedValue === 'dayofyear') {
+            Ext.apply(result, {
+                onDayOfYear: dayOfYearValue,
+                onMonthOfYear: monthOfYearValue
             });
         }
 
