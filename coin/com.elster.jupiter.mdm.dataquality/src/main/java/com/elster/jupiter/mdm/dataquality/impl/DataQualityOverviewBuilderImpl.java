@@ -202,6 +202,23 @@ class DataQualityOverviewBuilderImpl implements UsagePointDataQualityService.Dat
     }
 
     @Override
+    public MetricSpecificationBuilder withProjectedAmount() {
+        return new MetricSpecificationBuilder() {
+            @Override
+            public DataQualityOverviewBuilder equalTo(long value) {
+                specification.setAmountOfProjected(value);
+                return DataQualityOverviewBuilderImpl.this;
+            }
+
+            @Override
+            public DataQualityOverviewBuilder inRange(Range<Long> range) {
+                specification.setAmountOfProjected(range);
+                return DataQualityOverviewBuilderImpl.this;
+            }
+        };
+    }
+
+    @Override
     public DataQualityOverviews paged(int from, int to) {
         this.specification.paged(from, to);
         return deviceDataQualityService.queryWith(specification);

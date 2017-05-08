@@ -41,6 +41,7 @@ class DataQualityOverviewSpecificationImpl {
     private MetricValueRange amountOfEstimates;
     private MetricValueRange amountOfInformatives;
     private MetricValueRange amountOfEdited;
+    private MetricValueRange amountOfProjected;
 
     private int from;
     private int to;
@@ -117,6 +118,14 @@ class DataQualityOverviewSpecificationImpl {
         this.amountOfEdited = new MetricValueRange.LongRange(range);
     }
 
+    void setAmountOfProjected(long amountOfProjected) {
+        this.amountOfProjected = new MetricValueRange.ExactMatch(amountOfProjected);
+    }
+
+    void setAmountOfProjected(Range<Long> range) {
+        this.amountOfProjected = new MetricValueRange.LongRange(range);
+    }
+
     void paged(int from, int to) {
         this.from = from;
         this.to = to;
@@ -168,6 +177,10 @@ class DataQualityOverviewSpecificationImpl {
 
     Optional<MetricValueRange> getAmountOfEdited() {
         return Optional.ofNullable(amountOfEdited);
+    }
+
+    Optional<MetricValueRange> getAmountOfProjected() {
+        return Optional.ofNullable(amountOfProjected);
     }
 
     int getFrom() {

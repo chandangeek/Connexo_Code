@@ -133,7 +133,8 @@ class DataQualityOverviewSqlBuilder {
                 Pair.of(KpiType.INFORMATIVE, this.specification.getAmountOfInformatives()),
                 Pair.of(KpiType.ESTIMATED, this.specification.getAmountOfEstimates()),
                 Pair.of(KpiType.TOTAL_EDITED, this.specification.getAmountOfEdited()),
-                Pair.of(KpiType.CONFIRMED, this.specification.getAmountOfConfirmed()))
+                Pair.of(KpiType.CONFIRMED, this.specification.getAmountOfConfirmed()),
+                Pair.of(KpiType.PROJECTED, this.specification.getAmountOfProjected()))
                 .filter(pair -> pair.getLast().isPresent())
                 .collect(Collectors.toMap(Pair::getFirst, pair -> pair.getLast().get()));
         Map<KpiType, MetricValueRange> conditionsByReadingQualities = this.specification.getReadingQualityTypes().stream()
