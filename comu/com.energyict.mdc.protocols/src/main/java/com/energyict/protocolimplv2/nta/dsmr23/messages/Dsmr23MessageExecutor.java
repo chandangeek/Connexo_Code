@@ -421,7 +421,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
 
-        byte[] key = ProtocolTools.aesWrap(((PlaintextSymmetricKey)keyAccessor.getTempValue().get()).getKey().get().getEncoded(), ((PlaintextSymmetricKey)masterKey.getActualValue()).getKey().get().getEncoded());
+        byte[] key = ProtocolTools.aesWrap(((PlaintextSymmetricKey)keyAccessor.getTempValue().get()).getKey().get().getEncoded(), ((PlaintextSymmetricKey)masterKey.getActualValue().get()).getKey().get().getEncoded());
 
         keyData.addDataType(OctetString.fromByteArray(key));
         globalKeyArray.addDataType(keyData);

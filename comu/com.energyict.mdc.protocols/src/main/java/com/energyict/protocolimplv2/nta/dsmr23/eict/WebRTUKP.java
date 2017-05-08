@@ -90,16 +90,16 @@ public class WebRTUKP extends AbstractDlmsProtocol {
         TypedProperties typedProperties = getDlmsProperties().getProperties();
         String masterkeyName = ((KeyAccessorType)this.getOfflineDevice().getAllProperties().getTypedProperty("MasterKey")).getName();
         typedProperties.removeProperty("MasterKey");
-        typedProperties.setProperty("MasterKey", ((PlaintextSymmetricKey)this.getOfflineDevice().getAllOfflineKeyAccessors().stream().filter(keyAccessorType -> keyAccessorType.getKeyAccessorType().getName().equals(masterkeyName)).findFirst().get().getActualValue()).getKey().get().getEncoded());
+        typedProperties.setProperty("MasterKey", ((PlaintextSymmetricKey)this.getOfflineDevice().getAllOfflineKeyAccessors().stream().filter(keyAccessorType -> keyAccessorType.getKeyAccessorType().getName().equals(masterkeyName)).findFirst().get().getActualValue().get()).getKey().get().getEncoded());
         if (typedProperties.hasValueFor("AuthenticationKeyWithKeyAccessor")) {
             String autKeyName = ((KeyAccessorType) typedProperties.getTypedProperty("AuthenticationKeyWithKeyAccessor")).getName();
             typedProperties.removeProperty("AuthenticationKeyWithKeyAccessor");
-            typedProperties.setProperty("AuthenticationKeyWithKeyAccessor", ((PlaintextSymmetricKey) this.getOfflineDevice().getAllOfflineKeyAccessors().stream().filter(keyAccessorType -> keyAccessorType.getKeyAccessorType().getName().equals(autKeyName)).findFirst().get().getActualValue()).getKey().get().getEncoded());
+            typedProperties.setProperty("AuthenticationKeyWithKeyAccessor", ((PlaintextSymmetricKey) this.getOfflineDevice().getAllOfflineKeyAccessors().stream().filter(keyAccessorType -> keyAccessorType.getKeyAccessorType().getName().equals(autKeyName)).findFirst().get().getActualValue().get()).getKey().get().getEncoded());
         }
         if (typedProperties.hasValueFor("EncryptionKeyWithKeyAccessor")) {
             String encKeyName = ((KeyAccessorType) typedProperties.getTypedProperty("EncryptionKeyWithKeyAccessor")).getName();
             typedProperties.removeProperty("EncryptionKeyWithKeyAccessor");
-            typedProperties.setProperty("EncryptionKeyWithKeyAccessor", ((PlaintextSymmetricKey) this.getOfflineDevice().getAllOfflineKeyAccessors().stream().filter(keyAccessorType -> keyAccessorType.getKeyAccessorType().getName().equals(encKeyName)).findFirst().get().getActualValue()).getKey().get().getEncoded());
+            typedProperties.setProperty("EncryptionKeyWithKeyAccessor", ((PlaintextSymmetricKey) this.getOfflineDevice().getAllOfflineKeyAccessors().stream().filter(keyAccessorType -> keyAccessorType.getKeyAccessorType().getName().equals(encKeyName)).findFirst().get().getActualValue().get()).getKey().get().getEncoded());
         }
     }
 
