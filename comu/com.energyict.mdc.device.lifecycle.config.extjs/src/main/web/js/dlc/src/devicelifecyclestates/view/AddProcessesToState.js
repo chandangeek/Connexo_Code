@@ -8,6 +8,7 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
     requires: ['Dlc.devicelifecyclestates.view.AddProcessesToStateGrid',
                'Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses'],
     overflowY: true,
+    stateId: null,
     storeToUpdate: null,
     content: [
         {
@@ -26,13 +27,12 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
                     grid: {
                         xtype: 'add-process-to-state-selection-grid',
                         itemId: 'add-process-grid',
-                        store: 'Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses',
-                        height: 600
+                        store: 'Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses'
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         margin: '15 0 20 0',
-                        title: Uni.I18n.translate('transitionBusinessProcess.empty.title', 'DLC', 'No processes found.'),
+                        title: Uni.I18n.translate('transitionBusinessProcess.empty.title', 'DLC', 'No processes found'),
                         reasons: [
                             Uni.I18n.translate('transitionBusinessProcess.empty.list.item1', 'DLC', 'No processes are defined yet'),
                             Uni.I18n.translate('transitionBusinessProcess.empty.list.item2', 'DLC', 'All processes are already added to the state.')
@@ -68,6 +68,7 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
         var me = this,
            availableProcesses = Ext.data.StoreManager.lookup('Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses');
 
+        availableProcesses.getProxy().setExtraParam('stateId', me.stateId);
         me.callParent(arguments);
         if (availableProcesses) {
             availableProcesses.load(function(records, operation, success){

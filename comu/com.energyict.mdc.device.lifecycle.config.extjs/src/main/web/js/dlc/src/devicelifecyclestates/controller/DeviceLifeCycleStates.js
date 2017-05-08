@@ -281,7 +281,6 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         if (!Ext.isEmpty(stateId)) {
             stateModel.load(stateId, {
                 success: function (record) {
-                    me.getPage().setLoading(false);
                     me.getApplication().fireEvent('changecontentevent', widget);
                     me.getApplication().fireEvent('loadlifecyclestate', record);
                     form.loadRecord(record);
@@ -356,7 +355,8 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
 
     showAvailableTransitionProcesses: function (storeToUpdate) {
         var store = Ext.data.StoreManager.lookup(storeToUpdate),
-            widget = Ext.widget('AddProcessesToState', {storeToUpdate: store});
+            router = this.getController('Uni.controller.history.Router'),
+            widget = Ext.widget('AddProcessesToState', {storeToUpdate: store, stateId: router.arguments.id});
 
         this.getApplication().fireEvent('changecontentevent', widget);
     },

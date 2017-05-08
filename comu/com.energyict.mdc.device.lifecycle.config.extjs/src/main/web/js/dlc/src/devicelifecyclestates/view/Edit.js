@@ -83,7 +83,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                             hideHeaders: true,
                             disableSelection: true,
                             trackMouseOver: false,
-                            width: 600,
+                            width: 285,
                             maxHeight: 300,
                             hidden: true,
                             style: {
@@ -92,6 +92,9 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                             columns: [
                                 {
                                     dataIndex: 'name',
+                                    renderer: function (value, metaData, record) {
+                                        return value + ' (' + record.get('version') + ')';
+                                    },
                                     flex: 1
                                 },
                                 {
@@ -158,7 +161,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                             hideHeaders: true,
                             disableSelection: true,
                             trackMouseOver: false,
-                            width: 600,
+                            width: 285,
                             maxHeight: 300,
                             hidden: true,
                             style: {
@@ -167,6 +170,9 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                             columns: [
                                 {
                                     dataIndex: 'name',
+                                    renderer: function (value, metaData, record) {
+                                        return value + ' (' + record.get('version') + ')';
+                                    },
                                     flex: 1
                                 },
                                 {

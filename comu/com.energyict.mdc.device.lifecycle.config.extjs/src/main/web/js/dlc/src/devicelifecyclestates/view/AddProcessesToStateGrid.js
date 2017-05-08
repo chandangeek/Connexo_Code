@@ -23,6 +23,9 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToStateGrid', {
             {
                 header: Uni.I18n.translate('transitionBusinessProcesses.process.name', 'DLC', 'Name'),
                 dataIndex: 'name',
+                renderer: function (value, metaData, record) {
+                    return value + ' (' + record.get('version') + ')';
+                },
                 sortable: false,
                 menuDisabled: true,
                 ascSortCls: Ext.baseCSSPrefix,          //No arrow
