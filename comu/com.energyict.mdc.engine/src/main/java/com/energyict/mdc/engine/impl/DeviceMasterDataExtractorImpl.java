@@ -926,6 +926,11 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
         }
 
         @Override
+        public String client() {
+            return this.actual.getClient();
+        }
+
+        @Override
         public int authenticationDeviceAccessLevelId() {
             return this.actual.getAuthenticationDeviceAccessLevel().getId();
         }
@@ -933,6 +938,21 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
         @Override
         public int encryptionDeviceAccessLevelId() {
             return this.actual.getEncryptionDeviceAccessLevel().getId();
+        }
+
+        @Override
+        public int securitySuite() {
+            return this.actual.getSecuritySuite().getId();
+        }
+
+        @Override
+        public int requestSecurityLevelId() {
+            return this.actual.getResponseSecurityLevel().getId();
+        }
+
+        @Override
+        public int responseSecurityLevelId() {
+            return this.actual.getResponseSecurityLevel().getId();
         }
 
         @Override
