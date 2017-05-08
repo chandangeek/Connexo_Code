@@ -96,7 +96,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -140,8 +139,6 @@ public class DeviceConfigValidationRuleSetUsageTest {
     private InboundDeviceProtocolService inboundDeviceProtocolService;
     @Mock
     private LicensedProtocolService licensedProtocolService;
-    @Mock
-    private UserService userService;
 
     @Before
     public void setup() {
@@ -322,7 +319,6 @@ public class DeviceConfigValidationRuleSetUsageTest {
             bind(DeviceProtocolService.class).toInstance(deviceProtocolService);
             bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
-            bind(UserService.class).toInstance(userService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
