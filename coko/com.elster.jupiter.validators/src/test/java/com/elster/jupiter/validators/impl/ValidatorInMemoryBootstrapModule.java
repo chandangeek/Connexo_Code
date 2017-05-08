@@ -5,6 +5,7 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -87,6 +88,7 @@ public class ValidatorInMemoryBootstrapModule {
                 new TransactionModule(),
                 new NlsModule(),
                 new BasicPropertiesModule(),
+                new BpmModule(),
                 new TimeModule(),
                 new CalendarModule(),
                 new SearchModule(),
