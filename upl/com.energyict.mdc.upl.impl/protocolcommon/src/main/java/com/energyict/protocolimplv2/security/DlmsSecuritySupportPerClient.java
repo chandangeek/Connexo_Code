@@ -9,14 +9,16 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
+
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -27,6 +29,7 @@ import java.util.stream.Stream;
  * Date: 18/06/13
  * Time: 15:02
  */
+//TODO: as we have introduced client support (#getClientSecurityPropertySpec) is this class still relevant? Check to review/update!
 public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
@@ -182,6 +185,11 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
     }
 
     @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.of(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(this.propertySpecService));
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return Arrays.<AuthenticationDeviceAccessLevel>asList(
                 new NoAuthenticationPublic(),
@@ -252,6 +260,7 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
         TypedProperties typedProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+            typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), deviceProtocolSecurityPropertySet.getClient()); // Add the ClientMacAddress
             convertToProperPassword(deviceProtocolSecurityPropertySet, typedProperties);
 
             final int clientId = AuthenticationAccessLevelIds.getClientIdFor(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel());
@@ -334,6 +343,11 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, encryptionLevelPropertyValue, getEncryptionAccessLevels()));
 
         return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public String getClient() {
+                return Integer.toString(clientMacAddressValue);
+            }
+
             @Override
             public int getAuthenticationDeviceAccessLevel() {
                 return authenticationLevelPropertyValue;

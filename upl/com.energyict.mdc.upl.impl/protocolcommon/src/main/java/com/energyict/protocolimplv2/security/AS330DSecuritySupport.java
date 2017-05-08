@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -18,8 +19,8 @@ public class AS330DSecuritySupport extends DsmrSecuritySupport {
     }
 
     @Override
-    protected PropertySpec getClientMacAddressPropertySpec(PropertySpecService propertySpecService) {
-        return DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, BigDecimal.valueOf(2));
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.of(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, BigDecimal.valueOf(2)));
     }
 
 }

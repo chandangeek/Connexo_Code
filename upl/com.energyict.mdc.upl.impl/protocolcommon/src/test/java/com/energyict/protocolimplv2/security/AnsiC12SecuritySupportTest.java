@@ -3,8 +3,10 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
+
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -88,6 +90,11 @@ public class AnsiC12SecuritySupportTest extends AbstractSecuritySupportTest {
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
+                    @Override
+                    public String getClient() {
+                        return null;
+                    }
+
                     @Override
                     public int getAuthenticationDeviceAccessLevel() {
                         return 1;

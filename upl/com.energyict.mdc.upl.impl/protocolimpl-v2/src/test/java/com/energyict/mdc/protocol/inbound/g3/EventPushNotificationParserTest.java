@@ -11,8 +11,6 @@ import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.SecurityProperty;
-import com.energyict.mdc.upl.security.SecurityPropertySet;
 
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
@@ -20,7 +18,6 @@ import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import junit.framework.TestCase;
 import org.json.JSONException;
 
@@ -28,9 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.junit.Before;
@@ -106,7 +100,7 @@ public class EventPushNotificationParserTest extends TestCase {
         when(context.getLogger()).thenReturn(Logger.getAnonymousLogger());
         inboundDAO = mock(InboundDAO.class);
 
-        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(3, AK, EK);
+//        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(3, AK, EK);
 //        doReturn(securityProperties).when(context).getProtocolSecurityProperties(Matchers.<DeviceIdentifier>any()); TODO: rework this!
         when(context.getInboundDAO()).thenReturn(inboundDAO);
 
@@ -118,31 +112,31 @@ public class EventPushNotificationParserTest extends TestCase {
     }
 
     public void setSecurityContext_1_6() throws IOException {
-        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(3, AK_1, EK_1);
+//        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(3, AK_1, EK_1);
 //        doReturn(securityProperties).when(context).getProtocolSecurityProperties(Matchers.<DeviceIdentifier>any()); TODO: rework this!
         when(context.getInboundDAO()).thenReturn(inboundDAO);
     }
 
-    private Optional<List<SecurityProperty>> createSecurityProperties(int dataTransportLevel, String aKey, String eKey) {
-        SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
-        when(securityPropertySet.getAuthenticationDeviceAccessLevelId()).thenReturn(5);
-        when(securityPropertySet.getEncryptionDeviceAccessLevelId()).thenReturn(dataTransportLevel);
-
-        SecurityProperty akProperty = mock(SecurityProperty.class);
-        when(akProperty.getValue()).thenReturn(aKey);
-        when(akProperty.getName()).thenReturn(SecurityPropertySpecName.AUTHENTICATION_KEY.toString());
-        when(akProperty.getSecurityPropertySet()).thenReturn(securityPropertySet);
-
-        SecurityProperty ekProperty = mock(SecurityProperty.class);
-        when(ekProperty.getValue()).thenReturn(eKey);
-        when(ekProperty.getName()).thenReturn(SecurityPropertySpecName.ENCRYPTION_KEY.toString());
-        when(ekProperty.getSecurityPropertySet()).thenReturn(securityPropertySet);
-
-        List<SecurityProperty> securityProperties = new ArrayList<>();
-        securityProperties.add(akProperty);
-        securityProperties.add(ekProperty);
-        return Optional.of(securityProperties);
-    }
+//    private Optional<List<SecurityProperty>> createSecurityProperties(int dataTransportLevel, String aKey, String eKey) {
+//        SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
+//        when(securityPropertySet.getAuthenticationDeviceAccessLevelId()).thenReturn(5);
+//        when(securityPropertySet.getEncryptionDeviceAccessLevelId()).thenReturn(dataTransportLevel);
+//
+//        SecurityProperty akProperty = mock(SecurityProperty.class);
+//        when(akProperty.getValue()).thenReturn(aKey);
+//        when(akProperty.getName()).thenReturn(SecurityPropertySpecName.AUTHENTICATION_KEY.toString());
+//        when(akProperty.getSecurityPropertySet()).thenReturn(securityPropertySet);
+//
+//        SecurityProperty ekProperty = mock(SecurityProperty.class);
+//        when(ekProperty.getValue()).thenReturn(eKey);
+//        when(ekProperty.getName()).thenReturn(SecurityPropertySpecName.ENCRYPTION_KEY.toString());
+//        when(ekProperty.getSecurityPropertySet()).thenReturn(securityPropertySet);
+//
+//        List<SecurityProperty> securityProperties = new ArrayList<>();
+//        securityProperties.add(akProperty);
+//        securityProperties.add(ekProperty);
+//        return Optional.of(securityProperties);
+//    }
 
     @Test
     public void testPlainFrame() throws IOException, SQLException {
@@ -304,7 +298,7 @@ public class EventPushNotificationParserTest extends TestCase {
     public void testAM540CipheredRelayEventNotification() throws IOException, SQLException {
         String ak = "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF";
         String ek = "000102030405060708090A0B0C0D0E0F";
-        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(3, ak, ek);
+//        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(3, ak, ek);
 //        doReturn(securityProperties).when(context).getProtocolSecurityProperties(Matchers.<DeviceIdentifier>any()); TODO: rework this!
 
         EventPushNotificationParser parser = spyParser(CIPHERED_RELAYED_EVENT_NOTIFICATION_AM540);
@@ -335,7 +329,7 @@ public class EventPushNotificationParserTest extends TestCase {
     public void testBeaconEncryptedNotificationWithTopology() throws IOException, SQLException, JSONException {
         String ak = "000102030405060708090A0B0C0D0E0F";
         String ek = "00112233445566778899AABBCCDDEEFF";
-        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(3, ak, ek);
+//        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(3, ak, ek);
 //        doReturn(securityProperties).when(context).getProtocolSecurityProperties(Matchers.<DeviceIdentifier>any()); TODO: rework this!
 
         EventPushNotificationParser parser = spyParser(BEACON_ENCRYPTED_AUTHENTICATED_NOTIFICATION);
@@ -419,7 +413,7 @@ public class EventPushNotificationParserTest extends TestCase {
     public void testEncryptedFrames180() throws IOException, SQLException {
         String ak = "00000000000000000000000000000000";
         String ek = "00000000000000000000000000000000";
-        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(2, ak, ek);
+//        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(2, ak, ek);
 //        doReturn(securityProperties).when(context).getProtocolSecurityProperties(Matchers.<DeviceIdentifier>any()); TODO: rework this!
         EventPushNotificationParser parser = spyParser(ENCRYPTED_DATA_NOTIFICATION_1_8_0);
         parser.readAndParseInboundFrame();
@@ -435,7 +429,7 @@ public class EventPushNotificationParserTest extends TestCase {
     public void testBeaconEncryptedLostNotification() throws IOException, SQLException, JSONException {
         String ak = "000102030405060708090A0B0C0D0E0F";
         String ek = "00112233445566778899AABBCCDDEEFF";
-        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(3, ak, ek);
+//        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(3, ak, ek);
 //        doReturn(securityProperties).when(context).getProtocolSecurityProperties(Matchers.<DeviceIdentifier>any()); TODO: rework this!
         EventPushNotificationParser parser = spyParser(BEACON_ENCRYPTED_AUTHENTICATED_LOST_NOTIFICATION);
         parser.readAndParseInboundFrame();
@@ -479,7 +473,7 @@ public class EventPushNotificationParserTest extends TestCase {
 
     @Test
     public void testEncryptedFrame() throws IOException, SQLException {
-        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(2, AK, EK);
+//        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(2, AK, EK);
 //        doReturn(securityProperties).when(context).getProtocolSecurityProperties(Matchers.<DeviceIdentifier>any()); TODO: rework this!
         EventPushNotificationParser parser = spyParser(ENCRYPTED_FRAME);
         parser.readAndParseInboundFrame();
@@ -566,7 +560,7 @@ public class EventPushNotificationParserTest extends TestCase {
 
     @Test
     public void testAuthenticatedFrameNotEncrypted() throws IOException, SQLException {
-        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(1, AK, EK);
+//        Optional<List<SecurityProperty>> securityProperties = createSecurityProperties(1, AK, EK);
 //        doReturn(securityProperties).when(context).getProtocolSecurityProperties(Matchers.<DeviceIdentifier>any()); TODO: rework this!
 
         EventPushNotificationParser parser = spyParser(AUTHENTICATED_NOT_ENCRYPTED);

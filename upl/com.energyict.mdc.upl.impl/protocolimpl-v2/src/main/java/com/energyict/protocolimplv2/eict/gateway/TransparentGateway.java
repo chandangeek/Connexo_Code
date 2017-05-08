@@ -84,6 +84,11 @@ public class TransparentGateway extends AbstractGateway {
     }
 
     @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return getSecuritySupport().getClientSecurityPropertySpec();
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return getSecuritySupport().getAuthenticationAccessLevels();
     }

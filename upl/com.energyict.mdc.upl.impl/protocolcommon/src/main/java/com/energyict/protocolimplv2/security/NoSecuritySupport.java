@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Collections;
@@ -34,6 +35,11 @@ public class NoSecuritySupport extends AbstractSecuritySupport implements Device
     }
 
     @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty();
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return Collections.singletonList(new NoAuthenticationAccessLevel());
     }
@@ -55,6 +61,11 @@ public class NoSecuritySupport extends AbstractSecuritySupport implements Device
 
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
         return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public String getClient() {
+                return null;
+            }
+
             @Override
             public int getAuthenticationDeviceAccessLevel() {
                 return NO_SECURITY_SUPPORT_ID;

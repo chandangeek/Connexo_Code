@@ -8,7 +8,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-import com.energyict.mdc.upl.security.SecurityProperty;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
@@ -41,6 +41,11 @@ public class Mtu155SecuritySupport extends AbstractSecuritySupport implements Le
                 getEncryptionKeyCPropertySpec(),
                 getEncryptionKeyFPropertySpec(),
                 getEncryptionKeyTPropertySpec());
+    }
+
+    @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty();
     }
 
     @Override
@@ -96,45 +101,6 @@ public class Mtu155SecuritySupport extends AbstractSecuritySupport implements Le
         return typedProperties;
     }
 
-    public TypedProperties convertToTypedProperties(List<? extends SecurityProperty> securityProperties) {
-        TypedProperties typedProperties = TypedProperties.empty();
-        if (!securityProperties.isEmpty()) {
-
-            TypedProperties typedSecurityProperties = TypedProperties.empty();
-            for (SecurityProperty property : securityProperties) {
-                typedSecurityProperties.setProperty(property.getName(), property.getValue());
-            }
-
-            // override the password (as it is provided as a Password object instead of a String
-            final Object property = typedSecurityProperties.getProperty(SecurityPropertySpecName.PASSWORD.toString(), null);
-            if (property == null) {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), "");
-            } else if (Password.class.isAssignableFrom(property.getClass())) {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
-            } else {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
-            }
-
-            String keyTValue = (String) typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString(), "");
-            String keyCValue = (String) typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString(), "");
-            String keyFValue = (String) typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString(), "");
-            typedProperties.setProperty(KEY_T_LEGACY_PROPERTY, keyTValue);
-            typedProperties.setProperty(KEY_C_LEGACY_PROPERTY, keyCValue);
-            typedProperties.setProperty(KEY_F_LEGACY_PROPERTY, keyFValue);
-
-            int securityLevel;
-            if (!keyTValue.isEmpty()) {
-                securityLevel = AccessLevelIds.KEYT.getAccessLevel();
-            } else if (!keyCValue.isEmpty()) {
-                securityLevel = AccessLevelIds.KEYC.getAccessLevel();
-            } else {
-                securityLevel = AccessLevelIds.KEYF.getAccessLevel();
-            }
-            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, Integer.toString(securityLevel));
-        }
-        return typedProperties;
-    }
-
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
         return this.convertFromTypedProperties(TypedProperties.copyOf(typedProperties));
@@ -151,6 +117,11 @@ public class Mtu155SecuritySupport extends AbstractSecuritySupport implements Le
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, encryptionDeviceAccessLevel, getEncryptionAccessLevels()));
 
         return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public String getClient() {
+                return null;
+            }
+
             @Override
             public int getAuthenticationDeviceAccessLevel() {
                 return 0;

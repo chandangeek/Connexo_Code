@@ -302,6 +302,11 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return getDlmsSecuritySupport().getClientSecurityPropertySpec();
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return getDlmsSecuritySupport().getAuthenticationAccessLevels();
     }

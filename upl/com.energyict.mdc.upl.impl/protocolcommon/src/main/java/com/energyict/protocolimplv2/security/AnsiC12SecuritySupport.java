@@ -9,11 +9,13 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides general security <b>capabilities</b> for an Ansi C12 protocol
@@ -38,11 +40,16 @@ public class AnsiC12SecuritySupport extends AbstractSecuritySupport implements L
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService),
-                    DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(this.propertySpecService),
-                    DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(this.propertySpecService),
-                    DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(this.propertySpecService)
+                DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService),
+                DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(this.propertySpecService),
+                DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(this.propertySpecService),
+                DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(this.propertySpecService)
         );
+    }
+
+    @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty();
     }
 
     @Override
@@ -107,6 +114,11 @@ public class AnsiC12SecuritySupport extends AbstractSecuritySupport implements L
 
 
         return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public String getClient() {
+                return null;
+            }
+
             @Override
             public int getAuthenticationDeviceAccessLevel() {
                 return authenticationDeviceAccessLevel;

@@ -5,12 +5,14 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
-import org.junit.Test;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -137,6 +139,11 @@ public class Mtu155SecuritySupportTest extends AbstractSecuritySupportTest {
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
                     @Override
+                    public String getClient() {
+                        return null;
+                    }
+
+                    @Override
                     public int getAuthenticationDeviceAccessLevel() {
                         return 0;
                     }
@@ -204,6 +211,11 @@ public class Mtu155SecuritySupportTest extends AbstractSecuritySupportTest {
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), password);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
+                    @Override
+                    public String getClient() {
+                        return null;
+                    }
+
                     @Override
                     public int getAuthenticationDeviceAccessLevel() {
                         return 1;

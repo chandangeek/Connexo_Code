@@ -11,7 +11,9 @@ import com.energyict.mdc.upl.security.SecuritySuite;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -38,8 +40,12 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
         propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(this.propertySpecService));
         propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(this.propertySpecService));
         propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(this.propertySpecService));
-        propertySpecs.add(getClientMacAddressPropertySpec());
         return propertySpecs;
+    }
+
+    @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.of(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(this.propertySpecService));
     }
 
     /**
@@ -93,10 +99,6 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return new DlmsSecuritySupport(propertySpecService).getEncryptionAccessLevels();
-    }
-
-    protected PropertySpec getClientMacAddressPropertySpec() {
-        return DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(this.propertySpecService);
     }
 
     @Override
@@ -331,9 +333,7 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            return propertySpecs;
+            return Collections.emptyList();
         }
 
     }
@@ -358,7 +358,6 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
@@ -387,7 +386,6 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
@@ -416,7 +414,6 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
@@ -444,10 +441,7 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
-            return propertySpecs;
+           return Collections.singletonList(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
         }
     }
 
@@ -471,7 +465,6 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
@@ -500,7 +493,6 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
@@ -529,7 +521,6 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
@@ -557,9 +548,7 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            return propertySpecs;
+           return Collections.emptyList();
         }
     }
 
@@ -583,7 +572,6 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
@@ -612,7 +600,6 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
@@ -641,7 +628,6 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
@@ -669,10 +655,7 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
-            return propertySpecs;
+           return Collections.singletonList(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
         }
     }
 
@@ -696,7 +679,6 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
@@ -725,7 +707,6 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
@@ -754,7 +735,6 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
         @Override
         public List<PropertySpec> getSecurityProperties() {
             List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService));
             propertySpecs.add(DeviceSecurityProperty.SERVER_KEY_AGREEMENT_CERTIFICATE.getPropertySpec(propertySpecService));
@@ -787,10 +767,7 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
-            return propertySpecs;
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
 
@@ -822,10 +799,7 @@ public class DlmsSecuritySuite1And2Support extends AbstractSecuritySupport imple
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            List<PropertySpec> propertySpecs = new ArrayList<>();
-            propertySpecs.add(getClientMacAddressPropertySpec());
-            propertySpecs.add(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
-            return propertySpecs;
+            return Collections.singletonList(DeviceSecurityProperty.SERVER_SIGNATURE_CERTIFICATE.getPropertySpec(propertySpecService));
         }
     }
 }

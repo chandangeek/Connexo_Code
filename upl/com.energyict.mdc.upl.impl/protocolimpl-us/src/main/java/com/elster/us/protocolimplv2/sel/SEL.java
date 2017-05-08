@@ -296,6 +296,11 @@ public class SEL implements DeviceProtocol {
     }
 
     @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return new NoOrPasswordSecuritySupport(propertySpecService).getClientSecurityPropertySpec();
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return new NoOrPasswordSecuritySupport(propertySpecService).getAuthenticationAccessLevels();
     }

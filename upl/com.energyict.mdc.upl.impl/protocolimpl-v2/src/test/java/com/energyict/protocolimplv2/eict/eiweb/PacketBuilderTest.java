@@ -6,7 +6,6 @@ import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.security.SecurityProperty;
 
 import com.energyict.LittleEndianOutputStream;
 import com.energyict.protocol.exception.CommunicationException;
@@ -419,8 +418,8 @@ public class PacketBuilderTest {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
 
         when(inboundDiscoveryContext.getConnectionTypeProperties(deviceIdentifier)).thenReturn(Optional.of(connectionTypeProperties));
-        SecurityProperty encryptionPassword = mock(SecurityProperty.class);
-        when(encryptionPassword.getValue()).thenReturn(new SimplePassword("zorro"));
+//        SecurityProperty encryptionPassword = mock(SecurityProperty.class);
+//        when(encryptionPassword.getValue()).thenReturn(new SimplePassword("zorro"));
 //        when(inboundDiscoveryContext.getProtocolSecurityProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(Collections.singletonList(encryptionPassword))); TODO: rework this!
         EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDiscoveryContext);
         Encryptor encryptor = new Encryptor(cryptographer.buildMD5Seed(mock(DeviceIdentifier.class), "2114"));

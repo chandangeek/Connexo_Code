@@ -9,11 +9,13 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides general security <b>capabilities</b> for device that have either:
@@ -21,7 +23,7 @@ import java.util.List;
  * <li>No password</li>
  * <li>A password</li>
  * </ul>
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 21/01/13
  * Time: 14:41
@@ -41,6 +43,11 @@ public class NoOrPasswordSecuritySupport extends AbstractSecuritySupport impleme
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
+    }
+
+    @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty();
     }
 
     @Override
@@ -87,6 +94,11 @@ public class NoOrPasswordSecuritySupport extends AbstractSecuritySupport impleme
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, authenticationDeviceAccessLevel.getId(), getAuthenticationAccessLevels()));
 
         return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public String getClient() {
+                return null;
+            }
+
             @Override
             public int getAuthenticationDeviceAccessLevel() {
                 return authenticationDeviceAccessLevel.getId();

@@ -8,11 +8,13 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides general security <b>capabilities</b> for Wavenis protocols
@@ -38,6 +40,11 @@ public class WavenisSecuritySupport extends AbstractSecuritySupport implements L
         return Arrays.asList(
                 DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService),
                 DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
+    }
+
+    @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty();
     }
 
     @Override
@@ -102,6 +109,12 @@ public class WavenisSecuritySupport extends AbstractSecuritySupport implements L
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, encryptionDeviceAccessLevel, getEncryptionAccessLevels()));
 
         return new DeviceProtocolSecurityPropertySet() {
+
+            @Override
+            public String getClient() {
+                return null;
+            }
+
             @Override
             public int getAuthenticationDeviceAccessLevel() {
                 return authenticationDeviceAccessLevel;

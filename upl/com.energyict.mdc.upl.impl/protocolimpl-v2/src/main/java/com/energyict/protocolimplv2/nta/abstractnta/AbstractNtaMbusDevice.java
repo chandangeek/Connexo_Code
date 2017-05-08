@@ -34,6 +34,7 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -183,6 +184,11 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SerialNum
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return getMeterProtocol().getSecurityProperties();
+    }
+
+    @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return getMeterProtocol().getClientSecurityPropertySpec();
     }
 
     /**

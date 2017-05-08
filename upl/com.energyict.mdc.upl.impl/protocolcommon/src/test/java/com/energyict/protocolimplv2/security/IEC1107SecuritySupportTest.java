@@ -4,13 +4,15 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
+
+import java.util.Optional;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -92,6 +94,11 @@ public class IEC1107SecuritySupportTest extends AbstractSecuritySupportTest {
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
+                    @Override
+                    public String getClient() {
+                        return null;
+                    }
+
                     @Override
                     public int getAuthenticationDeviceAccessLevel() {
                         return IEC1107SecuritySupport.AccessLevelIds.LEVEL_TWO.getAccessLevel();

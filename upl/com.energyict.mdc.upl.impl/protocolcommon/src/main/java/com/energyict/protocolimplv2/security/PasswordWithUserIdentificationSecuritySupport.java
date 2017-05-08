@@ -8,18 +8,20 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides general security <b>capabilities</b> for DeviceProtocols
  * that use a single password and a UserIdentification to do authentication/encryption.<br/>
  * Be aware that the UserIdentification is validated as a string, but can also just
  * contain a numerical value.
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 14/01/13
  * Time: 9:28
@@ -38,6 +40,11 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
         return Arrays.asList(
                 DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService),
                 DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
+    }
+
+    @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty();
     }
 
     @Override
@@ -78,6 +85,11 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, STANDARD_AUTH_DEVICE_ACCESS_LEVEL, getAuthenticationAccessLevels()));
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, STANDARD_ENCRYPTION_DEVICE_ACCESS_LEVEL, getEncryptionAccessLevels()));
         return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public String getClient() {
+                return null;
+            }
+
             @Override
             public int getAuthenticationDeviceAccessLevel() {
                 return STANDARD_AUTH_DEVICE_ACCESS_LEVEL;
