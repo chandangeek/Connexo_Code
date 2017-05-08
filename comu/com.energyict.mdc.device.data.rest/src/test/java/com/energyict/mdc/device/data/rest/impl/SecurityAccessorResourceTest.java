@@ -24,9 +24,12 @@ import com.energyict.mdc.device.config.DeviceKeyAccessorType;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessor;
-
 import com.jayway.jsonpath.JsonModel;
 import net.minidev.json.JSONObject;
+import org.assertj.core.data.MapEntry;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -40,11 +43,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import org.assertj.core.data.MapEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -679,7 +677,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         return clientCertificateWrapper;
     }
 
-    private PropertySpec mockPropertySpec(String name) {
+    protected PropertySpec mockPropertySpec(String name) {
         PropertySpec propertySpec = mock(PropertySpec.class);
         ValueFactory valueFactory = mock(ValueFactory.class);
         when(valueFactory.getValueType()).thenReturn(String.class);
