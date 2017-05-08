@@ -268,16 +268,16 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         thirdPartyQualityField.setValue('');
 
         Ext.Array.forEach(dataQualities, function (readingQuality) {
-            if (readingQuality.cimCode.startsWith('1.')) {
+            if (Ext.String.startsWith(readingQuality.cimCode, '1.')) {
                 showDeviceQuality |= true;
                 field = deviceQualityField;
-            } else if (readingQuality.cimCode.startsWith('2.')) {
+            } else if (Ext.String.startsWith(readingQuality.cimCode, '2.')) {
                 showMultiSenseQuality |= true;
                 field = multiSenseQualityField;
-            } else if (readingQuality.cimCode.startsWith('3.')) {
+            } else if (Ext.String.startsWith(readingQuality.cimCode, '3.')) {
                 showInsightQuality |= true;
                 field = insightQualityField;
-            } else if (readingQuality.cimCode.startsWith('4.') || readingQuality.cimCode.startsWith('5.')) {
+            } else if (Ext.String.startsWith(readingQuality.cimCode, '4.') || Ext.String.startsWith(readingQuality.cimCode, '5.')) {
                 show3rdPartyQuality |= true;
                 field = thirdPartyQualityField;
             }
