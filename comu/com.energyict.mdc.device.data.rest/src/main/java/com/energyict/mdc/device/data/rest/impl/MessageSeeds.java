@@ -112,16 +112,25 @@ public enum MessageSeeds implements MessageSeed {
     PROCESS_STATUS_ABORTED(290, "ProcessStatusAborted", "Aborted"),
     PROCESS_STATUS_SUSPENDED(291, "ProcessStatusSuspended", "Suspended"),
     OVERLAPPING_COMTASKS_IN_COMSCHEDULES(292, "OverlappingComTasks", "There are overlapping communication tasks in the schedules"),
-    NO_SUCH_PROTOCOL_PROPERTIES(293, "NoSuchProtocolDialectProperties", "\"No protocol dialect with name '{0}'"),
-    UPDATE_OF_DEVICE_FAILED(294, "UpdateOfDeviceFailed", "Update of device failed"),
-    NO_SUCH_KEY_ACCESSOR_TYPE(295, "NoSuchKeyAccessorType", "The device type does not have a security accessor with that id"),
-    NO_SUCH_CERTIFICATE(296, "NoSuchCertificate", "Certificate could not be found"),
-    NO_SUCH_TRUSTED_CERTIFICATE(297, "NoSuchTrustedCertificate", "Certificate could not be found in the trust store"),
-    NO_SUCH_TRUST_STORE(298, "NoSuchTrustStore", "No such trust store"),
-    NO_SUCH_KEY_ACCESSOR(299, "NoSuchKeyAccessor", "No such security accessor"),
-    COMMAND_SHOULD_HAVE_A_CONTRACT_ATTRIBUTE(300, "command.should.have.a.contract.attribute", "The device command '{0}' should have a 'Contract' attribute"),
-    COMMAND_SHOULD_HAVE_A_TYPE_ATTRIBUTE(301, "command.should.have.a.type.attribute", "The device command '{0}' should have a 'Type' attribute"),
-    COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE(302, "command.should.have.an.activation.date.attribute", "The device command '{0}' should have an 'Activation date' attribute"),;
+    NO_SUCH_VALIDATION_RULE(293, "noSuchValidationRule", "No validation rule with id {0}"),
+    NO_SUCH_PROTOCOL_PROPERTIES(294, "NoSuchProtocolDialectProperties", "No protocol dialect with name '{0}'"),
+    UPDATE_OF_DEVICE_FAILED(295, "UpdateOfDeviceFailed", "Update of device failed"),
+    NO_SUCH_ESTIMATION_RULE(296, "noSuchEstimationRule", "No estimation rule with id {0}"),
+    NO_SUCH_READINGTYPE_ON_CHANNEL(297, "noSuchReadingTypeOnChannel", "Device''s channel doesn''t provide reading type {0}"),
+    VALIDATION_RULE_IS_NOT_APPLICABLE_TO_READINGTYPE(298, "ValidationRuleIsNotApplicableToReadingType", "Validation rule with id {0} is not applicable to reading type {1}"),
+    ESTIMATION_RULE_IS_NOT_APPLICABLE_TO_READINGTYPE(299, "EstimationRuleIsNotApplicableToReadingType", "Estimation rule with id {0} is not applicable to reading type {1}"),
+    NO_CALCULATED_READINGTYPE_ON_CHANNEL(300, "noCalculatedReadingTypeOnChannel", "Device''s channel with id {0} doesn''t provide calculated reading type"),
+    NO_SUCH_KEY_ACCESSOR_TYPE(301, "NoSuchKeyAccessorType", "The device type does not have a security accessor with that id"),
+    NO_SUCH_CERTIFICATE(302, "NoSuchCertificate", "Certificate could not be found"),
+    NO_SUCH_TRUSTED_CERTIFICATE(303, "NoSuchTrustedCertificate", "Certificate could not be found in the trust store"),
+    NO_SUCH_TRUST_STORE(304, "NoSuchTrustStore", "No such trust store"),
+    NO_SUCH_KEY_ACCESSOR(305, "NoSuchKeyAccessor", "No such security accessor"),
+    COMMAND_SHOULD_HAVE_A_CONTRACT_ATTRIBUTE(306, "command.should.have.a.contract.attribute", "The device command '{0}' should have a 'Contract' attribute"),
+    COMMAND_SHOULD_HAVE_A_TYPE_ATTRIBUTE(307, "command.should.have.a.type.attribute", "The device command '{0}' should have a 'Type' attribute"),
+    COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE(308, "command.should.have.an.activation.date.attribute", "The device command '{0}' should have an 'Activation date' attribute"),;
+
+
+    ;
 
     private final int number;
     private final String key;
