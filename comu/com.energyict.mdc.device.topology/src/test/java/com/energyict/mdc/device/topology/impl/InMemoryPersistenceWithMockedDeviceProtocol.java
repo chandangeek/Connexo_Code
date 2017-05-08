@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -179,6 +180,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new DomainUtilModule(),
                 new PartyModule(),
                 new UserModule(),
+                new BpmModule(),
                 new IdsModule(),
                 new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(
@@ -319,28 +321,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         return eventService;
     }
 
-    private class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {
-            bind(DataVaultService.class).toInstance(dataVaultService);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(Clock.class).toInstance(clock);
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(ProtocolPluggableService.class).to(MockProtocolPluggableService.class).in(Scopes.SINGLETON);
-            bind(LogService.class).toInstance(mock(LogService.class));
-            bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
-            bind(DataModel.class).toProvider(() -> dataModel);
-            bind(Thesaurus.class).toInstance(thesaurus);
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-
-            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
-            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
-        }
-
-    }
-
     public MockProtocolPluggableService getMockProtocolPluggableService() {
         return (MockProtocolPluggableService) protocolPluggableService;
     }
@@ -349,14 +329,14 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
         private final ProtocolPluggableService protocolPluggableService;
 
-        public ProtocolPluggableService getMockedProtocolPluggableService() {
-            return protocolPluggableService;
-        }
-
         @Inject
         private MockProtocolPluggableService() {
             super();
             this.protocolPluggableService = mock(ProtocolPluggableService.class);
+        }
+
+        public ProtocolPluggableService getMockedProtocolPluggableService() {
+            return protocolPluggableService;
         }
 
         @Override
@@ -381,21 +361,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Override
-        public List<LicensedProtocol> getAllLicensedProtocols() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public boolean isLicensedProtocolClassName(String javaClassName) {
-            return false;
-        }
-
-        @Override
-        public LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-            return null;
-        }
-
-        @Override
         public Object createProtocol(String className) {
             return protocolPluggableService.createProtocol(className);
         }
@@ -411,8 +376,23 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Override
+        public List<LicensedProtocol> getAllLicensedProtocols() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public boolean isLicensedProtocolClassName(String javaClassName) {
+            return false;
+        }
+
+        @Override
         public Finder<DeviceProtocolPluggableClass> findAllDeviceProtocolPluggableClasses() {
             return protocolPluggableService.findAllDeviceProtocolPluggableClasses();
+        }
+
+        @Override
+        public LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+            return null;
         }
 
         @Override
@@ -576,4 +556,23 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
     }
 
+    private class MockModule extends AbstractModule {
+        @Override
+        protected void configure() {
+            bind(DataVaultService.class).toInstance(dataVaultService);
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(Clock.class).toInstance(clock);
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(ProtocolPluggableService.class).to(MockProtocolPluggableService.class).in(Scopes.SINGLETON);
+            bind(LogService.class).toInstance(mock(LogService.class));
+            bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
+            bind(DataModel.class).toProvider(() -> dataModel);
+            bind(Thesaurus.class).toInstance(thesaurus);
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+        }
+    }
 }
