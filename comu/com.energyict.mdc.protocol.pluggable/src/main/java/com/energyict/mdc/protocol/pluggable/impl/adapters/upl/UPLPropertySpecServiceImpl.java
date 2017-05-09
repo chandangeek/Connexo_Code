@@ -221,8 +221,8 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
 
         //TODO: complete with other types
         KEY_ACCESSOR_TYPE("com.energyict.mdc.upl.security.KeyAccessorType", KeyAccessorType.class);
-//        CERTIFICATE_WRAPPER("com.energyict.mdc.upl.security.CertificateWrapper", CertificateWrapper.class),
-//        PRIVATE_KEY_ALIAS("com.energyict.mdc.upl.security.PrivateKeyAlias", PrivateKeyWrapper.class);
+//        CERTIFICATE_WRAPPER("com.energyict.mdc.upl.security.CertificateWrapper", CertificateWrapper.class), //TODO > remove - remove all usages
+//        PRIVATE_KEY_ALIAS("com.energyict.mdc.upl.security.PrivateKeyWrapper",PrivateKeyWrapper.class);   //TODO
 
         private final String uplClassName;
         private final Class connexoClass;
