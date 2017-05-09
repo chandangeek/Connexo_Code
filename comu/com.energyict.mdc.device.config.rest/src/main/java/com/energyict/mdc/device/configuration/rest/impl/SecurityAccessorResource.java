@@ -15,8 +15,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.time.TimeDuration.TimeUnit;
-import com.elster.jupiter.time.rest.TimeDurationInfo;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.KeyAccessorTypeUpdater;
@@ -136,13 +135,20 @@ public class SecurityAccessorResource {
             keyFunctionTypeBuilder.trustStore(trustStore);
         }
         if(securityAccessorInfo.duration != null && keyType.getCryptographicType().requiresDuration()) {
-            checkValidDurationOrThrowException(securityAccessorInfo.duration);
-            keyFunctionTypeBuilder.duration(securityAccessorInfo.duration.asTimeDuration());
+            keyFunctionTypeBuilder.duration(getDuration(securityAccessorInfo));
         } else {
             keyFunctionTypeBuilder.duration(null);
         }
         KeyAccessorType keyFunctionType = keyFunctionTypeBuilder.add();
         return keyFunctionTypeInfoFactory.from(keyFunctionType, deviceType);
+    }
+
+    private TimeDuration getDuration(SecurityAccessorInfo securityAccessorInfo) {
+        try {
+            return securityAccessorInfo.duration.asTimeDuration();
+        } catch (Exception e) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_TIME_DURATION, "duration");
+        }
     }
 
     @PUT
@@ -161,8 +167,7 @@ public class SecurityAccessorResource {
         updater.name(securityAccessorInfo.name);
         updater.description(securityAccessorInfo.description);
         if(securityAccessorInfo.duration != null && keyAccessorType.getKeyType().getCryptographicType().requiresDuration()) {
-            checkValidDurationOrThrowException(securityAccessorInfo.duration);
-            updater.duration(securityAccessorInfo.duration.asTimeDuration());
+            updater.duration(getDuration(securityAccessorInfo));
         } else {
             updater.duration(null);
         }
@@ -193,9 +198,4 @@ public class SecurityAccessorResource {
         return Response.ok().build();
     }
 
-    private void checkValidDurationOrThrowException(TimeDurationInfo validityPeriod) {
-        if(!(validityPeriod.asTimeDuration().getTimeUnit() == TimeUnit.MONTHS || validityPeriod.asTimeDuration().getTimeUnit() == TimeUnit.YEARS)) {
-            throw new WebApplicationException("Invalid validity period", Response.Status.BAD_REQUEST);
-        }
-    }
 }
