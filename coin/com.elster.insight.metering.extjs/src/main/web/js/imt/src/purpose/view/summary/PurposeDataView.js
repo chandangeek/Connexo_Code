@@ -108,6 +108,18 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
                                 if (!newValue) {
                                     fld.setValue(fld.defaultValue);
                                 }
+                                me.interval = zoomLevelsStore.getIntervalRecord(Ext.getStore('Imt.purpose.store.IntervalFilter').getById(newValue).getData());
+
+                                duration = {
+                                    defaultFromDate: me.interval.getIntervalStart(new Date()),
+                                    defaultDuration: all.count + all.timeUnit,
+                                    durationStore: durations
+                                };
+                                durations.loadData(me.interval.get('duration'));
+
+                                var durationFld = me.down('#output-readings-topfilter-duration');
+                                durationFld.setDurationValue(duration);
+                                durationFld.getDurationCombo().setValue(durationFld.getDurationCombo().getStore().getAt(0));
                             }
                         }
                     },
