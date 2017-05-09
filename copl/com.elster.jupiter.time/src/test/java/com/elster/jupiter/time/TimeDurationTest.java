@@ -8,11 +8,13 @@ import java.time.Duration;
 import java.time.Period;
 import java.util.Calendar;
 import java.util.Date;
+
 import org.junit.Test;
 
 import static com.elster.jupiter.util.Checks.is;
 import static junit.framework.Assert.assertEquals;
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.fail;
 import static org.junit.Assert.assertTrue;
 
 public class TimeDurationTest {
@@ -115,4 +117,20 @@ public class TimeDurationTest {
         assertEquals("Second not correct", second, cal.get(Calendar.SECOND));
     }
 
+    @Test
+    public void testCompareTo() throws Exception {
+        TimeDuration years = TimeDuration.years(30);
+        TimeDuration days = TimeDuration.days(1);
+        assertThat(days.compareTo(years)).isEqualTo(-1);
+    }
+
+    @Test
+    public void testHugeDuration() throws Exception {
+        try {
+            TimeDuration timeDuration = new TimeDuration("2000 years");
+            fail("should not be allowed");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+    }
 }
