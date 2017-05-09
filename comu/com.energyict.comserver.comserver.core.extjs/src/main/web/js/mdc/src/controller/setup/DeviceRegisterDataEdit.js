@@ -163,7 +163,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
 
         if (record) {
             me.setRecordValues(record, values);
-            record.getProxy().setParams(router.arguments.deviceId, router.arguments.registerId);
+            record.getProxy().setParams(decodeURIComponent(router.arguments.deviceId), router.arguments.registerId);
             record.save({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', cfg.successMessage);
