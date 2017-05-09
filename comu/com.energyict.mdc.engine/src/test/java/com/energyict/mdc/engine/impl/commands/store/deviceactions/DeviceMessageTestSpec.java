@@ -62,7 +62,7 @@ public enum DeviceMessageTestSpec implements DeviceMessageSpec {
 
     @Override
     public DeviceMessageId getId() {
-        return DeviceMessageId.havingId(this.ordinal() + 1);
+        return DeviceMessageId.from(this.ordinal() + 1);
     }
 
     @Override
