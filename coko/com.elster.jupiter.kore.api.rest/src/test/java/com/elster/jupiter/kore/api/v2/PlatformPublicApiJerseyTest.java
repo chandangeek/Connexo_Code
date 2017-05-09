@@ -376,7 +376,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
     }
 
     protected IssueType getDefaultIssueType() {
-        return mockIssueType("datacollection", "Data Collection");
+        return mockIssueType("datacollection", "Data collection");
     }
 
 
