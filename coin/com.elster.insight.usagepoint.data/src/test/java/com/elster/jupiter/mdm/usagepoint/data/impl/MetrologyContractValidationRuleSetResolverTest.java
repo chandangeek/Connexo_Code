@@ -112,7 +112,7 @@ public class MetrologyContractValidationRuleSetResolverTest {
         RangeSet<Instant> rangeSet1 = TreeRangeSet.create();
         rangeSet1.add(Range.openClosed(stateTransition1, stateTransition2));
         RangeSet<Instant> rangeSet2 = TreeRangeSet.create();
-        rangeSet2.add(Range.atLeast(stateTransition2));
+        rangeSet2.add(Range.greaterThan(stateTransition2));
         assertThat(resolvedValidationRuleSets.get(validationRuleSet1)).isEqualTo(rangeSet1);
         assertThat(resolvedValidationRuleSets.get(validationRuleSet2)).isEqualTo(rangeSet2);
     }

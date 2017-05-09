@@ -23,6 +23,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +74,7 @@ public class MetrologyContractValidationRuleSetResolver implements ValidationRul
             if (i + 1 < stateChanges.size()) {
                 range = Range.openClosed(stateChanges.get(i), stateChanges.get(i + 1));
             } else {
-                range = Range.atLeast(stateChanges.get(i));
+                range = Range.greaterThan(stateChanges.get(i));
             }
             metrologyContracts.stream().forEach(metrologyContract ->
                     this.usagePointConfigurationService.getValidationRuleSets(metrologyContract,
@@ -96,7 +97,7 @@ public class MetrologyContractValidationRuleSetResolver implements ValidationRul
         return usagePointLifeCycleService.getHistory(usagePoint)
                 .stream()
                 .filter(usagePointStateChangeRequest -> usagePointStateChangeRequest.getStatus().equals(UsagePointStateChangeRequest.Status.COMPLETED))
-                .sorted((a, b) -> a.getTransitionTime().compareTo(b.getTransitionTime()))
+                .sorted(Comparator.comparing(UsagePointStateChangeRequest::getTransitionTime))
                 .collect(Collectors.toList());
     }
 
