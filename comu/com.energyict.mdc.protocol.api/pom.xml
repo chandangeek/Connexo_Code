@@ -119,6 +119,10 @@
             <artifactId>datavault</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pki</artifactId>
+        </dependency>
 
     </dependencies>
 
