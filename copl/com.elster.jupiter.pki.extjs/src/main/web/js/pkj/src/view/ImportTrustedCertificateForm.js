@@ -5,17 +5,18 @@ Ext.define('Pkj.view.ImportTrustedCertificateForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.trusted-certificate-import-form',
     edit: false,
-    //hydrator: 'Fwc.form.Hydrator',
 
     requires: [
         'Pkj.view.KeyStoreFileField',
-        'Uni.util.FormErrorMessage'
+        'Uni.util.FormErrorMessage',
+        'Uni.util.FormInfoMessage'
     ],
     layout: 'anchor',
     margin: '15 0 0 0',
 
     cancelLink: undefined,
     trustStoreRecord: undefined,
+    showInfoMsg: undefined,
 
     initComponent: function () {
         var me = this;
@@ -27,6 +28,17 @@ Ext.define('Pkj.view.ImportTrustedCertificateForm', {
                 margin: '0 0 10 0',
                 anchor: '40%',
                 hidden: true
+            },
+            {
+                xtype: 'panel',
+                itemId: 'pkj-trusted-certificate-import-form-info',
+                hidden: !me.showInfoMsg,
+                items: [
+                    {
+                        xtype: 'uni-form-info-message',
+                        text: Uni.I18n.translate('general.certificatesWithSameAlias.info', 'PKJ', 'The existing certificates with the same alias will be overwritten.')
+                    }
+                ]
             },
             {
                 xtype: 'keystore-file-field',
