@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.pluggable.adapters.upl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
@@ -11,6 +12,7 @@ import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.LinePoint;
 import com.energyict.mdc.upl.properties.Lis200Address;
 import com.energyict.mdc.upl.properties.ProtocolChannelMap;
+
 import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
@@ -72,6 +74,12 @@ public enum ValueType {
         }
     },
     FIRMWARE_VERSION("com.energyict.mdc.upl.properties.FirmwareVersion", BaseFirmwareVersion.class, Types.NUMERIC) {
+        @Override
+        boolean isReference() {
+            return true;
+        }
+    },
+    KEY_ACCESSOR_TYPE("com.energyict.mdc.upl.security.KeyAccessorType", KeyAccessorType.class, Types.NUMERIC) {
         @Override
         boolean isReference() {
             return true;
