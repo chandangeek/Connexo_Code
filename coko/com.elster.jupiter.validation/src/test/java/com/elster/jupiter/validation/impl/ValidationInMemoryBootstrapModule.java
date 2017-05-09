@@ -5,6 +5,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -74,13 +75,14 @@ public class ValidationInMemoryBootstrapModule {
         this.dataAggregationService = mock(DataAggregationService.class);
     }
 
-
     public void activate() {
         injector = Guice.createInjector(
                 new MockModule(),
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
+                new UserModule(),
+                new BpmModule(),
                 new FiniteStateMachineModule(),
                 new UsagePointLifeCycleConfigurationModule(),
                 new MeteringModule(readingTypeRequirements).withDataAggregationService(this.dataAggregationService),

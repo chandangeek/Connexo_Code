@@ -27,6 +27,10 @@ import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
+
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
@@ -141,6 +145,7 @@ public enum TableSpecs {
             Column channelsContainerValidationColumn = table.column("MAV_ID").number().conversion(NUMBER2LONG).add();
             table.column("LASTCHECKED").number().conversion(NUMBER2INSTANT).map("lastChecked").add();
             table.column("ACTIVERULES").bool().map("activeRules").add();
+            table.column("LAST_VALIDATION_COMPLETE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).installValue("'N'").since(version(10, 3)).map("lastValidationComplete").add();
             table.primaryKey("VAL_PK_CH_VALIDATION").on(idColumn).add();
             table.foreignKey("VAL_FK_CH_VALIDATION_CH").references(Channel.class).onDelete(RESTRICT).on(channelRef).map("channel").add();
             table.foreignKey("VAL_FK_CH_VALIDATION_MA_VAL")

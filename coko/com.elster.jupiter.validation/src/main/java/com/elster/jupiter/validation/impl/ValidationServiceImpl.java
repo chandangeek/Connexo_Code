@@ -67,6 +67,7 @@ import com.elster.jupiter.validation.ValidatorNotFoundException;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -91,6 +92,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -472,6 +474,20 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         container.validate();
     }
 
+    @Override
+    public void validate(ValidationContext validationContext, Range<Instant> interval) {
+        if (!interval.hasLowerBound()) {
+            throw new IllegalArgumentException("Interval must have lower bound");
+        }
+        ChannelsContainerValidationList container = updatedChannelsContainerValidationsFor(validationContext);
+        container.moveLastCheckedBefore(interval.lowerEndpoint());
+        if (interval.hasUpperBound()) {
+            container.validate(interval.upperEndpoint());
+        } else {
+            container.validate();
+        }
+    }
+
     public void validate(ValidationContext validationContext) {
         Set<QualityCodeSystem> allowedQualityCodeSystems = getQualityCodeSystemsWithAllowedValidation(validationContext);
         if (!allowedQualityCodeSystems.isEmpty()) {
@@ -554,17 +570,17 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         }
     }
 
-    List<ChannelsContainerValidation> getUpdatedChannelsContainerValidations(ValidationContext validationContext) {
-        List<ValidationRuleSet> ruleSets = ruleSetResolvers.stream()
-                .flatMap(r -> r.resolve(validationContext).stream())
-                .filter(ruleSet -> validationContext.getQualityCodeSystems().isEmpty() || validationContext.getQualityCodeSystems().contains(ruleSet.getQualityCodeSystem()))
-                .collect(Collectors.toList());
+    List<EffectiveChannelsContainerValidation> getUpdatedChannelsContainerValidations(ValidationContext validationContext) {
+        Map<ValidationRuleSet, RangeSet<Instant>> ruleSets = ruleSetResolvers.stream()
+                .flatMap(r -> r.resolve(validationContext).entrySet().stream())
+                .filter(ruleSet -> validationContext.getQualityCodeSystems().isEmpty() || validationContext.getQualityCodeSystems().contains(ruleSet.getKey().getQualityCodeSystem()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a));
         List<ChannelsContainerValidation> persistedChannelsContainerValidations = getPersistedChannelsContainerValidations(validationContext.getChannelsContainer());
-        List<ChannelsContainerValidation> returnList = ruleSets.stream()
-                .map(ruleSet -> Pair.of(ruleSet, getForRuleSet(persistedChannelsContainerValidations, ruleSet)))
-                .map(validationPair -> validationPair.getLast().orElseGet(() -> applyRuleSet(validationPair.getFirst(), validationContext.getChannelsContainer())))
-                .collect(Collectors.toList());
-        returnList
+        Map<ValidationRuleSet, ChannelsContainerValidation> returnMap = ruleSets.entrySet().stream()
+                .map(ruleSet -> Pair.of(ruleSet, getForRuleSet(persistedChannelsContainerValidations, ruleSet.getKey())))
+                .map(validationPair -> validationPair.getLast().orElseGet(() -> applyRuleSet(validationPair.getFirst().getKey(), validationContext.getChannelsContainer())))
+                .collect(Collectors.toMap(ChannelsContainerValidation::getRuleSet, Function.identity(), (a, b) -> a));
+        returnMap.values()
                 .forEach(channelsContainerValidation -> channelsContainerValidation.getChannelsContainer().getChannels()
                         .stream()
                         .filter(channel -> !channelsContainerValidation.getRuleSet().getRules(channel.getReadingTypes()).isEmpty())
@@ -573,12 +589,15 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
         persistedChannelsContainerValidations.stream()
                 .filter(channelsContainerValidation -> {
                     ValidationRuleSet validationRuleSet = channelsContainerValidation.getRuleSet();
-                    return !ruleSets.contains(validationRuleSet)
+                    return !ruleSets.entrySet().stream().anyMatch(e -> e.getKey().equals(validationRuleSet))
                             && (validationContext.getQualityCodeSystems().isEmpty() || validationContext.getQualityCodeSystems().contains(validationRuleSet.getQualityCodeSystem()))
                             && (validationRuleSet.getObsoleteDate() != null || !isValidationRuleSetInUse(validationRuleSet));
                 })
                 .forEach(ChannelsContainerValidation::makeObsolete);
-        return returnList;
+        return ruleSets.entrySet().stream()
+                .filter(entry -> returnMap.containsKey(entry.getKey()))
+                .map(entry  -> new EffectiveChannelsContainerValidation(returnMap.get(entry.getKey()), entry.getValue()))
+                .collect(Collectors.toList());
     }
 
     ChannelsContainerValidationList activeChannelsContainerValidationsFor(ChannelsContainer channelsContainer) {

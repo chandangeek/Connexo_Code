@@ -156,7 +156,7 @@ public class ChannelValidatorTest {
     }
 
     @Test
-    public void testValidateRuleNoQualityWrittenIfEstimated() throws Exception {
+    public void testValidateRuleReadingQualityWrittenDespiteOfEstimated() throws Exception {
         doReturn(true).when(readingQualityRecord).isActual();
         doReturn(true).when(readingQualityRecord).hasEstimatedCategory();
 
@@ -170,7 +170,7 @@ public class ChannelValidatorTest {
 
         channelValidator.validateRule(rule);
 
-        verify(channel, never()).createReadingQuality(validationQuality, readingType, readingRecord);
+        verify(channel).createReadingQualityForRecords(validationQuality, readingType, Collections.singletonList(readingRecord));
     }
 
     @Test

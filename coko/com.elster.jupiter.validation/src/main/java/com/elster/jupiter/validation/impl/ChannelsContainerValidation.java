@@ -11,6 +11,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -49,9 +50,13 @@ public interface ChannelsContainerValidation extends HasId {
 
     void makeObsolete();
 
-    void validate();
-
     void validate(Collection<Channel> channels);
+
+    void validate(Collection<Channel> channels, Instant until);
+
+    void validate(RangeSet<Instant> ranges);
+
+    void validate(Collection<Channel> channels, RangeSet<Instant> ranges);
 
     void updateLastChecked(Instant lastChecked);
 
