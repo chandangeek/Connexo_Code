@@ -12,6 +12,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.core.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
@@ -59,6 +60,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     private volatile TopologyService topologyService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile IdentificationService identificationService;
+    private volatile HexService hexService;
 
     @Activate
     public void activate() {
@@ -98,6 +100,11 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     @Reference
     public void setIdentificationService(IdentificationService identificationService) {
         this.identificationService = identificationService;
+    }
+
+    @Reference
+    public void setHexService(HexService hexService) {
+        this.hexService = hexService;
     }
 
     @Override
@@ -186,7 +193,8 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
                 securityPropertySet.getResponseSecurityLevel().getId(),
                 securityPropertySet.getConfigurationSecurityProperties(),
                 device.getKeyAccessors(),
-                identificationService
+                identificationService,
+                hexService
         ).getSecurityProperties();
 
         return securityProperties.propertyNames().stream()

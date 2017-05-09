@@ -13,6 +13,7 @@ import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
+import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
@@ -45,6 +46,8 @@ public class DeviceProtocolSecurityPropertySetImplTest {
     private DeviceIdentifier deviceIdentifier;
     @Mock
     private IdentificationService identificationService;
+    @Mock
+    private HexService hexService;
     @Mock
     private ComServerDAOImpl.ServiceProvider serviceProvider;
 
@@ -80,7 +83,8 @@ public class DeviceProtocolSecurityPropertySetImplTest {
                 5,
                 expectedSecurityProperties,
                 expectedKeyAccessors,
-                identificationService
+                identificationService,
+                hexService
         );
 
         // Asserts
