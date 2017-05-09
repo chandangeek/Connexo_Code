@@ -26,7 +26,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.GenericDeviceProtocol;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -241,7 +240,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     protected CommandRoot prepareAll(final List<ComTaskExecution> comTaskExecutions) {
-        this.getExecutionContext().getComSessionBuilder().setNotExecutedTasks(comTaskExecutions.size());
+        executionContext.getComSessionBuilder().setNotExecutedTasks(comTaskExecutions.size());
         return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(this, comTaskExecutions));
     }
 
@@ -347,6 +346,10 @@ public abstract class JobExecution implements ScheduledJob {
 
     protected ExecutionContext newExecutionContext(ConnectionTask connectionTask, ComPort comPort, boolean logConnectionProperties) {
         return new ExecutionContext(this, connectionTask, comPort, logConnectionProperties, getServiceProvider());
+    }
+
+    protected CommandRoot initCommandRoot(){
+        return new CommandRootImpl(getExecutionContext(), getComCommandServiceProvider());
     }
 
     @Override
@@ -482,8 +485,7 @@ public abstract class JobExecution implements ScheduledJob {
 
         @Override
         public CommandRoot perform() {
-            CommandRoot result = commandRoot != null ? commandRoot : new CommandRootImpl(getExecutionContext(), getComCommandServiceProvider());
-
+            CommandRoot result = commandRoot != null ? commandRoot : initCommandRoot();
             try {
                 ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.topologyService());
 
@@ -515,10 +517,6 @@ public abstract class JobExecution implements ScheduledJob {
                                 groupedDeviceCommand,
                                 commandCreator);
 
-                        //GenericDeviceProtocols can reorganize the commands
-                        if (GenericDeviceProtocol.class.isAssignableFrom(deviceProtocol.getClass())) {
-                            groupedDeviceCommand.setCommandRoot(((GenericDeviceProtocol) deviceProtocol).organizeComCommands(groupedDeviceCommand.getCommandRoot()));
-                        }
                     }
                 }
             } catch (Throwable e) {
@@ -534,7 +532,7 @@ public abstract class JobExecution implements ScheduledJob {
         }
     }
 
-    private class ComCommandServiceProvider implements CommandRoot.ServiceProvider {
+    protected class ComCommandServiceProvider implements CommandRoot.ServiceProvider {
 
         @Override
         public Clock clock() {
