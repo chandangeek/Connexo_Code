@@ -13,6 +13,7 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -91,7 +92,7 @@ public class EstimationHelper {
         return estimationService.previewEstimate(system, channelsContainer, range, readingType, estimator);
     }
 
-    List<OutputChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, Collection<Range<Instant>> ranges, List<EstimationResult> results, boolean markAsProjected) {
+    List<OutputChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, Collection<Range<Instant>> ranges, List<EstimationResult> results, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment) {
         List<Instant> failedTimestamps = new ArrayList<>();
         List<OutputChannelDataInfo> channelDataInfos = new ArrayList<>();
 
@@ -103,7 +104,7 @@ public class EstimationHelper {
         for (EstimationResult result : results) {
             for (EstimationBlock block : result.estimated()) {
                 for (Estimatable estimatable : block.estimatables()) {
-                    getChannelDataInfo(estimatable, channelData).ifPresent(info ->  {
+                    getChannelDataInfo(estimatable, channelData, markAsProjected, readingQualityComment).ifPresent(info ->  {
                         info.isProjected = markAsProjected;
                         channelDataInfos.add(info);
                     });
@@ -122,14 +123,14 @@ public class EstimationHelper {
     }
 
 
-    private Optional<OutputChannelDataInfo> getChannelDataInfo(Estimatable estimatable, List<IntervalReadingRecord> channelData) {
+    private Optional<OutputChannelDataInfo> getChannelDataInfo(Estimatable estimatable, List<IntervalReadingRecord> channelData, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment) {
         return channelData.stream()
                 .filter(readingRecord -> readingRecord.getTimeStamp().equals(estimatable.getTimestamp()))
-                .map(readingRecord -> getChannelDataInfo(readingRecord, estimatable))
+                .map(readingRecord -> getChannelDataInfo(readingRecord, estimatable, markAsProjected, readingQualityComment))
                 .findFirst();
     }
 
-    private OutputChannelDataInfo getChannelDataInfo(IntervalReadingRecord reading, Estimatable estimatable) {
-        return channelDataInfoFactory.createEstimatedChannelDataInfo(reading, estimatable.getEstimation());
+    private OutputChannelDataInfo getChannelDataInfo(IntervalReadingRecord reading, Estimatable estimatable, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment) {
+        return channelDataInfoFactory.createUpdatedChannelDataInfo(reading, estimatable.getEstimation(), markAsProjected, readingQualityComment);
     }
 }

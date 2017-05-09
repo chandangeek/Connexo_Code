@@ -132,7 +132,6 @@ public class OutputRegisterDataInfoFactory {
 
     private void setReadingQualities(RegisterReadingWithValidationStatus readingWithValidationStatus, OutputRegisterDataInfo info) {
         info.readingQualities = readingWithValidationStatus.getReadingQualities().stream()
-                .map(ReadingQuality::getType)
                 .map(readingQualityInfoFactory::asInfo)
                 .collect(Collectors.toList());
     }

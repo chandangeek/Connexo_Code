@@ -453,6 +453,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(MetrologyConfigurationHistoryInfoFactory.class).to(MetrologyConfigurationHistoryInfoFactory.class);
             bind(UsagePointOutputsHistoryHelper.class).to(UsagePointOutputsHistoryHelper.class);
             bind(userService).to(UserService.class);
+            bind(UsagePointOutputReferenceCopier.class).to(UsagePointOutputReferenceCopier.class);
         }
     }
 }

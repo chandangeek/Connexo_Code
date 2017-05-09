@@ -6,14 +6,20 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.JournaledChannelReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.util.streams.ExtraCollectors;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
+
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -31,12 +37,14 @@ public class OutputChannelDataInfoFactory {
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
     private final ReadingQualityInfoFactory readingQualityInfoFactory;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
+    private final MeteringService meteringService;
 
     @Inject
-    public OutputChannelDataInfoFactory(ValidationRuleInfoFactory validationRuleInfoFactory, ReadingQualityInfoFactory readingQualityInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory) {
+    public OutputChannelDataInfoFactory(ValidationRuleInfoFactory validationRuleInfoFactory, ReadingQualityInfoFactory readingQualityInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, MeteringService meteringService) {
         this.validationRuleInfoFactory = validationRuleInfoFactory;
         this.readingQualityInfoFactory = readingQualityInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
+        this.meteringService = meteringService;
     }
 
     public OutputChannelDataInfo createChannelDataInfo(ChannelReadingWithValidationStatus readingWithValidationStatus) {
@@ -78,7 +86,9 @@ public class OutputChannelDataInfoFactory {
             }
             outputChannelDataInfo.isProjected = status.getReadingQualities()
                     .stream()
-                    .anyMatch(quality -> quality.getType().hasProjectedCategory());
+                    .map(ReadingQuality::getType)
+                    .anyMatch(ReadingQualityType::hasProjectedCategory);
+
             outputChannelDataInfo.isConfirmed = status.getReadingQualities()
                     .stream()
                     .anyMatch(quality -> quality.getType().isConfirmed());
@@ -112,18 +122,48 @@ public class OutputChannelDataInfoFactory {
     }
 
     private void setReadingQualities(ChannelReadingWithValidationStatus readingWithValidationStatus, OutputChannelDataInfo outputChannelDataInfo) {
-        outputChannelDataInfo.readingQualities = readingWithValidationStatus.getReadingQualities().stream()
-                .map(ReadingQuality::getType)
+        List<ReadingQualityInfo> readingQualityInfos = readingWithValidationStatus.getReadingQualities().stream()
                 .map(readingQualityInfoFactory::asInfo)
                 .collect(Collectors.toList());
+        outputChannelDataInfo.readingQualities = readingQualityInfos;
+        readingQualityInfos.stream()
+                .filter(readingQualityInfo -> readingQualityInfo.comment != null)
+                .findFirst()
+                .ifPresent(readingQuality -> {
+                    outputChannelDataInfo.commentId = getEstimationCommentIdByValue(readingQuality.comment);
+                    outputChannelDataInfo.commentValue = readingQuality.comment;
+                });
     }
 
-    public OutputChannelDataInfo createEstimatedChannelDataInfo(IntervalReadingRecord readingRecord, BigDecimal estimatedValue) {
+    public OutputChannelDataInfo createUpdatedChannelDataInfo(IntervalReadingRecord readingRecord, BigDecimal newValue, boolean isProjected, Optional<ReadingQualityComment> readingQualityComment) {
         OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
-        outputChannelDataInfo.reportedDateTime = readingRecord.getTimeStamp();
-        outputChannelDataInfo.interval = readingRecord.getTimePeriod().map(IntervalInfo::from).orElse(null);
-        outputChannelDataInfo.value = estimatedValue;
+        outputChannelDataInfo.reportedDateTime = readingRecord.getReportedDateTime();
+        readingRecord.getReadingType().getIntervalLength().ifPresent(intervalLength -> {
+            Instant readingTimeStamp = readingRecord.getTimeStamp();
+            outputChannelDataInfo.interval = IntervalInfo.from(Range.openClosed(readingTimeStamp.minus(intervalLength), readingTimeStamp));
+        });
+        outputChannelDataInfo.value = newValue;
+        outputChannelDataInfo.isProjected = isProjected;
+        readingQualityComment.ifPresent(comment -> {
+            outputChannelDataInfo.commentId = comment.getId();
+            outputChannelDataInfo.commentValue = comment.getComment();
+        });
         return outputChannelDataInfo;
+    }
+
+    private long getEstimationCommentIdByValue(String commentValue) {
+         return meteringService.getAllReadingQualityComments(ReadingQualityCommentCategory.ESTIMATION)
+                .stream()
+                .filter(readingQualityComment -> readingQualityComment.getComment().equals(commentValue))
+                .map(ReadingQualityComment::getId)
+                .findFirst().orElse(0L);
+    }
+
+    public PrevalidatedChannelDataInfo createPrevalidatedChannelDataInfo(DataValidationStatus dataValidationStatus) {
+        PrevalidatedChannelDataInfo info = new PrevalidatedChannelDataInfo();
+        info.readingTime = dataValidationStatus.getReadingTimestamp();
+        info.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
+        return info;
     }
 
     public List<OutputChannelHistoryDataInfo> createOutputChannelHistoryDataInfo(List<JournaledReadingRecord> result) {
