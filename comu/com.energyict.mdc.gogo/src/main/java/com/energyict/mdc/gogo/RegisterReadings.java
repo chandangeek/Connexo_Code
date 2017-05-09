@@ -14,13 +14,16 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import org.joda.time.DateTimeConstants;
 import org.osgi.service.component.annotations.Component;
@@ -29,9 +32,11 @@ import org.osgi.service.component.annotations.Reference;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,7 +51,7 @@ import java.util.stream.Collectors;
  * @since 2014-07-17 (14:17)
  */
 @Component(name = "com.energyict.mdc.gogo.RegisterReadings", service = RegisterReadings.class,
-        property = {"osgi.command.scope=mdc.metering", "osgi.command.function=printReadings", "osgi.command.function=addReading", "osgi.command.function=addDeviceEvent"},
+        property = {"osgi.command.scope=mdc.metering", "osgi.command.function=printReadings", "osgi.command.function=addReading", "osgi.command.function=addDeviceEvent", "osgi.command.function=addDefaultAlarmEvents"},
         immediate = true)
 @SuppressWarnings("unused")
 public class RegisterReadings {
@@ -146,6 +151,36 @@ public class RegisterReadings {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void addDefaultAlarmEvents() {
+        String raisedOnEvent = "*.12.*.257";
+        String reason = "Tampering";
+        this.deviceService.findAllDevices(Condition.TRUE)
+                .stream()
+                .filter(device -> !device.getState().getName().equals(DefaultState.ACTIVE.getKey()))
+                .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+                    Collections.shuffle(collected);
+                    return collected.stream().limit((long) (collected.size() * 0.03));
+                })).forEach(device ->
+                addDeviceEvent(
+                        device.getName(),
+                        raisedOnEvent,
+                        parseDateFormat.format(ZonedDateTime.now().minusMinutes(1L)),
+                        device.getmRID(),
+                        "TamperingEvent",
+                        "TamperingEventAlias",
+                        "TamperingEventDescription",
+                        reason,
+                        "Medium",
+                        "Open",
+                        String.valueOf(device.getDeviceType().getId()),
+                        String.valueOf(new Random().nextInt()),
+                        String.valueOf(new Random().nextInt()),
+                        device.getLogBooks().stream().findFirst().map(LogBook::getId).get(),
+                        0,
+                        "data0=" + device.getName() + "_data")
+        );
     }
 
     private Status parseStatus(String status) {
