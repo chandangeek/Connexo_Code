@@ -7,6 +7,7 @@ package com.elster.jupiter.demo;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.calendar.impl.importers.CalendarImporterFactory;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -51,6 +52,7 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
@@ -874,7 +876,9 @@ public class DemoTest {
                         propertySpecService,
                         injector.getInstance(ValidationService.class),
                         injector.getInstance(MeteringService.class),
-                        timeService);
+                        injector.getInstance(MetrologyConfigurationService.class),
+                        timeService,
+                        injector.getInstance(CalendarService.class));
         estimationService.addEstimatorFactory(estimatorFactory);
 
     }
