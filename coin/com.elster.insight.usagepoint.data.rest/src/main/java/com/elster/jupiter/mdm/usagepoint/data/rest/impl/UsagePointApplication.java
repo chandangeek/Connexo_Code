@@ -124,6 +124,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile PropertySpecService propertySpecService;
     private volatile UsagePointDataModelService usagePointDataModelService;
     private volatile UserService userService;
+    private volatile UsagePointOutputsHistoryHelper usagePointOutputsHistoryHelper;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -450,6 +451,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(ChannelValidationRuleInfoFactory.class).to(ChannelValidationRuleInfoFactory.class);
             bind(ChannelEstimationRuleInfoFactory.class).to(ChannelEstimationRuleInfoFactory.class);
             bind(MetrologyConfigurationHistoryInfoFactory.class).to(MetrologyConfigurationHistoryInfoFactory.class);
+            bind(UsagePointOutputsHistoryHelper.class).to(UsagePointOutputsHistoryHelper.class);
             bind(userService).to(UserService.class);
         }
     }

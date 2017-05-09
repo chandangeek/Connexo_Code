@@ -5,20 +5,25 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.JournaledRegisterReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.rest.util.IntervalInfo;
+import com.elster.jupiter.util.streams.ExtraCollectors;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
@@ -106,9 +111,7 @@ public class OutputRegisterDataInfoFactory {
                     .findFirst()
                     .orElse(null);
             ((NumericalOutputRegisterDataInfo) info).isConfirmed = status.getReadingQualities().stream()
-                    .filter(quality -> quality.getType().isConfirmed())
-                    .findFirst()
-                    .isPresent();
+                    .anyMatch(quality -> quality.getType().isConfirmed());
             info.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
         }
     }
@@ -132,5 +135,39 @@ public class OutputRegisterDataInfoFactory {
                 .map(ReadingQuality::getType)
                 .map(readingQualityInfoFactory::asInfo)
                 .collect(Collectors.toList());
+    }
+
+    public List<OutpitRegisterHistoryDataInfo> createHistoricalRegisterInfo(Set<JournaledReadingRecord>readingRecords) {
+        List<OutpitRegisterHistoryDataInfo> data = new ArrayList<>();
+        readingRecords.forEach(journaledReadingRecord -> {
+            OutpitRegisterHistoryDataInfo outpitRegisterHistoryDataInfo = new OutpitRegisterHistoryDataInfo();
+            BaseReadingRecord record = journaledReadingRecord.getStoredReadingRecord();
+            DataValidationStatus status = journaledReadingRecord.getValidationStatus();
+            if (record instanceof JournaledRegisterReadingRecord) {
+                outpitRegisterHistoryDataInfo.interval = IntervalInfo.from(journaledReadingRecord.getInterval());
+                outpitRegisterHistoryDataInfo.userName = ((JournaledRegisterReadingRecord)record).getUserName();
+                outpitRegisterHistoryDataInfo.timeStamp = record.getReportedDateTime();
+                outpitRegisterHistoryDataInfo.value = record.getValue();
+                outpitRegisterHistoryDataInfo.reportedDateTime = record.getReportedDateTime();
+                outpitRegisterHistoryDataInfo.readingQualities = journaledReadingRecord.getReadingQualities().stream()
+                        .map(ReadingQuality::getType)
+                        .map(readingQualityInfoFactory::asInfo)
+                        .collect(Collectors.toList());
+                outpitRegisterHistoryDataInfo.dataValidated = status.completelyValidated();
+                outpitRegisterHistoryDataInfo.validationResult = status.getValidationResult();
+                outpitRegisterHistoryDataInfo.validationAction = decorate(status.getReadingQualities()
+                        .stream())
+                        .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
+                        .map(readingQuality -> readingQuality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
+                        .sorted(Comparator.reverseOrder())
+                        .findFirst()
+                        .orElse(null);
+
+                data.add(outpitRegisterHistoryDataInfo);
+            }
+        });
+        return data.stream().sorted(Comparator.comparing(info -> ((OutpitRegisterHistoryDataInfo)info).interval.end)
+                .thenComparing(Comparator.comparing(info -> ((OutpitRegisterHistoryDataInfo) info).reportedDateTime).reversed())).collect(ExtraCollectors
+                .toImmutableList());
     }
 }

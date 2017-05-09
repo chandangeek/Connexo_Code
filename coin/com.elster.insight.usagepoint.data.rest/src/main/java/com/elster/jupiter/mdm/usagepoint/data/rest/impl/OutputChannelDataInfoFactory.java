@@ -129,8 +129,8 @@ public class OutputChannelDataInfoFactory {
     public List<OutputChannelHistoryDataInfo> createOutputChannelHistoryDataInfo(List<JournaledReadingRecord> result) {
         List <OutputChannelHistoryDataInfo> infos = new ArrayList<>();
         result.forEach(record -> {
-            BaseReadingRecord storedRecord = record.getRecord();
-            if (storedRecord instanceof JournaledReadingRecord) {
+            BaseReadingRecord storedRecord = record.getStoredReadingRecord();
+            if (storedRecord instanceof JournaledChannelReadingRecord) {
                 OutputChannelHistoryDataInfo outputChannelDataInfo = new OutputChannelHistoryDataInfo();
                 outputChannelDataInfo.value = record.getValue();
                 outputChannelDataInfo.interval = IntervalInfo.from(record.getInterval());
@@ -151,6 +151,7 @@ public class OutputChannelDataInfoFactory {
                 OutputChannelHistoryDataInfo outputChannelHistoryDataInfo = new OutputChannelHistoryDataInfo();
                 outputChannelHistoryDataInfo.value = record.getValue();
                 outputChannelHistoryDataInfo.interval = IntervalInfo.from(record.getInterval());
+                outputChannelHistoryDataInfo.journalTime = Instant.EPOCH;
                 outputChannelHistoryDataInfo.dataValidated = record.getValidationStatus().completelyValidated();
                 outputChannelHistoryDataInfo.reportedDateTime = record.getReportedDateTime();
                 outputChannelHistoryDataInfo.userName = "";

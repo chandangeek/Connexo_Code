@@ -42,7 +42,7 @@ public class JournaledReadingRecord implements BaseReadingRecord {
         this.validationStatus = validationStatus;
     }
 
-    public BaseReadingRecord getRecord() {
+    public BaseReadingRecord getStoredReadingRecord() {
         return readingRecord;
     }
 
