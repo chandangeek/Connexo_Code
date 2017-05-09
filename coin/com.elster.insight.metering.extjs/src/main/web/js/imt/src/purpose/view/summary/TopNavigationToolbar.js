@@ -59,7 +59,6 @@ Ext.define('Imt.purpose.view.summary.TopNavigationToolbar', {
         me.page = Ext.isNumber(pageNumber) ? pageNumber : me.page;
         me.down('#displayItem').setText(me.makeDisplayValue());
         me.activateButtons();
-        me.fireEvent('outputspagechanged', me.page, me.pageSize);
     },
 
     makeDisplayValue: function () {
@@ -81,5 +80,6 @@ Ext.define('Imt.purpose.view.summary.TopNavigationToolbar', {
 
         me.down('#previous-next-navigation-toolbar-next-link').setDisabled(storeTotal <= toCount);
         me.down('#previous-next-navigation-toolbar-previous-link').setDisabled(1 === fromCount);
+        me.fireEvent('outputspagechanged', me.page, me.pageSize);
     }
 });
