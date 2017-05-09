@@ -151,7 +151,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     }
 
     protected IssueType getDefaultIssueType(){
-        return mockIssueType("datacollection", "Data Collection");
+        return mockIssueType("datacollection", "Data collection");
     }
 
     protected IssueReason mockReason(String key, String name, IssueType issueType){
