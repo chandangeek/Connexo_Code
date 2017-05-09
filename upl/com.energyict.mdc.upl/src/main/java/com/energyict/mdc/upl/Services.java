@@ -58,7 +58,7 @@ public class Services {
     private static AtomicReference<Formatter> FORMATTER = new AtomicReference<>();
     private static AtomicReference<X509Service> X509 = new AtomicReference<>();
     private static AtomicReference<KeyStoreService> KEY_STORE_SERVICE = new AtomicReference<>();
-    private static AtomicReference<CertificateWrapperExtractor> CERTIFICATE_WRAPPER_EXTRACTOR = new AtomicReference<>();
+    private static AtomicReference<CertificateWrapperExtractor> CERTIFICATE_WRAPPER_EXTRACTOR = new AtomicReference<>(); //TODO: check if correct
     private static AtomicReference<CertificateAliasFinder> CERTIFICATE_ALIAS_FINDER = new AtomicReference<>();
     private static AtomicReference<DeviceIdentifier.Finder> DEVICE_FINDER = new AtomicReference<>();
 
