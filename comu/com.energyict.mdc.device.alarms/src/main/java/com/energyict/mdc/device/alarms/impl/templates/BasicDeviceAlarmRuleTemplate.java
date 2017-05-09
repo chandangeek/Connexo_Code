@@ -485,6 +485,10 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
             return "";
         }
 
+        protected DeviceType getDeviceType() {
+            return deviceType;
+        }
+
         private String getStateName(State state) {
             return DefaultState
                     .from(state)
@@ -698,6 +702,10 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 e.printStackTrace();
             }
             return "";
+        }
+
+        protected long getRelativePeriodId() {
+            return relativePeriod.getId();
         }
 
         @Override
