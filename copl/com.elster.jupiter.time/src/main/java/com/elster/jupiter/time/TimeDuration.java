@@ -324,6 +324,11 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
             default: throw new LocalizedFieldValidationException(MessageSeeds.UNKNOWN_TIME_UNIT, "timeUnit", timeUnitAsString);
         }
         timeUnitCode = timeUnit.getCode();
+        //validate that the number of seconds doesn't cause an int overflow.
+        if (causesIntOverflow(count, this.timeUnit)) { // CXO-6742
+            throw new IllegalArgumentException("Invalid time duration");
+        }
+
     }
 
     /**
