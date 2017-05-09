@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.issue.share.entity;
 
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -24,6 +26,11 @@ public enum DueInType {
 
     public long dueValueFor(long value){
         return ZonedDateTime.now().plus(value, chronoUnit).toInstant().toEpochMilli();
+    }
+
+    public long dueValueFor(long value, Instant instant){
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
+        return zonedDateTime.plus(value, chronoUnit).toInstant().toEpochMilli();
     }
 
     public String getName() {
