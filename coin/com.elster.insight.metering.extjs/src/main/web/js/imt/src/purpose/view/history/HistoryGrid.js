@@ -82,7 +82,7 @@ Ext.define('Imt.purpose.view.history.HistoryGrid', {
         }
         if (!Ext.isEmpty(estimatedByRule)) {
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
-                + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} at {1}', [
+                + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated on {0} at {1}', [
                     Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
                     Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
                 ], false) + '"></span>';
