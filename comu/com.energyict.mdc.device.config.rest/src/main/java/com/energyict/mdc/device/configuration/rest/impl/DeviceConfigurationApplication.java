@@ -23,6 +23,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.time.rest.impl.TimeApplication;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -211,7 +212,8 @@ public class DeviceConfigurationApplication extends Application implements Messa
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
         this.thesaurus = this.thesaurus.join(nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN))
-                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
+                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
+                .join(nlsService.getThesaurus(TimeApplication.COMPONENT_NAME, Layer.REST));
     }
 
     @Reference

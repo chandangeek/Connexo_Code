@@ -150,6 +150,8 @@ public enum MessageSeeds implements MessageSeed {
     MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE(227, Keys.MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before " +
             "you can activate a multi-element device configuration"),
     NO_SUCH_KEY_ACCESSOR_TYPE(228, "NoSuchKeyAccessorType", "No such security accessor")
+    INVALID_VALUE(229, "InvalidValue", "Invalid value"),
+    INVALID_TIME_DURATION(230, "TimeDurationTooLong", "Validity period must be shorter than or equal to 30 years.");
     ;
 
     private final int number;
