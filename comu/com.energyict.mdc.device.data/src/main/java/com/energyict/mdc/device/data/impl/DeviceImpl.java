@@ -179,6 +179,7 @@ import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -3299,7 +3300,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 break; // TODO implement? will this occur?
         }
         return null; // TODO throw exception
-
     }
 
     @Override
