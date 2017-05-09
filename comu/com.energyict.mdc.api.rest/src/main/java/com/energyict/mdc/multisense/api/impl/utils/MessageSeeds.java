@@ -80,6 +80,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_STATUS(67, "NoSuchStatus", "No such Status with key {0}"),
     BAD_FIELD_VALUE(80, "BadFieldValue", "Bad field value for {0}"),
     NO_SUCH_USER(81, "NoSuchUser", "No such user with name {0}"),
+    NO_SUCH_KEYACCESSORTYPE_FOR_DEVICE(82, "NoSuchKeyAccessorTypeForDevice", "No such security accessor type for this devicetype")
     ;
 
     private final int number;
