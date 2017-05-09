@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectsGrid', {
         this.columns = [
             {
                 header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-                dataIndex: 'name',
+                dataIndex: 'displayName',
                 flex: 1
             },
             {

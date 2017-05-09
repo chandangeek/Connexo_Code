@@ -94,7 +94,7 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
             model.load(protocolDialectId, {
                     success: function (deviceProtocolDialect) {
                         me.getDeviceProtocolDialectPreviewForm().loadRecord(deviceProtocolDialect);
-                        var protocolDialectName = deviceProtocolDialect.get('name');
+                        var protocolDialectName = deviceProtocolDialect.get('displayName');
                         me.getDeviceProtocolDialectPreview().getLayout().setActiveItem(1);
                         if (deviceProtocolDialect.propertiesStore.data.items.length > 0) {
                             me.getProtocolDialectsDetailsTitle().setVisible(true);
