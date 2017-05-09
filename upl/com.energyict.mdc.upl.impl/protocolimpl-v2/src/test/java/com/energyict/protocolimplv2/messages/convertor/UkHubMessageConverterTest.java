@@ -6,7 +6,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
+
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -15,11 +15,12 @@ import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.ZigBeeConfigurationDeviceMessage;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
+
+import java.text.ParseException;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.text.ParseException;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -154,7 +155,7 @@ public class UkHubMessageConverterTest extends AbstractV2MessageConverterTest {
                 case DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName:
                     return "ABC";
                 case DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName:
-                    return new SimplePassword("123");
+                    return "123";
                 case DeviceMessageConstants.ZigBeeConfigurationMirrorAddressAttributeName:
                     return "1";
                 case DeviceMessageConstants.ZigBeeConfigurationForceRemovalAttributeName:

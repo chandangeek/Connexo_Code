@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -36,15 +35,13 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return Arrays.asList(
-                DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService),
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.of(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService));
     }
 
     @Override
-    public Optional<PropertySpec> getClientSecurityPropertySpec() {
-        return Optional.empty();
+    public List<PropertySpec> getSecurityProperties() {
+        return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
     }
 
     @Override
@@ -62,13 +59,6 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-            // override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new EmptyPassword());
-            if (Password.class.isAssignableFrom(property.getClass())) {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
-            } else {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
-            }
         }
         return typedProperties;
     }
@@ -114,13 +104,6 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
         }
         if (deviceAccessIdentifier != null) {
             typedProperties.setProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService).getName(), deviceAccessIdentifier);
-        }
-    }
-
-    private static class EmptyPassword implements Password {
-        @Override
-        public String getValue() {
-            return "";
         }
     }
 

@@ -5,7 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
+
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -14,11 +14,12 @@ import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
+
+import java.text.ParseException;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.text.ParseException;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -142,7 +143,7 @@ public class IskraMx372MessageConverterTest extends AbstractV2MessageConverterTe
                 case DeviceMessageConstants.whiteListPhoneNumbersAttributeName:
                     return "number1; number2";
                 case DeviceMessageConstants.newHexPasswordAttributeName:
-                    return new SimplePassword("FF00AA");
+                    return "FF00AA";
                 default:
                     return "";
             }

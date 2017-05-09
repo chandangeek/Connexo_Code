@@ -5,17 +5,18 @@ import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.protocolimpl.dlms.eictz3.EictZ3;
-import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeName;
@@ -83,7 +84,7 @@ public class EictZ3MessageConverterTest extends AbstractV2MessageConverterTest {
         } else if (propertySpec.getName().equals(contactorModeAttributeName)) {
             return BigDecimal.valueOf(1);
         } else if (propertySpec.getName().equals(openKeyAttributeName) || propertySpec.getName().equals(transferKeyAttributeName)) {
-            return new SimplePassword("0101001010101010");
+            return "0101001010101010";
         } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
             return "path";
         }

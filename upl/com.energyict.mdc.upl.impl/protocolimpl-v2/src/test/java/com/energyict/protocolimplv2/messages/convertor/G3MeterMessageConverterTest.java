@@ -11,22 +11,23 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+
 import com.energyict.protocolimpl.dlms.g3.AS330D;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.enums.ActivityCalendarType;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
@@ -119,7 +120,7 @@ public class G3MeterMessageConverterTest extends AbstractV2MessageConverterTest 
         } else if (propertySpec.getName().equals(plcTypeFirmwareUpdateAttributeName)) {
             return Boolean.TRUE;
         } else if (propertySpec.getName().equals(pskAttributeName)) {
-            return new SimplePassword("PSK");
+            return "PSK";
         } else if (propertySpec.getName().equals(activityCalendarTypeAttributeName)) {
             return ActivityCalendarType.PublicNetwork.getDescription();
         } else if (propertySpec.getName().equals(plcG3TimeoutAttributeName)) {

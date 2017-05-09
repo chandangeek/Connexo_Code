@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -20,6 +19,44 @@ import java.util.stream.IntStream;
  * Time: 16:40
  */
 public enum DeviceSecurityProperty {
+
+    /**
+     * A DLMS clientMacAddress.
+     */
+    CLIENT_MAC_ADDRESS {
+        @Override
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return this.getPropertySpec(propertySpecService, BigDecimal.ONE);
+        }
+
+        @Override
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService, Object defaultValue) {
+            return this.getPropertySpec(propertySpecService, (BigDecimal) defaultValue);
+        }
+
+        private PropertySpec getPropertySpec(PropertySpecService propertySpecService, BigDecimal defaultValue) {
+            return propertySpecService
+                    .boundedBigDecimalSpec(BigDecimal.ONE, BigDecimal.valueOf(0x7F))
+                    .named(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString())
+                    .describedAs("Description for " + SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
+                    .setDefaultValue(defaultValue)
+                    .addValues(getPossibleClientMacAddressValues(1, 0x7F))
+                    .markRequired()
+                    .finish();
+        }
+    },
+    /**
+     * A character identification of the accessing client.
+     */
+    DEVICE_ACCESS_IDENTIFIER {
+        @Override
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return UPLPropertySpecFactory
+                    .specBuilder(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString(), false, propertySpecService::stringSpec)
+                    .markRequired()
+                    .finish();
+        }
+    },
 
     /**
      * A plain old password, can be a high- or low level password.
@@ -48,31 +85,6 @@ public enum DeviceSecurityProperty {
             return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.AUTHENTICATION_KEY).markRequired().finish();
         }
     },
-    /**
-     * A DLMS clientMacAddress.
-     */
-    CLIENT_MAC_ADDRESS {
-        @Override
-        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.getPropertySpec(propertySpecService, BigDecimal.ONE);
-        }
-
-        @Override
-        public PropertySpec getPropertySpec(PropertySpecService propertySpecService, Object defaultValue) {
-            return this.getPropertySpec(propertySpecService, (BigDecimal) defaultValue);
-        }
-
-        private PropertySpec getPropertySpec(PropertySpecService propertySpecService, BigDecimal defaultValue) {
-            return propertySpecService
-                    .boundedBigDecimalSpec(BigDecimal.ONE, BigDecimal.valueOf(0x7F))
-                    .named(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString())
-                    .describedAs("Description for " + SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
-                    .setDefaultValue(defaultValue)
-                    .addValues(getPossibleClientMacAddressValues(1, 0x7F))
-                    .markRequired()
-                    .finish();
-        }
-    },
 
     /**
      * The certificate that matches the private key of the server (the DLMS device) used for digital signature.
@@ -81,7 +93,7 @@ public enum DeviceSecurityProperty {
     SERVER_SIGNATURE_CERTIFICATE {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return certificatePropertySpecBuilder(propertySpecService, SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE).markRequired().finish();
+            return keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE).markRequired().finish();
         }
     },
 
@@ -91,7 +103,7 @@ public enum DeviceSecurityProperty {
     SERVER_KEY_AGREEMENT_CERTIFICATE {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return certificatePropertySpecBuilder(propertySpecService, SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE).markRequired().finish();
+            return keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE).markRequired().finish();
         }
     },
 
@@ -102,7 +114,7 @@ public enum DeviceSecurityProperty {
      * 2: Phase 2 communication. The keys are never decrypted. Each frame in the communication is encrypted/decrypted by the Cryptoserver, using the encrypted keys.
      * S: Phase S has the same key format as for phase 0. The s indicates the meter has service keys injected.
      */
-    CRYPTOSERVER_PHASE {
+    CRYPTOSERVER_PHASE {    //TODO: should this also be ReferenceSpec<KeyAccessorType>?
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
@@ -115,7 +127,7 @@ public enum DeviceSecurityProperty {
         }
     },
 
-    SECURITY_LEVEL {
+    SECURITY_LEVEL {    //TODO: should this also be ReferenceSpec<KeyAccessorType>?
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
@@ -124,23 +136,10 @@ public enum DeviceSecurityProperty {
                     .finish();
         }
     },
-
-    /**
-     * A character identification of the accessing client.
-     */
-    DEVICE_ACCESS_IDENTIFIER {
-        @Override
-        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return UPLPropertySpecFactory
-                    .specBuilder(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString(), false, propertySpecService::stringSpec)
-                    .markRequired()
-                    .finish();
-        }
-    },
     /**
      * A username for ANSI C12 protocols.
      */
-    ANSI_C12_USER {
+    ANSI_C12_USER { //TODO: should this also be ReferenceSpec<KeyAccessorType>?
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
@@ -152,7 +151,7 @@ public enum DeviceSecurityProperty {
     /**
      * A UserId for ANSI C12 protocols.
      */
-    ANSI_C12_USER_ID {
+    ANSI_C12_USER_ID {  //TODO: should this also be ReferenceSpec<KeyAccessorType>?
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
@@ -165,7 +164,7 @@ public enum DeviceSecurityProperty {
     /**
      * Indication for ansi protocols to use a binary password.
      */
-    BINARY_PASSWORD {
+    BINARY_PASSWORD {   //TODO: should this also be ReferenceSpec<KeyAccessorType>?
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
@@ -178,7 +177,7 @@ public enum DeviceSecurityProperty {
     /**
      * ANSI ap title.
      */
-    ANSI_CALLED_AP_TITLE {
+    ANSI_CALLED_AP_TITLE {  //TODO: should this also be ReferenceSpec<KeyAccessorType>?
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
@@ -190,7 +189,7 @@ public enum DeviceSecurityProperty {
     /**
      * A key used for encryption of bytes.
      */
-    ANSI_SECURITY_KEY {
+    ANSI_SECURITY_KEY { //TODO: should this also be ReferenceSpec<KeyAccessorType>?
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.ANSI_SECURITY_KEY)
@@ -204,7 +203,7 @@ public enum DeviceSecurityProperty {
     MANUFACTURER_ENCRYPTION_KEY {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER)
+            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER)
                     .markRequired()
                     .finish();
         }
@@ -215,7 +214,7 @@ public enum DeviceSecurityProperty {
     CUSTOMER_ENCRYPTION_KEY {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER)
+            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER)
                     .markRequired()
                     .finish();
         }
@@ -224,14 +223,6 @@ public enum DeviceSecurityProperty {
     protected PropertySpecBuilder<Object> keyAccessorTypeReferenceSpecBuilder(PropertySpecService propertySpecService, SecurityPropertySpecName name) {
         return propertySpecService
                 .referenceSpec(KeyAccessorType.class.getName())
-                .named(name.toString(), name.toString())
-                .describedAs("Description for " + name.toString());
-    }
-
-    //TODO: also rework to referenceSpec of KeyAccessorType
-    protected static PropertySpecBuilder certificatePropertySpecBuilder(PropertySpecService propertySpecService, SecurityPropertySpecName name) {
-        return propertySpecService
-                .referenceSpec(CertificateWrapper.class.getName())
                 .named(name.toString(), name.toString())
                 .describedAs("Description for " + name.toString());
     }

@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -72,13 +71,6 @@ public class WavenisSecuritySupport extends AbstractSecuritySupport implements L
             typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()));
             typedProperties.setProperty(ENCRYPTION_KEY_PROPERTY_NAME,
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
-            // override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new EmptyPassword());
-            if (Password.class.isAssignableFrom(property.getClass())) {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
-            } else {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
-            }
         }
         return typedProperties;
     }
