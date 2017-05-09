@@ -287,7 +287,7 @@ public class MetrologyConfigurationResource {
         } else {
             for (ValidationRuleSetInfo validationRuleSetInfo : metrologyContractInfo.validationRuleSets) {
                 ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(validationRuleSetInfo.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-                if(validationRuleSetInfo.lifeCycleStates==null || !validationRuleSetInfo.lifeCycleStates.isEmpty()) {
+                if (validationRuleSetInfo.lifeCycleStates != null && !validationRuleSetInfo.lifeCycleStates.isEmpty()) {
                     usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet, resourceHelper.getStates(validationRuleSetInfo.lifeCycleStates));
                 } else {
                     usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet);

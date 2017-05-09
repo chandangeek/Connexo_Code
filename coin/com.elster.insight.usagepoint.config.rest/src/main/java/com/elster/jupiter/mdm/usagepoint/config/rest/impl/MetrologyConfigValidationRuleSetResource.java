@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -34,7 +33,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -146,7 +144,7 @@ public class MetrologyConfigValidationRuleSetResource {
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         metrologyContractRuleSetUsageInfo.contracts.forEach(metrologyContractInfo -> {
             MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(metrologyContractInfo);
-            if(metrologyContractRuleSetUsageInfo.lifeCycleStates==null || !metrologyContractRuleSetUsageInfo.lifeCycleStates.isEmpty()) {
+            if (metrologyContractRuleSetUsageInfo.lifeCycleStates != null && !metrologyContractRuleSetUsageInfo.lifeCycleStates.isEmpty()) {
                 usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet, resourceHelper.getStates(metrologyContractRuleSetUsageInfo.lifeCycleStates));
             } else {
                 usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet);
