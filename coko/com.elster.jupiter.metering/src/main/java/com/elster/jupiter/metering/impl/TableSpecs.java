@@ -34,6 +34,7 @@ import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
@@ -2058,6 +2059,21 @@ public enum TableSpecs {
                     .map("readingType")
                     .on(readingTypeMRIDColumn)
                     .add();
+        }
+    },
+    MTR_READINGQUALITY_COMMENT {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ReadingQualityComment> table = dataModel.addTable(name(), ReadingQualityComment.class);
+            table.since(Version.version(10, 3));
+            table.map(ReadingQualityCommentImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            table.setJournalTableName("MTR_READINGQUALITY_COMMENTJRNL");
+
+            table.column("CATEGORY").varChar(NAME_LENGTH).conversion(CHAR2ENUM).map("category").add();
+            table.column("COMMENTS").varChar(4000).map("comment").add();
+
+            table.primaryKey("PK_MTR_RQC").on(idColumn).add();
         }
     };
 

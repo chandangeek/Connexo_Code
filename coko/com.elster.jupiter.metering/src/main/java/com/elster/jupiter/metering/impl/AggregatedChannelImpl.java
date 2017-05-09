@@ -157,8 +157,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                                 Function.identity()));
 
         // return elements, sorted by timestamp
-        TreeMap<Instant, IntervalReadingRecord> orderedReadings = new TreeMap<>();
-        orderedReadings.putAll(calculatedReadings);
+        Map<Instant, IntervalReadingRecord> orderedReadings = new TreeMap<>(calculatedReadings);
         orderedReadings.putAll(persistedReadings);
 
         return new ArrayList<>(orderedReadings.values());
@@ -332,7 +331,9 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<BaseReadingRecord> getReadingsUpdatedSince(ReadingType readingType, Range<Instant> interval, Instant since) {
-        throw new UnsupportedOperationException();
+        return getReadings(readingType, interval).stream()
+                .filter(reading -> reading.getReportedDateTime().isAfter(since))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -392,6 +393,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                 .stream()
                 .map(MetrologyContractCalculationIntrospector.ChannelUsage::getChannel)
                 .map(Channel::getLastDateTime)
+                .filter(lastDateTime -> lastDateTime != null)
                 .max(Comparator.naturalOrder());
         if (max.isPresent()) {
             return persistedChannelLastDateTime == null || max.get().compareTo(persistedChannelLastDateTime) >= 0 ? max.get() : persistedChannelLastDateTime;

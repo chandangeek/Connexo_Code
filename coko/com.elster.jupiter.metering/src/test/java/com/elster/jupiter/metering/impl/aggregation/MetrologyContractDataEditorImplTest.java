@@ -95,7 +95,7 @@ public class MetrologyContractDataEditorImplTest {
         ZoneId zoneId = TimeZoneNeutral.getMcMurdo();
         when(this.usagePoint.getMRID()).thenReturn(MetrologyContractDataEditorImplTest.class.getSimpleName());
         when(this.usagePoint.getZoneId()).thenReturn(zoneId);
-        when(this.usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(this.effectiveMetrologyConfigurationOnUsagePoint));
+        when(this.usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(this.effectiveMetrologyConfigurationOnUsagePoint));
         when(this.effectiveMetrologyConfigurationOnUsagePoint.getChannelsContainer(this.contract)).thenReturn(Optional.of(this.channelsContainer));
         when(this.effectiveMetrologyConfigurationOnUsagePoint.getRange()).thenReturn(Range.all());
         when(this.dataAggregationService.hasContract(this.effectiveMetrologyConfigurationOnUsagePoint, this.contract)).thenReturn(true);
@@ -531,6 +531,7 @@ public class MetrologyContractDataEditorImplTest {
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(readingType.getTou()).thenReturn((int) tou);
+        when(readingType.getIntervalLength()).thenReturn(Optional.empty());
         return readingType;
     }
 }

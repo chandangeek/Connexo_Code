@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
@@ -122,6 +123,7 @@ public class MeteringInMemoryBootstrapModule {
                 ? new MeteringModule(readingTypeRequirements).withDataAggregationService(dataAggregationService)
                 : new MeteringModule().withDataAggregationService(dataAggregationService));
         modules.add(new PartyModule());
+        modules.add(new BpmModule());
         modules.add(new FiniteStateMachineModule());
         modules.add(new UserModule());
         modules.add(new EventsModule());
