@@ -1,16 +1,17 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.GeneralCipheringKeyType;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.CertificateAlias;
-import com.energyict.mdc.upl.security.PrivateKeyAlias;
+import com.energyict.mdc.upl.security.PrivateKeyWrapper;
+
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -141,7 +142,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      * The private key of the client (the ComServer) used for digital signature (ECDSA)
      */
     private PropertySpec clientPrivateSigningKeyPropertySpec() {
-        return this.getPropertySpecService().referenceSpec(PrivateKeyAlias.class.getName())
+        return this.getPropertySpecService().referenceSpec(PrivateKeyWrapper.class.getName())
                 .named(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY, DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY)
                 .describedAs(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY)
                 .finish();
@@ -161,7 +162,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      * The private key of the client (the ComServer) used for key agreement (ECDH)
      */
     private PropertySpec clientPrivateKeyAgreementKeyPropertySpec() {
-        return this.getPropertySpecService().referenceSpec(PrivateKeyAlias.class.getName())
+        return this.getPropertySpecService().referenceSpec(PrivateKeyWrapper.class.getName())
                 .named(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY, DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY)
                 .describedAs(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY)
                 .finish();

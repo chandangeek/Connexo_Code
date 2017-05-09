@@ -1,15 +1,16 @@
 package com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.properties;
 
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.CertificateWrapper;
+import com.energyict.mdc.upl.security.PrivateKeyWrapper;
+
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
 import com.energyict.encryption.asymetric.ECCCurve;
 import com.energyict.encryption.asymetric.util.KeyUtils;
-import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
-import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.CertificateWrapper;
-import com.energyict.mdc.upl.security.PrivateKeyAlias;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -134,7 +135,7 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
 
     @Override
     public String getClientPrivateSigningKeyLabel() {
-        PrivateKeyAlias privateKey = properties.getTypedProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
+        PrivateKeyWrapper privateKey = properties.getTypedProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
         return privateKey.getAlias();
     }
 
@@ -233,7 +234,7 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
      * Throw the proper exception if the private key could not be found based on the configured alias.
      */
     private PrivateKey parsePrivateKey(String propertyName) {
-        PrivateKeyAlias alias = properties.getTypedProperty(propertyName);
+        PrivateKeyWrapper alias = properties.getTypedProperty(propertyName);
         String privateKeyAlias = getClientPrivateSigningKeyLabel();
         if (alias == null) {
             throw DeviceConfigurationException.missingProperty(propertyName);
@@ -280,7 +281,7 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
      * The PrivateKeyAlias contains both the private key and its matching certificate, fetched from the EIServer persisted key store.
      */
     private X509Certificate parseCertificateOfPrivateKey(String propertyName) {
-        PrivateKeyAlias alias = properties.getTypedProperty(propertyName);
+        PrivateKeyWrapper alias = properties.getTypedProperty(propertyName);
         if (alias == null) {
             return null;
         } else {
