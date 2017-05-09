@@ -126,6 +126,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
     },
 
     hasMetrologyConfiguration: function () {
-        return this.usagePoint.get('metrologyConfiguration') != null;
+        return this.usagePoint && this.usagePoint.get('metrologyConfiguration') != null;
     }
 });
