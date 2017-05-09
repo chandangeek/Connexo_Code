@@ -124,7 +124,7 @@ public class LinkTest {
     }
 
     @Test
-    @Expected(value = UsagePointLifeCycleDeleteObjectException.class, message = "This state can't be removed from this usage point life cycle because one or more metrology configurations use this state.")
+    @Expected(value = DeleteUsagePointLifeCycleObjectException.class, message = "This state can't be removed from this usage point life cycle because one or more metrology configurations use this state.")
     public void testRemoveLifecycleStates() throws Exception {
         try (TransactionContext context = inMemoryBootstrapModule.getTransactionService().getContext()) {
             UsagePointConfigurationService usagePointConfigurationService = inMemoryBootstrapModule.getUsagePointConfigurationService();
@@ -156,7 +156,7 @@ public class LinkTest {
     }
 
     @Test
-    @Expected(value = UsagePointLifeCycleDeleteObjectException.class, message = "This life cycle can't be removed because one or more metrology configurations use states of this life cycle.")
+    @Expected(value = DeleteUsagePointLifeCycleObjectException.class, message = "This life cycle can't be removed because one or more metrology configurations use states of this life cycle.")
     public void testRemoveLifecycle() throws Exception {
         try (TransactionContext context = inMemoryBootstrapModule.getTransactionService().getContext()) {
             UsagePointConfigurationService usagePointConfigurationService = inMemoryBootstrapModule.getUsagePointConfigurationService();

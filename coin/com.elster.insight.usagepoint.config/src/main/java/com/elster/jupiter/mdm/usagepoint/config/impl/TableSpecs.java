@@ -82,17 +82,16 @@ public enum TableSpecs {
             table.setJournalTableName("UPC_MC_VALRULESETSTATEJRNL");
             table.addAuditColumns();
 
-            table.primaryKey("UPC_PK_ST_RULESETCONTRACT")
+            table.primaryKey("UPC_PK_MCVALRSSTATEUSAGE")
                     .on(validationRuleSet, metrologyContract, state)
                     .add();
-            table.foreignKey("UPC_FK_ST_RULESET_USAGE")
+            table.foreignKey("UPC_FK_MCVALRSUSAGE")
                     .references(MetrologyContractValidationRuleSetUsageImpl.class)
-                    .onDelete(RESTRICT)
                     .map(MetrologyContractValidationRuleSetStateUsageImpl.Fields.MC_VALRULESETUSAGE.fieldName())
                     .reverseMap(MetrologyContractValidationRuleSetUsageImpl.Fields.STATES.fieldName())
                     .on(validationRuleSet, metrologyContract)
                     .add();
-            table.foreignKey("UPC_FK_STATE")
+            table.foreignKey("UPC_FK_MCVALRSSTATE2STATE")
                     .references(State.class)
                     .map(MetrologyContractValidationRuleSetStateUsageImpl.Fields.STATE.fieldName())
                     .on(state)

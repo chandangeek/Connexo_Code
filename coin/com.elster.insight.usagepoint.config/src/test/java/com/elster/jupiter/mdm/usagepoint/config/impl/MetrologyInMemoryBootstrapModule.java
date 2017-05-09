@@ -170,9 +170,10 @@ public class MetrologyInMemoryBootstrapModule {
 
     private void addMessageHandlers() {
         MetrologyContractDeletionEventHandler metrologyContractDeletionEventHandler = injector.getInstance(MetrologyContractDeletionEventHandler.class);
-        ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(metrologyContractDeletionEventHandler);
-        ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(this.injector.getInstance(UsagePointLifeCycleDeletionEventHandler.class));
-        ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(this.injector.getInstance(UsagePointStateDeletionEventHandler.class));
+        EventServiceImpl eventService = (EventServiceImpl) this.injector.getInstance(EventService.class);
+        eventService.addTopicHandler(metrologyContractDeletionEventHandler);
+        eventService.addTopicHandler(this.injector.getInstance(UsagePointLifeCycleDeletionEventValidationHandler.class));
+        eventService.addTopicHandler(this.injector.getInstance(UsagePointStateDeletionEventValidationHandler.class));
     }
 
     private static class MockModule extends AbstractModule {

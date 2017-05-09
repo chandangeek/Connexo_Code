@@ -16,25 +16,22 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.time.Clock;
 
 
-@Component(name = "UsagePointLifeCycleDeletionMDMVaidationEventHandler",
+@Component(name = "UsagePointLifeCycleDeletionEventValidationHandler",
         service = {TopicHandler.class},
         immediate = true)
-public class UsagePointLifeCycleDeletionEventHandler implements TopicHandler {
+public class UsagePointLifeCycleDeletionEventValidationHandler implements TopicHandler {
 
-    private Clock clock;
     private ServerUsagePointConfigurationService usagePointConfigurationService;
     private Thesaurus thesaurus;
 
     @SuppressWarnings("unused") // OSGI
-    public UsagePointLifeCycleDeletionEventHandler() {
+    public UsagePointLifeCycleDeletionEventValidationHandler() {
     }
 
     @Inject
-    public UsagePointLifeCycleDeletionEventHandler(Clock clock, ServerUsagePointConfigurationService usagePointConfigurationService, NlsService nlsService) {
-        setClock(clock);
+    public UsagePointLifeCycleDeletionEventValidationHandler(ServerUsagePointConfigurationService usagePointConfigurationService, NlsService nlsService) {
         setUsagePointConfigurationService(usagePointConfigurationService);
         setNlsService(nlsService);
     }
@@ -43,18 +40,13 @@ public class UsagePointLifeCycleDeletionEventHandler implements TopicHandler {
     public void handle(LocalEvent localEvent) {
         UsagePointLifeCycle source = (UsagePointLifeCycle) localEvent.getSource();
         if (source.getStates().stream().anyMatch(state -> !usagePointConfigurationService.getValidationRuleSets(state).isEmpty())) {
-            throw UsagePointLifeCycleDeleteObjectException.canNotDeleteActiveLifeCycle(this.thesaurus);
+            throw DeleteUsagePointLifeCycleObjectException.canNotDeleteActiveLifeCycle(this.thesaurus);
         }
     }
 
     @Override
     public String getTopicMatcher() {
         return "com/elster/jupiter/usagepoint/lifecycle/BEFORE_DELETE";
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
     }
 
     @Reference

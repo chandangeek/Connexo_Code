@@ -133,7 +133,7 @@ public interface UsagePointConfigurationService {
     List<MetrologyContract> getMetrologyContractsLinkedToValidationRuleSet(ValidationRuleSet validationRuleSet);
 
     /**
-     * @return list of {@link State} linked to specified validation rule set and metrology contract
+     * @return list of {@link State}s linked to specified validation rule set and metrology contract
      * @param validationRuleSet Validation rule set
      */
     List<State> getStatesLinkedToValidationRuleSetAndMetrologyContract(ValidationRuleSet validationRuleSet, MetrologyContract metrologyContract);

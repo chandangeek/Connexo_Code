@@ -256,9 +256,7 @@ public class UsagePointConfigurationServiceImpl implements ServerUsagePointConfi
                 .ifPresent(metrologyContractValidationRuleSetUsage -> {
                     dataModel
                             .query(MetrologyContractValidationRuleSetStateUsage.class, MetrologyContractValidationRuleSetUsage.class)
-                            .select(where("metrologyContractValidationRuleSetUsage").in(this.dataModel
-                                    .query(MetrologyContractValidationRuleSetUsage.class, MetrologyContract.class)
-                                    .select(where("validationRuleSet").isEqualTo(validationRuleSet).and(where("metrologyContract").isEqualTo(metrologyContract)))))
+                            .select(where("metrologyContractValidationRuleSetUsage").isEqualTo(metrologyContractValidationRuleSetUsage))
                             .forEach(stateUsage -> dataModel.remove(stateUsage));
                     dataModel.remove(metrologyContractValidationRuleSetUsage);});
         metrologyContract.update();

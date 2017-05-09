@@ -36,11 +36,9 @@ class MetrologyContractValidationRuleSetStateUsageImpl implements MetrologyContr
         }
     }
 
-    @NotEmpty(message = MessageSeeds.Keys.REQUIRED)
-    @IsPresent
+    @IsPresent(message = MessageSeeds.Keys.REQUIRED)
     private Reference<MetrologyContractValidationRuleSetUsage> metrologyContractValidationRuleSetUsage = ValueReference.absent();
-    @NotEmpty(message = MessageSeeds.Keys.REQUIRED)
-    @IsPresent
+    @IsPresent(message = MessageSeeds.Keys.REQUIRED)
     private Reference<State> state = ValueReference.absent();
     @SuppressWarnings("unused") // Managed by ORM
     private long version;

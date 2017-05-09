@@ -16,25 +16,21 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.time.Clock;
 
-
-@Component(name = "UsagePointStateDeletionMDMVaidationEventHandler",
+@Component(name = "UsagePointStateDeletionEventValidationHandler",
         service = {TopicHandler.class},
         immediate = true)
-public class UsagePointStateDeletionEventHandler implements TopicHandler {
+public class UsagePointStateDeletionEventValidationHandler implements TopicHandler {
 
-    private Clock clock;
     private ServerUsagePointConfigurationService usagePointConfigurationService;
     private Thesaurus thesaurus;
 
     @SuppressWarnings("unused") // OSGI
-    public UsagePointStateDeletionEventHandler() {
+    public UsagePointStateDeletionEventValidationHandler() {
     }
 
     @Inject
-    public UsagePointStateDeletionEventHandler(Clock clock, ServerUsagePointConfigurationService usagePointConfigurationService, NlsService nlsService) {
-        setClock(clock);
+    public UsagePointStateDeletionEventValidationHandler(ServerUsagePointConfigurationService usagePointConfigurationService, NlsService nlsService) {
         setUsagePointConfigurationService(usagePointConfigurationService);
         setNlsService(nlsService);
     }
@@ -43,18 +39,13 @@ public class UsagePointStateDeletionEventHandler implements TopicHandler {
     public void handle(LocalEvent localEvent) {
         State source = (State) localEvent.getSource();
         if (!usagePointConfigurationService.getValidationRuleSets(source).isEmpty()) {
-            throw UsagePointLifeCycleDeleteObjectException.canNotDeleteActiveState(this.thesaurus);
+            throw DeleteUsagePointLifeCycleObjectException.canNotDeleteActiveState(this.thesaurus);
         }
     }
 
     @Override
     public String getTopicMatcher() {
         return "com/elster/jupiter/usagepoint/lifecycle/state/BEFORE_DELETE";
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
     }
 
     @Reference
