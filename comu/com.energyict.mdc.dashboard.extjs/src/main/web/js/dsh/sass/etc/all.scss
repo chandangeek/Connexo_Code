@@ -25,6 +25,7 @@
     line-height: $height;
     margin-right: 8px;
     width: 100%;
+    z-index: -100;
   }
 
   .x-bar-container, .x-bar-fill, .x-bar-track {
