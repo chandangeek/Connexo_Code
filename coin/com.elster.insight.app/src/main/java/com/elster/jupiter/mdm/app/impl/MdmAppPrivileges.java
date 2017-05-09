@@ -113,7 +113,11 @@ class MdmAppPrivileges {
                 //data quality kpi
                 com.elster.jupiter.dataquality.security.Privileges.Constants.ADMINISTER_DATA_QUALITY_KPI_CONFIGURATION,
                 com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_KPI_CONFIGURATION,
-                com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_RESULTS
+                com.elster.jupiter.dataquality.security.Privileges.Constants.VIEW_DATA_QUALITY_RESULTS,
+
+                //usage point validation/estimation configuration
+                com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION,
+                com.elster.jupiter.mdm.usagepoint.data.security.Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION
         );
     }
 }
