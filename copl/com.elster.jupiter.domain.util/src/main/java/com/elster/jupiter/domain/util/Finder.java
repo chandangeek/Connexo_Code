@@ -65,6 +65,15 @@ public interface Finder<T> {
      */
     SqlFragment asFragment(String... fieldNames);
 
+    /**
+     * Imposes a maximum page size for the query. If the actual query is performed with a page larger than the page size,
+     * or unpaged altogether, an exception is thrown. This method can only be called once, typically in domain layer, to
+     * prevent front end from lauching huge queries that could potentially damage the system. Once set, it can not be reset
+     * (by rest layer), this is by design.
+     * @param thesaurus Requered to throw the translatable exception
+     * @param maxPageSize The maximum allowed page size.
+     * @return A finder with the additional restriction of maximum page size
+     */
     default Finder<T> maxPageSize(Thesaurus thesaurus, int maxPageSize) { return this; }
 
     default int count() {
