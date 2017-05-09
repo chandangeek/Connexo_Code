@@ -154,14 +154,14 @@ public class RegisterReadings {
     }
 
     public void addDefaultAlarmEvents() {
-        String raisedOnEvent = "*.12.*.257";
+        String raisedOnEvent = "0.12.40.257";
         String reason = "Tampering";
         this.deviceService.findAllDevices(Condition.TRUE)
                 .stream()
-                .filter(device -> !device.getState().getName().equals(DefaultState.ACTIVE.getKey()))
+                .filter(device -> device.getState().getName().equals(DefaultState.ACTIVE.getKey()))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
                     Collections.shuffle(collected);
-                    return collected.stream().limit((long) (collected.size() * 0.03));
+                    return collected.stream().limit((long)Math.ceil(collected.size() * 0.03));
                 })).forEach(device ->
                 addDeviceEvent(
                         device.getName(),
@@ -179,7 +179,7 @@ public class RegisterReadings {
                         String.valueOf(new Random().nextInt()),
                         device.getLogBooks().stream().findFirst().map(LogBook::getId).get(),
                         0,
-                        "data0=" + device.getName() + "_data")
+                        "data=" + device.getName() + "_data")
         );
     }
 
