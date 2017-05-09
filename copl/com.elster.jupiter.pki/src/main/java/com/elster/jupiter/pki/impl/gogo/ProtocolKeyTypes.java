@@ -23,7 +23,7 @@ public enum ProtocolKeyTypes {
             return "AES 128";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newSymmetricKeyType(getName(), "AES", 128).description("Created by test class").add();
+            return pkiService.newSymmetricKeyType(getName(), "AES", 128).description("An 128 bit key suited for AES encryption").add();
         }
     },
     AES_192 {
@@ -31,7 +31,7 @@ public enum ProtocolKeyTypes {
             return "AES 192";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newSymmetricKeyType(getName(), "AES", 192).description("Created by test class").add();
+            return pkiService.newSymmetricKeyType(getName(), "AES", 192).description("An 192 bit key suited for AES encryption").add();
         }
     },
     AES_256 {
@@ -39,23 +39,15 @@ public enum ProtocolKeyTypes {
             return "AES 256";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newSymmetricKeyType(getName(), "AES", 256).description("Created by test class").add();
+            return pkiService.newSymmetricKeyType(getName(), "AES", 256).description("an 256 bit key suited for AES encryption").add();
         }
     },
-    DES {
+    TRUSTED_CERTIFICATE {
         public String getName() {
-            return "DES";
+            return "SubCA certificate";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newSymmetricKeyType(getName(), "DES", 64).description("Created by test class").add();
-        }
-    },
-    TRUSTED_ROOT {
-        public String getName() {
-            return "Trusted root";
-        }
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newTrustedCertificateType(getName()).description("Created by test class").add();
+            return pkiService.newTrustedCertificateType(getName()).description("Certificate located in a trust store, belongs to a (sub)CA").add();
         }
     },
     PASSWORD {
@@ -63,7 +55,7 @@ public enum ProtocolKeyTypes {
             return "Password";
         }
         public KeyType createKeyType(PkiService pkiService) {
-            return pkiService.newPassphraseType(getName()).length(20).withLowerCaseCharacters().withUpperCaseCharacters().add();
+            return pkiService.newPassphraseType(getName()).length(20).withLowerCaseCharacters().withUpperCaseCharacters().description("Generic password").add();
         }
     },
     TLS_CLIENT_SUITE_1 {
@@ -76,7 +68,7 @@ public enum ProtocolKeyTypes {
         public KeyType createKeyType(PkiService pkiService) {
             return pkiService
                     .newClientCertificateType(getName(), "SHA256withECDSA")
-                    .description("DLMS TLS SUITE 1")
+                    .description("Client certificates to be used for DLMS/TLS Suite 1, using EC key on curve SECP256R1. This certificate will be linked to a private key.")
                     .setKeyUsages(EnumSet.of(KeyUsage.keyAgreement, KeyUsage.keyCertSign))
                     .setExtendedKeyUsages(EnumSet.of(ExtendedKeyUsage.tlsWebClientAuthentication, ExtendedKeyUsage.tlsWebServerAuthentication))
                     .ECDSA()
@@ -94,7 +86,7 @@ public enum ProtocolKeyTypes {
         public KeyType createKeyType(PkiService pkiService) {
             return pkiService
                     .newClientCertificateType(getName(), "SHA256withECDSA")
-                    .description("DLMS TLS SUITE 2")
+                    .description("Certificates to be used for DLMS/TLS Suite 2, using EC key on curve SECP384R1. This certificate will be linked to a private key.")
                     .setKeyUsages(EnumSet.of(KeyUsage.keyAgreement, KeyUsage.keyCertSign))
                     .setExtendedKeyUsages(EnumSet.of(ExtendedKeyUsage.tlsWebClientAuthentication, ExtendedKeyUsage.tlsWebServerAuthentication))
                     .ECDSA()
@@ -102,34 +94,20 @@ public enum ProtocolKeyTypes {
                     .add();
         }
     },
-    TLS_SUITE_1 {
+    GENERAL_PURPOSE_X509_CERTIFICATE {
         @Override
         public String getName() {
-            return "DLMS TLS suite 1";
+            return "X509 Certificate";
         }
 
         @Override
         public KeyType createKeyType(PkiService pkiService) {
             return pkiService
                     .newCertificateType(getName())
-                    .description("DLMS TLS SUITE 1")
+                    .description("General purpose certificate")
                     .add();
         }
     },
-    TLS_SUITE_2 {
-        @Override
-        public String getName() {
-            return "DLMS TLS suite 2";
-        }
-
-        @Override
-        public KeyType createKeyType(PkiService pkiService) {
-            return pkiService
-                    .newCertificateType(getName())
-                    .description("DLMS TLS SUITE 2")
-                    .add();
-        }
-    }
     ;
 
     abstract public String getName();
