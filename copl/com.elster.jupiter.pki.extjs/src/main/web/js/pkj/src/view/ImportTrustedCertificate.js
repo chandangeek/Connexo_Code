@@ -10,6 +10,7 @@ Ext.define('Pkj.view.ImportTrustedCertificate', {
 
     trustStore: null,
     cancelLink: undefined,
+    showInfoMsg: undefined,
 
     initComponent: function () {
         this.content = [
@@ -17,7 +18,6 @@ Ext.define('Pkj.view.ImportTrustedCertificate', {
                 xtype: 'panel',
                 ui: 'large',
                 title: Uni.I18n.translate('general.importTrustedCertificates', 'PKJ', 'Import trusted certificates'),
-                //layout: 'fit',
                 items: {
                     xtype: 'trusted-certificate-import-form',
                     autoEl: {
@@ -25,7 +25,8 @@ Ext.define('Pkj.view.ImportTrustedCertificate', {
                         enctype: 'multipart/form-data'
                     },
                     record: this.record,
-                    cancelLink: this.cancelLink
+                    cancelLink: this.cancelLink,
+                    showInfoMsg: this.showInfoMsg
                 }
             }
         ];
