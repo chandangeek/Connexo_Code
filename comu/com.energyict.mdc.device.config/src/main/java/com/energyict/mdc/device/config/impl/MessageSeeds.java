@@ -175,8 +175,7 @@ public enum MessageSeeds implements MessageSeed {
     SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC(15023, Keys.SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC, "The security setting does not contain a specification for this attribute", Level.SEVERE),
     SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING(15024, Keys.SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING, "This field is required", Level.SEVERE),
     KEY_ACCESSOR_CAN_NOT_BE_DELETED(15025, "CanNotDeleteKeyAccessor", "Security accessor could not be removed because the device type still has active device configurations"),
-    EXCESSIVE_TIME_DURATION(15026, Keys.EXCESSIVE_TIME_DURATION, "Duration is too long");
-    ;
+    EXCESSIVE_TIME_DURATION(15026, Keys.EXCESSIVE_TIME_DURATION, "Validity period must be shorter than or equal to 30 years.");
 
     private final int number;
     private final String key;
