@@ -153,9 +153,9 @@ public class UsagePointOutputResource {
             UsagePointConfigurationService usagePointConfigurationService,
             DataAggregationService dataAggregationService,
             UsagePointOutputReferenceCopier usagePointOutputReferenceCopier,
-            Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider,
             TransactionService transactionService,
-            UsagePointOutputsHistoryHelper usagePointOutputsHistoryHelper, Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider,
+            UsagePointOutputsHistoryHelper usagePointOutputsHistoryHelper,
+            Provider<UsagePointOutputValidationResource> usagePointOutputValidationResourceProvider,
             Provider<UsagePointOutputEstimationResource> usagePointOutputEstimationResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;

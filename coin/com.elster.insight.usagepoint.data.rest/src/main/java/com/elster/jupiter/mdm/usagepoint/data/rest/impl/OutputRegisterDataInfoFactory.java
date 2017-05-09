@@ -11,7 +11,6 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.util.streams.ExtraCollectors;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -149,7 +148,6 @@ public class OutputRegisterDataInfoFactory {
                 outpitRegisterHistoryDataInfo.value = record.getValue();
                 outpitRegisterHistoryDataInfo.reportedDateTime = record.getReportedDateTime();
                 outpitRegisterHistoryDataInfo.readingQualities = journaledReadingRecord.getReadingQualities().stream()
-                        .map(ReadingQuality::getType)
                         .map(readingQualityInfoFactory::asInfo)
                         .collect(Collectors.toList());
                 outpitRegisterHistoryDataInfo.dataValidated = status.completelyValidated();

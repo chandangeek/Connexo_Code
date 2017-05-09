@@ -180,7 +180,6 @@ public class OutputChannelDataInfoFactory {
                 outputChannelDataInfo.reportedDateTime = record.getReportedDateTime();
                 if (record.getReadingQualities() != null) {
                     outputChannelDataInfo.readingQualities = record.getReadingQualities().stream()
-                            .map(ReadingQuality::getType)
                             .map(readingQualityInfoFactory::asInfo)
                             .collect(Collectors.toList());
                 }
@@ -196,7 +195,6 @@ public class OutputChannelDataInfoFactory {
                 outputChannelHistoryDataInfo.reportedDateTime = record.getReportedDateTime();
                 outputChannelHistoryDataInfo.userName = "";
                 outputChannelHistoryDataInfo.readingQualities = record.getReadingQualities().stream()
-                        .map(ReadingQuality::getType)
                         .map(readingQualityInfoFactory::asInfo)
                         .collect(Collectors.toList());
                 infos.add(outputChannelHistoryDataInfo);
