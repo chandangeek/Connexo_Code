@@ -4,6 +4,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.CertificateWrapper;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
@@ -12,7 +14,7 @@ import java.util.stream.IntStream;
 
 /**
  * Summarizes all used DeviceSecurityProperty
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 10/01/13
  * Time: 16:40
@@ -25,7 +27,7 @@ public enum DeviceSecurityProperty {
     PASSWORD {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.PASSWORD).markRequired().finish();
+            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.PASSWORD).markRequired().finish();
         }
     },
     /**
@@ -34,7 +36,7 @@ public enum DeviceSecurityProperty {
     ENCRYPTION_KEY {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY).markRequired().finish();
+            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY).markRequired().finish();
         }
     },
     /**
@@ -43,7 +45,7 @@ public enum DeviceSecurityProperty {
     AUTHENTICATION_KEY {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.AUTHENTICATION_KEY).markRequired().finish();
+            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.AUTHENTICATION_KEY).markRequired().finish();
         }
     },
     /**
@@ -219,6 +221,14 @@ public enum DeviceSecurityProperty {
         }
     };
 
+    protected PropertySpecBuilder<Object> keyAccessorTypeReferenceSpecBuilder(PropertySpecService propertySpecService, SecurityPropertySpecName name) {
+        return propertySpecService
+                .referenceSpec(KeyAccessorType.class.getName())
+                .named(name.toString(), name.toString())
+                .describedAs("Description for " + name.toString());
+    }
+
+    //TODO: also rework to referenceSpec of KeyAccessorType
     protected static PropertySpecBuilder certificatePropertySpecBuilder(PropertySpecService propertySpecService, SecurityPropertySpecName name) {
         return propertySpecService
                 .referenceSpec(CertificateWrapper.class.getName())

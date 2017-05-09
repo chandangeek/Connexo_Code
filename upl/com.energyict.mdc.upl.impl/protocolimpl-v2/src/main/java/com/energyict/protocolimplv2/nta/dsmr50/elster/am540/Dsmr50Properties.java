@@ -6,7 +6,6 @@ import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr50.Dsmr50ConfigurationSupport;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -104,13 +103,8 @@ public class Dsmr50Properties extends DlmsProperties {
         }
     }
 
-    @Override
-    public int getClientMacAddress() {
-        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
-    }
-
     public boolean usesPublicClient() {
-        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE) == PUBLIC_CLIENT_MAC_ADDRESS;
+        return getClientMacAddress() == PUBLIC_CLIENT_MAC_ADDRESS;
     }
 
     public boolean useBeaconMirrorDeviceDialect() {
