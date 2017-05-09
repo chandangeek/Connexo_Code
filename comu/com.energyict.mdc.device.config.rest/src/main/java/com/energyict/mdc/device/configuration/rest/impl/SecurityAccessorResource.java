@@ -147,7 +147,7 @@ public class SecurityAccessorResource {
         try {
             return securityAccessorInfo.duration.asTimeDuration();
         } catch (Exception e) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "duration");
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_TIME_DURATION, "duration");
         }
     }
 
