@@ -290,10 +290,14 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
         if (isRegular()) {
             return Collections.emptyList();
         }
-        return getTimeSeries().getJournalEntries(interval).stream()
+        List<ReadingRecord> aggregatedDataToMerge = getCalculatedRegisterReadings(interval);
+        List<? extends ReadingRecord> journaledData = getTimeSeries().getJournalEntries(interval).stream()
                 .map(entry -> new JournaledRegisterReadingRecordImpl(this, entry))
                 .map(reading -> reading.filter(readingType))
                 .collect(ExtraCollectors.toImmutableList());
+        aggregatedDataToMerge.addAll(journaledData);
+
+        return aggregatedDataToMerge;
     }
 
     @Override

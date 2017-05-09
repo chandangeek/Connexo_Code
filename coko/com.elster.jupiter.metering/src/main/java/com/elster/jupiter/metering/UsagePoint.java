@@ -309,7 +309,7 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     UsagePointLifeCycle getLifeCycle();
 
-    List<JournalEntry<? extends ReadingQualityRecord>> getReadingQualitiesJournalFromAggregatedChannel(Range<Instant> range, AggregatedChannel aggregatedChannel);
+    List<JournalEntry<? extends ReadingQualityRecord>> getJournaledReadingQualities(Range<Instant> range, AggregatedChannel aggregatedChannel);
 
     interface UsagePointConfigurationBuilder {
 

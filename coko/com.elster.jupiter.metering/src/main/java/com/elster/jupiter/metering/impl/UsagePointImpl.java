@@ -7,7 +7,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
-`import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -1370,7 +1370,7 @@ public class UsagePointImpl implements ServerUsagePoint {
     }
 
     @Override
-    public List<JournalEntry<? extends ReadingQualityRecord>> getReadingQualitiesJournalFromAggregatedChannel(Range<Instant> range, AggregatedChannel aggregatedChannel) {
+    public List<JournalEntry<? extends ReadingQualityRecord>> getJournaledReadingQualities(Range<Instant> range, AggregatedChannel aggregatedChannel) {
         List<JournalEntry<? extends ReadingQualityRecord>> result = new ArrayList<>();
         List<Comparison> comparisons = new ArrayList<>();
         List<? extends ReadingType> readingTypes = aggregatedChannel.getReadingTypes();
