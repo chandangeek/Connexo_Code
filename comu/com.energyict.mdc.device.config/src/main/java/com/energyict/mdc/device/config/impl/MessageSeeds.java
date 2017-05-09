@@ -170,7 +170,7 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT(15018, Keys.CONNECTION_TASK_USED_BY_COMTASK_ENABLEMENT, "You can''t remove the connection method because it is used by a communication task"),
     TIME_OF_USE_CALENDAR_ONLY(15019, Keys.TIME_OF_USE_CALENDAR_ONLY, "You can only add Time of Use calendars to a device type"),
     KEY_ACCESSOR_CAN_NOT_BE_DELETED(15020, "CanNotDeleteKeyAccessor", "Security accessor could not be removed because the device type still has active device configurations"),
-    EXCESSIVE_TIME_DURATION(15021, Keys.EXCESSIVE_TIME_DURATION, "Duration is too long");
+    EXCESSIVE_TIME_DURATION(15021, Keys.EXCESSIVE_TIME_DURATION, "Validity period must be shorter than or equal to 30 years.");
 
     private final int number;
     private final String key;
