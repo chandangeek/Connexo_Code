@@ -118,8 +118,11 @@ Ext.define('Tme.controller.RelativePeriods', {
         model.set('startFixedMonth', value.startFixedMonth);
         model.set('startFixedYear', value.startFixedYear);
         model.set('onCurrentDay', value.onCurrentDay);
+        model.set('onCurrentDayOfYear', value.onCurrentDayOfYear);
         model.set('onDayOfMonth', value.onDayOfMonth);
         model.set('onDayOfWeek', value.onDayOfWeek);
+        model.set('onDayOfYear', value.onDayOfYear);
+        model.set('onMonthOfYear', value.onMonthOfYear);
         model.set('atHour', value.atHour);
         model.set('atMinute', value.atMinute);
         model.endEdit();
