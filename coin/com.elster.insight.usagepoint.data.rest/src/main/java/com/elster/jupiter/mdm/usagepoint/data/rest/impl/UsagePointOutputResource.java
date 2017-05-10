@@ -1415,6 +1415,7 @@ public class UsagePointOutputResource {
     private OutputChannelDataInfo createCorrectedChannelDataInfo(ValueCorrectionInfo info, IntervalReadingRecord record) {
         return outputChannelDataInfoFactory.createUpdatedChannelDataInfo(record, info.type.apply(record.getValue(), info.amount), info.projected,
                 resourceHelper.getReadingQualityComment(info.commentId));
+    }
                 
     private String getFullAliasNameElement(ReadingType readingType) {
         ReadingTypeUnit unit = readingType.getUnit();

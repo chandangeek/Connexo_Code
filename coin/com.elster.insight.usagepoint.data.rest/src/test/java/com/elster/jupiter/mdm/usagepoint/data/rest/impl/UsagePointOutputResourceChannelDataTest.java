@@ -23,6 +23,7 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelEstimationRuleOverriddenProperties;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointEstimation;
 import com.elster.jupiter.metering.AggregatedChannel;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
@@ -661,8 +662,10 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     public void testGetChannelDataOfAllOutputs() throws UnsupportedEncodingException {
         IdWithNameInfo intervalInfo  = new IdWithNameInfo(11, "Daily");
         IdWithNameInfo unitInfo = new IdWithNameInfo("-2:5", "A");
+        ReadingType readingType = mock(ReadingType.class);
         when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(effectiveMC2));
-        mockDifferentIntervalReadings();
+        when(channel2.getMainReadingType()).thenReturn(readingType);
+        mockDifferentIntervalReadings(channel2, this.channelsContainer2);
         effectiveMC2.getMetrologyConfiguration().getContracts().forEach( contract -> {
                     contract.getDeliverables().forEach(deliverable -> {
                                 when(deliverable.getReadingType().isCumulative()).thenReturn(true);
