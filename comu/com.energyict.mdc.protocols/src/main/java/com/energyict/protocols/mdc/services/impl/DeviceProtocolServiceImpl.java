@@ -15,7 +15,6 @@ import com.energyict.mdc.protocol.api.services.UnableToCreateProtocolInstance;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.RuntimeEnvironment;
-import com.energyict.mdc.upl.crypto.KeyStoreService;
 import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.io.UPLSocketService;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -145,10 +144,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
 
     @Reference
     public void setX509Service(X509Service x509Service) {
-    }
-
-    @Reference
-    public void setKeyStoreService(KeyStoreService keyStoreService) {
     }
 
     //TODO uncomment, these 3 services are needed in some of the constructors of the protocols! (but they do not yet exist in CXO)
