@@ -278,6 +278,7 @@ public class MeteringCommands {
 
     public void storeFixedUsagePointIntervalData() {
         System.out.println("storeFixedUsagePointIntervalData <usagepoint name> <readingType> <startDateTime yyyyMMddHHmmss> <number of intervals> <value> [readingQualityCIMCodes e.g. 3.12.0]");
+        System.out.println("ONLY WORKS FOR BILLING REGISTERS FOR NOW");
     }
 
     public void storeFixedUsagePointIntervalData(String usagePointName, String readingType, String startDateTime, int numberOfIntervals, double value, String... readingQualityCIMCodes) {
@@ -298,7 +299,10 @@ public class MeteringCommands {
                                         effective.getChannelsContainer(effectiveMetrologyConfiguration.get()
                                                 .getMetrologyConfiguration()
                                                 .getContracts()
-                                                .get(0)))
+                                                .stream()
+                                                .filter(metrologyContract -> metrologyContract.getMetrologyPurpose().getName().equals("Billing"))
+                                                .findAny()
+                                                .get()))
                                         .flatMap(cc -> cc.map(ccc -> ccc.getChannels().stream())).map(s -> s.collect(Collectors.toList())).orElse(Collections.emptyList());
                                 channels.stream()
                                         .filter(channel -> channel.getMainReadingType().equals(readingTypeOptional.get()))
