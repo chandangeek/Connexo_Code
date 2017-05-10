@@ -154,7 +154,6 @@ public class ReferenceComparisonValidator extends MainCheckAbstractValidator {
                 .named(CHECK_USAGE_POINT, TranslationKeys.CHECK_USAGE_POINT)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
     }
 
