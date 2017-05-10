@@ -179,31 +179,16 @@ Ext.define('Uni.form.field.OnPeriod', {
                         }
                     },
                     {
-                        xtype: 'combobox',
+                        xtype: 'numberfield',
                         name: 'period-day-interval',
-                        displayField: 'name',
-                        valueField: 'value',
-                        queryMode: 'local',
-                        editable: false,
                         hideLabel: true,
                         value: 1,
+                        minValue: 1,
+                        maxValue: 31,
                         width: 64,
-                        margin: '0 6 0 6',
-                        store: new Ext.data.Store({
-                            fields: ['name', 'value'],
-                            data: (function () {
-                                var data = [];
-                                for (var i = 1; i <= 31; i++) {
-                                    data.push({
-                                        name: i,
-                                        value: i
-                                    });
-                                }
-                                return data;
-                            })()
-                        }),
                         allowBlank: false,
-                        forceSelection: true
+                        hideLabel: true,
+                        margin: '0 6 0 6'
                     },
                     {
                         xtype: 'label',
