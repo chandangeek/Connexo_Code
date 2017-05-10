@@ -1,6 +1,5 @@
 package com.energyict.mdc.upl;
 
-import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.io.UPLSocketService;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
@@ -55,7 +54,6 @@ public class Services {
     private static AtomicReference<CollectedDataFactory> COLLECTED_DATA_FACTORY = new AtomicReference<>();
     private static AtomicReference<IssueFactory> ISSUE_FACTORY = new AtomicReference<>();
     private static AtomicReference<Formatter> FORMATTER = new AtomicReference<>();
-    private static AtomicReference<X509Service> X509 = new AtomicReference<>();
     private static AtomicReference<CertificateWrapperExtractor> CERTIFICATE_WRAPPER_EXTRACTOR = new AtomicReference<>(); //TODO: check if correct
     private static AtomicReference<CertificateAliasFinder> CERTIFICATE_ALIAS_FINDER = new AtomicReference<>();
     private static AtomicReference<DeviceIdentifier.Finder> DEVICE_FINDER = new AtomicReference<>();
@@ -105,8 +103,6 @@ public class Services {
             return issueFactory();
         } else if (Formatter.class.equals(serviceType)) {
             return formatter();
-        } else if (X509Service.class.equals(serviceType)) {
-            return x509Service();
         } else if (RegisterExtractor.class.equals(serviceType)) {
             return registerExtractor();
         } else {
@@ -296,14 +292,6 @@ public class Services {
 
     public static void formatter(Formatter dateFormatter) {
         FORMATTER.set(dateFormatter);
-    }
-
-    public static X509Service x509Service() {
-        return X509.get();
-    }
-
-    public static void x509Service(X509Service x509Service) {
-        X509.set(x509Service);
     }
 
     public static DeviceIdentifier.Finder deviceFinder() {
