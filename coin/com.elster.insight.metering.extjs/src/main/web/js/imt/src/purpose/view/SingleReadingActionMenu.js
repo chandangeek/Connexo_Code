@@ -68,6 +68,12 @@ Ext.define('Imt.purpose.view.SingleReadingActionMenu', {
                 section: this.SECTION_ACTION
             },
             {
+                itemId: 'view-history',
+                text: Uni.I18n.translate('general.viewHistory', 'IMT', 'View history'),
+                action: 'viewHistory',
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'reset-value',
                 hidden: true,
                 text: Uni.I18n.translate('general.restoreReadings', 'IMT', 'Restore'),

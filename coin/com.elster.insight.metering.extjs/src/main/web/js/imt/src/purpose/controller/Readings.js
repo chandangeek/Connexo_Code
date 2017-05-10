@@ -29,7 +29,9 @@ Ext.define('Imt.purpose.controller.Readings', {
         'Imt.purpose.store.RegisterReadings',
         'Imt.usagepointmanagement.store.UsagePointTypes',
         'Imt.purpose.store.Estimators',
-        'Imt.purpose.store.EstimationRules'
+        'Imt.purpose.store.EstimationRules',
+        'Imt.purpose.store.HistoricalChannelReadings',
+        'Imt.purpose.store.HistoricalRegisterReadings'
     ],
 
     models: [
@@ -46,8 +48,13 @@ Ext.define('Imt.purpose.controller.Readings', {
     views: [
         'Imt.purpose.view.Outputs',
         'Imt.purpose.view.OutputChannelMain',
-        'Imt.purpose.view.ValidationStatusForm'
+        'Imt.purpose.view.ValidationStatusForm',
+        'Imt.purpose.view.history.History'
     ],
+
+    mixins: {
+        viewHistoryActionListener: 'Imt.purpose.util.ViewHistoryActionListener'
+    },
 
     refs: [
         {
@@ -89,6 +96,14 @@ Ext.define('Imt.purpose.controller.Readings', {
         {
             ref: 'correctReadingWindow',
             selector: 'correct-values-window'
+        },
+        {
+            ref: 'outputReadingsFilterPanel',
+            selector: 'output-readings #output-readings-topfilter'
+        },
+        {
+            ref: 'historyReadingPreviewPanel',
+            selector: 'output-readings-history reading-preview'
         }
     ],
 
@@ -131,6 +146,9 @@ Ext.define('Imt.purpose.controller.Readings', {
             },
             'correct-values-window #correct-reading-button': {
                 click: this.correctReadings
+            },
+            'output-readings-history-grid': {
+                select: this.showHistoryPreview
             }
         });
     },
@@ -169,6 +187,9 @@ Ext.define('Imt.purpose.controller.Readings', {
             case 'correctValue':
                 me.openCorrectWindow(records);
                 break;
+            case 'viewHistory':
+                me.moveToHistoryPage.call(me, menu.record, true);
+                break;
         }
     },
 
@@ -205,6 +226,9 @@ Ext.define('Imt.purpose.controller.Readings', {
                 break;
             case 'correctValue':
                 me.openCorrectWindow(menu.record);
+                break;
+            case 'viewHistory':
+                me.moveToHistoryPage.call(me, menu.record);
                 break;
         }
     },
@@ -950,7 +974,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                             window.down('#error-label').show();
                             var listOfFailedReadings = [];
                             Ext.Array.each(responseText.readings, function (readingTimestamp) {
-                                listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
+                                listOfFailedReadings.push(Uni.DateTime.formatDateTimeShort(new Date(readingTimestamp)));
                             });
                             var errorMessage = window.down('#estimator-field') ? Uni.I18n.translate('output.estimationErrorMessageWithIntervals', 'IMT', 'Could not estimate {0} with {1}',
                                 [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue()]) : Uni.I18n.translate('output.estimationErrorMessage', 'IMT', 'Could not estimate {0}',
@@ -1244,6 +1268,92 @@ Ext.define('Imt.purpose.controller.Readings', {
             me.getReadingsGraph().chart.redraw();
             Ext.resumeLayouts(true);
             Ext.ComponentQuery.query('#contentPanel')[0].setLoading(false);
+        }
+    },
+
+    viewHistory: function (usagePointId, purposeId, outputId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            dependenciesCounter = 2,
+            app = me.getApplication(),
+            usagePointsController = me.getController('Imt.usagepointmanagement.controller.View'),
+            outputModel = me.getModel('Imt.purpose.model.Output'),
+            intervalStore = me.getStore('Uni.store.DataIntervalAndZoomLevels'),
+            isBulk = router.queryParams.changedDataOnly === 'yes',
+            historyStore,
+            widget,
+            usagePoint,
+            purposes,
+            output,
+            interval,
+            durations,
+            filterDefault,
+            displayPage = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
+                    app.fireEvent('output-loaded', output);
+                    if (isBulk) {
+                        durations = Ext.create('Uni.store.Durations');
+                        filterDefault = {
+                            durationStore: durations,
+                            defaultFromDate: new Date(Number(router.queryParams.interval.split('-')[0])),
+                            duration: router.queryParams.interval.split('-')[1]
+                        };
+                        if (output.get('outputType') === 'channel') {
+                            interval = intervalStore.getIntervalRecord(output.get('interval'));
+                            durations.loadData(interval.get('duration'));
+                        }
+                    } else {
+                        filterDefault = {
+                            defaultFromDate: new Date(Number(router.queryParams.endInterval.split('-')[0])),
+                            defaultToDate: new Date(Number(router.queryParams.endInterval.split('-')[1]))
+                        };
+                    }
+                    widget = Ext.widget('output-readings-history', {
+                        itemId: 'output-readings-history',
+                        router: router,
+                        usagePoint: usagePoint,
+                        purposes: purposes,
+                        output: output,
+                        filterDefault: filterDefault,
+                        isBulk: isBulk,
+                        store: historyStore
+                    });
+                    app.fireEvent('changecontentevent', widget);
+                    historyStore.load(function () {
+                        mainView.setLoading(false);
+                    });
+                }
+            };
+
+        mainView.setLoading();
+        usagePointsController.loadUsagePoint(usagePointId, {
+            success: function (types, up, records) {
+                usagePoint = up;
+                purposes = records;
+                displayPage();
+            }
+        });
+
+        outputModel.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
+        outputModel.load(outputId, {
+            success: function (record) {
+                output = record;
+                if (output.get('outputType') === 'channel') {
+                    historyStore = me.getStore('Imt.purpose.store.HistoricalChannelReadings');
+                } else {
+                    historyStore = me.getStore('Imt.purpose.store.HistoricalRegisterReadings');
+                }
+                historyStore.getProxy().setUrl(usagePointId, purposeId, outputId);
+                displayPage();
+            }
+        });
+    },
+
+    showHistoryPreview: function (selectionModel, record) {
+        if (selectionModel.getSelection().length === 1) {
+            this.getHistoryReadingPreviewPanel().updateForm(record);
         }
     }
 });
