@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -35,6 +36,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.NTA_SIMULATION_TO
 import static com.energyict.dlms.common.DlmsProtocolProperties.REQUEST_TIMEZONE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MASTER_KEY;
 
 /**
  * A collection of general DLMS properties.
@@ -73,7 +75,8 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
                 this.serverLowerMacAddressPropertySpec(),
                 this.deviceId(),
                 this.ignoreDstStatusCode(),
-                this.validateLoadProfileChannelsPropertySpec()));
+                this.validateLoadProfileChannelsPropertySpec(),
+                this.masterKeyPropertySpec()));
     }
 
     @Override
@@ -152,6 +155,13 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
 
     protected PropertySpec fixMbusHexShortIdPropertySpec() {
         return this.booleanSpecBuilder(FIX_MBUS_HEX_SHORT_ID, PropertyTranslationKeys.V2_ELSTER_FIX_MBUS_HEX_SHORT_ID).finish();
+    }
+
+    protected PropertySpec masterKeyPropertySpec() {
+        return this.propertySpecService.referenceSpec(KeyAccessorType.class.getName())
+                .named(MASTER_KEY, PropertyTranslationKeys.V2_NTA_MASTERKEY)
+                .describedAs(PropertyTranslationKeys.V2_NTA_MASTERKEY_DESCRIPTION)
+                .finish();
     }
 
     /**
