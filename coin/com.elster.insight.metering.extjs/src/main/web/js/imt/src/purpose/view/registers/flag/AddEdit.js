@@ -53,9 +53,7 @@ Ext.define('Imt.purpose.view.registers.flag.AddEdit', {
                         itemId: 'timeStampDisplayField',
                         renderer: function (value) {
                             if(!Ext.isEmpty(value)) {
-                                return Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}',
-                                    [ Uni.DateTime.formatDateShort(new Date(value)), Uni.DateTime.formatTimeShort(new Date(value))]
-                                )
+                                return Uni.DateTime.formatDateTimeShort(new Date(value))
                             }
                         },
                         submitValue: true,

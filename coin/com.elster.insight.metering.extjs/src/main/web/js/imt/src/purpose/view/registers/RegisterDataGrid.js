@@ -44,8 +44,7 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                 flex: 1,
                 dataIndex: 'timeStamp',
                 renderer: function (value, metaData, record) {                                                 
-                    return Ext.isEmpty(value) ? '-' : Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', 
-                        [Uni.DateTime.formatDateShort(new Date(value)), Uni.DateTime.formatTimeShort(new Date(value))]) + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
+                    return Ext.isEmpty(value) ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value))  + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
                 }
             })
         }
@@ -94,7 +93,7 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                 flex: 1,
                 renderer: function(value){
                     var date = new Date(value);
-                    return Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                    return Uni.DateTime.formatDateTimeShort(date)
                 }
             },
             {
@@ -190,6 +189,6 @@ Ext.define('Imt.purpose.view.registers.RegisterDataGrid', {
                     + tooltipContent + '"></span>';
             }
         }
-        return Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)]) + icon;
+        return Uni.DateTime.formatDateTimeShort(date)  + icon;
     }
 });

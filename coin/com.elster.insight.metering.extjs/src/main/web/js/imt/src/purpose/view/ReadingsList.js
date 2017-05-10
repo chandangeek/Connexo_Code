@@ -58,7 +58,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 dataIndex: 'interval',
                 renderer: function (interval, metaData, record) {
                     var text = interval.end
-                        ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))])
+                        ? Uni.DateTime.formatDateTimeShort(new Date(interval.end))
                         : '-';
 
                     return text + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
@@ -94,7 +94,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 flex: 1,
                 renderer: function (value) {
                     var date = new Date(value);
-                    return Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                    return Uni.DateTime.formatDateTimeShort(date);
                 }
             },
             {
