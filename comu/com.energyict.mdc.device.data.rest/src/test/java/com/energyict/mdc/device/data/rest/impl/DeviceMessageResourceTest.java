@@ -346,6 +346,47 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(model.<Boolean>get("$.deviceMessages[0].properties[0].required")).isEqualTo(true);
     }
 
+    @Test
+    public void testGetDeviceCommandPropertiesWithoutValue() throws Exception {
+        Instant created = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
+
+        Device device = mock(Device.class);
+        DeviceMessage command1 = mockCommand(device, 1L, DeviceMessageId.CLOCK_SET_TIME, "set clock", "Error message", DeviceMessageStatus.PENDING, "14", "Jeff", created, created
+                .plusSeconds(10), null, deviceMessageCategoryClock);
+        DeviceMessageAttribute attribute1 = mockAttribute("ID", BigDecimal.valueOf(123L), new BigDecimalFactory(), Required);
+        DeviceMessageAttribute attribute2 = mockAttribute("Delete", true, new BooleanFactory(), Required);
+        Date now = new Date();
+        DeviceMessageAttribute attribute3 = mockAttribute("Time", now, new DateAndTimeFactory(), Required);
+
+        doReturn(Arrays.asList(attribute1, attribute2, attribute3)).when(command1).getAttributes();
+        when(device.getMessages()).thenReturn(Arrays.<DeviceMessage>asList(command1));
+        when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
+        DeviceType deviceType = mock(DeviceType.class);
+        DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        List<com.energyict.mdc.upl.messages.DeviceMessageSpec> messages = mockMessages(DeviceMessageId.CLOCK_SET_TIME, DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN);
+        when(deviceProtocol.getSupportedMessages()).thenReturn(messages);
+        when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceType()).thenReturn(deviceType);
+        PropertyInfo propertyInfo = new PropertyInfo("ID", "ID", new PropertyValueInfo<>(123, 123),
+                new PropertyTypeInfo(com.elster.jupiter.properties.rest.SimplePropertyType.NUMBER, null, null, null), true);
+        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
+        String response = target("/devices/ZABF010000080004/devicemessages").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+        JsonModel model = JsonModel.model(response);
+
+        assertThat(model.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(model.<String>get("$.deviceMessages[0].properties[0].key")).isEqualTo("ID");
+        assertThat(model.<Integer>get("$.deviceMessages[0].properties[0].propertyValueInfo.value")).isEqualTo(123);
+        assertThat(model.<String>get("$.deviceMessages[0].properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("NUMBER");
+        assertThat(model.<Boolean>get("$.deviceMessages[0].properties[0].required")).isEqualTo(true);
+    }
+
     private DeviceMessageAttribute mockAttribute(String name, Object value, ValueFactory valueFactory, Necessity necessity) {
         DeviceMessageAttribute mock = mock(DeviceMessageAttribute.class);
         when(mock.getName()).thenReturn(name);
