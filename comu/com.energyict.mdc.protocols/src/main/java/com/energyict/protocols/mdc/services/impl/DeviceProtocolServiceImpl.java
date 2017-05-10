@@ -32,9 +32,9 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.SecurityService;
-import com.energyict.protocolimplv2.securitysupport.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.impl.channels.ip.IpMessageSeeds;
+
+import com.energyict.protocolimplv2.securitysupport.CustomPropertySetTranslationKeys;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -77,10 +77,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-    }
-
-    @Reference
-    public void setSecurityService(SecurityService securityService) {
     }
 
     @Reference
