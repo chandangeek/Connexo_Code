@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.eiweb;
 
+import com.energyict.LittleEndianOutputStream;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
@@ -7,28 +12,20 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.SecurityProperty;
-
-import com.energyict.LittleEndianOutputStream;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.DataEncryptionException;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.TimeZone;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import java.util.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
@@ -421,7 +418,7 @@ public class PacketBuilderTest {
         when(inboundDiscoveryContext.getConnectionTypeProperties(deviceIdentifier)).thenReturn(Optional.of(connectionTypeProperties));
         SecurityProperty encryptionPassword = mock(SecurityProperty.class);
         when(encryptionPassword.getValue()).thenReturn(new SimplePassword("zorro"));
-//        when(inboundDiscoveryContext.getProtocolSecurityProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(Collections.singletonList(encryptionPassword))); TODO: rework this!
+        when(inboundDiscoveryContext.getProtocolSecurityProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(Collections.singletonList(encryptionPassword)));
         EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDiscoveryContext);
         Encryptor encryptor = new Encryptor(cryptographer.buildMD5Seed(mock(DeviceIdentifier.class), "2114"));
         for (byte rawByte : values.getBytes()) {
