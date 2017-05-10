@@ -247,13 +247,13 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
                         .finish());
         optionalProperties.add(
                 this.propertySpecService
-                        .referenceSpec(com.energyict.mdc.upl.security.CertificateWrapper.class.getName())
+                        .referenceSpec(com.energyict.mdc.upl.security.CertificateAlias.class.getName())
                         .named(SDKWithAllPropertiesTranslationKeys.SDKCERTIFICATE_ALIASROPERTY)
                         .describedAs(SDKWithAllPropertiesTranslationKeys.SDKCERTIFICATE_ALIASROPERTY)
                         .finish());
         optionalProperties.add(
                 this.propertySpecService
-                        .referenceSpec(com.energyict.mdc.upl.security.PrivateKeyWrapper.class.getName())
+                        .referenceSpec(com.energyict.mdc.upl.security.PrivateKeyAlias.class.getName())
                         .named(SDKWithAllPropertiesTranslationKeys.SDKPRIVATE_KEY_ALIASROPERTY)
                         .describedAs(SDKWithAllPropertiesTranslationKeys.SDKPRIVATE_KEY_ALIASROPERTY)
                         .finish());

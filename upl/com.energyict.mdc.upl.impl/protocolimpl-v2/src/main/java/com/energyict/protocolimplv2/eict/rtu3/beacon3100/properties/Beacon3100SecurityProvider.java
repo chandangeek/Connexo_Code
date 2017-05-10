@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.CertificateWrapper;
-import com.energyict.mdc.upl.security.PrivateKeyWrapper;
+import com.energyict.mdc.upl.security.PrivateKeyAlias;
 
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
@@ -153,7 +153,7 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
 
     @Override
     public String getClientPrivateSigningKeyLabel() {
-        PrivateKeyWrapper privateKey = properties.getTypedProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
+        PrivateKeyAlias privateKey = properties.getTypedProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
         return privateKey.getAlias();
     }
 
@@ -252,7 +252,7 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
      * Throw the proper exception if the private key could not be found based on the configured alias.
      */
     private PrivateKey parsePrivateKey(String propertyName) {
-        PrivateKeyWrapper alias = properties.getTypedProperty(propertyName);
+        PrivateKeyAlias alias = properties.getTypedProperty(propertyName);
         if (alias == null) {
             throw DeviceConfigurationException.missingProperty(propertyName);
         } else {
@@ -298,7 +298,7 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
      * The PrivateKeyAlias contains both the private key and its matching certificate, fetched from the EIServer persisted key store.
      */
     private X509Certificate parseCertificateOfPrivateKey(String propertyName) {
-        PrivateKeyWrapper alias = properties.getTypedProperty(propertyName);
+        PrivateKeyAlias alias = properties.getTypedProperty(propertyName);
         if (alias == null) {
             return null;
         } else {
