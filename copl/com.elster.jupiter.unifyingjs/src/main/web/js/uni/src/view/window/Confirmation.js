@@ -17,6 +17,7 @@ Ext.define('Uni.view.window.Confirmation', {
      */
     green: false,
 
+    noConfirmBtn: false,
     cls: Uni.About.baseCssPrefix + 'confirmation-window',
     confirmBtnUi: 'remove',
     /**
@@ -107,6 +108,27 @@ Ext.define('Uni.view.window.Confirmation', {
                             scope: me,
                             text: me.cancelText,
                             ui: 'link',
+                            handler: me.cancellation
+                        }
+                    ]
+                }
+            );
+        } else if (me.noConfirmBtn) {
+            me.add(
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    items: [
+                        {
+                            xtype: 'button',
+                            action: 'cancel',
+                            name: 'cancel',
+                            scope: me,
+                            text: me.cancelText,
+                            ui: 'link',
+                            margin: '0 0 0 ' + (me.iconWidth - 7),
                             handler: me.cancellation
                         }
                     ]
