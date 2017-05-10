@@ -119,10 +119,10 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         handleValidatedDataOption(item, strategy, readings, exportInterval, itemDescription);
 
         if (isExportCompleteData(strategy) && !isComplete(item, exportInterval, readings)) {
-            if(strategy.getMissingDataOption().equals(MissingDataOption.EXCLUDE_ITEM)) {
+            if (strategy.getMissingDataOption().equals(MissingDataOption.EXCLUDE_ITEM)) {
                 logExportWindow(MessageSeeds.MISSING_WINDOW, exportInterval, itemDescription);
             }
-            if(strategy.getMissingDataOption().equals(MissingDataOption.EXCLUDE_OBJECT)) {
+            if (strategy.getMissingDataOption().equals(MissingDataOption.EXCLUDE_OBJECT)) {
                 logExportWindow(MessageSeeds.USAGE_POINT_MISSING_WINDOW, exportInterval, item.getDomainObject().getDescription());
             }
             return Optional.empty();
@@ -209,9 +209,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         }
     }
 
-    void handleExcludeObject(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
-        //This type of exclusion is only available for usage point
-    }
+    abstract void handleExcludeObject(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription);
 
     void logExportWindow(MessageSeeds messageSeeds, Range<Instant> interval, String itemDescription) {
         String fromDate = interval.hasLowerBound() ? timeFormatter.format(interval.lowerEndpoint()) : "";
@@ -275,11 +273,8 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
         logIntervals(zonedDateTimes, intervalLength, MessageSeeds.SUSPECT_INTERVAL, itemDescription);
     }
 
-    private boolean isExportCompleteData(DataExportStrategy strategy){
-        if(strategy.getMissingDataOption().equals(MissingDataOption.EXCLUDE_INTERVAL)){
-            return false;
-        }
-        return true;
+    private boolean isExportCompleteData(DataExportStrategy strategy) {
+        return MissingDataOption.EXCLUDE_INTERVAL != strategy.getMissingDataOption();
     }
 
     private void logMissings(IReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings, String itemDescription) {

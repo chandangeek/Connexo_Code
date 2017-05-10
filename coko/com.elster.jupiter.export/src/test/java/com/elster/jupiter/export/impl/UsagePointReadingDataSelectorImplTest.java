@@ -540,14 +540,8 @@ public class UsagePointReadingDataSelectorImplTest {
         assertThat(exportData).hasSize(2);
         MeterReadingData exportDataItem1 = (MeterReadingData) exportData.get(0);
         assertThat(exportDataItem1.getItem().getDomainObject()).isEqualTo(usagePoint2);
-        assertThat(exportDataItem1.getItem().getReadingType()).isEqualTo(readingType1);
-        assertThat(exportDataItem1.getValidationData().getValidationStatus(END.toInstant()).getValidationResult()).isEqualTo(ValidationResult.VALID);
-        assertThat(exportDataItem1.getMeterReading().getReadings()).hasSize(1);
         MeterReadingData exportDataItem2 = (MeterReadingData) exportData.get(1);
         assertThat(exportDataItem2.getItem().getDomainObject()).isEqualTo(usagePoint2);
-        assertThat(exportDataItem2.getItem().getReadingType()).isEqualTo(readingType2);
-        assertThat(exportDataItem1.getValidationData().getValidationStatus(END.toInstant()).getValidationResult()).isEqualTo(ValidationResult.VALID);
-        assertThat(exportDataItem2.getMeterReading().getReadings()).hasSize(2);
     }
 
     @Test

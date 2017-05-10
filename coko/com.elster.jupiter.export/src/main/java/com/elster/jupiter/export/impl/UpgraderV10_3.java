@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import static com.elster.jupiter.orm.Version.version;
 
@@ -69,54 +70,46 @@ public class UpgraderV10_3 implements Upgrader {
         return statement;
     }
 
-    private void upgradeReadingTypeDataSelector(){
-        try (Connection connection = this.dataModel.getConnection(true)) {
-            try(PreparedStatement statement = connection.prepareStatement("ALTER TABLE DES_RTDATASELECTOR ADD NEW_EXPORT_COMPLETE NUMBER")){
-                statement.executeUpdate();
+    private void upgradeReadingTypeDataSelector() {
+        dataModel.useConnectionRequiringTransaction(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("ALTER TABLE DES_RTDATASELECTOR ADD NEW_EXPORT_COMPLETE NUMBER");
             }
-            try(PreparedStatement statement = connection.prepareStatement("ALTER TABLE DES_RTDATASELECTORJRNL ADD NEW_EXPORT_COMPLETE NUMBER")){
-                statement.executeUpdate();
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("ALTER TABLE DES_RTDATASELECTORJRNL ADD NEW_EXPORT_COMPLETE NUMBER");
             }
-            try(PreparedStatement statement = upgradeReadingTypeTDataSelector(connection, MissingDataOption.EXCLUDE_INTERVAL.ordinal(), 'N')){
-                statement.executeUpdate();
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("UPDATE DES_RTDATASELECTOR SET DES_RTDATASELECTOR.NEW_EXPORT_COMPLETE = " +
+                        MissingDataOption.EXCLUDE_INTERVAL.ordinal() +
+                        " WHERE DES_RTDATASELECTOR.EXPORT_COMPLETE = N");
             }
-            try(PreparedStatement statement = upgradeReadingTypeTDataSelector(connection, MissingDataOption.EXCLUDE_ITEM.ordinal(), 'Y')){
-                statement.executeUpdate();
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("UPDATE DES_RTDATASELECTOR SET DES_RTDATASELECTOR.NEW_EXPORT_COMPLETE = " +
+                        MissingDataOption.EXCLUDE_ITEM.ordinal() +
+                        " WHERE DES_RTDATASELECTOR.EXPORT_COMPLETE = Y");
             }
-            try(PreparedStatement statement = upgradeReadingTypeTDataSelectorJRNL(connection, MissingDataOption.EXCLUDE_INTERVAL.ordinal(), 'N')){
-                statement.executeUpdate();
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("UPDATE DES_RTDATASELECTORJRNL SET DES_RTDATASELECTORJRNL.NEW_EXPORT_COMPLETE = " +
+                        MissingDataOption.EXCLUDE_INTERVAL.ordinal() +
+                        " WHERE DES_RTDATASELECTORJRNL.EXPORT_COMPLETE = ?");
             }
-            try(PreparedStatement statement = upgradeReadingTypeTDataSelectorJRNL(connection, MissingDataOption.EXCLUDE_ITEM.ordinal(), 'Y')){
-                statement.executeUpdate();
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("UPDATE DES_RTDATASELECTORJRNL SET DES_RTDATASELECTORJRNL.NEW_EXPORT_COMPLETE = " +
+                        MissingDataOption.EXCLUDE_ITEM.ordinal() +
+                        " WHERE DES_RTDATASELECTORJRNL.EXPORT_COMPLETE = ?");
             }
-            try(PreparedStatement statement = connection.prepareStatement("ALTER TABLE DES_RTDATASELECTOR DROP COLUMN EXPORT_COMPLETE")){
-                statement.executeUpdate();
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("ALTER TABLE DES_RTDATASELECTOR DROP COLUMN EXPORT_COMPLETE");
             }
-            try(PreparedStatement statement = connection.prepareStatement("ALTER TABLE DES_RTDATASELECTORJRNL DROP COLUMN EXPORT_COMPLETE")){
-                statement.executeUpdate();
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("ALTER TABLE DES_RTDATASELECTORJRNL DROP COLUMN EXPORT_COMPLETE");
             }
-            try(PreparedStatement statement = connection.prepareStatement("ALTER TABLE DES_RTDATASELECTOR RENAME COLUMN NEW_EXPORT_COMPLETE TO EXPORT_COMPLETE")){
-                statement.executeUpdate();
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("ALTER TABLE DES_RTDATASELECTOR RENAME COLUMN NEW_EXPORT_COMPLETE TO EXPORT_COMPLETE");
             }
-            try(PreparedStatement statement = connection.prepareStatement("ALTER TABLE DES_RTDATASELECTORJRNL RENAME COLUMN NEW_EXPORT_COMPLETE TO EXPORT_COMPLETE")){
-                statement.executeUpdate();
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("ALTER TABLE DES_RTDATASELECTORJRNL RENAME COLUMN NEW_EXPORT_COMPLETE TO EXPORT_COMPLETE");
             }
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-    }
-
-    private PreparedStatement upgradeReadingTypeTDataSelector(Connection connection, int ordinalValue, char charValue) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("UPDATE DES_RTDATASELECTOR SET DES_RTDATASELECTOR.NEW_EXPORT_COMPLETE = ? WHERE DES_RTDATASELECTOR.EXPORT_COMPLETE = ?");
-        statement.setInt(1, ordinalValue);
-        statement.setString(2, String.valueOf(charValue));
-        return statement;
-    }
-
-    private PreparedStatement upgradeReadingTypeTDataSelectorJRNL(Connection connection, int ordinalValue, char charValue) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement("UPDATE DES_RTDATASELECTORJRNL SET DES_RTDATASELECTORJRNL.NEW_EXPORT_COMPLETE = ? WHERE DES_RTDATASELECTORJRNL.EXPORT_COMPLETE = ?");
-        statement.setInt(1, ordinalValue);
-        statement.setString(2, String.valueOf(charValue));
-        return statement;
+        });
     }
 }
