@@ -120,10 +120,12 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             case 'notValidated':
                 validationResultText = Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') +
                     '<span class="icon-flag6" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
+                validationResultText += estimatedByRule ? me.getEstimationFlagWithTooltip(estimatedByRule, record) : '';
                 break;
             case 'suspect':
                 validationResultText = Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') +
                     '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';
+                validationResultText += estimatedByRule ? me.getEstimationFlagWithTooltip(estimatedByRule, record) : '';
                 break;
             case 'ok':
                 validationResultText = Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect');
