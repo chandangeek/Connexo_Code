@@ -335,7 +335,7 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
 
     @Override
     public Optional<State> findAndLockUsagePointStateByIdAndVersion(long id, long version) {
-        return this.dataModel.mapper(State.class).lockObjectIfVersion(version, id);
+        return stateMachineService.findAndLockStateByIdAndVersion(id, version);
     }
 
     @Override
