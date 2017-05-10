@@ -4,14 +4,14 @@
 
 package com.energyict.mdc.dynamic;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecBuilderWizard;
-import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.ean.Ean13;
 import com.energyict.mdc.common.ean.Ean18;
 import com.energyict.mdc.upl.properties.HexString;
+
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.obis.ObisCode;
 
 /**
@@ -22,14 +22,6 @@ import com.energyict.obis.ObisCode;
  */
 @ProviderType
 public interface PropertySpecService extends com.elster.jupiter.properties.PropertySpecService {
-
-    /**
-     * Creates a new {@link PropertySpecBuilder} for building a custom
-     * {@link PropertySpec} of {@link Password} values.
-     *
-     * @return The PropertySpecBuilder
-     */
-    PropertySpecBuilderWizard.NlsOptions<Password> passwordSpec();
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom

@@ -6,7 +6,6 @@ package com.energyict.mdc.dynamic.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.energyict.mdc.upl.properties.HexString;
-import com.energyict.mdc.upl.properties.Password;
 
 import javax.inject.Inject;
 
@@ -25,8 +24,6 @@ public class PropertyEncryptor {
                 return this.encrypt((String) object);
             case "HexString":
                 return this.encrypt((HexString) object);
-            case "Password":
-                return this.encrypt((Password) object );
             default: throw new IllegalArgumentException("Cannot encrypt objects of type "+object.getClass().getName());
         }
     }
@@ -36,19 +33,6 @@ public class PropertyEncryptor {
             return null;
         }
         return dataVaultService.encrypt(string.getBytes());
-    }
-
-    public String encrypt (Password password) {
-        if (password == null){
-            return null;
-        }
-        String value = password.getValue();
-        if (value != null) {
-            return encrypt(value);
-        }
-        else {
-            return null;
-        }
     }
 
     public String encrypt (HexString hex) {

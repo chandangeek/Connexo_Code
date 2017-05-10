@@ -14,7 +14,6 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.ean.Ean13;
 import com.energyict.mdc.common.ean.Ean18;
 import com.energyict.mdc.dynamic.Ean13Factory;
@@ -23,6 +22,7 @@ import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.upl.properties.HexString;
+
 import com.energyict.obis.ObisCode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -100,11 +100,6 @@ public class PropertySpecServiceImpl implements PropertySpecService, MessageSeed
     @Override
     public PropertySpecBuilderWizard.NlsOptions<ObisCode> obisCodeSpec() {
         return this.specForValuesOf(new ObisCodeValueFactory());
-    }
-
-    @Override
-    public PropertySpecBuilderWizard.NlsOptions<Password> passwordSpec() {
-        return this.specForValuesOf(new PasswordFactory(this.dataVaultService));
     }
 
     @Override
