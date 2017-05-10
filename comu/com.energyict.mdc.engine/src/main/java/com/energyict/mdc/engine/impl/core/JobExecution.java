@@ -210,12 +210,14 @@ public abstract class JobExecution implements ScheduledJob {
         return comServerDAO;
     }
 
+
+
     protected void prepareComTaskExecution(ComTaskExecution comTaskExecution, ComTaskExecutionConnectionSteps connectionSteps, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet, GroupedDeviceCommand groupedDeviceCommand, CommandCreator commandCreator) {
         final List<ProtocolTask> protocolTasks = generateProtocolTaskList(comTaskExecution);
         commandCreator.createCommands(
                 groupedDeviceCommand,
                 getProtocolDialectTypedProperties(getConnectionTask().getDevice(), getConnectionTask().getProtocolDialectConfigurationProperties()),
-                this.preparationContext.getComChannelPlaceHolder(),
+                this.preparationContext.createNewComChannelPlaceHolder(),
                 protocolTasks,
                 deviceProtocolSecurityPropertySet,
                 connectionSteps,
@@ -466,6 +468,11 @@ public abstract class JobExecution implements ScheduledJob {
 
         ComChannelPlaceHolder getComChannelPlaceHolder() {
             return comChannelPlaceHolder;
+        }
+
+        public ComChannelPlaceHolder createNewComChannelPlaceHolder(){
+            this.comChannelPlaceHolder = ComChannelPlaceHolder.empty();
+            return getComChannelPlaceHolder();
         }
 
         public void setComChannel(ComPortRelatedComChannel comChannel) {
