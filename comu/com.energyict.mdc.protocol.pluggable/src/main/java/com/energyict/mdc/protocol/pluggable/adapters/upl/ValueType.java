@@ -4,7 +4,6 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.Password;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
@@ -38,7 +37,6 @@ public enum ValueType {
     LIS200_ADDRESS("com.energyict.mdc.upl.properties.Lis200Address", Lis200Address.class, Types.VARCHAR),
     LINE_POINT("com.energyict.mdc.upl.properties.LinePoint", LinePoint.class, Types.VARCHAR),
     HEX_STRING("com.energyict.mdc.upl.properties.HexString", HexString.class, Types.VARCHAR),
-    PASSWORD("com.energyict.mdc.upl.properties.Password", Password.class, Types.VARCHAR),
     INTEGER("java.lang.int", int.class, Types.NUMERIC),
     LONG("java.lang.long", long.class, Types.NUMERIC),
     BOXED_INTEGER("java.lang.Integer", Integer.class, Types.NUMERIC),
