@@ -29,7 +29,7 @@ Ext.define('Uni.DateTime', {
     timeLongDefault: 'H:i:s',
     timeLongWithMillisDefault: 'H:i:s.u',
 
-    dateTimeSeparatorDefault: '-',
+    dateTimeSeparatorDefault: 'at',
     dateTimeOrderDefault: 'DT',
 
     LONG: 'long',
@@ -96,22 +96,20 @@ Ext.define('Uni.DateTime', {
 
     doFormat: function (date, dateFormat, timeFormat) {
         var me = this,
-            dateTimeFormat,
             orderFormat = Uni.util.Preferences.lookup(me.dateTimeOrderKey, me.dateTimeOrderDefault),
-            separatorFormat = Uni.util.Preferences.lookup(me.dateTimeSeparatorKey, me.dateTimeSeparatorDefault);
+            separatorFormat = Uni.util.Preferences.lookup(me.dateTimeSeparatorKey, me.dateTimeSeparatorDefault),
+            timeString,
+            dateString,
+            separator;
 
         date = date || new Date();
+        timeString = Ext.Date.format(Ext.isDate(date) ? date : new Date(date), timeFormat);
+        dateString = Ext.Date.format(Ext.isDate(date) ? date : new Date(date), dateFormat);
+        separator = ' ' + separatorFormat.trim() + ' ';
         if (Ext.String.startsWith(orderFormat, 'T'))  {
-            dateTimeFormat = timeFormat;
+           return timeString + separator + dateString;
         } else {
-            dateTimeFormat = dateFormat;
+            return dateString + separator + timeString;
         }
-        dateTimeFormat += (' ' + separatorFormat.trim() + ' ');
-        if (Ext.String.startsWith(orderFormat, 'T')) {
-            dateTimeFormat += dateFormat;
-        } else {
-            dateTimeFormat += timeFormat;
-        }
-        return Ext.Date.format(Ext.isDate(date) ? date : new Date(date), dateTimeFormat);
     }
 });
