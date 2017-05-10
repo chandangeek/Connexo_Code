@@ -54,6 +54,9 @@ public class RelativeDateInfo {
         if (startPeriodAgo != null && startPeriodAgo.equals(RelativeField.MONTH.getChronoUnit().toString().toLowerCase()) && (onDayOfMonth == null && startFixedDay == null)) {
             onCurrentDay = true;
         }
+        if (startPeriodAgo != null && startPeriodAgo.equals(RelativeField.YEAR.getChronoUnit().toString().toLowerCase()) && (onDayOfYear == null && onMonthOfYear == null && startFixedDay == null)) {
+            onCurrentDayOfYear = true;
+        }
         if (startPeriodAgo == null && startFixedYear == null) {
             startNow = true;
         }
