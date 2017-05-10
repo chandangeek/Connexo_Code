@@ -141,27 +141,25 @@ public class OutputRegisterDataInfoFactory {
             OutpitRegisterHistoryDataInfo outpitRegisterHistoryDataInfo = new OutpitRegisterHistoryDataInfo();
             BaseReadingRecord record = journaledReadingRecord.getStoredReadingRecord();
             DataValidationStatus status = journaledReadingRecord.getValidationStatus();
-            if (record instanceof JournaledRegisterReadingRecord) {
-                outpitRegisterHistoryDataInfo.interval = IntervalInfo.from(journaledReadingRecord.getInterval());
-                outpitRegisterHistoryDataInfo.userName = ((JournaledRegisterReadingRecord)record).getUserName();
-                outpitRegisterHistoryDataInfo.timeStamp = record.getReportedDateTime();
-                outpitRegisterHistoryDataInfo.value = record.getValue();
-                outpitRegisterHistoryDataInfo.reportedDateTime = record.getReportedDateTime();
-                outpitRegisterHistoryDataInfo.readingQualities = journaledReadingRecord.getReadingQualities().stream()
-                        .map(readingQualityInfoFactory::asInfo)
-                        .collect(Collectors.toList());
-                outpitRegisterHistoryDataInfo.dataValidated = status.completelyValidated();
-                outpitRegisterHistoryDataInfo.validationResult = status.getValidationResult();
-                outpitRegisterHistoryDataInfo.validationAction = decorate(status.getReadingQualities()
-                        .stream())
-                        .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
-                        .map(readingQuality -> readingQuality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
-                        .sorted(Comparator.reverseOrder())
-                        .findFirst()
-                        .orElse(null);
+            outpitRegisterHistoryDataInfo.interval = IntervalInfo.from(journaledReadingRecord.getInterval());
+            outpitRegisterHistoryDataInfo.userName = ((JournaledRegisterReadingRecord)record).getUserName();
+            outpitRegisterHistoryDataInfo.timeStamp = record.getReportedDateTime();
+            outpitRegisterHistoryDataInfo.value = record.getValue();
+            outpitRegisterHistoryDataInfo.reportedDateTime = record.getReportedDateTime();
+            outpitRegisterHistoryDataInfo.readingQualities = journaledReadingRecord.getReadingQualities().stream()
+                    .map(readingQualityInfoFactory::asInfo)
+                    .collect(Collectors.toList());
+            outpitRegisterHistoryDataInfo.dataValidated = status.completelyValidated();
+            outpitRegisterHistoryDataInfo.validationResult = status.getValidationResult();
+            outpitRegisterHistoryDataInfo.validationAction = decorate(status.getReadingQualities()
+                    .stream())
+                    .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
+                    .map(readingQuality -> readingQuality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
+                    .sorted(Comparator.reverseOrder())
+                    .findFirst()
+                    .orElse(null);
 
-                data.add(outpitRegisterHistoryDataInfo);
-            }
+            data.add(outpitRegisterHistoryDataInfo);
         });
         return data.stream().sorted(Comparator.comparing(info -> ((OutpitRegisterHistoryDataInfo)info).interval.end)
                 .thenComparing(Comparator.comparing(info -> ((OutpitRegisterHistoryDataInfo) info).reportedDateTime).reversed())).collect(ExtraCollectors

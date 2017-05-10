@@ -23,7 +23,6 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityComment;
-import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
@@ -903,6 +902,36 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(json.<Long>get("$.[0].interval.end")).isEqualTo(SOURCE_INTERVAL_END);
     }
 
+    @Test
+    public void testGetHistoryFromChannel() throws IOException {
+        Range effectiveRange = Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_1.upperEndpoint());
+        ValidationRule minMax = mockValidationRule(1, "MinMax");
+        IntervalReadingRecord intervalReadingRecord = mockIntervalReadingRecord(effectiveRange, new BigDecimal(555));
+        DataValidationStatus dataValidationStatus = mockValidationStatus(intervalReadingRecord.getTimeStamp(), minMax);
+
+        when(usagePoint.getEffectiveMetrologyConfigurations(effectiveRange)).thenReturn(Collections.singletonList(effectiveMC1));
+        when(channelsContainer1.getInterval()).thenReturn(Interval.of(effectiveRange));
+        when(channel1.getJournaledChannelReadings(any(ReadingType.class), any(Range.class))).thenReturn(Collections.singletonList(intervalReadingRecord));
+        when(channel1.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_1.upperEndpoint()))).thenReturn(Collections.singletonList(INTERVAL_1.upperEndpoint()));
+        when(evaluator.getValidationStatus(eq(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC)), eq(channel1), any(Instant.class), eq(Collections.emptyList())))
+                .thenReturn(dataValidationStatus);
+        mockIntervalReadingsWithValidationResult();
+
+        Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/historicalchanneldata")
+                .queryParam("filter", buildFilter(INTERVAL_1.lowerEndpoint(), INTERVAL_1.upperEndpoint()))
+                .request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
+
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Integer>get("$.data[0].journalTime")).isEqualTo(0);
+        assertThat(jsonModel.<Boolean>get("$.data[0].partOfTimeOfUseGap")).isEqualTo(false);
+        assertThat(jsonModel.<Boolean>get("$.data[0].isProjected")).isEqualTo(false);
+        assertThat(jsonModel.<Integer>get("$.data[0].commentId")).isEqualTo(0);
+        assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(INTERVAL_1.lowerEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(INTERVAL_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<String>get("$.data[0].value")).isEqualTo(String.valueOf(555));
+    }
 
     private ValidationRule mockValidationRule(long id, String name) {
         ValidationRule validationRule = mock(ValidationRule.class);

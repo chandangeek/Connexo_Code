@@ -13,6 +13,7 @@ import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.JournaledRegisterReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -39,6 +40,7 @@ import junit.framework.AssertionFailedError;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -484,6 +486,33 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         assertThat(jsonModel.<List<String>>get("$.registerData[0].readingQualities[*].cimCode")).containsOnly("3.5.258", "3.7.0");
     }
 
+    @Test
+    public void testGetHistoryFromRegister() throws IOException {
+        when(usagePoint.getEffectiveMetrologyConfigurations(any(Range.class))).thenReturn(Collections.singletonList(effectiveMC1));
+        JournaledRegisterReadingRecord registerReadingRecord = mockJournaledRegisterRecord();
+        when(channel1.getJournaledRegisterReadings(any(ReadingType.class), any(Range.class)))
+                .thenReturn(Collections.singletonList(registerReadingRecord));
+        when(channel1.getChannelsContainer()).thenReturn(channelsContainer1);
+        when(channel1.getMainReadingType()).thenReturn(readingType1);
+        when(registerReadingRecord.getTimePeriod()).thenReturn(Optional.of(Range.all()));
+        DataValidationStatus dataValidationStatus = mockValidationStatus(READING_TIME_STAMP_1, mockValidationRule(1, "MinMax"));
+        when(evaluator.getValidationStatus(eq(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC)), eq(channel1), any(Instant.class), eq(Collections.emptyList())))
+                .thenReturn(dataValidationStatus);
+
+        Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/historicalregisterdata")
+                .queryParam("filter",  buildFilter(READING_TIME_STAMP_1, READING_TIME_STAMP_2))
+                .request().get();
+
+        JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Long>get("$.data[0].reportedDateTime")).isEqualTo(READING_TIME_STAMP_1.toEpochMilli());
+        assertThat(jsonModel.<Boolean>get("$.data[0].dataValidated")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.data[0].validationResult")).isEqualTo("VALID");
+        assertThat(jsonModel.<Integer>get("$.data[0].value")).isEqualTo(200);
+    }
+
     private ReadingQuality mockReadingQuality(ReadingQualityType type) {
         ReadingQuality readingQuality = mock(ReadingQuality.class);
         when(readingQuality.getType()).thenReturn(type);
@@ -550,5 +579,16 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(validationStatus.getValidationResult()).thenReturn(ValidationResult.VALID);
         when(validationStatus.getOffendedRules()).thenReturn(Collections.singletonList(validationRule));
         return validationStatus;
+    }
+
+    private JournaledRegisterReadingRecord mockJournaledRegisterRecord() {
+        JournaledRegisterReadingRecord journaledRegisterReadingRecord = mock(JournaledRegisterReadingRecord.class);
+        when(journaledRegisterReadingRecord.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
+        when(journaledRegisterReadingRecord.getTimeStamp()).thenReturn(READING_TIME_STAMP_1);
+        when(journaledRegisterReadingRecord.getReportedDateTime()).thenReturn(READING_TIME_STAMP_1);
+        when(journaledRegisterReadingRecord.getTimePeriod()).thenReturn(Optional.empty());
+        when(journaledRegisterReadingRecord.getReadingType()).thenReturn(readingType1);
+
+        return journaledRegisterReadingRecord;
     }
 }

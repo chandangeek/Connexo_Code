@@ -73,7 +73,7 @@ public class UsagePointOutputsHistoryHelper {
         return Collections.emptyList();
     }
 
-    public Set<JournaledReadingRecord> collectHistoricalRegisterData(UsagePoint usagePoint, AggregatedChannel aggregatedChannel, Range<Instant> effectiveInterval, ReadingType readingType) {
+    public Set<JournaledReadingRecord> collectHistoricalRegisterData(UsagePoint usagePoint, AggregatedChannel aggregatedChannel, Range<Instant> effectiveInterval, ReadingType readingType, boolean changedDataOnly) {
         List<? extends ReadingRecord> journaledRegisterReadingRecords = aggregatedChannel.getJournaledRegisterReadings(readingType, effectiveInterval);
         ValidationEvaluator validationEvaluator = validationService.getEvaluator();
 
@@ -85,6 +85,14 @@ public class UsagePointOutputsHistoryHelper {
                 usagePoint,
                 calendarService);
         Map<Instant, List<JournaledReadingRecord>> historicalReadings = mapJournaledRecordsByTimestamp(journaledRegisterReadingRecords);
+
+        if (changedDataOnly) {
+            historicalReadings = historicalReadings.entrySet()
+                    .stream()
+                    .filter(entry -> entry.getValue().size() > 1)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        }
+
         Map<Instant, RegisterReadingWithValidationStatus> preFilledDataMap = journaledRegisterReadingRecords.stream()
                 .map(ReadingRecord::getTimeStamp)
                 .distinct()

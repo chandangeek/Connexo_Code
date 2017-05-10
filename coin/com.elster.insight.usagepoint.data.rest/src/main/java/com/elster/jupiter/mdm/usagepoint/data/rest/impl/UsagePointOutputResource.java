@@ -916,6 +916,7 @@ public class UsagePointOutputResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         List<OutpitRegisterHistoryDataInfo> data = new ArrayList<>();
         if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
+            boolean changedDataOnly = filter.getString("changedDataOnly") != null && (filter.getString("changedDataOnly").compareToIgnoreCase("yes") == 0);
             Range<Instant> requestedInterval = Range.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
             usagePoint.getEffectiveMetrologyConfigurations(requestedInterval).forEach(effectiveMC -> {
                         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
@@ -925,8 +926,7 @@ public class UsagePointOutputResource {
                             if (containerRange.isConnected(requestedInterval)) {
                                 Range<Instant> effectiveInterval = containerRange.intersection(requestedInterval);
                                 AggregatedChannel aggregatedChannel = effectiveMC.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
-                                aggregatedChannel.getJournaledRegisterReadings(readingTypeDeliverable.getReadingType(), effectiveInterval);
-                                Set<JournaledReadingRecord> collectedData = usagePointOutputsHistoryHelper.collectHistoricalRegisterData(usagePoint, aggregatedChannel, effectiveInterval, readingTypeDeliverable.getReadingType());
+                                Set<JournaledReadingRecord> collectedData = usagePointOutputsHistoryHelper.collectHistoricalRegisterData(usagePoint, aggregatedChannel, effectiveInterval, readingTypeDeliverable.getReadingType(), changedDataOnly);
                                 data.addAll(outputRegisterDataInfoFactory.createHistoricalRegisterInfo(collectedData));
                             }
                         });
