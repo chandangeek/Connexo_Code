@@ -36,7 +36,6 @@ import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -516,19 +515,8 @@ public class UsagePointResource {
             return Response.accepted().build();
         }
 
-        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findActiveUsagePointMetrologyConfigurationOrThrowException(info.id);
-        if (info.purposes != null) {
-            usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime, usagePointMetrologyConfiguration.getContracts()
-                    .stream()
-                    .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
-                    .filter(metrologyContract -> info.purposes.stream()
-                            .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
-                    .filter(metrologyContract -> !metrologyContract.isMandatory())
-                    .distinct()
-                    .collect(Collectors.toSet()));
-        } else {
-            usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime);
-        }
+        applyMetrologyConfiguration(usagePoint, validationBuilder, info);
+
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
             if(!createNew){
                 updateCustomPropertySetValues(usagePoint,customPropertySetInfo);
@@ -566,6 +554,27 @@ public class UsagePointResource {
         usagePoint.update();
 
         return Response.ok().entity(usagePointInfoFactory.fullInfoFrom(usagePoint)).build();
+    }
+
+    private void applyMetrologyConfiguration(UsagePoint usagePoint, RestValidationBuilder validationBuilder, MetrologyConfigurationInfo info) {
+        UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findActiveUsagePointMetrologyConfigurationOrThrowException(info.id);
+        try {
+            if (info.purposes != null) {
+                usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime, usagePointMetrologyConfiguration
+                        .getContracts()
+                        .stream()
+                        .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
+                        .filter(metrologyContract -> info.purposes.stream()
+                                .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
+                        .filter(metrologyContract -> !metrologyContract.isMandatory())
+                        .distinct()
+                        .collect(Collectors.toSet()));
+            } else {
+                usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime);
+            }
+        } catch (UsagePointManagementException ex) {
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "metrologyConfiguration", ex.getMessageArgs())).validate();
+        }
     }
 
     @PUT
