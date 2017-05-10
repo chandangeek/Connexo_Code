@@ -42,7 +42,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.PreviewForm', {
             },
             {
                 fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
-                name: 'status',
+                name: 'active',
                 renderer: function(value) {
                     return value ? Uni.I18n.translate('general.active', 'MDC', 'Active') :  Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                 }

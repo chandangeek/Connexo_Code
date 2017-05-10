@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Preview', {
                 renderer: function(value){
                     if(value) {
                         var date = new Date(value);
-                        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)]);
+                        return Uni.DateTime.formatDateTimeShort(date);
                     }
                 }
             }
