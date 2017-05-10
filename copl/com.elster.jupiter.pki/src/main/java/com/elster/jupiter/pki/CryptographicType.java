@@ -2,6 +2,14 @@ package com.elster.jupiter.pki;
 
 /**
  * This enum allows identification of the actual element stored in a KeyAccessor.
+ * <br/>
+ * <b>Remark:</b><br/>
+ * When adding new types, please make sure to adapt below code as well.
+ * <ul>
+ *     <li>DeviceImpl#newKeyAccessor(com.elster.jupiter.pki.KeyAccessorType)</li>
+ *     <li>DeviceProtocolSecurityPropertySetImpl#constructSecurityProperties(java.util.List, java.util.List, com.energyict.mdc.protocol.api.services.IdentificationService)</li>
+ * </ul>
+ *
  *
  */
 public enum CryptographicType {
