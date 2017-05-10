@@ -33,14 +33,14 @@ import java.sql.SQLException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-12-09 (10:15)
  */
-class ReferenceValueFactory<T> implements ValueFactory<T> {
+public class ReferenceValueFactory<T> implements ValueFactory<T> {
 
     private final OrmService ormService;
     private final BeanService beanService;
     private Class<T> domainClass;
     private Mapping mapping;
 
-    ReferenceValueFactory(OrmService ormService, BeanService beanService) {
+    public ReferenceValueFactory(OrmService ormService, BeanService beanService) {
         super();
         this.ormService = ormService;
         this.beanService = beanService;
