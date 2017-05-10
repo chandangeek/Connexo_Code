@@ -134,6 +134,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -633,7 +634,7 @@ public class InMemoryIntegrationPersistence {
 
                         @Override
                         public DeviceMessageId getId() {
-                            return DeviceMessageId.havingId(id);
+                            return DeviceMessageId.from(id);
                         }
 
                         @Override
