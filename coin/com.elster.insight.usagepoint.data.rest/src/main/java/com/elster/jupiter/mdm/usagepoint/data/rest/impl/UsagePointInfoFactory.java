@@ -277,24 +277,17 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.lifeCycle = this.lifeCycleInfoFactory.shortInfo(usagePoint.getLifeCycle());
         info.lastTransitionTime = usagePointLifeCycleService.getLastUsagePointStateChangeRequest(usagePoint).map(cr -> cr.getTransitionTime().toEpochMilli()).orElse(null);
 
-        String temp = usagePoint.getState().getStage().get().getName();
-        List temp2 = usagePoint.getEffectiveMetrologyConfigurations().stream().map(EffectiveMetrologyConfigurationOnUsagePoint::getId).sorted().collect(Collectors.toList());
-        Long temp3 =usagePoint.getEffectiveMetrologyConfigurations().stream().collect(Collectors.counting());
-        if(usagePoint.getState().getStage().get().getName().equals(UsagePointStage.SUSPENDED.getKey()) || usagePoint.getState().getStage().get().getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey()) ){
-            if(!usagePoint.getEffectiveMetrologyConfigurations()
-                    .stream()
-                    .anyMatch(effectiveMetrologyConfigurationOnUsagePoint -> effectiveMetrologyConfigurationOnUsagePoint.getEnd()==null)){
-                info.isReadyForLinkingMC=true;
-            }
-            else if (usagePoint.getEffectiveMetrologyConfigurations().size()==0){
-                info.isReadyForLinkingMC=true;
-            }
-            else
-                info.isReadyForLinkingMC=false;
-        }
-        else
-            info.isReadyForLinkingMC=false;
+        info.isReadyForLinkingMC = isReadyForLinkingMC(usagePoint);
+
         return info;
+    }
+
+    private boolean isReadyForLinkingMC(UsagePoint usagePoint) {
+        String usagePointStage = usagePoint.getState().getStage().get().getName();
+        return ((UsagePointStage.SUSPENDED.getKey()).equals(usagePointStage) || UsagePointStage.PRE_OPERATIONAL.getKey()
+                .equals(usagePointStage)) && usagePoint.getEffectiveMetrologyConfigurations()
+                .stream()
+                .noneMatch(effectiveMC -> effectiveMC.getEnd() == null);
     }
 
     private void addDetailsInfo(UsagePointInfo info, UsagePoint usagePoint) {
