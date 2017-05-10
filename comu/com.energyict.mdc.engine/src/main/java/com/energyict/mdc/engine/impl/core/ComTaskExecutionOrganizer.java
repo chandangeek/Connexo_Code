@@ -11,8 +11,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
-import com.energyict.mdc.protocol.api.services.HexService;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
@@ -30,14 +28,10 @@ import java.util.Optional;
 public final class ComTaskExecutionOrganizer {
 
     private final TopologyService topologyService;
-    private final IdentificationService identificationService;
-    private final HexService hexService;
 
-    public ComTaskExecutionOrganizer(TopologyService topologyService, IdentificationService identificationService, HexService hexService) {
+    public ComTaskExecutionOrganizer(TopologyService topologyService) {
         super();
         this.topologyService = topologyService;
-        this.identificationService = identificationService;
-        this.hexService =  hexService;
     }
 
     public List<DeviceOrganizedComTaskExecution> defineComTaskExecutionOrders(List<ComTaskExecution> comTaskExecutions) {
@@ -102,10 +96,7 @@ public final class ComTaskExecutionOrganizer {
                 securityPropertySet.getSecuritySuite() != null ? securityPropertySet.getSecuritySuite().getId() : -1,
                 securityPropertySet.getRequestSecurityLevel() != null ? securityPropertySet.getRequestSecurityLevel().getId() : -1,
                 securityPropertySet.getResponseSecurityLevel() != null ? securityPropertySet.getResponseSecurityLevel().getId() : -1,
-                securityPropertySet.getConfigurationSecurityProperties(),
-                masterDevice.getKeyAccessors(),
-                identificationService,
-                hexService);
+                masterDevice.getSecurityProperties(securityPropertySet));   /* The actual retrieving of the properties must be done on the given masterDevice */
     }
 
     private Device getMasterDeviceIfAvailable(Device device) {

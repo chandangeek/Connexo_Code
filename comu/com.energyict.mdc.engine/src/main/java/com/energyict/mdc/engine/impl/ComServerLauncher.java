@@ -42,7 +42,6 @@ import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
@@ -346,11 +345,6 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
         @Override
         public IdentificationService identificationService() {
             return serviceProvider.identificationService();
-        }
-
-        @Override
-        public HexService hexService() {
-            return serviceProvider.hexService();
         }
 
         @Override

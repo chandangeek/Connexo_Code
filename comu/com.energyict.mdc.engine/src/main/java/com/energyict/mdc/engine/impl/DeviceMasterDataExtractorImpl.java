@@ -9,7 +9,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.engine.impl.core.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.HexService;
@@ -184,19 +183,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private Collection<SecurityProperty> securityProperties(Device device, com.energyict.mdc.device.config.SecurityPropertySet securityPropertySet) {
-        TypedProperties securityProperties = new DeviceProtocolSecurityPropertySetImpl(
-                securityPropertySet.getClient(),
-                securityPropertySet.getAuthenticationDeviceAccessLevel().getId(),
-                securityPropertySet.getEncryptionDeviceAccessLevel().getId(),
-                securityPropertySet.getSecuritySuite().getId(),
-                securityPropertySet.getRequestSecurityLevel().getId(),
-                securityPropertySet.getResponseSecurityLevel().getId(),
-                securityPropertySet.getConfigurationSecurityProperties(),
-                device.getKeyAccessors(),
-                identificationService,
-                hexService
-        ).getSecurityProperties();
-
+        TypedProperties securityProperties = device.getSecurityProperties(securityPropertySet);
         return securityProperties.propertyNames().stream()
                 .map(propertyName -> new SecurityProperty() {
                     @Override

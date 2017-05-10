@@ -80,7 +80,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
@@ -174,14 +173,6 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private TransactionService getTransactionService() {
         return this.serviceProvider.transactionService();
-    }
-
-    private IdentificationService getIdentificationService() {
-        return this.serviceProvider.identificationService();
-    }
-
-    private HexService getHexService() {
-        return this.serviceProvider.hexService();
     }
 
     @Override
@@ -437,7 +428,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
-        handleCertificatePropertyValue(propertyValue);
+        handleCertificatePropertyValue(propertyValue); //TODO: is this step still required?
 
         Device device = this.findDevice(deviceIdentifier);
         device.setProtocolProperty(propertyName, propertyValue);
@@ -494,12 +485,11 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
-        handleCertificatePropertyValue(propertyValue);
+        handleCertificatePropertyValue(propertyValue); //TODO: is this step still required?
 
-        //TODO: foresee useful implementation
         //Now update the given security property.
-//        Device device = this.findDevice(deviceIdentifier);
-//        device.setSecurityProperty(propertyName, propertyValue)
+        Device device = this.findDevice(deviceIdentifier);
+        device.setSecurityProperty(propertyName, propertyValue);
     }
 
     @Override
@@ -858,10 +848,8 @@ public class ComServerDAOImpl implements ComServerDAO {
                         securityPropertySet.getSecuritySuite() != null ? securityPropertySet.getSecuritySuite().getId() : -1,
                         securityPropertySet.getRequestSecurityLevel() != null ? securityPropertySet.getRequestSecurityLevel().getId() : -1,
                         securityPropertySet.getResponseSecurityLevel() != null ? securityPropertySet.getResponseSecurityLevel().getId() : -1,
-                        securityPropertySet.getConfigurationSecurityProperties(),
-                        device.getKeyAccessors(),
-                        getIdentificationService(),
-                        getHexService());
+                        device.getSecurityProperties(securityPropertySet)
+                );
             }
         }
     }
@@ -1390,8 +1378,6 @@ public class ComServerDAOImpl implements ComServerDAO {
         EventService eventService();
 
         IdentificationService identificationService();
-
-        HexService hexService();
 
         KeyStoreService keyStoreService();
 
