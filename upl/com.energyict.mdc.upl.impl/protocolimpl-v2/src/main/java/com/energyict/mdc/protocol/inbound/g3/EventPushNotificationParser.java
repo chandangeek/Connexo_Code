@@ -1,5 +1,18 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.protocol.inbound.g3;
 
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.EventPushNotificationConfig;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.idis.DataPushNotificationParser;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
@@ -8,24 +21,7 @@ import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityContextV2EncryptionHandler;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.EventPushNotificationConfig;
+import com.energyict.mdc.upl.security.SecurityProperty;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
@@ -36,12 +32,9 @@ import com.energyict.protocol.exception.identifier.NotFoundException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.idis.am540.events.MeterAlarmParser;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySystemTitle;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierLikeSerialNumber;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
-import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
+import com.energyict.protocolimplv2.identifiers.*;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
+import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -51,12 +44,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Supplier;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 9/09/2014 - 9:19
- */
 public class EventPushNotificationParser extends DataPushNotificationParser {
 
     /**
@@ -662,9 +649,15 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
     public DeviceProtocolSecurityPropertySet getSecurityPropertySet() {
         if (securityPropertySet == null) {
-            this.securityPropertySet = getContext()
-                    .getDeviceProtocolSecurityPropertySet(deviceIdentifier)
-                    .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
+            List<? extends SecurityProperty> securityProperties =
+                    getContext()
+                            .getProtocolSecurityProperties(deviceIdentifier)
+                            .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
+            if (!securityProperties.isEmpty()) {
+                this.securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(securityProperties);
+            } else {
+                throw CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier);
+            }
         }
         return this.securityPropertySet;
     }

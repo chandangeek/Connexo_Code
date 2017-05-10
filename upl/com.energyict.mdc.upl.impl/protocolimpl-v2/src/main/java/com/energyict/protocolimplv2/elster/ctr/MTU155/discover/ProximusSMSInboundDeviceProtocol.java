@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.energyict.mdc.upl.ServletBasedInboundDeviceProtocol;
@@ -9,9 +13,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
-import com.energyict.protocol.exception.CommunicationException;
+import com.energyict.mdc.upl.security.SecurityProperty;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
@@ -27,6 +29,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -100,10 +103,8 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
             allRelevantProperties.setAllProperties(deviceConnectionTypeProperties);
             allRelevantProperties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER.getName(), getDeviceSerialNumber());
 
-            DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = context
-                    .getDeviceProtocolSecurityPropertySet(deviceIdentifier)
-                    .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
-            MTU155Properties mtu155Properties = new MTU155Properties(new Mtu155SecuritySupport(propertySpecService).convertToTypedProperties(deviceProtocolSecurityPropertySet));
+            List<? extends SecurityProperty> protocolSecurityProperties = getContext().getProtocolSecurityProperties(this.deviceIdentifier).orElseGet(Collections::emptyList);
+            MTU155Properties mtu155Properties = new MTU155Properties(new Mtu155SecuritySupport(propertySpecService).convertToTypedProperties(protocolSecurityProperties));
             CTRCryptographer cryptographer = new CTRCryptographer();
             SMSFrame smsFrame = cryptographer.decryptSMS(mtu155Properties, sms);
 

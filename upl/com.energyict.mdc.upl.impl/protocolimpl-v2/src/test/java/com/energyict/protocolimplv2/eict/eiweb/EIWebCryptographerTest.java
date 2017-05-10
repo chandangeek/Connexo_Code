@@ -1,23 +1,24 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.SecurityProperty;
-
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.identifier.NotFoundException;
 import com.energyict.protocolimpl.properties.TypedProperties;
-
-import java.util.Optional;
-
 import org.junit.Test;
+
+import java.util.Collections;
+import java.util.Optional;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link EIWebCryptographer} component.
@@ -74,7 +75,7 @@ public class EIWebCryptographerTest {
         when(encryptionPassword.getValue()).thenReturn(new SimplePassword("EIWebCryptographerTest"));
         InboundDiscoveryContext inboundDiscoveryContext = mock(InboundDiscoveryContext.class);
         when(inboundDiscoveryContext.getConnectionTypeProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(connectionTypeProperties));
-//        when(inboundDiscoveryContext.getProtocolSecurityProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(Collections.singletonList(encryptionPassword))); TODO: rework this!
+        when(inboundDiscoveryContext.getProtocolSecurityProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(Collections.singletonList(encryptionPassword)));
 
         EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDiscoveryContext);
 
@@ -93,7 +94,7 @@ public class EIWebCryptographerTest {
         when(inboundDiscoveryContext.getConnectionTypeProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(connectionTypeProperties));
         SecurityProperty encryptionPassword = mock(SecurityProperty.class);
         when(encryptionPassword.getValue()).thenReturn(new SimplePassword("EIWebCryptographerTest"));
-//        when(inboundDiscoveryContext.getProtocolSecurityProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(Collections.singletonList(encryptionPassword))); TODO: rework this!
+        when(inboundDiscoveryContext.getProtocolSecurityProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(Collections.singletonList(encryptionPassword)));
 
         EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDiscoveryContext);
 
