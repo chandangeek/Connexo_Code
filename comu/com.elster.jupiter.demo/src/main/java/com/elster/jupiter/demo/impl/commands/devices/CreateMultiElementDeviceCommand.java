@@ -211,7 +211,7 @@ public class CreateMultiElementDeviceCommand {
                 .filter(ps -> "EncryptionKey".equals(ps.getName()))
                 .findFirst()
                 .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
-//        device.setSecurityProperties(securityPropertySetHigh, typedProperties); //TODO
+        device.setSecurityProperties(securityPropertySetHigh, typedProperties);
 
         SecurityPropertySet securityPropertySetNone =
                 configuration
@@ -222,7 +222,7 @@ public class CreateMultiElementDeviceCommand {
                         .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SecurityPropertySetTpl.NO_SECURITY.getName() + "."));
         TypedProperties typedPropertiesNone = TypedProperties.empty();
         typedPropertiesNone.setProperty("ClientMacAddress", BigDecimal.ONE);
-//        device.setSecurityProperties(securityPropertySetNone, typedProperties); //TODO
+        device.setSecurityProperties(securityPropertySetNone, typedProperties);
 
         device.save();
     }

@@ -18,7 +18,7 @@ public class SecurityPropertiesDevicePostBuilder implements Consumer<Device> {
         DeviceConfiguration configuration = device.getDeviceConfiguration();
         for (SecurityPropertySet securityPropertySet : configuration.getSecurityPropertySets()) {
             TypedProperties typedProperties = TypedProperties.empty();
-//            device.setSecurityProperties(securityPropertySet, typedProperties); //TODO
+            device.setSecurityProperties(securityPropertySet, typedProperties);
             device.save();
         }
     }

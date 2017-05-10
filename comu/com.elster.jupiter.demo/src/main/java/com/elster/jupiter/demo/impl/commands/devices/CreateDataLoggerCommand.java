@@ -17,7 +17,6 @@ import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
 import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
-import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -197,7 +196,7 @@ public class CreateDataLoggerCommand {
                         .findFirst()
                         .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5.getName() + "."));
         TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty("Password", new Password("ntaSim"));
+        typedProperties.setProperty("Password", "ntaSim");
         securityPropertySetHigh
                 .getPropertySpecs()
                 .stream()
@@ -216,7 +215,7 @@ public class CreateDataLoggerCommand {
                 .filter(ps -> "EncryptionKey".equals(ps.getName()))
                 .findFirst()
                 .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
-//        device.setSecurityProperties(securityPropertySetHigh, typedProperties); //TODO
+        device.setSecurityProperties(securityPropertySetHigh, typedProperties);
 
         SecurityPropertySet securityPropertySetNone =
                 configuration
@@ -226,7 +225,7 @@ public class CreateDataLoggerCommand {
                         .findFirst()
                         .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SecurityPropertySetTpl.NO_SECURITY.getName() + "."));
         TypedProperties typedPropertiesNone = TypedProperties.empty();
-//        device.setSecurityProperties(securityPropertySetNone, typedProperties); //TODO
+        device.setSecurityProperties(securityPropertySetNone, typedProperties);
         device.save();
     }
 

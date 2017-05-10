@@ -207,7 +207,7 @@ public class CreateG3SlaveCommand {
                     .findFirst()
                     .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("1234567890123456")));
 
-//            device.setSecurityProperties(securityPropertySet, typedProperties); //TODO
+            device.setSecurityProperties(securityPropertySet, typedProperties);
 
             device.save();
         }
