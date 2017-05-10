@@ -136,7 +136,7 @@ public class ConnectionTaskReportServiceImplOracleSpecificIT {
         DeviceType deviceType = oracleIntegrationPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(deviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::from).forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
         SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet("No Security");
         securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
