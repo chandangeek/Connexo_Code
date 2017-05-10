@@ -60,8 +60,7 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.CalendarWithEventCode',
         'Uni.property.view.property.MaximumAbsoluteDifference',
         'Uni.property.view.property.NoneOrBigDecimal',
-        'Uni.property.view.property.IrregularReadingType',
-        'Uni.property.view.property.RegularReadingType',
+        'Uni.property.view.property.ReadingType',
         'Uni.property.view.property.NoneOrTimeDuration',
         'Uni.property.view.property.UsagePoint'
     ],
@@ -88,8 +87,6 @@ Ext.define('Uni.property.controller.Registry', {
         FIRMWAREVERSION: 'Uni.property.view.property.Reference',
         HEXSTRING: 'Uni.property.view.property.Hexstring',
         IDWITHNAME: 'Uni.property.view.property.Reference',
-        IRREGULAR_READINGTYPE: 'Uni.property.view.property.IrregularReadingType',
-        REGULAR_READINGTYPE: 'Uni.property.view.property.RegularReadingType',
         LIFECYCLESTATUSINDEVICETYPE: 'Uni.property.view.property.LifeCycleStatusInDeviceType',
         LISTREADINGQUALITY: 'Uni.property.view.property.ReadingQualities',
         LISTVALUE: 'Uni.property.view.property.Multiselect',
@@ -120,7 +117,10 @@ Ext.define('Uni.property.controller.Registry', {
         UNKNOWN: 'Uni.property.view.property.Text',
         CALENDARWITHEVENTCODE: 'Uni.property.view.property.CalendarWithEventCode',
         TWO_VALUES_DIFFERENCE: 'Uni.property.view.property.MaximumAbsoluteDifference',
-        NONE_OR_BIGDECIMAL: 'Uni.property.view.property.NoneOrBigDecimal'
+        NONE_OR_BIGDECIMAL: 'Uni.property.view.property.NoneOrBigDecimal',
+        IRREGULAR_READINGTYPE: 'Uni.property.view.property.ReadingType',
+        REGULAR_READINGTYPE: 'Uni.property.view.property.ReadingType',
+        ANY_READINGTYPE: 'Uni.property.view.property.ReadingType'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)

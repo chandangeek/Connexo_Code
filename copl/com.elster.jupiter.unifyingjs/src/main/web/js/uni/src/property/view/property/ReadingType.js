@@ -2,11 +2,14 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Uni.property.view.property.RegularReadingType', {
+Ext.define('Uni.property.view.property.ReadingType', {
     extend: 'Uni.property.view.property.BaseCombo',
 
     getEditCmp: function () {
-        var me = this;
+        var me = this,
+            filter = me.getFilter('', me.property.getPropertyType().get('simplePropertyType'));
+
+        Ext.getStore('Uni.property.store.ReadingTypes').getProxy().setExtraParam('filter', Ext.encode(filter));
 
         return {
             xtype: 'combobox',
@@ -29,16 +32,7 @@ Ext.define('Uni.property.view.property.RegularReadingType', {
                 change: {
                     fn: function (combo, newValue) {
                         var index = combo.getStore().findExact('mRID', newValue),
-                            filter = [
-                                {
-                                    property: 'fullAliasName',
-                                    value: '*' + combo.getRawValue() + '*'
-                                },
-                                {
-                                    property: 'equidistant',
-                                    value: true
-                                }
-                            ];
+                            filter = me.getFilter(combo.getRawValue(), me.property.getPropertyType().get('simplePropertyType'));
 
                         combo.readingTypeData = index >= 0 ? combo.getStore().getAt(index).getData() : null;
                         combo.getStore().getProxy().setExtraParam('filter', Ext.encode(filter));
@@ -99,30 +93,47 @@ Ext.define('Uni.property.view.property.RegularReadingType', {
             combo.resumeEvent('change');
             me.setDefaultFilter(value);
         } else {
-            if (value) {
-                me.callParent([value.fullAliasName]);
-            } else {
-                me.callParent([value]);
-            }
+            me.callParent([value.fullAliasName]);
         }
     },
 
     setDefaultFilter: function (value) {
         var me = this,
             combo = me.getField(),
-            filter = [
-                {
-                    property: 'fullAliasName',
-                    value: '*' + value.fullAliasName + '*'
-                },
-                {
-                    property: 'equidistant',
-                    value: true
-                }
-            ];
+            filter = me.getFilter(value.fullAliasName, me.property.getPropertyType().get('simplePropertyType'));
 
         combo.getStore().getProxy().setExtraParam('filter', Ext.encode(filter));
         combo.readingTypeData = value;
         combo.getStore().load();
+    },
+
+    getFilter: function (value, type) {
+        var defaultFilter = {
+            property: 'fullAliasName',
+            value: '*' + value + '*'
+        };
+
+        switch (type) {
+            case 'ANY_READINGTYPE':
+                return [defaultFilter];
+            case 'IRREGULAR_READINGTYPE':
+                return [
+                    defaultFilter,
+                    {
+                        property: 'equidistant',
+                        value: false
+                    }
+                ];
+            case 'REGULAR_READINGTYPE':
+                return [
+                    defaultFilter,
+                    {
+                        property: 'equidistant',
+                        value: true
+                    }
+                ];
+            default:
+                return [defaultFilter];
+        }
     }
 });
