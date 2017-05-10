@@ -17,6 +17,7 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -68,6 +69,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overT
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
 
 /**
  * Class that:
@@ -179,6 +181,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
         supportedMessages.add(this.get(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD));
         supportedMessages.add(this.get(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST));
         supportedMessages.add(this.get(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST));
+        supportedMessages.add(this.get(SecurityMessage.KEY_RENEWAL));
 
         // contactor related
         if (getProtocol().hasBreaker()) {
@@ -266,6 +269,8 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case emergencyProfileActivationDateAttributeName:
             case firmwareUpdateActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());  //Epoch (millis)
+            case keyAccessorTypeAttributeName:
+                return String.valueOf(((KeyAccessorType) messageAttribute).getName());
             default:
                 return messageAttribute.toString();  //Used for String and BigDecimal attributes
         }
