@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -88,13 +87,9 @@ public class CryptoDlmsSecuritySupport extends AbstractSecuritySupport implement
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
             typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), deviceProtocolSecurityPropertySet.getClient()); // Add the ClientMacAddress
 
-            // HlsSecret: override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new EmptyPassword());
-            if (Password.class.isAssignableFrom(property.getClass())) {
-                typedProperties.setProperty(HLS_SECRET_LEGACY_PROPERTY_NAME, ((Password) property).getValue());
-            } else {
-                typedProperties.setProperty(HLS_SECRET_LEGACY_PROPERTY_NAME, property);
-            }
+            // HlsSecret
+            typedProperties.setProperty(HLS_SECRET_LEGACY_PROPERTY_NAME,
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), ""));
 
             //AK
             typedProperties.setProperty(DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME,

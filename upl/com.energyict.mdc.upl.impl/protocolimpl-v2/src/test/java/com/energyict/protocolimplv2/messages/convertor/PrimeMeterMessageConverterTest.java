@@ -7,21 +7,22 @@ import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.protocolimpl.dlms.prime.PrimeMeter;
-import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastAddress1AttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastAddress2AttributeName;
@@ -101,7 +102,7 @@ public class PrimeMeterMessageConverterTest extends AbstractV2MessageConverterTe
         } else if (propertySpec.getName().equals(newManagementClientPasswordAttributeName)
                 || propertySpec.getName().equals(newFirmwareClientPasswordAttributeName)
                 || propertySpec.getName().equals(newReadingClientPasswordAttributeName)) {
-            return new SimplePassword("abcdefgh");
+            return "abcdefgh";
         } else if (propertySpec.getName().equals(MulticastAddress1AttributeName)
                 || propertySpec.getName().equals(MulticastAddress2AttributeName)
                 || propertySpec.getName().equals(MulticastAddress3AttributeName)) {

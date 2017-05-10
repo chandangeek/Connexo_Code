@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -24,7 +23,7 @@ import java.util.stream.Stream;
 /**
  * Provides general security <b>capabilities</b> for a DLMS protocol, which
  * has a SecurityObject for each possible client.
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 18/06/13
  * Time: 15:02
@@ -304,7 +303,6 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
     }
 
     private void convertToProperPassword(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet, TypedProperties typedProperties) {
-        // override the password (as it is provided as a Password object instead of a String
         List<String> passWordPropertyNames = Arrays.asList(
                 SecurityPropertySpecName.PASSWORD_PUBLIC.toString(), SecurityPropertySpecName.PASSWORD_DATA.toString(), SecurityPropertySpecName.PASSWORD_EXT_DATA.toString(),
                 SecurityPropertySpecName.PASSWORD_MANAGEMENT.toString(), SecurityPropertySpecName.PASSWORD_FIRMWARE.toString(), SecurityPropertySpecName.PASSWORD_MANUFACTURER.toString());
@@ -312,16 +310,12 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
         for (String passWordPropertyName : passWordPropertyNames) {
             final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(passWordPropertyName);
             if (property != null && notFound) {
-                if (Password.class.isAssignableFrom(property.getClass())) {
-                    typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
-                } else {
-                    typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
-                }
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
                 notFound = false;
             }
         }
         if (notFound) {
-            typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), new EmptyPassword());
+            typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), "");
         }
     }
 

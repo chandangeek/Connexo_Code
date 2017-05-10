@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -1071,8 +1070,7 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
         DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
-        Password password = new SimplePassword(passwordValue);
-        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD_DATA.toString(), password);
+        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD_DATA.toString(), passwordValue);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
                     @Override

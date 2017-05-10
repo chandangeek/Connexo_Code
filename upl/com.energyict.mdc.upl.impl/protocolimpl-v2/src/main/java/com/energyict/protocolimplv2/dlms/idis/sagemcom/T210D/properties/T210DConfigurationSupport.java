@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.properties;
 
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.PrivateKeyAlias;
+
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130ConfigurationSupport;
 
 import java.util.ArrayList;

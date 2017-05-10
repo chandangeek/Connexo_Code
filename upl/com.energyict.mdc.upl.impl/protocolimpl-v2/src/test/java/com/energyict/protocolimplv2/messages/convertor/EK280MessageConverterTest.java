@@ -1,24 +1,25 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.elster.protocolimpl.dlms.EK280;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
+
+import com.elster.protocolimpl.dlms.EK280;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -135,15 +136,15 @@ public class EK280MessageConverterTest extends AbstractV2MessageConverterTest {
             case DeviceMessageConstants.usernameAttributeName:
                 return "MyTestUserName";
             case DeviceMessageConstants.passwordAttributeName:
-                return new SimplePassword("MyTestPassword");
+                return "MyTestPassword";
             case DeviceMessageConstants.clientMacAddress:
                 return BigDecimal.ONE;
             case DeviceMessageConstants.masterKey:
-                return new SimplePassword("MASTER_Key");
+                return "MASTER_Key";
             case DeviceMessageConstants.newAuthenticationKeyAttributeName:
-                return new SimplePassword("AUTH_Key");
+                return "AUTH_Key";
             case DeviceMessageConstants.newEncryptionKeyAttributeName:
-                return new SimplePassword("ENCR_Key");
+                return "ENCR_Key";
             case DeviceMessageConstants.newPDRAttributeName:
                 return "PDR";
             case DeviceMessageConstants.gasDensityAttributeName:
