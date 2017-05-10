@@ -747,12 +747,18 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             }
 
             if (record.get('mainValidationInfo') && record.get('mainValidationInfo').commentId) {
+                if (!confirmedObj.mainValidationInfo) {
+                    confirmedObj.mainValidationInfo = {};
+                }
                 confirmedObj.value = record.get('value');
                 confirmedObj.interval = record.get('interval');
                 confirmedObj.mainValidationInfo.commentId = record.get('mainValidationInfo').commentId;
                 confirmedObj.mainValidationInfo.isConfirmed = record.get('mainValidationInfo').confirmedNotSaved || false;
             }
             if (record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentId) {
+                if (!confirmedObj.mainValidationInfo) {
+                    confirmedObj.mainValidationInfo = {};
+                }
                 confirmedObj.value = record.get('value');
                 confirmedObj.interval = record.get('interval');
                 confirmedObj.bulkValidationInfo.commentId = record.get('bulkValidationInfo').commentId;
