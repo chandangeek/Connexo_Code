@@ -10,6 +10,7 @@ import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.LinePoint;
 import com.energyict.mdc.upl.properties.Lis200Address;
+import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.ProtocolChannelMap;
 
 import com.energyict.obis.ObisCode;
@@ -83,7 +84,8 @@ public enum ValueType {
             return true;
         }
     },
-    OBIS_CODE("com.energyict.obis.ObisCode", ObisCode.class, Types.VARCHAR);
+    OBIS_CODE("com.energyict.obis.ObisCode", ObisCode.class, Types.VARCHAR),
+    NUMBER_LOOKUP("com.energyict.mdc.upl.properties.NumberLookup", NumberLookup.class, Types.VARCHAR); //TODO: dirty trick to get things rolling, but this is off-course not very useful mapping...
 
     private final String uplClassName;
     private final Class connexoClass;
