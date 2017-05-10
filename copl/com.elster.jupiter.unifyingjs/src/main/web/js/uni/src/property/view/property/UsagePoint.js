@@ -50,9 +50,13 @@ Ext.define('Uni.property.view.property.UsagePoint', {
     },
 
     setValue: function (value) {
+        var combo = this.getComboField();
+
         if (this.isCombo()) {
-            this.getComboField().setValue(value.id);
-            this.getComboField().setRawValue(value.name);
+            combo.suspendEvent('change');
+            combo.getComboField().setValue(value.id);
+            combo.getComboField().setRawValue(value.name);
+            combo.resumeEvent('change');
         } else {
             this.callParent([value.name]);
         }
