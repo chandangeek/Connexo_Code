@@ -453,7 +453,6 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
 
     modifyCalendarStep: function(wizard, navigationItemsToAdd, stepNumber){
-        console.log('Calendar - ' + stepNumber);
         var calendarTransitionStep = wizard.down('calendar-info-form'),
             title = Uni.I18n.translate('general.calendars', 'IMT', 'Calendars');
 
@@ -468,7 +467,6 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
     modifyLifeCycleTransitionStep: function (wizard, navigationItemsToAdd, stepNumber) {
 
-        console.log('LCT - ' + stepNumber);
         var lifeCycleTransitionStep = wizard.down('life-cycle-transition-info-form'),
             title = Uni.I18n.translate('general.lifeCycleTransition', 'IMT', 'Life cycle transition');
 
