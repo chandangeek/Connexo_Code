@@ -339,7 +339,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             wizard.remove(currentSteps[i], true);
         }
         // remove menu items after current step
-        for (var j = currentStepNumber; j < currentMenuItems.length-1; j++) {
+        for (var j = currentStepNumber; j < currentMenuItems.length; j++) {
             navigation.remove(currentMenuItems[j], true);
         }
 
@@ -453,6 +453,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
 
     modifyCalendarStep: function(wizard, navigationItemsToAdd, stepNumber){
+        console.log('Calendar - ' + stepNumber);
         var calendarTransitionStep = wizard.down('calendar-info-form'),
             title = Uni.I18n.translate('general.calendars', 'IMT', 'Calendars');
 
@@ -467,6 +468,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
     modifyLifeCycleTransitionStep: function (wizard, navigationItemsToAdd, stepNumber) {
 
+        console.log('LCT - ' + stepNumber);
         var lifeCycleTransitionStep = wizard.down('life-cycle-transition-info-form'),
             title = Uni.I18n.translate('general.lifeCycleTransition', 'IMT', 'Life cycle transition');
 
