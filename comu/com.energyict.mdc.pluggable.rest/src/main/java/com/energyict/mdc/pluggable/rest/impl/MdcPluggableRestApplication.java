@@ -33,7 +33,6 @@ import com.energyict.mdc.pluggable.rest.impl.properties.LoadProfileTypePropertyV
 import com.energyict.mdc.pluggable.rest.impl.properties.LocalTimePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.LogbookPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.ObisCodePropertyValueConverter;
-import com.energyict.mdc.pluggable.rest.impl.properties.PasswordPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.ReadingTypePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.RegisterPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.TimeOfDayPropertyValueConverter;
@@ -107,7 +106,6 @@ public class MdcPluggableRestApplication extends Application implements MessageS
         addConverter(new LoadProfileTypePropertyValueConverter());
         addConverter(new LogbookPropertyValueConverter());
         addConverter(new ObisCodePropertyValueConverter());
-        addConverter(new PasswordPropertyValueConverter());
         addConverter(new ReadingTypePropertyValueConverter());
         addConverter(new RegisterPropertyValueConverter());
         addConverter(new TimeOfDayPropertyValueConverter());

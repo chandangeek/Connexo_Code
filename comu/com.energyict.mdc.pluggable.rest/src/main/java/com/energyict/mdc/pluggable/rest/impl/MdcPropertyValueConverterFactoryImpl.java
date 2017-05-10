@@ -18,7 +18,6 @@ import com.energyict.mdc.pluggable.rest.impl.properties.LoadProfilePropertyValue
 import com.energyict.mdc.pluggable.rest.impl.properties.LoadProfileTypePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.LogbookPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.ObisCodePropertyValueConverter;
-import com.energyict.mdc.pluggable.rest.impl.properties.PasswordPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.ReadingTypePropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.RegisterPropertyValueConverter;
 import com.energyict.mdc.pluggable.rest.impl.properties.TimeOfDayPropertyValueConverter;
@@ -57,7 +56,6 @@ public class MdcPropertyValueConverterFactoryImpl implements MdcPropertyValueCon
             case "LoadProfileType": return new LoadProfileTypePropertyValueConverter();
             case "LogBook": return new LogbookPropertyValueConverter();
             case "ObisCode": return new ObisCodePropertyValueConverter();
-            case "Password": return new PasswordPropertyValueConverter();
             case "ReadingType": return new ReadingTypePropertyValueConverter();
             case "Register": return new RegisterPropertyValueConverter();
             case "TimeOfDay": return new TimeOfDayPropertyValueConverter();

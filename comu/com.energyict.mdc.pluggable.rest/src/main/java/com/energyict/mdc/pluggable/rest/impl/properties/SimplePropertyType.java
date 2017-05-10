@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.rest.PropertyType;
 import com.energyict.mdc.common.HexString;
-import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TimeOfDay;
 import com.energyict.mdc.common.ean.Ean13;
 import com.energyict.mdc.common.ean.Ean18;
@@ -21,12 +20,12 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
+
 import com.energyict.obis.ObisCode;
 
 import java.util.Date;
 
 public enum SimplePropertyType implements PropertyType {
-    PASSWORD(Password.class),
     HEXSTRING(HexString.class),
     TIMEOFDAY(TimeOfDay.class),
     CLOCK(DateAndTimeFactory.class),
