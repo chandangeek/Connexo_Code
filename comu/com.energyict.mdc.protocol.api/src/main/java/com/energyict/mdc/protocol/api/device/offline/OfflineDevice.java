@@ -36,11 +36,4 @@ public interface OfflineDevice extends Offline, com.energyict.mdc.upl.offline.Of
      */
     List<OfflineKeyAccessor> getAllOfflineKeyAccessors();
 
-    /**
-     * Get a list of all offlineKeyAccessors
-     *
-     * @return a list of offlineKeyAccessors
-     */
-    List<OfflineKeyAccessor> getAllOfflineKeyAccessors();
-
 }
