@@ -192,9 +192,17 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
     @Override
     public EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, KeyAccessorType keyAccessorType) {
         EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.KEY_RENEWAL));
-        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.keyAccessorTypeAttributeName), keyAccessorType);
+        command.setPropertyValue(getKeyAccessorTypePropertySpec(command), keyAccessorType);
         return command;
     }
+
+    private PropertySpec getKeyAccessorTypePropertySpec(EndDeviceCommand command) {
+        return command.getCommandArgumentSpecs()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE).format(command.getEndDeviceControlType().getName())));
+    }
+
 
     private EndDeviceControlType findEndDeviceControlType(EndDeviceControlTypeMapping controlTypeMapping) {
         String mrid = controlTypeMapping.getEndDeviceControlTypeMRID();
