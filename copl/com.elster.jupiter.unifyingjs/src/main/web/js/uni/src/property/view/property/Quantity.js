@@ -53,7 +53,7 @@ Ext.define('Uni.property.view.property.Quantity', {
             valueRegExp = /(-?\d*)\:-?\d*\:.*/,
             unitRegExp = /-?\d*(\:-?\d*\:.*)/;
 
-        if (Ext.isEmpty(value)) {
+        if (Ext.isEmpty(value) && me.down('numberfield')) {
             me.down('numberfield').setValue(null);
             return;
         }
