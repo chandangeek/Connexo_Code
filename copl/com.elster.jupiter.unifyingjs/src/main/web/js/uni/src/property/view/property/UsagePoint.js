@@ -4,6 +4,7 @@
 
 Ext.define('Uni.property.view.property.UsagePoint', {
     extend: 'Uni.property.view.property.BaseCombo',
+    id: null,
 
     getEditCmp: function () {
         var me = this;
@@ -27,11 +28,9 @@ Ext.define('Uni.property.view.property.UsagePoint', {
             editable: true,
             typeAhead: true,
             listeners: {
-                blur: {
-                    fn: function (combo) {
-                        if (!combo.getValue()) {
-                            me.restoreDefault();
-                        }
+                blur: function (combo) {
+                    if (!combo.getValue()) {
+                        me.restoreDefault();
                     }
                 }
             }
@@ -43,20 +42,21 @@ Ext.define('Uni.property.view.property.UsagePoint', {
     },
 
     getValue: function () {
-        return {
+        var value = {
             id: this.getComboField().getValue(),
             name: this.getComboField().getRawValue()
+        };
+
+        if (value.id === value.name) {
+            value.id = this.id;
         }
+        return value;
     },
 
     setValue: function (value) {
-        var combo = this.getComboField();
-
         if (this.isCombo()) {
-            combo.suspendEvent('change');
-            combo.setValue(value.id);
-            combo.setRawValue(value.name);
-            combo.resumeEvent('change');
+            this.id = value.id;
+            this.getComboField().setRawValue(value.name);
         } else {
             this.callParent([value.name]);
         }
