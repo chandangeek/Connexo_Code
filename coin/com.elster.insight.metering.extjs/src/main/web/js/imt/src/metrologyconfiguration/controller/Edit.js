@@ -62,7 +62,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             model = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration');
         widget = Ext.widget('metrologyConfigurationEdit', {
             mcid: mcid,
-            edit: true,
+            edit: true
         });
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setEdit(true, '#');
@@ -79,8 +79,6 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 widget.setLoading(false);
             }
         });
-
-
     },
 
     saveMetrologyConfiguration: function (button) {

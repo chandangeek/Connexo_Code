@@ -67,6 +67,7 @@ Ext.define('Imt.dashboard.view.OperatorDashboard', {
                     type: 'hbox',
                     align: 'stretch'
                 },
+                maxHeight: 254,
                 items: []
             };
 
@@ -123,7 +124,6 @@ Ext.define('Imt.dashboard.view.OperatorDashboard', {
                     }
                 });
             }
-            ;
 
             if (Imt.privileges.UsagePoint.canFlag()) {
                 item.items.push({
@@ -133,7 +133,6 @@ Ext.define('Imt.dashboard.view.OperatorDashboard', {
                     flex: .33
                 });
             }
-            ;
 
             if (Imt.privileges.UsagePointGroup.canFlag()) {
                 item.items.push({
@@ -143,7 +142,6 @@ Ext.define('Imt.dashboard.view.OperatorDashboard', {
                     flex: .33
                 });
             }
-            ;
 
             for (var i = item.items.length; i < 3; i++) {
                 item.items.push({

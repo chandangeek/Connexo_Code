@@ -12,9 +12,12 @@ Ext.define('Imt.purpose.model.Reading', {
         {name: 'dataValidated', type: 'auto'},
         {name: 'action', type: 'auto'},
         {name: 'validationResult', type: 'auto'},
-        {name: 'validationRules', type: 'auto'},
+        {name: 'validationRules', type: 'auto', persist: false},
         {name: 'confirmedNotSaved', type: 'auto'},
         {name: 'estimatedNotSaved', type: 'auto'},
+        {name: 'estimatedCommentNotSaved', type: 'auto'},
+        {name: 'commentId', type: 'int'},
+        {name: 'commentValue', type: 'auto'},
         {name: 'removedNotSaved', type: 'auto'},
         {name: 'confirmed', type: 'auto'},
         {name: 'estimatedByRule', type: 'auto'},
@@ -69,11 +72,42 @@ Ext.define('Imt.purpose.model.Reading', {
             }
         },
         {
+            name: 'mainValidationInfo',
+            persist: false,
+            mapping: function (data) {
+                return {
+                    estimatedByRule: data.estimatedByRule,
+                    isConfirmed: data.isConfirmed,
+                    validationResult: data.validationResult,
+                    ruleId: data.ruleId
+                }
+            }
+        },
+        {
+            name: 'mainCommentValue',
+            type: 'string',
+            persist: false,
+            mapping: function (data) {
+                var result = null,
+                    mainValidationInfo = data.mainValidationInfo;
+
+                if (mainValidationInfo && mainValidationInfo.commentValue) {
+                    result = mainValidationInfo.commentValue;
+                }
+                return result;
+            }
+        },
+        {
             name: 'interval_end',
             persist: false,
             mapping: 'interval.end',
             dateFormat: 'time',
             type: 'date'
+        },
+        {
+            name: 'potentialSuspect',
+            persist: false,
+            defaultValue: false
         }
     ]
 });

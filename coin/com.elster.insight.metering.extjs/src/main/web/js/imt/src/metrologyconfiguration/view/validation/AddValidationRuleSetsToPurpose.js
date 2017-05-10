@@ -12,7 +12,8 @@ Ext.define('Imt.metrologyconfiguration.view.validation.AddValidationRuleSetsToPu
         'Cfg.view.validation.RulePreview',
         'Imt.metrologyconfiguration.model.PurposeWithValidationRuleSets',
         'Imt.metrologyconfiguration.model.ValidationRuleSet',
-        'Imt.store.ValidationRules'
+        'Imt.store.ValidationRules',
+        'Imt.rulesets.view.StatesGridWithPreviewContainer'
     ],
     router: null,
     metrologyConfig: null,
@@ -22,7 +23,31 @@ Ext.define('Imt.metrologyconfiguration.view.validation.AddValidationRuleSetsToPu
 
     initComponent: function () {
         var me = this,
+            bottomToolbar,
             purpose = me.purposeWithLinkableRuleSets;
+
+        bottomToolbar = Ext.create('Ext.toolbar.Toolbar',{
+            padding: '10 0 10 0',
+            itemId: 'add-metrology-configuration-purposes-bottom-toolbar',
+            items: [
+                {
+                    xtype: 'button',
+                    itemId: 'addButton',
+                    text: Uni.I18n.translate('general.add', 'IMT', 'Add'),
+                    action: 'add',
+                    ui: 'action',
+                    disabled: true
+                },
+                {
+                    xtype: 'button',
+                    itemId: 'cancelButton',
+                    text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
+                    action: 'cancel',
+                    ui: 'link',
+                    href: me.router.getRoute('administration/metrologyconfiguration/view/validation').buildUrl()
+                }
+            ]
+        });
 
         me.content = {
             xtype: 'panel',
@@ -50,60 +75,66 @@ Ext.define('Imt.metrologyconfiguration.view.validation.AddValidationRuleSetsToPu
                     grid: {
                         xtype: 'add-validation-rule-sets-to-purpose-grid',
                         itemId: 'add-validation-rule-sets-to-purpose-grid',
+                        externalBottomToolbar: bottomToolbar,
                         store: purpose.validationRuleSets(),
                         router: me.router,
-                        bbar: [
-                            {
-                                xtype: 'button',
-                                itemId: 'add-validation-rule-sets-to-purpose-add-button',
-                                text: Uni.I18n.translate('general.add', 'IMT', 'Add'),
-                                ui: 'action',
-                                action: 'add',
-                                width: 47,
-                                margin: '80 0 -40 0',
-                                disabled: true
-                            },
-                            {
-                                xtype: 'button',
-                                itemId: 'add-validation-rule-sets-to-purpose-cancel-button',
-                                text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
-                                ui: 'link',
-                                width: 80,
-                                action: 'cancel',
-                                margin: '80 0 -40 0',
-                                href: me.router.getRoute('administration/metrologyconfiguration/view/validation').buildUrl()
-                            }
-                        ]
+                        // bbar: [
+                        //     {
+                        //         xtype: 'button',
+                        //         itemId: 'add-validation-rule-sets-to-purpose-add-button',
+                        //         text: Uni.I18n.translate('general.add', 'IMT', 'Add'),
+                        //         ui: 'action',
+                        //         action: 'add',
+                        //         width: 47,
+                        //         margin: '80 0 -40 0',
+                        //         disabled: true
+                        //     },
+                        //     {
+                        //         xtype: 'button',
+                        //         itemId: 'add-validation-rule-sets-to-purpose-cancel-button',
+                        //         text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
+                        //         ui: 'link',
+                        //         width: 80,
+                        //         action: 'cancel',
+                        //         margin: '80 0 -40 0',
+                        //         href: me.router.getRoute('administration/metrologyconfiguration/view/validation').buildUrl()
+                        //     }
+                        // ]
                     },
                     previewComponent: {
-                        xtype: 'preview-container',
-                        grid: {
-                            xtype: 'purpose-rules-grid',
-                            router: me.router,
-                            itemId: 'add-validation-rule-sets-purpose-rules-grid',
-                            store: me.rulesStore
-                        },
-                        previewComponent: {
-                            xtype: 'validation-rule-preview',
-                            itemId: 'add-validation-rule-sets-rule-preview',
-                            noActionsButton: true,
-                            title: ''
-                        },
-                        emptyComponent: {
-                            xtype: 'no-items-found-panel',
-                            itemId: 'purpose-add-validation-rule-sets-no-validation-rules',
-                            title: Uni.I18n.translate('validation.rules.empty.title', 'IMT', 'No validation rules found'),
-                            reasons: [
-                                Uni.I18n.translate('validation.rules.empty.list.item1', 'IMT', 'No validation rules have been defined yet.')
-                            ],
-                            stepItems: [
-                                {
-                                    text: Uni.I18n.translate('validation.addValidationRule', 'IMT', 'Add validation rule'),
-                                    itemId: 'purpose-rule-sets-add-rule-button',
-                                    privileges: Cfg.privileges.Validation.admin,
-                                    preventDefault: false
-                                }
-                            ]
+                        xtype: 'add-metrology-configuration-preview-container',
+                        bottomToolbar: bottomToolbar,
+                        usagePointStatesStore: me.usagePointStatesStore,
+                        detailsComponent: {
+                            xtype: 'preview-container',
+                            grid: {
+                                xtype: 'purpose-rules-grid',
+                                router: me.router,
+                                itemId: 'add-validation-rule-sets-purpose-rules-grid',
+                                store: me.rulesStore
+                            },
+                            previewComponent: {
+                                xtype: 'validation-rule-preview',
+                                itemId: 'add-validation-rule-sets-rule-preview',
+                                noActionsButton: true,
+                                title: ''
+                            },
+                            emptyComponent: {
+                                xtype: 'no-items-found-panel',
+                                itemId: 'purpose-add-validation-rule-sets-no-validation-rules',
+                                title: Uni.I18n.translate('validation.rules.empty.title', 'IMT', 'No validation rules found'),
+                                reasons: [
+                                    Uni.I18n.translate('validation.rules.empty.list.item1', 'IMT', 'No validation rules have been defined yet.')
+                                ],
+                                stepItems: [
+                                    {
+                                        text: Uni.I18n.translate('validation.addValidationRule', 'IMT', 'Add validation rule'),
+                                        itemId: 'purpose-rule-sets-add-rule-button',
+                                        privileges: Cfg.privileges.Validation.admin,
+                                        preventDefault: false
+                                    }
+                                ]
+                            }
                         }
                     },
                     emptyComponent: {

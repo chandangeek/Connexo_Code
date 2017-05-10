@@ -58,7 +58,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 dataIndex: 'interval',
                 renderer: function (interval, metaData, record) {
                     var text = interval.end
-                        ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(interval.end)), Uni.DateTime.formatTimeShort(new Date(interval.end))])
+                        ? Uni.DateTime.formatDateTimeShort(new Date(interval.end))
                         : '-';
 
                     return text + Imt.purpose.util.TooltipRenderer.prepareIcon(record);
@@ -69,7 +69,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 header: unit
                     ? Uni.I18n.translate('general.valueOf', 'IMT', 'Value ({0})', [unit])
                     : Uni.I18n.translate('general.value.empty', 'IMT', 'Value'),
-                width: 200,
+                width: 210,
                 renderer: me.formatColumn,
                 editor: {
                     xtype: 'textfield',
@@ -94,7 +94,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 flex: 1,
                 renderer: function (value) {
                     var date = new Date(value);
-                    return Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                    return Uni.DateTime.formatDateTimeShort(date);
                 }
             },
             {
@@ -124,6 +124,12 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 items: [
                     {
                         xtype: 'button',
+                        itemId: 'pre-validate-button',
+                        text: Uni.I18n.translate('general.preValidate', 'IMT', 'Pre-validate'),
+                        disabled: true
+                    },
+                    {
+                        xtype: 'button',
                         itemId: 'save-changes-button',
                         text: Uni.I18n.translate('general.saveChanges', 'IMT', 'Save changes'),
                         disabled: true
@@ -151,7 +157,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
     },
 
     addProjectedFlag: function (icon) {
-        icon += '<span style="margin-left:27px; position:absolute; font-weight:bold; cursor: default" data-qtip="'
+        icon += '<span style="margin-left:42px; position:absolute; font-weight:bold; cursor: default" data-qtip="'
             + Uni.I18n.translate('reading.estimated.projected', 'IMT', 'Projected') + '">P</span>';
         return icon;
     },
@@ -160,6 +166,9 @@ Ext.define('Imt.purpose.view.ReadingsList', {
         var status = record.get('validationResult') ? record.get('validationResult').split('.')[1] : '',
             value = Ext.isEmpty(v) ? '-' : v,
             estimatedByRule = record.get('estimatedByRule'),
+            estimationComment = record.get('commentValue')
+                ? Uni.I18n.translate('general.estimationCommentWithComment', 'IMT', 'Estimation comment: {0}', record.get('commentValue'))
+                : '',
             icon = '';
         if (record.get('confirmedNotSaved') || record.isModified('isProjected')) {
             metaData.tdCls = 'x-grid-dirty-cell';
@@ -177,27 +186,46 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             icon = '<span class="icon-flag5" style="margin-left:10px; color: #dedc49; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('validationStatus.informative', 'IMT', 'Informative') + '"></span>';
         }
-        if ((!Ext.isEmpty(estimatedByRule)) && !record.get('removedNotSaved') &&  (!record.isModified('value') || record.isModified('isProjected'))) {
+        if ((!Ext.isEmpty(estimatedByRule)) && !record.get('removedNotSaved') &&  (!record.isModified('value') || record.isModified('isProjected')) && status !== 'suspect') {
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
-                + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}', [
-                    estimatedByRule.application.name,
+                + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated on {0} at {1}', [
                     Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
                     Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
-                ], false) + '"></span>';
-            if (record.get('isProjected') === true) {
+                ], false) + estimationComment + '"></span>';
+            if (record.get('isProjected')) {
                 icon = this.addProjectedFlag(icon);
             }
-        } else if (record.get('estimatedNotSaved') && record.get('ruleId') > 0) {
-            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;"></span>';
-            if (record.get('isProjected') === true) {
+        } else if (record.get('estimatedNotSaved') && record.get('ruleId') > 0 && status !== 'suspect') {
+            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="' + estimationComment + '"></span>';
+            if (record.get('isProjected')) {
                 icon = this.addProjectedFlag(icon);
             }
         } else if ((record.get('isConfirmed') || record.get('confirmedNotSaved')) && !record.isModified('value')) {
             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.confirmed', 'IMT', 'Confirmed') + '"></span>';
-        } else if ((record.get('modificationFlag') && record.get('modificationDate') || record.isModified('value')) && record.get('isProjected') === true) {
+        } else if ((record.get('modificationFlag') && record.get('modificationDate') || record.isModified('value')) && record.get('isProjected')) {
             icon = this.addProjectedFlag(icon);
         }
-        return value + icon + '<span>&nbsp;&nbsp;&nbsp;</span>';
+        if (record.get('potentialSuspect')) {
+            icon = this.addPotentialSuspectFlag(icon, record);
+        }
+        return value + icon + '<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    },
+
+    addPotentialSuspectFlag: function (icon, record) {
+        var validationRules = record.get('validationRules'),
+            validationRulesToken = '',
+            tooltip;
+
+        if (validationRules.length === 1) {
+            validationRulesToken = validationRules[0].name;
+        } else {
+            validationRulesToken = validationRules.reduce(function(previousValue, currentValue) {
+                return (Ext.isObject(previousValue) ? previousValue.name : previousValue) + ', ' + currentValue.name;
+            });
+        }
+        tooltip = Uni.I18n.translate('general.potentialSuspect', 'IMT', 'Potential suspect') + '.<br>' + Uni.I18n.translate('general.validationRules', 'IMT', 'Validation rules') + ': ' + validationRulesToken;
+        icon += '<span class="icon-flag6" style="margin-left:27px; color: red; position:absolute;" data-qtip="' + tooltip + '"></span>';
+        return icon;
     }
 });

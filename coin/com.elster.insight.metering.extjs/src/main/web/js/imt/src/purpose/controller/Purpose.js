@@ -496,7 +496,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
         } else {
             lastChecked = new Date().getTime();
         }
-
         purpose.set('validationInfo', {lastChecked: lastChecked});
         me.doOperation(purpose, usagePoint, confWindow, Uni.I18n.translate('purpose.successMsg', 'IMT', 'Data validation for the purpose is completed'), 'validate');
     },
@@ -511,8 +510,26 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 confirmation: _.once(Ext.bind(me.onEstimateNow, me, [purpose, usagePoint, getConfirmationWindow]))
             });
 
+        confirmationWindow.insert(1, {
+            xtype: 'fieldcontainer',
+            margin: '0 10 10 50',
+            flex: 1,
+            layout: 'hbox',
+            items: [
+            {
+                xtype: 'checkbox',
+                itemId: 'revalidate'
+            },
+            {
+                xtype: 'label',
+                margin: 6,
+                text: Uni.I18n.translate('purpose.revalidationEstimatedData', 'IMT', 'Re-validate estimated data')
+            }
+        ]
+        });
+
         confirmationWindow.show({
-            title: Uni.I18n.translate('purpose.estimateNow', 'IMT', "Estimate data for '{0}' purpose on usage point '{1}'?",
+            title: Uni.I18n.translate('purpose.estimateData', 'IMT', "Estimate data of '{0}' purpose on usage point '{1}'?",
                 [purpose.get('name'), usagePoint.get('name')], false),
             icon: 'icon-question4'
         });
@@ -525,7 +542,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
     onEstimateNow: function (purpose, usagePoint, getConfirmationWindow) {
         var me = this,
             confirmationWindow = getConfirmationWindow(),
-            progressbar = confirmationWindow.insert(1, {
+            progressbar = confirmationWindow.insert(2, {
                 xtype: 'progressbar',
                 itemId: 'estimation-progressbar',
                 margin: '5 0 15 0'
@@ -538,7 +555,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 msg: Uni.I18n.translate('purpose.dataEstimation.timeout.message', 'IMT', 'Data estimation takes longer than expected and will continue in the background.')
             }])
         });
-
+        purpose.set('revalidate', confirmationWindow.down('#revalidate').getValue());
         me.doOperation(purpose, usagePoint, confirmationWindow, Uni.I18n.translate('purpose.dataEstimation.successMsg', 'IMT', 'Data estimation for the purpose is completed'), 'estimate');
     },
 
