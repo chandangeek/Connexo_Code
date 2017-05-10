@@ -509,7 +509,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<Long>get("$.data[0].reportedDateTime")).isEqualTo(READING_TIME_STAMP_1.toEpochMilli());
         assertThat(jsonModel.<Boolean>get("$.data[0].dataValidated")).isEqualTo(true);
-        assertThat(jsonModel.<String>get("$.data[0].validationResult")).isEqualTo("VALID");
+        assertThat(jsonModel.<String>get("$.data[0].validationResult")).isEqualTo("validationStatus.ok");
         assertThat(jsonModel.<Integer>get("$.data[0].value")).isEqualTo(200);
     }
 

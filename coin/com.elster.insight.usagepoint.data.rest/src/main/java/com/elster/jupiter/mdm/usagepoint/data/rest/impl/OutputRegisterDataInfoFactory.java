@@ -150,7 +150,7 @@ public class OutputRegisterDataInfoFactory {
                     .map(readingQualityInfoFactory::asInfo)
                     .collect(Collectors.toList());
             outpitRegisterHistoryDataInfo.dataValidated = status.completelyValidated();
-            outpitRegisterHistoryDataInfo.validationResult = status.getValidationResult();
+            outpitRegisterHistoryDataInfo.validationResult = ValidationStatus.forResult(status.getValidationResult());
             outpitRegisterHistoryDataInfo.validationAction = decorate(status.getReadingQualities()
                     .stream())
                     .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
