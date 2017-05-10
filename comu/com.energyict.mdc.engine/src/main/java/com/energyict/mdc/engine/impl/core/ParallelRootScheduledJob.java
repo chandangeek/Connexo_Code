@@ -185,7 +185,7 @@ public class ParallelRootScheduledJob extends ScheduledComTaskExecutionGroup {
     }
 
     // Composite command root holding the individual command root for each parallel scheduled job
-    private static class ParallelCommandRoot implements CommandRoot {
+    static class ParallelCommandRoot implements CommandRoot {
         private Set<GroupedDeviceCommand> groupedDeviceCommands = new HashSet<>();
         private Map<Long, CommandRootImpl> parallelCommandRoots = new HashMap<>();
         private List<? extends ComTaskExecution> scheduledButNotPreparedComTaskExecutions = new ArrayList<>();

@@ -242,7 +242,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     protected CommandRoot prepareAll(final List<ComTaskExecution> comTaskExecutions) {
-        executionContext.getComSessionBuilder().setNotExecutedTasks(comTaskExecutions.size());
+        getExecutionContext().getComSessionBuilder().setNotExecutedTasks(comTaskExecutions.size());
         return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(this, comTaskExecutions));
     }
 
