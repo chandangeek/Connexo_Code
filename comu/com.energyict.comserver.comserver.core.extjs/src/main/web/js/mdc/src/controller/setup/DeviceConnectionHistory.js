@@ -159,7 +159,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
             + connectionHistory.get('status') + '</a>');
 
         me.getComPortField().setValue(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), connectionHistory.get('comPort'), '<a href="#/administration/comservers/' + connectionHistory.get('comServer').id + '">' + connectionHistory.get('comServer').name + '</a>'));
-        me.getDeviceConnectionHistoryPreview().setTitle(Ext.String.format(Uni.DateTime.formatDateTimeLong(connectionHistory.get('startedOn'))));
+        me.getDeviceConnectionHistoryPreview().setTitle(Ext.String.format(Uni.DateTime.formatDateTime(connectionHistory.get('startedOn'), Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS)));
         me.getTitlePanel().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.communicationTasksTitle', 'MDC', 'Communication tasks')));
 
         Ext.suspendLayouts();
@@ -288,6 +288,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         var connectionLog = this.getDeviceConnectionLogGrid().getSelectionModel().getSelection()[0],
             preview = this.getDeviceConnectionLogPreviewForm();
         preview.loadRecord(connectionLog);
-        preview.up('#deviceConnectionLogPreview').setTitle(Uni.DateTime.formatDateTimeLong(connectionLog.get('timestamp')));
+        preview.up('#deviceConnectionLogPreview').setTitle(Uni.DateTime.formatDateTime(connectionLog.get('timestamp'), Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS));
     }
 });
