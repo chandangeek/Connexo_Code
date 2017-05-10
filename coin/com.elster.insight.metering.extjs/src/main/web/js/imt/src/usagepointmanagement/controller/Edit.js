@@ -339,7 +339,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             wizard.remove(currentSteps[i], true);
         }
         // remove menu items after current step
-        for (var j = currentStepNumber; j < currentMenuItems.length-1; j++) {
+        for (var j = currentStepNumber; j < currentMenuItems.length; j++) {
             navigation.remove(currentMenuItems[j], true);
         }
 

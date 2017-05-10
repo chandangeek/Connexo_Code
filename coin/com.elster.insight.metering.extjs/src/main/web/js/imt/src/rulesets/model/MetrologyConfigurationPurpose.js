@@ -4,7 +4,8 @@
 
 Ext.define('Imt.rulesets.model.MetrologyConfigurationPurpose', {
     extend: 'Uni.model.Version',
-    fields: ['active', 'name', 'metrologyConfigurationInfo', 'outputs', 'lifeCycleStates',
+    fields: ['active', 'name', 'metrologyConfigurationInfo', 'outputs',
+        {name: 'lifeCycleStates', defaultValue: null, useNull: true},
         {
             name: 'lifeCycleStatesCount',
             persist: false,
