@@ -80,6 +80,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
@@ -177,6 +178,10 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private IdentificationService getIdentificationService() {
         return this.serviceProvider.identificationService();
+    }
+
+    private HexService getHexService() {
+        return this.serviceProvider.hexService();
     }
 
     @Override
@@ -846,7 +851,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             if (securityPropertySet == null) {
                 return null;
             } else {
-               return new DeviceProtocolSecurityPropertySetImpl(
+                return new DeviceProtocolSecurityPropertySetImpl(
                         securityPropertySet.getClient(),
                         securityPropertySet.getAuthenticationDeviceAccessLevel().getId(),
                         securityPropertySet.getEncryptionDeviceAccessLevel().getId(),
@@ -855,7 +860,8 @@ public class ComServerDAOImpl implements ComServerDAO {
                         securityPropertySet.getResponseSecurityLevel() != null ? securityPropertySet.getResponseSecurityLevel().getId() : -1,
                         securityPropertySet.getConfigurationSecurityProperties(),
                         device.getKeyAccessors(),
-                        getIdentificationService());
+                        getIdentificationService(),
+                        getHexService());
             }
         }
     }
@@ -900,7 +906,7 @@ public class ComServerDAOImpl implements ComServerDAO {
      * the Device is communicating to the ComServer
      * via the specified {@link InboundConnectionTask}.
      *
-     * @param device         The Device
+     * @param device The Device
      * @param connectionTask The ConnectionTask
      * @return The SecurityPropertySet or <code>null</code> if the Device is not ready for inbound communication
      */
@@ -1384,6 +1390,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         EventService eventService();
 
         IdentificationService identificationService();
+
+        HexService hexService();
 
         KeyStoreService keyStoreService();
 

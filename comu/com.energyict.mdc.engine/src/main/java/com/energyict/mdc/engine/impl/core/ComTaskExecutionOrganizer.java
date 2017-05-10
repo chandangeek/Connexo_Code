@@ -11,6 +11,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
+import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
@@ -30,11 +31,13 @@ public final class ComTaskExecutionOrganizer {
 
     private final TopologyService topologyService;
     private final IdentificationService identificationService;
+    private final HexService hexService;
 
-    public ComTaskExecutionOrganizer(TopologyService topologyService, IdentificationService identificationService) {
+    public ComTaskExecutionOrganizer(TopologyService topologyService, IdentificationService identificationService, HexService hexService) {
         super();
         this.topologyService = topologyService;
         this.identificationService = identificationService;
+        this.hexService =  hexService;
     }
 
     public List<DeviceOrganizedComTaskExecution> defineComTaskExecutionOrders(List<ComTaskExecution> comTaskExecutions) {
@@ -101,7 +104,8 @@ public final class ComTaskExecutionOrganizer {
                 securityPropertySet.getResponseSecurityLevel() != null ? securityPropertySet.getResponseSecurityLevel().getId() : -1,
                 securityPropertySet.getConfigurationSecurityProperties(),
                 masterDevice.getKeyAccessors(),
-                identificationService);
+                identificationService,
+                hexService);
     }
 
     private Device getMasterDeviceIfAvailable(Device device) {

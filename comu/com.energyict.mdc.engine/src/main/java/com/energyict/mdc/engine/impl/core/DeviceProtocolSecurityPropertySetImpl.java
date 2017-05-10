@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.energyict.mdc.common.TypedProperties;
@@ -12,6 +11,7 @@ import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineKeyAccessorImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
+import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
 
@@ -31,39 +31,52 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
     private final int encryptionDeviceAccessLevel;
     private final TypedProperties securityProperties = TypedProperties.empty();
 
-    public DeviceProtocolSecurityPropertySetImpl(String client, int authenticationDeviceAccessLevel, int encryptionDeviceAccessLevel, int securitySuite, int requestSecurityLevel, int responseSecurityLevel, List<ConfigurationSecurityProperty> configurationSecurityProperties, List<KeyAccessor> keyAccessors, IdentificationService identificationService) {
+    public DeviceProtocolSecurityPropertySetImpl(String client, int authenticationDeviceAccessLevel, int encryptionDeviceAccessLevel, int securitySuite, int requestSecurityLevel, int responseSecurityLevel, List<ConfigurationSecurityProperty> configurationSecurityProperties, List<KeyAccessor> keyAccessors, IdentificationService identificationService, HexService hexService) {
         this.client = client;
         this.authenticationDeviceAccessLevel = authenticationDeviceAccessLevel;
         this.encryptionDeviceAccessLevel = encryptionDeviceAccessLevel;
         this.securitySuite = securitySuite;
         this.requestSecurityLevel = requestSecurityLevel;
         this.responseSecurityLevel = responseSecurityLevel;
-        this.constructSecurityProperties(configurationSecurityProperties, keyAccessors, identificationService);
+        this.constructSecurityProperties(configurationSecurityProperties, keyAccessors, identificationService, hexService);
     }
 
-    private void constructSecurityProperties(List<ConfigurationSecurityProperty> configurationSecurityProperties, List<KeyAccessor> keyAccessors, IdentificationService identificationService) {
+    private void constructSecurityProperties(List<ConfigurationSecurityProperty> configurationSecurityProperties, List<KeyAccessor> keyAccessors, IdentificationService identificationService, HexService hexService) {
         for (ConfigurationSecurityProperty configurationSecurityProperty : configurationSecurityProperties) {
             Optional<OfflineKeyAccessor> offlineKeyAccessor = keyAccessors
                     .stream()
-                    .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(configurationSecurityProperty.getKeyAccessorType().getName()))
+                    .filter(keyAccessor -> keyAccessor.getKeyAccessorType().equals(configurationSecurityProperty.getKeyAccessorType()))
                     .findFirst()
                     .map(keyAccessor -> new OfflineKeyAccessorImpl(keyAccessor, identificationService));
+
             if (offlineKeyAccessor.isPresent() && offlineKeyAccessor.get().getActualValue().isPresent()) {
-                if (offlineKeyAccessor.get().getActualValue().get() instanceof PlaintextSymmetricKey) {
-                    PlaintextSymmetricKey plaintextSymmetricKey = (PlaintextSymmetricKey) offlineKeyAccessor.get().getActualValue().get();
-                    if (plaintextSymmetricKey.getKey().isPresent()) {
-                        securityProperties.setProperty(configurationSecurityProperty.getName(), plaintextSymmetricKey.getKey().get().getEncoded());
-                    }
-                } else if (offlineKeyAccessor.get().getActualValue().get() instanceof PlaintextPassphrase) {
-                    PlaintextPassphrase plaintextPassphrase = (PlaintextPassphrase) offlineKeyAccessor.get().getActualValue().get();
-                    if (plaintextPassphrase.getPassphrase().isPresent()) {
-                        securityProperties.setProperty(configurationSecurityProperty.getName(), plaintextPassphrase.getPassphrase().get());
-                    }
-                } else if (offlineKeyAccessor.get().getActualValue().get() instanceof CertificateWrapper) {
-                    //TODO: foresee offline variants for CertificateWrapper
+                Object actualValue = offlineKeyAccessor.get().getActualValue().get();
+                if (actualValue instanceof PlaintextSymmetricKey) {
+                    handlePlainTextSymmetricKey(configurationSecurityProperty, offlineKeyAccessor, hexService);
+                } else if (actualValue instanceof PlaintextPassphrase) {
+                    handlePlainTextPassphrase(configurationSecurityProperty, offlineKeyAccessor, hexService);
+                } else {
+                    //TODO: foresee offline variant for CertificateWrapper
                 }
             }
             // TODO: in case optional is not present, should we silently ignore/or throw an error instead?
+        }
+    }
+
+    private void handlePlainTextSymmetricKey(ConfigurationSecurityProperty configurationSecurityProperty, Optional<OfflineKeyAccessor> offlineKeyAccessor, HexService hexService) {
+        PlaintextSymmetricKey plaintextSymmetricKey = (PlaintextSymmetricKey) offlineKeyAccessor.get().getActualValue().get();
+        if (plaintextSymmetricKey.getKey().isPresent()) {
+            byte[] encodedData = plaintextSymmetricKey.getKey().get().getEncoded();
+            if (encodedData != null) {
+                securityProperties.setProperty(configurationSecurityProperty.getName(), hexService.toHexString(encodedData));
+            }
+        }
+    }
+
+    private void handlePlainTextPassphrase(ConfigurationSecurityProperty configurationSecurityProperty, Optional<OfflineKeyAccessor> offlineKeyAccessor, HexService hexService) {
+        PlaintextPassphrase plaintextPassphrase = (PlaintextPassphrase) offlineKeyAccessor.get().getActualValue().get();
+        if (plaintextPassphrase.getPassphrase().isPresent()) {
+            securityProperties.setProperty(configurationSecurityProperty.getName(), plaintextPassphrase.getPassphrase().get());
         }
     }
 
