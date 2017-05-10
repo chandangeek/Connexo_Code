@@ -974,7 +974,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                             window.down('#error-label').show();
                             var listOfFailedReadings = [];
                             Ext.Array.each(responseText.readings, function (readingTimestamp) {
-                                listOfFailedReadings.push(Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false));
+                                listOfFailedReadings.push(Uni.DateTime.formatDateTimeShort(new Date(readingTimestamp)));
                             });
                             var errorMessage = window.down('#estimator-field') ? Uni.I18n.translate('output.estimationErrorMessageWithIntervals', 'IMT', 'Could not estimate {0} with {1}',
                                 [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue()]) : Uni.I18n.translate('output.estimationErrorMessage', 'IMT', 'Could not estimate {0}',

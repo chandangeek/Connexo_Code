@@ -117,6 +117,12 @@ Ext.define('Imt.dataquality.view.Filter', {
                 dataIndex: 'amountOfEdited',
                 itemId: 'imt-filter-amount-of-edited',
                 text: Uni.I18n.translate('general.amountOfEdited', 'IMT', 'Amount of edited') + '<span class="white-circle-filter-btn icon-pencil4" style="color:#686868"></span>'
+            },
+            {
+                type: 'numeric',
+                dataIndex: 'amountOfProjected',
+                itemId: 'imt-filter-amount-of-projected',
+                text: Uni.I18n.translate('general.amountOfProjected', 'IMT', 'Amount of projected') + '<span class="white-circle-filter-btn" style="font-weight:bold; cursor: default; font-size: 7px; color:#686868">  P  </span>'
             }
         ];
         me.callParent(arguments);
