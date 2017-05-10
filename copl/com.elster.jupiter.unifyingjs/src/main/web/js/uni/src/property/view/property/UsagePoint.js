@@ -7,16 +7,14 @@ Ext.define('Uni.property.view.property.UsagePoint', {
     id: null,
 
     getEditCmp: function () {
-        var me = this;
-
         return {
             xtype: 'combobox',
-            itemId: me.key + 'combobox',
+            itemId: this.key + 'combobox',
             name: this.getName(),
             store: Ext.create('Uni.property.store.UsagePoint'),
-            width: me.width,
-            readOnly: me.isReadOnly,
-            blankText: me.blankText,
+            width: this.width,
+            readOnly: this.isReadOnly,
+            blankText: this.blankText,
             emptyText: Uni.I18n.translate('property.selectUsagePoint', 'UNI', 'Select usage point'),
             valueField: 'id',
             displayField: 'name',
@@ -30,7 +28,7 @@ Ext.define('Uni.property.view.property.UsagePoint', {
             listeners: {
                 blur: function (combo) {
                     if (!combo.getValue()) {
-                        me.restoreDefault();
+                        this.restoreDefault();
                     }
                 }
             }
