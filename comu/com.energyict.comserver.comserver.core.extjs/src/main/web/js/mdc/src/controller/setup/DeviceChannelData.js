@@ -1723,18 +1723,20 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
 
         Ext.Array.each(records, function (item) {
-            if (model.get('onlySuspectOrEstimated')) {
-                if (Uni.util.ReadingEditor.checkReadingInfoStatus(item.get('mainValidationInfo')).isSuspectOrEstimated()) {
+            if(item.get('value')) {
+                if (model.get('onlySuspectOrEstimated')) {
+                    if (Uni.util.ReadingEditor.checkReadingInfoStatus(item.get('mainValidationInfo')).isSuspectOrEstimated()) {
+                        intervalsArray.push({
+                            start: item.get('interval').start,
+                            end: item.get('interval').end
+                        });
+                    }
+                } else {
                     intervalsArray.push({
                         start: item.get('interval').start,
                         end: item.get('interval').end
                     });
                 }
-            } else {
-                intervalsArray.push({
-                    start: item.get('interval').start,
-                    end: item.get('interval').end
-                });
             }
         });
 
