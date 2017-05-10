@@ -283,4 +283,8 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
         }
         return condition;
     }
+
+    public Thesaurus thesaurus() {
+        return thesaurus;
+    }
 }
