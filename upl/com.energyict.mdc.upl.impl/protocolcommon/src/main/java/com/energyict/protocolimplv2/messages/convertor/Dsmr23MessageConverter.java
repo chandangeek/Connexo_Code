@@ -3,17 +3,16 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
-import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.NumberLookup;
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -147,7 +146,7 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
                 propertySpec.getName().equals(newAuthenticationKeyAttributeName) ||
                 propertySpec.getName().equals(newPasswordAttributeName) ||
                 propertySpec.getName().equals(passwordAttributeName)) {
-            return ((Password) messageAttribute).getValue();
+            return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
         } else if (propertySpec.getName().equals(emergencyProfileGroupIdListAttributeName)) {
             return this.numberLookupExtractor.id((NumberLookup) messageAttribute);
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)

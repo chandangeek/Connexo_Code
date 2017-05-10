@@ -5,9 +5,9 @@
 package com.energyict.propertyspec;
 
 import com.energyict.mdc.upl.properties.HexString;
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
@@ -52,11 +52,6 @@ public class MockPropertySpecService implements PropertySpecService {
 
     @Override
     public PropertySpecBuilderWizard.NlsOptions<String> encryptedStringSpec() {
-        return propertySpecBuilder;
-    }
-
-    @Override
-    public PropertySpecBuilderWizard.NlsOptions<Password> passwordSpec() {
         return propertySpecBuilder;
     }
 

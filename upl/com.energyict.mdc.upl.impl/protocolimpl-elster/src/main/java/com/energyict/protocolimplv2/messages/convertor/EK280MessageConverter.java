@@ -1,19 +1,18 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.elster.protocolimpl.dlms.tariff.CodeTableBase64Builder;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
-import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+
+import com.elster.protocolimpl.dlms.tariff.CodeTableBase64Builder;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
@@ -106,7 +105,7 @@ public class EK280MessageConverter extends AbstractMessageConverter {
                 propertySpec.getName().equals(masterKey) ||
                 propertySpec.getName().equals(newAuthenticationKeyAttributeName) ||
                 propertySpec.getName().equals(newEncryptionKeyAttributeName)) {
-            return ((Password) messageAttribute).getValue();
+            return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
         } else if (propertySpec.getName().equals(activityCalendarAttributeName)) {
             return messageAttribute instanceof TariffCalendar ? CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalendar) messageAttribute, this.calendarExtractor) : messageAttribute.toString();
         } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
