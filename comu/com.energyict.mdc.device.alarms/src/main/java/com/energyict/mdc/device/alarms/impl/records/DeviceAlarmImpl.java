@@ -232,8 +232,8 @@ public class DeviceAlarmImpl implements DeviceAlarm {
 
     public void save() {
         if (getBaseIssue() != null) {
-            getBaseIssue().update();
             getBaseIssue().setDueDate(Instant.ofEpochMilli(getRule().getDueInType().dueValueFor(getRule().getDueInValue(), this.getCreateDateTime())));
+            getBaseIssue().update();
             this.setId(getBaseIssue().getId());
         }
         Save.CREATE.save(dataModel, this);
