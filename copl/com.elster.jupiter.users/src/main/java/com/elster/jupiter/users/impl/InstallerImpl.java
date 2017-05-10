@@ -188,8 +188,8 @@ public class InstallerImpl implements FullInstaller {
         userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.SHORT_TIME, "HH:mm", "H:i", true);
         userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.LONG_TIME, "HH:mm:ss", "H:i:s", true);
         userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.LONG_TIME_WITH_MILLIS, "HH:mm:ss:L", "H:i:s.u", true);
-        userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.DATETIME_SEPARATOR, "SPACE", "-", true);
-        userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.DATETIME_ORDER, "TD", "DT", true);
+        userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.DATETIME_SEPARATOR, "at", "at", true);
+        userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.DATETIME_ORDER, "DT", "DT", true);
         userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.DECIMAL_PRECISION, "2", "2", true);
         userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.DECIMAL_SEPARATOR, ".", ".", true);
         userPrefsService.createUserPreference(Locale.ENGLISH, PreferenceType.THOUSANDS_SEPARATOR, ",", ",", true);
@@ -200,8 +200,8 @@ public class InstallerImpl implements FullInstaller {
         userPrefsService.createUserPreference(Locale.US, PreferenceType.SHORT_TIME, "hh:mm a", "h:i a", true);
         userPrefsService.createUserPreference(Locale.US, PreferenceType.LONG_TIME, "hh:mm:ss a", "h:i:s a", true);
         userPrefsService.createUserPreference(Locale.US, PreferenceType.LONG_TIME_WITH_MILLIS, "hh:mm:ss:L a", "h:i:s.u a", true);
-        userPrefsService.createUserPreference(Locale.US, PreferenceType.DATETIME_SEPARATOR, "SPACE", "-", true);
-        userPrefsService.createUserPreference(Locale.US, PreferenceType.DATETIME_ORDER, "TD", "DT", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.DATETIME_SEPARATOR, "at", "at", true);
+        userPrefsService.createUserPreference(Locale.US, PreferenceType.DATETIME_ORDER, "DT", "DT", true);
         userPrefsService.createUserPreference(Locale.US, PreferenceType.DECIMAL_PRECISION, "2", "2", true);
         userPrefsService.createUserPreference(Locale.US, PreferenceType.DECIMAL_SEPARATOR, ".", ".", true);
         userPrefsService.createUserPreference(Locale.US, PreferenceType.THOUSANDS_SEPARATOR, ",", ",", true);
