@@ -51,6 +51,7 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+
 public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel {
 
     private final DataAggregationService dataAggregationService;
