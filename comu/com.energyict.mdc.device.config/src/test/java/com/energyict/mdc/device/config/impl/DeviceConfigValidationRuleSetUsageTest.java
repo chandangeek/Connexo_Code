@@ -139,13 +139,15 @@ public class DeviceConfigValidationRuleSetUsageTest {
     private InboundDeviceProtocolService inboundDeviceProtocolService;
     @Mock
     private LicensedProtocolService licensedProtocolService;
+    @Mock
+    private UserService userService;
 
     @Before
     public void setup() {
         when(principal.getName()).thenReturn("Ernie");
         this.bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
-                new MockModule(),
+                new MyMockModule(),
                 this.bootstrapModule,
                 new ThreadSecurityModule(this.principal),
                 new OrmModule(),
@@ -289,11 +291,11 @@ public class DeviceConfigValidationRuleSetUsageTest {
         when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
     }
 
-    private class MockModule extends AbstractModule {
+    private class MyMockModule extends AbstractModule {
 
         private final DeviceMessageSpecificationService deviceMessageSpecificationService;
 
-        public MockModule() {
+        public MyMockModule() {
             this.deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
 
             when(deviceMessageSpecificationService.findCategoryById(anyInt())).thenAnswer(invocation -> {
