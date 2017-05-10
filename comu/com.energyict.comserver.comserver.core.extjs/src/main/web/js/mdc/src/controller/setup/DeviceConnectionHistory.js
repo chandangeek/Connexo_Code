@@ -287,7 +287,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
     previewConnectionLog: function () {
         var connectionLog = this.getDeviceConnectionLogGrid().getSelectionModel().getSelection()[0],
             preview = this.getDeviceConnectionLogPreviewForm();
+
         preview.loadRecord(connectionLog);
-        preview.up('#deviceConnectionLogPreview').setTitle(Uni.DateTime.formatDateTime(connectionLog.get('timestamp'), Uni.DateTime.SHORT, Uni.DateTime.LONG));
+        preview.up('#deviceConnectionLogPreview').setTitle(Uni.DateTime.formatDateTime(connectionLog.get('timestamp'), Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS));
     }
 });
