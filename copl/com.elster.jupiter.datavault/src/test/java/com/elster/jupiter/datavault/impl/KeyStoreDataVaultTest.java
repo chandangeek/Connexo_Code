@@ -7,16 +7,15 @@ package com.elster.jupiter.datavault.impl;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-
-import javax.inject.Inject;
-import java.util.Random;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import javax.inject.Inject;
+import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -28,18 +27,16 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class KeyStoreDataVaultTest {
 
-    private static final Integer RANDOM_INT = 7;
-
     @Mock
     private Random random;
     @Mock
     private Thesaurus thesaurus;
     @Mock
     private NlsService nlsService;
-    @Mock
-    private ServerKeyStoreService keyStoreService;
 
     private KeyStoreDataVault keyStoreDataVault;
+
+    private static final Integer RANDOM_INT = 7;
 
     @Before
     public void setUp() throws Exception {
@@ -55,8 +52,8 @@ public class KeyStoreDataVaultTest {
         });
         when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
 
-        keyStoreDataVault = new JarKeyStoreDataVault(random, new ExceptionFactory(thesaurus), keyStoreService);
-   }
+        keyStoreDataVault = new JarKeyStoreDataVault(random, new ExceptionFactory(thesaurus));
+    }
 
     @Test
     public void testEncryptDecryptResultsInOriginalMessage() throws Exception {
@@ -110,7 +107,7 @@ public class KeyStoreDataVaultTest {
         try {
             keyStoreDataVault.decrypt(null);
         } catch (Exception e) {
-            fail("Should not throw an exception, was "+e);
+            fail("Should not throw an exception, was " + e);
         }
     }
 
@@ -119,7 +116,7 @@ public class KeyStoreDataVaultTest {
         try {
             keyStoreDataVault.decrypt("");
         } catch (Exception e) {
-            fail("Should not throw an exception, was "+e);
+            fail("Should not throw an exception, was " + e);
         }
     }
 
@@ -128,8 +125,8 @@ public class KeyStoreDataVaultTest {
         private String eictKeyStoreResourceName = "eictKeyStore";
 
         @Inject
-        JarKeyStoreDataVault(Random random, ExceptionFactory exceptionFactory, ServerKeyStoreService keyStoreService) {
-            super(random, exceptionFactory, keyStoreService);
+        public JarKeyStoreDataVault(Random random, ExceptionFactory exceptionFactory) {
+            super(random, exceptionFactory);
             readKeyStore(this.getClass().getClassLoader().getResourceAsStream(eictKeyStoreResourceName));
         }
     }
