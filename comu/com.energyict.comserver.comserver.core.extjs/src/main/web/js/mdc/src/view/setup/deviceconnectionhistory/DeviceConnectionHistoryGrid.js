@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                 dataIndex: 'startedOn',
                 flex: 2,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTime(value, Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS) : '-';
+                    return value ? Uni.DateTime.formatDateTime(value, Uni.DateTime.SHORT, Uni.DateTime.LONG) : '-';
                 }
             },
             {

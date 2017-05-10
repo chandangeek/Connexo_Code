@@ -235,8 +235,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
     previewDeviceCommunicationTaskHistoryLog: function () {
         var comTaskLog = this.getDeviceCommunicationTaskHistoryLogGrid().getSelectionModel().getSelection()[0];
         this.getDeviceCommunicationTaskHistoryLogPreviewForm().loadRecord(comTaskLog);
-        var timeStamp = Uni.DateTime.formatDateTimeLong(new Date(comTaskLog.get('timestamp')));
-        this.getDeviceCommunicationTaskHistoryLogPreview().setTitle(Ext.String.format(Uni.DateTime.formatDateTime(comTaskLog.get('timestamp'), Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS)));
+        this.getDeviceCommunicationTaskHistoryLogPreview().setTitle(Ext.String.format(Uni.DateTime.formatDateTime(comTaskLog.get('timestamp'), Uni.DateTime.SHORT, Uni.DateTime.LONG)));
     },
 
     showComTaskConnectionDetails: function(){
