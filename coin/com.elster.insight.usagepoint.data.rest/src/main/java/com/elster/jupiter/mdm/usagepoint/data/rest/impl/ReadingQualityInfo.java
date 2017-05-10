@@ -10,4 +10,6 @@ public class ReadingQualityInfo {
 
     public String indexName;
 
+    public String comment;
+
 }

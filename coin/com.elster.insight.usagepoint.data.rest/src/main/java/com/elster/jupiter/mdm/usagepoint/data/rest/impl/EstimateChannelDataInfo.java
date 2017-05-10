@@ -22,6 +22,12 @@ public class EstimateChannelDataInfo {
 
     public ReadingTypeInfo readingType;
 
+    @JsonProperty("commentId")
+    public long commentId;
+
+    @JsonProperty("commentValue")
+    public String commentValue;
+
     @JsonProperty("markAsProjected")
     public boolean markAsProjected;
 }

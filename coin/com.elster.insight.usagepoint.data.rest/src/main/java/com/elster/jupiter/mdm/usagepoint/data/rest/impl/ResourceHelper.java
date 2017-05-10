@@ -11,6 +11,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointManagementException;
@@ -18,7 +19,6 @@ import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -26,7 +26,6 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
@@ -111,6 +110,10 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_DEVICE_WITH_NAME, name));
     }
 
+    public Optional<UsagePoint> findUsagePointByName(String name) {
+        return meteringService.findUsagePointByName(name);
+    }
+
     public UsagePoint findUsagePointByNameOrThrowException(String name) {
         return meteringService.findUsagePointByName(name)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_WITH_NAME, name));
@@ -179,6 +182,19 @@ public class ResourceHelper {
                 .filter(contract -> contract.getId() == contractId)
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYCONTRACT_IS_NOT_LINKED_TO_USAGEPOINT, contractId, effectiveMC.getUsagePoint().getName()));
+    }
+
+    public MetrologyContract findMetrologyContractOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, MetrologyPurpose purpose) {
+        return effectiveMC.getMetrologyConfiguration().getContracts().stream()
+                .filter(contract -> contract.getMetrologyPurpose().equals(purpose))
+                .findAny()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYPURPOSE_IS_NOT_FOUND_ON_USAGEPOINT, purpose.getName(), effectiveMC.getUsagePoint().getName()));
+    }
+
+    public Optional<MetrologyContract> findMetrologyContract(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, MetrologyPurpose purpose) {
+        return effectiveMC.getMetrologyConfiguration().getContracts().stream()
+                .filter(contract -> contract.getMetrologyPurpose().equals(purpose))
+                .findAny();
     }
 
     public MetrologyContract findInactiveMetrologyContractOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, long contractId) {
@@ -301,8 +317,8 @@ public class ResourceHelper {
     }
 
     public void performMeterActivations(UsagePointInfo info, UsagePoint usagePoint) {
+        UsagePointMeterActivator linker = usagePoint.linkMeters();
         if (info.meterActivations != null && !info.meterActivations.isEmpty()) {
-            UsagePointMeterActivator linker = usagePoint.linkMeters();
             info.meterActivations
                     .stream()
                     .filter(meterActivation -> meterActivation.meterRole != null && !Checks.is(meterActivation.meterRole.id)
@@ -318,8 +334,17 @@ public class ResourceHelper {
                             replaceOrActivateMeter(linker, usagePoint, activationTime, meterActivation.meter.name, meterRole);
                         }
                     });
-            linker.complete();
+        }else {
+            usagePoint.getMeterActivations().stream()
+                    .forEach(m -> {
+                Optional<MeterRole> meterRole = m.getMeterRole();
+                if(meterRole.isPresent()) {
+                    validateUnlinkMeters(usagePoint, meterRole.get());
+                    linker.clear(meterRole.get());
+                }
+            });
         }
+        linker.completeRemoveOrAdd();
 
     }
 
@@ -370,14 +395,8 @@ public class ResourceHelper {
         return usagePointLifeCycleService.getAvailableTransitions(usagePoint, "INS");
     }
 
-    public List<ReadingTypeRequirement> getReadingTypeRequirements(MetrologyContract metrologyContract) {
-        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
-        metrologyContract.getDeliverables()
-                .stream()
-                .map(ReadingTypeDeliverable::getFormula)
-                .map(Formula::getExpressionNode)
-                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
-        return requirementsCollector.getReadingTypeRequirements();
+    public Optional<ReadingQualityComment> getReadingQualityComment(long id) {
+        return meteringService.findReadingQualityComment(id);
     }
 
     public void checkMeterRequirements(UsagePoint usagePoint, MetrologyContract metrologyContract) {
@@ -423,5 +442,9 @@ public class ResourceHelper {
             default:
                 return new IdWithNameInfo(system.name(), system.name());
         }
+    }
+
+    public List<MeterRole> getMeterRoles() {
+        return meteringService.getMeterRoles();
     }
 }

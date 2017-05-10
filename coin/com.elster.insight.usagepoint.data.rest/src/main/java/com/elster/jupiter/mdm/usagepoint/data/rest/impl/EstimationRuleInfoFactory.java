@@ -69,6 +69,10 @@ public class EstimationRuleInfoFactory {
         info.estimatorName = estimationRule.getDisplayName();
         info.application = resourceHelper.getApplicationInfo(estimationRule.getRuleSet().getQualityCodeSystem());
         info.markProjected = estimationRule.isMarkProjected();
+        estimationRule.getComment().ifPresent(comment -> {
+            info.commentId = comment.getId();
+            info.commentValue = comment.getComment();
+        });
         Map<String, Object> overriddenProperties = this.usagePointDataModelService.forEstimation(usagePoint)
                 .findOverriddenProperties(estimationRule, readingType)
                 .map(ChannelEstimationRuleOverriddenProperties::getProperties)

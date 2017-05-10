@@ -61,11 +61,14 @@ public enum MessageSeeds implements MessageSeed {
     MISSING_TRANSITION_REQUIREMENT(56, "missing.transition.requirements", "Pre-transition check failed: {0}"),
     NO_USAGEPOINT_TRANSITION_WITH_ID(57, Keys.NO_TRANSITION_WITH_ID, "No usage point transition with id {0}"),
     NO_METROLOGYCONFIG_FOR_USAGEPOINT_AT_THE_MOMENT(58, Keys.NO_METROLOGYCONFIG_FOR_USAGEPOINT_AT_THE_MOMENT, "Metrology configuration is not linked to the usage point at this moment in time."),
-    NO_SUCH_VALIDATION_RULE(59, "NoSuchValidationRule", "No validation rule with id {0}"),
-    NO_SUCH_ESTIMATION_RULE(60, "NoSuchEstimationRule", "No estimation rule with id {0}"),
-    VALIDATION_RULE_IS_NOT_APPLICABLE_TO_OUTPUT(61, "ValidationRuleIsNotApplicableToOutput", "Validation rule with id {0} is not applicable to output {1}"),
-    ESTIMATION_RULE_IS_NOT_APPLICABLE_TO_OUTPUT(62, "EstimationRuleIsNotApplicableToOutput", "Estimation rule with id {0} is not applicable to output {1}"),
-    NOTHING_TO_VALIDATE(63, "nothing.is.validated", "Validation is not configured on this purpose of this usage point starting from the specified date.");
+    METROLOGYPURPOSE_IS_NOT_FOUND_ON_USAGEPOINT(59, "MetrologyPurposeNotFoundOnUsagePoint", "Metrology purpose ''{0}'' is not found on usage point {1}."),
+    READINGTYPES_DONT_MATCH(60, "ReadingTypesDontMatch", "Reading types don''t match"),
+    READINGTYPE_NOT_FOUND_ON_USAGEPOINT(61, "ReadingTypeNotFoundOnUsagePoint", "Reading type not found on usage point"),
+    NO_SUCH_VALIDATION_RULE(62, "NoSuchValidationRule", "No validation rule with id {0}"),
+    NO_SUCH_ESTIMATION_RULE(63, "NoSuchEstimationRule", "No estimation rule with id {0}"),
+    VALIDATION_RULE_IS_NOT_APPLICABLE_TO_OUTPUT(64, "ValidationRuleIsNotApplicableToOutput", "Validation rule with id {0} is not applicable to output {1}"),
+    ESTIMATION_RULE_IS_NOT_APPLICABLE_TO_OUTPUT(65, "EstimationRuleIsNotApplicableToOutput", "Estimation rule with id {0} is not applicable to output {1}"),
+    NOTHING_TO_VALIDATE(66, "nothing.is.validated", "Validation is not configured on this purpose of this usage point starting from the specified date.");
 
     private final int number;
     private final String key;

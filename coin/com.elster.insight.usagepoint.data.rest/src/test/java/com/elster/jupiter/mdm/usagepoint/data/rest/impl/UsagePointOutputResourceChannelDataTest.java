@@ -13,6 +13,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
@@ -25,8 +26,11 @@ import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityComment;
+import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
@@ -41,6 +45,7 @@ import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.BigDecimalFunction;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
@@ -53,6 +58,7 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.inject.Singleton;
 import com.jayway.jsonpath.JsonModel;
@@ -71,16 +77,16 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -91,6 +97,7 @@ import org.mockito.Mock;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -107,6 +114,11 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     private static final Range<Instant> INTERVAL_2 = Range.openClosed(TIMESTAMP.plus(15, ChronoUnit.MINUTES), TIMESTAMP.plus(30, ChronoUnit.MINUTES));
     private static final Range<Instant> INTERVAL_3 = Range.openClosed(TIMESTAMP.plus(30, ChronoUnit.MINUTES), TIMESTAMP.plus(45, ChronoUnit.MINUTES));
     private static final Range<Instant> INTERVAL_4 = Range.openClosed(TIMESTAMP.plus(45, ChronoUnit.MINUTES), TIMESTAMP.plus(1, ChronoUnit.HOURS));
+
+    private static final long SOURCE_INTERVAL_START = 1492150500000L;
+    private static final long SOURCE_INTERVAL_END = 1492151400000L;
+    private static final long REFERENCE_INTERVAL_START = 1492146900000L;
+    private static final long REFERENCE_INTERVAL_END = 1492147800000L;
 
     @Mock
     private UsagePoint usagePoint;
@@ -130,6 +142,9 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     @Captor
     private ArgumentCaptor<List<IntervalReadingImpl>> intervalReadingsCaptor;
 
+    MetrologyPurpose billing;
+    MetrologyPurpose information;
+
     @Before
     public void before() {
         Category timeOfUseCategory = mock(Category.class);
@@ -141,11 +156,12 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         when(meteringService.findUsagePointByName(anyString())).thenReturn(Optional.empty());
         when(meteringService.findUsagePointByName(USAGE_POINT_NAME)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.findReadingQualityComment(anyLong())).thenReturn(Optional.empty());
 
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC1));
         when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(effectiveMC1, effectiveMC2, effectiveMC3, effectiveMC4));
-        MetrologyPurpose billing = mockMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
-        MetrologyPurpose information = mockMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
+        billing = mockMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
+        information = mockMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
         UsagePointMetrologyConfiguration metrologyConfiguration1 = mockMetrologyConfigurationWithContract(1, "mc1", billing, information);
         when(effectiveMC1.getMetrologyConfiguration()).thenReturn(metrologyConfiguration1);
         when(effectiveMC1.getUsagePoint()).thenReturn(usagePoint);
@@ -183,14 +199,13 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(channel2.getIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         when(channel2.getZoneId()).thenReturn(ZoneId.systemDefault());
         when(channel1.toList(Range.openClosed(INTERVAL_4.lowerEndpoint(), INTERVAL_4.upperEndpoint())))
-            .thenReturn(Collections.singletonList(INTERVAL_4.upperEndpoint())
-        );
+                .thenReturn(Collections.singletonList(INTERVAL_4.upperEndpoint()));
         when(channel2.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_3.upperEndpoint())))
                 .thenReturn(Arrays.asList(
                         INTERVAL_1.upperEndpoint(),
                         INTERVAL_2.upperEndpoint(),
                         INTERVAL_3.upperEndpoint())
-        );
+                );
         when(channel2.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint()))).thenReturn(
                 Arrays.asList(INTERVAL_1.upperEndpoint(), INTERVAL_2.upperEndpoint(), INTERVAL_3.upperEndpoint())
         );
@@ -330,13 +345,13 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(channel.getZoneId()).thenReturn(ZoneId.systemDefault());
         when(channel.getIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         when(channel.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint())))
-            .thenReturn(
-                Arrays.asList(
-                        INTERVAL_1.upperEndpoint(),
-                        INTERVAL_2.upperEndpoint(),
-                        INTERVAL_3.upperEndpoint(),
-                        INTERVAL_4.upperEndpoint())
-        );
+                .thenReturn(
+                        Arrays.asList(
+                                INTERVAL_1.upperEndpoint(),
+                                INTERVAL_2.upperEndpoint(),
+                                INTERVAL_3.upperEndpoint(),
+                                INTERVAL_4.upperEndpoint())
+                );
         when(effectiveMC1.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel));
         when(this.usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(this.effectiveMC1));
         when(this.channelsContainer1.getInterval()).thenReturn(Interval.of(Range.closedOpen(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint())));
@@ -358,6 +373,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<Boolean>get("$.channelData[0].dataValidated")).isEqualTo(true);
         assertThat(jsonModel.<Number>get("$.channelData[0].estimatedByRule.id")).isEqualTo(3);
         assertThat(jsonModel.<String>get("$.channelData[0].estimatedByRule.name")).isEqualTo("Estimation");
+        assertThat(jsonModel.<String>get("$.channelData[0].readingQualities[0].comment")).isEqualTo("Estimated by market rule 11");
 
         assertThat(jsonModel.<Long>get("$.channelData[1].interval.start")).isEqualTo(INTERVAL_3.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.channelData[1].interval.end")).isEqualTo(INTERVAL_3.upperEndpoint().toEpochMilli());
@@ -369,6 +385,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<Number>get("$.channelData[1].validationRules[0].id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.channelData[1].validationRules[0].name")).isEqualTo("MinMax");
 
+
         assertThat(jsonModel.<Long>get("$.channelData[2].interval.start")).isEqualTo(INTERVAL_2.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.channelData[2].interval.end")).isEqualTo(INTERVAL_2.upperEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.channelData[2].reportedDateTime")).isNull();  // Missing intervals do not have a reported time
@@ -377,6 +394,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<String>get("$.channelData[2].action")).isEqualTo("FAIL");
         assertThat(jsonModel.<Number>get("$.channelData[2].validationRules[0].id")).isEqualTo(2);
         assertThat(jsonModel.<String>get("$.channelData[2].validationRules[0].name")).isEqualTo("Missing");
+
 
         assertThat(jsonModel.<Long>get("$.channelData[3].interval.start")).isEqualTo(INTERVAL_1.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.channelData[3].interval.end")).isEqualTo(INTERVAL_1.upperEndpoint().toEpochMilli());
@@ -387,6 +405,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<String>get("$.channelData[3].action")).isEqualTo("FAIL");
         assertThat(jsonModel.<Number>get("$.channelData[3].validationRules[0].id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.channelData[3].validationRules[0].name")).isEqualTo("MinMax");
+
     }
 
     @Test
@@ -395,12 +414,12 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(channel.getZoneId()).thenReturn(ZoneId.systemDefault());
         when(channel.getIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         when(channel.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint())))
-            .thenReturn(Arrays.asList(
-                    INTERVAL_1.upperEndpoint(),
-                    INTERVAL_2.upperEndpoint(),
-                    INTERVAL_3.upperEndpoint(),
-                    INTERVAL_4.upperEndpoint())
-        );
+                .thenReturn(Arrays.asList(
+                        INTERVAL_1.upperEndpoint(),
+                        INTERVAL_2.upperEndpoint(),
+                        INTERVAL_3.upperEndpoint(),
+                        INTERVAL_4.upperEndpoint())
+                );
         when(this.effectiveMC1.getAggregatedChannel(any(), any())).thenReturn(Optional.of(channel));
         when(this.channelsContainer1.getInterval()).thenReturn(Interval.of(Range.closedOpen(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint())));
         when(this.usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(this.effectiveMC1));
@@ -448,21 +467,21 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         AggregatedChannel.AggregatedIntervalReadingRecord aggregatedIntervalReadingRecord4 = mockAggregatedIntervalReadingRecord(interval_SEP, BigDecimal.ONE);
         when(channel1.getAggregatedIntervalReadings(any())).thenReturn(
                 Arrays.asList(
-                    aggregatedIntervalReadingRecord1,
-                    aggregatedIntervalReadingRecord2,
-                    aggregatedIntervalReadingRecord3,
-                    aggregatedIntervalReadingRecord4));
+                        aggregatedIntervalReadingRecord1,
+                        aggregatedIntervalReadingRecord2,
+                        aggregatedIntervalReadingRecord3,
+                        aggregatedIntervalReadingRecord4));
         IntervalReadingRecord intervalReadingRecord1 = mockIntervalReadingRecord(aggregatedIntervalReadingRecord1);
         IntervalReadingRecord intervalReadingRecord2 = mockIntervalReadingRecord(aggregatedIntervalReadingRecord2);
         IntervalReadingRecord intervalReadingRecord3 = mockIntervalReadingRecord(aggregatedIntervalReadingRecord3);
         IntervalReadingRecord intervalReadingRecord4 = mockIntervalReadingRecord(aggregatedIntervalReadingRecord4);
         when(channel1.getIntervalReadings(any()))
-            .thenReturn(
-                Arrays.asList(
-                        intervalReadingRecord1,
-                        intervalReadingRecord2,
-                        intervalReadingRecord3,
-                        intervalReadingRecord4)); //Intentionally returns more then three
+                .thenReturn(
+                        Arrays.asList(
+                                intervalReadingRecord1,
+                                intervalReadingRecord2,
+                                intervalReadingRecord3,
+                                intervalReadingRecord4)); //Intentionally returns more then three
         ValidationEvaluator evaluator = mock(ValidationEvaluator.class);
         when(evaluator.isValidationEnabled(this.channel1)).thenReturn(true);
         when(evaluator.getLastChecked(eq(this.channelsContainer1), any(ReadingType.class))).thenReturn(Optional.of(TIMESTAMP));
@@ -495,6 +514,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         info.intervals = Collections.singletonList(IntervalInfo.from(INTERVAL_3));
         info.estimatorImpl = "com.elster.jupiter.estimators.impl.ValueFillEstimator";
         info.properties = new ArrayList<>();
+        info.commentId = 0L;
 
         // Business method
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/estimate")
@@ -503,23 +523,18 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<Number>get("$[0].reportedDateTime")).isEqualTo(INTERVAL_3.upperEndpoint().toEpochMilli());
         assertThat(jsonModel.<Number>get("$[0].value")).isEqualTo("327");
     }
 
     @Test
     public void testEditChannelData() throws Exception {
-        DataAggregationService.MetrologyContractDataEditor editor = mock(DataAggregationService.MetrologyContractDataEditor.class);
+        DataAggregationService.MetrologyContractDataEditor editor = FakeBuilder.initBuilderStub(usagePoint, DataAggregationService.MetrologyContractDataEditor.class);
         when(dataAggregationService.edit(eq(usagePoint), any(MetrologyContract.class), any(ReadingTypeDeliverable.class), eq(QualityCodeSystem.MDM))).thenReturn(editor);
-        when(channel1.getIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
-        when(channel1.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_3.upperEndpoint())))
-            .thenReturn(Arrays.asList(
-                    INTERVAL_1.upperEndpoint(),
-                    INTERVAL_2.upperEndpoint(),
-                    INTERVAL_3.upperEndpoint())
-        );
-        mockIntervalReadingsWithValidationResult();
-        when(this.usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(this.effectiveMC1));
+
+        ReadingQualityComment readingQualityComment = mock(ReadingQualityComment.class);
+        when(readingQualityComment.getId()).thenReturn(555L);
+        when(readingQualityComment.getComment()).thenReturn("Estimated by market rule 11");
+        when(meteringService.findReadingQualityComment(any(Long.class))).thenReturn(Optional.of(readingQualityComment));
 
         OutputChannelDataInfo info1 = new OutputChannelDataInfo();
         info1.value = BigDecimal.valueOf(101L);
@@ -539,26 +554,25 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         ArgumentCaptor<List> readingsCaptor = ArgumentCaptor.forClass(List.class);
         verify(editor).updateAll(readingsCaptor.capture());
         assertThat(readingsCaptor.getAllValues()).hasSize(1);
-        assertThat(readingsCaptor.getValue().size()).isEqualTo(1);
+        assertThat(readingsCaptor.getValue()).hasSize(2);
+
         Object capturedListElement = readingsCaptor.getValue().get(0);
         assertThat(capturedListElement).isInstanceOf(BaseReading.class);
         BaseReading capturedReading = (BaseReading) capturedListElement;
+        assertThat(capturedReading.getValue()).isEqualTo(info1.value);
+        assertThat(capturedReading.getTimeStamp()).isEqualTo(INTERVAL_3.upperEndpoint());
+
+        capturedListElement = readingsCaptor.getValue().get(1);
+        assertThat(capturedListElement).isInstanceOf(BaseReading.class);
+        capturedReading = (BaseReading) capturedListElement;
         assertThat(capturedReading.getValue()).isEqualTo(info2.value);
         assertThat(capturedReading.getTimeStamp()).isEqualTo(INTERVAL_4.upperEndpoint());
     }
 
     @Test
     public void testConfirmChannelData() throws Exception {
-        DataAggregationService.MetrologyContractDataEditor editor = mock(DataAggregationService.MetrologyContractDataEditor.class);
+        DataAggregationService.MetrologyContractDataEditor editor = FakeBuilder.initBuilderStub(usagePoint, DataAggregationService.MetrologyContractDataEditor.class);
         when(dataAggregationService.edit(eq(usagePoint), any(MetrologyContract.class), any(ReadingTypeDeliverable.class), eq(QualityCodeSystem.MDM))).thenReturn(editor);
-        when(channel1.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_3.upperEndpoint())))
-                .thenReturn(Arrays.asList(
-                        INTERVAL_1.upperEndpoint(),
-                        INTERVAL_2.upperEndpoint(),
-                        INTERVAL_3.upperEndpoint())
-        );
-        mockIntervalReadingsWithValidationResult();
-        when(this.usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(this.effectiveMC1));
 
         OutputChannelDataInfo info1 = new OutputChannelDataInfo();
         info1.isConfirmed = true;
@@ -575,27 +589,27 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
         ArgumentCaptor<List> readingsCaptor = ArgumentCaptor.forClass(List.class);
         verify(editor).confirmAll(readingsCaptor.capture());
         assertThat(readingsCaptor.getAllValues()).hasSize(1);
-        assertThat(readingsCaptor.getValue().size()).isEqualTo(1);
+        assertThat(readingsCaptor.getValue()).hasSize(2);
+
         Object capturedListElement = readingsCaptor.getValue().get(0);
         assertThat(capturedListElement).isInstanceOf(BaseReading.class);
         BaseReading capturedReading = (BaseReading) capturedListElement;
         assertThat(capturedReading.getTimeStamp()).isEqualTo(INTERVAL_4.upperEndpoint());
+
+        capturedListElement = readingsCaptor.getValue().get(1);
+        assertThat(capturedListElement).isInstanceOf(BaseReading.class);
+        capturedReading = (BaseReading) capturedListElement;
+        assertThat(capturedReading.getTimeStamp()).isEqualTo(INTERVAL_3.upperEndpoint());
     }
 
     @Test
     public void testRemoveChannelData() throws Exception {
-        DataAggregationService.MetrologyContractDataEditor editor = mock(DataAggregationService.MetrologyContractDataEditor.class);
+        DataAggregationService.MetrologyContractDataEditor editor = FakeBuilder.initBuilderStub(usagePoint, DataAggregationService.MetrologyContractDataEditor.class);
         when(dataAggregationService.edit(eq(usagePoint), any(MetrologyContract.class), any(ReadingTypeDeliverable.class), eq(QualityCodeSystem.MDM))).thenReturn(editor);
-        when(channel1.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_3.upperEndpoint())))
-            .thenReturn(Arrays.asList(
-                    INTERVAL_1.upperEndpoint(),
-                    INTERVAL_2.upperEndpoint(),
-                    INTERVAL_3.upperEndpoint())
-        );
-        mockIntervalReadingsWithValidationResult();
 
         OutputChannelDataInfo info1 = new OutputChannelDataInfo();
         info1.value = null;
@@ -612,9 +626,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        Set<Instant> expectedTimestamps = new HashSet<Instant>();
-        expectedTimestamps.add(INTERVAL_1.upperEndpoint());
-        verify(editor).removeTimestamps(expectedTimestamps);
+        verify(editor).removeTimestamps(eq(ImmutableSet.of(INTERVAL_1.upperEndpoint(), INTERVAL_4.upperEndpoint())));
     }
 
     @Test
@@ -715,7 +727,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
     @Test
     public void testReadingValidationInfoForMissedReadingInTheMiddleOfValidatedData() {
-        OutputChannelDataInfoFactory factory = new OutputChannelDataInfoFactory(new ValidationRuleInfoFactory(propertyValueInfoService, readingTypeInfoFactory), readingQualityInfoFactory, estimationRuleInfoFactory);
+        OutputChannelDataInfoFactory factory = new OutputChannelDataInfoFactory(new ValidationRuleInfoFactory(propertyValueInfoService, readingTypeInfoFactory), readingQualityInfoFactory, estimationRuleInfoFactory, meteringService);
         ChannelReadingWithValidationStatus status = mock(ChannelReadingWithValidationStatus.class);
         when(status.getTimeStamp()).thenReturn(TIMESTAMP.minus(1, ChronoUnit.DAYS));
         when(status.getTimePeriod()).thenReturn(Range.closedOpen(TIMESTAMP.minus(1, ChronoUnit.DAYS), TIMESTAMP));
@@ -732,7 +744,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
     @Test
     public void testReadingValidationInfoForMissedReadingAfterLastCheckedDate() {
-        OutputChannelDataInfoFactory factory = new OutputChannelDataInfoFactory(new ValidationRuleInfoFactory(propertyValueInfoService, readingTypeInfoFactory), readingQualityInfoFactory, estimationRuleInfoFactory);
+        OutputChannelDataInfoFactory factory = new OutputChannelDataInfoFactory(new ValidationRuleInfoFactory(propertyValueInfoService, readingTypeInfoFactory), readingQualityInfoFactory, estimationRuleInfoFactory, meteringService);
         ChannelReadingWithValidationStatus status = mock(ChannelReadingWithValidationStatus.class);
         Instant dayAfter = TIMESTAMP.plus(1, ChronoUnit.DAYS);
         when(status.getTimeStamp()).thenReturn(dayAfter);
@@ -799,6 +811,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(estimationRuleSet.getId()).thenReturn(id);
         when(estimationRule.getId()).thenReturn(ruleId);
         when(estimationRule.getName()).thenReturn(ruleName);
+        when(estimationRule.getComment()).thenReturn(Optional.empty());
         return estimationRuleSet;
     }
 
@@ -833,52 +846,6 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
                 .thenReturn(Collections.singletonList(dataValidationStatus_4));
     }
 
-    private void mockDifferentIntervalReadings() {
-        ValidationRule minMax = mockValidationRule(1, "MinMax");
-        ValidationRule missing = mockValidationRule(2, "Missing");
-        EstimationRule estimation = mockEstimationRule(3, "Estimation");
-
-        AggregatedChannel.AggregatedIntervalReadingRecord aggregatedIntervalReadingRecord1 = mockAggregatedIntervalReadingRecord(INTERVAL_1, BigDecimal.ONE);
-        DataValidationStatus dataValidationStatus_1 = mockValidationStatus(INTERVAL_1.upperEndpoint(), minMax);
-        // 2nd intentionally missing
-        DataValidationStatus dataValidationStatus_2 = mockValidationStatus(INTERVAL_2.upperEndpoint(), missing);
-        AggregatedChannel.AggregatedIntervalReadingRecord aggregatedIntervalReadingRecord3 = mockAggregatedIntervalReadingRecord(INTERVAL_3, BigDecimal.TEN);
-        DataValidationStatus dataValidationStatus_3 = mockValidationStatus(INTERVAL_3.upperEndpoint(), minMax);
-        AggregatedChannel.AggregatedIntervalReadingRecord aggregatedIntervalReadingRecord4 = mockAggregatedIntervalReadingRecord(INTERVAL_4, BigDecimal.TEN);
-        DataValidationStatus dataValidationStatus_4 = mockEstimationStatus(INTERVAL_4.upperEndpoint(), estimation);
-
-        List<IntervalReadingRecord> intervalReadings = Arrays.asList(aggregatedIntervalReadingRecord1, aggregatedIntervalReadingRecord3);
-        List<AggregatedChannel.AggregatedIntervalReadingRecord> aggregatedIntervalReadings = Arrays.asList(aggregatedIntervalReadingRecord1, aggregatedIntervalReadingRecord3);
-        when(channel2.getIntervalReadings(any())).thenReturn(intervalReadings);
-        when(channel2.getAggregatedIntervalReadings(any())).thenReturn(aggregatedIntervalReadings);
-        when(channel2.getReading(INTERVAL_1.upperEndpoint())).thenReturn(Optional.of(aggregatedIntervalReadingRecord1));
-        when(channel2.getReading(INTERVAL_3.upperEndpoint())).thenReturn(Optional.of(aggregatedIntervalReadingRecord3));
-        when(channel1.getIntervalReadings(any())).thenReturn(Collections.singletonList(aggregatedIntervalReadingRecord4));
-        when(channel1.getAggregatedIntervalReadings(any())).thenReturn(Collections.singletonList(aggregatedIntervalReadingRecord1));
-        when(channel1.getReading(INTERVAL_4.upperEndpoint())).thenReturn(Optional.of(aggregatedIntervalReadingRecord4));
-        when(evaluator
-                .getValidationStatus(
-                        EnumSet.of(QualityCodeSystem.MDM),
-                        channel1,
-                        Collections.singletonList(aggregatedIntervalReadingRecord4),
-                        Ranges.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint())))
-            .thenReturn(Collections.singletonList(dataValidationStatus_4));
-        when(evaluator
-                .getValidationStatus(
-                        EnumSet.of(QualityCodeSystem.MDM),
-                        channel2,
-                        intervalReadings,
-                        Ranges.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint())))
-            .thenReturn(Arrays.asList(
-                    dataValidationStatus_1,
-                    dataValidationStatus_2,
-                    dataValidationStatus_3));
-        when(this.evaluator.isValidationEnabled(this.channel1)).thenReturn(true);
-        when(this.evaluator.getLastChecked(eq(this.channelsContainer1), any(ReadingType.class))).thenReturn(Optional.of(TIMESTAMP));
-        when(this.evaluator.isValidationEnabled(this.channel2)).thenReturn(true);
-        when(this.evaluator.getLastChecked(eq(this.channelsContainer2), any(ReadingType.class))).thenReturn(Optional.of(TIMESTAMP));
-    }
-
     private void mockDifferentIntervalReadings(AggregatedChannel channel, ChannelsContainer channelsContainer) {
         when(channelsContainer.getChannel(any())).thenReturn(Optional.of(channel));
         ValidationRule minMax = mockValidationRule(1, "MinMax");
@@ -908,14 +875,82 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
                         channel,
                         intervalReadings,
                         Ranges.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint())))
-            .thenReturn(Arrays.asList(
-                    dataValidationStatus_1,
-                    dataValidationStatus_2,
-                    dataValidationStatus_3,
-                    dataValidationStatus_4));
+                .thenReturn(Arrays.asList(
+                        dataValidationStatus_1,
+                        dataValidationStatus_2,
+                        dataValidationStatus_3,
+                        dataValidationStatus_4));
         when(this.evaluator.isValidationEnabled(channel)).thenReturn(true);
         when(this.evaluator.getLastChecked(eq(channelsContainer), any(ReadingType.class))).thenReturn(Optional.of(TIMESTAMP));
     }
+
+    @Test
+    public void testCorrectValuesOnChannelData() {
+        Instant now = Instant.now();
+        AggregatedChannel channel = mock(AggregatedChannel.class);
+        IntervalReadingRecord readingRecord = mock(IntervalReadingRecord.class);
+        TemporalAmount temporalAmount = mock(TemporalAmount.class);
+        ReadingQualityComment readingQualityComment = mock(ReadingQualityComment.class);
+        ValueCorrectionInfo valueCorrectionInfo = new ValueCorrectionInfo();
+        valueCorrectionInfo.intervals = Collections.singletonList(com.elster.jupiter.mdm.common.rest.IntervalInfo.from(Range.openClosed(now, now.plusSeconds(60))));
+        valueCorrectionInfo.amount = new BigDecimal(10);
+        valueCorrectionInfo.type = BigDecimalFunction.MULTIPLY;
+        when(meteringService.findReadingQualityComment(any(Long.class))).thenReturn(Optional.of(readingQualityComment));
+        when(readingQualityComment.getId()).thenReturn(555L);
+        when(readingQualityComment.getComment()).thenReturn("Estimated by market rule 11");
+        when(effectiveMC1.getAggregatedChannel(any(MetrologyContract.class), any(ReadingType.class))).thenReturn(Optional.of(channel));
+        when(channel.getIntervalReadings(any(Range.class))).thenReturn(Collections.singletonList(readingRecord));
+        when(readingRecord.getValue()).thenReturn(new BigDecimal(10));
+        when(readingRecord.getTimeStamp()).thenReturn(now.plusSeconds(60));
+        when(readingRecord.getReadingType()).thenReturn(regularReadingType);
+        when(regularReadingType.getIntervalLength()).thenReturn(Optional.of(temporalAmount));
+        when(temporalAmount.subtractFrom(any(Instant.class))).thenReturn(now);
+
+        JsonModel model = JsonModel.create(target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/correctValues").request()
+                .put(Entity.json(valueCorrectionInfo), String.class));
+
+        assertThat(model.<String>get("$.[0].value")).isEqualTo("100");
+    }
+
+    @Test
+    public void testCopyFromReferenceChannel() {
+        ReadingType readingType = effectiveMC1.getMetrologyConfiguration().getContracts().get(0).getDeliverables().get(0).getReadingType();
+        ReferenceChannelDataInfo info = new ReferenceChannelDataInfo();
+        info.referenceUsagePoint = "testUP";
+        info.readingType = readingType.getMRID();
+        List<IntervalInfo> intervalInfos = new ArrayList<>();
+        Range<Instant> sourceRange = Range.openClosed(Instant.ofEpochMilli(SOURCE_INTERVAL_START), Instant.ofEpochMilli(SOURCE_INTERVAL_END));
+        intervalInfos.add(IntervalInfo.from(sourceRange));
+        info.intervals = intervalInfos;
+        info.referencePurpose = 1L;
+        info.allowSuspectData = true;
+        info.completePeriod = true;
+        info.startDate = Instant.ofEpochMilli(REFERENCE_INTERVAL_END);
+        when(meteringService.findUsagePointByName(info.referenceUsagePoint)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.getReadingType(readingType.getMRID())).thenReturn(Optional.of(readingType));
+        when(metrologyConfigurationService.findMetrologyPurpose(1L)).thenReturn(Optional.of(billing));
+        when(channel1.getMainReadingType()).thenReturn(readingType);
+        Range<Instant> referenceRange = Range.openClosed(Instant.ofEpochMilli(REFERENCE_INTERVAL_START), Instant.ofEpochMilli(REFERENCE_INTERVAL_END));
+        IntervalReadingRecord readingRecord = mockIntervalReadingRecord(referenceRange, BigDecimal.ONE);
+        when(channel1.getIntervalReadings(any())).thenReturn(Collections.singletonList(readingRecord));
+        when(usagePoint.getEffectiveMetrologyConfigurations(any())).thenReturn(Collections.singletonList(effectiveMC1));
+        when(effectiveMC1.getRange()).thenReturn(Range.all());
+        when(effectiveMC1.overlaps(any())).thenReturn(true);
+        when(effectiveMC1.isEffectiveAt(Instant.ofEpochMilli(REFERENCE_INTERVAL_END))).thenReturn(true);
+        ReadingQualityWithTypeFetcher readingQualityFetcher = mock(ReadingQualityWithTypeFetcher.class);
+        when(channel1.findReadingQualities()).thenReturn(readingQualityFetcher);
+        doReturn(readingQualityFetcher).when(readingQualityFetcher).ofQualityIndex(QualityCodeIndex.SUSPECT);
+        when(readingQualityFetcher.inTimeInterval(any())).thenReturn(readingQualityFetcher);
+        when(readingQualityFetcher.stream()).thenReturn(Stream.empty());
+
+        JsonModel json = JsonModel.create(target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/copyfromreference").request()
+                .post(Entity.json(info), String.class));
+
+        assertThat(json.<String>get("$.[0].value")).isEqualTo("1");
+        assertThat(json.<Long>get("$.[0].interval.start")).isEqualTo(SOURCE_INTERVAL_START);
+        assertThat(json.<Long>get("$.[0].interval.end")).isEqualTo(SOURCE_INTERVAL_END);
+    }
+
 
     private ValidationRule mockValidationRule(long id, String name) {
         ValidationRule validationRule = mock(ValidationRule.class);
@@ -933,10 +968,14 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     private EstimationRule mockEstimationRule(long id, String name) {
         EstimationRule estimationRule = mock(EstimationRule.class);
         EstimationRuleSet estimationRuleSet = mock(EstimationRuleSet.class);
+        ReadingQualityComment readingQualityComment = mock(ReadingQualityComment.class);
+        when(readingQualityComment.getId()).thenReturn(555L);
+        when(readingQualityComment.getComment()).thenReturn("Estimated by market rule 11");
         when(estimationRule.getId()).thenReturn(id);
         when(estimationRule.getName()).thenReturn(name);
         when(estimationRule.getDisplayName()).thenReturn(name);
         when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
+        when(estimationRule.getComment()).thenReturn(Optional.of(readingQualityComment));
         when(estimationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         return estimationRule;
     }
@@ -947,6 +986,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(intervalReadingRecord.getTimeStamp()).thenReturn(interval.upperEndpoint());
         when(intervalReadingRecord.getReportedDateTime()).thenReturn(interval.upperEndpoint());
         when(intervalReadingRecord.getValue()).thenReturn(value);
+        when(intervalReadingRecord.getReadingType()).thenReturn(regularReadingType);
+        when(regularReadingType.getIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         return intervalReadingRecord;
     }
 
@@ -959,6 +1000,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(intervalReadingRecord.getTimePeriod()).thenReturn(Optional.of(interval));
         when(intervalReadingRecord.getTimeStamp()).thenReturn(interval.upperEndpoint());
         when(intervalReadingRecord.getValue()).thenReturn(value);
+        when(intervalReadingRecord.getReadingType()).thenReturn(regularReadingType);
+        when(regularReadingType.getIntervalLength()).thenReturn(Optional.empty());
         return intervalReadingRecord;
     }
 
@@ -981,6 +1024,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         ReadingQualityRecord quality = mock(ReadingQualityRecord.class);
         when(quality.hasEstimatedCategory()).thenReturn(true);
         when(quality.getType()).thenReturn(qualityType);
+        when(quality.getId()).thenReturn(555L);
+        when(quality.getComment()).thenReturn("Estimated by market rule 11");
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(qualityType);
         doReturn(Collections.singletonList(quality)).when(validationStatus).getReadingQualities();
         when(validationStatus.getReadingTimestamp()).thenReturn(timeStamp);
