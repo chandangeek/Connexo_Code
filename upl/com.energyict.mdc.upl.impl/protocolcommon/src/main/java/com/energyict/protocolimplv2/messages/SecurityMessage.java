@@ -7,7 +7,6 @@ import com.energyict.mdc.upl.properties.DeviceGroup;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimplv2.messages.enums.ClientSecuritySetup;
@@ -472,14 +471,14 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             //Referring to an entry in the persisted key store
-            return Arrays.asList(stringSpec(service, DeviceMessageConstants.clientCertificateAliasAttributeName, DeviceMessageConstants.clientCertificateAliasAttributeDefaultTranslation));
+            return Collections.singletonList(stringSpec(service, DeviceMessageConstants.clientCertificateAliasAttributeName, DeviceMessageConstants.clientCertificateAliasAttributeDefaultTranslation));
         }
     },
     IMPORT_SERVER_END_DEVICE_CERTIFICATE(7052, "Import server end device certificate") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             //Referring to a certificateWrapper
-            return Arrays.asList(stringSpec(service, DeviceMessageConstants.certificateWrapperIdAttributeName, DeviceMessageConstants.clientCertificateAliasAttributeDefaultTranslation));
+            return Collections.singletonList(stringSpec(service, DeviceMessageConstants.certificateWrapperIdAttributeName, DeviceMessageConstants.clientCertificateAliasAttributeDefaultTranslation));
         }
     },
     CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY(7053, "Change authentication key using service key and new plain key") {
@@ -591,17 +590,13 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
     SET_REQUIRED_PROTECTION_FOR_DATA_PROTECTION_SETUP(7063, "Set required protection for data protection setup") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Arrays.asList(
-                    bigDecimalSpec(service, DeviceMessageConstants.requiredProtection, DeviceMessageConstants.requiredProtectionDefaultTranslation)
-            );
+            return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.requiredProtection, DeviceMessageConstants.requiredProtectionDefaultTranslation));
         }
     },
     KEY_RENEWAL(7064, "Renew key") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Arrays.asList(
-                   keyAccessorTypeSpec(service, DeviceMessageConstants.keyAccessorTypeAttributeName, DeviceMessageConstants.keyAccessorTypeAttributeNameDefaultTranslation)
-            );
+            return Collections.singletonList(keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.keyAccessorTypeAttributeName, DeviceMessageConstants.keyAccessorTypeAttributeNameDefaultTranslation));
         }
     };
 
@@ -676,15 +671,6 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
                 .markRequired()
                 .finish();
     }
-    protected PropertySpec keyAccessorTypeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .referenceSpec(KeyAccessorType.class.getName())
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
 
     protected PropertySpecBuilder<BigDecimal> bigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
@@ -709,16 +695,6 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
                 .boundedBigDecimalSpec(lowerLimit, upperLimit)
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
-    protected PropertySpec certificateWrapperReferenceSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .referenceSpec(CertificateWrapper.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()

@@ -17,7 +17,6 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -58,6 +57,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.encry
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
@@ -69,7 +69,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overT
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
 
 /**
  * Class that:
@@ -270,7 +269,8 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case firmwareUpdateActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());  //Epoch (millis)
             case keyAccessorTypeAttributeName:
-                return String.valueOf(((KeyAccessorType) messageAttribute).getName());
+//                return String.valueOf(((KeyAccessorType) messageAttribute).getName());
+                return messageAttribute.toString(); //TODO: needs refactoring
             default:
                 return messageAttribute.toString();  //Used for String and BigDecimal attributes
         }
