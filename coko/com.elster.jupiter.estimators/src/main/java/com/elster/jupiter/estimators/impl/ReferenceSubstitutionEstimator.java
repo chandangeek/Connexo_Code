@@ -265,7 +265,6 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
                 .describedAs(TranslationKeys.CHECK_USAGE_POINT_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
                 .markRequired()
-                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
     }
 
