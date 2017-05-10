@@ -88,6 +88,7 @@ public class ValidatorInMemoryBootstrapModule {
                 new TransactionModule(),
                 new NlsModule(),
                 new BasicPropertiesModule(),
+                new BpmModule(),
                 new TimeModule(),
                 new CalendarModule(),
                 new SearchModule(),
