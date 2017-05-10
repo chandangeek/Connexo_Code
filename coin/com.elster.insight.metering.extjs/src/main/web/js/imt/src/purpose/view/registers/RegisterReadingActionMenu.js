@@ -16,6 +16,12 @@ Ext.define('Imt.purpose.view.registers.RegisterReadingActionMenu', {
                 section: this.SECTION_ACTION
             },
             {
+                itemId: 'view-history',
+                text: Uni.I18n.translate('general.viewHistory', 'IMT', 'View history'),
+                action: 'viewHistory',
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'edit-value',
                 text: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
                 action: 'editValue',

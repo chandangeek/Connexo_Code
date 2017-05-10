@@ -22,9 +22,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         switch (me.output.get('outputType')) {
             case 'channel':
             {
-                title = Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}',
-                    [Uni.DateTime.formatDateLong(intervalEnd), Uni.DateTime.formatTimeShort(intervalEnd)],
-                    false);
+                title = Uni.DateTime.formatDateTime(intervalEnd,'long','short')
             }
                 break;
             case 'register':
@@ -71,8 +69,13 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     }
                     break;
                 case 'suspect':
-                    validationResultText = '(' + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + ')' +
-                        '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';
+                    if (!Ext.isEmpty(estimatedByRule)) {
+                        validationResultText = '(' + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + ')' +
+                            '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>' + me.getEstimationFlagWithTooltip(estimatedByRule, record);
+                    } else {
+                        validationResultText = '(' + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + ')' +
+                            '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';
+                    }
                     break;
                 case 'ok':
                     validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect') + ')';
@@ -139,7 +142,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         var icon;
 
         icon = '<span class="icon-flag5" style="margin-left:10px; color:#33CC33;" data-qtip="'
-            + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated in {0} on {1} at {2}', [
+            + Uni.I18n.translate('reading.estimatedWithTime', 'IMT', 'Estimated in {0} on {1} at {2}', [
                 estimatedByRule.application.name,
                 Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
                 Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
@@ -241,9 +244,9 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     itemId: 'interval-field',
                     renderer: function (value) {
                         return value
-                            ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.start)), Uni.DateTime.formatTimeLong(new Date(value.start))])
+                            ? Uni.DateTime.formatDateTimeLong(new Date(value.start))
                         + ' - ' +
-                        Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.end)), Uni.DateTime.formatTimeLong(new Date(value.end))])
+                        Uni.DateTime.formatDateTimeLong(new Date(value.end))
                             : '-';
                     },
                     htmlEncode: false
@@ -258,9 +261,9 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                         renderer: function (value) {
                             if (!Ext.isEmpty(value) && !!value.start) {
                                 return value
-                                    ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.start)), Uni.DateTime.formatTimeLong(new Date(value.start))])
+                                    ? Uni.DateTime.formatDateTimeLong(new Date(value.start))
                                 + ' - ' +
-                                Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value.end)), Uni.DateTime.formatTimeLong(new Date(value.end))])
+                                Uni.DateTime.formatDateTimeLong(new Date(value.end))
                                     : '-';
                             } else if (!Ext.isEmpty(value) && !!value.end){
                                 return Uni.DateTime.formatDateLong(new Date(value.end))
@@ -308,7 +311,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 name: 'reportedDateTime',
                 itemId: 'reading-time-field',
                 renderer: function (value) {
-                    return value ? Uni.I18n.translate('general.dateAtTime', 'IMT', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]) : '-';
+                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-';
                 }
             },
             {
@@ -373,6 +376,22 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                         return this.getEstimatedByRule(rec.get('estimatedByRule'));
                     } else {
                         field.hide();
+                    }
+                }
+            }
+        );
+
+        valuesItems.push(
+            {
+                itemId: 'estimation-comment-field',
+                name: 'mainCommentValue',
+                fieldLabel: Uni.I18n.translate('general.estimationComment', 'IMT', 'Estimation comment'),
+                renderer: function (value) {
+                    if (!value) {
+                        this.hide();
+                    } else {
+                        this.show();
+                        return value;
                     }
                 }
             }

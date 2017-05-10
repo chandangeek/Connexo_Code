@@ -85,6 +85,7 @@ Ext.define('Imt.metrologyconfiguration.view.PurposesField', {
                                     {
                                         xtype: 'reading-type-displayfield',
                                         fieldLabel: undefined,
+                                        flex: 1,
                                         value: readingTypeDeliverable.get('readingType')
                                     }
                                 ]

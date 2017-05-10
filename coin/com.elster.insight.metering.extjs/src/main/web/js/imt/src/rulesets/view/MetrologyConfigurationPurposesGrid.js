@@ -45,6 +45,11 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposesGrid', {
                 flex: 1
             },
             {
+                header: Uni.I18n.translate('general.usagePointStates', 'IMT', 'Usage point states'),
+                dataIndex: 'lifeCycleStatesCount',
+                flex: 1
+            },
+            {
                 xtype: 'uni-actioncolumn-remove',
                 privileges: me.adminPrivileges
             }

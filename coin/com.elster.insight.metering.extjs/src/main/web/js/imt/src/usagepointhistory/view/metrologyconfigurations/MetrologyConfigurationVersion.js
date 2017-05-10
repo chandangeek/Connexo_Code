@@ -29,7 +29,7 @@ Ext.define('Imt.usagepointhistory.view.metrologyconfigurations.MetrologyConfigur
             emptyComponent: {
                 xtype: 'uni-form-empty-message',
                 itemId: 'usage-point-history-meters-empty-message',
-                text: Uni.I18n.translate('usagePoint.history.meters.empty.title', 'IMT', 'No meters have been linked to this usage point yet')
+                text: Uni.I18n.translate('usagePoint.history.metrologyConfiguration.empty.title', 'IMT', 'No metrology configuration have been linked to this usage point yet')
             },
             previewComponent: {
                 router: me.router,
