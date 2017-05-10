@@ -20,6 +20,7 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.impl.ReferenceValueFactory;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -199,7 +200,7 @@ public class SecurityAttributesImporterFactoryTest { //TODO
         DeviceType deviceType = mock(DeviceType.class);
 
         KeyAccessorType attr1 = mock(KeyAccessorType.class);
-        when(attr1.getName()).thenReturn("attr1");
+        when(attr1.getName()).thenReturn("kat1");
         when(attr1.getKeyType()).thenReturn(symmetricKeyType);
         KeyAccessor keyAccessorAttr1 = mock(KeyAccessor.class);
         PlaintextSymmetricKey symmetricKeyWrapper = mock(PlaintextSymmetricKey.class);
@@ -215,6 +216,10 @@ public class SecurityAttributesImporterFactoryTest { //TODO
         Set<PropertySpec> propertySpecs = new LinkedHashSet<>(Arrays.asList(
                 mockPropertySpec("attr1", new ReferenceValueFactory<KeyAccessor>(ormService, beanService), false)));
         SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
+        ConfigurationSecurityProperty securityPropertyAttr1 = mock(ConfigurationSecurityProperty.class);
+        when(securityPropertyAttr1.getName()).thenReturn("attr1");
+        when(securityPropertyAttr1.getKeyAccessorType()).thenReturn(attr1);
+        when(securityPropertySet.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(securityPropertyAttr1));
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
 
         createSecurityAttributesImporter().process(importOccurrence);
@@ -238,7 +243,7 @@ public class SecurityAttributesImporterFactoryTest { //TODO
         DeviceType deviceType = mock(DeviceType.class);
 
         KeyAccessorType attr2 = mock(KeyAccessorType.class);
-        when(attr2.getName()).thenReturn("attr2");
+        when(attr2.getName()).thenReturn("kat2");
         when(attr2.getKeyType()).thenReturn(passphraseKeyType);
         KeyAccessor keyAccessorAttr2 = mock(KeyAccessor.class);
         PlaintextPassphrase passphraseWrapper = mock(PlaintextPassphrase.class);
@@ -256,6 +261,10 @@ public class SecurityAttributesImporterFactoryTest { //TODO
         SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
 
+        ConfigurationSecurityProperty securityPropertyAttr2 = mock(ConfigurationSecurityProperty.class);
+        when(securityPropertyAttr2.getName()).thenReturn("attr2");
+        when(securityPropertyAttr2.getKeyAccessorType()).thenReturn(attr2);
+        when(securityPropertySet.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(securityPropertyAttr2));
         createSecurityAttributesImporter().process(importOccurrence);
 
         verify(logger, never()).info(anyString());
@@ -279,7 +288,7 @@ public class SecurityAttributesImporterFactoryTest { //TODO
         KeyAccessorType attr3 = mock(KeyAccessorType.class);
         PlaintextSymmetricKey newSymmetricKeyWrapper = mock(PlaintextSymmetricKey.class);
         when(pkiService.newSymmetricKeyWrapper(attr3)).thenReturn(newSymmetricKeyWrapper);
-        when(attr3.getName()).thenReturn("attr3");
+        when(attr3.getName()).thenReturn("kat3");
         when(attr3.getKeyType()).thenReturn(symmetricKeyType);
         when(device.getKeyAccessor(attr3)).thenReturn(Optional.empty());
         KeyAccessor newKeyAccessor = mock(KeyAccessor.class);
@@ -296,6 +305,10 @@ public class SecurityAttributesImporterFactoryTest { //TODO
                 mockPropertySpec("attr3", new ReferenceValueFactory<KeyAccessor>(ormService, beanService), false)));
         SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
+        ConfigurationSecurityProperty securityPropertyAttr3 = mock(ConfigurationSecurityProperty.class);
+        when(securityPropertyAttr3.getName()).thenReturn("attr3");
+        when(securityPropertyAttr3.getKeyAccessorType()).thenReturn(attr3);
+        when(securityPropertySet.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(securityPropertyAttr3));
 
         createSecurityAttributesImporter().process(importOccurrence);
 
@@ -321,7 +334,7 @@ public class SecurityAttributesImporterFactoryTest { //TODO
         KeyAccessorType attr3 = mock(KeyAccessorType.class);
         PlaintextSymmetricKey newSymmetricKeyWrapper = mock(PlaintextSymmetricKey.class);
         when(pkiService.newSymmetricKeyWrapper(attr3)).thenReturn(newSymmetricKeyWrapper);
-        when(attr3.getName()).thenReturn("attr3");
+        when(attr3.getName()).thenReturn("kat3");
         when(attr3.getKeyType()).thenReturn(symmetricKeyType);
         KeyAccessor keyAccessorWithoutActual = mock(KeyAccessor.class);
         when(device.getKeyAccessor(attr3)).thenReturn(Optional.ofNullable(keyAccessorWithoutActual));
@@ -338,6 +351,10 @@ public class SecurityAttributesImporterFactoryTest { //TODO
                 mockPropertySpec("attr3", new ReferenceValueFactory<KeyAccessor>(ormService, beanService), false)));
         SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
+        ConfigurationSecurityProperty securityPropertyAttr3 = mock(ConfigurationSecurityProperty.class);
+        when(securityPropertyAttr3.getName()).thenReturn("attr3");
+        when(securityPropertyAttr3.getKeyAccessorType()).thenReturn(attr3);
+        when(securityPropertySet.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(securityPropertyAttr3));
 
         createSecurityAttributesImporter().process(importOccurrence);
 

@@ -11,6 +11,7 @@ import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessor;
@@ -20,6 +21,7 @@ import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -56,15 +58,17 @@ public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImp
     }
 
     private void updatedProperties(Device device, SecurityPropertySet deviceConfigSecurityPropertySet, SecurityAttributesImportRecord data) {
+        List<ConfigurationSecurityProperty> securityProperties = deviceConfigSecurityPropertySet.getConfigurationSecurityProperties();
         for (PropertySpec propertySpec : deviceConfigSecurityPropertySet.getPropertySpecs()) {
             if (data.getSecurityAttributes().containsKey(propertySpec.getName())) {
-                KeyAccessorType keyAccessorType = device.getDeviceType().getKeyAccessorTypes().stream()
-                        .filter(ka -> ka.getName().equals(propertySpec.getName()))
+                ConfigurationSecurityProperty securityProperty = securityProperties.stream()
+                        .filter(sp -> sp.getName().equals(propertySpec.getName()))
                         .findAny()
-                        .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE,
-                                data.getLineNumber(),
-                                propertySpec.getName()));
-                KeyAccessor<SecurityValueWrapper> keyAccessor = device.getKeyAccessor(keyAccessorType).orElseGet(()->device.newKeyAccessor(keyAccessorType));
+                        .orElseThrow(()->new ProcessorException(MessageSeeds.NO_VALUE_FOR_SECURITY_PROPERTY, data.getLineNumber(), propertySpec.getName()));
+
+                KeyAccessorType keyAccessorType = securityProperty.getKeyAccessorType();
+                KeyAccessor<SecurityValueWrapper> keyAccessor = device.getKeyAccessor(keyAccessorType)
+                        .orElseGet(() -> device.newKeyAccessor(keyAccessorType));
                 if (!keyAccessor.getActualValue().isPresent()) {
                     createNewActualValue(keyAccessor, keyAccessorType);
                 }

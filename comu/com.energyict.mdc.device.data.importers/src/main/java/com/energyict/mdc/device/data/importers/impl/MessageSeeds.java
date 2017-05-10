@@ -71,7 +71,7 @@ public enum MessageSeeds implements MessageSeed {
     PROCESS_SQL_EXCEPTION(504, "ProcessSqlException", "Can''t process line {0}.  There was a problem accessing the database", Level.SEVERE),
     NO_SUCH_KEY_ACCESSOR_TYPE(505, "NoSuchKeyAccessorType", "Can''t process line {0}.  The device type does not have a security accessor with name {1}", Level.SEVERE),
     UNKNOWN_KEY_WRAPPER(506, "UnknownKeyWrapperType", "Can''t process line {0}.  The importer doesn't know how to handle values of this type, only plaintext keys are supported", Level.SEVERE),
-    ;
+    NO_VALUE_FOR_SECURITY_PROPERTY(507, "NoValueForSecurityProperty", "Can''t process line {0}.  No value was defined for property {1} so the importer doesn''t know where to store the value", Level.SEVERE);
 
     private final int number;
     private final String key;
