@@ -83,6 +83,10 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
         {
             ref: 'keysGrid',
             selector: '#mdc-device-accessors-keys-grid'
+        },
+        {
+            ref: 'certificatesGrid',
+            selector: '#mdc-device-accessors-certificates-grid'
         }
     ],
 
@@ -136,8 +140,10 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
 
         if (newActiveItem.itemId === 'mdc-device-accessors-keys-tab') {
             url = url.replace('/certificates', '/keys');
+            me.onKeyRecordSelected(me.getKeysGrid(), me.getKeysGrid() ? me.getKeysGrid().getSelectionModel().getSelection()[0] : null);
         } else if (newActiveItem.itemId === 'mdc-device-accessors-certificates-tab') {
             url = url.replace('/keys', '/certificates');
+            me.onCertificateRecordSelected(me.getCertificatesGrid(), me.getCertificatesGrid() ? me.getCertificatesGrid().getSelectionModel().getSelection()[0] : null);
         }
         Uni.util.History.setParsePath(false);
         Uni.util.History.suspendEventsForNextCall();
@@ -175,6 +181,7 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
     },
 
     onKeyRecordSelected: function (grid, record) {
+        if (Ext.isEmpty(record)) return;
         var me = this,
             actionsMenu = me.getKeyPreview().down('device-security-accessors-action-menu'),
             hasViewRights = Mdc.securityaccessors.view.PrivilegesHelper.hasPrivileges(record.get('viewLevels')),
@@ -230,6 +237,7 @@ Ext.define('Mdc.securityaccessors.controller.DeviceSecurityAccessors', {
     },
 
     onCertificateRecordSelected: function (grid, record) {
+        if (Ext.isEmpty(record)) return;
         var me = this,
             actionsMenu = me.getCertificatePreview().down('device-security-accessors-action-menu'),
             tempPropertiesAvailable = record.get('hasTempValue'),
