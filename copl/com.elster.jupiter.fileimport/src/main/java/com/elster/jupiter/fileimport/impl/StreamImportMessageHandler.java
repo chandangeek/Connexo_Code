@@ -13,8 +13,10 @@ import com.elster.jupiter.fileimport.NoSuchDataImporter;
 import com.elster.jupiter.fileimport.Status;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.BaseException;
 import com.elster.jupiter.util.json.JsonService;
 
 import java.sql.Connection;
@@ -104,7 +106,11 @@ class StreamImportMessageHandler implements MessageHandler {
     }
 
     private void handleException(ServerFileImportOccurrence occurrence, Exception ex) {
-        occurrence.getLogger().log(Level.SEVERE, ex.getLocalizedMessage(), ex);
+        String message = ex.getLocalizedMessage();
+        if(BaseException.class.isAssignableFrom(ex.getClass())) {
+            message = "(" + ((BaseException) ex).getErrorCode() + ") " + message;
+        }
+        occurrence.getLogger().log(Level.SEVERE, message, ex);
         if (Status.PROCESSING.equals(occurrence.getStatus())) {
             occurrence.markFailure(ex.getLocalizedMessage());
         }
