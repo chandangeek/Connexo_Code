@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.engine.impl.core.online;
 
-import com.elster.jupiter.datavault.KeyStoreService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
@@ -57,7 +56,6 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.impl.DLMSKeyStoreUserFile;
 import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
@@ -104,12 +102,10 @@ import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateAlias;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
-import java.security.cert.CertificateException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -153,10 +149,6 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private DeviceService getDeviceService() {
         return this.serviceProvider.deviceService();
-    }
-
-    private KeyStoreService getKeyStoreService() {
-        return this.serviceProvider.keyStoreService();
     }
 
     private CommunicationTaskService getCommunicationTaskService() {
@@ -467,14 +459,9 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private void doAddCACertificate(CertificateAlias certificateAlias) {
-        try {
-            new DLMSKeyStoreUserFile(this.getKeyStoreService())
-                    .importCertificate(
-                            certificateAlias.getCertificate(),
-                            certificateAlias.getAlias());
-        } catch (CertificateException e) {
-            throw new RuntimeException(e);
-        }
+        //TODO create CertificateWrapper entry
+
+
     }
 
     @Override
@@ -846,7 +833,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             if (securityPropertySet == null) {
                 return null;
             } else {
-               return new DeviceProtocolSecurityPropertySetImpl(
+                return new DeviceProtocolSecurityPropertySetImpl(
                         securityPropertySet.getClient(),
                         securityPropertySet.getAuthenticationDeviceAccessLevel().getId(),
                         securityPropertySet.getEncryptionDeviceAccessLevel().getId(),
@@ -1384,8 +1371,6 @@ public class ComServerDAOImpl implements ComServerDAO {
         EventService eventService();
 
         IdentificationService identificationService();
-
-        KeyStoreService keyStoreService();
 
         FirmwareService firmwareService();
 

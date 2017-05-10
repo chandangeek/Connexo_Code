@@ -61,7 +61,6 @@ public class InboundComPortExecutorImpl implements InboundComPortExecutor {
         context.setDeviceMasterDataExtractor(Services.deviceMasterDataExtractor());
         context.setMessageFileExtractor(Services.deviceMessageFileExtractor());
         context.setX509Service(Services.x509Service());
-        context.setKeyStoreService(Services.keyStoreService());
         context.setCertificateWrapperExtractor(Services.certificateWrapperExtractor());
         context.setCertificateAliasFinder(Services.certificateAliasFinder());
 

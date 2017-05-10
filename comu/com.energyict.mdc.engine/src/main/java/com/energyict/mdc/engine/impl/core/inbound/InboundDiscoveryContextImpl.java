@@ -18,7 +18,6 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ObjectMapperService;
-import com.energyict.mdc.upl.crypto.KeyStoreService;
 import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
@@ -71,7 +70,6 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     private DeviceMasterDataExtractor deviceMasterDataExtractor;
     private DeviceExtractor deviceExtractor;
     private DeviceMessageFileExtractor messageFileExtractor;
-    private KeyStoreService keyStoreService;
     private X509Service x509Service;
     private CertificateWrapperExtractor certificateWrapperExtractor;
     private CertificateAliasFinder certificateAliasFinder;
@@ -250,15 +248,6 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     }
 
     @Override
-    public KeyStoreService getKeyStoreService() {
-        return keyStoreService;
-    }
-
-    public void setKeyStoreService(KeyStoreService keyStoreService) {
-        this.keyStoreService = keyStoreService;
-    }
-
-    @Override
     public CertificateWrapperExtractor getCertificateWrapperExtractor() {
         return certificateWrapperExtractor;
     }
@@ -274,11 +263,6 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
 
     public void setCertificateAliasFinder(CertificateAliasFinder certificateAliasFinder) {
         this.certificateAliasFinder = certificateAliasFinder;
-    }
-
-    @Override
-    public X509Service getX509Service() {
-        return x509Service;
     }
 
     public void setX509Service(X509Service x509Service) {

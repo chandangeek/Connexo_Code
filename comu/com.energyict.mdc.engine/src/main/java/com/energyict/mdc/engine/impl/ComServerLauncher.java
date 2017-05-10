@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.engine.impl;
 
-import com.elster.jupiter.datavault.KeyStoreService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
@@ -345,11 +344,6 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
         @Override
         public IdentificationService identificationService() {
             return serviceProvider.identificationService();
-        }
-
-        @Override
-        public KeyStoreService keyStoreService() {
-            return serviceProvider.keyStoreService();
         }
 
         @Override
