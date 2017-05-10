@@ -16,7 +16,38 @@ Ext.define('Imt.purpose.view.summary.PurposeMain', {
     initComponent: function () {
         var me = this,
             router = me.router,
-            dataStore;
+            dataStore,
+            dataViewComponent;
+
+        dataViewComponent = me.intervalsCount ? {
+            title:  Uni.I18n.translate('purpose.summary.dataView', 'IMT', 'Data view'),
+            itemId: 'purpose-data-view',
+            items: {
+                xtype: 'purpose-data-view',
+                interval: me.interval,
+                purpose: me.purpose,
+                usagePoint: me.usagePoint,
+                outputs: me.outputs,
+                router: me.router,
+                prevNextListLink: me.prevNextListLink
+            },
+            listeners: {
+                activate: me.controller.showDataViewTab,
+                scope: me.controller
+            },
+            usagePoint: me.usagePoint,
+            purpose: me.purpose,
+            output: me.output
+
+        } : {
+            title:  Uni.I18n.translate('purpose.summary.dataView', 'IMT', 'Data view'),
+            itemId: 'purpose-data-view',
+            items: {
+                xtype: 'uni-form-empty-message',
+                itemId: 'purpose-data-view-empty-message',
+                text: Uni.I18n.translate('purpose.summary.dataView.no.interval.outputs', 'IMT', 'No interval outputs on this purpose')
+            }
+        };
 
         me.title = router.getRoute().getTitle();
         me.content = [
@@ -44,27 +75,7 @@ Ext.define('Imt.purpose.view.summary.PurposeMain', {
                         },
                         purpose: me.purpose
                     },
-                    {
-                        title:  Uni.I18n.translate('purpose.summary.dataView', 'IMT', 'Data view'),
-                        itemId: 'purpose-data-view',
-                        items: {
-                            xtype: 'purpose-data-view',
-                            interval: me.interval,
-                            purpose: me.purpose,
-                            usagePoint: me.usagePoint,
-                            outputs: me.outputs,
-                            router: me.router,
-                            prevNextListLink: me.prevNextListLink
-                        },
-                        listeners: {
-                            activate: me.controller.showDataViewTab,
-                            scope: me.controller
-                        },
-                        usagePoint: me.usagePoint,
-                        purpose: me.purpose,
-                        output: me.output
-
-                    }
+                    dataViewComponent
                 ]
             }
         ];

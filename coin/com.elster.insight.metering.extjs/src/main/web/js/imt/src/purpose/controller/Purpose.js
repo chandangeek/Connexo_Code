@@ -108,6 +108,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             dependenciesCounter = 6,
             defaultPeriod,
             usagePoint,
+            intervalsCount,
             outputs,
             purposes;
 
@@ -124,6 +125,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
             intervalsStore.getProxy().extraParams = {usagePointId: usagePointId, purposeId: purposeId};
             intervalsStore.load(function (records) {
+                intervalsCount = records.length;
                 onDependenciesLoad();
             });
 
@@ -173,6 +175,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                         outputs: filteredOutputsStore,
                         purposes: purposes,
                         purpose: purpose,
+                        intervalsCount: intervalsCount,
                         defaultPeriod: defaultPeriod,
                         controller: me,
                         prevNextListLink: me.makeLinkToOutputs(router),

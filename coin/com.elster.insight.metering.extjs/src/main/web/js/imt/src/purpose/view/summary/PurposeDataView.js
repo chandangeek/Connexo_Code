@@ -10,7 +10,8 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
         'Uni.grid.FilterPanelTop',
         'Imt.purpose.view.summary.PurposeDataGrid',
         'Uni.view.highstock.GraphView',
-        'Imt.purpose.view.summary.TopNavigationToolbar'
+        'Imt.purpose.view.summary.TopNavigationToolbar',
+        'Imt.purpose.view.summary.NoDataOnPurposeFoundPanel'
     ],
     store: 'Imt.purpose.store.PurposeSummaryData',
     mixins: {
@@ -37,17 +38,18 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
             zoomLevelsStore = Ext.getStore('Uni.store.DataIntervalAndZoomLevels'),
             all,
             intervalLengthInMs = 0,
+            intervalsStore = Ext.getStore('Imt.purpose.store.IntervalFilter'),
             duration;
 
 
         emptyComponent = {
-            xtype: 'no-readings-found-panel',
+            xtype: 'no-data-on-purpose-found-panel',
             itemId: 'readings-empty-panel',
             hidden: true
         };
 
 
-        me.interval = zoomLevelsStore.getIntervalRecord(Ext.getStore('Imt.purpose.store.IntervalFilter').getAt(0).getData());
+        me.interval = zoomLevelsStore.getIntervalRecord(intervalsStore.getAt(0).getData());
 
         if (me.interval) {
             durations = Ext.create('Uni.store.Durations');
@@ -197,13 +199,13 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
         var me = this;
 
         if(!store.getCount()){
-            me.down('no-readings-found-panel').show();
+            me.down('no-data-on-purpose-found-panel').show();
             me.down('purpose-data-grid') && me.down('purpose-data-grid').hide();
             me.down('purpose-top-navigation-toolbar') && me.down('purpose-top-navigation-toolbar').hide();
             me.showGraphView();
             me.setLoading(false);
         } else {
-            me.down('no-readings-found-panel').hide();
+            me.down('no-data-on-purpose-found-panel').hide();
             me.graphTitle = Uni.I18n.translate('purpose.summary.intervalData', 'IMT', '{0} data', me.down('#purpose-data-topfilter-interval').getRawValue());
             me.outputs.clearFilter(true);
             me.outputs.load({
