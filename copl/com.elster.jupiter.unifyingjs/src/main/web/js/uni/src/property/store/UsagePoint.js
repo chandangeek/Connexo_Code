@@ -13,6 +13,7 @@ Ext.define('Uni.property.store.UsagePoint', {
     proxy: {
         type: 'rest',
         url: '/api/mtr/usagepoints',
+        limit: 50,
         reader: {
             type: 'json',
             root: 'usagePoints'
