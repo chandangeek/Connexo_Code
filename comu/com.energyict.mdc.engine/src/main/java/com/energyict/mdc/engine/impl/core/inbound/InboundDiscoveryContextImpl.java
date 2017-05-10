@@ -18,7 +18,6 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ObjectMapperService;
-import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
@@ -70,7 +69,6 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     private DeviceMasterDataExtractor deviceMasterDataExtractor;
     private DeviceExtractor deviceExtractor;
     private DeviceMessageFileExtractor messageFileExtractor;
-    private X509Service x509Service;
     private CertificateWrapperExtractor certificateWrapperExtractor;
     private CertificateAliasFinder certificateAliasFinder;
 
@@ -263,10 +261,6 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
 
     public void setCertificateAliasFinder(CertificateAliasFinder certificateAliasFinder) {
         this.certificateAliasFinder = certificateAliasFinder;
-    }
-
-    public void setX509Service(X509Service x509Service) {
-        this.x509Service = x509Service;
     }
 
     @Override
