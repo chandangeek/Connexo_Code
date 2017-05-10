@@ -37,8 +37,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
             isReadyForLinkingMC = me.usagePoint.get('isReadyForLinkingMC'),
             hasEffectiveMCs = me.usagePoint.get('hasEffectiveMCs'),
             stage = me.usagePoint.get('state').stage,
-            canModify = stage === 'PRE_OPERATIONAL' || stage === 'SUSPENDED';
-            console.log(me.hasEffectiveMCs);
+            canModify = stage === 'Pre-operational' || stage === 'Suspended';
 
         me.content = [
             {
