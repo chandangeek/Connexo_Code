@@ -34,6 +34,7 @@ import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
@@ -220,6 +221,14 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
     void setProtocolProperty(String name, Object value);
 
     void removeProtocolProperty(String name);
+
+    //TODO: once there is an actual implementation, remove the default implementation
+
+    default TypedProperties getSecurityProperties(SecurityPropertySet securityPropertySet) { return TypedProperties.empty(); };
+
+    default void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties) {};
+
+    default void setSecurityProperty(String propertyName, Object propertyValue) {};
 
     List<ProtocolDialectProperties> getProtocolDialectPropertiesList();
 
