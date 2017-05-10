@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.CertificateWrapper;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.protocolimplv2.messages.enums.ClientSecuritySetup;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
@@ -593,7 +594,16 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
                     bigDecimalSpec(service, DeviceMessageConstants.requiredProtection, DeviceMessageConstants.requiredProtectionDefaultTranslation)
             );
         }
+    },
+    KEY_RENEWAL(7064, "Renew key") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                   keyAccessorTypeSpec(service, DeviceMessageConstants.keyAccessorTypeAttributeName, DeviceMessageConstants.keyAccessorTypeAttributeNameDefaultTranslation)
+            );
+        }
     };
+
 
     private final long id;
     private final String defaultNameTranslation;
@@ -660,6 +670,15 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
                 .referenceSpec(DeviceGroup.class.getName())
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired()
+                .finish();
+    }
+    protected PropertySpec keyAccessorTypeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .referenceSpec(KeyAccessorType.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()

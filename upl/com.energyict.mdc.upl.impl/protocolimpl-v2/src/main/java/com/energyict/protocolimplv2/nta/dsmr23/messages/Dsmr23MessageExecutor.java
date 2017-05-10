@@ -36,6 +36,8 @@ import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
@@ -105,6 +107,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDat
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlConfigAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
 
 /**
  * @author sva
@@ -211,6 +214,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     mBusClientRemoteCommissioning(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.ChangeMBusAttributes)) {
                     changeMBusClientAttributes(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(SecurityMessage.KEY_RENEWAL)) {
+                    renewKey(pendingMessage);
                 } else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
@@ -469,6 +474,41 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
         byte[] key = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName), "");
+        keyData.addDataType(OctetString.fromByteArray(key));
+        globalKeyArray.addDataType(keyData);
+
+        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
+        ss.transferGlobalKey(globalKeyArray);
+    }
+
+
+    //TODO refactor so OfflineKeyAccessor is not necessary anymore
+    private void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        String keyAccessorType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, keyAccessorTypeAttributeName).getDeviceMessageAttributeValue();
+
+        List<OfflineKeyAccessor> offlineKeyAccessors = getProtocol().getOfflineDevice().getAllOfflineKeyAccessors();
+        OfflineKeyAccessor keyAccessor = offlineKeyAccessors.stream().filter(e -> e.getKeyAccessorType().getName().equals(keyAccessorType)).findFirst().get();
+        String masterKeyName = ((KeyAccessorType)getProtocol().getOfflineDevice().getAllProperties().getTypedProperty(DlmsSecuritySupportCryptography.MASTER_KEY_PROPERTY_NAME)).getName();
+
+        OfflineKeyAccessor masterKey = offlineKeyAccessors.stream().filter(e -> e.getKeyAccessorType().getName().equals(masterKeyName)).findFirst().get();
+
+        TypedProperties securityProperties = getSecurityProperties();
+
+        if (((KeyAccessorType)securityProperties.getTypedProperty(DlmsSecuritySupportCryptography.DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME)).getName().equals(keyAccessorType)) {
+            renewKey(keyAccessor, masterKey, 2);
+        }
+        if (((KeyAccessorType)securityProperties.getTypedProperty(DlmsSecuritySupportCryptography.DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME)).getName().equals(keyAccessorType)) {
+            renewKey(keyAccessor, masterKey, 0);
+        }
+    }
+
+    private void renewKey(OfflineKeyAccessor keyAccessor, OfflineKeyAccessor masterKey, int type) throws IOException {
+        Array globalKeyArray = new Array();
+        Structure keyData = new Structure();
+        keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
+
+        byte[] key = ProtocolTools.aesWrap(((PlaintextSymmetricKey)keyAccessor.getTempValue().get()).getKey().get().getEncoded(), ((PlaintextSymmetricKey)masterKey.getActualValue().get()).getKey().get().getEncoded());
+
         keyData.addDataType(OctetString.fromByteArray(key));
         globalKeyArray.addDataType(keyData);
 

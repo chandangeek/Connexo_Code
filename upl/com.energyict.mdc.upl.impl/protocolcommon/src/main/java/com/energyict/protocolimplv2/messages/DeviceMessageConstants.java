@@ -1546,4 +1546,7 @@ public final class DeviceMessageConstants {
 
     public static final String adHocEndOfBillingActivationDatedAttributeName = "AdHocEndOfBilling.activationDateTime";
     public static final String adHocEndOfBillingActivationDatedAttributeDefaultTranslation = "Ad hoc end of billing date";
+
+    public static final String keyAccessorTypeAttributeName = "keyAccessorType";
+    public static final String keyAccessorTypeAttributeNameDefaultTranslation = "Key accessor type";
 }
