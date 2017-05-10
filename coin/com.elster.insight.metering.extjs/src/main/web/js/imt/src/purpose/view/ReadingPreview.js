@@ -61,32 +61,21 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         } else if (validationResult) {
             switch (validationResult.split('.')[1]) {
                 case 'notValidated':
-                    if (!Ext.isEmpty(estimatedByRule)) {
-                        validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + ')' + me.getEstimationFlagWithTooltip(estimatedByRule, record);
-                    } else {
                         validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') + ')' +
                             '<span class="icon-flag6" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
-                    }
                     break;
                 case 'suspect':
-                    if (!Ext.isEmpty(estimatedByRule)) {
-                        validationResultText = '(' + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + ')' +
-                            '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>' + me.getEstimationFlagWithTooltip(estimatedByRule, record);
-                    } else {
                         validationResultText = '(' + Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') + ')' +
                             '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';
-                    }
                     break;
                 case 'ok':
                     validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect') + ')';
-                    if (record.get('action') == 'WARN_ONLY') {
                         validationResultText += '<span class="icon-flag5" style="margin-left:10px; color:#dedc49;"></span>';
-                    } else if (!Ext.isEmpty(estimatedByRule)) {
-                        validationResultText += me.getEstimationFlagWithTooltip(estimatedByRule, record);
-                    }
                     break;
             }
         }
+
+        validationResultText += estimatedByRule ? me.getEstimationFlagWithTooltip(estimatedByRule, record) : '';
         if (editedAndProjected) {
             validationResultText = '<span style="margin-left:5px; font-weight:bold; cursor: default" data-qtip="'
                 + Uni.I18n.translate('reading.estimated.projected', 'IMT', 'Projected') + '">P</span>';
@@ -120,12 +109,10 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             case 'notValidated':
                 validationResultText = Uni.I18n.translate('reading.validationResult.notvalidated', 'IMT', 'Not validated') +
                     '<span class="icon-flag6" style="margin-left:10px; display:inline-block; vertical-align:top;"></span>';
-                validationResultText += estimatedByRule ? me.getEstimationFlagWithTooltip(estimatedByRule, record) : '';
                 break;
             case 'suspect':
                 validationResultText = Uni.I18n.translate('reading.validationResult.suspect', 'IMT', 'Suspect') +
                     '<span class="icon-flag5" style="margin-left:10px; display:inline-block; vertical-align:top; color:red;"></span>';
-                validationResultText += estimatedByRule ? me.getEstimationFlagWithTooltip(estimatedByRule, record) : '';
                 break;
             case 'ok':
                 validationResultText = Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect');
@@ -137,6 +124,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                 break;
         }
 
+        validationResultText += estimatedByRule ? me.getEstimationFlagWithTooltip(estimatedByRule, record) : '';
         return validationResultText;
     },
 
