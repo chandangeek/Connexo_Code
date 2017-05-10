@@ -47,14 +47,16 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
         }
 
         private void copyFile(StructureMarker structureMarker, Path path) {
-            doCopy(path, determineTargetFile(structureMarker));
+            Path temporaryFilePath = temporaryTargetFile(structureMarker);
+            Path finalFilePath = determineTargetFile(structureMarker);
+            doCopy(path, temporaryFilePath, finalFilePath);
         }
 
-        private Path determineTargetFile(StructureMarker structureMarker) {
+        private Path temporaryTargetFile(StructureMarker structureMarker) {
             TagReplacer tagReplacer = tagReplacerFactory.forMarker(structureMarker);
             String fileLocationWithTags = tagReplacer.replaceTags(fileLocation);
             Path targetDirectory = getTargetDirectory(fileLocationWithTags);
-            String fileNameWithTags = tagReplacer.replaceTags(fileName) + '.' + fileExtension;
+            String fileNameWithTags = tagReplacer.replaceTags(fileName) + ".tmp";
             if (!Files.exists(targetDirectory)) {
                 try {
                     targetDirectory = Files.createDirectories(targetDirectory);
@@ -66,16 +68,24 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
             return targetDirectory.resolve(fileNameWithTags);
         }
 
-        private void doCopy(Path source, Path target) {
+        private Path determineTargetFile(StructureMarker structureMarker) {
+            TagReplacer tagReplacer = tagReplacerFactory.forMarker(structureMarker);
+            String fileLocationWithTags = tagReplacer.replaceTags(fileLocation);
+            Path targetDirectory = getTargetDirectory(fileLocationWithTags);
+            String fileNameWithTags = tagReplacer.replaceTags(fileName) + '.' + fileExtension;
+            return targetDirectory.resolve(fileNameWithTags);
+        }
+
+        private void doCopy(Path source, Path temporaryPath, Path finalPath) {
             try {
-                Path temporaryFile = Files.copy(source, target.getParent().resolve(fileName + "." + "tmp"));
-                Files.move(temporaryFile, target);
+                Files.copy(source, temporaryPath);
+                Files.move(temporaryPath, finalPath);
             } catch (Exception e) {
                 throw new DestinationFailedException(
-                        thesaurus, MessageSeeds.FILE_DESTINATION_FAILED, e, target.toAbsolutePath().toString(), e.toString() + " " + e.getMessage());
+                        thesaurus, MessageSeeds.FILE_DESTINATION_FAILED, e, finalPath.toAbsolutePath().toString(), e.toString() + " " + e.getMessage());
             }
             try (TransactionContext context = getTransactionService().getContext()) {
-                MessageSeeds.DATA_EXPORTED_TO.log(logger, thesaurus, target.toAbsolutePath().toString());
+                MessageSeeds.DATA_EXPORTED_TO.log(logger, thesaurus, finalPath.toAbsolutePath().toString());
                 context.commit();
             }
         }
