@@ -95,7 +95,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesPreview
             }),
             properties = me.getAppropriateCustomProperties(purpose.readingTypeDeliverables, usagePoint.customPropertySets());
 
-        return _.map(properties, function (property) {
+        return _.map(_.uniq(properties) , function (property) {
             return {
                 fieldLabel: property.get('name'),
                 htmlEncode: false,
@@ -139,10 +139,13 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesPreview
     formatCustomPropertyValue: function (property) {
         var valueRegExp = /(-?\d*)\:-?\d*\:.*/,
             propertyValue = property.getPropertyValue().get('value'),
+            possibleValues = property.getPossibleValues(),
             value;
 
         if (propertyValue && propertyValue.displayValue) {
             value = propertyValue.id.replace(valueRegExp, '$1') + ' ' + propertyValue.displayValue;
+        } else if (possibleValues.length) {
+            value =  _.find(possibleValues, function(v){ return v.id == propertyValue; }).name;
         } else if (!Ext.isEmpty(propertyValue)) {
             value = propertyValue;
         }
