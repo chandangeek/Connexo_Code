@@ -69,6 +69,8 @@ public enum MessageSeeds implements MessageSeed {
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL(502, "UsagePointAlreadyLinkedToAnotherDeviceXUntil", "Can''t process line {0}: Usage point {1} is already linked to device {2} from {3} until {4}", Level.WARNING),
     UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT(503, "DeviceDoesNotProvideRequiredReadingTypes", "Can''t process line {0}: Device {1} doesn''t have the following reading types that are specified in the metrology configurations of selected usage point {2}: {3}", Level.WARNING),
     PROCESS_SQL_EXCEPTION(504, "ProcessSqlException", "Can''t process line {0}.  There was a problem accessing the database", Level.SEVERE),
+    NO_SUCH_KEY_ACCESSOR_TYPE(505, "NoSuchKeyAccessorType", "Can''t process line {0}.  The device type does not have a security accessor with name {1}", Level.SEVERE),
+    UNKNOWN_KEY_WRAPPER(506, "UnknownKeyWrapperType", "Can''t process line {0}.  The importer doesn't know how to handle values of this type, only plaintext keys are supported", Level.SEVERE),
     ;
 
     private final int number;

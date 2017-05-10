@@ -5,31 +5,34 @@
 package com.energyict.mdc.device.data.importers.impl.attributes.security;
 
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
-import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.PlaintextPassphrase;
+import com.elster.jupiter.pki.PlaintextSymmetricKey;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter;
-import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter.PropertiesConverterConfig;
-import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * Imports the actual values for KeyAccessors defined through SecurityAccessorTypes on DeviceConfig.
+ */
 public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImportProcessor<SecurityAttributesImportRecord> { //TODO
 
-    private final PropertiesConverterConfig propertiesConverterConfig;
-
     private String securitySettingsName;
+    private final PkiService pkiService;
 
-    SecurityAttributesImportProcessor(DeviceDataImporterContext context, SupportedNumberFormat numberFormat) {
+    SecurityAttributesImportProcessor(DeviceDataImporterContext context, PkiService pkiService) {
         super(context);
-        this.propertiesConverterConfig = PropertiesConverterConfig.newConfig().withNumberFormat(numberFormat);
+        this.pkiService = pkiService;
     }
 
     @Override
@@ -40,14 +43,11 @@ public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImp
         SecurityPropertySet deviceConfigSecurityPropertySet = device.getDeviceConfiguration().getSecurityPropertySets().stream()
                 .filter(securityPropertySet -> securityPropertySet.getName().equals(data.getSecuritySettingsName())).findFirst()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SECURITY_SETTINGS_ON_DEVICE, data.getLineNumber(), data.getSecuritySettingsName()));
-        TypedProperties typedProperties = getUpdatedProperties(device, deviceConfigSecurityPropertySet, data);
         try {
-//            device.setSecurityProperties(deviceConfigSecurityPropertySet, typedProperties);
-            device.save();
+            updatedProperties(device, deviceConfigSecurityPropertySet, data);
         } catch (Exception e) {
             throw new ProcessorException(MessageSeeds.SECURITY_ATTRIBUTES_NOT_SET, data.getLineNumber(), data.getDeviceIdentifier());
         }
-        logMissingPropertiesIfIncomplete(data, logger, device, deviceConfigSecurityPropertySet, typedProperties);
     }
 
     @Override
@@ -55,59 +55,51 @@ public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImp
         // do nothing
     }
 
-    private void logMissingPropertiesIfIncomplete(SecurityAttributesImportRecord data, FileImportLogger logger, Device device, SecurityPropertySet deviceConfigSecurityPropertySet, TypedProperties typedProperties) {
-//        if (device.getSecurityProperties(deviceConfigSecurityPropertySet).stream().anyMatch(securityProperty -> !securityProperty.isComplete())) {
-//            String missingProperties = deviceConfigSecurityPropertySet.getPropertySpecs().stream()
-//                    .filter(PropertySpec::isRequired)
-//                    .map(PropertySpec::getName)
-//                    .filter(propertySpec -> !typedProperties.hasValueFor(propertySpec))
-//                    .collect(Collectors.joining(", "));
-//            if (!missingProperties.isEmpty()) {
-//                logger.warning(MessageSeeds.REQUIRED_SECURITY_ATTRIBUTES_MISSED, data.getLineNumber(), missingProperties);
-//            }
-//        }
-    }
-
-    private TypedProperties getUpdatedProperties(Device device, SecurityPropertySet deviceConfigSecurityPropertySet, SecurityAttributesImportRecord data) {
-        TypedProperties typedProperties = getTypedPropertiesForSecurityPropertySet(device, deviceConfigSecurityPropertySet);
+    private void updatedProperties(Device device, SecurityPropertySet deviceConfigSecurityPropertySet, SecurityAttributesImportRecord data) {
         for (PropertySpec propertySpec : deviceConfigSecurityPropertySet.getPropertySpecs()) {
             if (data.getSecurityAttributes().containsKey(propertySpec.getName())) {
-                Object newPropertyValue = parseStringToValue(propertySpec, data.getSecurityAttributes().get(propertySpec.getName()), data);
-                typedProperties.setProperty(propertySpec.getName(), newPropertyValue);
-            } else {
-                typedProperties.removeProperty(propertySpec.getName());
+                KeyAccessorType keyAccessorType = device.getDeviceType().getKeyAccessorTypes().stream()
+                        .filter(ka -> ka.getName().equals(propertySpec.getName()))
+                        .findAny()
+                        .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE,
+                                data.getLineNumber(),
+                                propertySpec.getName()));
+                KeyAccessor<SecurityValueWrapper> keyAccessor = device.getKeyAccessor(keyAccessorType).orElseGet(()->device.newKeyAccessor(keyAccessorType));
+                if (!keyAccessor.getActualValue().isPresent()) {
+                    createNewActualValue(keyAccessor, keyAccessorType);
+                }
+                setPropertyOnSecurityAccessor(data, propertySpec, keyAccessor.getActualValue().get());
             }
         }
-        return typedProperties;
     }
 
-    private TypedProperties getTypedPropertiesForSecurityPropertySet(Device device, SecurityPropertySet securityPropertySet) {
-        TypedProperties typedProperties = TypedProperties.empty();
-//        for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
-//            typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
-//        }
-        return typedProperties;
+    private void setPropertyOnSecurityAccessor(SecurityAttributesImportRecord data, PropertySpec propertySpec, SecurityValueWrapper actualValue) {
+        Map<String, Object> properties = new HashMap<>();
+        String value = data.getSecurityAttributes().get(propertySpec.getName());
+        if (actualValue instanceof PlaintextSymmetricKey) {
+            properties.put("key", value);
+        } else if (actualValue instanceof PlaintextPassphrase) {
+            properties.put("passphrase", value);
+        } else {
+            throw new ProcessorException(MessageSeeds.UNKNOWN_KEY_WRAPPER, data.getLineNumber(), data.getDeviceIdentifier());
+        }
+        actualValue.setProperties(properties);
     }
 
-    private Object parseStringToValue(PropertySpec propertySpec, String value, SecurityAttributesImportRecord data) {
-        ValueFactory<?> valueFactory = propertySpec.getValueFactory();
-        Optional<DynamicPropertyConverter> propertyParser = DynamicPropertyConverter.of(valueFactory.getClass());
-        Object parsedValue;
-        try {
-            if (propertyParser.isPresent()) {
-                value = propertyParser.get().configure(propertiesConverterConfig).convert(value);
-            }
-            parsedValue = valueFactory.fromStringValue(value);
-        } catch (Exception e) {
-            String expectedFormat = propertyParser.isPresent() ? propertyParser.get().getExpectedFormat(getContext().getThesaurus()) : valueFactory.getValueType().getName();
-            throw new ProcessorException(MessageSeeds.LINE_FORMAT_ERROR, data.getLineNumber(), propertySpec.getName(), expectedFormat);
+    private void createNewActualValue(KeyAccessor<SecurityValueWrapper> keyAccessor, KeyAccessorType keyAccessorType) {
+        SecurityValueWrapper newValue;
+        switch (keyAccessorType.getKeyType().getCryptographicType()) {
+            case SymmetricKey:
+                newValue = pkiService.newSymmetricKeyWrapper(keyAccessorType);
+                break;
+            case Passphrase:
+                newValue = pkiService.newPassphraseWrapper(keyAccessorType);
+                break;
+            default:
+                throw new IllegalStateException("Import of values of this security accessor is not supported: "+keyAccessorType.getName());
         }
-        try {
-            propertySpec.validateValue(parsedValue);
-        } catch (InvalidValueException e) {
-            throw new ProcessorException(MessageSeeds.SECURITY_ATTRIBUTE_INVALID_VALUE, data.getLineNumber(), parsedValue, propertySpec.getName());
-        }
-        return parsedValue;
+        keyAccessor.setActualValue(newValue);
+        keyAccessor.save();
     }
 
     private void validateSecuritySettingsNameUniquenessInFile(SecurityAttributesImportRecord data) {
