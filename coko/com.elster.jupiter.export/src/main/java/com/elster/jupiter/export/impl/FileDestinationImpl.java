@@ -17,7 +17,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
 import javax.inject.Inject;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -69,13 +68,14 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
 
         private void doCopy(Path source, Path target) {
             try {
-                Files.copy(source, target);
+                Path temporaryFile = Files.copy(source, target.getParent().resolve(fileName + "." + "tmp"));
+                Files.move(temporaryFile, target);
             } catch (Exception e) {
                 throw new DestinationFailedException(
                         thesaurus, MessageSeeds.FILE_DESTINATION_FAILED, e, target.toAbsolutePath().toString(), e.toString() + " " + e.getMessage());
             }
             try (TransactionContext context = getTransactionService().getContext()) {
-                    MessageSeeds.DATA_EXPORTED_TO.log(logger, thesaurus, target.toAbsolutePath().toString());
+                MessageSeeds.DATA_EXPORTED_TO.log(logger, thesaurus, target.toAbsolutePath().toString());
                 context.commit();
             }
         }
