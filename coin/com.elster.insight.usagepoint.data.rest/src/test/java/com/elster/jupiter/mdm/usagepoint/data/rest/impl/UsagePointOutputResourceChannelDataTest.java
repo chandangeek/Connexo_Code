@@ -4,10 +4,14 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.estimation.Estimatable;
@@ -19,6 +23,7 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelEstimationRuleOverriddenProperties;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointEstimation;
 import com.elster.jupiter.metering.AggregatedChannel;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
@@ -38,6 +43,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.BigDecimalFunction;
 import com.elster.jupiter.rest.util.IntervalInfo;
@@ -54,6 +60,7 @@ import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
+import com.google.inject.Singleton;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
@@ -75,7 +82,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -197,7 +206,9 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
                         INTERVAL_2.upperEndpoint(),
                         INTERVAL_3.upperEndpoint())
                 );
-
+        when(channel2.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint()))).thenReturn(
+                Arrays.asList(INTERVAL_1.upperEndpoint(), INTERVAL_2.upperEndpoint(), INTERVAL_3.upperEndpoint())
+        );
         when(usagePoint.getMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
         when(meterActivation.getRange()).thenReturn(Range.atLeast(INTERVAL_1.lowerEndpoint()));
 
@@ -227,6 +238,16 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         return ExtjsFilter.filter()
                 .property("intervalStart", start.toEpochMilli())
                 .property("intervalEnd", end.toEpochMilli())
+                .create();
+    }
+
+    private String buildFilterForData(Instant start, Instant end, Long intervalId, String unitId, boolean includeBulk) throws UnsupportedEncodingException {
+        return ExtjsFilter.filter()
+                .property("intervalStart", start.toEpochMilli())
+                .property("intervalEnd", end.toEpochMilli())
+                .property("timeInterval", intervalId)
+                .property("unit", unitId)
+                .property("bulk", String.valueOf(includeBulk))
                 .create();
     }
 
@@ -634,6 +655,36 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<String>get("$.channelData[0].value")).isEqualTo("1");
         assertThat(jsonModel.<List<?>>get("$.channelData[0].readingQualities")).hasSize(2);
         assertThat(jsonModel.<List<String>>get("$.channelData[0].readingQualities[*].cimCode")).containsOnly("2.7.0", "2.5.258");
+    }
+
+    @Test
+    public void testGetChannelDataOfAllOutputs() throws UnsupportedEncodingException {
+        IdWithNameInfo intervalInfo  = new IdWithNameInfo(11, "Daily");
+        IdWithNameInfo unitInfo = new IdWithNameInfo("-2:5", "A");
+        ReadingType readingType = mock(ReadingType.class);
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(effectiveMC2));
+        when(channel2.getMainReadingType()).thenReturn(readingType);
+        mockDifferentIntervalReadings(channel2, this.channelsContainer2);
+        effectiveMC2.getMetrologyConfiguration().getContracts().forEach( contract -> {
+                    contract.getDeliverables().forEach(deliverable -> {
+                                when(deliverable.getReadingType().isCumulative()).thenReturn(true);
+                                when(deliverable.getReadingType().getMultiplier()).thenReturn(MetricMultiplier.CENTI);
+                                when(deliverable.getReadingType().getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
+                                    }
+                            );
+                });
+        // Business method
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/data")
+                .queryParam("filter", buildFilterForData(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint(), 11L, "-2:5", true)).request().get(String.class);
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(2);
+        assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(INTERVAL_3.lowerEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(INTERVAL_3.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Map>get("$.data[0].channelData")).containsEntry("1",10);
+        assertThat(jsonModel.<Long>get("$.data[1].interval.start")).isEqualTo(INTERVAL_1.lowerEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.data[1].interval.end")).isEqualTo(INTERVAL_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Map>get("$.data[1].channelData")).containsEntry("1",1);
     }
 
     @Test

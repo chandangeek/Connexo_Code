@@ -9,6 +9,7 @@ import com.elster.jupiter.appserver.rest.AppServerHelper;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
+import com.elster.jupiter.cbo.I18N;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationService;
@@ -165,6 +166,7 @@ public class UsagePointApplication extends Application implements TranslationKey
                 .join(nlsService.getThesaurus(UsagePointDataModelService.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(com.elster.jupiter.rest.util.impl.MessageSeeds.COMPONENT_NAME, Layer.REST))
+                .join(nlsService.getThesaurus(I18N.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(UsagePointLifeCycleConfigurationService.COMPONENT_NAME, Layer.DOMAIN))
         ;
     }
@@ -453,6 +455,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(MetrologyConfigurationHistoryInfoFactory.class).to(MetrologyConfigurationHistoryInfoFactory.class);
             bind(UsagePointOutputsHistoryHelper.class).to(UsagePointOutputsHistoryHelper.class);
             bind(userService).to(UserService.class);
+            bind(PurposeOutputsDataInfoFactory.class).to(PurposeOutputsDataInfoFactory.class);
             bind(UsagePointOutputReferenceCopier.class).to(UsagePointOutputReferenceCopier.class);
         }
     }
