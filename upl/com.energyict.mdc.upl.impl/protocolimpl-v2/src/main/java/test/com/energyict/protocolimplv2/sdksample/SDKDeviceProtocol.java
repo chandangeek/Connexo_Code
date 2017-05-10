@@ -295,7 +295,26 @@ public class SDKDeviceProtocol implements DeviceProtocol {
             powerUp.addAdditionalInformation("Current", "2.61A");
             powerUp.addAdditionalInformation("Max. power", "35461W");
             powerUp.addAdditionalInformation("Reason", "Testing purpose");
-            collectedLogBook.setCollectedMeterEvents(Arrays.asList(powerDown, powerUp));
+            MeterProtocolEvent tamper =
+                    new MeterProtocolEvent(
+                            Date.from(powerUpDate.minusSeconds(20)),
+                            23,
+                            7,
+                            EndDeviceEventTypeMapping.TAMPER.getEventType(),
+                            "A device tamper has occured",
+                            1,
+                            3);
+            MeterProtocolEvent tamperCleared =
+                    new MeterProtocolEvent(
+                            Date.from(powerUpDate.plusSeconds(20)),
+                            65,
+                            77,
+                            EndDeviceEventTypeMapping.TAMPER_CLEARED.getEventType(),
+                            "A device tamper has occured",
+                            1,
+                            4);
+            tamper.addAdditionalInformation("Reason", "Testing purpose");
+            collectedLogBook.setCollectedMeterEvents(Arrays.asList(powerDown, powerUp, tamper, tamperCleared));
             collectedLogBooks.add(collectedLogBook);
         });
         return collectedLogBooks;
@@ -363,7 +382,8 @@ public class SDKDeviceProtocol implements DeviceProtocol {
                 new SDKTopologyTaskProtocolDialectProperties(propertySpecService),
                 new SDKFirmwareTaskProtocolDialectProperties(propertySpecService),
                 new SDKCalendarTaskProtocolDialectProperties(propertySpecService),
-                new SDKBreakerTaskProtocolDialectProperties(propertySpecService)
+                new SDKBreakerTaskProtocolDialectProperties(propertySpecService),
+                new SDKDeviceAlarmProtocolDialectProperties(propertySpecService)
         );
     }
 
