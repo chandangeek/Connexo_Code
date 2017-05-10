@@ -124,6 +124,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.HistoryGrid', {
                     + tooltipContent + '"></span>';
             }
         }
-        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)]) + icon;
+        return Uni.DateTime.formatDateTimeShort(date)  + icon;
     }
 });

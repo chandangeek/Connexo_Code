@@ -28,6 +28,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
                     if (!Ext.isEmpty(value) && Ext.isString(value)) {
                         var val = Ext.String.htmlEncode(value);
                         return val.substr(0, 300);
+                    } else {
+                        return '-';
                     }
                 },
                 flex: 3
@@ -46,7 +48,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
                 renderer: function(value){
                     if(value) {
                         var date = new Date(value);
-                        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                        return Uni.DateTime.formatDateTimeShort(date)
                     } else {
                         return '-';
                     }
