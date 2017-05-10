@@ -106,6 +106,7 @@ public class MetrologyConfigurationInfoFactory {
         info.mandatory = metrologyContract.isMandatory();
         info.readingTypeDeliverables = metrologyContract.getDeliverables()
                 .stream()
+                .sorted((a1,a2) -> a1.getName().compareToIgnoreCase(a2.getName()))
                 .map(deliverable -> readingTypeDeliverableFactory.asInfo(deliverable, metrologyContract.getMetrologyConfiguration()))
                 .collect(Collectors.toList());
         return info;
