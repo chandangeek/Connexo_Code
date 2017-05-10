@@ -334,12 +334,6 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         return offlineKeyAccesssors;
     }
 
-    private List<OfflineKeyAccessor> convertToOfflineKeyAccessors(final List<KeyAccessor> keyAccessors) {
-        List<OfflineKeyAccessor> offlineKeyAccesssors = new ArrayList<>(keyAccessors.size());
-        offlineKeyAccesssors.addAll(keyAccessors.stream().map(keyAccessor -> new OfflineKeyAccessorImpl(keyAccessor, serviceProvider.identificationService())).collect(Collectors.toList()));
-        return offlineKeyAccesssors;
-    }
-
     @Override
     public long getId() {
         return id;
