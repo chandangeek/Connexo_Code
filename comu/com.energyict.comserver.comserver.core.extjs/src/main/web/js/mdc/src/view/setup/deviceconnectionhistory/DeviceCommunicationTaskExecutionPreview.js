@@ -77,26 +77,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
+                                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.comTask', 'MDC', 'Communication task'),
                                     itemId: 'name'
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'comTasks',
-                                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.comTasks', 'MDC', 'Communication task(s)'),
-                                    itemId: 'comTasks',
-                                    htmlEncode: false,
-                                    renderer: function(value){
-                                        if(value!==''){
-                                            var result = '';
-                                            Ext.each(value, function(item){
-                                                result = result + '<li>'+ Ext.String.htmlEncode(item.name)+'</li>'
-                                            });
-                                            return Ext.isEmpty(result) ? '-' : result;
-                                        } else {
-                                            return '-';
-                                        }
-                                    }
                                 },
                                 {
                                     xtype: 'displayfield',
