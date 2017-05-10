@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.pki;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
@@ -15,6 +16,7 @@ import java.util.Optional;
 /**
  * A trust store is a name collection of trusted certificates. The certificates are stored as TrustedCertificate.
  */
+@ProviderType
 public interface TrustStore extends HasId, HasName {
 
     long getId();
