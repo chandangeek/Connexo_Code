@@ -15,5 +15,6 @@ public enum MicroCategory {
     INSTALLATION,
     DECOMMISSION,
     RETENTION,
-    MONITORING;
+    MONITORING,
+    MULTIELEMENT
 }
