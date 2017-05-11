@@ -150,7 +150,7 @@ Ext.define('Uni.controller.Error', {
             );
             message = Uni.I18n.translate('error.communication.failure',
                 'UNI',
-                'Connexo has encountered a problem, try refreshing the page. If the problem persists, please contact your system administrator'
+                'Connexo has encountered a problem, try refreshing the page. If the problem persists, please contact your system administrator.'
             );
             code = 'CFT-1000'; // known code - to be extracted to a reference file
         } else {
@@ -163,7 +163,7 @@ Ext.define('Uni.controller.Error', {
                 message = Uni.I18n.translate(
                     'error.internalServerErrorMessage',
                     'UNI',
-                    'Connexo has encountered an error, please contact your system administrator'
+                    'Connexo has encountered an error, please contact your system administrator.'
                 );
             } else {
                 title = Uni.I18n.translate(
@@ -195,7 +195,7 @@ Ext.define('Uni.controller.Error', {
                         message = Uni.I18n.translate(
                             'error.internalServerErrorMessage',
                             'UNI',
-                            'Connexo has encountered an error, please contact your system administrator'
+                            'Connexo has encountered an error, please contact your system administrator.'
                         );
                     } else {
                         title = Uni.I18n.translate(
@@ -216,7 +216,7 @@ Ext.define('Uni.controller.Error', {
                 message = Uni.I18n.translate(
                     'error.internalServerErrorMessage',
                     'UNI',
-                    'Connexo has encountered an error, please contact your system administrator'
+                    'Connexo has encountered an error, please contact your system administrator.'
                 );
                 me.showError(title, message, decoded.errorCode ? decoded.errorCode : code);
                 break;
@@ -227,7 +227,7 @@ Ext.define('Uni.controller.Error', {
                 );
                 message = Uni.I18n.translate('error.communication.failure',
                     'UNI',
-                    'Connexo has encountered a problem, try refreshing the page. If the problem persists, please contact your system administrator'
+                    'Connexo has encountered a problem, try refreshing the page. If the problem persists, please contact your system administrator.'
                 );
                 code = 'CFT-1000'; // known code - to be extracted to a reference file
                 me.showError(title, message, code);
@@ -241,7 +241,7 @@ Ext.define('Uni.controller.Error', {
                 message = Uni.I18n.translate(
                     'error.internalServerErrorMessage',
                     'UNI',
-                    'Connexo has encountered an error, please contact your system administrator'
+                    'Connexo has encountered an error, please contact your system administrator.'
                 );
                 options.method !== 'HEAD' && me.showError(title, message, decoded.errorCode ? decoded.errorCode : code);
                 break;
@@ -265,7 +265,7 @@ Ext.define('Uni.controller.Error', {
                 );
                 message = Uni.I18n.translate('error.communication.failure',
                     'UNI',
-                    'Connexo has encountered a problem, try refreshing the page. If the problem persists, please contact your system administrator'
+                    'Connexo has encountered a problem, try refreshing the page. If the problem persists, please contact your system administrator.'
                 );
                 code = 'CFT-1000'; // known code - to be extracted to a reference file
                 break;
