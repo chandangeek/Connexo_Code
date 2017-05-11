@@ -54,9 +54,8 @@ import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
-import com.energyict.mdc.upl.security.CertificateAlias;
+import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
 import com.google.common.collect.Range;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
@@ -261,7 +260,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void addCACertificate(CertificateAlias certificateAlias) {
+    public void addCACertificate(CertificateWrapper certificateWrapper) {
 
     }
 

@@ -19,7 +19,6 @@ import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -70,8 +69,6 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     private DeviceExtractor deviceExtractor;
     private DeviceMessageFileExtractor messageFileExtractor;
     private CertificateWrapperExtractor certificateWrapperExtractor;
-    private CertificateAliasFinder certificateAliasFinder;
-
 
     public InboundDiscoveryContextImpl(InboundComPort comPort, ComPortRelatedComChannel comChannel, ConnectionTaskService connectionTaskService) {
         super();
@@ -252,15 +249,6 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
 
     public void setCertificateWrapperExtractor(CertificateWrapperExtractor certificateWrapperExtractor) {
         this.certificateWrapperExtractor = certificateWrapperExtractor;
-    }
-
-    @Override
-    public CertificateAliasFinder getCertificateAliasFinder() {
-        return certificateAliasFinder;
-    }
-
-    public void setCertificateAliasFinder(CertificateAliasFinder certificateAliasFinder) {
-        this.certificateAliasFinder = certificateAliasFinder;
     }
 
     @Override

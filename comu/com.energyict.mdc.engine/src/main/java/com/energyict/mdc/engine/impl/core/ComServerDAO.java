@@ -42,9 +42,8 @@ import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
-import com.energyict.mdc.upl.security.CertificateAlias;
+import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -432,19 +431,13 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * that is uniquely identified by the specified identifier with the given value.
      * <p>
      * Note that, if multiple security sets contain the given propertyName, both properties will be updated.
-     * <p>
-     * Also note that, updating a security property of type CertificateAlias will
-     * also add the given certificate in the DLMS key store, under the given alias.
-     * <p>
-     * Also note that, updating a security property of type CertificateWrapperId will create
-     * the proper CertificateWrapper and fill the property value with the ID of this certificateWrapper.
      */
     void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
 
     /**
      * Add/update the given sub-CA or root-CA certificate in the persisted DLMS trust store, for the given alias.
      */
-    void addCACertificate(CertificateAlias certificateAlias);
+    void addCACertificate(CertificateWrapper certificateWrapper);
 
     /**
      * Add the given server end-device certificate as a certificate wrapper.

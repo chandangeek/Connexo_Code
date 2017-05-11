@@ -100,7 +100,7 @@ import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
-import com.energyict.mdc.upl.security.CertificateAlias;
+import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -441,27 +441,26 @@ public class ComServerDAOImpl implements ComServerDAO {
      * If the provided property value holds a certificate, make sure to store it in the proper place.
      */
     private void handleCertificatePropertyValue(Object propertyValue) {
-        if (propertyValue instanceof CertificateAlias) {
+        //TODO insert the new certificate in the CertificateWrapper table or in a trust store (do we want this?)
+ /*       if (propertyValue instanceof CertificateWrapper) {
             // If the property value is of type CertificateAlias, add the given certificate in the DLMS key store, under the given alias.
-            this.doAddCACertificate((CertificateAlias) propertyValue);
+            this.doAddCACertificate((CertificateWrapper) propertyValue);
         } else if (propertyValue instanceof CollectedCertificateWrapper) {
             // If the property value is a CollectedCertificateWrapper then add the certificate in the trust store.
             this.doAddEndDeviceCertificate((CollectedCertificateWrapper) propertyValue);
-        }
+        }*/
     }
 
     @Override
-    public void addCACertificate(final CertificateAlias certificateAlias) {
+    public void addCACertificate(final CertificateWrapper certificateWrapper) {
         this.executeTransaction(() -> {
-            this.doAddCACertificate(certificateAlias);
+            this.doAddCACertificate(certificateWrapper);
             return null;
         });
     }
 
-    private void doAddCACertificate(CertificateAlias certificateAlias) {
+    private void doAddCACertificate(CertificateWrapper certificateWrapper) {
         //TODO create CertificateWrapper entry
-
-
     }
 
     @Override
