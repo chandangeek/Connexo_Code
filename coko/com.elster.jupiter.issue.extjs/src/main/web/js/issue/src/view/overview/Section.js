@@ -68,12 +68,12 @@ Ext.define('Isu.view.overview.Section', {
                 '<tpl for=".">' +
                 '<tbody class="item item-{#}">' +
                 '<tr >' +
-                '<td width="50%" >' +
-                '<div style="overflow: hidden; text-overflow: ellipsis">' +
+                '<td width="30%" >' +
+                '<div style="overflow: hidden; text-overflow: ellipsis; position: relative; z-index: 1">' +
                 '<a href="{href}">{description}</a>' +
                 '</div>' +
                 '</td>' +
-                '<td width="50%" id="bar-{#}"></td>' +
+                '<td width="70%" id="bar-{#}"></td>' +
                 '</tr>' +
                 '</tbody>' +
                 '</tpl>' +
