@@ -272,7 +272,6 @@ class DeviceValidationImpl implements DeviceValidation {
     @Override
     public void validateChannel(Channel channel, Range<Instant> range) {
         fetchKoreMeter().getChannelsContainers().stream()
-                .filter(channelsContainer -> channelsContainer.overlaps(range))
                 .forEach(channelsContainer -> this.validationService.validate(
                         new ValidationContextImpl(ImmutableSet.of(QualityCodeSystem.MDC), channelsContainer, channel.getReadingType()), range));
     }
