@@ -152,7 +152,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         when(validationTask.getLastRun()).thenReturn(Optional.empty());
         when(validationTask.getLastOccurrence()).thenReturn(Optional.empty());
         when(validationTask.getId()).thenReturn(31L);
-        when(dataAggregationService.introspect(any(),any(),any())).thenReturn(metrologyContractCalculationIntrospector);
+        when(dataAggregationService.introspect(any(), any(), any())).thenReturn(metrologyContractCalculationIntrospector);
         List<MetrologyContractCalculationIntrospector.CalendarUsage> calendarUsages = Collections.emptyList();
         when(metrologyContractCalculationIntrospector.getCalendarUsagesFor(any())).thenReturn(calendarUsages);
     }
@@ -544,12 +544,14 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         assertThat(response.getStatus()).isEqualTo(200);
         JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(model.<Integer>get("$.intervals[0].id")).isEqualTo(2);
-        assertThat(model.<String>get("$.intervals[0].name")).isEqualTo("15-minute");
+        assertThat(model.<Integer>get("$.intervals[0].id")).isEqualTo(11);
+        assertThat(model.<String>get("$.intervals[0].name")).isEqualTo("Daily");
+        assertThat(model.<Integer>get("$.intervals[0].count")).isEqualTo(1);
+        assertThat(model.<String>get("$.intervals[0].timeUnit")).isEqualTo("days");
     }
 
     @Test
-    public void testGetUnitsOfUsagePointPurpose() throws  Exception {
+    public void testGetUnitsOfUsagePointPurpose() throws Exception {
         when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(effectiveMC));
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/" + optionalContract.getId() + "/outputs/units").request().get();
         assertThat(response.getStatus()).isEqualTo(200);

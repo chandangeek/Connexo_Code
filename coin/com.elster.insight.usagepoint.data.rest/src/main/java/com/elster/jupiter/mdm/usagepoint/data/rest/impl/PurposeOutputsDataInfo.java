@@ -1,9 +1,10 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.rest.util.*;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,5 +14,5 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PurposeOutputsDataInfo {
     public Map<Long,BigDecimal> channelData = new HashMap<>();
-    public Map<String, Long> interval = new HashMap<>();
+    public com.elster.jupiter.rest.util.IntervalInfo interval;
 }

@@ -23,7 +23,6 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelEstimationRuleOverriddenProperties;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointEstimation;
 import com.elster.jupiter.metering.AggregatedChannel;
-import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
@@ -40,6 +39,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.ReadingTypeTranslationKeys;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
@@ -60,7 +60,6 @@ import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
-import com.google.inject.Singleton;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
@@ -82,7 +81,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -241,12 +239,21 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
                 .create();
     }
 
-    private String buildFilterForData(Instant start, Instant end, Long intervalId, String unitId, boolean includeBulk) throws UnsupportedEncodingException {
+    private String buildFullFilterForData(Instant start, Instant end, Long intervalId, String unitId, boolean includeBulk) throws UnsupportedEncodingException {
         return ExtjsFilter.filter()
                 .property("intervalStart", start.toEpochMilli())
                 .property("intervalEnd", end.toEpochMilli())
                 .property("timeInterval", intervalId)
                 .property("unit", unitId)
+                .property("bulk", String.valueOf(includeBulk))
+                .create();
+    }
+
+    private String buildFullFilterForDataWithoutUnit(Instant start, Instant end, Long intervalId, boolean includeBulk) throws UnsupportedEncodingException {
+        return ExtjsFilter.filter()
+                .property("intervalStart", start.toEpochMilli())
+                .property("intervalEnd", end.toEpochMilli())
+                .property("timeInterval", intervalId)
                 .property("bulk", String.valueOf(includeBulk))
                 .create();
     }
@@ -659,32 +666,64 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
     @Test
     public void testGetChannelDataOfAllOutputs() throws UnsupportedEncodingException {
-        IdWithNameInfo intervalInfo  = new IdWithNameInfo(11, "Daily");
-        IdWithNameInfo unitInfo = new IdWithNameInfo("-2:5", "A");
         ReadingType readingType = mock(ReadingType.class);
         when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(effectiveMC2));
         when(channel2.getMainReadingType()).thenReturn(readingType);
         mockDifferentIntervalReadings(channel2, this.channelsContainer2);
-        effectiveMC2.getMetrologyConfiguration().getContracts().forEach( contract -> {
-                    contract.getDeliverables().forEach(deliverable -> {
-                                when(deliverable.getReadingType().isCumulative()).thenReturn(true);
-                                when(deliverable.getReadingType().getMultiplier()).thenReturn(MetricMultiplier.CENTI);
-                                when(deliverable.getReadingType().getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
-                                    }
-                            );
-                });
+        effectiveMC2.getMetrologyConfiguration().getContracts().forEach(contract -> {
+            contract.getDeliverables().forEach(deliverable -> {
+                        when(deliverable.getReadingType().isCumulative()).thenReturn(true);
+                        when(deliverable.getReadingType().getMultiplier()).thenReturn(MetricMultiplier.CENTI);
+                        when(deliverable.getReadingType().getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
+                    }
+            );
+        });
         // Business method
         String json = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/data")
-                .queryParam("filter", buildFilterForData(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint(), 11L, "-2:5", true)).request().get(String.class);
+                .queryParam("filter", buildFullFilterForData(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint(), 11L, "-2:5", true)).request().get(String.class);
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(2);
         assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(INTERVAL_3.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(INTERVAL_3.upperEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Map>get("$.data[0].channelData")).containsEntry("1",10);
+        assertThat(jsonModel.<Map>get("$.data[0].channelData")).containsEntry("1", 10);
         assertThat(jsonModel.<Long>get("$.data[1].interval.start")).isEqualTo(INTERVAL_1.lowerEndpoint().toEpochMilli());
         assertThat(jsonModel.<Long>get("$.data[1].interval.end")).isEqualTo(INTERVAL_1.upperEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Map>get("$.data[1].channelData")).containsEntry("1",1);
+        assertThat(jsonModel.<Map>get("$.data[1].channelData")).containsEntry("1", 1);
+    }
+
+    @Test
+    public void testGetChannelDataOfAllOutputsWithoutUnit() throws UnsupportedEncodingException {
+        ReadingType readingType = mock(ReadingType.class);
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(effectiveMC2));
+        when(channel2.getMainReadingType()).thenReturn(readingType);
+        when(channel2.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint()))).thenReturn(
+                Arrays.asList(INTERVAL_1.upperEndpoint())
+        );
+        AggregatedChannel.AggregatedIntervalReadingRecord aggregatedIntervalReadingRecord1 = mockAggregatedIntervalReadingRecord(INTERVAL_1, BigDecimal.TEN.add(BigDecimal.ONE));
+        List<IntervalReadingRecord> intervalReadings = Arrays.asList(aggregatedIntervalReadingRecord1);
+        List<AggregatedChannel.AggregatedIntervalReadingRecord> aggregatedIntervalReadings = Arrays.asList(aggregatedIntervalReadingRecord1);
+        when(channel2.getIntervalReadings(any())).thenReturn(intervalReadings);
+        when(channel2.getAggregatedIntervalReadings(any())).thenReturn(aggregatedIntervalReadings);
+        when(channel2.getReading(INTERVAL_1.upperEndpoint())).thenReturn(Optional.of(aggregatedIntervalReadingRecord1));
+        when(this.evaluator.isValidationEnabled(channel2)).thenReturn(true);
+        when(this.evaluator.getLastChecked(eq(channelsContainer2), any(ReadingType.class))).thenReturn(Optional.of(TIMESTAMP));
+        effectiveMC2.getMetrologyConfiguration().getContracts().forEach(contract -> {
+            contract.getDeliverables().forEach(deliverable -> {
+                        when(deliverable.getReadingType().isCumulative()).thenReturn(true);
+                        when(deliverable.getReadingType().getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
+                    }
+            );
+        });
+        // Business method
+        String json = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/data")
+                .queryParam("filter", buildFullFilterForDataWithoutUnit(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint(), 11L, true)).request().get(String.class);
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(INTERVAL_1.lowerEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(INTERVAL_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Map>get("$.data[0].channelData")).containsEntry("1", 11);
     }
 
     @Test

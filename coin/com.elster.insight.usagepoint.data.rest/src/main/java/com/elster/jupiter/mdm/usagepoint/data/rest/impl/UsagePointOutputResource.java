@@ -9,7 +9,6 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.ReadingTypeUnitConversion;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
@@ -19,7 +18,6 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.Estimator;
-import com.elster.jupiter.mdm.common.rest.TimeDurationInfo;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -41,8 +39,6 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.metering.readings.Reading;
-import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -63,8 +59,6 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.Functions;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationContextImpl;
@@ -97,7 +91,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -152,7 +145,7 @@ public class UsagePointOutputResource {
     private static final String INTERVAL_END = "intervalEnd";
 
     @Inject
-   UsagePointOutputResource(
+    UsagePointOutputResource(
             ResourceHelper resourceHelper, ExceptionFactory exceptionFactory,
             EstimationHelper estimationHelper,
             ValidationService validationService,
@@ -250,49 +243,22 @@ public class UsagePointOutputResource {
                             .collect(Collectors.toList());
                 }
                 return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
-            } else if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
-                Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
-                Long timeIntervalId = filter.getLong("timeInterval");
-                List<ReadingTypeDeliverable> deliverables = new ArrayList<>();
-                List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfigurationsOnUsagePoints = usagePoint.getEffectiveMetrologyConfigurations();
-                for (EffectiveMetrologyConfigurationOnUsagePoint configuration : effectiveMetrologyConfigurationsOnUsagePoints) {
-                    MetrologyContract contract = resourceHelper.findMetrologyContractOrThrowException(configuration, contractId);
-                    if (filter.hasProperty("bulk") && filter.getBoolean("bulk") == true) {
-                        deliverables = contract.getDeliverables().stream()
-                                .filter(deliverable -> deliverable.getReadingType().isRegular())
-                                .collect(Collectors.toList());
-                    } else {
-                        deliverables = contract.getDeliverables().stream()
-                                .filter(deliverable -> deliverable.getReadingType().isRegular())
-                                .filter(deliverable -> !deliverable.getReadingType().isCumulative())
-                                .collect(Collectors.toList());
-                    }
-                    if (filter.hasProperty("unit")) {
-                        String separator = ":";
-                        String unit = filter.getString("unit");
-                        String[] unitWithMultiplier = unit.split(separator);
-                        Long unitId = Long.parseLong(unitWithMultiplier[1]);
-                        Long unitMultiplier = Long.parseLong(unitWithMultiplier[0]);
-
-                        deliverables = deliverables
-                                .stream()
-                                .filter(deliverable -> deliverable.getReadingType().getMeasuringPeriod().getId() == timeIntervalId ||
-                                        deliverable.getReadingType().getMacroPeriod().getId() == timeIntervalId)
-                                .filter(deliverable -> deliverable.getReadingType().getUnit().getId() == unitId)
-                                .filter(deliverable -> deliverable.getReadingType().getMultiplier().getMultiplier() == unitMultiplier)
-                                .collect(Collectors.toList());
-                    } else {
-                        deliverables = deliverables
-                                .stream()
-                                .filter(deliverable -> deliverable.getReadingType().getMeasuringPeriod().getId() == timeIntervalId ||
-                                        deliverable.getReadingType().getMacroPeriod().getId() == timeIntervalId)
-                                .collect(Collectors.toList());
-                    }
-
-                    outputInfoList.addAll(deliverables.stream()
-                            .map(deliverable -> outputInfoFactory.asFullInfo(deliverable,configuration, contract))
-                            .collect(Collectors.toList()));
-                }
+            } else if (filter.hasProperty("timeInterval")) {
+                List<OutputInfo> outputInfos = new ArrayList<>();
+                MetrologyPurpose metrologyPurpose = metrologyContract.getMetrologyPurpose();
+                usagePoint
+                        .getEffectiveMetrologyConfigurations()
+                        .forEach(effectiveMC ->
+                                findMetrologyContractForPurpose(effectiveMC, metrologyPurpose)
+                                        .ifPresent(contract -> {
+                                            Stream<ReadingTypeDeliverable> deliverables = contract.getDeliverables().stream();
+                                            deliverables = filterDeliverables(filter, deliverables);
+                                            outputInfos.addAll(deliverables
+                                                    .map(deliverable -> outputInfoFactory.asFullInfo(deliverable, effectiveMC, contract))
+                                                    .sorted(Comparator.comparing(info -> info.name))
+                                                    .collect(Collectors.toList()));
+                                        }));
+                outputInfoList = outputInfos;
             }
         } else {
             outputInfoList = outputInfoFactory.deliverablesAsOutputInfo(effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, null)
@@ -313,17 +279,22 @@ public class UsagePointOutputResource {
         List<IdWithNameInfo> infos;
         Map<String, String> units = new HashMap<>();
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfigurationsOnUsagePoint = usagePoint.getEffectiveMetrologyConfigurations();
-        for (EffectiveMetrologyConfigurationOnUsagePoint effectiveMc : effectiveMetrologyConfigurationsOnUsagePoint) {
-            MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMc, contractId);
-            units = metrologyContract.getDeliverables()
-                    .stream()
-                    .map(ReadingTypeDeliverable::getReadingType)
-                    .filter(ReadingType::isRegular)
-                    .collect(Collectors.toMap(readingType -> readingType.getMultiplier().getMultiplier() + ":" + readingType.getUnit().getId(),
-                            readingType -> getFullAliasNameElement(readingType),
-                            (a, b) -> a));
-        }
+        EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId);
+        MetrologyPurpose metrologyPurpose = metrologyContract.getMetrologyPurpose();
+        units = usagePoint.getEffectiveMetrologyConfigurations()
+                .stream()
+                .map(effectiveMC -> findMetrologyContractForPurpose(effectiveMC, metrologyPurpose))
+                .filter(optionalContract -> optionalContract.isPresent())
+                .map(Optional::get)
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(deliverables -> deliverables
+                        .stream()
+                        .map(deliverable -> deliverable.getReadingType())
+                        .filter(ReadingType::isRegular))
+                .collect(Collectors.toMap(readingType -> readingType.getMultiplier().getMultiplier() + ":" + readingType.getUnit().getId(),
+                        readingType -> getFullAliasNameElement(readingType),
+                        (a, b) -> a));
         infos = units.entrySet().stream()
                 .map(mapVal -> new IdWithNameInfo(mapVal.getKey(), mapVal.getValue()))
                 .collect(Collectors.toList());
@@ -337,18 +308,25 @@ public class UsagePointOutputResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public PagedInfoList getIntervalsOfUsagePointPurpose(@PathParam("name") String name, @PathParam("purposeId") long contractId, @BeanParam JsonQueryFilter filter,
                                                          @BeanParam JsonQueryParameters queryParameters) {
-        List<IntervalInfo> infoList = new ArrayList<>();
+        List<OutputIntervalInfo> infoList;
+        OutputIntervalInfoFactory outputIntervalInfoFactory = new OutputIntervalInfoFactory();
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfigurationsOnUsagePoint = usagePoint.getEffectiveMetrologyConfigurations();
-        for (EffectiveMetrologyConfigurationOnUsagePoint effectiveMc : effectiveMetrologyConfigurationsOnUsagePoint) {
-            MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMc, contractId);
-            infoList = metrologyContract.getDeliverables()
-                    .stream()
-                    .map(ReadingTypeDeliverable::getReadingType)
-                    .filter(ReadingType::isRegular)
-                    .map(readingType -> asIntervalInfo(readingType))
-                    .collect(Collectors.toList());
-        }
+        EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId);
+        MetrologyPurpose metrologyPurpose = metrologyContract.getMetrologyPurpose();
+
+        infoList = usagePoint.getEffectiveMetrologyConfigurations()
+                .stream()
+                .map(effectiveMC -> findMetrologyContractForPurpose(effectiveMC, metrologyPurpose))
+                .filter(optionalContract -> optionalContract.isPresent())
+                .map(Optional::get)
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(deliverables -> deliverables
+                        .stream()
+                        .map(ReadingTypeDeliverable::getReadingType)
+                        .filter(ReadingType::isRegular)
+                        .map(readingType -> outputIntervalInfoFactory.asIntervalInfo(readingType)))
+                .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("intervals", infoList, queryParameters);
     }
 
@@ -473,7 +451,6 @@ public class UsagePointOutputResource {
     }
 
 
-
     @GET
     @Transactional
     @Path("/{purposeId}/outputs/data")
@@ -481,107 +458,55 @@ public class UsagePointOutputResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public Response getChannelDataOfAllOutputs(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
-        Long timeIntervalId = 0L;
-        Boolean includeBulk = false;
-        Long unitId = 0L;
-        Long unitMultiplier = 0L;
-        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfigurationsOnUsagePoints = usagePoint.getEffectiveMetrologyConfigurations();
         Map<Instant, Map<Long, OutputChannelDataInfo>> map = new HashMap<>();
         List<PurposeOutputsDataInfo> outputsDataInfos = new ArrayList<>();
-        List<PurposeOutputsDataInfo> resultList = new ArrayList<>();
         List<Pair<ReadingTypeDeliverable, AggregatedChannel>> deliverablesWithOutputId = new ArrayList<>();
-        List<OutputChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId);
+        MetrologyPurpose metrologyPurpose = metrologyContract.getMetrologyPurpose();
+
         if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
             Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
             if (requestedInterval != null) {
-                ValidationEvaluator evaluator = validationService.getEvaluator();
                 List<Pair<Long, OutputChannelDataInfo>> readingsMap = new ArrayList<>();
-                for (EffectiveMetrologyConfigurationOnUsagePoint configuration : effectiveMetrologyConfigurationsOnUsagePoints) {
-                    MetrologyContract contract = resourceHelper.findMetrologyContractOrThrowException(configuration, contractId);
-                    List<ReadingTypeDeliverable> deliverables = new ArrayList<>();
-                    if (filter.hasProperty("timeInterval")) {
-                        timeIntervalId = filter.getLong("timeInterval");
-                        if (filter.hasProperty("bulk")) {
-                            includeBulk = filter.getBoolean("bulk");
-                            if (includeBulk == true) {
-                                deliverables = contract.getDeliverables().stream()
-                                        .filter(deliverable -> deliverable.getReadingType().isRegular())
-                                        .collect(Collectors.toList());
-                            } else {
-                                deliverables = contract.getDeliverables().stream()
-                                        .filter(deliverable -> deliverable.getReadingType().isRegular())
-                                        .filter(deliverable -> !deliverable.getReadingType().isCumulative())
-                                        .collect(Collectors.toList());
-                            }
-                        } else {
-                            deliverables = contract.getDeliverables().stream()
-                                    .filter(deliverable -> deliverable.getReadingType().isRegular())
-                                    .filter(deliverable -> !deliverable.getReadingType().isCumulative())
-                                    .collect(Collectors.toList());
-                        }
-                        if (filter.hasProperty("unit")) {
-                            String separator = ":";
-                            String unit = filter.getString("unit");
-                            String[] unitWithMultiplier = unit.split(separator);
-                            unitId = Long.parseLong(unitWithMultiplier[1]);
-                            unitMultiplier = Long.parseLong(unitWithMultiplier[0]);
-                            Long finalTimeIntervalId = timeIntervalId;
-                            Long finalUnitId = unitId;
-                            Long finalUnitMultiplier = unitMultiplier;
-                            deliverablesWithOutputId.addAll(deliverables.stream()
-                                    .filter(deliverable -> deliverable.getReadingType().getMeasuringPeriod().getId() == finalTimeIntervalId ||
-                                            deliverable.getReadingType().getMacroPeriod().getId() == finalTimeIntervalId)
-                                    .filter(deliverable -> deliverable.getReadingType().getUnit().getId() == finalUnitId)
-                                    .filter(deliverable -> deliverable.getReadingType().getMultiplier().getMultiplier() == finalUnitMultiplier)
-                                    .map(deliverable -> Pair.of(deliverable, configuration.getAggregatedChannel(contract, deliverable.getReadingType()).orElse(null)))
-                                    .collect(Collectors.toList()));
-                        } else {
-                            Long finalTimeIntervalId = timeIntervalId;
-                            deliverablesWithOutputId.addAll(deliverables.stream()
-                                    .filter(deliverable -> deliverable.getReadingType().getMeasuringPeriod().getId() == finalTimeIntervalId ||
-                                            deliverable.getReadingType().getMacroPeriod().getId() == finalTimeIntervalId)
-                                    .map(deliverable -> Pair.of(deliverable, configuration.getAggregatedChannel(contract, deliverable.getReadingType()).orElse(null)))
-                                    .collect(Collectors.toList()));
-                        }
-                    } else {
-                        deliverables = contract.getDeliverables().stream()
-                                .filter(deliverable -> deliverable.getReadingType().isRegular())
-                                .collect(Collectors.toList());
+                usagePoint
+                        .getEffectiveMetrologyConfigurations()
+                        .forEach(effectiveMC ->
+                                findMetrologyContractForPurpose(effectiveMC, metrologyPurpose)
+                                        .ifPresent(contract -> {
+                                            Stream<ReadingTypeDeliverable> deliverables = contract.getDeliverables().stream();
+                                            deliverables = filterDeliverables(filter, deliverables);
+                                            deliverablesWithOutputId.addAll(deliverables
+                                                    .map(deliverable -> Pair.of(deliverable, effectiveMC.getAggregatedChannel(contract, deliverable.getReadingType()).orElse(null)))
+                                                    .collect(Collectors.toList()));
 
-                        deliverablesWithOutputId.addAll(deliverables.stream()
-                                .map(deliverable -> Pair.of(deliverable, configuration.getAggregatedChannel(contract, deliverable.getReadingType()).orElse(null)))
-                                .collect(Collectors.toList()));
-                    }
-                    Map<Instant, ChannelReadingWithValidationStatus> outputChannelDataMap = new TreeMap<>(Collections.reverseOrder());
-                    for (Pair pair : deliverablesWithOutputId) {
-                        AggregatedChannel channel = (AggregatedChannel) pair.getLast();
-                        ReadingTypeDeliverable deliverable = (ReadingTypeDeliverable) pair.getFirst();
-                        putChannelDataFromMetrologyConfiguration(usagePoint,outputChannelDataMap, contract, deliverable.getReadingType(), filter, configuration);
-                        outputChannelDataInfoList = outputChannelDataMap.values().stream()
-                                .filter(getSuspectsFilter(filter, this::hasSuspects))
-                                .filter(reading -> reading.getValue() != null)
-                                .map(outputChannelDataInfoFactory::createChannelDataInfo)
-                                .collect(Collectors.toList());
-                        readingsMap.addAll(outputChannelDataInfoList.stream()
-                                .map(info -> Pair.of(deliverable.getId(), info))
-                                .collect(Collectors.toList()));
-                    }
-                }
-
-                Map<com.elster.jupiter.rest.util.IntervalInfo, PurposeOutputsDataInfo> tempMap = new HashMap<>();
+                                            Map<Instant, ChannelReadingWithValidationStatus> outputChannelDataMap = new TreeMap<>(Collections.reverseOrder());
+                                            for (Pair<ReadingTypeDeliverable, AggregatedChannel> pair : deliverablesWithOutputId) {
+                                                AggregatedChannel channel = pair.getLast();
+                                                ReadingTypeDeliverable deliverable = pair.getFirst();
+                                                putChannelDataFromMetrologyConfiguration(usagePoint, outputChannelDataMap, contract, deliverable.getReadingType(), filter, effectiveMC);
+                                                List<OutputChannelDataInfo> outputChannelDataInfoList = outputChannelDataMap.values().stream()
+                                                        .filter(getSuspectsFilter(filter, this::hasSuspects))
+                                                        .filter(reading -> reading.getValue() != null)
+                                                        .map(outputChannelDataInfoFactory::createChannelDataInfo)
+                                                        .collect(Collectors.toList());
+                                                readingsMap.addAll(outputChannelDataInfoList.stream()
+                                                        .map(info -> Pair.of(deliverable.getId(), info))
+                                                        .collect(Collectors.toList()));
+                                            }
+                                        }));
+                Map<Long, PurposeOutputsDataInfo> tempMap = new HashMap<>();
                 readingsMap.forEach(pair -> {
-                        if (tempMap.keySet().stream().anyMatch(val ->val.end.equals(pair.getLast().interval.end))){
-                            purposeOutputsDataInfoFactory.addValues(tempMap.entrySet().stream()
-                                    .filter(entry -> entry.getKey().end.equals(pair.getLast().interval.end))
-                                    .map(Map.Entry::getValue)
-                                    .findFirst().orElse(new PurposeOutputsDataInfo()), pair.getFirst(), pair.getLast().value);
-                        } else {
-                            tempMap.put(pair.getLast().interval, purposeOutputsDataInfoFactory.createPurposeOutputsDataInfo(pair.getFirst(), pair.getLast().value, pair.getLast().interval));
-                        }
-                        });
+                    if (tempMap.containsKey(pair.getLast().interval.end)) {
+                        purposeOutputsDataInfoFactory.addValues(tempMap.get(pair.getLast().interval.end), pair.getFirst(), pair.getLast().value);
+                    } else {
+                        tempMap.put(pair.getLast().interval.end, purposeOutputsDataInfoFactory.createPurposeOutputsDataInfo(pair.getFirst(),
+                                pair.getLast().value, pair.getLast().interval));
+                    }
+                });
                 outputsDataInfos = tempMap.entrySet().stream()
-                        .sorted((k1, k2) -> k2.getKey().start.compareTo(k1.getKey().start))
+                        .sorted(Comparator.comparing(entry -> entry.getKey()))
                         .map(Map.Entry::getValue)
                         .collect(Collectors.toList());
                 List<PurposeOutputsDataInfo> paginatedOutputsData = ListPager.of(outputsDataInfos).from(queryParameters).find();
@@ -969,6 +894,7 @@ public class UsagePointOutputResource {
                 .map(dataValidationStatus -> ValidationStatus.SUSPECT.equals(ValidationStatus.forResult(dataValidationStatus.getValidationResult())))
                 .orElse(false);
     }
+
     @GET
     @Transactional
     @Path("/{purposeId}/outputs/{outputId}/registerData/{requestedTimeStamp}")
@@ -1164,18 +1090,19 @@ public class UsagePointOutputResource {
             boolean changedDataOnly = filter.getString("changedDataOnly") != null && (filter.getString("changedDataOnly").compareToIgnoreCase("yes") == 0);
             Range<Instant> requestedInterval = Range.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
             usagePoint.getEffectiveMetrologyConfigurations(requestedInterval).forEach(effectiveMC -> {
-                        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
-                        ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
-                        effectiveMC.getChannelsContainer(metrologyContract).ifPresent(channelsContainer -> {
-                            Range<Instant> containerRange = channelsContainer.getInterval().toOpenClosedRange();
-                            if (containerRange.isConnected(requestedInterval)) {
-                                Range<Instant> effectiveInterval = containerRange.intersection(requestedInterval);
-                                AggregatedChannel aggregatedChannel = effectiveMC.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
-                                Set<JournaledReadingRecord> collectedData = usagePointOutputsHistoryHelper.collectHistoricalRegisterData(usagePoint, aggregatedChannel, effectiveInterval, readingTypeDeliverable.getReadingType(), changedDataOnly);
-                                data.addAll(outputRegisterDataInfoFactory.createHistoricalRegisterInfo(collectedData));
-                            }
-                        });
-                    });
+                MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
+                ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
+                effectiveMC.getChannelsContainer(metrologyContract).ifPresent(channelsContainer -> {
+                    Range<Instant> containerRange = channelsContainer.getInterval().toOpenClosedRange();
+                    if (containerRange.isConnected(requestedInterval)) {
+                        Range<Instant> effectiveInterval = containerRange.intersection(requestedInterval);
+                        AggregatedChannel aggregatedChannel = effectiveMC.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
+                        Set<JournaledReadingRecord> collectedData = usagePointOutputsHistoryHelper.collectHistoricalRegisterData(usagePoint, aggregatedChannel, effectiveInterval, readingTypeDeliverable
+                                .getReadingType(), changedDataOnly);
+                        data.addAll(outputRegisterDataInfoFactory.createHistoricalRegisterInfo(collectedData));
+                    }
+                });
+            });
         }
 
         return PagedInfoList.fromCompleteList("data", data, queryParameters);
@@ -1192,7 +1119,7 @@ public class UsagePointOutputResource {
         List<OutputChannelHistoryDataInfo> data = new ArrayList<>();
         if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
             data.addAll(usagePoint.getEffectiveMetrologyConfigurations(Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END)))
-                   .stream().flatMap(effectiveMC -> {
+                    .stream().flatMap(effectiveMC -> {
                         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
                         ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
                         boolean changedDataOnly = filter.getString("changedDataOnly") != null && (filter.getString("changedDataOnly").compareToIgnoreCase("yes") == 0);
@@ -1385,28 +1312,6 @@ public class UsagePointOutputResource {
                 .isEmpty();
     }
 
-    private IntervalInfo asIntervalInfo(ReadingType readingType) {
-        MacroPeriod macroPeriod = readingType.getMacroPeriod();
-        TimeAttribute measuringPeriod = readingType.getMeasuringPeriod();
-        TimeDuration timeDuration = null;
-        if (!measuringPeriod.equals(TimeAttribute.NOTAPPLICABLE)) {
-            timeDuration = TimeDuration.minutes(measuringPeriod.getMinutes());
-            return new IntervalInfo(measuringPeriod.getId(), measuringPeriod.getDescription(), timeDuration);
-        } else if (macroPeriod.equals(MacroPeriod.DAILY)) {
-            timeDuration = TimeDuration.days(1);
-            return new IntervalInfo(macroPeriod.getId(), macroPeriod.getDescription(), timeDuration);
-        } else if (macroPeriod.equals(MacroPeriod.MONTHLY)) {
-            timeDuration = TimeDuration.months(1);
-            return new IntervalInfo(macroPeriod.getId(), macroPeriod.getDescription(), timeDuration);
-        } else if (macroPeriod.equals(MacroPeriod.YEARLY)) {
-            timeDuration = TimeDuration.years(1);
-            return new IntervalInfo(macroPeriod.getId(), macroPeriod.getDescription(), timeDuration);
-        } else if (macroPeriod.equals(MacroPeriod.WEEKLYS)) {
-            timeDuration = TimeDuration.weeks(1);
-            return new IntervalInfo(macroPeriod.getId(), macroPeriod.getDescription(), timeDuration);
-        }
-        return new IntervalInfo();
-    }
 
     private <T> Predicate<T> getSuspectsFilter(JsonQueryFilter filter, Predicate<T> hasSuspects) {
         return filter.hasProperty("suspect") ? hasSuspects : info -> true;
@@ -1416,11 +1321,55 @@ public class UsagePointOutputResource {
         return outputChannelDataInfoFactory.createUpdatedChannelDataInfo(record, info.type.apply(record.getValue(), info.amount), info.projected,
                 resourceHelper.getReadingQualityComment(info.commentId));
     }
-                
+
     private String getFullAliasNameElement(ReadingType readingType) {
         ReadingTypeUnit unit = readingType.getUnit();
         MetricMultiplier multiplier = readingType.getMultiplier();
         return thesaurus.getString("readingType.multiplier." + multiplier.name(), multiplier.getSymbol()) + thesaurus.getString("readingType.unit." + unit.getSymbol() + ".symbol", unit
                 .getSymbol());
+    }
+
+    private Stream<ReadingTypeDeliverable> filterDeliverables(JsonQueryFilter filter, Stream<ReadingTypeDeliverable> deliverables) {
+        Stream<ReadingTypeDeliverable> resultDeliverablesList;
+        if (filter.hasProperty("timeInterval")) {
+            Long timeIntervalId = filter.getLong("timeInterval");
+            if (filter.hasProperty("bulk")) {
+                Boolean includeBulk = filter.getBoolean("bulk");
+                if (includeBulk == true) {
+                    resultDeliverablesList = deliverables
+                            .filter(deliverable -> deliverable.getReadingType().isRegular());
+                } else {
+                    resultDeliverablesList = deliverables
+                            .filter(deliverable -> deliverable.getReadingType().isRegular())
+                            .filter(deliverable -> !deliverable.getReadingType().isCumulative());
+                }
+            } else {
+                resultDeliverablesList = deliverables
+                        .filter(deliverable -> deliverable.getReadingType().isRegular())
+                        .filter(deliverable -> !deliverable.getReadingType().isCumulative());
+            }
+            if (filter.hasProperty("unit")) {
+                String separator = ":";
+                String unit = filter.getString("unit");
+                String[] unitWithMultiplier = unit.split(separator);
+                if (unitWithMultiplier.length == 2) {
+                    Long unitId = Long.parseLong(unitWithMultiplier[1]);
+                    Long unitMultiplier = Long.parseLong(unitWithMultiplier[0]);
+                    resultDeliverablesList = resultDeliverablesList
+                            .filter(deliverable -> deliverable.getReadingType().getMeasuringPeriod().getId() == timeIntervalId ||
+                                    deliverable.getReadingType().getMacroPeriod().getId() == timeIntervalId)
+                            .filter(deliverable -> deliverable.getReadingType().getUnit().getId() == unitId)
+                            .filter(deliverable -> deliverable.getReadingType().getMultiplier().getMultiplier() == unitMultiplier);
+                }
+            } else {
+                resultDeliverablesList = resultDeliverablesList
+                        .filter(deliverable -> deliverable.getReadingType().getMeasuringPeriod().getId() == timeIntervalId ||
+                                deliverable.getReadingType().getMacroPeriod().getId() == timeIntervalId);
+            }
+        } else {
+            resultDeliverablesList = deliverables
+                    .filter(deliverable -> deliverable.getReadingType().isRegular());
+        }
+        return resultDeliverablesList;
     }
 }

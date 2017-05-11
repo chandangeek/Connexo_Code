@@ -6,17 +6,16 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.time.TimeDuration;
 
-public class IntervalInfo {
+public class OutputIntervalInfo {
     public long id;
     public String name;
     public long count;
     public String timeUnit = TimeDuration.TimeUnit.SECONDS.getDescription();
 
-    public IntervalInfo() {
-
+    public OutputIntervalInfo() {
     }
 
-    public IntervalInfo(long id, String name, TimeDuration timeDuration) {
+    public OutputIntervalInfo(long id, String name, TimeDuration timeDuration) {
         this.id = id;
         this.name = name;
         this.count = timeDuration.getCount();
