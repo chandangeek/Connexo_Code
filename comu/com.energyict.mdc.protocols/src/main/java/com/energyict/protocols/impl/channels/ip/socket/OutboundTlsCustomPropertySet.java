@@ -9,7 +9,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.upl.io.ConnectionType;
-import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.protocols.impl.channels.AbstractConnectionTypeCustomPropertySet;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionProperties;
@@ -23,17 +23,17 @@ import javax.inject.Inject;
  */
 public class OutboundTlsCustomPropertySet extends AbstractConnectionTypeCustomPropertySet implements CustomPropertySet<ConnectionProvider, OutboundIpConnectionProperties> {
 
-    private final NlsService nlsService;
+    private final CertificateWrapperExtractor certificateWrapperExtractor;
 
     @Inject
-    public OutboundTlsCustomPropertySet(Thesaurus thesaurus, com.energyict.mdc.upl.properties.PropertySpecService propertySpecService, NlsService nlsService) {
+    public OutboundTlsCustomPropertySet(Thesaurus thesaurus, com.energyict.mdc.upl.properties.PropertySpecService propertySpecService, CertificateWrapperExtractor certificateWrapperExtractor) {
         super(thesaurus, propertySpecService);
-        this.nlsService = nlsService;
+        this.certificateWrapperExtractor = certificateWrapperExtractor;
     }
 
     @Override
     public ConnectionType getConnectionTypeSupport() {
-        return new com.energyict.mdc.channels.ip.socket.TLSConnectionType(propertySpecService, nlsService, null, null);  //TODO adjust TLSConnectionType to use PKI stuff instead!
+        return new com.energyict.mdc.channels.ip.socket.TLSConnectionType(propertySpecService, certificateWrapperExtractor);
     }
 
     @Override

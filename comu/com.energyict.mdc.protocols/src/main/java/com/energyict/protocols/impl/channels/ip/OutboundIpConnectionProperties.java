@@ -15,6 +15,7 @@ import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType;
+import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
 import com.energyict.mdc.channels.ip.socket.TcpIpPostDialConnectionType;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 
@@ -140,12 +141,24 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         TLS_CLIENT_CERTIFICATE {
             @Override
             public String propertySpecName() {
-                return "tlsClientCertificate"; //TODO: rework
+                return TLSConnectionType.CLIENT_TLS_PRIVATE_KEY;
             }
 
             @Override
             public String databaseName() {
-                return "TLS_CL_CERT";
+                return "TLS_CLI_CERT";
+            }
+        },
+
+        TLS_SERVER_CERTIFICATE {
+            @Override
+            public String propertySpecName() {
+                return TLSConnectionType.SERVER_TLS_CERTIFICATE;
+            }
+
+            @Override
+            public String databaseName() {
+                return "TLS_SERV_CERT";
             }
         };
 

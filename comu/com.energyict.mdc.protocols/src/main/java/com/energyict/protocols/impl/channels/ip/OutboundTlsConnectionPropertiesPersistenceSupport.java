@@ -11,7 +11,6 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.naming.CustomPropertySetComponentName;
-
 import com.google.inject.Module;
 
 import java.util.Collections;
@@ -78,58 +77,73 @@ public class OutboundTlsConnectionPropertiesPersistenceSupport implements Persis
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
         table
-            .column(OutboundIpConnectionProperties.Fields.HOST.databaseName())
-            .varChar()
-            .map(OutboundIpConnectionProperties.Fields.HOST.javaName())
-            .add();
+                .column(OutboundIpConnectionProperties.Fields.HOST.databaseName())
+                .varChar()
+                .map(OutboundIpConnectionProperties.Fields.HOST.javaName())
+                .add();
+
         table
-            .column(OutboundIpConnectionProperties.Fields.PORT_NUMBER.databaseName())
-            .number()
-            .map(OutboundIpConnectionProperties.Fields.PORT_NUMBER.javaName())
-            .add();
+                .column(OutboundIpConnectionProperties.Fields.PORT_NUMBER.databaseName())
+                .number()
+                .map(OutboundIpConnectionProperties.Fields.PORT_NUMBER.javaName())
+                .add();
+
         table
-            .column("CONNTIMEOUTVALUE")
-            .number()
-            .conversion(ColumnConversion.NUMBER2INT)
-            .map(OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.javaName() + ".count")
-            .add();
+                .column("CONNTIMEOUTVALUE")
+                .number()
+                .conversion(ColumnConversion.NUMBER2INT)
+                .map(OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.javaName() + ".count")
+                .add();
+
         table
-            .column("CONNTIMEOUTUNIT")
-            .number()
-            .conversion(ColumnConversion.NUMBER2INT)
-            .map(OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.javaName() + ".timeUnitCode")
-            .add();
-        Column keyAccessorType = table.column(OutboundIpConnectionProperties.Fields.TLS_CLIENT_CERTIFICATE.databaseName())
+                .column("CONNTIMEOUTUNIT")
+                .number()
+                .conversion(ColumnConversion.NUMBER2INT)
+                .map(OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.javaName() + ".timeUnitCode")
+                .add();
+
+        Column keyAccessorTypeClient = table.column(OutboundIpConnectionProperties.Fields.TLS_CLIENT_CERTIFICATE.databaseName())
                 .number()
                 .add();
-        table.foreignKey("FK_CONN_TLS_CERT")
-                .on(keyAccessorType)
+        table.foreignKey("FK_CONN_TLS_CERT_CLI")
+                .on(keyAccessorTypeClient)
                 .references(KeyAccessorType.class)
                 .map(OutboundIpConnectionProperties.Fields.TLS_CLIENT_CERTIFICATE.javaName())
                 .add();
+
+        Column keyAccessorTypeServer = table.column(OutboundIpConnectionProperties.Fields.TLS_SERVER_CERTIFICATE.databaseName())
+                .number()
+                .add();
+        table.foreignKey("FK_CONN_TLS_CERT_SER")
+                .on(keyAccessorTypeServer)
+                .references(KeyAccessorType.class)
+                .map(OutboundIpConnectionProperties.Fields.TLS_SERVER_CERTIFICATE.javaName())
+                .add();
+
         Stream
-            .of(
-                OutboundIpConnectionProperties.Fields.BUFFER_SIZE,
-                OutboundIpConnectionProperties.Fields.POST_DIAL_DELAY_MILLIS,
-                OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND_ATTEMPTS)
-            .forEach(field -> this.addNullableNumberColumnTo(table, field));
+                .of(
+                        OutboundIpConnectionProperties.Fields.BUFFER_SIZE,
+                        OutboundIpConnectionProperties.Fields.POST_DIAL_DELAY_MILLIS,
+                        OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND_ATTEMPTS)
+                .forEach(field -> this.addNullableNumberColumnTo(table, field));
+
         this.addOptionalStringColumnTo(table, OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND);
     }
 
     private void addNullableNumberColumnTo(Table table, OutboundIpConnectionProperties.Fields field) {
         table
-            .column(field.databaseName())
-            .number()
-            .map(field.javaName())
-            .add();
+                .column(field.databaseName())
+                .number()
+                .map(field.javaName())
+                .add();
     }
 
     private void addOptionalStringColumnTo(Table table, OutboundIpConnectionProperties.Fields fieldName) {
         table
-            .column(fieldName.databaseName())
-            .varChar()
-            .map(fieldName.javaName())
-            .add();
+                .column(fieldName.databaseName())
+                .varChar()
+                .map(fieldName.javaName())
+                .add();
     }
 
 }
