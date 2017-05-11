@@ -252,10 +252,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
 
         if (validationInfo.estimatedByRule && status !== 'suspect') {
             date = Ext.isDate(record.get('readingTime')) ? record.get('readingTime') : new Date(record.get('readingTime'));
-            formattedDate =Uni.DateTime.formatDateTimeLong(date)
+            formattedDate = Uni.DateTime.formatDateTimeLong(date);
             tooltipText = Uni.I18n.translate('general.estimatedOnX', 'MDC', 'Estimated on {0}', formattedDate);
             if (estimationComment) {
-                tooltipText += Uni.I18n.translate('general.estimationCommentWithComment', 'MDC', 'Estimated comment: {0}', estimationComment);
+                tooltipText += ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'MDC', 'Estimation comment: {0}', estimationComment);
             }
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
                 + tooltipText + '"></span>';
