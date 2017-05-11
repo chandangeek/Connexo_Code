@@ -747,12 +747,18 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             }
 
             if (record.get('mainValidationInfo') && record.get('mainValidationInfo').commentId) {
+                if (!confirmedObj.mainValidationInfo) {
+                    confirmedObj.mainValidationInfo = {};
+                }
                 confirmedObj.value = record.get('value');
                 confirmedObj.interval = record.get('interval');
                 confirmedObj.mainValidationInfo.commentId = record.get('mainValidationInfo').commentId;
                 confirmedObj.mainValidationInfo.isConfirmed = record.get('mainValidationInfo').confirmedNotSaved || false;
             }
             if (record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentId) {
+                if (!confirmedObj.mainValidationInfo) {
+                    confirmedObj.mainValidationInfo = {};
+                }
                 confirmedObj.value = record.get('value');
                 confirmedObj.interval = record.get('interval');
                 confirmedObj.bulkValidationInfo.commentId = record.get('bulkValidationInfo').commentId;
@@ -1717,18 +1723,20 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
 
         Ext.Array.each(records, function (item) {
-            if (model.get('onlySuspectOrEstimated')) {
-                if (Uni.util.ReadingEditor.checkReadingInfoStatus(item.get('mainValidationInfo')).isSuspectOrEstimated()) {
+            if(item.get('value')) {
+                if (model.get('onlySuspectOrEstimated')) {
+                    if (Uni.util.ReadingEditor.checkReadingInfoStatus(item.get('mainValidationInfo')).isSuspectOrEstimated()) {
+                        intervalsArray.push({
+                            start: item.get('interval').start,
+                            end: item.get('interval').end
+                        });
+                    }
+                } else {
                     intervalsArray.push({
                         start: item.get('interval').start,
                         end: item.get('interval').end
                     });
                 }
-            } else {
-                intervalsArray.push({
-                    start: item.get('interval').start,
-                    end: item.get('interval').end
-                });
             }
         });
 
