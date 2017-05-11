@@ -23,7 +23,7 @@ import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceIsLinkedWithUs
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.GeneralProtocolPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.MetrologyConfigurationInCorrectStateIfAny;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.NoActiveServiceCalls;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.NoLinkedMultiElementSlaves;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.NoLinkedOperationalMultiElementSlaves;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ProtocolDialectPropertiesAreValid;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.ScheduledCommunicationTaskAvailable;
 import com.energyict.mdc.device.lifecycle.impl.micro.checks.SecurityPropertiesAreValid;
@@ -152,7 +152,7 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
                 return new MetrologyConfigurationInCorrectStateIfAny(thesaurus);
             }
             case NO_LINKED_MULTI_ELEMENT_SLAVES:{
-                return new NoLinkedMultiElementSlaves(thesaurus, multiElementDeviceService);
+                return new NoLinkedOperationalMultiElementSlaves(thesaurus, multiElementDeviceService);
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroCheck: " + check);
