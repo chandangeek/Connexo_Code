@@ -3034,6 +3034,7 @@ div.x-form-spinner-down {
 .x-message-box .x-window-body .x-header .x-header-text {
   font-weight: bold;
   line-height: 32px;
+  font-size: 16px;
 }
 
 /* line 209, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/window/Window.scss */
@@ -7239,7 +7240,7 @@ div.x-form-spinner-down {
   border-width: 1px !important;
 }
 
-/* line 67, ../../sass/src/window/MessageBox.scss */
+/* line 68, ../../sass/src/window/MessageBox.scss */
 .x-window-notification-error .x-window-body .x-header .x-header-text {
   color: #eb5642;
 }
@@ -8621,7 +8622,7 @@ div.x-form-spinner-down {
   border-width: 1px !important;
 }
 
-/* line 92, ../../sass/src/window/MessageBox.scss */
+/* line 93, ../../sass/src/window/MessageBox.scss */
 .x-window-notification-success .x-window-body .x-header .x-header-text {
   color: #74af74;
 }
@@ -10003,12 +10004,12 @@ div.x-form-spinner-down {
   border-width: 1px !important;
 }
 
-/* line 116, ../../sass/src/window/MessageBox.scss */
+/* line 117, ../../sass/src/window/MessageBox.scss */
 .x-window-message-error .x-message-box-error {
   background-position: 12px 4px;
 }
 
-/* line 121, ../../sass/src/window/MessageBox.scss */
+/* line 122, ../../sass/src/window/MessageBox.scss */
 .x-dlg-icon {
   font-size: 34px;
 }
