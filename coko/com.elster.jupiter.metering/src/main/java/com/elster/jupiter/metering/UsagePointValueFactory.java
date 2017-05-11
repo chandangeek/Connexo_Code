@@ -21,7 +21,7 @@ public class UsagePointValueFactory extends AbstractValueFactory<UsagePointValue
 
     @Override
     public UsagePointReference fromStringValue(String stringValue) {
-        return new UsagePointReference(meteringService.findUsagePointById(Long.parseLong(stringValue)).get());
+        return meteringService.findUsagePointById(Long.parseLong(stringValue)).map(UsagePointReference::new).orElse(null);
     }
 
     @Override
