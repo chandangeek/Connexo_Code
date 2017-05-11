@@ -1,17 +1,15 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.CertificateAlias;
-import com.energyict.mdc.upl.security.PrivateKeyWrapper;
-
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.GeneralCipheringKeyType;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -65,7 +63,6 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         propertySpecs.add(requestAuthenticatedFrameCounter());
         propertySpecs.add(clientPrivateSigningKeyPropertySpec());
         propertySpecs.add(clientPrivateKeyAgreementKeyPropertySpec());
-        propertySpecs.add(serverTLSCertificate());
         propertySpecs.add(callingAPTitlePropertySpec());
         propertySpecs.add(deviceSystemTitlePropertySpec());
         propertySpecs.add(publicClientPreEstablishedPropertySpec());
@@ -142,19 +139,9 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      * The private key of the client (the ComServer) used for digital signature (ECDSA)
      */
     private PropertySpec clientPrivateSigningKeyPropertySpec() {
-        return this.getPropertySpecService().referenceSpec(PrivateKeyWrapper.class.getName())
+        return this.getPropertySpecService().referenceSpec(KeyAccessorType.class.getName())
                 .named(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY, DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY)
                 .describedAs(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY)
-                .finish();
-    }
-
-    /**
-     * The TLS certificate of the server. Not actively used in the protocols.
-     */
-    private PropertySpec serverTLSCertificate() {
-        return this.getPropertySpecService().referenceSpec(CertificateAlias.class.getName())
-                .named(DlmsSessionProperties.SERVER_TLS_CERTIFICATE, DlmsSessionProperties.SERVER_TLS_CERTIFICATE)
-                .describedAs(DlmsSessionProperties.SERVER_TLS_CERTIFICATE)
                 .finish();
     }
 
@@ -162,7 +149,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      * The private key of the client (the ComServer) used for key agreement (ECDH)
      */
     private PropertySpec clientPrivateKeyAgreementKeyPropertySpec() {
-        return this.getPropertySpecService().referenceSpec(PrivateKeyWrapper.class.getName())
+        return this.getPropertySpecService().referenceSpec(KeyAccessorType.class.getName())
                 .named(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY, DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY)
                 .describedAs(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY)
                 .finish();

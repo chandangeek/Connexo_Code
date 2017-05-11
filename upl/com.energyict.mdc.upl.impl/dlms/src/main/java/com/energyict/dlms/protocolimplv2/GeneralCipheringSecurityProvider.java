@@ -68,11 +68,6 @@ public interface GeneralCipheringSecurityProvider extends SecurityProvider {
     PrivateKey getClientPrivateSigningKey();
 
     /**
-     * The client's (our) private key label  used for digital signing (ECDSA)
-     */
-    String getClientPrivateSigningKeyLabel();
-
-    /**
      * The client's (our) private key used key agreement (ECDH)
      */
     PrivateKey getClientPrivateKeyAgreementKey();

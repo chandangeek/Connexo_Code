@@ -35,7 +35,6 @@ import com.energyict.dlms.cosem.WebPortalSetupV1.Role;
 import com.energyict.dlms.cosem.WebPortalSetupV1.WebPortalAuthenticationMechanism;
 import com.energyict.dlms.cosem.methods.NetworkInterfaceType;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.GeneralCipheringSecurityProvider;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.encryption.asymetric.ECCCurve;
@@ -54,7 +53,6 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
@@ -70,8 +68,6 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceGroup;
 import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.CertificateAlias;
-import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
@@ -244,7 +240,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private final DeviceMasterDataExtractor deviceMasterDataExtractor;
     private final DeviceGroupExtractor deviceGroupExtractor;
     private final DeviceExtractor deviceExtractor;
-    private final CertificateAliasFinder certificateAliasFinder;
     private final CertificateWrapperExtractor certificateWrapperExtractor;
 
     @Override
@@ -397,7 +392,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private MasterDataSync masterDataSync;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
 
-    public Beacon3100Messaging(Beacon3100 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor, CertificateAliasFinder certificateAliasFinder, CertificateWrapperExtractor certificateWrapperExtractor) {
+    public Beacon3100Messaging(Beacon3100 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMasterDataExtractor deviceMasterDataExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor, CertificateWrapperExtractor certificateWrapperExtractor) {
         super(protocol, collectedDataFactory, issueFactory);
         this.objectMapperService = objectMapperService;
         this.propertySpecService = propertySpecService;
@@ -406,7 +401,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         this.deviceMasterDataExtractor = deviceMasterDataExtractor;
         this.deviceGroupExtractor = deviceGroupExtractor;
         this.deviceExtractor = deviceExtractor;
-        this.certificateAliasFinder = certificateAliasFinder;
         this.certificateWrapperExtractor = certificateWrapperExtractor;
     }
 
@@ -458,24 +452,28 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         } else if (propertySpec.getName().equals(DeviceMessageConstants.CACertificateAliasAttributeName)) {
             //Load the certificate with that alias from the EIServer DLMS trust store and encode it.
             String alias = (String) messageAttribute;
-            CertificateAlias certificateAlias = certificateAliasFinder.from(alias);
+            //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
+
+/*            CertificateAlias certificateAlias = certificateAliasFinder.from(alias);
             String certificateEncoded = certificateAlias.getCertificateEncoded();
             if (certificateEncoded == null || certificateEncoded.isEmpty()) {
                 return "";  //Message executor will recognize this and set the message to failed
             }
-            return certificateEncoded;
+            return certificateEncoded;*/
         } else if (propertySpec.getName().equals(DeviceMessageConstants.clientCertificateAliasAttributeName)) {
+            //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
             //Load the certificate with that alias from the EIServer DLMS key store and encode it.
-            String alias = (String) messageAttribute;
-            CertificateAlias certificateAlias = certificateAliasFinder.from(alias); //TODO use privateKeyAliasFinder hear instead!
+/*            String alias = (String) messageAttribute;
+            CertificateWrapper certificateAlias = certificateAliasFinder.from(alias);
             String certificateEncoded = certificateAlias.getCertificateEncoded();
             if (certificateEncoded == null || certificateEncoded.isEmpty()) {
                 return "";  //Message executor will recognize this and set the message to failed
             }
-            return certificateEncoded;
+            return certificateEncoded;*/
         } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateWrapperAttributeName)) {
-            CertificateWrapper certificateWrapper = (CertificateWrapper) messageAttribute;
-            return certificateWrapperExtractor.getBase64EncodedCertificate(certificateWrapper);
+            //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
+/*            CertificateWrapper certificateWrapper = (CertificateWrapper) messageAttribute;
+            return certificateWrapperExtractor.getBase64EncodedCertificate(certificateWrapper);*/
         } else if (propertySpec.getName().equals(DeviceMessageConstants.DelayAfterLastBlock)
                 || propertySpec.getName().equals(DeviceMessageConstants.DelayPerBlock)
                 || propertySpec.getName().equals(DeviceMessageConstants.DelayBetweenBlockSentFast)
@@ -484,6 +482,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         } else {
             return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string property specs
         }
+
+
+        return null;    //TODO remove this line
     }
 
     @Override
@@ -922,7 +923,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         //Now read out the sub-CA certificates (by serial number and issuer name)
         StringBuilder protocolInfo = new StringBuilder();
-        List<com.energyict.mdc.upl.security.CertificateAlias> subCACertificateAliases = new ArrayList<>();
+        //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
+
+     /*   List<com.energyict.mdc.upl.security.CertificateAlias> subCACertificateAliases = new ArrayList<>();
         for (SecuritySetup.CertificateInfo caCertificateInfo : caCertInfo) {
             X509Certificate x509Certificate = getSecuritySetup().exportCertificate(caCertificateInfo.getSerialNumber(), caCertificateInfo.getIssuer());
 
@@ -940,7 +943,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
                 protocolInfo.append(alias);
             }
-        }
 
         if (subCACertificateAliases.isEmpty()) {
             collectedMessage.setDeviceProtocolInformation("The Beacon device contained no sub-CA certificates");
@@ -953,6 +955,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             collectedMessage.setDeviceProtocolInformation(protocolInfo.toString());
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         }
+    }*/
 
         return collectedMessage;
     }
@@ -970,7 +973,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             }
         }
 
-        //Now read out the root-CA certificate (by serial number and issuer name)
+        //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
+ /*       //Now read out the root-CA certificate (by serial number and issuer name)
         StringBuilder protocolInfo = new StringBuilder();
         List<com.energyict.mdc.upl.security.CertificateAlias> rootCACertificateAliases = new ArrayList<>();
         for (SecuritySetup.CertificateInfo caCertificateInfo : caCertInfo) {
@@ -1002,7 +1006,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     rootCACertificateAliases);
             collectedMessage.setDeviceProtocolInformation(protocolInfo.toString());
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
-        }
+        }*/
 
         return collectedMessage;
     }
@@ -1047,9 +1051,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     propertyName,
                     collectedCertificateWrapper);
 
-            //Server certificate for TLS is modelled as a general property
+            //Server certificate for TLS is modelled as a connection task property
         } else if (SecurityMessage.CertificateType.TLS.equals(certificateType)) {
-            propertyName = DlmsSessionProperties.SERVER_TLS_CERTIFICATE;
+            //TODO update TLS connection property!
+ /*           propertyName = DlmsSessionProperties.SERVER_TLS_CERTIFICATE;
 
             //Note that updating the alias general property will also add the given certificate under that alias, to the DLMS key store.
             //If the key store already contains a certificate for that alias, an error is thrown, and the general property will not be updated either.
@@ -1057,7 +1062,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     new DeviceIdentifierById(getProtocol().getOfflineDevice().getId()),
                     collectedMessage.getMessageIdentifier(),
                     propertyName,
-                    collectedCertificateWrapper);
+                    collectedCertificateWrapper);*/
         }
 
         String msg = "Property '" + propertyName + "' on the Beacon device is updated with the ID referring to the new CertificateWrapper. This represents the server end-device certificate, with serial number '" + x509Certificate.getSerialNumber().toString() + "' and issuerDN '" + x509Certificate.getIssuerDN().getName() + "').";

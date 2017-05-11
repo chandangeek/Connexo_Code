@@ -463,6 +463,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
     IMPORT_CA_CERTIFICATE(7050, "Import CA certificate") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.certificateAliasAttributeName, DeviceMessageConstants.certificateAliasAttributeDefaultTranslation));
         }
     },
@@ -470,6 +471,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             //Referring to an entry in the persisted key store
+            //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
             return Arrays.asList(stringSpec(service, DeviceMessageConstants.clientCertificateAliasAttributeName, DeviceMessageConstants.clientCertificateAliasAttributeDefaultTranslation));
         }
     },
@@ -477,6 +479,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             //Referring to a certificateWrapper
+            //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
             return Arrays.asList(stringSpec(service, DeviceMessageConstants.certificateWrapperIdAttributeName, DeviceMessageConstants.clientCertificateAliasAttributeDefaultTranslation));
         }
     },

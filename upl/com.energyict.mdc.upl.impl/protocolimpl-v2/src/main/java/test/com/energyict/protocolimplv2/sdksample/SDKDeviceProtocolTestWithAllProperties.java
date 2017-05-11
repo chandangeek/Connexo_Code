@@ -235,25 +235,13 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
                         .finish());
         optionalProperties.add(
                 this.propertySpecService
-                        .referenceSpec(com.energyict.mdc.upl.security.CertificateWrapper.class.getName())
-                        .named(SDKWithAllPropertiesTranslationKeys.SDKCERTIFICATE_WRAPPERROPERTY)
-                        .describedAs(SDKWithAllPropertiesTranslationKeys.SDKCERTIFICATE_WRAPPERROPERTY)
-                        .finish());
-        optionalProperties.add(
-                this.propertySpecService
                         .referenceSpec(com.energyict.mdc.upl.properties.StringLookup.class.getName())
                         .named(SDKWithAllPropertiesTranslationKeys.SDKSTRING_LOOKUPROPERTY)
                         .describedAs(SDKWithAllPropertiesTranslationKeys.SDKSTRING_LOOKUPROPERTY)
                         .finish());
         optionalProperties.add(
                 this.propertySpecService
-                        .referenceSpec(com.energyict.mdc.upl.security.CertificateWrapper.class.getName())
-                        .named(SDKWithAllPropertiesTranslationKeys.SDKCERTIFICATE_ALIASROPERTY)
-                        .describedAs(SDKWithAllPropertiesTranslationKeys.SDKCERTIFICATE_ALIASROPERTY)
-                        .finish());
-        optionalProperties.add(
-                this.propertySpecService
-                        .referenceSpec(com.energyict.mdc.upl.security.PrivateKeyWrapper.class.getName())
+                        .referenceSpec(com.energyict.mdc.upl.security.KeyAccessorType.class.getName())
                         .named(SDKWithAllPropertiesTranslationKeys.SDKPRIVATE_KEY_ALIASROPERTY)
                         .describedAs(SDKWithAllPropertiesTranslationKeys.SDKPRIVATE_KEY_ALIASROPERTY)
                         .finish());

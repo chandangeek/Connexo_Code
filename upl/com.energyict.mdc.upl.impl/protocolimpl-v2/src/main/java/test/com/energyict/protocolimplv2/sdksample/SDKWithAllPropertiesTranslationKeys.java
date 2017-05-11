@@ -44,10 +44,8 @@ public enum SDKWithAllPropertiesTranslationKeys implements TranslationKey {
     SDKTARIFFCALENDARROPERTY(Keys.SDKTARIFFCALENDARROPERTY, "A tariff calendar property"),
     SDKFIRMWARE_VERSIONROPERTY(Keys.SDKFIRMWARE_VERSIONROPERTY, "A firmware version property"),
     SDKNUMBER_LOOKUPROPERTY(Keys.SDKNUMBER_LOOKUPROPERTY, "A number lookup property"),
-    SDKCERTIFICATE_WRAPPERROPERTY(Keys.SDKCERTIFICATE_WRAPPERROPERTY, "A number lookup property"),
     SDKSTRING_LOOKUPROPERTY(Keys.SDKSTRING_LOOKUPROPERTY, "A string lookup property"),
-    SDKCERTIFICATE_ALIASROPERTY(Keys.SDKCERTIFICATE_ALIASROPERTY, "A certificate alias property"),
-    SDKPRIVATE_KEY_ALIASROPERTY(Keys.SDKPRIVATE_KEY_ALIASROPERTY, "A private key alias property"),
+    SDKPRIVATE_KEY_ALIASROPERTY(Keys.SDKPRIVATE_KEY_ALIASROPERTY, "A KeyAccessorType property"),
     SDKENCRYPTEDHEXSTRINGPROPERTY(Keys.SDKENCRYPTEDHEXSTRINGPROPERTY, "An encrypted hex string property"),
     DEFAULT_OPTIONAL_PROPERTY("SDK.defaultOptionalProperty", "Default optional property"),
     DELAY_AFTER_REQUEST("SDK.delay.after.request", "Delay after request"),
@@ -118,9 +116,7 @@ public enum SDKWithAllPropertiesTranslationKeys implements TranslationKey {
         public static final String SDKTARIFFCALENDARROPERTY = "SDKTARIFFCALENDARROPERTY";
         public static final String SDKFIRMWARE_VERSIONROPERTY = "SDKFIRMWARE_VERSIONROPERTY";
         public static final String SDKNUMBER_LOOKUPROPERTY = "SDKNUMBER_LOOKUPROPERTY";
-        public static final String SDKCERTIFICATE_WRAPPERROPERTY = "SDKDEVICEGROUPPROPERTY";
         public static final String SDKSTRING_LOOKUPROPERTY = "SDKSTRING_LOOKUPROPERTY";
-        public static final String SDKCERTIFICATE_ALIASROPERTY = "SDKCERTIFICATE_ALIASROPERTY";
         public static final String SDKPRIVATE_KEY_ALIASROPERTY = "SDKPRIVATE_KEY_ALIASROPERTY";
     }
 }
