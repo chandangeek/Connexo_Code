@@ -482,7 +482,7 @@ public final class ReadingTypeImpl implements PersistenceAware, IReadingType {
 		if (parts.length != MRID_FIELD_COUNT) {
 			throw new IllegalArgumentException();
 		}
-		return TimeAttribute.values()[Integer.parseInt(parts[2])];
+		return TimeAttribute.get(Integer.parseInt(parts[2]));
 	}
 
 	@Override
