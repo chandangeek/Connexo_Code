@@ -206,7 +206,10 @@ class MdcAppPrivileges {
 
                 //device validation/estimation configuration
                 com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_VALIDATION_CONFIGURATION,
-                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION
+                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_ESTIMATION_CONFIGURATION,
+
+                //calendars
+                com.elster.jupiter.calendar.security.Privileges.Constants.MANAGE_TOU_CALENDARS
         );
     }
 }
