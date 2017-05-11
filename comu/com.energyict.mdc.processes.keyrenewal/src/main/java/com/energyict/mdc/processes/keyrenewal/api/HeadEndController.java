@@ -16,19 +16,18 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.*;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 /**
  * This class contains the controller who will translate request coming from our workflow code
@@ -97,26 +96,14 @@ public class HeadEndController {
     }
 
     protected List<ComTaskExecution> getComTaskExecutions(Device device, KeyAccessorType keyAccessorType) {
-        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-        if (device.getDeviceProtocolProperties().hasValueFor(keyAccessorType.getName())) {
-            comTaskExecutions = device.getComTaskExecutions();
-        } else {
-            DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
-            for (SecurityPropertySet securityPropertySet : deviceConfiguration.getSecurityPropertySets()) {
-                for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
-                    if (securityProperty.getValue() instanceof KeyAccessorType && ((KeyAccessorType) securityProperty.getValue()).getName().equals(keyAccessorType.getName())) {
-                        List<ComTaskEnablement> comTaskEnablements =
-                                deviceConfiguration.getComTaskEnablements().stream().filter(comTaskEnablement -> comTaskEnablement.getSecurityPropertySet().equals(securityPropertySet)).collect(Collectors.toList());
-                        for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
-                            comTaskExecutions.addAll(device.getComTaskExecutions().stream()
-                                    .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId())
-                                    .collect(Collectors.toList()));
-                        }
-                    }
-                }
-            }
-        }
-        return comTaskExecutions;
+        return device.getComTaskExecutions().stream().filter(comTaskExecution -> getComTaskEnablement(comTaskExecution).map(comTaskEnablement1 -> comTaskEnablement1.getSecurityPropertySet().getConfigurationSecurityProperties().stream()
+                .anyMatch(configurationSecurityProperty -> configurationSecurityProperty.getKeyAccessorType().equals(keyAccessorType))).orElse(false)).collect(Collectors.toList());
+    }
+
+    private Optional<ComTaskEnablement> getComTaskEnablement(ComTaskExecution comTaskExecution) {
+        return comTaskExecution.getDevice()
+                .getDeviceConfiguration().getComTaskEnablements()
+                .stream().filter(comTaskEnablement -> comTaskEnablement.getComTask().getId() == comTaskExecution.getComTask().getId()).findFirst();
     }
 
     protected List<ComTaskExecution> getFilteredList(List<ComTaskExecution> comTaskExecutions) {

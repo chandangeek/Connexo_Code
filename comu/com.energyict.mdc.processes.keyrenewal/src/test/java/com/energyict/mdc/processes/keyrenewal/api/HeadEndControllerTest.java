@@ -32,7 +32,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -56,7 +55,7 @@ public class HeadEndControllerTest {
     private static final TranslationKey KEY_ACCESSORTYPE_ATTRIBUTE_TRANSLATION_KEY = new TranslationKey() {
         @Override
         public String getKey() {
-            return DeviceMessageConstants.keyAccessorTypeAttributeName;
+            return "keyAccessorType";
         }
 
         @Override

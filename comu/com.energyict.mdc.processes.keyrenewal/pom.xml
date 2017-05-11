@@ -147,6 +147,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pki</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.upl</artifactId>
+        </dependency>
         <!-- Testing -->
         <dependency>
             <groupId>junit</groupId>
