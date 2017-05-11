@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -272,6 +273,12 @@ public class ValidationInfoFactory {
                 .flatMap(Functions.asStream())
                 .map(resourceHelper::getApplicationInfo)
                 .collect(Collectors.collectingAndThen(Collectors.toSet(), s -> s.isEmpty() ? null : s));
+        readingQualities.stream().filter(readingQuality -> !Checks.is(readingQuality.getComment()).emptyOrOnlyWhiteSpace())
+                .findFirst()
+                .ifPresent(readingQuality -> {
+                    info.commentId = getEstimationCommentIdByValue(readingQuality.getComment());
+                    info.commentValue = readingQuality.getComment();
+                });
     }
 
     /**
@@ -343,7 +350,7 @@ public class ValidationInfoFactory {
             veeReadingInfo.editedInApp = resourceHelper.getApplicationInfo(modificationFlag.getLast());
         }
         veeReadingInfo.isConfirmed = isConfirmedData(reading, readingQualities);
-        readingQualities.stream().filter(readingQuality -> readingQuality.getComment() != null)
+        readingQualities.stream().filter(readingQuality -> !Checks.is(readingQuality.getComment()).emptyOrOnlyWhiteSpace())
                 .findFirst()
                 .ifPresent(readingQuality -> {
                     veeReadingInfo.commentId = getEstimationCommentIdByValue(readingQuality.getComment());
