@@ -214,7 +214,8 @@ Ext.define('Isu.view.creationrules.EditForm', {
                             {
                                 itemId: 'dueIn',
                                 boxLabel: Uni.I18n.translate('general.title.dueIn', 'ISU', 'Due in'),
-                                inputValue: true
+                                inputValue: true,
+                                margin: '7 0 0 0'
                             }
                         ],
                         listeners: {
