@@ -196,7 +196,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 icon = this.addProjectedFlag(icon);
             }
         } else if (record.get('estimatedNotSaved') && record.get('ruleId') > 0 && status !== 'suspect') {
-            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="' + estimationComment + '"></span>';
+            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="' + Uni.I18n.translate('reading.estimatedNotSaved', 'IMT', 'Estimated.') + ' ' + estimationComment + '"></span>';
             if (record.get('isProjected')) {
                 icon = this.addProjectedFlag(icon);
             }

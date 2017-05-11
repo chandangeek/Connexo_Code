@@ -654,7 +654,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             record = {
                 estimatedCommentNotSaved: true,
                 modificationState: Uni.util.ReadingEditor.modificationState('EDITED'),
-                commentId: commentId,
+                commentId: commentId ? commentId : 0,
                 commentValue: commentValue
             };
         if (commentId !== -1) {
@@ -749,7 +749,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                             reading.set('validationResult', 'validationStatus.ok');
                             if (commentId !== -1) {
                                 reading.set('estimatedCommentNotSaved', true);
-                                reading.set('commentId', commentId);
+                                reading.set('commentId', commentId ? commentId : 0);
                                 reading.set('commentValue', commentValue);
                             }
                         }
@@ -844,7 +844,7 @@ Ext.define('Imt.purpose.controller.Readings', {
 
         if (commentId !== -1) {
             comment = {
-                commentId: commentId,
+                commentId: commentId ? commentId : 0,
                 commentValue: commentValue
             }
         }
@@ -894,7 +894,7 @@ Ext.define('Imt.purpose.controller.Readings', {
 
         if (commentId !== -1) {
             comment = {
-                commentId: commentId,
+                commentId: commentId ? commentId : 0,
                 commentValue: commentValue
             }
         }
@@ -1012,11 +1012,10 @@ Ext.define('Imt.purpose.controller.Readings', {
         reading.set('validationResult', 'validationStatus.ok');
         if (action === 'estimate') {
             reading.set('estimatedNotSaved', true);
-            reading.set('estimatedByRule', true);
             reading.set('modificationState', Uni.util.ReadingEditor.modificationState(null));
         }
         if (action === 'editWithEstimator') {
-            reading.set('estimatedNotSaved', true);
+            reading.set('estimatedNotSaved', false);
             reading.set('estimatedByRule', false);
             reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
         }
