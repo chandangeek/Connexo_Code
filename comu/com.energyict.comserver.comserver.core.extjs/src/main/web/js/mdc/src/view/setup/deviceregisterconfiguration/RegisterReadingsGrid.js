@@ -78,8 +78,10 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                                 + Uni.I18n.translate('general.notValidated', 'MDC', 'Not validated') + '"></span>';
                         }
                         return data + icon;
+                    } else {
+                        return '-';
                     }
-                },
+                }
             },
             {
                 header: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated'),
@@ -89,7 +91,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                     if (!Ext.isEmpty(data)) {
                         return record.data.calculatedValue?record.data.calculatedValue + ' ' + record.data.calculatedUnit:'-';
                     } else {
-                        return '-'
+                        return '-';
                     }
                 }
             },
@@ -104,7 +106,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                 flex: 15,
                 renderer: function(value){
                     var date = new Date(value);
-                    return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)]);
+                    return Uni.DateTime.formatDateTimeShort(date) ;
                 }
             }
         ];
