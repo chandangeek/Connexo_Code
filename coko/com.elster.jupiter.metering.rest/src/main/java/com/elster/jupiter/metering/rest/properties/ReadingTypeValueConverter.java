@@ -18,8 +18,8 @@ public class ReadingTypeValueConverter implements PropertyValueConverter {
 
     @Override
     public boolean canProcess(PropertySpec propertySpec) {
-        return propertySpec != null && ReadingTypeValueFactory.ReadingTypeReference.class.isAssignableFrom(propertySpec.getValueFactory()
-                .getValueType());
+        return propertySpec != null &&
+                ReadingTypeValueFactory.ReadingTypeReference.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
     }
 
     @Override
@@ -28,7 +28,7 @@ public class ReadingTypeValueConverter implements PropertyValueConverter {
                 ReadingTypeValueFactory.Mode factoryMode = ((ReadingTypeValueFactory) propertySpec.getValueFactory()).getMode();
                 switch (factoryMode) {
                     case ALL:
-                        return PropertyType.READING_TYPE;
+                        return PropertyType.ANY_READINGTYPE;
                     case ONLY_REGULAR:
                         return PropertyType.REGULAR_READINGTYPE;
                     case ONLY_IRREGULAR:

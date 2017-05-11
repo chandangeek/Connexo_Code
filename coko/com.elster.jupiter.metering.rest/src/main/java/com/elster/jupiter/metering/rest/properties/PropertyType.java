@@ -6,7 +6,7 @@ package com.elster.jupiter.metering.rest.properties;
 
 public enum PropertyType implements com.elster.jupiter.properties.rest.PropertyType {
 
-    READING_TYPE,
+    ANY_READINGTYPE,
     REGULAR_READINGTYPE,
     IRREGULAR_READINGTYPE,
     USAGE_POINT
