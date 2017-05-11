@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
@@ -25,6 +26,8 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.StringLookup;
+import com.energyict.mdc.upl.security.CertificateAlias;
+
 import com.energyict.obis.ObisCode;
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
@@ -211,10 +214,11 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
         NUMBER_LOOKUP("com.energyict.mdc.upl.properties.NumberLookup", NumberLookup.class),
         STRING_LOOKUP("com.energyict.mdc.upl.properties.StringLookup", StringLookup.class),
 
-        //TODO: complete with other types
-        KEY_ACCESSOR_TYPE("com.energyict.mdc.upl.security.KeyAccessorType", KeyAccessorType.class);
-//        CERTIFICATE_WRAPPER("com.energyict.mdc.upl.security.CertificateWrapper", CertificateWrapper.class),
-//        PRIVATE_KEY_ALIAS("com.energyict.mdc.upl.security.PrivateKeyAlias", PrivateKeyWrapper.class);
+        KEY_ACCESSOR_TYPE("com.energyict.mdc.upl.security.KeyAccessorType", KeyAccessorType.class),
+        CERTIFICATE_ALIAS("com.energyict.mdc.upl.security.CertificateAlias", CertificateAlias.class),     //TODO: remove this entry - every property spec should be reference<KeyAccessorType>
+        CERTIFICATE_WRAPPER("com.energyict.mdc.upl.security.CertificateWrapper", CertificateAlias.class),     //TODO: remove this entry - every property spec should be reference<KeyAccessorType>
+        PRIVATE_KEY_WRAPPER("com.energyict.mdc.upl.security.PrivateKeyWrapper", PrivateKeyWrapper.class), //TODO: remove this entry - every property spec should be reference<KeyAccessorType>
+        PRIVATE_KEY_ALIAS("com.energyict.mdc.upl.security.PrivateKeyAlias",PrivateKeyWrapper.class); //TODO: remove this entry - every property spec should be reference<KeyAccessorType>
 
         private final String uplClassName;
         private final Class connexoClass;
