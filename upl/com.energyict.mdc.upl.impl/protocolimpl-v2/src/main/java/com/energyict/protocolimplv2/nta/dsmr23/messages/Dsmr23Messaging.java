@@ -15,10 +15,10 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.NumberLookup;
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
@@ -57,6 +57,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.encry
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
@@ -179,6 +180,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
         supportedMessages.add(this.get(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD));
         supportedMessages.add(this.get(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST));
         supportedMessages.add(this.get(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST));
+        supportedMessages.add(this.get(SecurityMessage.KEY_RENEWAL));
 
         // contactor related
         if (getProtocol().hasBreaker()) {
@@ -251,7 +253,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case newAuthenticationKeyAttributeName:
             case passwordAttributeName:
             case newWrappedAuthenticationKeyAttributeName:
-                return ((Password) messageAttribute).getValue();
+                return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
             case meterTimeAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());
             case specialDaysAttributeName:
@@ -266,6 +268,9 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case emergencyProfileActivationDateAttributeName:
             case firmwareUpdateActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());  //Epoch (millis)
+            case keyAccessorTypeAttributeName:
+//                return String.valueOf(((KeyAccessorType) messageAttribute).getName());
+                return messageAttribute.toString(); //TODO: needs refactoring
             default:
                 return messageAttribute.toString();  //Used for String and BigDecimal attributes
         }

@@ -7,7 +7,8 @@ import com.energyict.mdc.upl.properties.DeviceGroup;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.CertificateWrapper;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+
 import com.energyict.protocolimplv2.messages.enums.ClientSecuritySetup;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
@@ -59,8 +60,8 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.passwordSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation),
-                    this.passwordSpec(service, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName, DeviceMessageConstants.newWrappedEncryptionKeyAttributeDefaultTranslation)
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation),
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName, DeviceMessageConstants.newWrappedEncryptionKeyAttributeDefaultTranslation)
             );
         }
     },
@@ -68,37 +69,37 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.passwordSpec(service, DeviceMessageConstants.newReadingClientPasswordAttributeName, DeviceMessageConstants.newReadingClientPasswordAttributeDefaultTranslation),
-                    this.passwordSpec(service, DeviceMessageConstants.newManagementClientPasswordAttributeName, DeviceMessageConstants.newManagementClientPasswordAttributeDefaultTranslation),
-                    this.passwordSpec(service, DeviceMessageConstants.newFirmwareClientPasswordAttributeName, DeviceMessageConstants.newFirmwareClientPasswordAttributeDefaultTranslation)
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newReadingClientPasswordAttributeName, DeviceMessageConstants.newReadingClientPasswordAttributeDefaultTranslation),
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newManagementClientPasswordAttributeName, DeviceMessageConstants.newManagementClientPasswordAttributeDefaultTranslation),
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newFirmwareClientPasswordAttributeName, DeviceMessageConstants.newFirmwareClientPasswordAttributeDefaultTranslation)
             );
         }
     },
     WRITE_PSK(7005, "Write PSK") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.pskAttributeName, DeviceMessageConstants.pskAttributeDefaultTranslation));
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.pskAttributeName, DeviceMessageConstants.pskAttributeDefaultTranslation));
         }
     },
     CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY(7006, "Change encryption key with value") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation));
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation));
         }
     },
     CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS(7033, "Change authentication key with values") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.passwordSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
-                    this.passwordSpec(service, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeDefaultTranslation)
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeDefaultTranslation)
             );
         }
     },
     CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(7008, "Change authentication key with value") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation));
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation));
         }
     },
     CHANGE_PASSWORD(7009, "Change password") {
@@ -111,7 +112,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
 
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.newPasswordAttributeName, DeviceMessageConstants.newPasswordAttributeDefaultTranslation));
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newPasswordAttributeName, DeviceMessageConstants.newPasswordAttributeDefaultTranslation));
         }
     },
     CHANGE_LLS_SECRET(7011, "Change LLS secret") {
@@ -124,7 +125,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
 
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.newHexPasswordAttributeName, DeviceMessageConstants.newHexPasswordAttributeDefaultTranslation));
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newHexPasswordAttributeName, DeviceMessageConstants.newHexPasswordAttributeDefaultTranslation));
         }
     },
     @Deprecated
@@ -141,7 +142,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
 
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.newHexPasswordAttributeName, DeviceMessageConstants.newHexPasswordAttributeDefaultTranslation));
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newHexPasswordAttributeName, DeviceMessageConstants.newHexPasswordAttributeDefaultTranslation));
         }
     },
     ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(7015, "Enable/disable temporary encryption key") {
@@ -162,13 +163,13 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
     CHANGE_EXECUTION_KEY(7016, "Change execution key") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.executionKeyAttributeName, DeviceMessageConstants.executionKeyAttributeDefaultTranslation));
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.executionKeyAttributeName, DeviceMessageConstants.executionKeyAttributeDefaultTranslation));
         }
     },
     CHANGE_TEMPORARY_KEY(7017, "Change temporary key") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.temporaryKeyAttributeName, DeviceMessageConstants.temporaryKeyAttributeDefaultTranslation));
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.temporaryKeyAttributeName, DeviceMessageConstants.temporaryKeyAttributeDefaultTranslation));
         }
     },
     BREAK_OR_RESTORE_SEALS(7018, "Break or restore seals") {
@@ -317,20 +318,20 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
 
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.newPasswordAttributeName, DeviceMessageConstants.newPasswordAttributeDefaultTranslation));
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newPasswordAttributeName, DeviceMessageConstants.newPasswordAttributeDefaultTranslation));
         }
     },
     CHANGE_WEBPORTAL_PASSWORD2(7032, "Change webportal password 2") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.newPasswordAttributeName, DeviceMessageConstants.newPasswordAttributeDefaultTranslation));
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newPasswordAttributeName, DeviceMessageConstants.newPasswordAttributeDefaultTranslation));
         }
     },
     CHANGE_HLS_SECRET_PASSWORD(7030, "Change HLS secret") {    //Password field
 
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.passwordSpec(service, DeviceMessageConstants.newPasswordAttributeName, DeviceMessageConstants.newPasswordAttributeDefaultTranslation));
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newPasswordAttributeName, DeviceMessageConstants.newPasswordAttributeDefaultTranslation));
         }
     },
     CHANGE_SECURITY_KEYS(7037, "Change security keys") {
@@ -338,9 +339,9 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.bigDecimalSpecBuilder(service, DeviceMessageConstants.clientMacAddress, DeviceMessageConstants.clientMacAddressDefaultTranslation).finish(),
-                    this.passwordSpec(service, DeviceMessageConstants.masterKey, DeviceMessageConstants.masterKeyDefaultTranslation),
-                    this.passwordSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
-                    this.passwordSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation)
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.masterKey, DeviceMessageConstants.masterKeyDefaultTranslation),
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation)
             );
         }
     },
@@ -457,7 +458,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.usernameAttributeName, DeviceMessageConstants.usernameAttributeDefaultTranslation, UserNames.getAllNames()),
-                    this.passwordSpec(service, DeviceMessageConstants.passwordAttributeName, DeviceMessageConstants.passwordAttributeDefaultTranslation));
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.passwordAttributeName, DeviceMessageConstants.passwordAttributeDefaultTranslation));
         }
     },
     IMPORT_CA_CERTIFICATE(7050, "Import CA certificate") {
@@ -472,7 +473,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             //Referring to an entry in the persisted key store
             //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
-            return Arrays.asList(stringSpec(service, DeviceMessageConstants.clientCertificateAliasAttributeName, DeviceMessageConstants.clientCertificateAliasAttributeDefaultTranslation));
+            return Collections.singletonList(stringSpec(service, DeviceMessageConstants.clientCertificateAliasAttributeName, DeviceMessageConstants.clientCertificateAliasAttributeDefaultTranslation));
         }
     },
     IMPORT_SERVER_END_DEVICE_CERTIFICATE(7052, "Import server end device certificate") {
@@ -480,7 +481,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             //Referring to a certificateWrapper
             //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
-            return Arrays.asList(stringSpec(service, DeviceMessageConstants.certificateWrapperIdAttributeName, DeviceMessageConstants.clientCertificateAliasAttributeDefaultTranslation));
+            return Collections.singletonList(stringSpec(service, DeviceMessageConstants.certificateWrapperIdAttributeName, DeviceMessageConstants.clientCertificateAliasAttributeDefaultTranslation));
         }
     },
     CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY(7053, "Change authentication key using service key and new plain key") {
@@ -510,8 +511,8 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     bigDecimalSpec(service, DeviceMessageConstants.clientMacAddress, DeviceMessageConstants.clientMacAddressDefaultTranslation, BigDecimal.ONE),
-                    passwordSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
-                    passwordSpec(service, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeDefaultTranslation)
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeDefaultTranslation)
             );
         }
     },
@@ -520,8 +521,8 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     bigDecimalSpec(service, DeviceMessageConstants.clientMacAddress, DeviceMessageConstants.clientMacAddressDefaultTranslation, BigDecimal.ONE),
-                    passwordSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation),
-                    passwordSpec(service, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName, DeviceMessageConstants.newWrappedEncryptionKeyAttributeDefaultTranslation)
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation),
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName, DeviceMessageConstants.newWrappedEncryptionKeyAttributeDefaultTranslation)
             );
         }
     },
@@ -530,7 +531,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     bigDecimalSpec(service, DeviceMessageConstants.clientMacAddress, DeviceMessageConstants.clientMacAddressDefaultTranslation, BigDecimal.ONE),
-                    passwordSpec(service, DeviceMessageConstants.newPasswordAttributeName, DeviceMessageConstants.newPasswordAttributeDefaultTranslation)
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newPasswordAttributeName, DeviceMessageConstants.newPasswordAttributeDefaultTranslation)
             );
         }
     },
@@ -538,8 +539,8 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    passwordSpec(service, DeviceMessageConstants.newMasterKeyAttributeName, DeviceMessageConstants.newMasterKeyAttributeDefaultTranslation),
-                    passwordSpec(service, DeviceMessageConstants.newWrappedMasterKeyAttributeName, DeviceMessageConstants.newWrappedMasterKeyAttributeDefaultTranslation)
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newMasterKeyAttributeName, DeviceMessageConstants.newMasterKeyAttributeDefaultTranslation),
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedMasterKeyAttributeName, DeviceMessageConstants.newWrappedMasterKeyAttributeDefaultTranslation)
             );
         }
     },
@@ -548,8 +549,8 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     bigDecimalSpec(service, DeviceMessageConstants.clientMacAddress, DeviceMessageConstants.clientMacAddressDefaultTranslation, BigDecimal.ONE),
-                    passwordSpec(service, DeviceMessageConstants.newMasterKeyAttributeName, DeviceMessageConstants.newMasterKeyAttributeDefaultTranslation),
-                    passwordSpec(service, DeviceMessageConstants.newWrappedMasterKeyAttributeName, DeviceMessageConstants.newWrappedMasterKeyAttributeDefaultTranslation)
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newMasterKeyAttributeName, DeviceMessageConstants.newMasterKeyAttributeDefaultTranslation),
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedMasterKeyAttributeName, DeviceMessageConstants.newWrappedMasterKeyAttributeDefaultTranslation)
             );
         }
     },
@@ -560,8 +561,8 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
                     stringSpecBuilder(service, DeviceMessageConstants.client, DeviceMessageConstants.clientDefaultTranslation)
                             .addValues(getClients())
                             .finish(),
-                    passwordSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
-                    passwordSpec(service, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeDefaultTranslation)
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName, DeviceMessageConstants.newWrappedAuthenticationKeyAttributeDefaultTranslation)
             );
         }
     },
@@ -572,8 +573,8 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
                     stringSpecBuilder(service, DeviceMessageConstants.client, DeviceMessageConstants.clientDefaultTranslation)
                             .addValues(getClients())
                             .finish(),
-                    passwordSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation),
-                    passwordSpec(service, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName, DeviceMessageConstants.newWrappedEncryptionKeyAttributeDefaultTranslation)
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation),
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName, DeviceMessageConstants.newWrappedEncryptionKeyAttributeDefaultTranslation)
             );
         }
     },
@@ -584,19 +585,24 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
                     stringSpecBuilder(service, DeviceMessageConstants.client, DeviceMessageConstants.clientDefaultTranslation)
                             .addValues(getClients())
                             .finish(),
-                    passwordSpec(service, DeviceMessageConstants.newMasterKeyAttributeName, DeviceMessageConstants.newMasterKeyAttributeDefaultTranslation),
-                    passwordSpec(service, DeviceMessageConstants.newWrappedMasterKeyAttributeName, DeviceMessageConstants.newWrappedMasterKeyAttributeDefaultTranslation)
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newMasterKeyAttributeName, DeviceMessageConstants.newMasterKeyAttributeDefaultTranslation),
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newWrappedMasterKeyAttributeName, DeviceMessageConstants.newWrappedMasterKeyAttributeDefaultTranslation)
             );
         }
     },
     SET_REQUIRED_PROTECTION_FOR_DATA_PROTECTION_SETUP(7063, "Set required protection for data protection setup") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Arrays.asList(
-                    bigDecimalSpec(service, DeviceMessageConstants.requiredProtection, DeviceMessageConstants.requiredProtectionDefaultTranslation)
-            );
+            return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.requiredProtection, DeviceMessageConstants.requiredProtectionDefaultTranslation));
+        }
+    },
+    KEY_RENEWAL(7064, "Renew key") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.keyAccessorTypeAttributeName, DeviceMessageConstants.keyAccessorTypeAttributeNameDefaultTranslation));
         }
     };
+
 
     private final long id;
     private final String defaultNameTranslation;
@@ -639,10 +645,10 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
                 .finish();
     }
 
-    protected PropertySpec passwordSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    protected PropertySpec keyAccessorTypeReferenceSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
-                .passwordSpec()
+                .referenceSpec(KeyAccessorType.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()
@@ -692,16 +698,6 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
                 .boundedBigDecimalSpec(lowerLimit, upperLimit)
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
-    protected PropertySpec certificateWrapperReferenceSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .referenceSpec(CertificateWrapper.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()

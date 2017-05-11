@@ -10,6 +10,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.obis.ObisCode;
 
@@ -94,7 +95,7 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
                         .finish());
         optionalProperties.add(
                 this.propertySpecService
-                        .passwordSpec()
+                        .referenceSpec(KeyAccessorType.class.getName())
                         .named(SDKWithAllPropertiesTranslationKeys.SDKPASSWORDPROPERTY)
                         .describedAs(SDKWithAllPropertiesTranslationKeys.SDKPASSWORDPROPERTY)
                         .finish());
