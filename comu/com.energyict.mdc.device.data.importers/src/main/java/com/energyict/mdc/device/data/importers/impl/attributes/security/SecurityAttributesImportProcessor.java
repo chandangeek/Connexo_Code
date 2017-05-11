@@ -25,7 +25,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Imports the actual values for KeyAccessors defined through SecurityAccessorTypes on DeviceConfig.
+ * Imports the values for security properties (keys and passwords), only supports plaintext keys and passwords.
+ * PropertySpecs for the SecurityPropertySet yield KeyAccessorTypes.
+ * The device will have KeyAccessors for the KeyAccessorTypes (or the importer creates them)
+ * The real value for the property will be stored on the actual-value of the KeyAccessor
  */
 public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImportProcessor<SecurityAttributesImportRecord> { //TODO
 
