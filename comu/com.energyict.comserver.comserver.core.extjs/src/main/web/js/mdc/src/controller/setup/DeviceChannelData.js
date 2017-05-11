@@ -709,6 +709,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             confirmedObj = {};
 
         Ext.Array.each(store.getUpdatedRecords(), function (record) {
+
             if (record.get('confirmed')) {
                 confirmedObj = {
                     interval: record.get('interval'),
@@ -746,7 +747,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 confirmedObj = _.pick(record.getData(), 'interval', 'collectedValue');
             }
 
-            if (record.get('mainValidationInfo') && record.get('mainValidationInfo').commentId) {
+            if (record.isModified('value') && record.get('mainValidationInfo') && record.get('mainValidationInfo').commentId !== null) {
                 if (!confirmedObj.mainValidationInfo) {
                     confirmedObj.mainValidationInfo = {};
                 }
@@ -755,11 +756,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 confirmedObj.mainValidationInfo.commentId = record.get('mainValidationInfo').commentId;
                 confirmedObj.mainValidationInfo.isConfirmed = record.get('mainValidationInfo').confirmedNotSaved || false;
             }
-            if (record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentId) {
-                if (!confirmedObj.mainValidationInfo) {
-                    confirmedObj.mainValidationInfo = {};
+            if (record.isModified('collectedValue') && record.get('bulkValidationInfo') && record.get('bulkValidationInfo').commentId !== null) {
+                if (!confirmedObj.bulkValidationInfo) {
+                    confirmedObj.bulkValidationInfo = {};
                 }
-                confirmedObj.value = record.get('value');
+                confirmedObj.collectedValue = record.get('collectedValue');
                 confirmedObj.interval = record.get('interval');
                 confirmedObj.bulkValidationInfo.commentId = record.get('bulkValidationInfo').commentId;
                 confirmedObj.bulkValidationInfo.isConfirmed = record.get('bulkValidationInfo').confirmedNotSaved || false;
@@ -876,12 +877,16 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         } else {
             readings = records;
         }
+
         _.each(readings, function (reading) {
-            if (reading.get('mainModificationState') && reading.get('mainModificationState').flag) {
+            if (reading.get('mainModificationState') && reading.get('mainModificationState').flag ||
+                reading.get('mainValidationInfo') && reading.get('mainValidationInfo').estimatedByRule) {
                 modificationState = 'mainModificationState';
-                if (reading.get('bulkModificationState') && reading.get('bulkModificationState').flag) {
+                if (reading.get('bulkModificationState') && reading.get('bulkModificationState').flag ||
+                    reading.get('bulkValidationInfo') && reading.get('bulkValidationInfo').estimatedByRule) {
                     modificationState = false;
                 }
+
             }
         });
 
@@ -906,14 +911,16 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             readings = button.readings,
             modificationState = radioValue ? 'bulkModificationState' : 'mainModificationState',
             validationState = radioValue ? 'bulkValidationInfo' : 'mainValidationInfo',
+            valueField = radioValue ? 'collectedValue' : 'value',
             comment = {};
 
         _.each(readings, function (reading) {
-            if (reading.get(modificationState) && reading.get(modificationState).flag) {
-                reading.get(validationState).commentId = commentId;
+            if (reading.get(modificationState) && reading.get(modificationState).flag ||
+                reading.get(validationState) && reading.get(validationState).estimatedByRule) {
+                reading.modified[valueField] = reading.get(valueField);
+                reading.get(validationState).commentId = commentId ? commentId : 0;
                 reading.get(validationState).commentValue = commentValue;
                 reading.set('estimatedCommentNotSaved', true);
-                reading.set(modificationState, Uni.util.ReadingEditor.modificationState(reading.get(modificationState).flag));
             }
         });
         me.showButtons();
@@ -956,7 +963,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         if (commentId !== -1) {
             comment = {
-                commentId: commentId,
+                commentId: commentId ? commentId : 0,
                 commentValue: commentValue
             };
         }
@@ -1123,7 +1130,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         if (commentId !== -1) {
             comment = {
-                commentId: commentId,
+                commentId: commentId ? commentId : 0,
                 commentValue: commentValue
             };
         }
@@ -1150,7 +1157,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             }
         }
 
-        validationInfoName = estimateBulk ? 'bulkValidationInfo' : 'mainValidationInfo';
         if (!Ext.isArray(record)) {
             intervalsArray.push({
                 start: record.get('interval').start,
@@ -1185,7 +1191,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         if (commentId !== -1) {
             comment = {
-                commentId: commentId,
+                commentId: commentId ? commentId : 0,
                 commentValue: commentValue
             };
         }
@@ -1281,7 +1287,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             window.down('#error-label').show();
                             var listOfFailedReadings = [];
                             Ext.Array.each(responseText.readings, function (readingTimestamp) {
-                                listOfFailedReadings.push(Uni.DateTime.formatDateTimeShort(new Date(readingTimestamp)) );
+                                listOfFailedReadings.push(Uni.DateTime.formatDateTimeShort(new Date(readingTimestamp)));
                             });
                             var errorMessage = window.down('#estimator-field') ? Uni.I18n.translate('devicechannels.estimationErrorMessageWithIntervals', 'MDC', 'Could not estimate {0} with {1}',
                                 [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue()]) : Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0}',
@@ -1312,34 +1318,30 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     updateEstimatedValues: function (record, reading, estimatedReading, ruleId, action) {
         var me = this,
+            estimationBulk = record.get('estimateBulk'),
+            valueField = estimationBulk ? 'collectedValue' : 'value',
+            validationInfo = estimationBulk ? 'bulkValidationInfo' : 'mainValidationInfo',
+            modificationState = estimationBulk ? 'bulkModificationState' : 'mainModificationState',
             grid = me.getPage().down('deviceLoadProfileChannelDataGrid');
 
-        if (record.get('estimateBulk')) {
-            reading.set('collectedValue', estimatedReading.collectedValue);
-            if (ruleId) {
-                reading.get('bulkValidationInfo').ruleId = ruleId;
-            }
-            reading.get('bulkValidationInfo').validationResult = 'validationStatus.ok';
-            reading.get('bulkValidationInfo').estimatedNotSaved = true;
-            if (action === 'editWithEstimator') {
-                reading.set('bulkModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
-            } else if (action === 'estimate') {
-                reading.get('bulkValidationInfo').estimatedByRule = true;
-                reading.set('bulkModificationState', Uni.util.ReadingEditor.modificationState(null));
-            }
-        } else {
-            reading.set('value', estimatedReading.value);
-            if (ruleId) {
-                reading.get('mainValidationInfo').ruleId = ruleId;
-            }
-            reading.get('mainValidationInfo').validationResult = 'validationStatus.ok';
-            if (action === 'estimate') {
-                reading.get('mainValidationInfo').estimatedByRule = true;
-                reading.get('mainValidationInfo').estimatedNotSaved = true;
-                reading.set('mainModificationState', Uni.util.ReadingEditor.modificationState(null));
-            }
-
+        reading.set(valueField, estimatedReading[valueField]);
+        if (reading.get(valueField)) {
+            reading.modified[valueField] = reading.get(valueField);
         }
+        if (ruleId) {
+            reading.get(validationInfo).ruleId = ruleId;
+        }
+        reading.get(validationInfo).validationResult = 'validationStatus.ok';
+        reading.get(validationInfo).estimatedNotSaved = true;
+
+        if (action === 'editWithEstimator') {
+            reading.get(validationInfo).estimatedByRule = false;
+            reading.set(modificationState, Uni.util.ReadingEditor.modificationState('EDITED'));
+        } else if (action === 'estimate') {
+            reading.get(validationInfo).estimatedByRule = true;
+            reading.set(modificationState, Uni.util.ReadingEditor.modificationState(null));
+        }
+
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
 
         me.resumeEditorFieldValidation(grid.editingPlugin, {
@@ -1723,7 +1725,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
 
         Ext.Array.each(records, function (item) {
-            if(item.get('value')) {
+            if (item.get('value')) {
                 if (model.get('onlySuspectOrEstimated')) {
                     if (Uni.util.ReadingEditor.checkReadingInfoStatus(item.get('mainValidationInfo')).isSuspectOrEstimated()) {
                         intervalsArray.push({
@@ -1956,7 +1958,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 listeners: {
                     close: function () {
                         mainPage.setLoading();
-                        Ext.defer(function() {
+                        Ext.defer(function () {
                             var me = this,
                                 grid = me.getPage().down('#deviceLoadProfileChannelDataGrid'),
                                 store = grid.getStore(),
@@ -1965,8 +1967,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
                             me.resetPotentialSuspects();
                             Ext.suspendLayouts();
-                            response.potentialSuspects.forEach(function(potentialSuspect) {
-                                index = store.findBy(function(item) {
+                            response.potentialSuspects.forEach(function (potentialSuspect) {
+                                index = store.findBy(function (item) {
                                     return item.get('interval').end === potentialSuspect.readingTime;
                                 });
                                 record = store.getAt(index);
@@ -2005,7 +2007,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         if (redrawChart) {
             Ext.suspendLayouts();
         }
-        store.getRange().forEach(function(reading) {
+        store.getRange().forEach(function (reading) {
             if (reading.get('potentialSuspect') || reading.get('bulkPotentialSuspect')) {
                 reading.beginEdit();
                 reading.set('potentialSuspect', false);
