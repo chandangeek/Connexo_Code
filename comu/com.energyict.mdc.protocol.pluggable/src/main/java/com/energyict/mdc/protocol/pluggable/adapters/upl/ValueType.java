@@ -12,7 +12,6 @@ import com.energyict.mdc.upl.properties.LinePoint;
 import com.energyict.mdc.upl.properties.Lis200Address;
 import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.ProtocolChannelMap;
-
 import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
