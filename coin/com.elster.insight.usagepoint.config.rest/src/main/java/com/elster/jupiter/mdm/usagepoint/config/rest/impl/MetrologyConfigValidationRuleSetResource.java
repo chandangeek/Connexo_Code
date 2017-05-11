@@ -73,12 +73,7 @@ public class MetrologyConfigValidationRuleSetResource {
                             .sorted(Comparator.comparing(outputMatchesInfo -> outputMatchesInfo.outputName))
                             .sorted(Comparator.comparing(outputMatchesInfo -> !outputMatchesInfo.isMatched))
                             .collect(Collectors.toList()),
-                            usagePointConfigurationService.getStatesLinkedToValidationRuleSetAndMetrologyContract(foundValidationRuleSet, metrologyContract).stream()
-                    .flatMap(state -> usagePointLifeCycleConfigurationService.getUsagePointLifeCycles().stream()
-                            .filter(usagePointLifeCycle -> usagePointLifeCycle.getStates().contains(state))
-                            .map(usagePointLifeCycle -> usagePointLifeCycleStateInfoFactory.from(usagePointLifeCycle, state))
-                            .findAny().map(Stream::of).orElse(Stream.empty()))
-                                    .collect(Collectors.toList()));
+                            resourceHelper.getUsagePointLifeCycleStateInfos(metrologyContract, foundValidationRuleSet));
                 }).collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("purposes", infos, queryParameters);
@@ -121,13 +116,7 @@ public class MetrologyConfigValidationRuleSetResource {
                             .sorted(Comparator.comparing(outputMatchesInfo -> outputMatchesInfo.outputName))
                             .sorted(Comparator.comparing(outputMatchesInfo -> !outputMatchesInfo.isMatched))
                             .collect(Collectors.toList());
-                    List<UsagePointLifeCycleStateInfo> usagePointLifeCycleStateInfos = usagePointConfigurationService.getStatesLinkedToValidationRuleSetAndMetrologyContract(validationRuleSet, metrologyContract).stream()
-                            .flatMap(state -> usagePointLifeCycleConfigurationService.getUsagePointLifeCycles().stream()
-                                    .filter(usagePointLifeCycle -> usagePointLifeCycle.getStates().contains(state))
-                                    .map(usagePointLifeCycle -> usagePointLifeCycleStateInfoFactory.from(usagePointLifeCycle, state))
-                                    .findAny().map(Stream::of).orElse(Stream.empty()))
-                            .collect(Collectors.toList());
-                    return resourceHelper.getLinkableMetrologyContractInfo(metrologyContract, outputMatchesInfos, usagePointLifeCycleStateInfos);
+                    return resourceHelper.getLinkableMetrologyContractInfo(metrologyContract, outputMatchesInfos);
                 }).collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("purposes", linkablePurposes, queryParameters);

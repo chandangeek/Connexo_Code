@@ -314,7 +314,7 @@ public class MetrologyConfigurationResource {
                 .filter(validationRuleSet -> validationRuleSet.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
                 .filter(validationRuleSet -> !usagePointConfigurationService.getMatchingDeliverablesOnValidationRuleSet(metrologyContract, validationRuleSet).isEmpty())
                 .filter(validationRuleSet -> !linkedValidationRuleSets.contains(validationRuleSet))
-                .map(validationRuleSet -> new ValidationRuleSetInfo(validationRuleSet, resourceHelper.getUsagePointLifeCycleStateInfos(metrologyContract, validationRuleSet)))
+                .map(ValidationRuleSetInfo::new)
                 .collect(Collectors.toList());
         List<EstimationRuleSetInfo> linkableEstimationRuleSets = estimationService.getEstimationRuleSets()
                 .stream()
