@@ -154,7 +154,9 @@ final class ChannelValidationImpl implements ChannelValidation {
                 .map(this::validate)
                 .max(Comparator.naturalOrder())
                 .ifPresent(this::updateLastChecked);
-        lastValidationComplete = ranges.subRangeSet(Range.greaterThan(getLastChecked())).asRanges().isEmpty();
+        RangeSet<Instant> notValidatedRanges = ranges.subRangeSet(Range.greaterThan(getLastChecked()));
+        lastValidationComplete = notValidatedRanges.asRanges().isEmpty()
+                || !notValidatedRanges.asRanges().stream().filter(range -> !channel.getReadings(range).isEmpty()).findAny().isPresent();
     }
 
     @Override
