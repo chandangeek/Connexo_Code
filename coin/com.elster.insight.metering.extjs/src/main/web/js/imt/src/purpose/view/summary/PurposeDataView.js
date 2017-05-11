@@ -253,9 +253,15 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
         me.remove(toolbar);
         me.insert(0, {
             xtype: 'purpose-top-navigation-toolbar',
-            store: me.outputs
+            store: me.outputs,
+            listeners: {
+                outputspagechanged: {
+                    fn: me.onOutputsPageChanged,
+                    scope: me
+                }
+            }
         });
-        me.down('purpose-top-navigation-toolbar').on('outputspagechanged', me.onOutputsPageChanged, me);
+
         Ext.resumeLayouts(true);
     },
 
