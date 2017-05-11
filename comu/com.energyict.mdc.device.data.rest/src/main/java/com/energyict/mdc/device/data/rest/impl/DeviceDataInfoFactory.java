@@ -434,7 +434,6 @@ public class DeviceDataInfoFactory {
         Instant timeStamp = register.getLastReadingDate().orElse(clock.instant());
         register.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> registerInfo.calculatedReadingType = readingTypeInfoFactory.from(calculatedReadingType));
         registerInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
-        registerInfo.readingType.names.unitOfMeasure = (registerInfo.readingType.names.unitOfMeasure.isEmpty() && registerInfo.readingType.metricMultiplier == -2) ? Unit.PERCENT.getSymbol() : registerInfo.readingType.names.unitOfMeasure; // -2 is also percentage
         return registerInfo;
     }
 
