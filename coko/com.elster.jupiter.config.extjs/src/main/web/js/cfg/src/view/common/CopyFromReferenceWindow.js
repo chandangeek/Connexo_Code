@@ -102,7 +102,7 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
                             xtype: 'date-time',
                             itemId: 'start-date-field',
                             name: 'startDate',
-                            value: Array.isArray(me.records) ? me.records[0].get('interval').end : me.records.get('interval').end || new Date(),
+                            value: Array.isArray(me.records) ? _.last(me.records).get('interval').end : me.records.get('interval').end || new Date(),
                             layout: 'hbox',
                             valueInMilliseconds: true
                         }
