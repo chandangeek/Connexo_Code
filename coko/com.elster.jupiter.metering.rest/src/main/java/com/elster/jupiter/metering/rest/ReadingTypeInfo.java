@@ -10,6 +10,7 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.units.Unit;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.EnumSet;
@@ -100,6 +101,9 @@ public class ReadingTypeInfo {
             }
             if(!readingType.getUnit().equals(ReadingTypeUnit.NOTAPPLICABLE)) {
                 this.unitOfMeasure = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
+                if (readingType.getMultiplier() != null) {
+                    this.unitOfMeasure = getDisplayableSymbol(readingType.getMultiplier().getMultiplier());
+                }
             }
             if (!readingType.getPhases().equals(Phase.NOTAPPLICABLE)) {
                 this.phase = readingType.getPhases().getDescription();
@@ -112,5 +116,21 @@ public class ReadingTypeInfo {
             return EnumSet.of(MacroPeriod.DAILY, MacroPeriod.MONTHLY, MacroPeriod.YEARLY);
         }
 
+        private String getDisplayableSymbol(int multiplier){
+            switch(multiplier) {
+                case 0:
+                    return "PU"; // per unit
+                case -2:
+                    return Unit.PERCENT.getSymbol(); // %
+                case -3:
+                    return "\u2030";
+                case -6:
+                    return "ppm";
+                case -9:
+                    return "ppb";
+                default:
+                    return "";
+            }
+        }
     }
 }
