@@ -18,7 +18,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.SecurityService;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -36,7 +35,6 @@ public class Services {
     private static AtomicReference<ObjectMapperService> OBJECT_MAPPER_SERVICE = new AtomicReference<>();
     private static AtomicReference<PropertySpecService> PROPERTY_SPEC_SERVICE = new AtomicReference<>();
     private static AtomicReference<NlsService> NLS_SERVICE = new AtomicReference<>();
-    private static AtomicReference<SecurityService> SECURITY_SERVICE = new AtomicReference<>();
     private static AtomicReference<UPLSocketService> SOCKET_SERVICE = new AtomicReference<>();
     private static AtomicReference<Converter> CONVERTER = new AtomicReference<>();
     private static AtomicReference<DeviceMasterDataExtractor> DEVICE_MASTER_DATA_EXTRACTOR = new AtomicReference<>();
@@ -65,8 +63,6 @@ public class Services {
             return objectMapperService();
         } else if (NlsService.class.equals(serviceType)) {
             return nlsService();
-        } else if (SecurityService.class.equals(serviceType)) {
-            return securityService();
         } else if (UPLSocketService.class.equals(serviceType)) {
             return socketService();
         } else if (Converter.class.equals(serviceType)) {
@@ -136,14 +132,6 @@ public class Services {
 
     public static void nlsService(NlsService nlsService) {
         NLS_SERVICE.set(nlsService);
-    }
-
-    public static SecurityService securityService() {
-        return SECURITY_SERVICE.get();
-    }
-
-    public static void securityService(SecurityService securityService) {
-        SECURITY_SERVICE.set(securityService);
     }
 
     public static UPLSocketService socketService() {
