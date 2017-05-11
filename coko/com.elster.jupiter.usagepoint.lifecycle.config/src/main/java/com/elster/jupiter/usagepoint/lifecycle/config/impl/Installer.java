@@ -54,6 +54,11 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                 this::installUsagePointStageSet,
                 logger
         );
+        doTry(
+                "Create default usage point lifecycle",
+                this::createLifeCycle,
+                logger
+        );
     }
 
     @Override
@@ -84,5 +89,10 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         Stream.of(UsagePointStage.values())
                 .forEach(usagePointStage -> stageSetBuilder.stage(usagePointStage.getKey()));
         stageSetBuilder.add();
+    }
+
+    private void createLifeCycle() {
+        this.usagePointLifeCycleConfigurationService.newUsagePointLifeCycle(UsagePointLifeCycleConfigurationService.LIFE_CYCLE_KEY)
+                .markAsDefault();
     }
 }
