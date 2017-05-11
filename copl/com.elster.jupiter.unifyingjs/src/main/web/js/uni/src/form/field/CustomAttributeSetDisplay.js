@@ -10,7 +10,7 @@ Ext.define('Uni.form.field.CustomAttributeSetDisplay', {
     alias: 'widget.custom-attribute-set-displayfield',
     name: 'fullsetinfo',
     fieldLabel: Uni.I18n.translate('general.name', 'UNI', 'Name'),
-    emptyText: '',
+    emptyText: '-',
 
     requires: [
         'Uni.view.window.CustomAttributeSetDetails'
