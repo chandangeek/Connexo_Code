@@ -32,7 +32,7 @@ Ext.define('Yfn.view.generatereport.Step1', {
             xtype: 'component',
             itemId: 'step1-generatereport-error-msg',
             hidden: true,
-            html: Uni.I18n.translate('generatereport.noReportPrompts', 'YFN', 'Please select at least one report type.'),
+            html: Uni.I18n.translate('generatereport.noReportPrompts', 'YFN', 'Please select a report type.'),
             style: {
                 'font': '13px/17px Lato',
                 'color': '#eb5642',
