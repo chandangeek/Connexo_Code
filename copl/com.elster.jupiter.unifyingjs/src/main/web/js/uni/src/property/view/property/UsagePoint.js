@@ -4,18 +4,17 @@
 
 Ext.define('Uni.property.view.property.UsagePoint', {
     extend: 'Uni.property.view.property.BaseCombo',
+    id: null,
 
     getEditCmp: function () {
-        var me = this;
-
         return {
             xtype: 'combobox',
-            itemId: me.key + 'combobox',
+            itemId: this.key + 'combobox',
             name: this.getName(),
             store: Ext.create('Uni.property.store.UsagePoint'),
-            width: me.width,
-            readOnly: me.isReadOnly,
-            blankText: me.blankText,
+            width: this.width,
+            readOnly: this.isReadOnly,
+            blankText: this.blankText,
             emptyText: Uni.I18n.translate('property.selectUsagePoint', 'UNI', 'Select usage point'),
             valueField: 'id',
             displayField: 'name',
@@ -27,11 +26,9 @@ Ext.define('Uni.property.view.property.UsagePoint', {
             editable: true,
             typeAhead: true,
             listeners: {
-                blur: {
-                    fn: function (combo) {
-                        if (!combo.getValue()) {
-                            me.restoreDefault();
-                        }
+                blur: function (combo) {
+                    if (!combo.getValue()) {
+                        this.restoreDefault();
                     }
                 }
             }
@@ -43,15 +40,20 @@ Ext.define('Uni.property.view.property.UsagePoint', {
     },
 
     getValue: function () {
-        return {
+        var value = {
             id: this.getComboField().getValue(),
             name: this.getComboField().getRawValue()
+        };
+
+        if (value.id === value.name) {
+            value.id = this.id;
         }
+        return value;
     },
 
     setValue: function (value) {
         if (this.isCombo()) {
-            this.getComboField().setValue(value.id);
+            this.id = value.id;
             this.getComboField().setRawValue(value.name);
         } else {
             this.callParent([value.name]);
