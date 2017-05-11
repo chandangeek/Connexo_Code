@@ -53,6 +53,18 @@ Ext.define('Uni.property.view.property.ReadingType', {
         return this.down('combobox');
     },
 
+    getDisplayCmp: function () {
+        return {
+            xtype: 'displayfield',
+            flex: 1,
+            fieldLabel: this.fieldLabel,
+            minWidth: 130,
+            maxWidth: 200,
+            name: this.getName(),
+            itemId: this.key + 'displayfield'
+        }
+    },
+
     comboLimitNotification: function (combo) {
         var picker = combo.getPicker(),
             fn = function (view) {
