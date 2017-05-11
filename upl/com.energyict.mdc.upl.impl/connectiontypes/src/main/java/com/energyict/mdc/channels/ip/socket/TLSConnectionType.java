@@ -88,7 +88,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     /**
      * The server TLS certificate. Should be a CertificateWrapper that is linked to a TrustStore.
      */
-    private PropertySpec tlsServerCertificatePropertySPec() {
+    private PropertySpec tlsServerCertificatePropertySpec() {
         return UPLPropertySpecFactory.specBuilder(SERVER_TLS_CERTIFICATE, true, PropertyTranslationKeys.SERVER_TLS_CERTIFICATE, () -> getPropertySpecService().referenceSpec(KeyAccessorType.class.getName())).finish();
     }
 
@@ -102,7 +102,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         propertySpecs.add(tlsVersionPropertySpec());
         propertySpecs.add(preferredCipheringSuitesPropertySpec());
         propertySpecs.add(tlsClientPrivateKeyPropertySpec());
-        propertySpecs.add(tlsServerCertificatePropertySPec());
+        propertySpecs.add(tlsServerCertificatePropertySpec());
         return propertySpecs;
     }
 
