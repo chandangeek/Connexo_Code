@@ -102,6 +102,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             router = me.getController('Uni.controller.history.Router'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             deviceGroupModelName = 'Mdc.model.DeviceGroup',
+            deviceGroupModelNames = 'Mdc.model.DeviceGroup',
             deviceGroupId = router.arguments.deviceGroupId,
             widget = Ext.widget('add-devicegroup-browse', {
                 itemId: 'add-devicegroup-browse',
