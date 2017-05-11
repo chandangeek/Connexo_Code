@@ -56,6 +56,7 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.time.Clock;
@@ -485,7 +486,7 @@ public abstract class JobExecution implements ScheduledJob {
             CommandRoot result = commandRoot != null ? commandRoot : new CommandRootImpl(getExecutionContext(), getComCommandServiceProvider());
 
             try {
-                ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.topologyService(), serviceProvider.identificationService());
+                ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.topologyService());
 
                 final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = organizer.defineComTaskExecutionOrders(this.comTaskExecutions);
                 for (DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution : deviceOrganizedComTaskExecutions) {

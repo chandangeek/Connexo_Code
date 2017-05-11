@@ -167,10 +167,6 @@ public class ComServerDAOImpl implements ComServerDAO {
         return this.serviceProvider.transactionService();
     }
 
-    private IdentificationService getIdentificationService() {
-        return this.serviceProvider.identificationService();
-    }
-
     @Override
     public ServerProcessStatus getStatus() {
         return this.status;
@@ -424,7 +420,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
-        handleCertificatePropertyValue(propertyValue);
+        handleCertificatePropertyValue(propertyValue); //TODO: is this step still required?
 
         Device device = this.findDevice(deviceIdentifier);
         device.setProtocolProperty(propertyName, propertyValue);
@@ -475,12 +471,11 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
-        handleCertificatePropertyValue(propertyValue);
+        handleCertificatePropertyValue(propertyValue); //TODO: is this step still required?
 
-        //TODO: foresee useful implementation
         //Now update the given security property.
-//        Device device = this.findDevice(deviceIdentifier);
-//        device.setSecurityProperty(propertyName, propertyValue)
+        Device device = this.findDevice(deviceIdentifier);
+        device.setSecurityProperty(propertyName, propertyValue);
     }
 
     @Override
@@ -839,9 +834,8 @@ public class ComServerDAOImpl implements ComServerDAO {
                         securityPropertySet.getSecuritySuite() != null ? securityPropertySet.getSecuritySuite().getId() : -1,
                         securityPropertySet.getRequestSecurityLevel() != null ? securityPropertySet.getRequestSecurityLevel().getId() : -1,
                         securityPropertySet.getResponseSecurityLevel() != null ? securityPropertySet.getResponseSecurityLevel().getId() : -1,
-                        securityPropertySet.getConfigurationSecurityProperties(),
-                        device.getKeyAccessors(),
-                        getIdentificationService());
+                        device.getSecurityProperties(securityPropertySet)
+                );
             }
         }
     }
@@ -886,7 +880,7 @@ public class ComServerDAOImpl implements ComServerDAO {
      * the Device is communicating to the ComServer
      * via the specified {@link InboundConnectionTask}.
      *
-     * @param device         The Device
+     * @param device The Device
      * @param connectionTask The ConnectionTask
      * @return The SecurityPropertySet or <code>null</code> if the Device is not ready for inbound communication
      */

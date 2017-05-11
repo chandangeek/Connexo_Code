@@ -9,17 +9,15 @@ import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import javax.crypto.SecretKey;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -44,8 +42,6 @@ public class DeviceProtocolSecurityPropertySetImplTest {
     @Mock
     private DeviceIdentifier deviceIdentifier;
     @Mock
-    private IdentificationService identificationService;
-    @Mock
     private ComServerDAOImpl.ServiceProvider serviceProvider;
 
 
@@ -58,17 +54,9 @@ public class DeviceProtocolSecurityPropertySetImplTest {
 
     @Test
     public void testDeviceProtocolSecurityPropertySetConstructor() {
-        String password = "Password";
-        KeyAccessor passPhraseKeyAccessor = getPassPhraseKeyAccessor("PassPhraseKeyAccessorType", "MyPassword");
-        KeyAccessor otherPassPhraseKeyAccessor = getPassPhraseKeyAccessor("OtherPassPhraseKeyAccessorType", "/");
-        ConfigurationSecurityProperty passPhraseSecurityProperty = getConfigurationSecurityProperty(passPhraseKeyAccessor, password);
-        byte[] symmetricKey = {0x01, 0x02};
-        KeyAccessor symmetricKeyKeyAccessor = getSymmetricKeyKeyAccessor("SymmetricKeyKeyAccessorType", symmetricKey);
-        KeyAccessor otherSymmetricKeyKeyAccessor = getSymmetricKeyKeyAccessor("SymmetricKeyKeyAccessorType", symmetricKey);
-        ConfigurationSecurityProperty symmetricKeySecurityProperty = getConfigurationSecurityProperty(symmetricKeyKeyAccessor, "SymmetricKey");
-
-        List<ConfigurationSecurityProperty> expectedSecurityProperties = Arrays.asList(passPhraseSecurityProperty, symmetricKeySecurityProperty);
-        List<KeyAccessor> expectedKeyAccessors = Arrays.asList(otherPassPhraseKeyAccessor, passPhraseKeyAccessor, otherPassPhraseKeyAccessor, symmetricKeyKeyAccessor); // Added 2 additional key accessors
+        TypedProperties securityProperties = TypedProperties.empty();
+        securityProperties.setProperty("Password", "MyPassword");
+        securityProperties.setProperty("SymmetricKey", "MySymmetricKey");
 
         // Business method
         DeviceProtocolSecurityPropertySetImpl deviceProtocolSecurityPropertySet = new DeviceProtocolSecurityPropertySetImpl(
@@ -78,9 +66,7 @@ public class DeviceProtocolSecurityPropertySetImplTest {
                 3,
                 4,
                 5,
-                expectedSecurityProperties,
-                expectedKeyAccessors,
-                identificationService
+                securityProperties
         );
 
         // Asserts
@@ -91,8 +77,8 @@ public class DeviceProtocolSecurityPropertySetImplTest {
         assertThat(deviceProtocolSecurityPropertySet.getRequestSecurityLevel()).isEqualTo(4);
         assertThat(deviceProtocolSecurityPropertySet.getResponseSecurityLevel()).isEqualTo(5);
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().size()).isEqualTo(2);
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getLocalValue(password)).isEqualTo("MyPassword");
-        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getLocalValue("SymmetricKey")).isEqualTo(symmetricKey);
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getLocalValue("Password")).isEqualTo("MyPassword");
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getLocalValue("SymmetricKey")).isEqualTo("MySymmetricKey");
     }
 
     private ConfigurationSecurityProperty getConfigurationSecurityProperty(KeyAccessor keyAccessor, String name) {
