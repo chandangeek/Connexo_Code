@@ -28,5 +28,9 @@ public interface TrustedCertificate extends CertificateWrapper {
      */
     void setCRL(CRL crl);
 
+    /**
+     * Returns the trust store to which this trusted certificate belongs. Note that that trust store might not necessarily
+     * be the trust store used to establish a chain of trust. The latter is defined on the {@link KeyAccessorType}.
+     */
     TrustStore getTrustStore();
 }
