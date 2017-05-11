@@ -25,7 +25,6 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.logging.LoggingContext;
@@ -105,7 +104,7 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
             // override validatingUsagePoint
             validatingUsagePoint = referenceUsagePoint.getUsagePoint();
             validatingReadingType = estimationBlocks.get(0).getReadingType();
-            touchCheckReadingType(referenceReadingTypeProperty.getReadingType());
+            setCheckReadingTypeIfNull(referenceReadingTypeProperty.getReadingType());
             validateReferenceReadingType(estimationBlocks.get(0).getReadingType(),checkReadingType);
         } catch (EstimationCancelledException e) {
             return SimpleEstimationResult.of(estimationBlocks,Collections.emptyList());

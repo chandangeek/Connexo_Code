@@ -112,7 +112,7 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
         return QUALITY_CODE_SYSTEMS;
     }
 
-    void touchCheckReadingType(ReadingType readingType) {
+    void setCheckReadingTypeIfNull(ReadingType readingType) {
         if (checkReadingType == null) {
             checkReadingType = readingType;
         }
@@ -172,7 +172,7 @@ public abstract class AbstractMainCheckEstimator extends AbstractEstimator {
             }
         }
 
-        touchCheckReadingType(estimationBlocks.get(0).getReadingType());
+        setCheckReadingTypeIfNull(estimationBlocks.get(0).getReadingType());
 
         List<EstimationBlock> remain = new ArrayList<>();
         List<EstimationBlock> estimated = new ArrayList<>();
