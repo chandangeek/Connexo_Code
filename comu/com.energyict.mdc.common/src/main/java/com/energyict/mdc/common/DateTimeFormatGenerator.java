@@ -35,7 +35,7 @@ public class DateTimeFormatGenerator {
         if ("SPACE".equals(separatorFormat)) {
             dateTimeFormatBuilder.append(" ");
         } else {
-            dateTimeFormatBuilder.append(" " + separatorFormat.trim() + " ");
+            dateTimeFormatBuilder.append(" '" + separatorFormat.trim() + "' ");
         }
         if (dateTimeOrderFormat.startsWith("T")) {
             dateTimeFormatBuilder.append(dateFormat);
