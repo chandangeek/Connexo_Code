@@ -509,6 +509,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             if (confirmedObj) {
                 changedData.push(confirmedObj);
             } else {
+                changedRecord.value = record.get('value');
                 changedRecord.commentId = record.get('commentId') ? record.get('commentId') : undefined;
                 changedData.push(changedRecord);
             }
@@ -651,6 +652,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             commentId = commentCombo.getValue(),
             readings = button.readings,
             record = {
+                estimatedCommentNotSaved: true,
                 modificationState: Uni.util.ReadingEditor.modificationState('EDITED'),
                 commentId: commentId,
                 commentValue: commentValue
@@ -1012,6 +1014,11 @@ Ext.define('Imt.purpose.controller.Readings', {
             reading.set('estimatedNotSaved', true);
             reading.set('estimatedByRule', true);
             reading.set('modificationState', Uni.util.ReadingEditor.modificationState(null));
+        }
+        if (action === 'editWithEstimator') {
+            reading.set('estimatedNotSaved', true);
+            reading.set('estimatedByRule', false);
+            reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
         }
         reading.set('isProjected', estimatedReading.isProjected);
         grid.getView().refreshNode(grid.getStore().indexOf(reading));

@@ -167,7 +167,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             value = Ext.isEmpty(v) ? '-' : v,
             estimatedByRule = record.get('estimatedByRule'),
             estimationComment = record.get('commentValue')
-                ? Uni.I18n.translate('general.estimationCommentWithComment', 'IMT', 'Estimation comment: {0}', record.get('commentValue'))
+                ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'IMT', 'Estimation comment: {0}', record.get('commentValue'))
                 : '',
             icon = '';
         if (record.get('confirmedNotSaved') || record.isModified('isProjected')) {
@@ -205,6 +205,9 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 + Uni.I18n.translate('reading.validationResult.confirmed', 'IMT', 'Confirmed') + '"></span>';
         } else if ((record.get('modificationFlag') && record.get('modificationDate') || record.isModified('value')) && record.get('isProjected')) {
             icon = this.addProjectedFlag(icon);
+        }
+        if (record.get('estimatedCommentNotSaved')) {
+            record.modified.value = record.get('value');
         }
         if (record.get('potentialSuspect')) {
             icon = this.addPotentialSuspectFlag(icon, record);
