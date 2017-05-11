@@ -4,15 +4,21 @@
 //
 //package com.energyict.protocolimplv2.security;
 //
+//import com.elster.jupiter.cps.CustomPropertySet;
+//import com.elster.jupiter.cps.PersistentDomainExtension;
 //import com.elster.jupiter.nls.Thesaurus;
 //import com.elster.jupiter.properties.PropertySpec;
+//import com.energyict.mdc.common.Password;
 //import com.energyict.mdc.common.TypedProperties;
 //import com.energyict.mdc.dynamic.PropertySpecService;
+//import com.energyict.mdc.protocol.api.device.BaseDevice;
 //import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 //import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
+//import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 //import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-//import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+//import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 //import com.energyict.protocols.mdc.services.impl.TranslationKeys;
+//import com.energyict.protocols.naming.SecurityPropertySpecName;
 //
 //import javax.inject.Inject;
 //import java.math.BigDecimal;
@@ -24,8 +30,9 @@
 //public class DlmsSecuritySupportCryptography implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 //
 //    private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
-//    private static final String DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME = "DataTransportEncryptionKey";
-//    private static final String DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME = "DataTransportAuthenticationKey";
+//    public static final String DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME = "DataTransportEncryptionKey";
+//    public static final String DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME = "DataTransportAuthenticationKey";
+//    public static final String MASTER_KEY_PROPERTY_NAME = "MasterKey";
 //
 //    private final PropertySpecService propertySpecService;
 //    private final Thesaurus thesaurus;
@@ -85,6 +92,11 @@
 //    }
 //
 //    @Override
+//    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+//        return Optional.of(new DlmsSecurityPkiCustomPropertySet(this.thesaurus, this.propertySpecService));
+//    }
+//
+//    @Override
 //    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
 //        return Arrays.asList(
 //                new NoAuthentication(),
@@ -109,14 +121,21 @@
 //        TypedProperties typedProperties = TypedProperties.empty();
 //        if (deviceProtocolSecurityPropertySet != null) {
 //            typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+//            // override the password (as it is provided as a Password object instead of a String
+//            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password(""));
+//            if (Password.class.isAssignableFrom(property.getClass())) {
+//                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), ((Password) property).getValue());
+//            } else {
+//                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), property);
+//            }
 //            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME,
 //                    deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel() +
 //                            ":" +
 //                            deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel());
 //            typedProperties.setProperty(getDataTransportEncryptionKeyLegacyPropertyName(),
-//                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_WITH_KEY_ACCESSOR.getKey(), ""));
+//                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.getKey(), ""));
 //            typedProperties.setProperty(getDataTransportAuthenticationKeyLegacyPropertyname(),
-//                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.getKey(), ""));
+//                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.getKey(), ""));
 //        }
 //        return typedProperties;
 //    }
@@ -132,18 +151,13 @@
 //        }
 //        final int authenticationLevel = getAuthenticationLevel(securityLevelProperty);
 //        final int encryptionLevel = getEncryptionLevel(securityLevelProperty);
-//        final String client = getClientMacAddress(typedProperties);
+//        checkForCorrectClientMacAddressPropertySpecType(typedProperties);
 //        final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
 //        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, authenticationLevel, getAuthenticationAccessLevels()));
 //        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, encryptionLevel, getEncryptionAccessLevels()));
 //
 //
 //        return new DeviceProtocolSecurityPropertySet() {
-//            @Override
-//            public String getClient() {
-//                return client;
-//            }
-//
 //            @Override
 //            public int getAuthenticationDeviceAccessLevel() {
 //                return authenticationLevel;
@@ -161,16 +175,17 @@
 //        };
 //    }
 //
-//    private String getClientMacAddress(TypedProperties typedProperties) {
+//    private void checkForCorrectClientMacAddressPropertySpecType(TypedProperties typedProperties) {
 //        final Object clientMacAddress = typedProperties.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey());
-//        if (clientMacAddress != null) {
-//            if (String.class.isAssignableFrom(clientMacAddress.getClass())) {
-//                return (String) clientMacAddress;
-//            } else if (BigDecimal.class.isAssignableFrom(clientMacAddress.getClass())) {
-//                return Integer.toString(((BigDecimal) clientMacAddress).intValue());
+//        if (clientMacAddress != null && String.class.isAssignableFrom(clientMacAddress.getClass())) {
+//            typedProperties.removeProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey());
+//            try {
+//                typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), new BigDecimal((String) clientMacAddress));
+//            } catch (NumberFormatException e) {
+//                typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), new BigDecimal("1"));
+//
 //            }
 //        }
-//        return "1"; // Use client 1 as fallback
 //    }
 //
 //    private int getEncryptionLevel(String securityLevelProperty) {
@@ -197,10 +212,9 @@
 //   	    return DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME;
 //   	    }
 //
-//    @Override
-//    public Optional<PropertySpec> getClientSecurityPropertySpec() {
-//        return Optional.of(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus));
-//    }
+//    protected PropertySpec getClientMacAddressPropertySpec() {
+//        return DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus);
+//   	}
 //
 //    protected String getDataTransportEncryptionKeyLegacyPropertyName() {
 //        return DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME;
@@ -223,7 +237,7 @@
 //
 //        @Override
 //        public List<PropertySpec> getSecurityProperties() {
-//            return Collections.emptyList();
+//            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus));
 //        }
 //    }
 //
@@ -246,6 +260,7 @@
 //        @Override
 //        public List<PropertySpec> getSecurityProperties() {
 //            return Arrays.asList(
+//                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
 //                    DeviceSecurityProperty.ENCRYPTION_KEY_WITH_KEY_ACCESSOR.getPropertySpec(propertySpecService, thesaurus),
 //                    DeviceSecurityProperty.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.getPropertySpec(propertySpecService, thesaurus));
 //        }
@@ -270,6 +285,7 @@
 //        @Override
 //        public List<PropertySpec> getSecurityProperties() {
 //            return Arrays.asList(
+//                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
 //                    DeviceSecurityProperty.ENCRYPTION_KEY_WITH_KEY_ACCESSOR.getPropertySpec(propertySpecService, thesaurus),
 //                    DeviceSecurityProperty.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.getPropertySpec(propertySpecService, thesaurus));
 //        }
@@ -294,6 +310,7 @@
 //        @Override
 //        public List<PropertySpec> getSecurityProperties() {
 //            return Arrays.asList(
+//                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
 //                    DeviceSecurityProperty.ENCRYPTION_KEY_WITH_KEY_ACCESSOR.getPropertySpec(propertySpecService, thesaurus),
 //                    DeviceSecurityProperty.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.getPropertySpec(propertySpecService, thesaurus));
 //        }
@@ -317,7 +334,7 @@
 //
 //        @Override
 //        public List<PropertySpec> getSecurityProperties() {
-//            return Collections.emptyList();
+//            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus));
 //        }
 //    }
 //
@@ -339,7 +356,9 @@
 //
 //        @Override
 //        public List<PropertySpec> getSecurityProperties() {
-//            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
+//            return Arrays.asList(
+//                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+//                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
 //        }
 //    }
 //
@@ -364,7 +383,7 @@
 //
 //        @Override
 //        public List<PropertySpec> getSecurityProperties() {
-//            return Collections.emptyList();
+//            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus));
 //        }
 //    }
 //
@@ -387,7 +406,9 @@
 //
 //        @Override
 //        public List<PropertySpec> getSecurityProperties() {
-//            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
+//            return Arrays.asList(
+//                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+//                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
 //        }
 //    }
 //
@@ -410,7 +431,9 @@
 //
 //        @Override
 //        public List<PropertySpec> getSecurityProperties() {
-//            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
+//            return Arrays.asList(
+//                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
+//                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService, thesaurus));
 //
 //        }
 //    }
@@ -435,6 +458,7 @@
 //        @Override
 //        public List<PropertySpec> getSecurityProperties() {
 //            return Arrays.asList(
+//                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService, thesaurus),
 //                    DeviceSecurityProperty.ENCRYPTION_KEY_WITH_KEY_ACCESSOR.getPropertySpec(propertySpecService, thesaurus),
 //                    DeviceSecurityProperty.AUTHENTICATION_KEY_WITH_KEY_ACCESSOR.getPropertySpec(propertySpecService, thesaurus));
 //        }
