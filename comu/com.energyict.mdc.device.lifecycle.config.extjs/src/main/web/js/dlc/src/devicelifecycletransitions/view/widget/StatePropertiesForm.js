@@ -148,15 +148,10 @@ Ext.define('Dlc.devicelifecycletransitions.view.widget.StatePropertiesForm', {
                             isRadioChecker: isRadioChecker
                         },
                         {
-                            xtype: 'button',
-                            tooltip: checkBoxInfo,
-                            margin: '5 0 0 0',
-                            iconCls: 'uni-icon-info-small',
-                            cls: 'uni-btn-transparent',
-                            style: {
-                                display: 'inline-block',
-                                "text-decoration": 'none !important'
-                            }
+                            xtype: 'displayfield-with-info-icon',
+                            fieldLabel: undefined,
+                            onlyIcon: true,
+                            infoTooltip: checkBoxInfo
                         }
                     ]
                 }
@@ -351,21 +346,17 @@ Ext.define('Dlc.devicelifecycletransitions.view.widget.StatePropertiesForm', {
                             xtype: 'container',
                             layout: 'hbox',
                             items: [
+
                                 {
                                     xtype: 'container',
                                     html: '<h3>' + groupedIds[key] + '</h3>',
                                     margin: '6 0 5 0'
                                 },
                                 {
-                                    xtype: 'button',
-                                    tooltip: extraCategoryTooltip,
-                                    margin: '5 0 0 0',
-                                    iconCls: 'uni-icon-info-small',
-                                    cls: 'uni-btn-transparent',
-                                    style: {
-                                        display: 'inline-block',
-                                        "text-decoration": 'none !important'
-                                    }
+                                    xtype: 'displayfield-with-info-icon',
+                                    fieldLabel: undefined,
+                                    onlyIcon: true,
+                                    infoTooltip: extraCategoryTooltip
                                 }
                             ]
                         }
