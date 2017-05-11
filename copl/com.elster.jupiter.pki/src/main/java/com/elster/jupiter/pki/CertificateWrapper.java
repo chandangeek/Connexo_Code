@@ -1,8 +1,7 @@
 package com.elster.jupiter.pki;
 
-import com.elster.jupiter.util.HasId;
-
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.HasId;
 
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
@@ -19,7 +18,7 @@ import java.util.Set;
  *
  */
 @ProviderType
-public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableValues, HasId, SecurityValueWrapper {
+public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableValues, HasId, SecurityValueWrapper, com.energyict.mdc.upl.security.CertificateWrapper {
     /**
      * A certificate alias is the name given to a certificate located in the certificate store.
      * Each entry in the certificate store has an alias to help identify it.
