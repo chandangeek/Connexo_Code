@@ -687,6 +687,7 @@
                 <module>../com.energyict.mdc.metering</module>
                 <module>../com.energyict.mdc.pluggable</module>
                 <module>../com.energyict.mdc.pluggable.rest</module>
+                <module>../com.energyict.mdc.processes.keyrenewal</module>
                 <module>../com.energyict.mdc.protocol.api</module>
                 <module>../com.energyict.mdc.protocol.pluggable</module>
                 <module>../com.energyict.mdc.protocols</module>
