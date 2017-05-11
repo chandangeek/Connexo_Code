@@ -2,7 +2,6 @@ package com.energyict.mdc.upl;
 
 import com.energyict.mdc.upl.io.UPLSocketService;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -54,8 +53,7 @@ public class Services {
     private static AtomicReference<CollectedDataFactory> COLLECTED_DATA_FACTORY = new AtomicReference<>();
     private static AtomicReference<IssueFactory> ISSUE_FACTORY = new AtomicReference<>();
     private static AtomicReference<Formatter> FORMATTER = new AtomicReference<>();
-    private static AtomicReference<CertificateWrapperExtractor> CERTIFICATE_WRAPPER_EXTRACTOR = new AtomicReference<>(); //TODO: check if correct
-    private static AtomicReference<CertificateAliasFinder> CERTIFICATE_ALIAS_FINDER = new AtomicReference<>();
+    private static AtomicReference<CertificateWrapperExtractor> CERTIFICATE_WRAPPER_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<DeviceIdentifier.Finder> DEVICE_FINDER = new AtomicReference<>();
 
     public static Object serviceOfType(Class serviceType) {
@@ -79,8 +77,6 @@ public class Services {
             return numberLookupFinder();
         } else if (CertificateWrapperExtractor.class.equals(serviceType)) {
             return certificateWrapperExtractor();
-        } else if (CertificateAliasFinder.class.equals(serviceType)) {
-            return certificateAliasFinder();
         } else if (LoadProfileExtractor.class.equals(serviceType)) {
             return loadProfileExtractor();
         } else if (DeviceMasterDataExtractor.class.equals(serviceType)) {
@@ -204,14 +200,6 @@ public class Services {
 
     public static void certificateWrapperExtractor(CertificateWrapperExtractor certificateWrapperExtractor) {
         CERTIFICATE_WRAPPER_EXTRACTOR.set(certificateWrapperExtractor);
-    }
-
-    public static CertificateAliasFinder certificateAliasFinder() {
-        return CERTIFICATE_ALIAS_FINDER.get();
-    }
-
-    public static void certificateAliasFinder(CertificateAliasFinder certificateAliasFinder) {
-        CERTIFICATE_ALIAS_FINDER.set(certificateAliasFinder);
     }
 
     public static DeviceMasterDataExtractor deviceMasterDataExtractor() {

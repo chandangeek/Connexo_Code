@@ -3,7 +3,6 @@ package com.energyict.mdc.upl;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -87,8 +86,6 @@ public interface InboundDiscoveryContext {
     DeviceMessageFileExtractor getMessageFileExtractor();
 
     CertificateWrapperExtractor getCertificateWrapperExtractor();
-
-    CertificateAliasFinder getCertificateAliasFinder();
 
     /**
      * Gets the {@link TypedProperties} of the {@link ConnectionType}
