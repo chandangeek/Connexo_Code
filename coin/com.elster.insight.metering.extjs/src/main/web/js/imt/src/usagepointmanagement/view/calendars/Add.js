@@ -49,7 +49,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
                             itemId: 'category-name',
                             required: true,
                             config: {
-                                displayField: 'name',
+                                displayField: 'displayName',
                                 valueField: 'name',
                                 name: 'category',
                                 allowBlank: false,
