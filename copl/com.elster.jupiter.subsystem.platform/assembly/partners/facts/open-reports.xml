@@ -10,13 +10,13 @@
     <buildversion>20140827</buildversion>
     <exportdate>2015-02-26 18:17 EET (+0200)</exportdate>
   </info>
-  <source>
+   <source>
     <id>75326</id>
     <sourceName>Connexo</sourceName>
-    <sourceDescription/>
-    <databasePath/>
+    <databasePath>${user}</databasePath>
     <userName>${user}</userName>
     <password>${password}</password>
+    <connectionTypeCode>GENERICUSER</connectionTypeCode>
     <connectionMethodCode>JDBC</connectionMethodCode>
     <connectionDriver>oracle.jdbc.OracleDriver</connectionDriver>
     <databaseURL>${jdbc}</databaseURL>
@@ -26,11 +26,11 @@
     <connectionRefreshTime>3</connectionRefreshTime>
     <connectionTimeOut>180</connectionTimeOut>
     <accessCode>UNSECURE</accessCode>
-    <platformTypeCode/>
     <maxRowCount>10000</maxRowCount>
-    <broadcastPermitted>false</broadcastPermitted>
-    <subscribePermitted>false</subscribePermitted>
-    <localTimezoneCode>GMT</localTimezoneCode>
+    <broadcastPermitted>true</broadcastPermitted>
+    <subscribePermitted>true</subscribePermitted>
+    <dataProfileEnabled>true</dataProfileEnabled>
+    <localTimezoneCode>EUROPE/ATHENS</localTimezoneCode>
     <secondaryMinConnections>0</secondaryMinConnections>
     <secondaryMaxConnections>0</secondaryMaxConnections>
     <secondaryConnectionRefreshTime>0</secondaryConnectionRefreshTime>
@@ -42,7 +42,6 @@
         <parameterTypeCode>TEXT</parameterTypeCode>
         <parameterKey>FETCHSIZE</parameterKey>
         <parameterIndex>0</parameterIndex>
-        <parameterValue/>
         <documentId>0</documentId>
         <userVisible>true</userVisible>
       </sourceParameter>
@@ -60,7 +59,15 @@
         <parameterTypeCode>TEXT</parameterTypeCode>
         <parameterKey>ISOLATIONLEVEL</parameterKey>
         <parameterIndex>0</parameterIndex>
-        <parameterValue>2</parameterValue>
+        <documentId>0</documentId>
+        <userVisible>true</userVisible>
+      </sourceParameter>
+      <sourceParameter>
+        <id>0</id>
+        <parameterTypeCode>TEXT</parameterTypeCode>
+        <parameterKey>MODE</parameterKey>
+        <parameterIndex>0</parameterIndex>
+        <parameterValue>${mode}</parameterValue>
         <documentId>0</documentId>
         <userVisible>true</userVisible>
       </sourceParameter>
@@ -76,9 +83,36 @@
       <sourceParameter>
         <id>0</id>
         <parameterTypeCode>TEXT</parameterTypeCode>
+        <parameterKey>SERVICE</parameterKey>
+        <parameterIndex>0</parameterIndex>
+		<parameterValue>${service}</parameterValue>
+        <documentId>0</documentId>
+        <userVisible>true</userVisible>
+      </sourceParameter>
+      <sourceParameter>
+        <id>0</id>
+        <parameterTypeCode>TEXT</parameterTypeCode>
         <parameterKey>SID</parameterKey>
         <parameterIndex>0</parameterIndex>
         <parameterValue>${instance}</parameterValue>
+        <documentId>0</documentId>
+        <userVisible>true</userVisible>
+      </sourceParameter>
+      <sourceParameter>
+        <id>0</id>
+        <parameterTypeCode>TEXT</parameterTypeCode>
+        <parameterKey>SOURCECLASSNAME</parameterKey>
+        <parameterIndex>0</parameterIndex>
+        <parameterValue>com.hof.sources.JDBCSourcePlatformImplementation</parameterValue>
+        <documentId>0</documentId>
+        <userVisible>true</userVisible>
+      </sourceParameter>
+      <sourceParameter>
+        <id>0</id>
+        <parameterTypeCode>TEXT</parameterTypeCode>
+        <parameterKey>TNSNAMES</parameterKey>
+        <parameterIndex>0</parameterIndex>
+		<parameterValue>${tnsnames}</parameterValue>
         <documentId>0</documentId>
         <userVisible>true</userVisible>
       </sourceParameter>
@@ -97,6 +131,15 @@
         <parameterKey>USESCHEMA</parameterKey>
         <parameterIndex>0</parameterIndex>
         <parameterValue>true</parameterValue>
+        <documentId>0</documentId>
+        <userVisible>true</userVisible>
+      </sourceParameter>
+      <sourceParameter>
+        <id>0</id>
+        <parameterTypeCode>TEXT</parameterTypeCode>
+        <parameterKey>YF_DRIVER_SELECTION</parameterKey>
+        <parameterIndex>0</parameterIndex>
+        <parameterValue>oracle.jdbc.OracleDriver</parameterValue>
         <documentId>0</documentId>
         <userVisible>true</userVisible>
       </sourceParameter>
