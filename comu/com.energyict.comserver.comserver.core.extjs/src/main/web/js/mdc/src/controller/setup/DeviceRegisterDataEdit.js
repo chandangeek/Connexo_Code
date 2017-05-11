@@ -260,7 +260,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                                 widget.setValues(register);
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 widget.down('#stepsMenu').setTitle(
-                                    Uni.DateTime.formatDateTimeShort(new Date(timestamp))
+                                    Uni.DateTime.formatDateTimeShort(new Date(Number(timestamp)))
                                 );
                                 widget.down('#stepsMenu #editReading').setText(Uni.I18n.translate('device.registerData.editReading', 'MDC', 'Edit reading'));
                             },
