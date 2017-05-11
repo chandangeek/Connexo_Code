@@ -48,17 +48,18 @@ public enum MessageSeeds implements MessageSeed {
     REFERENCE_VALIDATE_PROPS_NO_READING_TYPE_ON_PURPOSE_ON_USAGE_POINT(3009,"reference.validator.validate.props.no.readingtype","Reading type not found on the purpose"),
 
     // Meter advance messages
+    REFERENCE_READINGTYPE_INCORRECT(4001, "ReferenceReadingTypeIncorrect", "This reading type can''t be used as a reference reading type"),
     // {0} - from time, {1} - to time, {2} - validator display name, {3} - reading type name, {4} - validate object name
-    REFERENCE_READINGTYPE_DOES_NOT_MATCH_VALIDATED_ONE(4001, "ReferenceReadingTypeDoesNotMatch",
+    REFERENCE_READINGTYPE_DOES_NOT_MATCH_VALIDATED_ONE(4002, "ReferenceReadingTypeDoesNotMatch",
             "Failed to validate period ''{0} until {1}'' using method ''{2}'' on ''{3}'' since the specified reference reading type doesn''t match the reading type on the {4}", Level.WARNING),
-    NO_REFERENCE_READINGTYPE(4002, "NoReferenceReadingType",
+    NO_REFERENCE_READINGTYPE(4003, "NoReferenceReadingType",
             "Failed to validate period ''{0} until {1}'' using method ''{2}'' on ''{3}'' since the specified reference reading type doesn''t exist on the {4}", Level.WARNING),
-    REGISTER_READINGS_ARE_MISSING(4003, "RegisterReadingsAreMissing",
-            "Failed to validate period ''{0} until {1}'' using method ''{2}'' on ''{3}'' since register readings for the validated interval don''t exist on the {4}", Level.WARNING),
-    VALIDATED_PERIOD_IS_GREATER_THAN_REFERENCE_PERIOD(4004, "ValidatedPeriodIsGreaterThanReferencePeriod",
+    REFERENCE_READINGS_ARE_MISSING(4004, "ReferenceReadingsAreMissing",
+            "Failed to validate period ''{0} until {1}'' using method ''{2}'' on ''{3}'' since reference readings for the validated interval don''t exist on the {4}", Level.WARNING),
+    VALIDATED_PERIOD_IS_GREATER_THAN_REFERENCE_PERIOD(4005, "ValidatedPeriodIsGreaterThanReferencePeriod",
             "The period ''{0} until {1}'' was marked valid using method ''{2}'' on ''{3}'' since the validated period length is greater than configured reference period", Level.INFO),
-    DIFFERENCE_BETWEEN_TWO_REGISTER_READINGS_LESS_THAN_MIN_THRESHOLD(4005, "DiffLessThanMinThreshold",
-            "The period ''{0} until {1}'' was marked valid using method ''{2}'' on ''{3}'' since the difference between the register readings is below the minimum threshold on {4}", Level.INFO),
+    DIFFERENCE_BETWEEN_TWO_REFERENCE_READINGS_LESS_THAN_MIN_THRESHOLD(4006, "DiffLessThanMinThreshold",
+            "The period ''{0} until {1}'' was marked valid using method ''{2}'' on ''{3}'' since the difference between the reference readings is below the minimum threshold on {4}", Level.INFO),
     ;
 
     public static final String COMPONENT_NAME = "VDR";

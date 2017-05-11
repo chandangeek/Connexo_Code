@@ -5,10 +5,10 @@
 package com.elster.jupiter.validators.impl.meteradvance;
 
 import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.ReadingTypeComparator;
 import com.elster.jupiter.metering.ReadingTypeValueFactory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.NoneOrBigDecimal;
@@ -52,6 +53,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -63,6 +65,58 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class MeterAdvanceValidator extends AbstractValidator {
+
+    enum Conversion {
+
+        MEASUREMENTS_PER_HOUR {
+
+            private static final double MINUTES_PER_HOUR = 60.0;
+
+            @Override
+            boolean isApplicable(ReadingType from, ReadingType to) {
+                if (super.isApplicable(from, to) && !from.getMacroPeriod().isApplicable()) {
+                    if (MeasurementKind.DEMAND == from.getMeasurementKind() && ReadingTypeUnit.WATT == from.getUnit()) {
+                        return MeasurementKind.ENERGY == to.getMeasurementKind() && ReadingTypeUnit.WATTHOUR == to.getUnit();
+                    }
+                    if (ReadingTypeUnit.VOLT == from.getUnit()) {
+                        return ReadingTypeUnit.VOLTHOUR == to.getUnit();
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            Function<BigDecimal, BigDecimal> converter(ReadingType from, ReadingType to) {
+                Function<BigDecimal, BigDecimal> multiplierConversion = MULTIPLIER_ONLY.converter(from, to);
+                Function<BigDecimal, BigDecimal> timeConversion = value -> value.multiply(BigDecimal.valueOf(from.getMeasuringPeriod().getMinutes() / MINUTES_PER_HOUR));
+                return multiplierConversion.andThen(timeConversion);
+            }
+        },
+        MULTIPLIER_ONLY {
+            @Override
+            boolean isApplicable(ReadingType from, ReadingType to) {
+                return super.isApplicable(from, to) && from.getUnit() == to.getUnit() && from.getMeasurementKind() == to.getMeasurementKind();
+            }
+
+            @Override
+            Function<BigDecimal, BigDecimal> converter(ReadingType from, ReadingType to) {
+                return value -> value.scaleByPowerOfTen(from.getMultiplier().getMultiplier() - to.getMultiplier().getMultiplier());
+            }
+        };
+
+        abstract Function<BigDecimal, BigDecimal> converter(ReadingType from, ReadingType to);
+
+        boolean isApplicable(ReadingType from, ReadingType to) {
+            return ReadingTypeComparator.ignoring(
+                    ReadingTypeComparator.Attribute.MacroPeriod,
+                    ReadingTypeComparator.Attribute.MeasuringPeriod,
+                    ReadingTypeComparator.Attribute.MeasurementKind,
+                    ReadingTypeComparator.Attribute.Accumulation,
+                    ReadingTypeComparator.Attribute.Multiplier,
+                    ReadingTypeComparator.Attribute.Unit
+            ).compare(from, to) == 0;
+        }
+    }
 
     private Logger logger = Logger.getLogger(MeterAdvanceValidator.class.getName());
 
@@ -96,13 +150,13 @@ public class MeterAdvanceValidator extends AbstractValidator {
     }
 
     @Override
-    public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
+    public void init(Channel channel, ReadingType validatedReadingType, Range<Instant> interval) {
         try {
-            validateThatReadingTypeCanBeValidated(readingType);
-            initFields(channel, readingType, interval);
+            validateThatReadingTypeCanBeValidated(validatedReadingType);
+            initFields(channel, validatedReadingType, interval);
 
             ReadingType referenceReadingType = getReferenceReadingTypeProperty().getReadingType();
-            validateReferenceReadingType(referenceReadingType);
+            Conversion conversion = findAvailableConversionOrThrowException(validatedReadingType, referenceReadingType);
 
             validateInterval(interval);
 
@@ -110,28 +164,28 @@ public class MeterAdvanceValidator extends AbstractValidator {
             Range<Instant> lastChannelInterval = getLastInterval(interval);
 
             // find first and last reference readings
-            Channel referenceRegister = findReferenceRegisterOrThrowException(referenceReadingType);
+            Channel referenceChannel = findReferenceChannelOrThrowException(referenceReadingType);
             Range<Instant> referenceInterval = computeReferenceInterval(firstChannelInterval, lastChannelInterval);
-            NavigableMap<Instant, ReadingRecord> registerReadings = referenceRegister.getRegisterReadings(referenceReadingType, referenceInterval)
-                    .stream().collect(Collectors.toMap(ReadingRecord::getTimeStamp, Function.identity(), (u1, u2) -> u1, TreeMap::new));
-            ReferenceReading firstReferenceReading = Optional.ofNullable(findFirstReferenceReading(firstChannelInterval, registerReadings))
-                    .orElseThrow(() -> skipValidationException(SkipValidationOption.MARK_ALL_NOT_VALIDATED, MessageSeeds.REGISTER_READINGS_ARE_MISSING, getDefaultMessageSeedArgs()));
-            ReferenceReading lastReferenceReading = Optional.ofNullable(findLastReferenceReading(lastChannelInterval, registerReadings))
-                    .orElseThrow(() -> skipValidationException(SkipValidationOption.MARK_ALL_NOT_VALIDATED, MessageSeeds.REGISTER_READINGS_ARE_MISSING, getDefaultMessageSeedArgs()));
+            NavigableMap<Instant, BaseReadingRecord> referenceReadings = referenceChannel.getReadings(referenceReadingType, referenceInterval)
+                    .stream().collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity(), (u1, u2) -> u1, TreeMap::new));
+            ReferenceReading firstReferenceReading = Optional.ofNullable(findFirstReferenceReading(firstChannelInterval, referenceReadings))
+                    .orElseThrow(() -> skipValidationException(SkipValidationOption.MARK_ALL_NOT_VALIDATED, MessageSeeds.REFERENCE_READINGS_ARE_MISSING, getDefaultMessageSeedArgs()));
+            ReferenceReading lastReferenceReading = Optional.ofNullable(findLastReferenceReading(lastChannelInterval, referenceReadings))
+                    .orElseThrow(() -> skipValidationException(SkipValidationOption.MARK_ALL_NOT_VALIDATED, MessageSeeds.REFERENCE_READINGS_ARE_MISSING, getDefaultMessageSeedArgs()));
             if (firstReferenceReading.getTimeStamp().equals(lastReferenceReading.getTimeStamp())) {
                 this.validationStrategy = ValidationStrategy.markValid(Range.atMost(firstReferenceReading.getTimeStamp()));
                 return;
             }
 
-            // compute register readings delta
-            BigDecimal deltaOfRegisterReadings = lastReferenceReading.getValue().subtract(firstReferenceReading.getValue());
-            validateDeltaOfRegisterReadings(deltaOfRegisterReadings);
+            // compute reference readings delta
+            BigDecimal deltaOfReferenceReadings = lastReferenceReading.getValue().subtract(firstReferenceReading.getValue());
+            validateDeltaOfReferenceReadings(deltaOfReferenceReadings);
 
             // compute channel readings sum
             Range<Instant> intervalToSummarize = Range.openClosed(firstReferenceReading.getClosestIntervalStart(), lastReferenceReading.getClosestIntervalEnd());
-            BigDecimal sumOfChannelReadings = getSumOfIntervalReadingsScaled(intervalToSummarize, referenceReadingType.getMultiplier());
+            BigDecimal sumOfChannelReadings = getSumOfIntervalReadings(intervalToSummarize, conversion.converter(this.validatedReadingType, referenceReadingType));
 
-            this.validationStrategy = computeValidationStrategy(deltaOfRegisterReadings, sumOfChannelReadings, firstChannelInterval, intervalToSummarize);
+            this.validationStrategy = computeValidationStrategy(deltaOfReferenceReadings, sumOfChannelReadings, firstChannelInterval, intervalToSummarize);
         } catch (SkipValidationException e) {
             this.logger.log(e.getMessageSeed().getLevel(), e.getLocalizedMessage());
             this.validationStrategy = ValidationStrategy.skipValidation(e.getSkipValidationOption());
@@ -144,11 +198,9 @@ public class MeterAdvanceValidator extends AbstractValidator {
         }
         boolean isValid = readingType.getIntervalLength().isPresent()
                 && Accumulation.DELTADELTA == readingType.getAccumulation()
-                && (Aggregate.NOTAPPLICABLE == readingType.getAggregate() || Aggregate.SUM == readingType.getAggregate())
-                && (MeasurementKind.ENERGY == readingType.getMeasurementKind() || MeasurementKind.DEMAND == readingType.getMeasurementKind());
+                && EnumSet.of(MeasurementKind.ENERGY, MeasurementKind.DEMAND, MeasurementKind.VOLTAGE).contains(readingType.getMeasurementKind());
         if (!isValid) {
-            throw skipValidationException(SkipValidationOption.MARK_ALL_NOT_VALIDATED, MessageSeeds.UNSUPPORTED_READINGTYPE,
-                    readingType.getMRID(), getDisplayName());
+            throw skipValidationException(SkipValidationOption.MARK_ALL_NOT_VALIDATED, MessageSeeds.UNSUPPORTED_READINGTYPE, readingType.getMRID(), getDisplayName());
         }
     }
 
@@ -183,11 +235,12 @@ public class MeterAdvanceValidator extends AbstractValidator {
         return (NoneOrBigDecimal) super.properties.get(MIN_THRESHOLD);
     }
 
-    private void validateReferenceReadingType(ReadingType referenceReadingType) {
-        if (!areReadingTypesComparable(this.validatedReadingType, referenceReadingType)) {
-            throw skipValidationException(SkipValidationOption.MARK_ALL_NOT_VALIDATED,
-                    MessageSeeds.REFERENCE_READINGTYPE_DOES_NOT_MATCH_VALIDATED_ONE, getDefaultMessageSeedArgs());
-        }
+    private Conversion findAvailableConversionOrThrowException(ReadingType validatedReadingType, ReadingType referenceReadingType) {
+        return Arrays.asList(Conversion.values()).stream()
+                .filter(conversion -> conversion.isApplicable(validatedReadingType, referenceReadingType))
+                .findFirst()
+                .orElseThrow(() -> skipValidationException(SkipValidationOption.MARK_ALL_NOT_VALIDATED,
+                        MessageSeeds.REFERENCE_READINGTYPE_DOES_NOT_MATCH_VALIDATED_ONE, getDefaultMessageSeedArgs()));
     }
 
     private void validateInterval(Range<Instant> validatedInterval) {
@@ -215,24 +268,15 @@ public class MeterAdvanceValidator extends AbstractValidator {
         return dateAndTimeFormatter.format(ZonedDateTime.ofInstant(instant, this.channelZoneId));
     }
 
-    private boolean areReadingTypesComparable(ReadingType validatedReadingType, ReadingType referenceReadingType) {
-        return ReadingTypeComparator.ignoring(
-                ReadingTypeComparator.Attribute.MacroPeriod,
-                ReadingTypeComparator.Attribute.MeasuringPeriod,
-                ReadingTypeComparator.Attribute.Accumulation,
-                ReadingTypeComparator.Attribute.Multiplier
-        ).compare(validatedReadingType, referenceReadingType) == 0;
-    }
-
-    private Channel findReferenceRegisterOrThrowException(ReadingType referenceReadingType) {
+    private Channel findReferenceChannelOrThrowException(ReadingType referenceReadingType) {
         ChannelsContainer channelsContainer = this.channel.getChannelsContainer();
         return channelsContainer.getChannel(referenceReadingType)
-                .orElseGet(() -> findReferenceRegisterOnUsagePointContracts(channelsContainer, referenceReadingType)
+                .orElseGet(() -> findReferenceChannelOnUsagePointContracts(channelsContainer, referenceReadingType)
                         .orElseThrow(() -> skipValidationException(SkipValidationOption.MARK_ALL_NOT_VALIDATED,
                                 MessageSeeds.NO_REFERENCE_READINGTYPE, getDefaultMessageSeedArgs())));
     }
 
-    private Optional<Channel> findReferenceRegisterOnUsagePointContracts(ChannelsContainer channelsContainer, ReadingType referenceReadingType) {
+    private Optional<Channel> findReferenceChannelOnUsagePointContracts(ChannelsContainer channelsContainer, ReadingType referenceReadingType) {
         if (channelsContainer instanceof MetrologyContractChannelsContainer) {
             Instant startTime = channelsContainer.getStart();
             UsagePoint usagePoint = channelsContainer.getUsagePoint()
@@ -312,18 +356,18 @@ public class MeterAdvanceValidator extends AbstractValidator {
         return Range.openClosed(ZonedDateTime.ofInstant(endOfInterval, this.channelZoneId).minus(this.channelIntervalLength).toInstant(), endOfInterval);
     }
 
-    private ReferenceReading findFirstReferenceReading(Range<Instant> firstInterval, NavigableMap<Instant, ReadingRecord> registerReadings) {
+    private ReferenceReading findFirstReferenceReading(Range<Instant> firstInterval, NavigableMap<Instant, BaseReadingRecord> referenceReadings) {
         Instant startOfFirstInterval = firstInterval.lowerEndpoint();
-        Map.Entry<Instant, ReadingRecord> closestFromRightReading = registerReadings.ceilingEntry(startOfFirstInterval);
+        Map.Entry<Instant, BaseReadingRecord> closestFromRightReading = referenceReadings.ceilingEntry(startOfFirstInterval);
         if (closestFromRightReading != null) {
             if (Ranges.copy(firstInterval).asClosedOpen().contains(closestFromRightReading.getKey())) {// excluding upper end-point
                 return new ReferenceReading(closestFromRightReading.getValue(), firstInterval);
             } else {
-                Map.Entry<Instant, ReadingRecord> closestFromLeftReading = registerReadings.lowerEntry(startOfFirstInterval);
+                Map.Entry<Instant, BaseReadingRecord> closestFromLeftReading = referenceReadings.lowerEntry(startOfFirstInterval);
                 if (closestFromLeftReading != null) {
                     // we found closest from left but it may not be a single reading within an interval
                     Range<Instant> enclosingInterval = findEnclosingChannelInterval(closestFromLeftReading.getKey());
-                    ReadingRecord closestToStartReading = registerReadings.ceilingEntry(enclosingInterval.lowerEndpoint()).getValue();
+                    BaseReadingRecord closestToStartReading = referenceReadings.ceilingEntry(enclosingInterval.lowerEndpoint()).getValue();
                     return new ReferenceReading(closestToStartReading, enclosingInterval);
                 } else {
                     Range<Instant> enclosingInterval = findEnclosingChannelInterval(closestFromRightReading.getKey());
@@ -334,46 +378,45 @@ public class MeterAdvanceValidator extends AbstractValidator {
         return null;
     }
 
-    private ReferenceReading findLastReferenceReading(Range<Instant> lastInterval, NavigableMap<Instant, ReadingRecord> registerReadings) {
+    private ReferenceReading findLastReferenceReading(Range<Instant> lastInterval, NavigableMap<Instant, BaseReadingRecord> referenceReadings) {
         Instant endOfLastInterval = lastInterval.upperEndpoint();
-        Map.Entry<Instant, ReadingRecord> closestFromRightReading = registerReadings.ceilingEntry(endOfLastInterval);
+        Map.Entry<Instant, BaseReadingRecord> closestFromRightReading = referenceReadings.ceilingEntry(endOfLastInterval);
         if (closestFromRightReading != null) {
             Range<Instant> previousInterval = findPreviousChannelInterval(closestFromRightReading.getKey());
             return new ReferenceReading(closestFromRightReading.getValue(), previousInterval);
         }
-        Map.Entry<Instant, ReadingRecord> closestFromLeftReading = registerReadings.lowerEntry(endOfLastInterval);
+        Map.Entry<Instant, BaseReadingRecord> closestFromLeftReading = referenceReadings.lowerEntry(endOfLastInterval);
         if (closestFromLeftReading != null) {
             // we found closest from left but it may not be a single reading within an interval
             Range<Instant> previousInterval = findPreviousChannelInterval(closestFromLeftReading.getKey());
-            ReadingRecord closestToStartReading = registerReadings.ceilingEntry(previousInterval.upperEndpoint()).getValue();
+            BaseReadingRecord closestToStartReading = referenceReadings.ceilingEntry(previousInterval.upperEndpoint()).getValue();
             return new ReferenceReading(closestToStartReading, previousInterval);
         }
         return null;
     }
 
-    private void validateDeltaOfRegisterReadings(BigDecimal deltaOfRegisterReadings) {
+    private void validateDeltaOfReferenceReadings(BigDecimal deltaOfReferenceReadings) {
         NoneOrBigDecimal minimumThreshold = getMinimumThresholdProperty();
-        if (!minimumThreshold.isNone() && deltaOfRegisterReadings.compareTo(minimumThreshold.getValue()) < 0) {
+        if (!minimumThreshold.isNone() && deltaOfReferenceReadings.compareTo(minimumThreshold.getValue()) < 0) {
             throw skipValidationException(SkipValidationOption.MARK_ALL_VALID,
-                    MessageSeeds.DIFFERENCE_BETWEEN_TWO_REGISTER_READINGS_LESS_THAN_MIN_THRESHOLD, getDefaultMessageSeedArgs());
+                    MessageSeeds.DIFFERENCE_BETWEEN_TWO_REFERENCE_READINGS_LESS_THAN_MIN_THRESHOLD, getDefaultMessageSeedArgs());
         }
     }
 
-    private BigDecimal getSumOfIntervalReadingsScaled(Range<Instant> intervalToSummarize, MetricMultiplier targetMultiplier) {
+    private BigDecimal getSumOfIntervalReadings(Range<Instant> intervalToSummarize, Function<BigDecimal, BigDecimal> conversion) {
         return this.channel.getIntervalReadings(this.validatedReadingType, intervalToSummarize)
                 .stream()
                 .map(IntervalReadingRecord::getValue)
                 .filter(value -> value != null)
                 .reduce(BigDecimal::add)
-                .orElse(BigDecimal.ZERO)
-                .scaleByPowerOfTen(this.validatedReadingType.getMultiplier().getMultiplier())
-                .scaleByPowerOfTen(-targetMultiplier.getMultiplier());
+                .map(conversion::apply)
+                .orElse(BigDecimal.ZERO);
     }
 
-    private ValidationStrategy computeValidationStrategy(BigDecimal deltaOfRegisterReadings, BigDecimal sumOfChannelReadings,
+    private ValidationStrategy computeValidationStrategy(BigDecimal deltaOfReferenceReadings, BigDecimal sumOfChannelReadings,
                                                          Range<Instant> firstChannelInterval, Range<Instant> intervalToSummarize) {
         TwoValuesDifference maxDifference = getMaximumDifferenceProperty();
-        boolean isDifferenceValid = isDifferenceValid(deltaOfRegisterReadings, sumOfChannelReadings, maxDifference);
+        boolean isDifferenceValid = isDifferenceValid(deltaOfReferenceReadings, sumOfChannelReadings, maxDifference);
         if (firstChannelInterval.upperEndpoint().compareTo(intervalToSummarize.lowerEndpoint()) <= 0) {
             return isDifferenceValid ?
                     ValidationStrategy.markValid(Range.openClosed(firstChannelInterval.lowerEndpoint(), intervalToSummarize.upperEndpoint())) :
@@ -385,19 +428,19 @@ public class MeterAdvanceValidator extends AbstractValidator {
         }
     }
 
-    private boolean isDifferenceValid(BigDecimal deltaOfRegisterReadings, BigDecimal sumOfChannelReadings, TwoValuesDifference maxDifference) {
+    private boolean isDifferenceValid(BigDecimal deltaOfReferenceReadings, BigDecimal sumOfChannelReadings, TwoValuesDifference maxDifference) {
         BigDecimal maxDifferenceValue;
         switch (maxDifference.getType()) {
             case ABSOLUTE:
                 maxDifferenceValue = maxDifference.getValue().abs();
                 break;
             case RELATIVE:
-                maxDifferenceValue = maxDifference.getValue().divide(new BigDecimal(100), 3, BigDecimal.ROUND_HALF_UP).multiply(deltaOfRegisterReadings);
+                maxDifferenceValue = maxDifference.getValue().divide(new BigDecimal(100), 3, BigDecimal.ROUND_HALF_UP).multiply(deltaOfReferenceReadings);
                 break;
             default:
                 throw new UnsupportedOperationException("Unsupported type of difference: " + maxDifference.getType().name());
         }
-        BigDecimal differenceValue = deltaOfRegisterReadings.subtract(sumOfChannelReadings).abs();
+        BigDecimal differenceValue = deltaOfReferenceReadings.subtract(sumOfChannelReadings).abs();
         return maxDifferenceValue.compareTo(differenceValue) >= 0;
     }
 
@@ -447,7 +490,7 @@ public class MeterAdvanceValidator extends AbstractValidator {
 
     private PropertySpec buildReferenceReadingTypePropertySpec() {
         return getPropertySpecService()
-                .specForValuesOf(new ReadingTypeValueFactory(meteringService, ReadingTypeValueFactory.Mode.ONLY_IRREGULAR))
+                .specForValuesOf(new ReadingTypeValueFactory(meteringService, ReadingTypeValueFactory.Mode.ALL))
                 .named(REFERENCE_READING_TYPE, TranslationKeys.REFERENCE_READING_TYPE)
                 .fromThesaurus(getThesaurus())
                 .markRequired()
@@ -485,6 +528,17 @@ public class MeterAdvanceValidator extends AbstractValidator {
                 .finish();
     }
 
+    @Override
+    public void validateProperties(Map<String, Object> properties) {
+        if (properties.containsKey(REFERENCE_READING_TYPE)) {
+            ReadingTypeValueFactory.ReadingTypeReference readingTypeReference = (ReadingTypeValueFactory.ReadingTypeReference) properties.get(REFERENCE_READING_TYPE);
+            ReadingType readingType = readingTypeReference.getReadingType();
+            if (readingType.getMeasuringPeriod().isApplicable()) {
+                throw new LocalizedFieldValidationException(MessageSeeds.REFERENCE_READINGTYPE_INCORRECT, "properties." + REFERENCE_READING_TYPE);
+            }
+        }
+    }
+
     private SkipValidationException skipValidationException(SkipValidationOption skipValidationOption, MessageSeeds messageSeed, Object... args) {
         return new SkipValidationException(getThesaurus(), skipValidationOption, messageSeed, args);
     }
@@ -495,10 +549,10 @@ public class MeterAdvanceValidator extends AbstractValidator {
 
     private static class ReferenceReading {
 
-        private final ReadingRecord readingRecord;
+        private final BaseReadingRecord readingRecord;
         private final Range<Instant> interval;
 
-        ReferenceReading(ReadingRecord readingRecord, Range<Instant> channelIntervalToSummarize) {
+        ReferenceReading(BaseReadingRecord readingRecord, Range<Instant> channelIntervalToSummarize) {
             this.readingRecord = readingRecord;
             this.interval = channelIntervalToSummarize;
         }

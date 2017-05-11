@@ -60,13 +60,23 @@ public class MeterAdvanceValidatorIT {
 
     private static final String DAILY_DELTA_A_PLUS_KWH = "11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     private static final String DAILY_BULK_A_PLUS_KWH = "11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+
     private static final String BULK_A_PLUS_MWH = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.6.72.0";
+    private static final String DAILY_BULK_A_PLUS_MWH = "11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.6.72.0";
+
+    private static final String HOUR12_ACTIVE_VOLTAGE_KV = "0.0.82.4.0.1.158.0.0.0.0.0.0.0.0.3.29.0";
+    private static final String DAILY_ACTIVE_VOLTAGE_VH = "11.0.0.1.0.1.158.0.0.0.0.0.0.0.0.0.280.0";
+
+    private static final String HOUR12_ACTIVE_ENERGY_DEMAND_KW = "0.0.82.4.1.1.8.0.0.0.0.0.0.0.0.3.38.0";
+    private static final String DAILY_ACTIVE_ENERGY_DEMAND_WH = "11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
 
     private static final String METER_NAME = "SPE01";
 
     private static final Clock clock = Clock.system(ZoneId.of("Europe/Athens"));
-    private static ValidatorInMemoryBootstrapModule inMemoryBootstrapModule = ValidatorInMemoryBootstrapModule
-            .withClockAndReadingTypes(clock, DAILY_DELTA_A_PLUS_KWH, DAILY_BULK_A_PLUS_KWH, BULK_A_PLUS_MWH);
+    private static ValidatorInMemoryBootstrapModule inMemoryBootstrapModule = ValidatorInMemoryBootstrapModule.withClockAndReadingTypes(clock,
+            DAILY_DELTA_A_PLUS_KWH, DAILY_BULK_A_PLUS_KWH, BULK_A_PLUS_MWH, DAILY_BULK_A_PLUS_MWH,
+            HOUR12_ACTIVE_VOLTAGE_KV, DAILY_ACTIVE_VOLTAGE_VH,
+            HOUR12_ACTIVE_ENERGY_DEMAND_KW, DAILY_ACTIVE_ENERGY_DEMAND_WH);
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
@@ -98,7 +108,7 @@ public class MeterAdvanceValidatorIT {
     @Transactional
     public void firstAndLastRegisterReadingsAreAvailableSuspectCase() {
         Instant startTime = ZonedDateTime.of(LocalDateTime.of(2017, 4, 1, 0, 0, 0, 0), clock.getZone()).toInstant();
-        Meter meter = createAndActivateMeterWithChannels(startTime.minusSeconds(1));
+        Meter meter = createAndActivateMeterWithDefaultChannels(startTime.minusSeconds(1));
 
         // Prepare readings for validation
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -159,7 +169,7 @@ public class MeterAdvanceValidatorIT {
     @Transactional
     public void firstAndLastRegisterReadingsAreAvailableValidCase() {
         Instant startTime = ZonedDateTime.of(LocalDateTime.of(2017, 4, 1, 0, 0, 0, 0), clock.getZone()).toInstant();
-        Meter meter = createAndActivateMeterWithChannels(startTime);
+        Meter meter = createAndActivateMeterWithDefaultChannels(startTime);
 
         // Prepare readings for validation
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -221,7 +231,7 @@ public class MeterAdvanceValidatorIT {
     @Transactional
     public void firstRegisterReadingIsAfterFirstIntervalAndLastIsBeforeLastIntervalSuspectCase() {
         Instant startTime = ZonedDateTime.of(LocalDateTime.of(2017, 4, 1, 0, 0, 0, 0), clock.getZone()).toInstant();
-        Meter meter = createAndActivateMeterWithChannels(startTime);
+        Meter meter = createAndActivateMeterWithDefaultChannels(startTime);
 
         // Prepare readings for validation
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -282,7 +292,7 @@ public class MeterAdvanceValidatorIT {
     @Transactional
     public void firstRegisterReadingIsAfterFirstIntervalAndLastIsBeforeLastIntervalValidCase() {
         Instant startTime = ZonedDateTime.of(LocalDateTime.of(2017, 4, 1, 0, 0, 0, 0), clock.getZone()).toInstant();
-        Meter meter = createAndActivateMeterWithChannels(startTime);
+        Meter meter = createAndActivateMeterWithDefaultChannels(startTime);
 
         // Prepare readings for validation
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -343,7 +353,7 @@ public class MeterAdvanceValidatorIT {
     @Transactional
     public void moreThanOneRegisterReadingIsAvailableForFirstInterval() {
         Instant startTime = ZonedDateTime.of(LocalDateTime.of(2017, 4, 1, 0, 0, 0, 0), clock.getZone()).toInstant();
-        Meter meter = createAndActivateMeterWithChannels(startTime);
+        Meter meter = createAndActivateMeterWithDefaultChannels(startTime);
 
         // Prepare readings for validation
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -406,7 +416,7 @@ public class MeterAdvanceValidatorIT {
     @Transactional
     public void moreThanOneRegisterReadingIsAvailableForLastInterval() {
         Instant startTime = ZonedDateTime.of(LocalDateTime.of(2017, 4, 1, 0, 0, 0, 0), clock.getZone()).toInstant();
-        Meter meter = createAndActivateMeterWithChannels(startTime);
+        Meter meter = createAndActivateMeterWithDefaultChannels(startTime);
 
         // Prepare readings for validation
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -474,7 +484,7 @@ public class MeterAdvanceValidatorIT {
     @Transactional
     public void firstRegisterReadingIsBeforeStartAndLastOneIsBeforeEndOfValidatedInterval() {
         ZonedDateTime meterActivationTime = ZonedDateTime.of(LocalDateTime.of(2017, 1, 1, 0, 0, 0, 0), clock.getZone());
-        Meter meter = createAndActivateMeterWithChannels(meterActivationTime.toInstant());
+        Meter meter = createAndActivateMeterWithDefaultChannels(meterActivationTime.toInstant());
 
         Instant startTime = ZonedDateTime.of(LocalDateTime.of(2017, 4, 1, 0, 0, 0, 0), clock.getZone()).toInstant();
 
@@ -536,7 +546,7 @@ public class MeterAdvanceValidatorIT {
     @Transactional
     public void onlyOneRegisterReadingFound() {
         ZonedDateTime meterActivationTime = ZonedDateTime.of(LocalDateTime.of(2017, 1, 1, 0, 0, 0, 0), clock.getZone());
-        Meter meter = createAndActivateMeterWithChannels(meterActivationTime.toInstant());
+        Meter meter = createAndActivateMeterWithDefaultChannels(meterActivationTime.toInstant());
 
         Instant startTime = ZonedDateTime.of(LocalDateTime.of(2017, 4, 1, 0, 0, 0, 0), clock.getZone()).toInstant();
 
@@ -590,7 +600,7 @@ public class MeterAdvanceValidatorIT {
     @Transactional
     public void noRegisterReadingsAreAvailableAndPeriodIsLessThanReferencePeriod() {
         Instant startTime = ZonedDateTime.of(LocalDateTime.of(2017, 4, 1, 0, 0, 0, 0), clock.getZone()).toInstant();
-        Meter meter = createAndActivateMeterWithChannels(startTime);
+        Meter meter = createAndActivateMeterWithDefaultChannels(startTime);
 
         // Prepare readings for validation
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -640,7 +650,7 @@ public class MeterAdvanceValidatorIT {
     @Transactional
     public void noRegisterReadingsAreAvailableAndPeriodIsGreaterThanReferencePeriod() {
         Instant startTime = ZonedDateTime.of(LocalDateTime.of(2017, 4, 1, 0, 0, 0, 0), clock.getZone()).toInstant();
-        Meter meter = createAndActivateMeterWithChannels(startTime);
+        Meter meter = createAndActivateMeterWithDefaultChannels(startTime);
 
         // Prepare readings for validation
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -698,7 +708,7 @@ public class MeterAdvanceValidatorIT {
     @Transactional
     public void differenceBetweenRegisterReadingsIsLessThanMinThreshold() {
         Instant startTime = ZonedDateTime.of(LocalDateTime.of(2017, 4, 1, 0, 0, 0, 0), clock.getZone()).toInstant();
-        Meter meter = createAndActivateMeterWithChannels(startTime);
+        Meter meter = createAndActivateMeterWithDefaultChannels(startTime);
 
         // Prepare readings for validation
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -748,7 +758,7 @@ public class MeterAdvanceValidatorIT {
     @Transactional
     public void firstRegisterReadingTimeMatchesFirstInterval() {
         Instant startTime = ZonedDateTime.of(LocalDateTime.of(2017, 4, 1, 0, 0, 0, 0), clock.getZone()).toInstant();
-        Meter meter = createAndActivateMeterWithChannels(startTime.plusMillis(1));
+        Meter meter = createAndActivateMeterWithDefaultChannels(startTime.plusMillis(1));
 
         // Prepare readings for validation
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -785,8 +795,193 @@ public class MeterAdvanceValidatorIT {
     }
 
     private Validator createValidatorWithDefaultProperties() {
+        return createValidatorWithProperties(getReadingType(BULK_A_PLUS_MWH));
+    }
+
+    private Meter createAndActivateMeterWithDefaultChannels(Instant activationTime) {
+        return createAndActivateMeterWithChannels(activationTime, getReadingType(DAILY_BULK_A_PLUS_KWH), getReadingType(BULK_A_PLUS_MWH));
+    }
+
+    /**
+     * Test channels have the following readings:
+     * <table border="1">
+     * <tr><td>Timestamp</td><td>Daily Delta A+ kWh</td><td>Daily Bulk A+ MWh</td></tr>
+     * <tr><td>2017-04-02 00:00</td><td>100</td><td>0.1</td></tr>
+     * <tr><td>2017-04-03 00:00</td><td>200</td><td>0.3</td></tr>
+     * <tr><td>2017-04-04 00:00</td><td>200</td><td>0.5</td></tr>
+     * </table>
+     */
+    @Test
+    @Transactional
+    public void canValidateUsingReferenceChannelInsteadOfRegister() {
+        Instant startTime = ZonedDateTime.of(LocalDateTime.of(2017, 4, 1, 0, 0, 0, 0), clock.getZone()).toInstant();
+        Meter meter = createAndActivateMeterWithChannels(startTime.plusMillis(1), getReadingType(DAILY_DELTA_A_PLUS_KWH), getReadingType(DAILY_BULK_A_PLUS_MWH));
+
+        // Prepare readings for validation
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        IntervalBlockImpl intervalBlock;
+        intervalBlock = IntervalBlockImpl.of(DAILY_DELTA_A_PLUS_KWH);
+        intervalBlock.addAllIntervalReadings(Arrays.asList(
+                IntervalReadingImpl.of(startTime.plus(1, ChronoUnit.DAYS), new BigDecimal(100)),
+                IntervalReadingImpl.of(startTime.plus(2, ChronoUnit.DAYS), new BigDecimal(200)),
+                IntervalReadingImpl.of(startTime.plus(3, ChronoUnit.DAYS), new BigDecimal(200))
+        ));
+        meterReading.addIntervalBlock(intervalBlock);
+        intervalBlock = IntervalBlockImpl.of(DAILY_BULK_A_PLUS_MWH);
+        intervalBlock.addAllIntervalReadings(Arrays.asList(
+                IntervalReadingImpl.of(startTime.plus(1, ChronoUnit.DAYS), new BigDecimal(0.1)),
+                IntervalReadingImpl.of(startTime.plus(2, ChronoUnit.DAYS), new BigDecimal(0.3)),
+                IntervalReadingImpl.of(startTime.plus(3, ChronoUnit.DAYS), new BigDecimal(0.5))
+        ));
+        meterReading.addIntervalBlock(intervalBlock);
+        meter.store(QualityCodeSystem.MDC, meterReading);
+
+        // Initialize validator
+        Validator validator = createValidatorWithProperties(getReadingType(DAILY_BULK_A_PLUS_MWH));
+        Range<Instant> interval = Range.openClosed(startTime, startTime.plus(3, ChronoUnit.DAYS));
+        ReadingType validatedReadingType = getReadingType(DAILY_DELTA_A_PLUS_KWH);
+        Channel channel = meter.getChannelsContainers().get(0).getChannel(validatedReadingType).get();
+
+        // Business method
+        validator.init(channel, validatedReadingType, interval);
+        Map<Instant, ValidationResult> validationResults = channel.getIntervalReadings(interval).stream()
+                .collect(Collectors.toMap(BaseReading::getTimeStamp, validator::validate));
+
+        // Asserts
+        assertThat(validationResults).containsOnly(
+                MapEntry.entry(startTime.plus(1, ChronoUnit.DAYS), ValidationResult.VALID),
+                MapEntry.entry(startTime.plus(2, ChronoUnit.DAYS), ValidationResult.VALID),
+                MapEntry.entry(startTime.plus(3, ChronoUnit.DAYS), ValidationResult.VALID)
+        );
+    }
+
+    /**
+     * Test channels have the following readings:
+     * <table border="1">
+     * <tr><td>Timestamp</td><td>[12-hour] Active Voltage kV</td><td>Daily Active Voltage Vh</td></tr>
+     * <tr><td>2017-04-01 12:00</td><td>0.1</td><td>-</td></tr>
+     * <tr><td>2017-04-02 00:00</td><td>0.2</td><td>200</td></tr>
+     * <tr><td>2017-04-02 12:00</td><td>0.1</td><td>-</td></tr>
+     * <tr><td>2017-04-03 00:00</td><td>0.3</td><td>6000</td></tr>
+     * <tr><td>2017-04-03 12:00</td><td>0.1</td><td>-</td></tr>
+     * <tr><td>2017-04-04 00:00</td><td>0.4</td><td>11000</td></tr>
+     * </table>
+     */
+    @Test
+    @Transactional
+    public void canCompareVoltAndVoltHoursChannels() {
+        Instant startTime = ZonedDateTime.of(LocalDateTime.of(2017, 4, 1, 0, 0, 0, 0), clock.getZone()).toInstant();
+        Meter meter = createAndActivateMeterWithChannels(startTime.plusMillis(1), getReadingType(HOUR12_ACTIVE_VOLTAGE_KV), getReadingType(DAILY_ACTIVE_VOLTAGE_VH));
+
+        // Prepare readings for validation
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        IntervalBlockImpl intervalBlock;
+        intervalBlock = IntervalBlockImpl.of(HOUR12_ACTIVE_VOLTAGE_KV);
+        intervalBlock.addAllIntervalReadings(Arrays.asList(
+                IntervalReadingImpl.of(startTime.plus(12, ChronoUnit.HOURS), new BigDecimal(0.1)),
+                IntervalReadingImpl.of(startTime.plus(24, ChronoUnit.HOURS), new BigDecimal(0.2)),
+                IntervalReadingImpl.of(startTime.plus(36, ChronoUnit.HOURS), new BigDecimal(0.1)),
+                IntervalReadingImpl.of(startTime.plus(48, ChronoUnit.HOURS), new BigDecimal(0.3)),
+                IntervalReadingImpl.of(startTime.plus(60, ChronoUnit.HOURS), new BigDecimal(0.1)),
+                IntervalReadingImpl.of(startTime.plus(72, ChronoUnit.HOURS), new BigDecimal(0.4))
+        ));
+        meterReading.addIntervalBlock(intervalBlock);
+        intervalBlock = IntervalBlockImpl.of(DAILY_ACTIVE_VOLTAGE_VH);
+        intervalBlock.addAllIntervalReadings(Arrays.asList(
+                IntervalReadingImpl.of(startTime.plus(1, ChronoUnit.DAYS), new BigDecimal(200)),
+                IntervalReadingImpl.of(startTime.plus(2, ChronoUnit.DAYS), new BigDecimal(6000)),
+                IntervalReadingImpl.of(startTime.plus(3, ChronoUnit.DAYS), new BigDecimal(11000))
+        ));
+        meterReading.addIntervalBlock(intervalBlock);
+        meter.store(QualityCodeSystem.MDC, meterReading);
+
+        // Initialize validator
+        Validator validator = createValidatorWithProperties(getReadingType(DAILY_ACTIVE_VOLTAGE_VH));
+        Range<Instant> interval = Range.openClosed(startTime, startTime.plus(3, ChronoUnit.DAYS));
+        ReadingType validatedReadingType = getReadingType(HOUR12_ACTIVE_VOLTAGE_KV);
+        Channel channel = meter.getChannelsContainers().get(0).getChannel(validatedReadingType).get();
+
+        // Business method
+        validator.init(channel, validatedReadingType, interval);
+        Map<Instant, ValidationResult> validationResults = channel.getIntervalReadings(interval).stream()
+                .collect(Collectors.toMap(BaseReading::getTimeStamp, validator::validate));
+
+        // Asserts
+        assertThat(validationResults).containsOnly(
+                MapEntry.entry(startTime.plus(12, ChronoUnit.HOURS), ValidationResult.VALID),
+                MapEntry.entry(startTime.plus(24, ChronoUnit.HOURS), ValidationResult.VALID),
+                MapEntry.entry(startTime.plus(36, ChronoUnit.HOURS), ValidationResult.VALID),
+                MapEntry.entry(startTime.plus(48, ChronoUnit.HOURS), ValidationResult.VALID),
+                MapEntry.entry(startTime.plus(60, ChronoUnit.HOURS), ValidationResult.VALID),
+                MapEntry.entry(startTime.plus(72, ChronoUnit.HOURS), ValidationResult.VALID)
+        );
+    }
+
+    /**
+     * Test channels have the following readings:
+     * <table border="1">
+     * <tr><td>Timestamp</td><td>[12-hour] Active Energy kW</td><td>Daily Active Energy Wh</td></tr>
+     * <tr><td>2017-04-01 12:00</td><td>0.1</td><td>-</td></tr>
+     * <tr><td>2017-04-02 00:00</td><td>0.2</td><td>200</td></tr>
+     * <tr><td>2017-04-02 12:00</td><td>0.1</td><td>-</td></tr>
+     * <tr><td>2017-04-03 00:00</td><td>0.3</td><td>6000</td></tr>
+     * <tr><td>2017-04-03 12:00</td><td>0.1</td><td>-</td></tr>
+     * <tr><td>2017-04-04 00:00</td><td>0.4</td><td>11000</td></tr>
+     * </table>
+     */
+    @Test
+    @Transactional
+    public void canCompareWattAndWattHoursChannels() {
+        Instant startTime = ZonedDateTime.of(LocalDateTime.of(2017, 4, 1, 0, 0, 0, 0), clock.getZone()).toInstant();
+        Meter meter = createAndActivateMeterWithChannels(startTime.plusMillis(1), getReadingType(HOUR12_ACTIVE_ENERGY_DEMAND_KW), getReadingType(DAILY_ACTIVE_ENERGY_DEMAND_WH));
+
+        // Prepare readings for validation
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        IntervalBlockImpl intervalBlock;
+        intervalBlock = IntervalBlockImpl.of(HOUR12_ACTIVE_ENERGY_DEMAND_KW);
+        intervalBlock.addAllIntervalReadings(Arrays.asList(
+                IntervalReadingImpl.of(startTime.plus(12, ChronoUnit.HOURS), new BigDecimal(0.1)),
+                IntervalReadingImpl.of(startTime.plus(24, ChronoUnit.HOURS), new BigDecimal(0.2)),
+                IntervalReadingImpl.of(startTime.plus(36, ChronoUnit.HOURS), new BigDecimal(0.1)),
+                IntervalReadingImpl.of(startTime.plus(48, ChronoUnit.HOURS), new BigDecimal(0.3)),
+                IntervalReadingImpl.of(startTime.plus(60, ChronoUnit.HOURS), new BigDecimal(0.1)),
+                IntervalReadingImpl.of(startTime.plus(72, ChronoUnit.HOURS), new BigDecimal(0.4))
+        ));
+        meterReading.addIntervalBlock(intervalBlock);
+        intervalBlock = IntervalBlockImpl.of(DAILY_ACTIVE_ENERGY_DEMAND_WH);
+        intervalBlock.addAllIntervalReadings(Arrays.asList(
+                IntervalReadingImpl.of(startTime.plus(1, ChronoUnit.DAYS), new BigDecimal(200)),
+                IntervalReadingImpl.of(startTime.plus(2, ChronoUnit.DAYS), new BigDecimal(6000)),
+                IntervalReadingImpl.of(startTime.plus(3, ChronoUnit.DAYS), new BigDecimal(11000))
+        ));
+        meterReading.addIntervalBlock(intervalBlock);
+        meter.store(QualityCodeSystem.MDC, meterReading);
+
+        // Initialize validator
+        Validator validator = createValidatorWithProperties(getReadingType(DAILY_ACTIVE_ENERGY_DEMAND_WH));
+        Range<Instant> interval = Range.openClosed(startTime, startTime.plus(3, ChronoUnit.DAYS));
+        ReadingType validatedReadingType = getReadingType(HOUR12_ACTIVE_ENERGY_DEMAND_KW);
+        Channel channel = meter.getChannelsContainers().get(0).getChannel(validatedReadingType).get();
+
+        // Business method
+        validator.init(channel, validatedReadingType, interval);
+        Map<Instant, ValidationResult> validationResults = channel.getIntervalReadings(interval).stream()
+                .collect(Collectors.toMap(BaseReading::getTimeStamp, validator::validate));
+
+        // Asserts
+        assertThat(validationResults).containsOnly(
+                MapEntry.entry(startTime.plus(12, ChronoUnit.HOURS), ValidationResult.VALID),
+                MapEntry.entry(startTime.plus(24, ChronoUnit.HOURS), ValidationResult.VALID),
+                MapEntry.entry(startTime.plus(36, ChronoUnit.HOURS), ValidationResult.VALID),
+                MapEntry.entry(startTime.plus(48, ChronoUnit.HOURS), ValidationResult.VALID),
+                MapEntry.entry(startTime.plus(60, ChronoUnit.HOURS), ValidationResult.VALID),
+                MapEntry.entry(startTime.plus(72, ChronoUnit.HOURS), ValidationResult.VALID)
+        );
+    }
+
+    private Validator createValidatorWithProperties(ReadingType referenceReadingType) {
         Map<String, Object> properties = ImmutableMap.of(
-                MeterAdvanceValidator.REFERENCE_READING_TYPE, new ReadingTypeValueFactory.ReadingTypeReference(getReadingType(BULK_A_PLUS_MWH)),
+                MeterAdvanceValidator.REFERENCE_READING_TYPE, new ReadingTypeValueFactory.ReadingTypeReference(referenceReadingType),
                 MeterAdvanceValidator.MAX_ABSOLUTE_DIFFERENCE, new TwoValuesDifference(TwoValuesDifference.Type.ABSOLUTE, new BigDecimal(0.001)),
                 MeterAdvanceValidator.REFERENCE_PERIOD, NoneOrTimeDurationValue.of(new TimeDuration(7, TimeDuration.TimeUnit.DAYS)),
                 MeterAdvanceValidator.MIN_THRESHOLD, NoneOrBigDecimal.of(new BigDecimal(0.001))
@@ -794,14 +989,15 @@ public class MeterAdvanceValidatorIT {
         return new MeterAdvanceValidator(NlsModule.FakeThesaurus.INSTANCE, new PropertySpecServiceImpl(), inMemoryBootstrapModule.getMeteringService(), properties);
     }
 
-    private Meter createAndActivateMeterWithChannels(Instant activationTime) {
+    private Meter createAndActivateMeterWithChannels(Instant activationTime, ReadingType... channels) {
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter meter = amrSystem.newMeter(METER_NAME, METER_NAME).create();
         MeterActivation meterActivation = meter.activate(activationTime);
         ChannelsContainer channelsContainer = meterActivation.getChannelsContainer();
-        channelsContainer.createChannel(getReadingType(DAILY_BULK_A_PLUS_KWH));
-        channelsContainer.createChannel(getReadingType(BULK_A_PLUS_MWH));
+        for (ReadingType readingType : channels) {
+            channelsContainer.createChannel(readingType);
+        }
         return meter;
     }
 
