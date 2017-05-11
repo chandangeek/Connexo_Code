@@ -40,8 +40,8 @@ public class CertificateInfoFactory {
             info.keyEncryptionMethod = clientCertificateWrapper.getPrivateKeyWrapper().getKeyEncryptionMethod();
         }
 
+        certificateWrapper.getAllKeyUsages().ifPresent(keyUsages -> info.type = keyUsages);
         if (certificateWrapper.getCertificate().isPresent()) {
-            certificateWrapper.getAllKeyUsages().ifPresent(keyUsages -> info.type = keyUsages);
             X509Certificate x509Certificate = certificateWrapper.getCertificate().get();
             info.issuer = x509Certificate.getIssuerX500Principal().getName(X500Principal.RFC1779);
             info.subject = x509Certificate.getSubjectX500Principal().getName(X500Principal.RFC1779);
