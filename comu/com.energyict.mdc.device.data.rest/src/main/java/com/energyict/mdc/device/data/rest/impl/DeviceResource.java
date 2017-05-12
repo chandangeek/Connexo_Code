@@ -768,7 +768,7 @@ public class DeviceResource {
                     }
                 });
         return PagedInfoList
-                .fromPagedList(
+                .fromCompleteList(
                         "categories",
                         ListPager.of(infos).from(queryParameters).find(),
                         queryParameters);
@@ -1161,7 +1161,8 @@ public class DeviceResource {
     private Optional<DeviceMessageId> getDeviceMessageId(SendCalendarInfo sendCalendarInfo, Set<ProtocolSupportedCalendarOptions> allowedOptions) {
         CalendarUpdateOption calendarUpdateOption = CalendarUpdateOption.find(sendCalendarInfo.calendarUpdateOption);
         DeviceMessageId deviceMessageId;
-        boolean hasActivationDate = sendCalendarInfo.activationDate != null;
+        // Special days does not support activation date
+        boolean hasActivationDate = !CalendarUpdateOption.SPECIAL_DAYS.equals(calendarUpdateOption) && sendCalendarInfo.activationDate != null;
         boolean hasType = sendCalendarInfo.type != null;
         boolean hasContract = sendCalendarInfo.contract != null;
         boolean hasActivityCalendarOption = CalendarUpdateOption.FULL_CALENDAR.equals(calendarUpdateOption);
