@@ -15,11 +15,7 @@ Ext.define('Uni.view.error.NotVisible', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate(
-                'error.pageNotVisibleTitle',
-                'UNI',
-                "Sorry! We couldn't show you this."
-            ),
+            title: Uni.I18n.translate('error.pageNotVisibleTitle', 'UNI', "Sorry! We can't show you this."),
             layout: {
                 type: 'fit',
                 align: 'stretch'
@@ -27,23 +23,10 @@ Ext.define('Uni.view.error.NotVisible', {
             items: [
                 {
                     xtype: 'no-items-found-panel',
-                    title: '<span style="color: #eb5642">'
-                    + Uni.I18n.translate(
-                        'error.pageNotVisible',
-                        'UNI',
-                        'Page not visible'
-                    ) + '</span>',
+                    title: '<span style="color: #eb5642">' + Uni.I18n.translate('error.pageNotVisible', 'UNI', 'Page not visible') + '</span>',
                     reasons: [
-                        Uni.I18n.translate(
-                            'error.pageNotVisibleAuthorized',
-                            'UNI',
-                            "You are not authorized to access this page."
-                        ),
-                        Uni.I18n.translate(
-                            'error.pageNotVisibleLicenseExpired',
-                            'UNI',
-                            "Your license has expired."
-                        )
+                        Uni.I18n.translate('error.pageNotVisibleAuthorized', 'UNI', 'You are not authorized to access this page.'),
+                        Uni.I18n.translate('error.pageNotVisibleLicenseExpired', 'UNI', 'Your license has expired.')
                     ],
                     stepItems: []
                 }

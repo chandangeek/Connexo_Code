@@ -42,7 +42,7 @@ Ext.define('Uni.property.view.property.SelectionGrid', {
                 align: 'stretch'
             },
             flex: 1,
-            hidden: !me.getProperty().getPossibleValues(),
+            hidden: Ext.isEmpty(me.getProperty().getPossibleValues()),
             items: [
                 {
                     xtype: 'selection-grid',

@@ -18,6 +18,8 @@
 Ext.define('Uni.view.form.ComboBoxWithEmptyComponent', {
     extend: 'Ext.form.FieldContainer',
     alias: 'widget.comboboxwithemptycomponent',
+    myEvents: [],
+    width: null,
 
     config: {
         noObjectsText: Uni.I18n.translate('general.noObjectsDefinedYet', 'UNI', 'No objects defined yet'),
@@ -26,7 +28,16 @@ Ext.define('Uni.view.form.ComboBoxWithEmptyComponent', {
         displayField: null,
         valueField: null,
         allowBlank: false,
+        editable: false,
+        forceSelection: true,
+        required: false,
+        width: 650,
+        msgTarget: 'under',
         emptyText: Uni.I18n.translate('general.selectAnObject', 'UNI', 'Select an object...')
+    },
+
+    style: {
+        margin: '1px 0 0 0'
     },
 
     initComponent: function () {
@@ -41,13 +52,20 @@ Ext.define('Uni.view.form.ComboBoxWithEmptyComponent', {
                 if (success && storeObject.count() > 0) {
                     combo = Ext.create('Ext.form.ComboBox', {
                         queryMode: 'local',
-                        itemId: me.itemId,
+                        name: me.config.name,
                         store: storeObject,
-                        allowBlank: me.allowBlank,
+                        allowBlank: me.config.allowBlank,
                         width: me.config.width - me.getLabelWidth(),
                         displayField: me.config.displayField,
                         valueField: me.config.valueField,
-                        emptyText: me.config.emptyText
+                        emptyText: me.config.emptyText,
+                        required: me.config.required,
+                        forceSelection: me.config.forceSelection,
+                        editable: me.config.editable,
+                        msgTarget: me.config.msgTarget
+                    });
+                    Ext.Array.each(me.myEvents, function(event) {
+                        combo.on(event.event, event.func, event.scope);
                     });
                     me.add(combo);
                 } else {
@@ -62,13 +80,33 @@ Ext.define('Uni.view.form.ComboBoxWithEmptyComponent', {
                         validate: function () {
                             return me.config.allowBlank;
                         }
-
-                    })
+                    });
+                    //me.style = {
+                    //    margin: '0 0 100px 0'
+                    //};
                 }
 
             }
         });
 
         me.callParent(arguments)
+    },
+
+    onComboEvent: function(event, func, scope) {
+        var me = this;
+        if(me.down('combobox')) {
+            me.down('combobox').on(event, func, scope);
+        } else {
+            me.myEvents.push({event: event, func: func, scope:scope});
+        }
+    },
+
+    getValue: function() {
+        var me = this;
+        if(me.down('combobox')) {
+            return me.down('combobox').getValue();
+        } else {
+            return undefined
+        }
     }
 });
