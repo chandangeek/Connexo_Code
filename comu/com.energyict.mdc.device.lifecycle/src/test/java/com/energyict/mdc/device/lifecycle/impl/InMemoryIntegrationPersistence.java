@@ -38,6 +38,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -212,7 +213,8 @@ public class InMemoryIntegrationPersistence {
                 new DeviceDataModule(),
                 new DeviceLifeCycleModule(),
                 new CustomPropertySetsModule(),
-                new CalendarModule());
+                new CalendarModule(),
+                new PkiModule());
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.transactionService = this.injector.getInstance(TransactionService.class);
