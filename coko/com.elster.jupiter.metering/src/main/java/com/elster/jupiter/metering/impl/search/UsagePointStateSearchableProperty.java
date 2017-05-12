@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class UsagePointStateSearchableProperty implements SearchableUsagePointProperty {
-    private static final String FIELD_NAME = "state.state";
+    public static final String FIELD_NAME = "state.state";
 
     private final SearchDomain domain;
     private final PropertySpecService propertySpecService;
@@ -102,7 +102,7 @@ public class UsagePointStateSearchableProperty implements SearchableUsagePointPr
             State state = (State) value;
             String stateName = thesaurus.getString(state.getName(), state.getName());
             String stateMachineName = state.getFiniteStateMachine().getName();
-            //all usage point lifecycles are prefixed as an fsm. Because it's not possible to get the UP lifecycle here, a small workarround is done
+            //all usage point lifecycles are prefixed as an fsm. Because it's not possible to get the UP lifecycle here, a small workaround is done
             //using the finite state machine name with the prefix
             //plus just a small check to be absolutely sure
             int index = stateMachineName.indexOf(UsagePointLifeCycleConfigurationService.FSM_NAME_PREFIX);
