@@ -198,12 +198,12 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(channel2.getZoneId()).thenReturn(ZoneId.systemDefault());
         when(channel1.toList(Range.openClosed(INTERVAL_4.lowerEndpoint(), INTERVAL_4.upperEndpoint())))
                 .thenReturn(Collections.singletonList(INTERVAL_4.upperEndpoint()));
-        when(channel2.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_3.upperEndpoint())))
+/*        when(channel2.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_3.upperEndpoint())))
                 .thenReturn(Arrays.asList(
                         INTERVAL_1.upperEndpoint(),
                         INTERVAL_2.upperEndpoint(),
                         INTERVAL_3.upperEndpoint())
-                );
+                );*/
         when(channel2.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint()))).thenReturn(
                 Arrays.asList(INTERVAL_1.upperEndpoint(), INTERVAL_2.upperEndpoint(), INTERVAL_3.upperEndpoint())
         );
@@ -678,18 +678,24 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
                     }
             );
         });
+        when(channel2.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_3.upperEndpoint())))
+                .thenReturn(Arrays.asList(
+                        INTERVAL_1.upperEndpoint(),
+                        INTERVAL_3.upperEndpoint())
+                );
+
         // Business method
         String json = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/data")
                 .queryParam("filter", buildFullFilterForData(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint(), 11L, "-2:5", true)).request().get(String.class);
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(2);
-        assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(INTERVAL_3.lowerEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(INTERVAL_3.upperEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Map>get("$.data[0].channelData")).containsEntry("1", 10);
-        assertThat(jsonModel.<Long>get("$.data[1].interval.start")).isEqualTo(INTERVAL_1.lowerEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Long>get("$.data[1].interval.end")).isEqualTo(INTERVAL_1.upperEndpoint().toEpochMilli());
-        assertThat(jsonModel.<Map>get("$.data[1].channelData")).containsEntry("1", 1);
+        assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(INTERVAL_1.lowerEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(INTERVAL_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Map>get("$.data[0].channelData")).containsEntry("1", 1);
+        assertThat(jsonModel.<Long>get("$.data[1].interval.start")).isEqualTo(INTERVAL_3.lowerEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.data[1].interval.end")).isEqualTo(INTERVAL_3.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Map>get("$.data[1].channelData")).containsEntry("1", 10);
     }
 
     @Test
@@ -697,9 +703,10 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         ReadingType readingType = mock(ReadingType.class);
         when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Arrays.asList(effectiveMC2));
         when(channel2.getMainReadingType()).thenReturn(readingType);
-        when(channel2.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint()))).thenReturn(
-                Arrays.asList(INTERVAL_1.upperEndpoint())
-        );
+        when(channel2.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_3.upperEndpoint())))
+                .thenReturn(Arrays.asList(
+                        INTERVAL_1.upperEndpoint())
+                );
         AggregatedChannel.AggregatedIntervalReadingRecord aggregatedIntervalReadingRecord1 = mockAggregatedIntervalReadingRecord(INTERVAL_1, BigDecimal.TEN.add(BigDecimal.ONE));
         List<IntervalReadingRecord> intervalReadings = Arrays.asList(aggregatedIntervalReadingRecord1);
         List<AggregatedChannel.AggregatedIntervalReadingRecord> aggregatedIntervalReadings = Arrays.asList(aggregatedIntervalReadingRecord1);
