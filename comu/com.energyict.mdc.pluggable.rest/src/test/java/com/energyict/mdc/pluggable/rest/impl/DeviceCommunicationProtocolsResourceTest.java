@@ -165,7 +165,7 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
         when(tlsConnectionType.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(tlsConnectionType.getDirection()).thenReturn(ConnectionType.ConnectionTypeDirection.OUTBOUND);
         List<ConnectionType> deviceProtocolSupportedConnectionTypes = Collections.singletonList(tlsConnectionType);
-        doReturn(deviceProtocolSupportedConnectionTypes).when(deviceProtocol.getSupportedConnectionTypes());
+        doReturn(deviceProtocolSupportedConnectionTypes).when(deviceProtocol).getSupportedConnectionTypes();
         DeviceConfiguration deviceConfig = mock(DeviceConfiguration.class);
         DeviceType deviceType = mock(DeviceType.class);
         KeyAccessorType kat1 = mockKeyAccessorType("key1", 1L);
