@@ -921,6 +921,11 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
         }
 
         @Override
+        public String name() {
+            return this.actual.getName();
+        }
+
+        @Override
         public String client() {
             return this.actual.getClient();
         }

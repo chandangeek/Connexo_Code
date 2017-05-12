@@ -90,6 +90,7 @@ public final class ComTaskExecutionOrganizer {
 
     private DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(SecurityPropertySet securityPropertySet, Device masterDevice) {
         return new DeviceProtocolSecurityPropertySetImpl(
+                securityPropertySet.getName(),
                 securityPropertySet.getClient(),
                 securityPropertySet.getAuthenticationDeviceAccessLevel().getId(),
                 securityPropertySet.getEncryptionDeviceAccessLevel().getId(),

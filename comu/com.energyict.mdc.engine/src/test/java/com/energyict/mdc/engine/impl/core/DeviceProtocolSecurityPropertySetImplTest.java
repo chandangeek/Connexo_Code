@@ -60,6 +60,7 @@ public class DeviceProtocolSecurityPropertySetImplTest {
 
         // Business method
         DeviceProtocolSecurityPropertySetImpl deviceProtocolSecurityPropertySet = new DeviceProtocolSecurityPropertySetImpl(
+                "security",
                 "Client",
                 1,
                 2,

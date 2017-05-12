@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.MacException;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -143,6 +144,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     private String usagePoint = "";
     private MacException macException;
     private List<OfflineKeyAccessor> keyAccessors = Collections.emptyList();
+    private HashMap<String, TypedProperties> securityPropertySetAttributeToKeyAccessorTypeMapping;
 
     public OfflineDeviceImpl(Device device, OfflineDeviceContext offlineDeviceContext, ServiceProvider serviceProvider) {
         this.device = device;
@@ -184,6 +186,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
             setAllOfflineRegisters(convertToOfflineRegister(createCompleteRegisterList()));
         }
         setAllKeyAccessors(convertToOfflineKeyAccessors(this.device.getKeyAccessors()));
+        setSecurityPropertySetAttributeToKeyAccessorTypeMapping(this.device);
         if (context.needsPendingMessages()) {
             try {
                 serviceProvider.eventService().postEvent(EventType.COMMANDS_WILL_BE_SENT.topic(), null);
@@ -611,6 +614,23 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     @Override
     public List<OfflineKeyAccessor> getAllOfflineKeyAccessors() {
         return Collections.unmodifiableList(this.keyAccessors);
+    }
+
+    @Override
+    public Map<String, TypedProperties> getSecurityPropertySetAttributeToKeyAccessorTypeMapping() {
+        return securityPropertySetAttributeToKeyAccessorTypeMapping;
+    }
+
+    private void setSecurityPropertySetAttributeToKeyAccessorTypeMapping(Device device) {
+        securityPropertySetAttributeToKeyAccessorTypeMapping = new HashMap<>();
+        device.getDeviceConfiguration().getSecurityPropertySets().stream().forEach(this::addSecurityPropertySetAttributeToKeyAccessorTypeMappings);
+
+    }
+
+    private void addSecurityPropertySetAttributeToKeyAccessorTypeMappings(SecurityPropertySet securityPropertySet) {
+        TypedProperties mappings = TypedProperties.empty();
+        securityPropertySet.getConfigurationSecurityProperties().stream().forEach(each -> mappings.setProperty(each.getName(), each.getKeyAccessorType().getName()));
+        securityPropertySetAttributeToKeyAccessorTypeMapping.put(securityPropertySet.getName(), mappings);
     }
 
     public interface ServiceProvider {

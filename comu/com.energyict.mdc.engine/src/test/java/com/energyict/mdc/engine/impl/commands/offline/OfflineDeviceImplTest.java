@@ -15,17 +15,21 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.AllowedCalendar;
+import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageFactory;
 import com.energyict.mdc.device.data.DeviceService;
@@ -57,12 +61,8 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.obis.ObisCode;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -71,6 +71,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -203,8 +209,10 @@ public class OfflineDeviceImplTest {
 
     private Device createMockedDevice(long deviceId, String mRID, String meterSerialNumber, final DeviceProtocol deviceProtocol) {
         DeviceType deviceType = mock(DeviceType.class);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         Device device = mock(Device.class);
         when(device.getDeviceType()).thenReturn(deviceType);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getDeviceProtocolProperties()).thenReturn(getDeviceProtocolProperties());
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = createMockDeviceProtocolPluggableClass();
         when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
@@ -534,6 +542,7 @@ public class OfflineDeviceImplTest {
         when(deviceMessage2.getSpecification()).thenReturn(mockedDeviceMessageSpec2);
         when(deviceMessage2.getDevice()).thenReturn(device);
         when(device.getMessagesByState(DeviceMessageStatus.PENDING)).thenReturn(Arrays.asList(deviceMessage1, deviceMessage2));
+        when(device.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
 
         DeviceType slaveRtuType = mock(DeviceType.class);
         when(slaveRtuType.isLogicalSlave()).thenReturn(true);
@@ -566,7 +575,10 @@ public class OfflineDeviceImplTest {
         assertEquals("Size of the pending list should be three", 3, offlineDevice.getAllPendingDeviceMessages().size());
         assertEquals("Size of the sent list should be 0", 0, offlineDevice.getAllSentDeviceMessages().size());
 
-        List<OfflineDeviceMessage> offlineDeviceMessages = offlineDevice.getAllPendingDeviceMessages().stream().filter(offlineDeviceMessage -> offlineDeviceMessage.getDeviceId() == 132).collect(Collectors.toList());
+        List<OfflineDeviceMessage> offlineDeviceMessages = offlineDevice.getAllPendingDeviceMessages()
+                .stream()
+                .filter(offlineDeviceMessage -> offlineDeviceMessage.getDeviceId() == 132)
+                .collect(Collectors.toList());
         assertEquals("Expecting one slave device message", 1, offlineDeviceMessages.size());
         assertEquals("Expecting the serialnumber of the slave", "654654", offlineDeviceMessages.get(0).getDeviceSerialNumber());
         assertEquals("Expecting the DeviceProtocol of the slave", slaveDeviceProtocol, offlineDeviceMessages.get(0).getDeviceProtocol());
@@ -636,7 +648,10 @@ public class OfflineDeviceImplTest {
         assertEquals("Size of the pending list should be three", 0, offlineDevice.getAllPendingDeviceMessages().size());
         assertEquals("Size of the sent list should be 0", 3, offlineDevice.getAllSentDeviceMessages().size());
 
-        List<OfflineDeviceMessage> offlineDeviceMessages = offlineDevice.getAllSentDeviceMessages().stream().filter(offlineDeviceMessage -> offlineDeviceMessage.getDeviceId() == 132).collect(Collectors.toList());
+        List<OfflineDeviceMessage> offlineDeviceMessages = offlineDevice.getAllSentDeviceMessages()
+                .stream()
+                .filter(offlineDeviceMessage -> offlineDeviceMessage.getDeviceId() == 132)
+                .collect(Collectors.toList());
         assertEquals("Expecting one slave device message", 1, offlineDeviceMessages.size());
         assertEquals("Expecting the serialnumber of the slave", "654654", offlineDeviceMessages.get(0).getDeviceSerialNumber());
         assertEquals("Expecting the DeviceProtocol of the slave", slaveDeviceProtocol, offlineDeviceMessages.get(0).getDeviceProtocol());
@@ -658,6 +673,7 @@ public class OfflineDeviceImplTest {
         long slaveId = 664513;
         Device master = createMockedDevice();
         Device slaveWithoutCapability = mock(Device.class);
+        when(slaveWithoutCapability.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         when(slaveWithoutCapability.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         when(slaveWithoutCapability.getId()).thenReturn(slaveId);
         when(slaveWithoutCapability.getLocation()).thenReturn(Optional.empty());
@@ -710,6 +726,35 @@ public class OfflineDeviceImplTest {
 
     private DeviceMessageSpec getDeviceMessageSpec(long id) {
         return this.deviceMessageSpecificationService.findMessageSpecById(id).orElseThrow(() -> new RuntimeException("Setup failure: could not find DeviceMessageSpec with id " + id));
+    }
+
+    @Test
+    public void getSecurityPropertySetAttributeToKeyAccessorTypeMappingTest() {
+        Device device = createMockedDevice();
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        KeyAccessorType keyAccessorType1 = mock(KeyAccessorType.class);
+        KeyAccessorType keyAccessorType2 = mock(KeyAccessorType.class);
+        ConfigurationSecurityProperty securityProperty1 = mock(ConfigurationSecurityProperty.class);
+        ConfigurationSecurityProperty securityProperty2 = mock(ConfigurationSecurityProperty.class);
+        when(keyAccessorType1.getName()).thenReturn("KeyAccessorType_1");
+        when(keyAccessorType2.getName()).thenReturn("KeyAccessorType_2");
+        when(securityProperty1.getName()).thenReturn("SecurityProperty1");
+        when(securityProperty2.getName()).thenReturn("SecurityProperty2");
+        when(securityProperty1.getKeyAccessorType()).thenReturn(keyAccessorType1);
+        when(securityProperty2.getKeyAccessorType()).thenReturn(keyAccessorType2);
+
+        SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
+        when(securityPropertySet.getName()).thenReturn("MySecuritySet");
+        when(securityPropertySet.getConfigurationSecurityProperties()).thenReturn(Arrays.asList(securityProperty1, securityProperty2));
+        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        OfflineDeviceImpl offlineRtu = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
+
+        assertNotNull(offlineRtu.getSecurityPropertySetAttributeToKeyAccessorTypeMapping());
+        assertNotNull(offlineRtu.getSecurityPropertySetAttributeToKeyAccessorTypeMapping().get("MySecuritySet"));
+        assertThat(offlineRtu.getSecurityPropertySetAttributeToKeyAccessorTypeMapping().get("MySecuritySet").getProperty("SecurityProperty1")).isEqualTo("KeyAccessorType_1");
+        assertThat(offlineRtu.getSecurityPropertySetAttributeToKeyAccessorTypeMapping().get("MySecuritySet").getProperty("SecurityProperty2")).isEqualTo("KeyAccessorType_2");
     }
 
 }
