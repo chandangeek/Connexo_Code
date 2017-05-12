@@ -16,6 +16,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.validation.ValidationResult;
 
+import com.google.common.collect.BoundType;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
@@ -50,21 +51,14 @@ class MissingValuesValidator extends AbstractValidator {
     @Override
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
         this.readingType = readingType;
-        Instant start = channel.getChannelsContainer().getStart();
-        if (start == null) {
-            instants = new HashSet<>();
+        Range<Instant> channelContainerRange = channel.getChannelsContainer().getRange();
+        if (channelContainerRange.isConnected(interval)) {
+            Range<Instant> intersectionRange = channelContainerRange.intersection(interval);
+            this.instants = channel.toList(intersectionRange).stream()
+                    .skip(skipFirstInstantIfDeltaChannel(channel, readingType) && BoundType.CLOSED.equals(intersectionRange.lowerBoundType()) ? 1 : 0)
+                    .collect(Collectors.toSet());
         } else {
-            if (!start.isBefore(interval.lowerEndpoint())) {
-                if (start.isAfter(interval.upperEndpoint())) {
-                    instants = new HashSet<>();
-                } else {
-                    this.instants = channel.toList(Range.closed(start, interval.upperEndpoint())).stream()
-                            .skip(skipFirstInstantIfDeltaChannel(channel, readingType) ? 1 : 0)
-                            .collect(Collectors.toSet());
-                }
-            } else {
-                instants = new HashSet<>(channel.toList(interval));
-            }
+            instants = new HashSet<>();
         }
     }
 
