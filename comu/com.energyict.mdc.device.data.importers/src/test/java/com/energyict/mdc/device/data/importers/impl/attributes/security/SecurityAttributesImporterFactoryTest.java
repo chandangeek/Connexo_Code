@@ -65,7 +65,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SecurityAttributesImporterFactoryTest { //TODO
+public class SecurityAttributesImporterFactoryTest {
 
     private DeviceDataImporterContext context;
     @Mock

@@ -30,7 +30,7 @@ import java.util.Map;
  * The device will have KeyAccessors for the KeyAccessorTypes (or the importer creates them)
  * The real value for the property will be stored on the actual-value of the KeyAccessor
  */
-public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImportProcessor<SecurityAttributesImportRecord> { //TODO
+public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImportProcessor<SecurityAttributesImportRecord> {
 
     private String securitySettingsName;
     private final PkiService pkiService;
