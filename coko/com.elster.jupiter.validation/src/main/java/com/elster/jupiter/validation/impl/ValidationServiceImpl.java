@@ -823,10 +823,11 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     @Override
-    public Optional<DataValidationTask> findValidationTaskByName(String name) {
+    public Optional<DataValidationTask> findValidationTaskByName(QualityCodeSystem qualityCodeSystem, String name) {
         Query<DataValidationTask> query =
                 queryService.wrap(dataModel.query(DataValidationTask.class, RecurrentTask.class));
-        Condition condition = where("recurrentTask.name").isEqualTo(name);
+        Condition condition = where("qualityCodeSystem").isEqualTo(qualityCodeSystem)
+                .and(where("recurrentTask.name").isEqualTo(name));
         return query.select(condition).stream().findFirst();
     }
 
