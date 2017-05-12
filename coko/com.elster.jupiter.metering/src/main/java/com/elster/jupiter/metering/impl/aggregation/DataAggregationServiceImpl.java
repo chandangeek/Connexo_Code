@@ -490,30 +490,31 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
             ZoneId zoneId = introspector.getUsagePoint().getZoneId();
             Year startYear = this.getStartYear(period, zoneId);
             Year endYear = this.getEndYear(period, zoneId);
+            Range<Instant> extendedPeriod = this.extendToEndOfInterval(period, readingTypeAndRecords.getKey(), zoneId);
             List<ZonedCalendarUsage> calendarUsages =
                     introspector
-                            .getMetrologyContract()
-                            .getDeliverables()
-                            .stream()
-                            .filter(deliverable -> deliverable.getReadingType().equals(readingTypeAndRecords.getKey()))
-                            .findAny()
-                            .map(introspector::getCalendarUsagesFor)
-                            .orElseGet(Collections::emptyList)
-                            .stream()
-                            .map(calendarUsage -> new ZonedCalendarUsage(introspector.getUsagePoint(), zoneId, startYear, endYear, calendarUsage))
-                            .collect(Collectors.toList());
+                        .getMetrologyContract()
+                        .getDeliverables()
+                        .stream()
+                        .filter(deliverable -> deliverable.getReadingType().equals(readingTypeAndRecords.getKey()))
+                        .findAny()
+                        .map(introspector::getCalendarUsagesFor)
+                        .orElseGet(Collections::emptyList)
+                        .stream()
+                        .map(calendarUsage -> new ZonedCalendarUsage(introspector.getUsagePoint(), zoneId, startYear, endYear, calendarUsage))
+                        .collect(Collectors.toList());
             IntervalLength
                     .from(readingTypeAndRecords.getKey())
-                    .toTimeSeries(period, zoneId)
+                    .toTimeSeries(extendedPeriod, zoneId)
                     .forEach(timestamp ->
                             this.findCalendarUsage(calendarUsages, timestamp)
-                                    .ifPresent(calendarUsage ->
-                                            this.addMissingIfDifferentTimeOfUse(
-                                                    calendarUsage,
-                                                    readingTypeAndRecords.getKey(),
-                                                    timestamp,
-                                                    zoneId,
-                                                    withMissings)));
+                                .ifPresent(calendarUsage ->
+                                        this.addMissingIfDifferentTimeOfUse(
+                                                calendarUsage,
+                                                readingTypeAndRecords.getKey(),
+                                                timestamp,
+                                                zoneId,
+                                                withMissings)));
             return withMissings;
         } else {
             return Collections.emptyList();
@@ -534,6 +535,10 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         } else {
             return Year.now(this.clock).plusYears(1);
         }
+    }
+
+    private Range<Instant> extendToEndOfInterval(Range<Instant> period, ReadingType readingType, ZoneId zoneId) {
+        return IntervalLength.from(readingType).extend(period, zoneId);
     }
 
     private Optional<ZonedCalendarUsage> findCalendarUsage(List<ZonedCalendarUsage> calendarUsages, Instant timestamp) {

@@ -25,7 +25,7 @@ import com.elster.jupiter.nls.Thesaurus;
  * @since 2017-03-31 (09:47)
  */
 public class RequirementNotBackedByMeter extends LocalizedException {
-    protected RequirementNotBackedByMeter(Thesaurus thesaurus) {
-        super(thesaurus, PrivateMessageSeeds.REQUIREMENT_NOT_BACKED_BY_METER);
+    protected RequirementNotBackedByMeter(Thesaurus thesaurus, String targetReadingType) {
+        super(thesaurus, PrivateMessageSeeds.REQUIREMENT_NOT_BACKED_BY_METER, targetReadingType);
     }
 }

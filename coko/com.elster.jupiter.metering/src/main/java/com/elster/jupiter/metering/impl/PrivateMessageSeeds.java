@@ -59,7 +59,7 @@ public enum PrivateMessageSeeds implements MessageSeed {
     BAD_USAGE_POINT_REQUIREMENT_VALUE(4022, Constants.BAD_USAGE_POINT_REQUIREMENT_VALUE, "Bad usage point requirement value: {0}."),
     FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION(4023, Constants.FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION, "The metrology configuration is still used by at least one usage point. Use search to find the usage points with such metrology configuration."),
     DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET(4024, Constants.DELIVERABLE_TOU_NOT_BACKED_BY_EVENTSET, "The time of use bucket {0} of the deliverable {1} is not backed by one of the event sets of the metrology configuration."),
-    REQUIREMENT_NOT_BACKED_BY_METER(4025, "requirement.not.backed.by.meter", "Unable to determine preferred channel for requirement {0}, most likely because not meter is providing a matching channel."),
+    REQUIREMENT_NOT_BACKED_BY_METER(4025, "requirement.not.backed.by.meter", "Unable to determine preferred channel for requirement {0}, most likely because meter is not providing a matching channel."),
     READING_TYPE_FOR_DELIVERABLE_ALREADY_USED_ON_CONTRACT(4026, Constants.READING_TYPE_FOR_DELIVERABLE_ALREADY_USED_ON_CONTRACT, "The readingtype is already used for another deliverable on this metrology contract."),
 
     INVALID_DIMENSION(5000, Constants.INVALID_DIMENSION, "Invalid dimension"),
