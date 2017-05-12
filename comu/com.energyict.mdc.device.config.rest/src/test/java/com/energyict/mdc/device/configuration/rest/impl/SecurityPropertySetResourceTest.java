@@ -19,14 +19,15 @@ import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.configuration.rest.KeyFunctionTypePrivilegeTranslationKeys;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.security.AdvancedDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
 import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.api.security.SecuritySuite;
-
+import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.Matchers;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -39,9 +40,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -178,7 +176,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class,  withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class, withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         com.energyict.mdc.upl.security.SecuritySuite securitySuite = mock(com.energyict.mdc.upl.security.SecuritySuite.class);
         when(securitySuite.getId()).thenReturn(3001);
@@ -239,7 +237,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class,  withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class, withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         com.energyict.mdc.upl.security.SecuritySuite securitySuite = mock(com.energyict.mdc.upl.security.SecuritySuite.class);
         when(securitySuite.getId()).thenReturn(3001);
@@ -299,7 +297,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class,  withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class, withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(Arrays.asList(DeviceProtocolSecuritySuite.values()));
 
@@ -326,7 +324,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class,  withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class, withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         com.energyict.mdc.upl.security.SecuritySuite securitySuite = mock(com.energyict.mdc.upl.security.SecuritySuite.class);
         when(securitySuite.getId()).thenReturn(3001);
@@ -360,7 +358,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class,  withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class, withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         com.energyict.mdc.upl.security.SecuritySuite securitySuite = mock(com.energyict.mdc.upl.security.SecuritySuite.class);
         when(securitySuite.getId()).thenReturn(3001);
@@ -400,7 +398,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class,  withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class, withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         com.energyict.mdc.upl.security.SecuritySuite securitySuite = mock(com.energyict.mdc.upl.security.SecuritySuite.class);
         when(securitySuite.getId()).thenReturn(3001);
