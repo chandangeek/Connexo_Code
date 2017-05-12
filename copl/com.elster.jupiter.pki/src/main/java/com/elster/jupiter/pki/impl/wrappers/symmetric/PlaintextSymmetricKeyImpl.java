@@ -24,7 +24,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
-import java.nio.charset.Charset;
+import javax.xml.bind.DatatypeConverter;
 import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.time.Instant;
@@ -213,11 +213,11 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
 
         PropertySetter(PlaintextSymmetricKeyImpl source) {
             byte[] decrypt = dataVaultService.decrypt(source.encryptedKey);
-            this.key = new String(decrypt, Charset.forName("UTF-8"));
+            this.key = DatatypeConverter.printHexBinary(decrypt);
         }
 
         void applyProperties() {
-            byte[] decode = key.getBytes(Charset.forName("UTF-8"));
+            byte[] decode = DatatypeConverter.parseHexBinary(key);
             PlaintextSymmetricKeyImpl.this.encryptedKey = dataVaultService.encrypt(decode);
 
             PlaintextSymmetricKeyImpl.this.save();
