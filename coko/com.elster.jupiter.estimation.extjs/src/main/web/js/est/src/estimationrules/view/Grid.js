@@ -23,6 +23,7 @@ Ext.define('Est.estimationrules.view.Grid', {
         me.columns = [
             {
                 header: Uni.I18n.translate('general.order', 'EST', 'Order'),
+                dataIndex: 'order',
                 renderer: function (value, metaData, record, rowIndex) {
                     return ++rowIndex;
                 }
