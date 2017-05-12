@@ -58,6 +58,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeService;
@@ -81,6 +82,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
 import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -180,6 +182,7 @@ public class DemoServiceImpl {
     private volatile CalendarService calendarService;
     private volatile com.elster.jupiter.tasks.TaskService platformTaskService;
     private volatile DataQualityKpiService dataQualityKpiService;
+    private volatile PkiService pkiService;
 
     private Injector injector;
     private boolean reThrowEx = false;
@@ -230,7 +233,8 @@ public class DemoServiceImpl {
             DeviceMessageSpecificationService deviceMessageSpecificationService,
             CalendarService calendarService,
             com.elster.jupiter.tasks.TaskService platformTaskService,
-            DataQualityKpiService dataQualityKpiService) {
+            DataQualityKpiService dataQualityKpiService,
+            PkiService pkiService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -275,6 +279,7 @@ public class DemoServiceImpl {
         setPlatformTaskService(platformTaskService);
         setDataCollectionKpiService(dataCollectionKpiService);
         setDataQualityKpiService(dataQualityKpiService);
+        setPkiService(pkiService);
         activate();
         reThrowEx = true;
     }
@@ -330,6 +335,7 @@ public class DemoServiceImpl {
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(com.elster.jupiter.tasks.TaskService.class).toInstance(platformTaskService);
                 bind(DataQualityKpiService.class).toInstance(dataQualityKpiService);
+                bind(PkiService.class).toInstance(pkiService);
             }
         });
         Builders.initWith(this.injector);
@@ -587,6 +593,12 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public void setDataQualityKpiService(DataQualityKpiService dataQualityKpiService) {
         this.dataQualityKpiService = dataQualityKpiService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setPkiService(PkiService pkiService) {
+        this.pkiService = pkiService;
     }
 
     private void executeTransaction(Runnable toRunInsideTransaction) {
