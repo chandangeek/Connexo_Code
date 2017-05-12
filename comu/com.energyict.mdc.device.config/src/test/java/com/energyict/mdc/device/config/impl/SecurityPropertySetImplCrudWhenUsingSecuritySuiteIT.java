@@ -82,11 +82,14 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ValueType;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.*;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.mdc.upl.properties.ValueFactory;
 import com.energyict.mdc.upl.security.*;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -146,6 +149,8 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
     private ResponseSecurityLevel responseSecurityLevel1, responseSecurityLevel2;
     @Mock
     private com.energyict.mdc.upl.properties.PropertySpec spec1, spec2, spec3, spec4, spec5, spec6;
+    @Mock
+    private ValueFactory valueFactory;
 
     private static class MockModule extends AbstractModule {
 
@@ -281,6 +286,11 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
     public void initializeMocks() throws InvalidValueException {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.of(deviceProtocolPluggableClass));
+        when(protocolPluggableService.adapt(any(SecuritySuite.class))).thenAnswer(invocationOnMock -> new UPLSecuritySuiteLevelAdapter(((SecuritySuite) invocationOnMock.getArguments()[0])));
+        when(protocolPluggableService.adapt(any(AuthenticationDeviceAccessLevel.class))).thenAnswer(invocationOnMock -> new UPLAuthenticationLevelAdapter(((AuthenticationDeviceAccessLevel) invocationOnMock.getArguments()[0])));
+        when(protocolPluggableService.adapt(any(EncryptionDeviceAccessLevel.class))).thenAnswer(invocationOnMock -> new UPLEncryptionLevelAdapter(((EncryptionDeviceAccessLevel) invocationOnMock.getArguments()[0])));
+        when(protocolPluggableService.adapt(any(RequestSecurityLevel.class))).thenAnswer(invocationOnMock -> new UPLRequestSecurityLevelAdapter(((RequestSecurityLevel) invocationOnMock.getArguments()[0])));
+        when(protocolPluggableService.adapt(any(ResponseSecurityLevel.class))).thenAnswer(invocationOnMock -> new UPLResponseSecurityLevelAdapter(((ResponseSecurityLevel) invocationOnMock.getArguments()[0])));
         when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.empty());
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authLevel, authLevel2));
         when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encLevel));
@@ -288,12 +298,19 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getRequestSecurityLevels()).thenReturn(Arrays.asList(requestSecurityLevel1, requestSecurityLevel2));
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getResponseSecurityLevels()).thenReturn(Arrays.asList(responseSecurityLevel1, responseSecurityLevel2));
 
+        when(valueFactory.getValueTypeName()).thenReturn(ValueType.INTEGER.getUplClassName());
         when(spec1.getName()).thenReturn("spec1");
         when(spec2.getName()).thenReturn("spec2");
         when(spec3.getName()).thenReturn("spec3");
         when(spec4.getName()).thenReturn("spec4");
         when(spec5.getName()).thenReturn("spec5");
         when(spec6.getName()).thenReturn("spec6");
+        when(spec1.getValueFactory()).thenReturn(valueFactory);
+        when(spec2.getValueFactory()).thenReturn(valueFactory);
+        when(spec3.getValueFactory()).thenReturn(valueFactory);
+        when(spec4.getValueFactory()).thenReturn(valueFactory);
+        when(spec5.getValueFactory()).thenReturn(valueFactory);
+        when(spec6.getValueFactory()).thenReturn(valueFactory);
         when(authLevel.getId()).thenReturn(1);
         when(authLevel.getSecurityProperties()).thenReturn(Collections.singletonList(spec1));
         when(authLevel2.getId()).thenReturn(2);

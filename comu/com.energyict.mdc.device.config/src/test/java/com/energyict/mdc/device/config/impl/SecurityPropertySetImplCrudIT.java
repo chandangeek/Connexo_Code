@@ -330,6 +330,7 @@ public class SecurityPropertySetImplCrudIT {
         when(spec2.getValueFactory()).thenReturn(valueFactory);
         when(spec3.getValueFactory()).thenReturn(valueFactory);
         when(authLevel.getSecurityProperties()).thenReturn(Collections.singletonList(spec1));
+        when(authLevel.getId()).thenReturn(1);
         when(authLevel2.getId()).thenReturn(2);
         when(authLevel2.getSecurityProperties()).thenReturn(Arrays.asList(spec1, spec2));
         when(encLevel.getId()).thenReturn(2);
