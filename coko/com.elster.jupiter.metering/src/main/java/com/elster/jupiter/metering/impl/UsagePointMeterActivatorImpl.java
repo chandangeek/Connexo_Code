@@ -37,6 +37,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.RangeComparatorFactory;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.streams.DecoratedStream;
 
@@ -219,11 +220,17 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             }
         });
 
-        this.activationChanges.stream().forEach(s -> {
-            if(s.getMeter() != null && s.getMeterRole() != null && s.getUsagePoint() != null && s.getRange() != null) {
+        this.activationChanges.forEach(s -> {
+            Meter meter = s.getMeter();
+            MeterRole meterRole = s.getMeterRole();
+            if(meter != null && meterRole != null && s.getUsagePoint() != null && s.getRange() != null) {
                 MeterActivationImpl meterActivation = this.metrologyConfigurationService.getDataModel()
-                        .getInstance(MeterActivationImpl.class)
-                        .init(s.getMeter(), s.getMeterRole(), s.getUsagePoint(), s.getRange());
+                        .query(MeterActivationImpl.class).select(Where.where("meter").isEqualTo(meter)).stream()
+                        .filter(ma -> ma.getEnd() == null)
+                        .findFirst().get();
+
+                meterActivation.setUsagePoint(usagePoint);
+                meterActivation.doSetMeterRole(meterRole);
                 meterActivation.save();
             }
         });
@@ -252,6 +259,12 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         refreshMeterActivations();
 
         notifyInterestedComponents();
+    }
+
+    private MeterActivation getLastMeterActivation(Meter meter) {
+        return meter.getMeterActivations().stream()
+                .filter(ma -> ma.getEnd() == null)
+                .findFirst().get();
     }
 
     private Stream<Meter> convertMeterActivationsToStreamOfMeters(List<MeterActivation> meterActivations) {
