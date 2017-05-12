@@ -47,8 +47,8 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RegisterList', {
                         Ext.merge(me.router.arguments, {registerId: record.getId()}),
                         {
                             suspect: 'suspect',
-                            interval: Ext.String.format('{0}-{1}{2}',
-                                record.get('intervalStart'), 1, record.get('intervalRecord').get('all').timeUnit)
+                            interval: Ext.String.format('{0}-{1}',
+                                record.get('intervalStart'), (new Date).getTime())
                         });
                     return '<a href="' + href + '">' + value + '</a>'
                 }

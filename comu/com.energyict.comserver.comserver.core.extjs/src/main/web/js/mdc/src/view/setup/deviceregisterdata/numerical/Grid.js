@@ -67,6 +67,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                                 + Uni.I18n.translate('general.notValidated', 'MDC', 'Not validated') + '"></span>';
                         }
                         return Uni.Number.formatNumber(data, -1) + icon;
+                    } else {
+                        return '-';
                     }
                 }
             },
@@ -127,7 +129,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 renderer: function(value){
                     if(value) {
                         var date = new Date(value);
-                        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateShort(date), Uni.DateTime.formatTimeShort(date)])
+                        return Uni.DateTime.formatDateTimeShort(date);
                     } else {
                         return '-';
                     }

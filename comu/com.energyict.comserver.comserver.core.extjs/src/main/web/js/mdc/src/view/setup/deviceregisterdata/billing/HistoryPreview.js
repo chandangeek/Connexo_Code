@@ -45,9 +45,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.HistoryPreview', {
                                     if (!Ext.isEmpty(value)) {
                                         var startDate = new Date(value.start),
                                             endDate = new Date(value.end);
-                                        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(startDate), Uni.DateTime.formatTimeLong(startDate)])
+                                        return Uni.DateTime.formatDateTimeLong(startDate)
                                             + ' - '
-                                            + Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(endDate), Uni.DateTime.formatTimeLong(endDate)])
+                                            + Uni.DateTime.formatDateTimeLong(endDate)
                                     }
                                 }
                             },

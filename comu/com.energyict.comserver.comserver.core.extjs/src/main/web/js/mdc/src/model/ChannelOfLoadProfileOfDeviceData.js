@@ -24,6 +24,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'slaveChannel', type: 'auto', defaultValue: null},
         'plotband',
         {name: 'readingQualities', type: 'auto', defaultValue: null},
+        {name: 'channelPeriodType', type: 'string', defaultValue: 'other'},
         {
             name: 'interval_end',
             persist: false,
