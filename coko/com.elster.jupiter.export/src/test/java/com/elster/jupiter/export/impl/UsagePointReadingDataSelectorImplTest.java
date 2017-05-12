@@ -515,18 +515,21 @@ public class UsagePointReadingDataSelectorImplTest {
                 .setValidatedDataOption(ValidatedDataOption.EXCLUDE_OBJECT)
                 .complete();
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
+
+        doReturn(Arrays.asList(readingRecord1, readingRecord2)).when(channelContainer1).getReadings(EXPORT_INTERVAL, readingType1);
+        doReturn(Collections.singletonList(readingRecord1)).when(channelContainer1).getReadings(EXPORT_INTERVAL, readingType2);
+        doReturn(Arrays.asList(readingRecord1, readingRecord2)).when(channelContainer2).getReadings(EXPORT_INTERVAL, readingType3);
+
         when(validationEvaluator.getLastChecked(channelContainer1, readingType1)).thenReturn(Optional.of(END.toInstant()));
         when(validationEvaluator.getLastChecked(channelContainer1, readingType2)).thenReturn(Optional.of(END.toInstant()));
         when(validationEvaluator.getLastChecked(channelContainer2, readingType3)).thenReturn(Optional.of(END.toInstant()));
 
         DataValidationStatus dataValidationStatus1 = mock(DataValidationStatus.class);
         List<DataValidationStatus> dataValidationStatuses1 = Collections.singletonList(dataValidationStatus1);
-        when(validationEvaluator.getValidationStatus(eq(ImmutableSet.of(QualityCodeSystem.MDM)), eq(channel1), eq(Collections.singletonList(readingRecord1))))
+        when(validationEvaluator.getValidationStatus(eq(ImmutableSet.of(QualityCodeSystem.MDM)), eq(channel1), eq(Collections.singletonList(readingRecord2))))
                 .thenReturn(dataValidationStatuses1);
         when(dataValidationStatus1.getReadingTimestamp()).thenReturn(END.toInstant());
         when(dataValidationStatus1.getValidationResult()).thenReturn(ValidationResult.VALID);
-        ReadingQualityRecord readingQuality1 = mock(ReadingQualityRecord.class);
-        when(readingQuality1.getReadingTimestamp()).thenReturn(END.toInstant());
 
         DataValidationStatus dataValidationStatus2 = mock(DataValidationStatus.class);
         List<DataValidationStatus> dataValidationStatuses2 = Collections.singletonList(dataValidationStatus2);
@@ -534,27 +537,25 @@ public class UsagePointReadingDataSelectorImplTest {
                 .thenReturn(dataValidationStatuses2);
         when(dataValidationStatus2.getReadingTimestamp()).thenReturn(END.toInstant());
         when(dataValidationStatus2.getValidationResult()).thenReturn(ValidationResult.VALID);
-        ReadingQualityRecord readingQuality2 = mock(ReadingQualityRecord.class);
-        when(readingQuality2.getReadingTimestamp()).thenReturn(END.toInstant());
 
         DataValidationStatus dataValidationStatus3 = mock(DataValidationStatus.class);
         List<DataValidationStatus> dataValidationStatuses3 = Collections.singletonList(dataValidationStatus3);
-        when(validationEvaluator.getValidationStatus(eq(ImmutableSet.of(QualityCodeSystem.MDM)), eq(channel3), eq(Collections.singletonList(readingRecord1))))
+        when(validationEvaluator.getValidationStatus(eq(ImmutableSet.of(QualityCodeSystem.MDM)), eq(channel3), eq(Collections.singletonList(readingRecord2))))
                 .thenReturn(dataValidationStatuses3);
         when(dataValidationStatus3.getReadingTimestamp()).thenReturn(END.toInstant());
         when(dataValidationStatus3.getValidationResult()).thenReturn(ValidationResult.VALID);
-        ReadingQualityRecord readingQuality3 = mock(ReadingQualityRecord.class);
-        when(readingQuality3.getReadingTimestamp()).thenReturn(END.toInstant());
 
         // Business method
         List<ExportData> exportData = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
 
         // Asserts
-        assertThat(exportData).hasSize(1);
+        assertThat(exportData).hasSize(3);
         MeterReadingData exportDataItem1 = (MeterReadingData) exportData.get(0);
-        assertThat(exportDataItem1.getItem().getDomainObject()).isEqualTo(usagePoint2);
+        assertThat(exportDataItem1.getItem().getDomainObject()).isEqualTo(usagePoint1);
         MeterReadingData exportDataItem2 = (MeterReadingData) exportData.get(1);
-        assertThat(exportDataItem2.getItem().getDomainObject()).isEqualTo(usagePoint2);
+        assertThat(exportDataItem2.getItem().getDomainObject()).isEqualTo(usagePoint1);
+        MeterReadingData exportDataItem3 = (MeterReadingData) exportData.get(2);
+        assertThat(exportDataItem3.getItem().getDomainObject()).isEqualTo(usagePoint1);
     }
 
     @Test
@@ -571,29 +572,39 @@ public class UsagePointReadingDataSelectorImplTest {
                 .setValidatedDataOption(ValidatedDataOption.EXCLUDE_OBJECT)
                 .complete();
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
+
+        doReturn(Arrays.asList(readingRecord1, readingRecord2)).when(channelContainer1).getReadings(EXPORT_INTERVAL, readingType1);
+        doReturn(Collections.singletonList(readingRecord1)).when(channelContainer1).getReadings(EXPORT_INTERVAL, readingType2);
+        doReturn(Arrays.asList(readingRecord1, readingRecord2)).when(channelContainer2).getReadings(EXPORT_INTERVAL, readingType3);
+
         when(validationEvaluator.getLastChecked(channelContainer1, readingType1)).thenReturn(Optional.empty());
-        when(validationEvaluator.getLastChecked(channelContainer2, readingType1)).thenReturn(Optional.of(END.toInstant()));
-        when(validationEvaluator.getLastChecked(channelContainer2, readingType2)).thenReturn(Optional.of(END.toInstant()));
+        when(validationEvaluator.getLastChecked(channelContainer1, readingType2)).thenReturn(Optional.of(END.toInstant()));
+        when(validationEvaluator.getLastChecked(channelContainer2, readingType3)).thenReturn(Optional.of(END.toInstant()));
 
         DataValidationStatus dataValidationStatus1 = mock(DataValidationStatus.class);
         List<DataValidationStatus> dataValidationStatuses1 = Collections.singletonList(dataValidationStatus1);
-        when(validationEvaluator.getValidationStatus(eq(ImmutableSet.of(QualityCodeSystem.MDM)), eq(channel2), eq(Collections.singletonList(readingRecord2))))
+        when(validationEvaluator.getValidationStatus(eq(ImmutableSet.of(QualityCodeSystem.MDM)), eq(channel1), eq(Collections.singletonList(readingRecord2))))
                 .thenReturn(dataValidationStatuses1);
         when(dataValidationStatus1.getReadingTimestamp()).thenReturn(END.toInstant());
-        when(dataValidationStatus1.getValidationResult()).thenReturn(ValidationResult.SUSPECT);
-        ReadingQualityRecord readingQuality1 = mock(ReadingQualityRecord.class);
-        when(readingQuality1.getReadingTimestamp()).thenReturn(END.toInstant());
-        when(channelContainer2.getReadingQualities(eq(ImmutableSet.of(QualityCodeSystem.MDM)), eq(QualityCodeIndex.SUSPECT), eq(readingType1), eq(EXPORT_INTERVAL)))
-                .thenReturn(Collections.singletonList(readingQuality1));
+        when(dataValidationStatus1.getValidationResult()).thenReturn(ValidationResult.VALID);
 
         DataValidationStatus dataValidationStatus2 = mock(DataValidationStatus.class);
-        List<DataValidationStatus> dataValidationStatuses2 = Collections.singletonList(dataValidationStatus1);
-        when(validationEvaluator.getValidationStatus(eq(ImmutableSet.of(QualityCodeSystem.MDM)), eq(channel3), eq(Collections.singletonList(readingRecord1))))
+        List<DataValidationStatus> dataValidationStatuses2 = Collections.singletonList(dataValidationStatus2);
+        when(validationEvaluator.getValidationStatus(eq(ImmutableSet.of(QualityCodeSystem.MDM)), eq(channel2), eq(Collections.singletonList(readingRecord1))))
                 .thenReturn(dataValidationStatuses2);
         when(dataValidationStatus2.getReadingTimestamp()).thenReturn(END.toInstant());
-        when(dataValidationStatus2.getValidationResult()).thenReturn(ValidationResult.VALID);
-        ReadingQualityRecord readingQuality2 = mock(ReadingQualityRecord.class);
-        when(readingQuality2.getReadingTimestamp()).thenReturn(END.toInstant());
+        when(dataValidationStatus2.getValidationResult()).thenReturn(ValidationResult.SUSPECT);
+        ReadingQualityRecord readingQuality = mock(ReadingQualityRecord.class);
+        when(readingQuality.getReadingTimestamp()).thenReturn(END.toInstant());
+        when(channelContainer1.getReadingQualities(eq(ImmutableSet.of(QualityCodeSystem.MDM)), eq(QualityCodeIndex.SUSPECT), eq(readingType1), eq(EXPORT_INTERVAL)))
+                .thenReturn(Collections.singletonList(readingQuality));
+
+        DataValidationStatus dataValidationStatus3 = mock(DataValidationStatus.class);
+        List<DataValidationStatus> dataValidationStatuses3 = Collections.singletonList(dataValidationStatus3);
+        when(validationEvaluator.getValidationStatus(eq(ImmutableSet.of(QualityCodeSystem.MDM)), eq(channel3), eq(Collections.singletonList(readingRecord2))))
+                .thenReturn(dataValidationStatuses3);
+        when(dataValidationStatus3.getReadingTimestamp()).thenReturn(END.toInstant());
+        when(dataValidationStatus3.getValidationResult()).thenReturn(ValidationResult.VALID);
 
         // Business method
         List<ExportData> exportData = selectorConfig.createDataSelector(logger).selectData(occurrence).collect(Collectors.toList());
