@@ -5,8 +5,6 @@
 package com.energyict.mdc.engine.impl.core.online;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -17,7 +15,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -199,25 +196,16 @@ public class ComServerDAOImplInboundTest {
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = mock(EncryptionDeviceAccessLevel.class);
         when(authenticationDeviceAccessLevel.getId()).thenReturn(1);
         when(encryptionDeviceAccessLevel.getId()).thenReturn(2);
-
         ConfigurationSecurityProperty expectedSecurityProperty = mock(ConfigurationSecurityProperty.class);
-        KeyAccessor keyAccessor = mock(KeyAccessor.class);
-        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-        when(keyAccessorType.getName()).thenReturn("Password_KA");
-        when(keyAccessor.getKeyAccessorType()).thenReturn(keyAccessorType);
-        when(keyAccessor.getDevice()).thenReturn(device);
-        PlaintextPassphrase plaintextPassphrase = mock(PlaintextPassphrase.class);
-        when(plaintextPassphrase.getPassphrase()).thenReturn(Optional.of("MyPassword"));
-        when(keyAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
         when(expectedSecurityProperty.getName()).thenReturn("Password");
-        when(expectedSecurityProperty.getKeyAccessorType()).thenReturn(keyAccessorType);
-        List<ConfigurationSecurityProperty> expectedSecurityProperties = Collections.singletonList(expectedSecurityProperty);
+        com.energyict.mdc.common.TypedProperties expectedSecurityProperties = com.energyict.mdc.common.TypedProperties.empty();
+        expectedSecurityProperties.setProperty("Password", "MyPassword");
 
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getClient()).thenReturn("client");
         when(securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
         when(securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
-        when(securityPropertySet.getConfigurationSecurityProperties()).thenReturn(expectedSecurityProperties);
+        when(securityPropertySet.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(expectedSecurityProperty));
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
@@ -227,7 +215,7 @@ public class ComServerDAOImplInboundTest {
         Device device = mock(Device.class);
         when(device.getInboundConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(device.getKeyAccessors()).thenReturn(Collections.singletonList(keyAccessor));
+        when(device.getSecurityProperties(securityPropertySet)).thenReturn(expectedSecurityProperties);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.of(device));
         InboundComPort comPort = mock(InboundComPort.class);
@@ -244,6 +232,7 @@ public class ComServerDAOImplInboundTest {
         assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(2);
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().size()).isEqualTo(1);
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty("Password")).isEqualTo("MyPassword");
+        verify(device).getSecurityProperties(securityPropertySet);
     }
 
     @Test(expected = CanNotFindForIdentifier.class)

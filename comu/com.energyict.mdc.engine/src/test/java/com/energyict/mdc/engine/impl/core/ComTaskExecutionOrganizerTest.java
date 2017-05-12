@@ -8,6 +8,7 @@ import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -1337,9 +1338,11 @@ public class ComTaskExecutionOrganizerTest {
     private SecurityPropertySet createMockedSecurityPropertySet(final Device device, final String client, final int authenticationAccessLevelId, final int encryptionAccessLevelId,
                                                                 List<Pair<String, String>> securityPropertiesNameValues) {
         SecurityPropertySet securityPropertySet = this.mockSecurityPropertySet();
+        TypedProperties securityPropertiesAsTypedProperties = TypedProperties.empty();
         List<ConfigurationSecurityProperty> configurationSecurityProperties = new ArrayList<>();
         for (Pair<String, String> securityPropertiesNameValue : securityPropertiesNameValues) {
             configurationSecurityProperties.add(createMockedConfigurationSecurityProperty(securityPropertiesNameValue.getFirst(), securityPropertiesNameValue.getLast()));
+            securityPropertiesAsTypedProperties.setProperty(securityPropertiesNameValue.getFirst(), securityPropertiesNameValue.getLast());
         }
         when(securityPropertySet.getClient()).thenReturn(client);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
@@ -1351,6 +1354,7 @@ public class ComTaskExecutionOrganizerTest {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(securityPropertySet.getConfigurationSecurityProperties()).thenReturn(configurationSecurityProperties);
+        when(device.getSecurityProperties(securityPropertySet)).thenReturn(securityPropertiesAsTypedProperties);
         return securityPropertySet;
     }
 

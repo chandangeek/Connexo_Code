@@ -80,6 +80,7 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.io.SerialComponentService;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 
 import com.google.inject.AbstractModule;
@@ -310,6 +311,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(FileImportService.class).toInstance(mock(FileImportService.class));
             bind(HttpService.class).toInstance(mock(HttpService.class));
+            bind(CertificateWrapperExtractor.class).toInstance(mock(CertificateWrapperExtractor.class));
         }
 
     }
