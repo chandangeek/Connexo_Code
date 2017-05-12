@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -19,8 +20,6 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 
 /**
- *
- *
  * @author khe
  * @since 13/02/2017 - 11:18
  */
@@ -31,6 +30,7 @@ public class CustomPropertySetInstantiatorServiceImpl implements CustomPropertyS
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
+    private volatile CertificateWrapperExtractor certificateWrapperExtractor;
 
     // For OSGi purposes
     public CustomPropertySetInstantiatorServiceImpl() {
@@ -38,8 +38,9 @@ public class CustomPropertySetInstantiatorServiceImpl implements CustomPropertyS
     }
 
     @Inject
-    public CustomPropertySetInstantiatorServiceImpl(PropertySpecService propertySpecService, NlsService nlsService) {
+    public CustomPropertySetInstantiatorServiceImpl(PropertySpecService propertySpecService, NlsService nlsService, CertificateWrapperExtractor certificateWrapperExtractor) {
         this();
+        this.certificateWrapperExtractor = certificateWrapperExtractor;
         this.setPropertySpecService(propertySpecService);
         this.setNlsService(nlsService);
         this.activate();
@@ -55,6 +56,7 @@ public class CustomPropertySetInstantiatorServiceImpl implements CustomPropertyS
             @Override
             public void configure() {
                 this.bind(PropertySpecService.class).toInstance(propertySpecService);
+                this.bind(CertificateWrapperExtractor.class).toInstance(certificateWrapperExtractor);
                 this.bind(Thesaurus.class).toInstance(thesaurus);
                 this.bind(MessageInterpolator.class).toInstance(thesaurus);
             }
@@ -78,7 +80,12 @@ public class CustomPropertySetInstantiatorServiceImpl implements CustomPropertyS
     }
 
     @Reference
-    private void setNlsService(NlsService nlsService) {
+    public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+    @Reference
+    public void setCertificateWrapperExtractor(CertificateWrapperExtractor certificateWrapperExtractor) {
+        this.certificateWrapperExtractor = certificateWrapperExtractor;
     }
 }
