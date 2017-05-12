@@ -13,7 +13,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
-
 import com.google.common.collect.Range;
 
 import java.util.ArrayList;
@@ -63,7 +62,7 @@ public final class DefaultFinder<T> implements Finder<T> {
     @Override
     public DefaultFinder<T> sorted(String fieldName, boolean ascending) {
         if (fieldName != null && !fieldName.isEmpty()) {
-            this.sortingColumns.add(ascending ? Order.ascending(fieldName).toLowerCase() : Order.descending(fieldName).toLowerCase());
+            this.sortingColumns.add(ascending ? Order.ascending(fieldName) : Order.descending(fieldName));
         }
         return this;
     }
