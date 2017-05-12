@@ -5,9 +5,9 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
-
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MeterEvent;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  * @author khe
  * @since 10/02/2017 - 16:08
  */
-public class UPLSmartMeterProtocolAdapter implements SmartMeterProtocol, UPLProtocolAdapter {
+public class UPLSmartMeterProtocolAdapter implements SmartMeterProtocol, UPLProtocolAdapter<com.energyict.mdc.upl.SmartMeterProtocol> {
 
     private final com.energyict.mdc.upl.SmartMeterProtocol actual;
 
@@ -40,6 +40,11 @@ public class UPLSmartMeterProtocolAdapter implements SmartMeterProtocol, UPLProt
     @Override
     public Class getActualClass() {
         return actual.getClass();
+    }
+
+    @Override
+    public com.energyict.mdc.upl.SmartMeterProtocol getActual() {
+        return actual;
     }
 
     @Override

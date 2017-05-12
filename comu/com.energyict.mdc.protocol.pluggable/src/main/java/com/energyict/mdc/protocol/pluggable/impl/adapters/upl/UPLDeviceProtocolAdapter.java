@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationExcepti
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLConnectionTypeAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
@@ -33,7 +34,6 @@ import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
  * @author khe
  * @since 23/11/2016 - 16:56
  */
-public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdapter {
+public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdapter<com.energyict.mdc.upl.DeviceProtocol> {
 
     /**
      * The UPL deviceProtocol instance {@link com.energyict.mdc.upl.DeviceProtocol} that needs to be wrapped (adapted)
@@ -71,6 +71,11 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
     @Override
     public Class getActualClass() {
         return deviceProtocol.getClass();
+    }
+
+    @Override
+    public com.energyict.mdc.upl.DeviceProtocol getActual() {
+        return deviceProtocol;
     }
 
     @Override
