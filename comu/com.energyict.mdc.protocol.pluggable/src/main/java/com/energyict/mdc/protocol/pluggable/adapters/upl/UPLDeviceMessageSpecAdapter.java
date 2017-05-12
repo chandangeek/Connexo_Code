@@ -40,7 +40,7 @@ public class UPLDeviceMessageSpecAdapter implements DeviceMessageSpec {
 
     @Override
     public DeviceMessageId getId() {
-        return DeviceMessageId.havingId(uplDeviceMessageSpec.getId());
+        return DeviceMessageId.from(uplDeviceMessageSpec.getId());
     }
 
     @Override
