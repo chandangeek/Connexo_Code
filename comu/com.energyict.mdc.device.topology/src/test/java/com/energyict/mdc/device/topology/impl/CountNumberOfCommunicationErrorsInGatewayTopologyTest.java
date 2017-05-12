@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -166,6 +167,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
                 new EventsModule(),
                 new PubSubModule(),
                 new PkiModule(),
+                new BpmModule(),
                 new TransactionModule(showSqlLogging),
                 new UtilModule(),
                 new NlsModule(),

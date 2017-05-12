@@ -168,7 +168,7 @@ public class MultiElementReferenceImplTest extends PersistenceIntegrationTest {
         deviceMessageSpecs
                 .stream()
                 .map(DeviceMessageSpec::getId)
-                .map(DeviceMessageId::havingId)
+                .map(DeviceMessageId::from)
                 .forEach(multiElementEnabledConfiguration::createDeviceMessageEnablement);
         multiElementEnabledConfiguration.activate();
     }
@@ -211,7 +211,7 @@ public class MultiElementReferenceImplTest extends PersistenceIntegrationTest {
         deviceMessageSpecs
                 .stream()
                 .map(DeviceMessageSpec::getId)
-                .map(DeviceMessageId::havingId)
+                .map(DeviceMessageId::from)
                 .forEach(configurationForSlaveWithLoadProfiles::createDeviceMessageEnablement);
         configurationForSlaveWithLoadProfiles.activate();
 
@@ -248,7 +248,7 @@ public class MultiElementReferenceImplTest extends PersistenceIntegrationTest {
         deviceMessageSpecs
                 .stream()
                 .map(DeviceMessageSpec::getId)
-                .map(DeviceMessageId::havingId)
+                .map(DeviceMessageId::from)
                 .forEach(configurationForSlaveWithRegisters::createDeviceMessageEnablement);
         configurationForSlaveWithRegisters.activate();
 

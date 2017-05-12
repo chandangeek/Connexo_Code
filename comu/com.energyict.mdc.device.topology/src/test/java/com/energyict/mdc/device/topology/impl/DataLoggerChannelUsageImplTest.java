@@ -116,7 +116,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         deviceMessageSpecs
                 .stream()
                 .map(DeviceMessageSpec::getId)
-                .map(DeviceMessageId::havingId)
+                .map(DeviceMessageId::from)
                 .forEach(dataLoggerConfiguration::createDeviceMessageEnablement);
         dataLoggerConfiguration.activate();
     }
@@ -159,7 +159,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         deviceMessageSpecs
                 .stream()
                 .map(DeviceMessageSpec::getId)
-                .map(DeviceMessageId::havingId)
+                .map(DeviceMessageId::from)
                 .forEach(slave1DeviceConfiguration::createDeviceMessageEnablement);
         slave1DeviceConfiguration.activate();
 
@@ -194,7 +194,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         deviceMessageSpecs
                 .stream()
                 .map(DeviceMessageSpec::getId)
-                .map(DeviceMessageId::havingId)
+                .map(DeviceMessageId::from)
                 .forEach(slave2DeviceConfiguration::createDeviceMessageEnablement);
         slave2DeviceConfiguration.activate();
     }
