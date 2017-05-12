@@ -1016,7 +1016,6 @@ Ext.define('Imt.purpose.controller.Readings', {
         }
         if (action === 'editWithEstimator') {
             reading.set('estimatedNotSaved', false);
-            reading.set('estimatedByRule', false);
             reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
         }
         reading.set('isProjected', estimatedReading.isProjected);
@@ -1036,7 +1035,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         if (correctedInterval.value != reading.get('value')) {
             reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
             reading.set('validationResult', 'validationStatus.ok');
-            reading.set('estimatedByRule', false);
+            // reading.set('estimatedByRule', false);
             reading.set('estimatedCommentNotSaved', true);
         }
         reading.set('value', correctedInterval.value);
