@@ -67,6 +67,7 @@ import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
@@ -97,6 +98,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -282,6 +284,7 @@ public class InMemoryIntegrationPersistence {
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommunicationTestServiceCallCustomPropertySet());
             this.ormService = injector.getInstance(OrmService.class);
             this.transactionService = injector.getInstance(TransactionService.class);
             this.publisher = injector.getInstance(Publisher.class);
