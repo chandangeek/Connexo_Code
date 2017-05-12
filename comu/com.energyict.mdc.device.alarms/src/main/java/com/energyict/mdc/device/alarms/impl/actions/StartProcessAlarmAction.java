@@ -135,8 +135,8 @@ public class StartProcessAlarmAction extends AbstractIssueAction {
                             .describedAs(TranslationKeys.ACTION_START_ALARM_PROCESS)
                             .fromThesaurus(getThesaurus())
                             .markRequired()
-                            .setDefaultValue(possibleValues.length <= 1 ? possibleValues[0] : null)
-                            .addValues(this.getPossibleStatuses())
+                            .setDefaultValue(possibleValues.length == 1 ? possibleValues[0] : null)
+                            .addValues(possibleValues)
                             .markExhaustive()
                             .finish());
         return builder.build();
