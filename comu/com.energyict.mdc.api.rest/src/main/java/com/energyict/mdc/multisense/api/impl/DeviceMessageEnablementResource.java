@@ -192,7 +192,7 @@ public class DeviceMessageEnablementResource {
         if (info.messageId==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EXPECTED_MESSAGE_ID);
         }
-        DeviceMessageEnablementBuilder builder = deviceConfiguration.createDeviceMessageEnablement(DeviceMessageId.havingId(info.messageId));
+        DeviceMessageEnablementBuilder builder = deviceConfiguration.createDeviceMessageEnablement(DeviceMessageId.from(info.messageId));
         if (info.userActions!=null && !info.userActions.isEmpty()) {
             info.userActions.stream().forEach(builder::addUserAction);
         }

@@ -841,7 +841,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     }
 
     protected IssueType getDefaultIssueType() {
-        return mockIssueType("datacollection", "Data Collection");
+        return mockIssueType("datacollection", "Data collection");
     }
 
 
