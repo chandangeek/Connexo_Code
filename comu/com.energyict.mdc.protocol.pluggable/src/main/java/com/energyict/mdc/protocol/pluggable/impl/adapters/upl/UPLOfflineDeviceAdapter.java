@@ -16,6 +16,7 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 
@@ -47,7 +48,12 @@ public class UPLOfflineDeviceAdapter implements OfflineDevice {
     @Override
     public List<OfflineKeyAccessor> getAllOfflineKeyAccessors() {
         // Todo: let's wait and see, I think we can get away with this
-        // Todo: probably will have to move OfflineKeyAccessor also to upl
+        return null;
+    }
+
+    @Override
+    public Map<String, com.energyict.mdc.common.TypedProperties> getSecurityPropertySetAttributeToKeyAccessorTypeMapping() {
+        // Todo: let's wait and see, I think we can get away with this
         return null;
     }
 

@@ -226,6 +226,7 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(deviceProtocolSecurityPropertySet.getSecurityProperties());
         DeviceProtocolSecurityPropertySetImpl adaptedSecurityPropertySet = new DeviceProtocolSecurityPropertySetImpl(
+                deviceProtocolSecurityPropertySet.getName(),
                 deviceProtocolSecurityPropertySet.getClient(),
                 deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel(),
                 deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel(),

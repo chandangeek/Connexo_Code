@@ -186,6 +186,11 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
         return new DeviceProtocolSecurityPropertySet() {
             @Override
+            public String getName() {
+                return "SimpleTestSecurity";
+            }
+
+            @Override
             public String getClient() {
                 return null;
             }
