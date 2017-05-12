@@ -53,6 +53,11 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         return new DeviceProtocolSecurityPropertySet() {
             @Override
+            public String getName() {
+                return "security";
+            }
+
+            @Override
             public String getClient() {
                 return null;
             }

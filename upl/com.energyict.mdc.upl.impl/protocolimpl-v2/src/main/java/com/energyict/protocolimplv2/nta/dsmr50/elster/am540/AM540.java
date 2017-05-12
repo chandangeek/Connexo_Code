@@ -20,6 +20,7 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
@@ -102,6 +103,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     private final TariffCalendarExtractor calendarExtractor;
     private final NumberLookupExtractor numberLookupExtractor;
     private static final int IDIS2_CLIENT_PUBLIC = 16;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
     private Dsmr50LogBookFactory dsmr50LogBookFactory;
     private AM540Messaging am540Messaging;
     private long initialFrameCounter = -1;
@@ -110,13 +112,14 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     private Dsmr50RegisterFactory registerFactory;
     private AM540Cache am540Cache;
 
-    public AM540(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor) {
+    public AM540(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.loadProfileExtractor = loadProfileExtractor;
         this.messageFileExtractor = messageFileExtractor;
         this.calendarExtractor = calendarExtractor;
         this.numberLookupExtractor = numberLookupExtractor;
         this.propertySpecService = propertySpecService;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
         this.nlsService = nlsService;
         this.converter = converter;
     }
@@ -427,14 +430,15 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         if (this.am540Messaging == null) {
             this.am540Messaging =
                     new AM540Messaging(
-                            new AM540MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory()),
+                            new AM540MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.keyAccessorTypeExtractor),
                             this.propertySpecService,
                             this.nlsService,
                             this.converter,
                             this.messageFileExtractor,
                             this.calendarExtractor,
                             this.numberLookupExtractor,
-                            this.loadProfileExtractor);
+                            this.loadProfileExtractor,
+                            this.keyAccessorTypeExtractor);
         }
         return this.am540Messaging;
     }

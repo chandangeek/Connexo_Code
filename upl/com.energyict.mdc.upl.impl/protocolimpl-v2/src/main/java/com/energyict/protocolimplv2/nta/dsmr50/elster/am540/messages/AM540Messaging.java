@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
@@ -34,8 +35,8 @@ public class AM540Messaging extends Dsmr40Messaging implements DeviceMessageSupp
 
     private Dsmr40Messaging dsmr40Messaging;
 
-    public AM540Messaging(AbstractMessageExecutor messageExecutor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor) {
-        super(messageExecutor, propertySpecService, nlsService, converter, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor);
+    public AM540Messaging(AbstractMessageExecutor messageExecutor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+        super(messageExecutor, propertySpecService, nlsService, converter, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
     }
 
     @Override
@@ -102,7 +103,7 @@ public class AM540Messaging extends Dsmr40Messaging implements DeviceMessageSupp
      */
     protected Dsmr40Messaging getDsmr40Messaging() {
         if (dsmr40Messaging == null) {
-            dsmr40Messaging = new Dsmr40Messaging(getMessageExecutor(), this.getPropertySpecService(), this.getNlsService(), this.getConverter(), this.getMessageFileExtractor(), this.getCalendarExtractor(), this.getNumberLookupExtractor(), this.getLoadProfileExtractor());
+            dsmr40Messaging = new Dsmr40Messaging(getMessageExecutor(), this.getPropertySpecService(), this.getNlsService(), this.getConverter(), this.getMessageFileExtractor(), this.getCalendarExtractor(), this.getNumberLookupExtractor(), this.getLoadProfileExtractor(), this.getKeyAccessorTypeExtractor());
             dsmr40Messaging.setSupportLimiter(true);
             dsmr40Messaging.setSupportMBus(false);
             dsmr40Messaging.setSupportGPRS(false);

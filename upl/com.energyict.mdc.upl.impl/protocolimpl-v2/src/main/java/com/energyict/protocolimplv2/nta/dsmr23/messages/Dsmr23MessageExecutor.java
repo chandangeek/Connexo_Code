@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -65,6 +66,7 @@ import com.energyict.protocolimplv2.messages.convertor.AbstractMessageConverter;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -76,6 +78,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DefaultResetWindowAttributeName;
@@ -95,6 +98,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.encry
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
@@ -115,10 +119,13 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     public static final String SEPARATOR = ";";
     private static final ObisCode MBUS_CLIENT_OBISCODE = ObisCode.fromString("0.1.24.1.0.255");
+
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
     private Dsmr23MbusMessageExecutor mbusMessageExecutor;
 
-    public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public Dsmr23MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(protocol, collectedDataFactory, issueFactory);
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     @Override
@@ -288,7 +295,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         int physicalAddress = getMBusPhysicalAddress(installChannel);
         MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(physicalAddress - 1).getObisCode(), 9);
         mbusClient.setManufacturerID(getManufacturerId(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientManufacturerId)));
-        mbusClient.setIdentificationNumber(getIdentificationNumber(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber), getProtocol().getDlmsSessionProperties().getFixMbusHexShortId()));
+        mbusClient.setIdentificationNumber(getIdentificationNumber(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber), getProtocol().getDlmsSessionProperties()
+                .getFixMbusHexShortId()));
         mbusClient.setDeviceType(getDeviceType(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientDeviceType)));
         mbusClient.setVersion(getVersion(getDeviceMessageAttributeValue(pendingMessage, MBusSetupDeviceMessage_ChangeMBusClientVersion)));
     }
@@ -300,10 +308,11 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private Unsigned32 getIdentificationNumber(String indentificationNumber, boolean fixMbusHexShortId) {
-        if (fixMbusHexShortId)
+        if (fixMbusHexShortId) {
             return new Unsigned32(Integer.parseInt(indentificationNumber));
-        else
+        } else {
             return new Unsigned32(Integer.parseInt(indentificationNumber, 16));
+        }
     }
 
     private Unsigned8 getVersion(String version) {
@@ -341,7 +350,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
                 CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, createMessageFailedIssue(pendingMessage, "Unable to execute the message, there are no channels attached under LoadProfile " + builder.getProfileObisCode() + "!"));
+                collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, createMessageFailedIssue(pendingMessage, "Unable to execute the message, there are no channels attached under LoadProfile " + builder
+                        .getProfileObisCode() + "!"));
             }
 
             LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), builder.getMeterSerialNumber());
@@ -383,7 +393,8 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 for (int i = 0; i < collectedLoadProfile.getChannelInfo().size(); i++) {
                     final ChannelInfo channel = collectedLoadProfile.getChannelInfo().get(i);
                     if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
-                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(intervalDatas.get(i), channel.getUnit()), intervalDatas.getEndTime(), null, intervalDatas.getEndTime(), new Date(), register.getRtuRegisterId());
+                        final RegisterValue registerValue = new RegisterValue(register, new Quantity(intervalDatas.get(i), channel.getUnit()), intervalDatas.getEndTime(), null, intervalDatas.getEndTime(), new Date(), register
+                                .getRtuRegisterId());
                         collectedRegisters.add(createCollectedRegister(registerValue, pendingMessage));
                     }
                 }
@@ -479,40 +490,47 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         ss.transferGlobalKey(globalKeyArray);
     }
 
-
-    //TODO: needs refactoring
     private void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
-//        String keyAccessorType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, keyAccessorTypeAttributeName).getValue();
-//
-//        List<OfflineKeyAccessor> offlineKeyAccessors = getProtocol().getOfflineDevice().getAllOfflineKeyAccessors();
-//        OfflineKeyAccessor keyAccessor = offlineKeyAccessors.stream().filter(e -> e.getKeyAccessorType().getName().equals(keyAccessorType)).findFirst().get();
-//        String masterKeyName = ((KeyAccessorType)getProtocol().getOfflineDevice().getAllProperties().getTypedProperty(DlmsSecuritySupportCryptography.MASTER_KEY_PROPERTY_NAME)).getName();
-//
-//        OfflineKeyAccessor masterKey = offlineKeyAccessors.stream().filter(e -> e.getKeyAccessorType().getName().equals(masterKeyName)).findFirst().get();
-//
-//        TypedProperties securityProperties = getSecurityProperties();
-//
-//        if (((KeyAccessorType)securityProperties.getTypedProperty(DlmsSecuritySupportCryptography.DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME)).getName().equals(keyAccessorType)) {
-//            renewKey(keyAccessor, masterKey, 2);
-//        }
-//        if (((KeyAccessorType)securityProperties.getTypedProperty(DlmsSecuritySupportCryptography.DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME)).getName().equals(keyAccessorType)) {
-//            renewKey(keyAccessor, masterKey, 0);
-//        }
+        String keyAccessorTypeNameAndTempValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, keyAccessorTypeAttributeName).getValue();
+        if (keyAccessorTypeNameAndTempValue == null) {
+            throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType does not have a valid passive value.");
+        }
+
+        String[] split = keyAccessorTypeNameAndTempValue.split(">-->", 2);
+        if (split.length != 2) {
+            throw new ProtocolException("Failed to retrieve proper value for attribute keyAccessorType.");
+        }
+        String keyAccessorName = split[0];
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(split[1], "");
+        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
+
+        this.keyAccessorTypeExtractor.threadContext().setDevice(getProtocol().getOfflineDevice());
+        Optional<String> securityAttribute = this.keyAccessorTypeExtractor.correspondingSecurityAttribute(
+                keyAccessorName,
+                getProtocol().getDlmsSessionProperties().getSecurityPropertySet().getName()
+        );
+        if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecName.AUTHENTICATION_KEY.getKey())) {
+            renewKey(newSymmetricKey, masterKey, 2);
+        } else if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecName.ENCRYPTION_KEY.getKey())) {
+            renewKey(newSymmetricKey, masterKey, 0);
+        } else {
+            throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType is not used as authentication or encryption key in the security setting. Therefore it is not clear which key should be renewed.");
+        }
     }
 
-//    private void renewKey(OfflineKeyAccessor keyAccessor, OfflineKeyAccessor masterKey, int type) throws IOException {
-//        Array globalKeyArray = new Array();
-//        Structure keyData = new Structure();
-//        keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
-//
-//        byte[] key = ProtocolTools.aesWrap(((PlaintextSymmetricKey)keyAccessor.getTempValue().get()).getKey().get().getEncoded(), ((PlaintextSymmetricKey)masterKey.getActualValue().get()).getKey().get().getEncoded());
-//
-//        keyData.addDataType(OctetString.fromByteArray(key));
-//        globalKeyArray.addDataType(keyData);
-//
-//        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
-//        ss.transferGlobalKey(globalKeyArray);
-//    }
+    private void renewKey(byte[] newSymmetricKey, byte[] masterKey, int type) throws IOException {
+        Array globalKeyArray = new Array();
+        Structure keyData = new Structure();
+        keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
+
+        byte[] key = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
+
+        keyData.addDataType(OctetString.fromByteArray(key));
+        globalKeyArray.addDataType(keyData);
+
+        SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
+        ss.transferGlobalKey(globalKeyArray);
+    }
 
     private void globalMeterReset() throws IOException {
         ScriptTable globalResetST = getCosemObjectFactory().getGlobalMeterResetScriptTable();

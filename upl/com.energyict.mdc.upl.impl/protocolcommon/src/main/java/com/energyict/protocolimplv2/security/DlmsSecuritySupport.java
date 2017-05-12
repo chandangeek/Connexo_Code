@@ -162,6 +162,11 @@ public class DlmsSecuritySupport extends AbstractSecuritySupport implements Lega
 
         return new DeviceProtocolSecurityPropertySet() {
             @Override
+            public String getName() {
+                return "security";
+            }
+
+            @Override
             public String getClient() {
                 return client;
             }

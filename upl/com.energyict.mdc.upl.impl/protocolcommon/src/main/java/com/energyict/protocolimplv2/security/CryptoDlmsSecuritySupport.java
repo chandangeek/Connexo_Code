@@ -137,6 +137,11 @@ public class CryptoDlmsSecuritySupport extends AbstractSecuritySupport implement
 
         return new DeviceProtocolSecurityPropertySet() {
             @Override
+            public String getName() {
+                return "security";
+            }
+
+            @Override
             public String getClient() {
                 return client;
             }

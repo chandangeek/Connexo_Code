@@ -1074,6 +1074,11 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
                     @Override
+                    public String getName() {
+                        return "security";
+                    }
+
+                    @Override
                     public String getClient() {
                         return "1";
                     }
@@ -1154,6 +1159,11 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD_MANAGEMENT.toString(), passwordValue);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
+                    @Override
+                    public String getName() {
+                        return "security";
+                    }
+
                     @Override
                     public String getClient() {
                         return "1";

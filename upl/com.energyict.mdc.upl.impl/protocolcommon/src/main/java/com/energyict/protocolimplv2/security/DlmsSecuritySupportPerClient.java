@@ -338,6 +338,11 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
 
         return new DeviceProtocolSecurityPropertySet() {
             @Override
+            public String getName() {
+                return "security";
+            }
+
+            @Override
             public String getClient() {
                 return Integer.toString(clientMacAddressValue);
             }

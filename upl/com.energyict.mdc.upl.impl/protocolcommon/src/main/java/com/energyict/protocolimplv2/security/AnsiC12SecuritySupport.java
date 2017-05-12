@@ -107,6 +107,11 @@ public class AnsiC12SecuritySupport extends AbstractSecuritySupport implements L
 
         return new DeviceProtocolSecurityPropertySet() {
             @Override
+            public String getName() {
+                return "security";
+            }
+
+            @Override
             public String getClient() {
                 return null;
             }

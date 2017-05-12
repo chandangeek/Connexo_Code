@@ -87,6 +87,11 @@ public class NoOrPasswordSecuritySupport extends AbstractSecuritySupport impleme
 
         return new DeviceProtocolSecurityPropertySet() {
             @Override
+            public String getName() {
+                return "security";
+            }
+
+            @Override
             public String getClient() {
                 return null;
             }

@@ -79,6 +79,11 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
 
         return new DeviceProtocolSecurityPropertySet() {
             @Override
+            public String getName() {
+                return "security";
+            }
+
+            @Override
             public String getClient() {
                 return null;
             }

@@ -110,6 +110,11 @@ public class Mtu155SecuritySupport extends AbstractSecuritySupport implements Le
 
         return new DeviceProtocolSecurityPropertySet() {
             @Override
+            public String getName() {
+                return "security";
+            }
+
+            @Override
             public String getClient() {
                 return null;
             }

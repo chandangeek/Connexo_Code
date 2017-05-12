@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProtocolSecurityPropertySet {
 
+    private String name;
     private String client;
     private int authenticationDeviceAccessLevel;
     private int encryptionDeviceAccessLevel;
@@ -30,6 +31,7 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
         }
 
         if (securityPropertySet != null){
+            name = securityPropertySet.name();
             client = securityPropertySet.client();
             authenticationDeviceAccessLevel = securityPropertySet.authenticationDeviceAccessLevelId();
             encryptionDeviceAccessLevel = securityPropertySet.encryptionDeviceAccessLevelId();
@@ -40,6 +42,7 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
     }
 
     public DeviceProtocolSecurityPropertySetImpl(String client, int authenticationDeviceAccessLevel, int encryptionDeviceAccessLevel, int securitySuite, int requestSecurityLevel, int responseSecurityLevel, TypedProperties securityProperties) {
+        this.name = "unknown";
         this.client = client;
         this.authenticationDeviceAccessLevel = authenticationDeviceAccessLevel;
         this.encryptionDeviceAccessLevel = encryptionDeviceAccessLevel;
@@ -47,6 +50,11 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
         this.securitySuite = securitySuite;
         this.requestSecurityLevel = requestSecurityLevel;
         this.responseSecurityLevel = responseSecurityLevel;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override

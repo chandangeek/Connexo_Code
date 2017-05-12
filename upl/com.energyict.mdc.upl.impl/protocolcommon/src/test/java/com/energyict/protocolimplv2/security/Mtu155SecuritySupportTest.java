@@ -138,6 +138,11 @@ public class Mtu155SecuritySupportTest extends AbstractSecuritySupportTest {
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
                     @Override
+                    public String getName() {
+                        return "security";
+                    }
+
+                    @Override
                     public String getClient() {
                         return null;
                     }
@@ -209,6 +214,11 @@ public class Mtu155SecuritySupportTest extends AbstractSecuritySupportTest {
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
+                    @Override
+                    public String getName() {
+                        return "security";
+                    }
+
                     @Override
                     public String getClient() {
                         return null;

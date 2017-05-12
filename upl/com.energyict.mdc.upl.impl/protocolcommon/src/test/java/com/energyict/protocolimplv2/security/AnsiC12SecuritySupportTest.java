@@ -91,6 +91,11 @@ public class AnsiC12SecuritySupportTest extends AbstractSecuritySupportTest {
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
                     @Override
+                    public String getName() {
+                        return "security";
+                    }
+
+                    @Override
                     public String getClient() {
                         return null;
                     }

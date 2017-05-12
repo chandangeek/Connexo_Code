@@ -101,6 +101,10 @@ public class WavenisSecuritySupport extends AbstractSecuritySupport implements L
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, encryptionDeviceAccessLevel, getEncryptionAccessLevels()));
 
         return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public String getName() {
+                return "security";
+            }
 
             @Override
             public String getClient() {

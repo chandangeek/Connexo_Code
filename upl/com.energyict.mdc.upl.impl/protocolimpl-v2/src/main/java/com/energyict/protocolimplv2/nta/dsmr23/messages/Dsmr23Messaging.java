@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
@@ -17,6 +18,7 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -75,7 +77,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDat
  * - Formats the device message attributes from objects to proper string values
  * - Executes a given message
  * - Has a list of all supported device message specs
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 22/11/13
  * Time: 11:32
@@ -91,6 +93,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     private final TariffCalendarExtractor calendarExtractor;
     private final NumberLookupExtractor numberLookupExtractor;
     private final LoadProfileExtractor loadProfileExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
     /**
      * Boolean indicating whether or not to show the MBus related messages in EIServer
@@ -117,7 +120,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
      */
     protected boolean supportResetWindow = true;
 
-    public Dsmr23Messaging(AbstractMessageExecutor messageExecutor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor) {
+    public Dsmr23Messaging(AbstractMessageExecutor messageExecutor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(messageExecutor.getProtocol());
         this.messageExecutor = messageExecutor;
         this.propertySpecService = propertySpecService;
@@ -127,6 +130,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
         this.calendarExtractor = calendarExtractor;
         this.numberLookupExtractor = numberLookupExtractor;
         this.loadProfileExtractor = loadProfileExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     protected PropertySpecService getPropertySpecService() {
@@ -155,6 +159,10 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
 
     protected LoadProfileExtractor getLoadProfileExtractor() {
         return loadProfileExtractor;
+    }
+
+    protected KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {
+        return keyAccessorTypeExtractor;
     }
 
     protected DeviceMessageSpec get(DeviceMessageSpecSupplier supplier) {
@@ -269,11 +277,19 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case firmwareUpdateActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());  //Epoch (millis)
             case keyAccessorTypeAttributeName:
-//                return String.valueOf(((KeyAccessorType) messageAttribute).getName());
-                return messageAttribute.toString(); //TODO: needs refactoring
+                this.keyAccessorTypeExtractor.threadContext().setDevice(offlineDevice);
+                return convertKeyAccessorType((KeyAccessorType) messageAttribute, this.keyAccessorTypeExtractor);
+
             default:
                 return messageAttribute.toString();  //Used for String and BigDecimal attributes
         }
+    }
+
+    private String convertKeyAccessorType(KeyAccessorType messageAttribute, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+        Optional<Object> optional = keyAccessorTypeExtractor.tempValue(messageAttribute);
+        return optional.isPresent()
+                ? keyAccessorTypeExtractor.name(messageAttribute) + ">-->" + optional.get().toString()   // Note that the 'toString() should work fine for symmetric keys/passphrases
+                : null;                                                                                 // (as tempValue should already been resolved to String)
     }
 
     @Override

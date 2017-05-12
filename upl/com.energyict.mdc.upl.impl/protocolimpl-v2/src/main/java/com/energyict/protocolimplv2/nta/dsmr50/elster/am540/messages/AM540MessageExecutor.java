@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
@@ -28,13 +29,19 @@ import java.util.List;
 public class AM540MessageExecutor extends AbstractMessageExecutor {
 
     public static final ObisCode RELAY_CONTROL_DEFAULT_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
     private AbstractMessageExecutor dsmr50MessageExecutor;
     private AbstractMessageExecutor mbusMessageExecutor;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor;
 
-    public AM540MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public AM540MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(protocol, collectedDataFactory, issueFactory);
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
+    }
+
+    protected KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {
+        return keyAccessorTypeExtractor;
     }
 
     @Override
@@ -114,7 +121,7 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
 
     public AbstractMessageExecutor getDsmr50MessageExecutor() {
         if (dsmr50MessageExecutor == null) {
-            dsmr50MessageExecutor = new Dsmr50MessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory());
+            dsmr50MessageExecutor = new Dsmr50MessageExecutor(getProtocol(), this.getCollectedDataFactory(), this.getIssueFactory(), this.getKeyAccessorTypeExtractor());
         }
         return dsmr50MessageExecutor;
     }
