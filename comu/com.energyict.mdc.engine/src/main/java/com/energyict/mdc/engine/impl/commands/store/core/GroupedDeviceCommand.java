@@ -315,6 +315,14 @@ public class GroupedDeviceCommand implements Iterable<ComTaskExecutionComCommand
         return deviceProtocolSecurityPropertySet;
     }
 
+    public boolean hasSecurityPropertySet(DeviceProtocolSecurityPropertySet securityPropertySet){
+        return (this.deviceProtocolSecurityPropertySet == null && securityPropertySet == null) ||
+                (this.deviceProtocolSecurityPropertySet != null && securityPropertySet != null &&
+                        (this.deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel() == securityPropertySet.getAuthenticationDeviceAccessLevel()) &&
+                        (this.deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel() == securityPropertySet.getAuthenticationDeviceAccessLevel())
+                );
+    }
+
     @Override
     public String getDescriptionTitle() {
         return ComCommandDescriptionTitle.GroupedDeviceCommand.getDescription();

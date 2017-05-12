@@ -4,15 +4,30 @@
 
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -30,13 +45,24 @@ public class ParallelRootScheduledJob extends ScheduledComTaskExecutionGroup {
         this.start = start;
     }
 
+    CommandRoot workerStarted(long threadId){
+        if (commandRoot == null){
+            commandRoot = initCommandRoot();
+        }
+        return ((ParallelCommandRoot) commandRoot).workerStarted(threadId);
+    }
+
+    protected CommandRoot initCommandRoot(){
+        return new ParallelCommandRoot(getExecutionContext(), new ComCommandServiceProvider());
+    }
+
     @Override
     public void execute() {
-        Thread.currentThread().setName("ComPort ParallelRoot ScheduledJob for " + getComPort().getName());
+        Thread.currentThread().setName("ComPort ParallelRoot ScheduledJob for " + getComPort().getName() + "/"+Thread.currentThread().getId());
         try {
             boolean connectionEstablished;
             this.createExecutionContext();
-            commandRoot = this.prepareAll(getComTaskExecutions());
+            commandRoot = prepareAll(getComTaskExecutions());
 
             if (!commandRoot.hasGeneralSetupErrorOccurred()) {
                 connectionEstablished = this.establishConnectionFor(this.getComPort());
@@ -109,7 +135,23 @@ public class ParallelRootScheduledJob extends ScheduledComTaskExecutionGroup {
     }
 
     public GroupedDeviceCommand next() {
-        return groupedDeviceCommands.poll();
+        return this.next(getCommandRootForCurrentThread());
+    }
+
+    public GroupedDeviceCommand next(long threadId) {
+        return this.next(((ParallelCommandRoot) this.commandRoot).getCommandRoot(threadId));
+    }
+
+    public GroupedDeviceCommand next(CommandRoot commandRoot) {
+        GroupedDeviceCommand next =  groupedDeviceCommands.poll();
+        if (next != null && commandRoot != null) {
+            next.setCommandRoot(commandRoot);
+        }
+        return next;
+    }
+
+    private CommandRoot getCommandRootForCurrentThread(){
+        return ((ParallelCommandRoot) this.commandRoot).getCommandRoot(Thread.currentThread().getId());
     }
 
     /**
@@ -120,6 +162,7 @@ public class ParallelRootScheduledJob extends ScheduledComTaskExecutionGroup {
      */
     public void complete(ParallelWorkerScheduledJob workerScheduledJob) {
         if (workerScheduledJob != null && workerScheduledJob.getExecutionContext() != null) { // the ConcurrentHashMap doesn't work well with NULL values ...
+            ((ParallelCommandRoot) this.commandRoot).workerEnded(workerScheduledJob.getThreadId());
             completedWorkers.put(workerScheduledJob, workerScheduledJob.getExecutionContext());
             finish.countDown();
         }
@@ -139,5 +182,113 @@ public class ParallelRootScheduledJob extends ScheduledComTaskExecutionGroup {
     public void releaseToken() {
         this.start.countDown(); // safety
         super.releaseToken();
+    }
+
+    // Composite command root holding the individual command root for each parallel scheduled job
+    static class ParallelCommandRoot implements CommandRoot {
+        private Set<GroupedDeviceCommand> groupedDeviceCommands = new HashSet<>();
+        private Map<Long, CommandRootImpl> parallelCommandRoots = new HashMap<>();
+        private List<? extends ComTaskExecution> scheduledButNotPreparedComTaskExecutions = new ArrayList<>();
+        private Throwable generalSetupError;
+        private final ExecutionContext executionContext;
+        private final CommandRoot.ServiceProvider serviceProvider;
+
+        private ParallelCommandRoot(ExecutionContext executionContext, CommandRoot.ServiceProvider serviceProvider){
+           this.executionContext = executionContext;
+           this.serviceProvider = serviceProvider;
+        }
+
+        private GroupedDeviceCommand addGroupedDeviceCommand(OfflineDevice offlineDevice, DeviceProtocol deviceProtocol, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet){
+            GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(this, offlineDevice, deviceProtocol, deviceProtocolSecurityPropertySet);
+            groupedDeviceCommands.add(groupedDeviceCommand);
+            return groupedDeviceCommand;
+        }
+
+        CommandRoot workerStarted(long threadId){
+            return parallelCommandRoots.put(threadId, new CommandRootImpl(executionContext, serviceProvider));
+        }
+
+        CommandRoot workerEnded(long threadId){
+            return parallelCommandRoots.remove(threadId);
+        }
+
+        @Override
+        public ExecutionContext getExecutionContext() {
+            return executionContext;
+        }
+
+        @Override
+        public boolean isExposeStoringException() {
+            return false;
+        }
+
+        @Override
+        public GroupedDeviceCommand getOrCreateGroupedDeviceCommand(OfflineDevice offlineDevice, DeviceProtocol deviceProtocol, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+            return groupedDeviceCommands.stream().filter(dgc -> (dgc.getOfflineDevice().getId() == offlineDevice.getId() && dgc.hasSecurityPropertySet(deviceProtocolSecurityPropertySet))).findFirst()
+                    .orElse(addGroupedDeviceCommand(offlineDevice, deviceProtocol, deviceProtocolSecurityPropertySet));
+        }
+
+        public CommandRoot getCommandRoot(long threadId){
+             return parallelCommandRoots.get(threadId);
+        }
+
+        @Override
+        public void removeAllGroupedDeviceCommands() {
+            parallelCommandRoots.clear();
+        }
+
+        @Override
+        public Map<ComCommandType, ComCommand> getCommands() {
+            Map<ComCommandType, ComCommand> allCommands = new LinkedHashMap<>();
+            parallelCommandRoots.values().stream().forEach(cr -> allCommands.putAll(cr.getCommands()));
+            return allCommands;
+        }
+
+        @Override
+        public void execute(boolean connectionEstablished) {
+            parallelCommandRoots.values().stream().forEach((cr) -> cr.execute(connectionEstablished));
+        }
+
+        @Override
+        public void connectionErrorOccurred() {
+            parallelCommandRoots.values().stream().forEach(CommandRoot::connectionErrorOccurred);
+        }
+
+        @Override
+        public boolean hasConnectionErrorOccurred() {
+            return parallelCommandRoots.values().stream().filter(CommandRoot::hasConnectionErrorOccurred).findFirst().isPresent();
+        }
+
+        @Override
+        public boolean hasConnectionSetupError() {
+            return parallelCommandRoots.values().stream().filter(CommandRoot::hasConnectionSetupError).findFirst().isPresent();
+        }
+
+
+        @Override
+        public void generalSetupErrorOccurred(Throwable e, List<? extends ComTaskExecution> comTaskExecutions) {
+            generalSetupError = e;
+            scheduledButNotPreparedComTaskExecutions = comTaskExecutions;
+        }
+
+        @Override
+        public boolean hasGeneralSetupErrorOccurred() {
+            return generalSetupError != null;
+        }
+
+        @Override
+        public List<? extends ComTaskExecution> getScheduledButNotPreparedComTaskExecutions() {
+            return scheduledButNotPreparedComTaskExecutions;
+        }
+
+        @Override
+        public ServiceProvider getServiceProvider() {
+            return serviceProvider;
+        }
+
+        @Override
+        public Iterator<GroupedDeviceCommand> iterator() {
+            return groupedDeviceCommands.iterator();
+        }
     }
 }

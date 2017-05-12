@@ -75,6 +75,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
 import org.junit.Before;
@@ -295,8 +296,8 @@ public class JobExecutionTest {
         doReturn(connectionTask).when(comServerDAO).executionStarted(connectionTask, comServer);
         ScheduledComTaskExecutionGroup jobExecution = spy(new ScheduledComTaskExecutionGroup(outboundComPort, comServerDAO, this.deviceCommandExecutor, connectionTask, jobExecutionServiceProvider));
         doReturn(executionContext).when(jobExecution).getExecutionContext();
-        jobExecution.prepareAll(Collections.singletonList(comTaskExecution));
-        verify(genericDeviceProtocol, times(1)).organizeComCommands(any(CommandRoot.class));
+        CommandRoot commandRoot = jobExecution.prepareAll(Collections.singletonList(comTaskExecution));
+        assertThat(commandRoot.getClass().isAssignableFrom(CommandRootImpl.class)).isTrue();
     }
 
     @Test
@@ -313,8 +314,34 @@ public class JobExecutionTest {
         when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(severServerDeviceProtocolPluggableClass);
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
 
-        jobExecution.prepareAll(Collections.singletonList(comTaskExecution));
-        verify(genericDeviceProtocol, never()).organizeComCommands(any(CommandRoot.class));
+        CommandRoot commandRoot = jobExecution.prepareAll(Collections.singletonList(comTaskExecution));
+        verify(jobExecution, times(1)).initCommandRoot();
+        verify(genericDeviceProtocol, never()).organizeComCommands(commandRoot);
+        assertThat(commandRoot.getClass().isAssignableFrom(CommandRootImpl.class)).isTrue();
+    }
+
+    @Test
+    public void testNormalDeviceProtocolAndParallelScheduling() throws ConnectionException {
+        OutboundComPort outboundComPort = mock(OutboundComPort.class);
+        CountDownLatch start = new CountDownLatch(1);
+        ParallelRootScheduledJob jobExecution = spy(new ParallelRootScheduledJob(outboundComPort, comServerDAO, this.deviceCommandExecutor, connectionTask,  start, jobExecutionServiceProvider));
+        ExecutionContext executionContext = newTestExecutionContext();
+        when(jobExecution.getExecutionContext()).thenReturn(executionContext);
+        createMockedComTaskWithGivenProtocolTasks();
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        DeviceProtocolPluggableClass severServerDeviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(severServerDeviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+
+        when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(severServerDeviceProtocolPluggableClass);
+        when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
+
+        CommandRoot commandRoot = jobExecution.prepareAll(Collections.singletonList(comTaskExecution));
+        ParallelRootScheduledJob.ParallelCommandRoot parallelCommandRoot = (ParallelRootScheduledJob.ParallelCommandRoot) commandRoot;
+        assertThat(parallelCommandRoot.getCommandRoot(1222L)).isNull();
+        parallelCommandRoot.workerStarted(1222L);
+        assertThat(parallelCommandRoot.getCommandRoot(1222L)).isNotNull();
+        parallelCommandRoot.workerEnded(1222L);
+        assertThat(parallelCommandRoot.getCommandRoot(1222L)).isNull();
     }
 
     @Test
