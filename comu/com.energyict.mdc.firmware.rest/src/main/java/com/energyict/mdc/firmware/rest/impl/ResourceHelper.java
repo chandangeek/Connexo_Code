@@ -111,7 +111,7 @@ public class ResourceHelper {
         return deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()).orElse(Collections.emptyList())
                 .stream()
                 .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
-                .map(DeviceMessageId::havingId)
+                .map(DeviceMessageId::from)
                 .filter(firmwareMessageCandidate -> {
                     Optional<ProtocolSupportedFirmwareOptions> firmwareOptionForCandidate = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(firmwareMessageCandidate);
                     return firmwareOptionForCandidate.isPresent() && targetFirmwareOptions.equals(firmwareOptionForCandidate.get());
