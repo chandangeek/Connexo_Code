@@ -11,6 +11,7 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.KeyAccessorType;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.messages.nls.Thesaurus;
@@ -47,8 +48,8 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     public static final String TLS_VERSION_PROPERTY_NAME = "TLSVersion";
     public static final String CLIENT_TLS_PRIVATE_KEY = "ClientTLSPrivateKey";
     public static final String SERVER_TLS_CERTIFICATE = "ServerTLSCertificate";
-    private static final String TLS_DEFAULT_VERSION = "TLSv1.2";
-    private static final String PREFERRED_CIPHER_SUITES_PROPERTY_NAME = "PreferredCipherSuites";
+    public static final String PREFERRED_CIPHER_SUITES_PROPERTY_NAME = "PreferredCipherSuites";
+    public static final String TLS_DEFAULT_VERSION = "TLSv1.2";
     private static final String SEPARATOR = ",";
 
     private final CertificateWrapperExtractor certificateWrapperExtractor;
