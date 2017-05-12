@@ -162,16 +162,7 @@ class LinearInterpolation extends AbstractEstimator {
     }
 
     private boolean canEstimate(EstimationBlock block) {
-        return isCumulative(block) && isBlockSizeOk(block);
-    }
-
-    private boolean isCumulative(EstimationBlock block) {
-        boolean cumulative = block.getReadingType().isCumulative();
-        if (!cumulative) {
-            String message = "Failed estimation with {rule}: Block {block} since it contains its reading type {readingType} is not cumulative.";
-            LoggingContext.get().info(getLogger(), message);
-        }
-        return cumulative;
+        return isBlockSizeOk(block);
     }
 
     private boolean isBlockSizeOk(EstimationBlock block) {
