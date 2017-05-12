@@ -1,10 +1,12 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.cbo.Quantity;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.messages.DeviceMessage;
@@ -17,8 +19,6 @@ import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
-import com.energyict.cbo.Quantity;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  * @author khe
  * @since 10/02/2017 - 16:08
  */
-public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapter, DeviceMessageSupport {
+public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapter<com.energyict.mdc.upl.MeterProtocol>, DeviceMessageSupport {
 
     private final com.energyict.mdc.upl.MeterProtocol actual;
     private final CachingProtocol cachingProtocol;
@@ -58,6 +58,11 @@ public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapte
         } else {
             this.messageSupport = new NoMessageSupport();
         }
+    }
+
+    @Override
+    public com.energyict.mdc.upl.MeterProtocol getActual() {
+        return actual;
     }
 
     @Override
