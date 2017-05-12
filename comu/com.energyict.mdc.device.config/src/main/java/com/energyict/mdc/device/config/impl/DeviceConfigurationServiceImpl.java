@@ -35,7 +35,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
@@ -63,6 +62,7 @@ import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeExceptio
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -94,6 +94,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
+
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multiset;
@@ -876,10 +877,19 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                 .flatMap(List::stream)
                 .map(this::getReadingTypes)
                 .flatMap(List::stream);
-        Stream<ReadingType> registerReadingTypes = configuration.getRegisterSpecs()
+        List<ReadingType> registerReadingTypes = configuration.getRegisterSpecs()
                 .stream()
-                .map(RegisterSpec::getReadingType);
-        return Stream.of(loadProfileReadingTypes, registerReadingTypes)
+                .map(RegisterSpec::getReadingType)
+                .collect(Collectors.toList());
+        configuration.getRegisterSpecs()
+                .stream()
+                .filter(registerSpec -> NumericalRegisterSpec.class.isAssignableFrom(registerSpec.getClass()))
+                .map(registerSpec -> ((NumericalRegisterSpec) registerSpec))
+                .filter(NumericalRegisterSpec::isUseMultiplier)
+                .map(NumericalRegisterSpec::getCalculatedReadingType)
+                .flatMap(Functions.asStream())
+                .forEach(registerReadingTypes::add);
+        return Stream.of(loadProfileReadingTypes, registerReadingTypes.stream())
                 .flatMap(Function.identity())
                 .distinct()
                 .collect(Collectors.toList());
@@ -980,7 +990,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         Set<ProtocolSupportedCalendarOptions> protocolSupportedCalendarOptions = deviceType.getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(DeviceMessageSpec::getId)
-                        .map(DeviceMessageId::havingId)
+                        .map(DeviceMessageId::from)
                         .collect(Collectors.toList()))
                 .orElse(Collections.<DeviceMessageId>emptyList())
                 .stream()
