@@ -48,7 +48,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     public static final String CLIENT_TLS_PRIVATE_KEY = "ClientTLSPrivateKey";
     public static final String SERVER_TLS_CERTIFICATE = "ServerTLSCertificate";
     private static final String TLS_DEFAULT_VERSION = "TLSv1.2";
-    private static final String PREFERRED_CIPHER_SUITES_PROPERTY_NAME = "PreferredCipherSuites";
+    public static final String PREFERRED_CIPHER_SUITES_PROPERTY_NAME = "PreferredCipherSuites";
     private static final String SEPARATOR = ",";
 
     private final CertificateWrapperExtractor certificateWrapperExtractor;
