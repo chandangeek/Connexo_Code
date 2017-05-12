@@ -41,20 +41,16 @@ class ConnectionTypePluggableClassRegistrar extends PluggableClassRegistrar {
                     if (this.connectionTypeDoesNotExist(definition)) {
                         this.createConnectionType(definition);
                         this.created(definition);
-                    }
-                    else {
+                    } else {
                         this.alreadyExists(definition);
                     }
-                }
-                catch (RuntimeException e) {
+                } catch (RuntimeException e) {
                     if (e.getCause() != null) {
                         this.handleCreationException(definition, e.getCause());
-                    }
-                    else {
+                    } else {
                         this.handleCreationException(definition, e);
                     }
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     this.handleCreationException(definition, e);
                 }
             }
@@ -63,7 +59,7 @@ class ConnectionTypePluggableClassRegistrar extends PluggableClassRegistrar {
     }
 
     private ConnectionTypePluggableClass createConnectionType(PluggableClassDefinition definition) {
-        return this.transactionService.execute(() -> this.doCreateConnectionType(definition));
+        return this.transactionService.isInTransaction() ? this.doCreateConnectionType(definition) : this.transactionService.execute(() -> this.doCreateConnectionType(definition));
     }
 
     private ConnectionTypePluggableClass doCreateConnectionType(PluggableClassDefinition definition) {

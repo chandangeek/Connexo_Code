@@ -41,20 +41,16 @@ public class InboundDeviceProtocolPluggableClassRegistrar extends PluggableClass
                     if (this.inboundDeviceProtocolDoesNotExist(definition)) {
                         this.createInboundDeviceProtocol(definition);
                         this.created(definition);
-                    }
-                    else {
+                    } else {
                         this.alreadyExists(definition);
                     }
-                }
-                catch (RuntimeException e) {
+                } catch (RuntimeException e) {
                     if (e.getCause() != null) {
                         this.handleCreationException(definition, e.getCause());
-                    }
-                    else {
+                    } else {
                         this.handleCreationException(definition, e);
                     }
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     this.handleCreationException(definition, e);
                 }
             }
@@ -67,7 +63,7 @@ public class InboundDeviceProtocolPluggableClassRegistrar extends PluggableClass
     }
 
     private InboundDeviceProtocolPluggableClass createInboundDeviceProtocol(PluggableClassDefinition definition) {
-        return this.transactionService.execute(() -> this.doCreateInboundDeviceProtocol(definition));
+        return this.transactionService.isInTransaction() ? this.doCreateInboundDeviceProtocol(definition) : this.transactionService.execute(() -> this.doCreateInboundDeviceProtocol(definition));
     }
 
     private InboundDeviceProtocolPluggableClass doCreateInboundDeviceProtocol(PluggableClassDefinition definition) {
