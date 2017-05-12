@@ -34,7 +34,6 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
-
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;

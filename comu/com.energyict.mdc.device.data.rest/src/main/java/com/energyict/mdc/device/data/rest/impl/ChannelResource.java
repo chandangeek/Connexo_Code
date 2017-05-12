@@ -39,6 +39,7 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.rest.ChannelPeriodType;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -399,6 +400,7 @@ public class ChannelResource {
             @BeanParam JsonQueryFilter filter,
             @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
+        ChannelPeriodType channelPeriodType = ChannelPeriodType.of(channel);
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
@@ -414,7 +416,7 @@ public class ChannelResource {
                         return loadProfileReadings.stream()
                                 .map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channelWithData, loadProfileReading, isValidationActive, deviceValidation, channel
                                         .equals(channelWithData) ? null : channelWithData
-                                        .getDevice()));
+                                        .getDevice(), channelPeriodType));
                     })
                     .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects))
                     .collect(Collectors.toList());
@@ -436,6 +438,7 @@ public class ChannelResource {
             @BeanParam JsonQueryFilter filter,
             @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(name, channelId);
+        ChannelPeriodType channelPeriodType = ChannelPeriodType.of(channel);
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
@@ -453,7 +456,7 @@ public class ChannelResource {
                         return loadProfileJournalReadings.stream()
                                 .map(loadProfileJournalReading -> deviceDataInfoFactory.createChannelHistoryDataInfo(channelWithData, loadProfileJournalReading, isValidationActive, deviceValidation, channel
                                         .equals(channelWithData) ? null : channelWithData
-                                        .getDevice()));
+                                        .getDevice(), channelPeriodType));
                     })
                     .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects))
                     .collect(Collectors.toList());

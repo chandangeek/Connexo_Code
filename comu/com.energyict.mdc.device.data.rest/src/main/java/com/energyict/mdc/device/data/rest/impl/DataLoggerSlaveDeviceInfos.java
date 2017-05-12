@@ -18,11 +18,13 @@ public class DataLoggerSlaveDeviceInfos {
     public List<DataLoggerSlaveDeviceInfo> devices = new ArrayList<>();
 
     public DataLoggerSlaveDeviceInfos(Iterable<? extends Device> slaves, DataLoggerSlaveDeviceInfoFactory infoFactory) {
-        slaves.forEach(each -> {devices.add(infoFactory.newSlaveWithLinkingInfo(each));});
+        slaves.forEach(each -> {
+            devices.add(infoFactory.newSlaveWithLinkingInfo(each));
+        });
     }
 
     @JsonProperty
-    public int getTotal(){
+    public int getTotal() {
         return devices.size();
     }
 }

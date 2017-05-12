@@ -37,6 +37,7 @@ import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.TextReading;
 import com.energyict.mdc.device.data.TextRegister;
+import com.energyict.mdc.device.data.rest.ChannelPeriodType;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import com.google.common.collect.Range;
@@ -89,11 +90,12 @@ public class DeviceDataInfoFactory {
         this.readingQualityInfoFactory = readingQualityInfoFactory;
     }
 
-    ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave) {
+    ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave, ChannelPeriodType channelPeriodType) {
         ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
         channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
         channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
         channelIntervalInfo.validationActive = isValidationActive;
+        channelIntervalInfo.channelPeriodType = channelPeriodType.getId();
 
         Map<Channel, List<? extends ReadingQualityRecord>> readingQualities = loadProfileReading.getReadingQualities();
         List<? extends ReadingQualityRecord> readingQualityRecords = readingQualities.get(channel);
@@ -148,8 +150,8 @@ public class DeviceDataInfoFactory {
     }
 
 
-    ChannelHistoryDataInfo createChannelHistoryDataInfo(Channel channel, LoadProfileJournalReading loadProfileJournalReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave) {
-        ChannelHistoryDataInfo channelHistoryDataInfo = new ChannelHistoryDataInfo(createChannelDataInfo(channel, (LoadProfileReading) loadProfileJournalReading, isValidationActive, deviceValidation, dataLoggerSlave));
+    ChannelHistoryDataInfo createChannelHistoryDataInfo(Channel channel, LoadProfileJournalReading loadProfileJournalReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave, ChannelPeriodType channelPeriodType) {
+        ChannelHistoryDataInfo channelHistoryDataInfo = new ChannelHistoryDataInfo(createChannelDataInfo(channel, (LoadProfileReading) loadProfileJournalReading, isValidationActive, deviceValidation, dataLoggerSlave, channelPeriodType));
         channelHistoryDataInfo.journalTime = loadProfileJournalReading.getJournalTime();
         channelHistoryDataInfo.userName = loadProfileJournalReading.getUserName();
         channelHistoryDataInfo.isActive = loadProfileJournalReading.getActive();

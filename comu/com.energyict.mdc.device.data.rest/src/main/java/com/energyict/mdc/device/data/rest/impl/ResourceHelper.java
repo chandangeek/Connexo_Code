@@ -61,7 +61,6 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -1172,7 +1171,7 @@ public class ResourceHelper {
         if (device.getDeviceConfiguration().isDataloggerEnabled()) {
             slaves.addAll(topologyService.findDataLoggerSlaves(device));
         }
-        if (device.getDeviceConfiguration().isMultiElementEnabled()){
+        if (device.getDeviceConfiguration().isMultiElementEnabled()) {
             slaves.addAll(multiElementDeviceService.findMultiElementSlaves(device));
         }
         return slaves
@@ -1186,7 +1185,7 @@ public class ResourceHelper {
         if (slave.getDeviceType().isDataloggerSlave()) {
             return topologyService.findDataloggerReference(slave, clock.instant())
                     .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint());
-        }else{
+        } else {
             return multiElementDeviceService.findMultiElementDeviceReference(slave, clock.instant())
                     .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint());
         }
