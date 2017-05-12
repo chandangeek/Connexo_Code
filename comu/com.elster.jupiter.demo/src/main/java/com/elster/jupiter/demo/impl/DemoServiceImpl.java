@@ -8,36 +8,8 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.dataquality.DataQualityKpiService;
-import com.elster.jupiter.demo.impl.commands.AddLocationInfoToDevicesCommand;
-import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
-import com.elster.jupiter.demo.impl.commands.CreateAlarmCreationRuleCommand;
-import com.elster.jupiter.demo.impl.commands.CreateApplicationServerCommand;
-import com.elster.jupiter.demo.impl.commands.CreateAssignmentRulesCommand;
-import com.elster.jupiter.demo.impl.commands.CreateCollectRemoteDataSetupCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDataLoggerSetupCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDefaultDeviceLifeCycleCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDeliverDataSetupCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDemoDataCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDemoUserCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDeviceTypeCommand;
-import com.elster.jupiter.demo.impl.commands.CreateEstimationSetupCommand;
-import com.elster.jupiter.demo.impl.commands.CreateG3DemoBoardCommand;
-import com.elster.jupiter.demo.impl.commands.CreateImporterDirectoriesCommand;
-import com.elster.jupiter.demo.impl.commands.CreateImportersCommand;
-import com.elster.jupiter.demo.impl.commands.CreateMultiElementDeviceSetupCommand;
-import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
-import com.elster.jupiter.demo.impl.commands.CreatePowerUserCommand;
-import com.elster.jupiter.demo.impl.commands.CreateRegisterDeviceCommand;
-import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
-import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
-import com.elster.jupiter.demo.impl.commands.DemoDataUpgrade10_1_Command;
-import com.elster.jupiter.demo.impl.commands.FileImportCommand;
-import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateSPEDeviceCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
+import com.elster.jupiter.demo.impl.commands.*;
+import com.elster.jupiter.demo.impl.commands.devices.*;
 import com.elster.jupiter.demo.impl.commands.tou.CreateBelgianMarketTimeOfUseDataCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddIntervalChannelReadingsCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddNoneIntervalChannelReadingsCommand;
@@ -58,6 +30,8 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.PassphraseFactory;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeService;
@@ -180,6 +154,8 @@ public class DemoServiceImpl {
     private volatile CalendarService calendarService;
     private volatile com.elster.jupiter.tasks.TaskService platformTaskService;
     private volatile DataQualityKpiService dataQualityKpiService;
+    private volatile PkiService pkiService;
+    private volatile PassphraseFactory passphraseFactory;
 
     private Injector injector;
     private boolean reThrowEx = false;
@@ -230,7 +206,9 @@ public class DemoServiceImpl {
             DeviceMessageSpecificationService deviceMessageSpecificationService,
             CalendarService calendarService,
             com.elster.jupiter.tasks.TaskService platformTaskService,
-            DataQualityKpiService dataQualityKpiService) {
+            DataQualityKpiService dataQualityKpiService,
+            PkiService pkiService,
+            PassphraseFactory passphraseFactory) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -275,6 +253,8 @@ public class DemoServiceImpl {
         setPlatformTaskService(platformTaskService);
         setDataCollectionKpiService(dataCollectionKpiService);
         setDataQualityKpiService(dataQualityKpiService);
+        setPkiService(pkiService);
+        setPassphraseFactory(passphraseFactory);
         activate();
         reThrowEx = true;
     }
@@ -330,6 +310,7 @@ public class DemoServiceImpl {
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(com.elster.jupiter.tasks.TaskService.class).toInstance(platformTaskService);
                 bind(DataQualityKpiService.class).toInstance(dataQualityKpiService);
+                bind(PkiService.class).toInstance(pkiService);
             }
         });
         Builders.initWith(this.injector);
@@ -587,6 +568,18 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public void setDataQualityKpiService(DataQualityKpiService dataQualityKpiService) {
         this.dataQualityKpiService = dataQualityKpiService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setPkiService(PkiService pkiService) {
+        this.pkiService = pkiService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setPassphraseFactory(PassphraseFactory passphraseFactory) {
+        this.passphraseFactory = passphraseFactory;
     }
 
     private void executeTransaction(Runnable toRunInsideTransaction) {
