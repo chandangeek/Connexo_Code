@@ -163,7 +163,7 @@ public abstract class PersistenceIntegrationTest {
         deviceMessageSpecs
                 .stream()
                 .map(DeviceMessageSpec::getId)
-                .map(DeviceMessageId::havingId)
+                .map(DeviceMessageId::from)
                 .forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
 
@@ -175,7 +175,7 @@ public abstract class PersistenceIntegrationTest {
         deviceMessageSpecs
                 .stream()
                 .map(DeviceMessageSpec::getId)
-                .map(DeviceMessageId::havingId)
+                .map(DeviceMessageId::from)
                 .forEach(dataLoggerEnabledDeviceConfiguration::createDeviceMessageEnablement);
         ReadingType activeEnergy = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.1.8.0.255"), Unit.get("kWh"));
         RegisterType registerType1 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(activeEnergy).get();
@@ -194,7 +194,7 @@ public abstract class PersistenceIntegrationTest {
         deviceMessageSpecs
                 .stream()
                 .map(DeviceMessageSpec::getId)
-                .map(DeviceMessageId::havingId)
+                .map(DeviceMessageId::from)
                 .forEach(dataLoggerSlaveDeviceConfiguration::createDeviceMessageEnablement);
         dataLoggerSlaveDeviceConfiguration.createNumericalRegisterSpec(registerType1).overflowValue(BigDecimal.valueOf(1000L)).numberOfFractionDigits(0).add();
         dataLoggerSlaveDeviceConfiguration.activate();
