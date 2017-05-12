@@ -70,7 +70,9 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
                     break;
                 case 'ok':
                     validationResultText = '(' + Uni.I18n.translate('reading.validationResult.notsuspect', 'IMT', 'Not suspect') + ')';
+                    if (record.get('action') == 'WARN_ONLY') {
                         validationResultText += '<span class="icon-flag5" style="margin-left:10px; color:#dedc49;"></span>';
+                    }
                     break;
             }
         }

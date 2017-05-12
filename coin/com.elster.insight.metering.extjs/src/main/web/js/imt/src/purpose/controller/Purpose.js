@@ -448,7 +448,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 itemId: 'purpose-validateNowConfirmationWindow',
                 confirmText: Uni.I18n.translate('general.validate', 'IMT', 'Validate'),
                 closeAction: 'destroy',
-                confirmation: _.once(Ext.bind(me.onValidateNow, me, [purpose, usagePoint, getConfirmationWindow]))
+                confirmation: Ext.bind(me.onValidateNow, me, [purpose, usagePoint, getConfirmationWindow])
             });
 
         confirmationWindow.insert(1, {
