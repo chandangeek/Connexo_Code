@@ -18,12 +18,14 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -58,6 +60,10 @@ public class UsagePointConfigurationRestApplicationJerseyTest extends FelixRestA
     TimeService timeService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    FiniteStateMachineService finiteStateMachineService;
+    @Mock
+    UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
 
     @Override
     protected Application getApplication() {
@@ -74,6 +80,8 @@ public class UsagePointConfigurationRestApplicationJerseyTest extends FelixRestA
         application.setMeteringService(meteringService);
         application.setTimeService(timeService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setFiniteStateMachineService(finiteStateMachineService);
+        application.setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
         return application;
     }
 

@@ -129,8 +129,8 @@ public class ResourceHelper {
         return info;
     }
 
-    List<UsagePointLifeCycleStateInfo> getUsagePointLifeCycleStateInfos(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet){
-        return  usagePointConfigurationService.getStatesLinkedToValidationRuleSetAndMetrologyContract(validationRuleSet, metrologyContract).stream()
+    List<UsagePointLifeCycleStateInfo> getUsagePointLifeCycleStateInfos(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet) {
+        return usagePointConfigurationService.getStatesLinkedToValidationRuleSetAndMetrologyContract(validationRuleSet, metrologyContract).stream()
                 .flatMap(state -> usagePointLifeCycleConfigurationService.getUsagePointLifeCycles().stream()
                         .filter(usagePointLifeCycle -> usagePointLifeCycle.getStates().contains(state))
                         .map(usagePointLifeCycle -> usagePointLifeCycleStateInfoFactory.from(usagePointLifeCycle, state))
@@ -140,7 +140,7 @@ public class ResourceHelper {
                 .collect(Collectors.toList());
     }
 
-    List<State> getStates (List<UsagePointLifeCycleStateInfo> lifeCycleStates){
+    List<State> getStates(List<UsagePointLifeCycleStateInfo> lifeCycleStates) {
         return lifeCycleStates.stream()
                 .map(usagePointLifeCycleStateInfo -> usagePointLifeCycleConfigurationService.findUsagePointState(usagePointLifeCycleStateInfo.id))
                 .filter(Optional::isPresent)
