@@ -43,10 +43,10 @@ public class CalendarWithEventSettingsFactory extends AbstractValueFactory<Calen
             return NoneCalendarWithEventSettings.INSTANCE;
         } else {
             String[] calendarAndEvent = stringValue.split(VALUE_UNIT_SEPARATOR);
-            if (calendarAndEvent.length < 2){
+            if (calendarAndEvent.length == 1) {
                 discardDay = Boolean.parseBoolean(calendarAndEvent[0]);
                 return new DiscardDaySettings(discardDay, calendar, event);
-            } else if (calendarAndEvent.length < 3){
+            } else if (calendarAndEvent.length == 2) {
                 discardDay = Boolean.parseBoolean(calendarAndEvent[0]);
                 calendar = calendarService.findCalendar(Long.parseLong(calendarAndEvent[1])).orElse(null);
                 return new DiscardDaySettings(discardDay, calendar, event);
@@ -63,14 +63,14 @@ public class CalendarWithEventSettingsFactory extends AbstractValueFactory<Calen
 
     @Override
     public String toStringValue(CalendarWithEventSettings object) {
-        if (object instanceof NoneCalendarWithEventSettings){
+        if (object instanceof NoneCalendarWithEventSettings) {
             return NoneCalendarWithEventSettings.NONE_CALENDAR_SETTINGS;
         }
         DiscardDaySettings settings = (DiscardDaySettings) object;
         String fields = "";
-            fields = settings.isDiscardDay().toString() + ":";
-            fields += settings.getCalendar() != null ? settings.getCalendar().getId() + ":" : "";
-            fields += settings.getEvent() != null ? settings.getEvent().getId() : "";
+        fields = settings.isDiscardDay().toString() + VALUE_UNIT_SEPARATOR;
+        fields += settings.getCalendar() != null ? settings.getCalendar().getId() + VALUE_UNIT_SEPARATOR : "";
+        fields += settings.getEvent() != null ? settings.getEvent().getId() : "";
         return fields;
     }
 
