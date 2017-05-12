@@ -16,6 +16,13 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 public interface DeviceProtocolSecurityPropertySet {
 
     /**
+     * Gets the name of the {@link SecurityPropertySet}
+     *
+     * @return the name
+     */
+    String getName();
+
+    /**
      * Gets the configured 'client' or null in case the {@link com.energyict.mdc.upl.DeviceProtocol}
      * doesn't support client.
      *

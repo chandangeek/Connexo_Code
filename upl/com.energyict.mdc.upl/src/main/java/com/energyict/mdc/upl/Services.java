@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Formatter;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
@@ -53,6 +54,7 @@ public class Services {
     private static AtomicReference<Formatter> FORMATTER = new AtomicReference<>();
     private static AtomicReference<CertificateWrapperExtractor> CERTIFICATE_WRAPPER_EXTRACTOR = new AtomicReference<>();
     private static AtomicReference<DeviceIdentifier.Finder> DEVICE_FINDER = new AtomicReference<>();
+    private static AtomicReference<KeyAccessorTypeExtractor> KEY_ACCESSOR_TYPE_EXTRACTOR = new AtomicReference<>();
 
     public static Object serviceOfType(Class serviceType) {
         if (PropertySpecService.class.equals(serviceType)) {
@@ -97,6 +99,8 @@ public class Services {
             return formatter();
         } else if (RegisterExtractor.class.equals(serviceType)) {
             return registerExtractor();
+        } else if (KeyAccessorTypeExtractor.class.equals(serviceType)) {
+            return keyAccessorTypeExtractor();
         } else {
             throw new UnknownServiceType(serviceType);
         }
@@ -276,6 +280,14 @@ public class Services {
 
     public static void deviceFinder(DeviceIdentifier.Finder deviceFinder) {
         DEVICE_FINDER.set(deviceFinder);
+    }
+
+    public static KeyAccessorTypeExtractor keyAccessorTypeExtractor() {
+        return KEY_ACCESSOR_TYPE_EXTRACTOR.get();
+    }
+
+    public static void keyAccessorTypeExtractor(KeyAccessorTypeExtractor extractor) {
+        KEY_ACCESSOR_TYPE_EXTRACTOR.set(extractor);
     }
 
     /**
