@@ -6,13 +6,12 @@ package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.Constants;
-import com.elster.jupiter.demo.impl.builders.ValidationRuleDetectMissingValuesPostBuilder;
 import com.elster.jupiter.demo.impl.builders.ValidationRuleDetectThresholdViolationPostBuilder;
 import com.elster.jupiter.demo.impl.builders.ValidationRuleRegisterIncreasePostBuilder;
-import com.elster.jupiter.demo.impl.templates.DataValidationTaskTpl;
-import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
-import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
+import com.elster.jupiter.demo.impl.templates.DeviceDataValidationTaskTpl;
+import com.elster.jupiter.demo.impl.templates.UsagePointDataValidationTaskTpl;
 import com.elster.jupiter.demo.impl.templates.ValidationRuleSetTpl;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -20,7 +19,6 @@ import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
@@ -36,6 +34,7 @@ public class CreateValidationSetupCommand extends CommandWithTransaction {
     private final Clock clock;
     private final MeteringService meteringService;
     private final ValidationService validationService;
+    private final LicenseService licenseService;
 
     private ValidationRuleSet validationRuleSet;
     private ValidationRuleSet gasValidationRuleSet;
@@ -47,23 +46,35 @@ public class CreateValidationSetupCommand extends CommandWithTransaction {
             DeviceService deviceService,
             Clock clock,
             MeteringService meteringService,
-            ValidationService validationService) {
+            ValidationService validationService,
+            LicenseService licenseService) {
         this.deviceConfigurationService = deviceConfigurationService;
         this.clock = clock;
         this.deviceService = deviceService;
         this.meteringService = meteringService;
         this.validationService = validationService;
+        this.licenseService = licenseService;
     }
 
     public void run() {
-        createValidationTask();
+        boolean withInsight = licenseService.getLicenseForApplication("INS").isPresent();
+        createMdcValidationTask();
+        if (withInsight) {
+            createMdmValidationTasks();
+        }
         createValidationRuleSet();
         addValidationToDeviceConfigurations();
         addValidationToDevices();
     }
 
-    private void createValidationTask() {
-        Builders.from(DataValidationTaskTpl.A1800_DEVICES).get();
+    private void createMdcValidationTask() {
+        Builders.from(DeviceDataValidationTaskTpl.A1800_DEVICES).get();
+    }
+
+    private void createMdmValidationTasks() {
+        Builders.from(UsagePointDataValidationTaskTpl.RESIDENTIAL_ELECTRICITY).get();
+        Builders.from(UsagePointDataValidationTaskTpl.RESIDENTIAL_GAS).get();
+        Builders.from(UsagePointDataValidationTaskTpl.RESIDENTIAL_WATER).get();
     }
 
     private void createValidationRuleSet() {
@@ -97,21 +108,18 @@ public class CreateValidationSetupCommand extends CommandWithTransaction {
 
     private void addValidationToDeviceConfigurations() {
         this.deviceConfigurationService.getLinkableDeviceConfigurations(this.validationRuleSet)
-                .stream()
                 .forEach(configuration -> {
                     configuration.addValidationRuleSet(this.validationRuleSet);
                     configuration.save();
                 });
 
         this.deviceConfigurationService.getLinkableDeviceConfigurations(this.waterValidationRuleSet)
-                .stream()
                 .forEach(configuration -> {
                     configuration.addValidationRuleSet(this.waterValidationRuleSet);
                     configuration.save();
                 });
 
         this.deviceConfigurationService.getLinkableDeviceConfigurations(this.gasValidationRuleSet)
-                .stream()
                 .forEach(configuration -> {
                     configuration.addValidationRuleSet(this.gasValidationRuleSet);
                     configuration.save();

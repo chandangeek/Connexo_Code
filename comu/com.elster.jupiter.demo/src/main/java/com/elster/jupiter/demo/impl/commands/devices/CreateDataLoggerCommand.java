@@ -118,7 +118,7 @@ public class CreateDataLoggerCommand {
 //
 //        //6. Create Device Group "Data loggers"
 //        EndDeviceGroup dataLoggerGroup = Builders.from(DeviceGroupTpl.DATA_LOGGERS).get();
-//        Builders.from(FavoriteGroupBuilder.class).withGroup(dataLoggerGroup).get();
+//        Builders.from(FavoriteDeviceGroupBuilder.class).withGroup(dataLoggerGroup).get();
 
     }
 

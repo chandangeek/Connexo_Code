@@ -86,21 +86,21 @@ public class CreateUsagePointsForDevicesCommand {
     public void run(String prefix) {
         switch (prefix) {
             case Constants.Device.STANDARD_PREFIX:
-                devices.stream().forEach(this::acceptElectricityDevice);
+                devices.forEach(this::acceptElectricityDevice);
                 break;
             case Constants.Device.WATER_PREFIX:
-                devices.stream().forEach(this::acceptWaterDevice);
+                devices.forEach(this::acceptWaterDevice);
                 break;
             case Constants.Device.GAS_PREFIX:
-                devices.stream().forEach(this::acceptGasDevice);
+                devices.forEach(this::acceptGasDevice);
                 break;
         }
     }
 
     private List<Device> getDeviceList(String prefix) {
         //we need 80% of active devices
-        List<Device> devices = this.deviceService.deviceQuery().select(where("name").like(prefix + "*")).stream().
-                filter(device -> device.getState().getName().equals(DefaultState.ACTIVE.getKey()))
+        List<Device> devices = this.deviceService.deviceQuery().select(where("name").like(prefix + "*")).stream()
+                .filter(device -> device.getState().getName().equals(DefaultState.ACTIVE.getKey()))
                 .collect(Collectors.toList());
 
         double length = (double) devices.size();

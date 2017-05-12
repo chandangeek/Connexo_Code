@@ -7,7 +7,7 @@ package com.elster.jupiter.demo.impl.commands;
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.UnableToCreate;
-import com.elster.jupiter.demo.impl.builders.FavoriteGroupBuilder;
+import com.elster.jupiter.demo.impl.builders.FavoriteDeviceGroupBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.type.AttachDeviceTypeCPSPostBuilder;
@@ -32,6 +32,7 @@ import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
+import com.elster.jupiter.demo.impl.templates.UsagePointGroupTpl;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
@@ -114,6 +115,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
     public void run() {
         parametersCheck();
         licenseCheck();
+        boolean withInsight = licenseService.getLicenseForApplication("INS").isPresent();
         executeTransaction(() -> {
             createComBackground();
             createRegisterTypes();
@@ -128,7 +130,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
             createCommandLimitation();
         });
         executeTransaction(() -> {
-            if (licenseService.getLicenseForApplication("INS").isPresent()) {
+            if (withInsight) {
                 createMetrologyConfigurationsCommandProvider.get().createMetrologyConfigurations();
             } else {
                 createMetrologyConfigurationsCommandProvider.get().createMultisenseMetrologyConfigurations();
@@ -140,6 +142,11 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
             createAssignmentRules();
         });
         executeTransaction(this::createDeviceGroups);
+        executeTransaction(() -> {
+            if (withInsight) {
+                createUsagePointGroups();
+            }
+        });
         executeTransaction(() -> {
             createDataCollectionKpi();
             createDataValidationKpi();
@@ -347,13 +354,18 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         createDeviceCommand.run();
     }
 
-
     private void createDeviceGroups() {
-        Builders.from(FavoriteGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.NORTH_REGION).get()).get();
-        Builders.from(FavoriteGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.SOUTH_REGION).get()).get();
-        Builders.from(FavoriteGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.ALL_ELECTRICITY_DEVICES).get()).get();
-        Builders.from(FavoriteGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.GAS_DEVICES).get()).get();
-        Builders.from(FavoriteGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.WATER_DEVICES).get()).get();
+        Builders.from(FavoriteDeviceGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.NORTH_REGION).get()).get();
+        Builders.from(FavoriteDeviceGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.SOUTH_REGION).get()).get();
+        Builders.from(FavoriteDeviceGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.ALL_ELECTRICITY_DEVICES).get()).get();
+        Builders.from(FavoriteDeviceGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.GAS_DEVICES).get()).get();
+        Builders.from(FavoriteDeviceGroupBuilder.class).withGroup(Builders.from(DeviceGroupTpl.WATER_DEVICES).get()).get();
+    }
+
+    private void createUsagePointGroups() {
+        Builders.from(UsagePointGroupTpl.RESIDENTIAL_ELECTRICITY).get();
+        Builders.from(UsagePointGroupTpl.RESIDENTIAL_GAS).get();
+        Builders.from(UsagePointGroupTpl.RESIDENTIAL_WATER).get();
     }
 
     private void createDataCollectionKpi() {

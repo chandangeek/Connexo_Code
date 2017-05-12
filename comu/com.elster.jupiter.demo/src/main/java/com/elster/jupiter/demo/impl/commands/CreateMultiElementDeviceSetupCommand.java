@@ -4,27 +4,15 @@
 
 package com.elster.jupiter.demo.impl.commands;
 
-import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
-import com.elster.jupiter.demo.impl.builders.FavoriteGroupBuilder;
-import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
-import com.elster.jupiter.demo.impl.commands.devices.CreateDataLoggerCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateDataLoggerSlaveCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateMultiElementDeviceCommand;
-import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
-import com.elster.jupiter.demo.impl.templates.DeviceGroupTpl;
-import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.util.Optional;
 
 public class CreateMultiElementDeviceSetupCommand extends CommandWithTransaction {
 

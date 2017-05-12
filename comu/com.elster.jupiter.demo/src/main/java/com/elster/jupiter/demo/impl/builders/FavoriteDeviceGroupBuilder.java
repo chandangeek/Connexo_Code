@@ -15,20 +15,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
-public class FavoriteGroupBuilder implements Builder<List<FavoriteDeviceGroup>> {
+public class FavoriteDeviceGroupBuilder implements Builder<List<FavoriteDeviceGroup>> {
     private final FavoritesService favoritesService;
     private final UserService userService;
 
     private EndDeviceGroup group;
 
     @Inject
-    public FavoriteGroupBuilder(FavoritesService favoritesService, UserService userService) {
+    public FavoriteDeviceGroupBuilder(FavoritesService favoritesService, UserService userService) {
         this.favoritesService = favoritesService;
         this.userService = userService;
     }
 
-    public FavoriteGroupBuilder withGroup(EndDeviceGroup group){
+    public FavoriteDeviceGroupBuilder withGroup(EndDeviceGroup group) {
         this.group = group;
         return this;
     }
@@ -46,9 +45,8 @@ public class FavoriteGroupBuilder implements Builder<List<FavoriteDeviceGroup>> 
     @Override
     public List<FavoriteDeviceGroup> create() {
         List<FavoriteDeviceGroup> groups = new ArrayList<>();
-        userService.getUserQuery().select(Condition.TRUE).stream().forEach(user -> {
-            groups.add(favoritesService.findOrCreateFavoriteDeviceGroup(group, user));
-        });
+        userService.getUserQuery().select(Condition.TRUE)
+                .forEach(user -> groups.add(favoritesService.findOrCreateFavoriteDeviceGroup(group, user)));
         return groups;
     }
 }
