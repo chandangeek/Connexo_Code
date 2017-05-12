@@ -80,6 +80,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -155,6 +156,10 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
             bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+            bind(com.energyict.mdc.upl.io.SocketService.class).toInstance(mock(com.energyict.mdc.upl.io.SocketService.class));
         }
     }
 
@@ -193,6 +198,7 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
                     new DataVaultModule(),
                     new MdcReadingTypeUtilServiceModule(),
                     new MasterDataModule(),
+                    new BpmModule(),
                     new BasicPropertiesModule(),
                     new MdcDynamicModule(),
                     new PluggableModule(),
