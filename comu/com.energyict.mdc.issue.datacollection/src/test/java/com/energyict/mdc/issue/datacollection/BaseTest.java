@@ -64,6 +64,7 @@ import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -85,25 +86,27 @@ import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorServ
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.drools.compiler.builder.impl.KnowledgeBuilderFactoryServiceImpl;
 import org.drools.core.impl.KnowledgeBaseFactoryServiceImpl;
 import org.drools.core.io.impl.ResourceFactoryServiceImpl;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
-import org.mockito.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.mockito.Matchers;
 
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -201,6 +204,7 @@ public abstract class BaseTest {
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommunicationTestServiceCallCustomPropertySet());
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(MasterDataService.class);
