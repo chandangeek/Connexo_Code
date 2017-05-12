@@ -455,7 +455,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                         anyVararg());
             String propertySql = this.antennaPowerPropertyWithClauseBuilder.getText().replace("\n", " ").toLowerCase();
             assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName()
-                    .toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from tst_antenna.*cps\\)");
+                    .toLowerCase() + " as value, cps.starttime, cps.endtime, cps.modtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime, modtime from tst_antenna.*cps\\)");
             verify(clauseAwareSqlBuilder)
                     .with(
                         matches("rod" + this.netConsumptionDeliverableId + ".*1"),
@@ -554,8 +554,8 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                         any(Optional.class),
                         anyVararg());
             String propertySql = this.antennaPowerPropertyWithClauseBuilder.getText().replace("\n", " ").toLowerCase();
-            assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName()
-                    .toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from tst_antenna.*cps\\)");
+            assertThat(propertySql)
+                    .matches(".*\\(select cps." + AntennaFields.POWER.databaseName().toLowerCase() + " as value, cps.starttime, cps.endtime, cps.modtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime, modtime from tst_antenna.*cps\\)");
             verify(clauseAwareSqlBuilder)
                     .with(
                         matches("rod" + this.netConsumptionDeliverableId + ".*1"),

@@ -81,7 +81,11 @@ public class InstallerV10_3Impl implements FullInstaller {
                 this::createCheckMetrologyPurpose,
                 logger
         );
-
+        doTry(
+                "Install default stage sets",
+                this::installDefaultStageSets,
+                logger
+        );
     }
 
     private void createRecordSpec() {

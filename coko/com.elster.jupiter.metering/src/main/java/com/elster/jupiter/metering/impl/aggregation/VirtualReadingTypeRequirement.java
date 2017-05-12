@@ -319,7 +319,7 @@ class VirtualReadingTypeRequirement {
         if ((this.preferredChannel == null) || (!this.preferredChannel.isPresent())) {
             this.preferredChannel = this.findPreferredChannel();
         }
-        return this.preferredChannel.orElseThrow(() -> new RequirementNotBackedByMeter(this.thesaurus));
+        return this.preferredChannel.orElseThrow(() -> new RequirementNotBackedByMeter(this.thesaurus, this.getTargetReadingType().toString()));
     }
 
     private Optional<ChannelContract> findPreferredChannel() {

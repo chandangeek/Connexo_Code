@@ -143,12 +143,14 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
                     .map(Formula::getExpressionNode)
                     .findFirst()    // Guaranteed to find one: reading type is result from sql that was generated from the list of deliverables
                     .get();
+        ZoneId zoneId = this.usagePoint.getZoneId();
         if (this.containsOnlyConstants(expressionNode)) {
             if (calculatedReadingRecords.size() == 1) {
                 CalculatedReadingRecordImpl record = calculatedReadingRecords.get(0);
+                Range<Instant> extendedPeriod = this.extendToEndOfInterval(this.period, readingType, zoneId);
                 return IntervalLength
                             .from(readingType)
-                            .toTimeSeries(this.period, this.usagePoint.getZoneId())
+                            .toTimeSeries(extendedPeriod, zoneId)
                             .map(record::atTimeStamp)
                             .collect(Collectors.toList());
             } else {
@@ -157,15 +159,20 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
         } else if (this.containsOnlyCustomProperties(expressionNode)) {
             // Assuming no gaps in custom property values
             RangeMap<Instant, CalculatedReadingRecordImpl> recordRangeMap = this.toRangeMap(calculatedReadingRecords);
+            Range<Instant> extendedPeriod = this.extendToEndOfInterval(this.period, readingType, zoneId);
             return IntervalLength
                         .from(readingType)
-                        .toTimeSeries(this.period, this.usagePoint.getZoneId())
+                        .toTimeSeries(extendedPeriod, zoneId)
                         .map(timestamp -> recordAtTimeStampOrNull(recordRangeMap, timestamp))
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
         } else {
             return calculatedReadingRecords;
         }
+    }
+
+    private Range<Instant> extendToEndOfInterval(Range<Instant> period, ReadingType readingType, ZoneId zoneId) {
+        return IntervalLength.from(readingType).extend(period, zoneId);
     }
 
     private CalculatedReadingRecordImpl recordAtTimeStampOrNull(RangeMap<Instant, CalculatedReadingRecordImpl> recordRangeMap, Instant timestamp) {
@@ -187,7 +194,7 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
 
     private RangeMap<Instant, CalculatedReadingRecordImpl> toRangeMap(List<CalculatedReadingRecordImpl> records) {
         RangeMap<Instant, CalculatedReadingRecordImpl> map = TreeRangeMap.create();
-        RangesBuilder rangesBuilder = new RangesBuilder(this.period.upperEndpoint());
+        RangesBuilder rangesBuilder = new RangesBuilder(this.period);
         records.stream().sorted().forEach(record -> rangesBuilder.add(record.getTimeStamp()));
         rangesBuilder
                 .allRanges()
@@ -224,28 +231,39 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
     }
 
     private static class RangesBuilder {
-        private final Instant lastInterval;
+        private final Range<Instant> period;
         private final RangeBuilder singleBuilder = new RangeBuilder();
         private final List<Range<Instant>> built = new ArrayList<>();
 
-        private RangesBuilder(Instant lastInterval) {
-            this.lastInterval = lastInterval;
+        private RangesBuilder(Range<Instant> period) {
+            this.period = period;
         }
 
         public void add(Instant when) {
-            if (this.lastInterval.isAfter(when)) {
+            if (this.period.upperEndpoint().isAfter(when)) {
                 this.singleBuilder.add(when);
                 if (this.singleBuilder.hasRange()) {
                     this.built.add(this.singleBuilder.getRange());
                     this.singleBuilder.reset();
                     this.singleBuilder.add(when);
                 }
+            } else {
+                /* Adding interval that is result of aggregation in time
+                 * When data is requested for period [Jan 1st 2017..Jan 15th 2017]
+                 * for monthly reading type then all the intervals in that
+                 * period are aggregated into 1 single interval whose
+                 * timestamp will be Feb 1st 2017. */
+                this.built.add(Range.closed(this.period.lowerEndpoint(), when));
             }
         }
 
         List<Range<Instant>> allRanges() {
-            this.singleBuilder.add(this.lastInterval);
-            this.built.add(Ranges.copy(this.singleBuilder.getRange()).asClosed());
+            if (!this.singleBuilder.isEmpty() && !this.singleBuilder.hasRange()) {
+                this.singleBuilder.add(this.period.upperEndpoint());
+            }
+            if (!this.singleBuilder.isEmpty()) {
+                this.built.add(Ranges.copy(this.singleBuilder.getRange()).asClosed());
+            }
             List<Range<Instant>> ranges = new ArrayList<>(this.built);
             this.built.clear();
             this.singleBuilder.reset();
@@ -270,6 +288,10 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
             } else {
                 throw new IllegalStateException("Current range is already complete");
             }
+        }
+
+        boolean isEmpty() {
+            return this.start == null && this.end == null;
         }
 
         boolean hasRange() {
