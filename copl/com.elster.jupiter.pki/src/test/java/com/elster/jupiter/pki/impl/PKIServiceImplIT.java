@@ -1,5 +1,6 @@
 package com.elster.jupiter.pki.impl;
 
+import certpathvalidator.CertPathValidatorTest;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -26,8 +27,6 @@ import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultPassphraseFactory
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
-
-import certpathvalidator.CertPathValidatorTest;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -45,9 +44,18 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.bc.BcPKCS10CertificationRequest;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -62,7 +70,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Base64;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -71,15 +78,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static java.util.stream.Collectors.toList;
@@ -164,7 +162,7 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.INVALIDPASSPHRASELENGTH+"}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INVALIDPASSPHRASELENGTH + "}")
     public void testCreatePassphraseKeyTypeWithInvalidLength() {
         KeyType created = inMemoryPersistence.getPkiService()
                 .newPassphraseType("Basic")
@@ -178,7 +176,7 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.NOVALIDCHARACTERS+"}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NOVALIDCHARACTERS + "}")
     public void testCreatePassphraseKeyTypeNoChars() {
         KeyType created = inMemoryPersistence.getPkiService()
                 .newPassphraseType("Basic")
@@ -378,10 +376,10 @@ public class PKIServiceImplIT {
         assertThat(symmetricKeyWrapper.getProperties()).containsKey("key");
         assertThat(symmetricKeyWrapper.getPropertySpecs()).hasSize(1);
         assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDisplayName()).isEqualTo("Key");
-        assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDescription()).isEqualTo("Base64 encoded key");
+        assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getDescription()).isEqualTo("Plain text key");
         assertThat(symmetricKeyWrapper.getPropertySpecs().get(0).getValueFactory().getValueType()).isEqualTo(String.class);
         assertThat(symmetricKeyWrapper.getExpirationTime()).isPresent();
-        assertThat(symmetricKeyWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0,0,0, ZoneId.of("UTC")).toInstant());
+        assertThat(symmetricKeyWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
     }
 
     @Test
@@ -401,13 +399,13 @@ public class PKIServiceImplIT {
         assertThat(passphraseWrapper.getPassphrase().get()).hasSize(20);
         assertThat(passphraseWrapper.getProperties()).hasSize(1);
         assertThat(passphraseWrapper.getProperties()).containsKey("passphrase");
-        assertThat(((String)passphraseWrapper.getProperties().get("passphrase"))).hasSize(20);
+        assertThat(((String) passphraseWrapper.getProperties().get("passphrase"))).hasSize(20);
         assertThat(passphraseWrapper.getPropertySpecs()).hasSize(1);
         assertThat(passphraseWrapper.getPropertySpecs().get(0).getDisplayName()).isEqualTo("Passphrase");
         assertThat(passphraseWrapper.getPropertySpecs().get(0).getDescription()).isEqualTo("Plaintext passphrase");
         assertThat(passphraseWrapper.getPropertySpecs().get(0).getValueFactory().getValueType()).isEqualTo(String.class);
         assertThat(passphraseWrapper.getExpirationTime()).isPresent();
-        assertThat(passphraseWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0,0,0, ZoneId.of("UTC")).toInstant());
+        assertThat(passphraseWrapper.getExpirationTime().get()).isEqualTo(ZonedDateTime.of(2019, 4, 4, 13, 0, 0, 0, ZoneId.of("UTC")).toInstant());
     }
 
     @Test
@@ -505,19 +503,19 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.FIELD_TOO_LONG+"}", property="alias")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "alias")
     public void testImportCertificateWithLargeAlias() throws Exception {
         StringBuilder alias = new StringBuilder();
-        IntStream.range(1,260).forEach(i->alias.append("A")); // max == 256
+        IntStream.range(1, 260).forEach(i -> alias.append("A")); // max == 256
         inMemoryPersistence.getPkiService().newCertificateWrapper(alias.toString());
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.FIELD_TOO_LONG+"}", property="alias")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "alias")
     public void testImportCertificateWithHugeAlias_CXO_6591() throws Exception {
         StringBuilder alias = new StringBuilder();
-        IntStream.range(1,5000).forEach(i->alias.append("A"));
+        IntStream.range(1, 5000).forEach(i -> alias.append("A"));
         inMemoryPersistence.getPkiService().newCertificateWrapper(alias.toString());
     }
 
@@ -557,7 +555,7 @@ public class PKIServiceImplIT {
                 .add();
 
         Optional<TrustStore> incorrect = inMemoryPersistence.getPkiService()
-                .findAndLockTrustStoreByIdAndVersion(main.getId(), main.getVersion()+1);
+                .findAndLockTrustStoreByIdAndVersion(main.getId(), main.getVersion() + 1);
 
         assertThat(incorrect).isEmpty();
     }
@@ -877,7 +875,7 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.ALIAS_UNIQUE+"}", property="alias")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.ALIAS_UNIQUE + "}", property = "alias")
     public void testDuplicateAliasForCertificate() throws Exception {
         KeyType certificateType = inMemoryPersistence.getPkiService()
                 .newClientCertificateType("TLS-DUPLICATE", "SHA256withDSA")
@@ -891,7 +889,7 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.ALIAS_UNIQUE+"}", property="alias")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.ALIAS_UNIQUE + "}", property = "alias")
     public void testDuplicateAliasForDifferentCertificates() throws Exception {
         KeyType certificateType = inMemoryPersistence.getPkiService()
                 .newClientCertificateType("TLS-DUPLICATE2", "SHA256withDSA")
@@ -977,8 +975,8 @@ public class PKIServiceImplIT {
         assertThat(propertySpecs.get(1).getDisplayName()).isEqualTo("Trust store");
 
         Map<String, Object> properties = certificate.getProperties();
-        assertThat(((TrustStore)properties.get("trustStore")).getName()).isEqualTo(main.getName());
-        assertThat(((TrustStore)properties.get("trustStore")).getId()).isEqualTo(main.getId());
+        assertThat(((TrustStore) properties.get("trustStore")).getName()).isEqualTo(main.getName());
+        assertThat(((TrustStore) properties.get("trustStore")).getId()).isEqualTo(main.getId());
     }
 
     @Test
@@ -1010,16 +1008,16 @@ public class PKIServiceImplIT {
 
         Map<String, Object> properties = symmetricKeyWrapper.getProperties();
         assertThat(properties).containsKeys("key");
-        assertThat((String)properties.get("key")).isNotEmpty();
+        assertThat((String) properties.get("key")).isNotEmpty();
 
         symmetricKeyWrapper.setProperties(properties);
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.INVALID_VALUE+"}", property="key")
-    public void testUpdatePropertiesSymmetricKeyWithImproperBase64() throws Exception {
-        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128-props-base64", "AES", 128).add();
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INVALID_VALUE + "}", property = "key")
+    public void testUpdatePropertiesSymmetricKeyWithImproperHexStringKey() throws Exception {
+        KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128-props-plain", "AES", 128).add();
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
         when(keyAccessorType.getKeyType()).thenReturn(created);
         when(keyAccessorType.getKeyEncryptionMethod()).thenReturn("DataVault");
@@ -1029,13 +1027,13 @@ public class PKIServiceImplIT {
                 .newSymmetricKeyWrapper(keyAccessorType);
 
         Map<String, Object> map = new HashMap<>();
-        map.put("key", "not really base64 is it");
+        map.put("key", "thisIsNotAValidHexString");
         symmetricKeyWrapper.setProperties(map);
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+MessageSeeds.Keys.INVALID_KEY_SIZE+"}", property="key")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INVALID_KEY_SIZE + "}", property = "key")
     public void testUpdatePropertiesSymmetricKeyWithImproperSecretKey() throws Exception {
         KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128-props-sk", "AES", 128).add();
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
@@ -1047,7 +1045,7 @@ public class PKIServiceImplIT {
                 .newSymmetricKeyWrapper(keyAccessorType);
 
         Map<String, Object> map = new HashMap<>();
-        map.put("key", new String(Base64.getEncoder().encode(new byte[]{1,2,3,4,5}))); // incorrect symmetric key
+        map.put("key", new String(new byte[]{1, 2, 3, 4, 5}, Charset.forName("UTF-8"))); // incorrect symmetric key
         symmetricKeyWrapper.setProperties(map);
     }
 
@@ -1058,7 +1056,7 @@ public class PKIServiceImplIT {
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
         // build a certificate generator
-        X500Name dnName = new X500Name("cn="+myself);
+        X500Name dnName = new X500Name("cn=" + myself);
         Date notBefore = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
         Date notAfter = new Date(System.currentTimeMillis() + 2 * 365 * 24 * 60 * 60 * 1000);
 

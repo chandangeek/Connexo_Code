@@ -24,11 +24,11 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.Base64;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +39,7 @@ import static java.util.stream.Collectors.toList;
 
 /**
  * A Plaintext symmetric key is stored encrypted in the DB (using DataVaultService), however, the secret value can be shown
- * in plaintext to the user (base64 encoded).
+ * in plaintext to the user (hex string).
  * This type is provides security through implementation of a software security model, without use of an HSM
  **/
 public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
@@ -168,9 +168,9 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
     public enum Properties {
         DECRYPTED_KEY("key") {
             public PropertySpec asPropertySpec(PropertySpecService propertySpecService) {
-                return propertySpecService.base64StringSpec()
+                return propertySpecService.stringSpec()
                         .named(getPropertyName(), "Key")
-                        .describedAs("Base64 encoded key")
+                        .describedAs("Plain text key")
                         .finish();
             }
 
@@ -208,16 +208,16 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
      */
     @KeySize(groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Keys.INVALID_KEY_SIZE+"}")
     public class PropertySetter  {
-        @Base64EncodedKey(groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Keys.INVALID_VALUE+"}")
+        @HexStringKey(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALID_VALUE + "}")
         private String key; // field name must match property name
 
         PropertySetter(PlaintextSymmetricKeyImpl source) {
             byte[] decrypt = dataVaultService.decrypt(source.encryptedKey);
-            this.key = Base64.getEncoder().encodeToString(decrypt);
+            this.key = new String(decrypt, Charset.forName("UTF-8"));
         }
 
         void applyProperties() {
-            byte[] decode = Base64.getDecoder().decode(key);
+            byte[] decode = key.getBytes(Charset.forName("UTF-8"));
             PlaintextSymmetricKeyImpl.this.encryptedKey = dataVaultService.encrypt(decode);
 
             PlaintextSymmetricKeyImpl.this.save();

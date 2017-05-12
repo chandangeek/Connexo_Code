@@ -17,7 +17,6 @@ import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-
 import com.google.common.collect.ImmutableMap;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -33,6 +32,7 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
 
 import javax.validation.constraints.Size;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -41,7 +41,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +60,7 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
     private final Thesaurus thesaurus;
 
     private long id;
-    @Size(max = Table.MAX_STRING_LENGTH, message = "{"+MessageSeeds.Keys.FIELD_TOO_LONG+"}")
+    @Size(max = Table.MAX_STRING_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String encryptedPrivateKey;
     private Reference<KeyType> keyTypeReference = Reference.empty();
     private Instant expirationTime;
@@ -69,8 +68,7 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
     public enum Fields {
         ENCRYPTED_KEY("encryptedPrivateKey"),
         KEY_TYPE("keyTypeReference"),
-        EXPIRATION("expirationTime"),
-        ;
+        EXPIRATION("expirationTime"),;
 
         private final String fieldName;
 
@@ -251,7 +249,7 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
             @Override
             void copyFromMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyWrapperImpl privateKey) {
                 if (properties.containsKey(getPropertyName())) {
-                    byte[] decode = Base64.getDecoder().decode((String) properties.get(getPropertyName()));
+                    byte[] decode = ((String) properties.get(getPropertyName())).getBytes(Charset.forName("UTF-8"));
                     privateKey.encryptedPrivateKey = privateKey.dataVaultService.encrypt(decode);
                 }
             }
@@ -259,10 +257,9 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
             @Override
             void copyToMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyWrapperImpl privateKey) {
                 byte[] decrypt = privateKey.dataVaultService.decrypt(privateKey.encryptedPrivateKey);
-                properties.put(getPropertyName(), Base64.getEncoder().encodeToString(decrypt));
+                properties.put(getPropertyName(), new String(decrypt, Charset.forName("UTF-8")));
             }
-        },
-        ;
+        },;
 
         private final String propertyName;
 
@@ -271,7 +268,9 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
         }
 
         abstract PropertySpec asPropertySpec(PropertySpecService propertySpecService);
+
         abstract void copyFromMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyWrapperImpl privateKey);
+
         abstract void copyToMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyWrapperImpl privateKey);
 
         String getPropertyName() {

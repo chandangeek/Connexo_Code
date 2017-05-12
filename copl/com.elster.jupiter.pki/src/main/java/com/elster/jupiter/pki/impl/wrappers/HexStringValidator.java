@@ -4,25 +4,25 @@
 
 package com.elster.jupiter.pki.impl.wrappers;
 
-import com.elster.jupiter.pki.impl.wrappers.symmetric.Base64EncodedKey;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.HexStringKey;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Base64;
+import java.math.BigInteger;
 
-public class Base64Validator implements ConstraintValidator<Base64EncodedKey, String> {
+public class HexStringValidator implements ConstraintValidator<HexStringKey, String> {
     private String message;
 
     @Override
-    public void initialize(Base64EncodedKey annotation) {
+    public void initialize(HexStringKey annotation) {
         this.message = annotation.message();
     }
 
     @Override
     public boolean isValid(String string, ConstraintValidatorContext constraintValidatorContext) {
         try {
-            Base64.getDecoder().decode(string);
-        } catch (IllegalArgumentException e) {
+            new BigInteger(string.toUpperCase(), 16);
+        } catch (NumberFormatException e) {
             constraintValidatorContext
                     .buildConstraintViolationWithTemplate(message)
                     .addConstraintViolation()

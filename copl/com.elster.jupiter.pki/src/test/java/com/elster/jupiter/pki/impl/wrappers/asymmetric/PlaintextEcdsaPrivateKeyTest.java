@@ -11,27 +11,25 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.exception.MessageSeed;
-
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.nio.charset.Charset;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
-import java.util.Base64;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -58,8 +56,8 @@ public class PlaintextEcdsaPrivateKeyTest {
     @Before
     public void setUp() throws Exception {
         Security.addProvider(new BouncyCastleProvider());
-        when(datavaultService.encrypt(any())).then(invocationOnMock -> Base64.getEncoder().encodeToString((byte[]) invocationOnMock.getArguments()[0]));
-        when(datavaultService.decrypt(any())).then(invocationOnMock -> Base64.getDecoder().decode((String)invocationOnMock.getArguments()[0]));
+        when(datavaultService.encrypt(any())).then(invocationOnMock -> new String(((byte[]) invocationOnMock.getArguments()[0]), Charset.forName("UTF-8")));
+        when(datavaultService.decrypt(any())).then(invocationOnMock -> ((String) invocationOnMock.getArguments()[0]).getBytes(Charset.forName("UTF-8")));
         ValidatorFactory validatorFactory = mock(ValidatorFactory.class);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         Validator validator = mock(Validator.class);

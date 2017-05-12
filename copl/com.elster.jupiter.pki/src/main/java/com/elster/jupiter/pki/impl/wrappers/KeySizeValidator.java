@@ -9,7 +9,6 @@ import com.elster.jupiter.pki.impl.wrappers.symmetric.PlaintextSymmetricKeyImpl;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Base64;
 
 public class KeySizeValidator implements ConstraintValidator<KeySize, PlaintextSymmetricKeyImpl.PropertySetter> {
     private String message;
@@ -22,8 +21,8 @@ public class KeySizeValidator implements ConstraintValidator<KeySize, PlaintextS
     @Override
     public boolean isValid(PlaintextSymmetricKeyImpl.PropertySetter propertySetter, ConstraintValidatorContext constraintValidatorContext) {
         try {
-            byte[] decode = Base64.getDecoder().decode(propertySetter.getKey());
-            if (decode.length*8!=propertySetter.getKeySize()) {
+            String hexKey = propertySetter.getKey();
+            if (hexKey.length() * 4 != propertySetter.getKeySize()) {
                 constraintValidatorContext
                         .buildConstraintViolationWithTemplate(message)
                         .addPropertyNode("key")

@@ -4,7 +4,7 @@
 
 package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
-import com.elster.jupiter.pki.impl.wrappers.Base64Validator;
+import com.elster.jupiter.pki.impl.wrappers.HexStringValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -17,10 +17,10 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint( validatedBy = {Base64Validator.class} )
-public @interface Base64EncodedKey {
+@Constraint(validatedBy = {HexStringValidator.class})
+public @interface HexStringKey {
 
-    String message() default "{com.elster.jupiter.validation.base64}";
+    String message() default "{com.elster.jupiter.validation.hexstring}";
 
     Class<?>[] groups() default {};
 
