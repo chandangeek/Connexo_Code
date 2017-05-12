@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -39,6 +40,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
+@Ignore
 public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJerseyTest {
 
     Clock clock = Clock.fixed(Instant.ofEpochSecond(1448841600), ZoneId.systemDefault());
