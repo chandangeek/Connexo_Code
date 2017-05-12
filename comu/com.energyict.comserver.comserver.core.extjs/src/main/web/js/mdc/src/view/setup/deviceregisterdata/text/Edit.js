@@ -80,6 +80,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Edit', {
                     },
                     {
                         xtype: 'textareafield',
+                        enforceMaxLength: true,
+                        maxLength: 4000,
                         name: 'value',
                         width: 500,
                         height: 300,

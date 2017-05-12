@@ -8,7 +8,7 @@ Ext.define('Mdc.util.LinkPurpose', {
     LINK_MULTI_ELEMENT_SLAVE: 3,
     properties: {
         0: { name: 'NotApplicable',
-             value: 0,
+             value: 0
         },
         1: {
             name: 'LinkSlave',

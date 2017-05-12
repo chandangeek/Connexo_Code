@@ -143,7 +143,6 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
 
     editDeviceSecuritySettingHistoryFromPreview: function () {
         this.editDeviceSecuritySettingHistory(this.getDeviceSecuritySettingPreviewForm().getRecord());
-
     },
 
     editDeviceSecuritySetting: function () {
@@ -153,7 +152,6 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
             me = this;
         record.set('saveAsIncomplete', false);
         me.saveRecord(record, values, propertyForm);
-
     },
 
     saveRecord: function (record, values, propertyForm) {

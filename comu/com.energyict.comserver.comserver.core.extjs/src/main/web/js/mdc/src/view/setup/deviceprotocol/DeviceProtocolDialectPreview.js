@@ -72,7 +72,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectPreview', {
                     items: [
                         {
                             xtype: 'displayfield',
-                            name: 'name',
+                            name: 'displayName',
                             fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name')
                         }
                     ]

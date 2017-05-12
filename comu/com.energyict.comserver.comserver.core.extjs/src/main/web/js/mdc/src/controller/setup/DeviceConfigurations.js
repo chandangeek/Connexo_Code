@@ -541,13 +541,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             directlyAddressableCheckBox.setDisabled(deviceConfiguration.get('active'));
         } else {
             directlyAddressableCheckBox.setValue(deviceType.get('canBeDirectlyAddressed'));
-            directlyAddressableCheckBox.setDisabled(false);
-        }
-        if (!deviceType.get('canBeDirectlyAddressed')) {
             directlyAddressableCheckBox.setVisible(true);
-            directlyAddressableCheckBox.setDisabled(true); // disable...
-            directlyAddressableMessage.setVisible(true); // and indicate why
-        } else if (deviceType.isDataLoggerSlave() || deviceType.isMultiElementSlave()) {
+        }
+        if (!deviceType.get('canBeDirectlyAddressed') || deviceType.isDataLoggerSlave() || deviceType.isMultiElementSlave()) {
             directlyAddressableCheckBox.setVisible(false);
         }
     },
@@ -567,11 +563,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             gatewayCheckBox.setValue(false);
             gatewayCheckBox.setDisabled(false);
         }
-        if (!deviceType.get('canBeGateway')) {
-            gatewayCheckBox.setVisible(true);
-            gatewayCheckBox.setDisabled(true); // disable...
-            gatewayMessage.setVisible(true); // and indicate why
-        } else if (deviceType.isDataLoggerSlave() || deviceType.isMultiElementSlave()) {
+        if (!deviceType.get('canBeGateway') || deviceType.isDataLoggerSlave() || deviceType.isMultiElementSlave()) {
             gatewayCheckBox.setVisible(false);
         }
     },

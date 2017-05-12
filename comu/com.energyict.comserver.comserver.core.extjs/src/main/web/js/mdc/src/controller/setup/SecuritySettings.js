@@ -303,11 +303,12 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                                 var form = Ext.widget('securitySettingForm', {
                                     deviceTypeId: deviceTypeId,
                                     deviceConfigurationId: deviceConfigurationId,
-                                    securityHeader: Ext.String.format(Uni.I18n.translate('securitySetting.editX', 'MDC', "Edit security setting '{0}'"), securitySetting.get('name')),
+                                    securityHeader: Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", securitySetting.get('name')),
                                     actionButtonName: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                                     securityAction: 'save'
                                 });
                                 form.down('form#myForm').loadRecord(securitySetting);
+                                me.getApplication().fireEvent('loadSecuritySetting', securitySetting);
                                 me.getApplication().fireEvent('changecontentevent', form);
                             }
                         });
