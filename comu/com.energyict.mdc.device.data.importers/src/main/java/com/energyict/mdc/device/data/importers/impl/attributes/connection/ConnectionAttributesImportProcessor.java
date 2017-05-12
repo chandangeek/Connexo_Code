@@ -5,6 +5,10 @@
 package com.energyict.mdc.device.data.importers.impl.attributes.connection;
 
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
+import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
@@ -13,6 +17,7 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
@@ -27,8 +32,11 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ConnectionAttributesImportProcessor extends AbstractDeviceDataFileImportProcessor<ConnectionAttributesImportRecord> {
@@ -37,10 +45,12 @@ public class ConnectionAttributesImportProcessor extends AbstractDeviceDataFileI
 
     private boolean isFirstRow = true;
     private String connectionMethod;
+    private final PkiService pkiService;
 
-    ConnectionAttributesImportProcessor(DeviceDataImporterContext context, SupportedNumberFormat numberFormat) {
+    ConnectionAttributesImportProcessor(DeviceDataImporterContext context, SupportedNumberFormat numberFormat, PkiService pkiService) {
         super(context);
         this.propertiesConverterConfig = PropertiesConverterConfig.newConfig().withNumberFormat(numberFormat);
+        this.pkiService = pkiService;
     }
 
     @Override
@@ -49,17 +59,17 @@ public class ConnectionAttributesImportProcessor extends AbstractDeviceDataFileI
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceIdentifier()));
         validateConnectionMethodUniquenessInFile(data);
         Optional<ConnectionTask<?, ?>> connectionTask = device.getConnectionTasks().stream()
-                .filter(task -> task.getName().equals(data.getConnectionMethod())).findFirst();
+                .filter(task -> task.getName().equals(data.getConnectionMethod())).findAny();
         if (connectionTask.isPresent()) {
             validateConnectionMethodProperties(data, connectionTask.get().getConnectionType(), logger);
             ConnectionTask task = connectionTask.get();
-            setConnectionAttributes(data, task.getConnectionType(), task::setProperty);
+            setConnectionAttributes(data, task.getConnectionType(), task::setProperty, new KeyAccessorSetter(device, task)::setKeyAccessor);
             task.saveAllProperties();
             logMissingPropertiesIfIncomplete(task, data, logger);
         } else {
             PartialConnectionTask partialConnectionTask = device.getDeviceConfiguration().getPartialConnectionTasks()
                     .stream().filter(task -> task.getName().equals(data.getConnectionMethod()))
-                    .findFirst()
+                    .findAny()
                     .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_CONNECTION_METHOD_ON_DEVICE, data.getLineNumber(), data.getConnectionMethod()));
             validateConnectionMethodProperties(data, partialConnectionTask.getConnectionType(), logger);
             createConnectionTaskOnDevice(device, partialConnectionTask, data, logger);
@@ -136,7 +146,7 @@ public class ConnectionAttributesImportProcessor extends AbstractDeviceDataFileI
     private void addInboundConnectionTaskToDevice(Device device, PartialInboundConnectionTask partialConnectionTask, ConnectionAttributesImportRecord data, FileImportLogger logger) throws ProcessorException {
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = device.getInboundConnectionTaskBuilder(partialConnectionTask);
         try {
-            setConnectionAttributes(data, partialConnectionTask.getConnectionType(), inboundConnectionTaskBuilder::setProperty);
+            setConnectionAttributes(data, partialConnectionTask.getConnectionType(), inboundConnectionTaskBuilder::setProperty, new KeyAccessorSetter(device, partialConnectionTask)::setKeyAccessor);
             inboundConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE).add();
         } catch (Exception e) {
             try {
@@ -152,7 +162,7 @@ public class ConnectionAttributesImportProcessor extends AbstractDeviceDataFileI
 
     private void addScheduledConnectionTaskToDevice(Device device, PartialOutboundConnectionTask partialConnectionTask, ConnectionAttributesImportRecord data, FileImportLogger logger) throws ProcessorException {
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialConnectionTask);
-        setConnectionAttributes(data, partialConnectionTask.getConnectionType(), scheduledConnectionTaskBuilder::setProperty);
+        setConnectionAttributes(data, partialConnectionTask.getConnectionType(), scheduledConnectionTaskBuilder::setProperty, new KeyAccessorSetter(device, partialConnectionTask)::setKeyAccessor);
         try {
             scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE).add();
         } catch (Exception e) {
@@ -171,12 +181,57 @@ public class ConnectionAttributesImportProcessor extends AbstractDeviceDataFileI
         return exception.getConstraintViolations().stream().map(ConstraintViolation::getMessage).collect(Collectors.joining("; "));
     }
 
-    private void setConnectionAttributes(ConnectionAttributesImportRecord data, ConnectionType connectionType, BiConsumer<String, Object> setter) {
+    private void setConnectionAttributes(ConnectionAttributesImportRecord data, ConnectionType connectionType, BiConsumer<String, Object> propertySetter, BiConsumer<String, Object> keyAccessorSetter) {
         connectionType.getPropertySpecs().stream()
                 .filter(propertySpec -> data.getConnectionAttributes().containsKey(propertySpec.getName()))
                 .forEach(propertySpec -> {
                     String name = propertySpec.getName();
-                    setter.accept(name, parseStringToValue(propertySpec, data.getConnectionAttributes().get(name), data));
+                    String value = data.getConnectionAttributes().get(name);
+                    if (propertySpec.isReference() && (KeyAccessorType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()))) {
+                        keyAccessorSetter.accept(name, value);
+                    } else {
+                        propertySetter.accept(name, parseStringToValue(propertySpec, value, data));
+                    }
                 });
     }
+
+    /**
+     * This class allows setting the KeyAccessor's actual value to the provided value.
+     * Both KeyAccessor and actual value are created if absent on device level.
+     * Supports only plaintext symmetric keys and plaintext passphrases
+     */
+    private class KeyAccessorSetter {
+        private final Device device;
+        private final Function<String, KeyAccessorType> keyAccessorTypeGetter;
+
+        KeyAccessorSetter(Device device, ConnectionTask task) {
+            this.device = device;
+            this.keyAccessorTypeGetter = name -> (KeyAccessorType) task.getProperty(name).getValue();
+        }
+
+        KeyAccessorSetter(Device device, PartialConnectionTask partialConnectionTask) {
+            this.device = device;
+            this.keyAccessorTypeGetter = name -> (KeyAccessorType) partialConnectionTask.getProperty(name).getValue();
+        }
+
+        void setKeyAccessor(String name, Object value) {
+            KeyAccessorType keyAccessorType = keyAccessorTypeGetter.apply(name);
+            KeyAccessor<SecurityValueWrapper> keyAccessor = device.getKeyAccessor(keyAccessorType)
+                    .orElse(device.newKeyAccessor(keyAccessorType));
+            SecurityValueWrapper securityValueWrapper = keyAccessor.getActualValue()
+                    .orElse(isKey(keyAccessorType) ?
+                            pkiService.newSymmetricKeyWrapper(keyAccessorType) :
+                            pkiService.newPassphraseWrapper(keyAccessorType));
+            keyAccessor.setActualValue(securityValueWrapper);
+            Map<String, Object> properties = new HashMap<>();
+            properties.put(isKey(keyAccessorType)?"key":"passphrase", value);
+            securityValueWrapper.setProperties(properties);
+            keyAccessor.save();
+        }
+
+        private boolean isKey(KeyAccessorType keyAccessorType) {
+            return keyAccessorType.getKeyType().getCryptographicType().equals(CryptographicType.SymmetricKey);
+        }
+    }
+
 }

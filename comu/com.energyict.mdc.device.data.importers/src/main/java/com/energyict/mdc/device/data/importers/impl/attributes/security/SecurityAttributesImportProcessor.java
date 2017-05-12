@@ -30,7 +30,7 @@ import java.util.Map;
  * The device will have KeyAccessors for the KeyAccessorTypes (or the importer creates them)
  * The real value for the property will be stored on the actual-value of the KeyAccessor
  */
-public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImportProcessor<SecurityAttributesImportRecord> { //TODO
+public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImportProcessor<SecurityAttributesImportRecord> {
 
     private String securitySettingsName;
     private final PkiService pkiService;
@@ -46,7 +46,8 @@ public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImp
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceIdentifier()));
         validateSecuritySettingsNameUniquenessInFile(data);
         SecurityPropertySet deviceConfigSecurityPropertySet = device.getDeviceConfiguration().getSecurityPropertySets().stream()
-                .filter(securityPropertySet -> securityPropertySet.getName().equals(data.getSecuritySettingsName())).findFirst()
+                .filter(securityPropertySet -> securityPropertySet.getName().equals(data.getSecuritySettingsName()))
+                .findFirst()
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SECURITY_SETTINGS_ON_DEVICE, data.getLineNumber(), data.getSecuritySettingsName()));
         try {
             updatedProperties(device, deviceConfigSecurityPropertySet, data);
