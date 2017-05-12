@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -85,22 +86,13 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.upl.security.RequestSecurityLevel;
-import com.energyict.mdc.upl.security.ResponseSecurityLevel;
-import com.energyict.mdc.upl.security.SecuritySuite;
+import com.energyict.mdc.upl.security.*;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.fest.assertions.api.Assertions;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -118,9 +110,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
@@ -189,6 +179,7 @@ public class SecurityPropertySetImplCrudWhenUsingSecuritySuiteIT {
                     new TransactionModule(false),
                     new UtilModule(),
                     new PkiModule(),
+                    new BpmModule(),
                     new NlsModule(),
                     new DomainUtilModule(),
                     new PartyModule(),

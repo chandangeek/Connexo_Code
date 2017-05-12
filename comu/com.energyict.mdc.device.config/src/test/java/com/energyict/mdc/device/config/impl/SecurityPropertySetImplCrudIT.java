@@ -86,6 +86,7 @@ import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ValueType;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
 import com.energyict.mdc.scheduling.SchedulingModule;
@@ -102,11 +103,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -116,11 +113,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.time.Clock;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -128,9 +121,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityPropertySetImplCrudIT {
@@ -323,6 +314,7 @@ public class SecurityPropertySetImplCrudIT {
                     return args[0];
                 });
         when(clientPropertySpec.getValueFactory()).thenReturn(valueFactory);
+        when(valueFactory.getValueTypeName()).thenReturn(ValueType.INTEGER.getUplClassName());
         Mockito.when(clientPropertySpec.validateValue(Mockito.any(Object.class)))
                 .thenAnswer(invocation -> {
                     Object[] args = invocation.getArguments();
@@ -334,6 +326,9 @@ public class SecurityPropertySetImplCrudIT {
         when(spec1.getName()).thenReturn("spec1");
         when(spec2.getName()).thenReturn("spec2");
         when(spec3.getName()).thenReturn("spec3");
+        when(spec1.getValueFactory()).thenReturn(valueFactory);
+        when(spec2.getValueFactory()).thenReturn(valueFactory);
+        when(spec3.getValueFactory()).thenReturn(valueFactory);
         when(authLevel.getSecurityProperties()).thenReturn(Collections.singletonList(spec1));
         when(authLevel2.getId()).thenReturn(2);
         when(authLevel2.getSecurityProperties()).thenReturn(Arrays.asList(spec1, spec2));

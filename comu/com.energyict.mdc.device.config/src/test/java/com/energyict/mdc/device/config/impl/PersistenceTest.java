@@ -82,6 +82,7 @@ public abstract class PersistenceTest {
         when(deviceMessageSpec3.getId()).thenReturn(DeviceMessageId.CONTACTOR_ARM.dbValue());
         deviceMessageIds.add(deviceMessageSpec3);
 
+        when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.empty());
         when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
         com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class);
         when(authenticationAccessLevel.getId()).thenReturn(0);

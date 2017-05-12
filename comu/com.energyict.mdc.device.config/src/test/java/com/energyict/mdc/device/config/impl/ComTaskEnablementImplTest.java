@@ -9,33 +9,21 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.exceptions.CannotDisableComTaskThatWasNotEnabledException;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ComTask;
-
-import java.util.List;
-import java.util.Optional;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.List;
+import java.util.Optional;
+
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link ComTaskEnablementImpl} component.
@@ -74,12 +62,12 @@ public class ComTaskEnablementImplTest extends PersistenceWithRealProtocolPlugga
 
     @Before
     public void setup () {
+        sharedData = new ProtocolDialectSharedData();
         this.registerNoParamsConnectionType();
         this.createDeviceType();
         this.createComTasks();
         this.createConfigurations();
         this.createSecurityPropertySets();
-        sharedData = new ProtocolDialectSharedData();
         properties = deviceConfiguration1.findOrCreateProtocolDialectConfigurationProperties(sharedData.getProtocolDialect());
         this.createPartialConnectionTasks();
     }
