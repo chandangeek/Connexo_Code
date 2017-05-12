@@ -94,7 +94,7 @@ public class UsagePointOutputEstimationResourceTest extends UsagePointDataRestAp
         when(readingTypeDeliverable.getReadingType()).thenReturn(readingType);
         when(readingTypeDeliverable.getMetrologyContract()).thenReturn(metrologyContract);
         doReturn(Optional.of(estimationRule)).when(estimationService).getEstimationRule(ESTIMATION_RULE_ID);
-        when(usagePointDataModelService.forEstimation(usagePoint)).thenReturn(usagePointEstimation);
+        when(usagePointService.forEstimation(usagePoint)).thenReturn(usagePointEstimation);
         when(usagePointEstimation.overridePropertiesFor(estimationRule, readingType)).thenReturn(propertyOverrider);
         mockPropertyValueInfoService();
         mockEstimationRule();

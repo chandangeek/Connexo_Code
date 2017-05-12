@@ -28,7 +28,7 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointService;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoritesService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
@@ -165,7 +165,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     @Mock
-    UsagePointDataModelService usagePointDataModelService;
+    UsagePointService usagePointService;
     @Mock
     TaskService taskService;
     @Mock
@@ -223,7 +223,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setUsagePointLifeCycleService(usagePointLifeCycleService);
         application.setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
         application.setPropertySpecService(propertySpecService);
-        application.setUsagePointDataModelService(usagePointDataModelService);
+        application.setUsagePointService(usagePointService);
         application.setUserService(userService);
         return application;
     }

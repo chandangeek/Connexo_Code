@@ -8,7 +8,7 @@ import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelEstimationRuleOverriddenProperties;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -26,15 +26,15 @@ public class EstimationRuleInfoFactory {
     private final EstimationService estimationService;
     private final ResourceHelper resourceHelper;
     private final PropertyValueInfoService propertyValueInfoService;
-    private final UsagePointDataModelService usagePointDataModelService;
+    private final UsagePointService usagePointService;
 
     @Inject
     EstimationRuleInfoFactory(EstimationService estimationService, ResourceHelper resourceHelper,
-                              PropertyValueInfoService propertyValueInfoService, UsagePointDataModelService usagePointDataModelService) {
+                              PropertyValueInfoService propertyValueInfoService, UsagePointService usagePointService) {
         this.estimationService = estimationService;
         this.resourceHelper = resourceHelper;
         this.propertyValueInfoService = propertyValueInfoService;
-        this.usagePointDataModelService = usagePointDataModelService;
+        this.usagePointService = usagePointService;
     }
 
     public EstimationQuantityInfo createEstimationRuleInfo(Collection<? extends ReadingQuality> readingQualities) {
@@ -73,7 +73,7 @@ public class EstimationRuleInfoFactory {
             info.commentId = comment.getId();
             info.commentValue = comment.getComment();
         });
-        Map<String, Object> overriddenProperties = this.usagePointDataModelService.forEstimation(usagePoint)
+        Map<String, Object> overriddenProperties = this.usagePointService.forEstimation(usagePoint)
                 .findOverriddenProperties(estimationRule, readingType)
                 .map(ChannelEstimationRuleOverriddenProperties::getProperties)
                 .orElseGet(Collections::emptyMap);

@@ -4,14 +4,13 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.estimation.Estimatable;
@@ -39,11 +38,9 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.ReadingTypeTranslationKeys;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.BigDecimalFunction;
 import com.elster.jupiter.rest.util.IntervalInfo;
@@ -816,7 +813,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(usagePointConfigurationService.getEstimationRuleSets(contract3)).thenReturn(Collections.singletonList(estimationRuleSet3));
 
         UsagePointEstimation usagePointEstimation = mock(UsagePointEstimation.class);
-        when(usagePointDataModelService.forEstimation(usagePoint)).thenReturn(usagePointEstimation);
+        when(usagePointService.forEstimation(usagePoint)).thenReturn(usagePointEstimation);
         doReturn(Optional.empty()).when(usagePointEstimation).findOverriddenProperties(any(), any());
 
         EstimationRule ruleWithOverriddenProperties = estimationRuleSet2.getRules().get(0);

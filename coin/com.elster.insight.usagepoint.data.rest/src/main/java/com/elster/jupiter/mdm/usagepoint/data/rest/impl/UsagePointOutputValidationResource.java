@@ -6,7 +6,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelValidationRuleOverriddenProperties;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointValidation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 
 public class UsagePointOutputValidationResource {
 
-    private final UsagePointDataModelService usagePointDataModelService;
+    private final UsagePointService usagePointService;
     private final UsagePointConfigurationService usagePointConfigurationService;
     private final PropertyValueInfoService propertyValueInfoService;
 
@@ -58,11 +58,11 @@ public class UsagePointOutputValidationResource {
     private final ResourceHelper resourceHelper;
 
     @Inject
-    UsagePointOutputValidationResource(UsagePointDataModelService usagePointDataModelService, UsagePointConfigurationService usagePointConfigurationService,
+    UsagePointOutputValidationResource(UsagePointService usagePointService, UsagePointConfigurationService usagePointConfigurationService,
                                        PropertyValueInfoService propertyValueInfoService, ChannelValidationRuleInfoFactory channelValidationRuleInfoFactory,
                                        ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory, ExceptionFactory exceptionFactory,
                                        ResourceHelper resourceHelper) {
-        this.usagePointDataModelService = usagePointDataModelService;
+        this.usagePointService = usagePointService;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.propertyValueInfoService = propertyValueInfoService;
         this.channelValidationRuleInfoFactory = channelValidationRuleInfoFactory;
@@ -83,7 +83,7 @@ public class UsagePointOutputValidationResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         ReadingType readingType = deliverable.getReadingType();
-        UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(usagePoint);
+        UsagePointValidation usagePointValidation = usagePointService.forValidation(usagePoint);
         List<ChannelValidationRuleInfo> infos = usagePointConfigurationService.getValidationRuleSets(deliverable.getMetrologyContract())
                 .stream()
                 .flatMap(validationRuleSet -> validationRuleSet.getRuleSetVersions().stream())
@@ -116,7 +116,7 @@ public class UsagePointOutputValidationResource {
         ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(ruleId);
         validateRuleApplicability(validationRule, deliverable);
-        UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(usagePoint);
+        UsagePointValidation usagePointValidation = usagePointService.forValidation(usagePoint);
         return asInfo(validationRule, deliverable.getReadingType(), usagePointValidation);
     }
 
@@ -131,7 +131,7 @@ public class UsagePointOutputValidationResource {
         ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(channelValidationRuleInfo.ruleId);
         validateRuleApplicability(validationRule, deliverable);
-        UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(usagePoint);
+        UsagePointValidation usagePointValidation = usagePointService.forValidation(usagePoint);
         UsagePointValidation.PropertyOverrider propertyOverrider = usagePointValidation.overridePropertiesFor(validationRule, deliverable.getReadingType());
 
         List<PropertyInfo> propertyInfos = toPropertyInfoList(channelValidationRuleInfo.properties);
@@ -161,7 +161,7 @@ public class UsagePointOutputValidationResource {
         ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(channelValidationRuleInfo.ruleId);
         validateRuleApplicability(validationRule, deliverable);
-        UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(usagePoint);
+        UsagePointValidation usagePointValidation = usagePointService.forValidation(usagePoint);
         ChannelValidationRuleOverriddenProperties channelValidationRule = usagePointValidation
                 .findAndLockChannelValidationRuleOverriddenProperties(channelValidationRuleInfo.id, channelValidationRuleInfo.version)
                 .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(validationRule.getDisplayName())
@@ -196,7 +196,7 @@ public class UsagePointOutputValidationResource {
         ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(channelValidationRuleInfo.ruleId);
         validateRuleApplicability(validationRule, deliverable);
-        UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(usagePoint);
+        UsagePointValidation usagePointValidation = usagePointService.forValidation(usagePoint);
         ChannelValidationRuleOverriddenProperties channelValidationRule = usagePointValidation
                 .findAndLockChannelValidationRuleOverriddenProperties(channelValidationRuleInfo.id, channelValidationRuleInfo.version)
                 .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(validationRule.getDisplayName())

@@ -98,7 +98,7 @@ public class UsagePointOutputValidationResourceTest extends UsagePointDataRestAp
         when(readingTypeDeliverable.getReadingType()).thenReturn(readingType);
         when(readingTypeDeliverable.getMetrologyContract()).thenReturn(metrologyContract);
         doReturn(Optional.of(validationRule)).when(validationService).findValidationRule(VALIDATION_RULE_ID);
-        when(usagePointDataModelService.forValidation(usagePoint)).thenReturn(usagePointValidation);
+        when(usagePointService.forValidation(usagePoint)).thenReturn(usagePointValidation);
         when(usagePointValidation.overridePropertiesFor(validationRule, readingType)).thenReturn(propertyOverrider);
         mockPropertyValueInfoService();
         mockValidationRule();
