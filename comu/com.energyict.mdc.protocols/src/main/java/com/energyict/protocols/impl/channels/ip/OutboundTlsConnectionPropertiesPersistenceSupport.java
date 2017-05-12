@@ -120,6 +120,18 @@ public class OutboundTlsConnectionPropertiesPersistenceSupport implements Persis
                 .map(OutboundIpConnectionProperties.Fields.TLS_SERVER_CERTIFICATE.javaName())
                 .add();
 
+        table
+                .column(OutboundIpConnectionProperties.Fields.TLS_VERSION.databaseName())
+                .varChar()
+                .map(OutboundIpConnectionProperties.Fields.TLS_VERSION.javaName())
+                .add();
+
+        table
+                .column(OutboundIpConnectionProperties.Fields.TLS_PREFERRED_CIPHER_SUITES.databaseName())
+                .varChar()
+                .map(OutboundIpConnectionProperties.Fields.TLS_PREFERRED_CIPHER_SUITES.javaName())
+                .add();
+
         Stream
                 .of(
                         OutboundIpConnectionProperties.Fields.BUFFER_SIZE,

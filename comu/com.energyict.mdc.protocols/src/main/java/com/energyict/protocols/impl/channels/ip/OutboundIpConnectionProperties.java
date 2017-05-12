@@ -160,6 +160,30 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
             public String databaseName() {
                 return "TLS_SERV_CERT";
             }
+        },
+
+        TLS_PREFERRED_CIPHER_SUITES {
+            @Override
+            public String propertySpecName() {
+                return TLSConnectionType.PREFERRED_CIPHER_SUITES_PROPERTY_NAME;
+            }
+
+            @Override
+            public String databaseName() {
+                return "TLS_CIPHER_SUITES";
+            }
+        },
+
+        TLS_VERSION {
+            @Override
+            public String propertySpecName() {
+                return TLSConnectionType.TLS_VERSION_PROPERTY_NAME;
+            }
+
+            @Override
+            public String databaseName() {
+                return "TLS_VERSION";
+            }
         };
 
         public String javaName() {
@@ -186,6 +210,11 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
     @Size(max = Table.MAX_STRING_LENGTH)
     private String postDialCommand;
     private Reference<KeyAccessorType> tlsClientCertificate = Reference.empty();
+    private Reference<KeyAccessorType> tlsServerCertificate = Reference.empty();
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String preferredCipherSuites;
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String tlsVersion;
 
     @Override
     public void postLoad() {
@@ -201,15 +230,26 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
     public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.connectionProvider.set(connectionProvider);
         this.copyHost(propertyValues);
+        this.copyPreferredCipherSuites(propertyValues);
+        this.copyTlsVersion(propertyValues);
         this.copyPort(propertyValues);
         this.copyConnectionTimeout(propertyValues);
         this.copyBufferSize(propertyValues);
         this.copyPostDialProperties(propertyValues);
         this.copyTlsClientCertificate(propertyValues);
+        this.copyTlsServerCertificate(propertyValues);
     }
 
     protected void copyHost(CustomPropertySetValues propertyValues) {
         this.host = (String) propertyValues.getProperty(Fields.HOST.propertySpecName());
+    }
+
+    protected void copyPreferredCipherSuites(CustomPropertySetValues propertyValues) {
+        this.preferredCipherSuites = (String) propertyValues.getProperty(Fields.TLS_PREFERRED_CIPHER_SUITES.propertySpecName());
+    }
+
+    protected void copyTlsVersion(CustomPropertySetValues propertyValues) {
+        this.tlsVersion = (String) propertyValues.getProperty(Fields.TLS_VERSION.propertySpecName());
     }
 
     protected void copyPort(CustomPropertySetValues propertyValues) {
@@ -228,6 +268,10 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         this.tlsClientCertificate.set((KeyAccessorType) propertyValues.getProperty(Fields.TLS_CLIENT_CERTIFICATE.propertySpecName()));
     }
 
+    protected void copyTlsServerCertificate(CustomPropertySetValues propertyValues) {
+        this.tlsClientCertificate.set((KeyAccessorType) propertyValues.getProperty(Fields.TLS_SERVER_CERTIFICATE.propertySpecName()));
+    }
+
     protected void copyPostDialProperties(CustomPropertySetValues propertyValues) {
         this.postDialDelay = (BigDecimal) propertyValues.getProperty(Fields.POST_DIAL_DELAY_MILLIS.propertySpecName());
         this.postDialTries = (BigDecimal) propertyValues.getProperty(Fields.POST_DIAL_COMMAND_ATTEMPTS.propertySpecName());
@@ -240,10 +284,19 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         this.copyNullablePropertyTo(propertySetValues, Fields.PORT_NUMBER, this.portNumber);
         this.copyNullablePropertyTo(propertySetValues, Fields.CONNECTION_TIMEOUT, this.connectionTimeout);
         this.copyNullablePropertyTo(propertySetValues, Fields.BUFFER_SIZE, this.udpdatagrambuffersize);
+        this.copyPostDialPropertiesTo(propertySetValues);
+        this.copyTlsPropertiesTo(propertySetValues);
+    }
+
+    private void copyTlsPropertiesTo(CustomPropertySetValues propertySetValues) {
         if (this.tlsClientCertificate.isPresent()) {
             copyNullablePropertyTo(propertySetValues, Fields.TLS_CLIENT_CERTIFICATE, this.tlsClientCertificate.get());
         }
-        this.copyPostDialPropertiesTo(propertySetValues);
+        if (this.tlsServerCertificate.isPresent()) {
+            copyNullablePropertyTo(propertySetValues, Fields.TLS_SERVER_CERTIFICATE, this.tlsServerCertificate.get());
+        }
+        this.copyNullablePropertyTo(propertySetValues, Fields.TLS_PREFERRED_CIPHER_SUITES, this.preferredCipherSuites);
+        this.copyNullablePropertyTo(propertySetValues, Fields.TLS_VERSION, this.tlsVersion);
     }
 
     private void copyNullablePropertyTo(CustomPropertySetValues propertySetValues, Fields field, Object value) {
