@@ -38,6 +38,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -75,6 +76,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.events.DeviceLifeCycleChangeEventHandler;
@@ -211,7 +213,8 @@ public class InMemoryIntegrationPersistence {
                 new DeviceDataModule(),
                 new DeviceLifeCycleModule(),
                 new CustomPropertySetsModule(),
-                new CalendarModule());
+                new CalendarModule(),
+                new PkiModule());
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.transactionService = this.injector.getInstance(TransactionService.class);
@@ -250,6 +253,7 @@ public class InMemoryIntegrationPersistence {
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommunicationTestServiceCallCustomPropertySet());
     }
 
     public DeviceLifeCycleChangeEventHandler getDeviceLifeCycleChangeEventHandler() {
