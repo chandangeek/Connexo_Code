@@ -51,6 +51,7 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+
 public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel {
 
     private final DataAggregationService dataAggregationService;
@@ -384,6 +385,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                 .stream()
                 .map(MetrologyContractCalculationIntrospector.ChannelUsage::getChannel)
                 .map(Channel::getLastDateTime)
+                .filter(lastDateTime -> lastDateTime != null)
                 .max(Comparator.naturalOrder());
         if (max.isPresent()) {
             return persistedChannelLastDateTime == null || max.get().compareTo(persistedChannelLastDateTime) >= 0 ? max.get() : persistedChannelLastDateTime;

@@ -89,13 +89,14 @@ class CustomPropertyNode implements ServerExpressionNode {
         return new String[]{
                 "starttime",
                 "endtime",
+                "modtime",
                 SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
                 SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName()};
     }
 
     @SuppressWarnings("unchecked")
     protected void appendWithClause(SqlBuilder withClauseBuilder) {
-        withClauseBuilder.append("SELECT starttime, endtime, value, null FROM (");
+        withClauseBuilder.append("SELECT starttime, endtime, modtime, value, null FROM (");
         withClauseBuilder.add(
                 this.customPropertySetService.getRawValuesSql(
                         this.getCustomPropertySet(),
