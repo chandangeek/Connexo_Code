@@ -1446,7 +1446,7 @@ Ext.define('Dxp.controller.Tasks', {
                         }
                     });
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('exportTasks.run', 'DES', 'Export task run'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('exportTasks.runQueued', 'DES', 'Export task run queued'));
             },
             failure: function (response) {
                 var res = Ext.decode(response.responseText, true);
