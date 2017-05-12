@@ -11,13 +11,13 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.KeyAccessorType;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 
-import javax.xml.bind.DatatypeConverter;
+import java.nio.charset.Charset;
 import java.util.Optional;
 
 /**
@@ -69,7 +69,7 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
         com.elster.jupiter.pki.KeyAccessorType connexoKeyAccessorType = this.toConnexoKeyAccessorType(keyAccessorType);
         Optional<OfflineKeyAccessor> offlineKeyAccessor = toConnexoDevice(threadContext().getDevice()).getAllOfflineKeyAccessors()
                 .stream()
-                .filter(keyAccessor -> keyAccessor.getKeyAccessorType().equals(connexoKeyAccessorType))
+                .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(connexoKeyAccessorType.getName()))
                 .findFirst();
         return (offlineKeyAccessor.isPresent() && offlineKeyAccessor.get().getActualValue().isPresent())
                 ? extractUplValueOutOf(offlineKeyAccessor, offlineKeyAccessor.get().getActualValue().get())
@@ -93,8 +93,8 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
             return handlePlainTextSymmetricKey(offlineKeyAccessor);
         } else if (value instanceof PlaintextPassphrase) {
             return handlePlainTextPassphrase(offlineKeyAccessor);
-        } else {
-            //TODO: foresee offline variant for CertificateWrapper
+        } else if (value instanceof CertificateWrapper) {
+            return Optional.of(value);  //Return instance of CertificateWrapper as-is
         }
         return null;
     }
@@ -102,10 +102,7 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
     private Optional<Object> handlePlainTextSymmetricKey(Optional<OfflineKeyAccessor> offlineKeyAccessor) {
         PlaintextSymmetricKey plaintextSymmetricKey = (PlaintextSymmetricKey) offlineKeyAccessor.get().getActualValue().get();
         if (plaintextSymmetricKey.getKey().isPresent()) {
-            byte[] encodedData = plaintextSymmetricKey.getKey().get().getEncoded();
-            if (encodedData != null) {
-                return Optional.of(DatatypeConverter.printHexBinary(encodedData));
-            }
+            return Optional.of(new String(plaintextSymmetricKey.getKey().get().getEncoded(), Charset.forName("UTF-8")));
         }
         return Optional.empty();
     }
