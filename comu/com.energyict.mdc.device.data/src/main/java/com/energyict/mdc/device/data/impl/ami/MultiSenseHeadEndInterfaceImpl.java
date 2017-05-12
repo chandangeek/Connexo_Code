@@ -33,6 +33,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.RegistersTask;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -167,7 +168,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         List<DeviceMessageId> supportedMessages = findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
-                        .map(DeviceMessageId::havingId)
+                        .map(DeviceMessageId::from)
                         .collect(Collectors.toList())).orElse(Collections.emptyList());
 
         List<EndDeviceControlType> controlTypes = Arrays.asList(EndDeviceControlTypeMapping.values()).stream()
