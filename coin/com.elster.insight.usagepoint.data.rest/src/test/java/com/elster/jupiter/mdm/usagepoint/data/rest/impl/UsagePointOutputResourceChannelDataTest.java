@@ -198,12 +198,6 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(channel2.getZoneId()).thenReturn(ZoneId.systemDefault());
         when(channel1.toList(Range.openClosed(INTERVAL_4.lowerEndpoint(), INTERVAL_4.upperEndpoint())))
                 .thenReturn(Collections.singletonList(INTERVAL_4.upperEndpoint()));
-/*        when(channel2.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_3.upperEndpoint())))
-                .thenReturn(Arrays.asList(
-                        INTERVAL_1.upperEndpoint(),
-                        INTERVAL_2.upperEndpoint(),
-                        INTERVAL_3.upperEndpoint())
-                );*/
         when(channel2.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_4.upperEndpoint()))).thenReturn(
                 Arrays.asList(INTERVAL_1.upperEndpoint(), INTERVAL_2.upperEndpoint(), INTERVAL_3.upperEndpoint())
         );
