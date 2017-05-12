@@ -28,19 +28,19 @@ public class DateTimeFormatGeneratorTest {
     @Test
     public void testThree() {
         String dateTimeFormat = DateTimeFormatGenerator.getDateTimeFormat("EEE dd MMM ''yy", "HH:mm", "DT", "-");
-        assertEquals(dateTimeFormat, "EEE dd MMM ''yy - HH:mm");
+        assertEquals(dateTimeFormat, "EEE dd MMM ''yy '-' HH:mm");
     }
 
     @Test
     public void testFour() {
         String dateTimeFormat = DateTimeFormatGenerator.getDateTimeFormat("dd MMM ''yy", "HH:mm:ss", "TD", "-");
-        assertEquals(dateTimeFormat, "HH:mm:ss - dd MMM ''yy");
+        assertEquals(dateTimeFormat, "HH:mm:ss '-' dd MMM ''yy");
     }
 
     @Test
     public void testFive() {
         String dateTimeFormat = DateTimeFormatGenerator.getDateTimeFormat("dd MMM ''yy", "HH:mm:ss", "TD", "#@#");
-        assertEquals(dateTimeFormat, "HH:mm:ss #@# dd MMM ''yy");
+        assertEquals(dateTimeFormat, "HH:mm:ss '#@#' dd MMM ''yy");
     }
 
 }
