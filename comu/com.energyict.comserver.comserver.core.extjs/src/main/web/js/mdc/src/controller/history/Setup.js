@@ -1123,27 +1123,52 @@ Ext.define('Mdc.controller.history.Setup', {
                             filter: 'Mdc.model.LogbookOfDeviceDataFilter'
                         },
                         securitysettings: {
-                            title: Uni.I18n.translate('securitySetting.title', 'MDC', 'Security settings'),
+                            title: Uni.I18n.translate('general.securitySettings', 'MDC', 'Security settings'),
                             route: 'securitysettings',
                             controller: 'Mdc.controller.setup.DeviceSecuritySettings',
                             privileges: Ext.Array.merge(Mdc.privileges.Device.deviceOperator, Mdc.privileges.DeviceSecurity.viewOrEditLevels),
                             action: 'showDeviceSecuritySettings',
                             dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                        },
+                        keys: {
+                            title: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
+                            route: 'keys',
+                            controller: 'Mdc.securityaccessors.controller.DeviceSecurityAccessors',
+                            privileges: Mdc.privileges.Device.viewDevice,
+                            action: 'showDeviceKeys',
                             items: {
                                 edit: {
-                                    title: Uni.I18n.translate('securitySetting.edit', 'MDC', 'Edit security setting'),
-                                    route: '{securitySettingId}/edit',
-                                    controller: 'Mdc.controller.setup.DeviceSecuritySettings',
-                                    privileges: Mdc.privileges.DeviceSecurity.viewOrEditLevels,
-                                    action: 'showDeviceSecuritySettingEditView',
-                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
-                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.securitySettingsActions,
+                                    route: '{accessorId}/edit',
+                                    controller: 'Mdc.securityaccessors.controller.DeviceSecurityAccessors',
+                                    privileges: Mdc.privileges.Device.administrateDevice,
+                                    action: 'editDeviceKey',
                                     callback: function (route) {
-                                        this.getApplication().on('loadDeviceSecuritySetting', function (record) {
-                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                        this.getApplication().on('deviceKeyLoaded', function (record) {
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
                                             return true;
                                         }, {single: true});
-
+                                        return this;
+                                    }
+                                }
+                            }
+                        },
+                        certificates: {
+                            title: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
+                            route: 'certificates',
+                            controller: 'Mdc.securityaccessors.controller.DeviceSecurityAccessors',
+                            privileges: Mdc.privileges.Device.viewDevice,
+                            action: 'showDeviceCertificates',
+                            items: {
+                                edit: {
+                                    route: '{accessorId}/edit',
+                                    controller: 'Mdc.securityaccessors.controller.DeviceSecurityAccessors',
+                                    privileges: Mdc.privileges.Device.administrateDevice,
+                                    action: 'editDeviceCertificate',
+                                    callback: function (route) {
+                                        this.getApplication().on('deviceCertificateLoaded', function (record) {
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name'), false));
+                                            return true;
+                                        }, {single: true});
                                         return this;
                                     }
                                 }
@@ -1513,7 +1538,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     },
                                                     //Security settings routes
                                                     securitysettings: {
-                                                        title: Uni.I18n.translate('securitySetting.title', 'MDC', 'Security settings'),
+                                                        title: Uni.I18n.translate('general.securitySettings', 'MDC', 'Security settings'),
                                                         route: 'securitysettings',
                                                         privileges: Mdc.privileges.DeviceType.view,
                                                         controller: 'Mdc.controller.setup.SecuritySettings',
@@ -1532,13 +1557,6 @@ Ext.define('Mdc.controller.history.Setup', {
                                                                 privileges: Mdc.privileges.DeviceType.admin,
                                                                 controller: 'Mdc.controller.setup.SecuritySettings',
                                                                 action: 'showSecuritySettingsEditView'
-                                                            },
-                                                            executionLevels: {
-                                                                title: Uni.I18n.translate('executionlevels.addExecutionLevels', 'MDC', 'Add privileges'),
-                                                                route: '{securitySettingId}/privileges/add',
-                                                                privileges: Mdc.privileges.DeviceType.admin,
-                                                                controller: 'Mdc.controller.setup.SecuritySettings',
-                                                                action: 'showAddExecutionLevelsView'
                                                             }
                                                         }
                                                     },
@@ -1836,6 +1854,35 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceTypeCapability.supportsFileManagement,
                                                 controller: 'Mdc.filemanagement.controller.FileManagement',
                                                 action: 'showEditSpecifications'
+                                            }
+                                        }
+                                    },
+                                    securityaccessors: {
+                                        title: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
+                                        route: 'securityaccessors',
+                                        privileges: Mdc.privileges.DeviceType.view,
+                                        controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                                        action: 'showSecurityAccessorsOverview',
+                                        items: {
+                                            add: {
+                                                title: Uni.I18n.translate('securityaccessors.addSecurityAccessor', 'MDC', 'Add security accessor'),
+                                                route: 'add',
+                                                privileges: Mdc.privileges.DeviceType.admin,
+                                                controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                                                action: 'showAddSecurityAccessor'
+                                            },
+                                            edit: {
+                                                title: Uni.I18n.translate('securityaccessors.editSecurityAccessor', 'MDC', 'Edit security accessor'),
+                                                route: '{securityAccessorId}/edit',
+                                                privileges: Mdc.privileges.DeviceType.admin,
+                                                controller: 'Mdc.securityaccessors.controller.SecurityAccessors',
+                                                action: 'showEditSecurityAccessor',
+                                                callback: function (route) {
+                                                    this.getApplication().on('securityaccessorload', function (name) {
+                                                        route.setTitle(Uni.I18n.translate('general.editX', 'MDC', "Edit '{0}'", name, false));
+                                                    }, {single: true});
+                                                    return this;
+                                                }
                                             }
                                         }
                                     }

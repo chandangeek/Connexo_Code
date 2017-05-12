@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Mdc.model.ConnectionMethodsAndSecuritySets', {
+Ext.define('Mdc.model.ConnectionMethodConflictItems', {
     extend: 'Ext.data.Model',
     requires: [
         'Mdc.model.ConflictItem'

@@ -13,9 +13,10 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.securitysettings.SecuritySettingGrid',
         'Mdc.view.setup.securitysettings.SecuritySettingPreview',
-        'Mdc.view.setup.executionlevels.ExecutionLevelGrid',
         'Uni.view.container.PreviewContainer'
     ],
+
+    deviceProtocolSupportSecuritySuites: undefined,
 
     initComponent: function () {
         var me = this;
@@ -39,7 +40,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('securitySetting.title','MDC','Security settings'),
+                title: Uni.I18n.translate('general.securitySettings','MDC','Security settings'),
                 items: [
                     {
                         xtype: 'preview-container',
@@ -47,7 +48,9 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                         grid: {
                             xtype: 'securitySettingGrid',
                             deviceTypeId: me.deviceTypeId,
-                            deviceConfigId: me.deviceConfigId
+                            deviceConfigId: me.deviceConfigId,
+                            deviceProtocolSupportsClient: me.deviceProtocolSupportsClient,
+                            deviceProtocolSupportSecuritySuites: me.deviceProtocolSupportSecuritySuites
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -66,41 +69,10 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                         },
                         previewComponent: {
                             xtype: 'securitySettingPreview',
+                            deviceProtocolSupportSecuritySuites: me.deviceProtocolSupportSecuritySuites,
+                            deviceProtocolSupportsClient: me.deviceProtocolSupportsClient,
                             itemId: 'security-setting-preview'
                         }
-                    },
-                    {
-                        xtype: 'panel',
-                        title: Uni.I18n.translate('executionLevel.gridTitle', 'MDC', 'privileges'),
-                        itemId: 'execution-level-grid-title',
-                        ui: 'medium',
-                        padding: '32 0 0 0',
-                        hidden:true
-                    },
-                    {
-                        xtype: 'preview-container',
-                        itemId: 'execution-levels-grid-preview-container',
-                        grid: {
-                            xtype: 'execution-level-grid',
-                            deviceTypeId: me.deviceTypeId,
-                            deviceConfigId: me.deviceConfigId
-                        },
-                        emptyComponent: {
-                            xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('executionLevel.noExecutionLevelsFound','MDC','No privileges found'),
-                            reasons: [
-                                Uni.I18n.translate('executionLevel.reason1','MDC','No privileges have been defined yet.')
-                            ],
-                            stepItems: [
-                                {
-                                    text: Uni.I18n.translate('executionLevels.addExecutionLevels','MDC','Add privileges'),
-                                    privileges: Mdc.privileges.DeviceType.admin,
-                                    itemId: 'execution-level-grid-add-link',
-                                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/'
-                                }
-                            ]
-                        },
-                        hidden: true
                     }
                 ]
             }

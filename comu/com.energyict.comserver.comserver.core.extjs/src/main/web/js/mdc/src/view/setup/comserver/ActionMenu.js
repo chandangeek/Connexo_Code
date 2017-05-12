@@ -29,13 +29,6 @@ Ext.define('Mdc.view.setup.comserver.ActionMenu', {
                 section: this.SECTION_ACTION
             },
             {
-                itemId: 'monitor',
-                text: Uni.I18n.translate('comserver.monitor', 'MDC', 'Monitor'),
-                privileges: Mdc.privileges.Monitor.monitor,
-                action: 'monitor',
-                section: this.SECTION_ACTION
-            },
-            {
                 itemId: 'remove',
                 text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
                 privileges: Mdc.privileges.Communication.admin,

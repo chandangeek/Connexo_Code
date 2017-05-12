@@ -8,5 +8,5 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.GeneralDetail', {
     requires: [Mdc.util.LinkPurpose],
     deviceId: null,
     registerId: null,
-    linkPurpose: Mdc.util.LinkPurpose.NOT_APPLICABLE
+    linkPurpose: Mdc.util.LinkPurpose.properties[Mdc.util.LinkPurpose.NOT_APPLICABLE]
 });

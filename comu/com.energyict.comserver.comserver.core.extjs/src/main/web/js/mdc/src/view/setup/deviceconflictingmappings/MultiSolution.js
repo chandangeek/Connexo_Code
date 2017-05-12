@@ -69,7 +69,7 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.MultiSolution', {
                         ui: 'plain',
                         style: 'cursor: default; margin-left: 20px',
                         iconCls: 'uni-icon-info-small',
-                        tooltip: Uni.I18n.translate('deviceConflicting.removeAttrOnSecuritySettingQtip', 'MDC', 'This option removes all attributes on the {0} of the first configuration', me.tooltipLabel)
+                        tooltip: Uni.I18n.translate('deviceConflicting.removeAttrOnXQtip', 'MDC', 'This option removes all attributes on the {0} of the first configuration', me.tooltipLabel)
                     },
                     {
                         xtype: 'radiofield',
@@ -153,7 +153,7 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.MultiSolution', {
                         ui: 'plain',
                         style: 'cursor: default; margin-left: 20px',
                         iconCls: 'uni-icon-info-small',
-                        tooltip: Uni.I18n.translate('deviceConflicting.mapAttrOnSecuritySettingQtip', 'MDC', 'This option maps all attributes on the {0} of the first configuration to the selected {0} of the other configuration', me.tooltipLabel)
+                        tooltip: Uni.I18n.translate('deviceConflicting.mapAttrOnXQtip', 'MDC', 'This option maps all attributes on the {0} of the first configuration to the selected {0} of the other configuration', me.tooltipLabel)
                     }
                 ]
             }

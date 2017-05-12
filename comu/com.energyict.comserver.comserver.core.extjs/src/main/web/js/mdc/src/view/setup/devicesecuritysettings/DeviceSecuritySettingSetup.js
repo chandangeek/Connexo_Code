@@ -15,6 +15,9 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
         'Uni.util.FormEmptyMessage'
     ],
 
+    deviceProtocolSupportSecuritySuites: undefined,
+    deviceProtocolSupportsClient: undefined,
+
     initComponent: function () {
         var me = this;
 
@@ -38,7 +41,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
                 ui: 'large',
                 xtype: 'panel',
                 itemId: 'deviceSecuritySettingSetupPanel',
-                title: Uni.I18n.translate('devicesecuritysetting.securitySettings', 'MDC', 'Security settings'),
+                title: Uni.I18n.translate('general.securitySettings', 'MDC', 'Security settings'),
 
                 items: [
                     {
@@ -51,6 +54,17 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
                         emptyComponent: this.getEmptyComponent(),
                         previewComponent: {
                             xtype: 'deviceSecuritySettingPreview'
+                        },
+                        onLoad: function (store, records, successful) {
+                            var hasSecuritySuite = false,
+                                hasClient = false;
+                            if(store.count() > 0) {
+                                hasSecuritySuite = records[0].get('securitySuite')['id'] !== -1;
+                                hasClient = records[0].get('client') !== undefined && records[0].get('client') !== null && records[0].get('client') !== '';
+                            }
+                            me.down('#deviceSecuritySettingSetupPanel preview-container deviceSecuritySettingGrid').updateColumns(hasSecuritySuite, hasClient);
+                            me.down('#deviceSecuritySettingSetupPanel preview-container deviceSecuritySettingPreview').updateColumns(hasSecuritySuite, hasClient);
+                            Uni.view.container.PreviewContainer.prototype.onLoad.call(this, store, records, successful);
                         }
                     }
                 ]

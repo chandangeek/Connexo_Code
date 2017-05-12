@@ -12,7 +12,6 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Mdc.store.SecuritySettingsOfDevice',
-        'Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingActionMenu',
         'Uni.grid.column.Default'
     ],
 
@@ -28,7 +27,23 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
                 flex: 2
             },
             {
+                header: Uni.I18n.translate('securitySetting.client', 'MDC', 'Client'),
+                itemId: 'mdc-deviceSecuritySettingGrid-client',
+                dataIndex: 'client',
+                flex: 3
+            },
+            {
+                header: Uni.I18n.translate('securitySetting.securitySuite', 'MDC', 'Security suite'),
+                itemId: 'mdc-deviceSecuritySettingGrid-securitySuite',
+                dataIndex: 'securitySuite',
+                flex: 3,
+                renderer: function (value) {
+                    return Ext.String.htmlEncode(value.name);
+                }
+            },
+            {
                 header: Uni.I18n.translate('deviceSecuritySetting.authenticationLevel', 'MDC', 'Authentication level'),
+                itemId: 'mdc-deviceSecuritySettingGrid-authenticationLevel',
                 dataIndex: 'authenticationLevel',
                 flex: 3,
                 renderer: function (value) {
@@ -37,30 +52,11 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
             },
             {
                 header: Uni.I18n.translate('deviceSecuritySetting.encryptionLevel', 'MDC', 'Encryption level'),
+                itemId: 'mdc-deviceSecuritySettingGrid-encryptionLevel',
                 dataIndex: 'encryptionLevel',
                 flex: 3,
                 renderer: function (value) {
                     return Ext.String.htmlEncode(value.name);
-                }
-            },
-            {
-                header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
-                dataIndex: 'status',
-                renderer: function (value) {
-                    return Ext.String.htmlEncode(value.name);
-                },
-                flex: 3
-            },
-            {
-                xtype: 'uni-actioncolumn',
-                width: 120,
-                privileges:Mdc.privileges.DeviceSecurity.viewOrEditLevels,
-                menu: {
-                    xtype: 'device-security-setting-action-menu',
-                    itemId: 'deviceSecurityGridMenu'
-                },
-                isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    return !record.data.userHasEditPrivilege
                 }
             }
         ];
@@ -83,6 +79,11 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
         ];
 
         me.callParent();
+    },
+
+    updateColumns: function (hasSecuritySuite, hasClient) {
+        this.down('#mdc-deviceSecuritySettingGrid-client').setVisible(hasClient);
+        this.down('#mdc-deviceSecuritySettingGrid-securitySuite').setVisible(hasSecuritySuite);
     }
 });
 

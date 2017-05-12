@@ -251,7 +251,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('registerConfigs.createRegisterConfig', 'MDC', 'Add register configuration'));
                                 widget.down('#editNumberOfFractionDigitsField').setValue(0);
-                                me.getRegisterTypeCombo().on('change', me.onRegisterTypeChange, me);
+                                me.getRegisterTypeCombo().onComboEvent('change', me.onRegisterTypeChange, me);
                             }
                         });
                     }

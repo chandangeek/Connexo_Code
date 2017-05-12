@@ -4,7 +4,7 @@
 
 Ext.define('Mdc.store.AuthenticationLevels', {
     extend: 'Ext.data.Store',
-    storeId: 'authenticationLevels',
+    storeId: 'AuthenticationLevels',
     requires: [
         'Mdc.model.AuthenticationLevel'
     ],
@@ -12,22 +12,17 @@ Ext.define('Mdc.store.AuthenticationLevels', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/securityproperties/authlevels',
+        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigId}/securityproperties/authlevels',
         reader: {
             type: 'json',
             root: 'data'
         },
         pageParam: false,
         startParam: false,
-        limitParam: false
-    },
-    listeners: {
-        load: {
-            fn: function (store, records, success) {
-                if (success && records && records.length == 0){
-                    store.add(Mdc.model.AuthenticationLevel.noAuthentication());
-                }
-            }
+        limitParam: false,
+
+        setUrl: function (deviceTypeId, deviceConfigId) {
+            this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId).replace('{deviceConfigId}', deviceConfigId);
         }
     }
 });
