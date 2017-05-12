@@ -29,14 +29,15 @@ import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteSecurityPropertySetWhileInUseException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.security.AdvancedDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
 import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -298,8 +299,8 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      * does not have a SecuritySuite with the specified id
      */
     private SecuritySuite findSecuritySuite(int id) {
-        if (this.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
-            return ((AdvancedDeviceProtocolSecurityCapabilities) this.getDeviceProtocol()).getSecuritySuites().stream()
+        if (isAdvancedSecurity(this.getDeviceProtocol())) {
+            return (castToAdvancedSecurity(this.getDeviceProtocol())).getSecuritySuites().stream()
                     .filter(level -> level.getId() == id)
                     .findAny()
                     .map(this.protocolPluggableService::adapt)
@@ -329,14 +330,30 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      * does not have an EncryptionDeviceAccessLevel with the specified id
      */
     private RequestSecurityLevel findRequestSecurityLevel(int id) {
-        if (this.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
-            return ((AdvancedDeviceProtocolSecurityCapabilities) this.getDeviceProtocol()).getRequestSecurityLevels().stream()
+        if (isAdvancedSecurity(this.getDeviceProtocol())) {
+            return (castToAdvancedSecurity(this.getDeviceProtocol())).getRequestSecurityLevels().stream()
                     .filter(level -> level.getId() == id)
                     .findAny()
                     .map(this.protocolPluggableService::adapt)
                     .orElse(new NoRequestSecurity());
         }
         return new NoRequestSecurity();
+    }
+
+    static boolean isAdvancedSecurity(DeviceProtocol deviceProtocol) {
+        if (deviceProtocol instanceof UPLProtocolAdapter) {
+            return ((UPLProtocolAdapter) deviceProtocol).getActual() instanceof AdvancedDeviceProtocolSecurityCapabilities;
+        } else {
+            return deviceProtocol instanceof AdvancedDeviceProtocolSecurityCapabilities;
+        }
+    }
+
+    private static AdvancedDeviceProtocolSecurityCapabilities castToAdvancedSecurity(DeviceProtocol deviceProtocol) {
+        if (deviceProtocol instanceof UPLProtocolAdapter) {
+            return (AdvancedDeviceProtocolSecurityCapabilities) ((UPLProtocolAdapter) deviceProtocol).getActual();
+        } else {
+            return (AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol;
+        }
     }
 
     @Override
@@ -360,8 +377,8 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      * does not have an EncryptionDeviceAccessLevel with the specified id
      */
     private ResponseSecurityLevel findResponseSecurityLevel(int id) {
-        if (this.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
-            return ((AdvancedDeviceProtocolSecurityCapabilities) this.getDeviceProtocol()).getResponseSecurityLevels().stream()
+        if (isAdvancedSecurity(this.getDeviceProtocol())) {
+            return (castToAdvancedSecurity(this.getDeviceProtocol())).getResponseSecurityLevels().stream()
                     .filter(level -> level.getId() == id)
                     .findAny()
                     .map(this.protocolPluggableService::adapt)
@@ -664,7 +681,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         private List<EncryptionDeviceAccessLevel> supportedEncryptionLevels(SecurityPropertySetImpl value) {
             List<EncryptionDeviceAccessLevel> levels;
-            if (value.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
+            if (isAdvancedSecurity(value.getDeviceProtocol())) {
                 levels = value.getSecuritySuite().getEncryptionAccessLevels();
             } else {
                 levels = value.getDeviceProtocol().getEncryptionAccessLevels().stream().map(this.protocolPluggableService::adapt).collect(Collectors.toList());
@@ -683,7 +700,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         private List<AuthenticationDeviceAccessLevel> supportedAuthenticationLevels(SecurityPropertySetImpl value) {
             List<AuthenticationDeviceAccessLevel> levels;
-            if (value.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
+            if (isAdvancedSecurity(value.getDeviceProtocol())) {
                 levels = value.getSecuritySuite().getAuthenticationAccessLevels();
             } else {
                 levels = value.getDeviceProtocol().getAuthenticationAccessLevels().stream().map(this.protocolPluggableService::adapt).collect(Collectors.toList());
@@ -702,8 +719,8 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         private List<SecuritySuite> supportedSecuritySuites(SecurityPropertySetImpl value) {
             List<SecuritySuite> securitySuites = null;
-            if (value.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
-                securitySuites = ((AdvancedDeviceProtocolSecurityCapabilities) value.getDeviceProtocol()).getSecuritySuites()
+            if (isAdvancedSecurity(value.getDeviceProtocol())) {
+                securitySuites = castToAdvancedSecurity(value.getDeviceProtocol()).getSecuritySuites()
                         .stream()
                         .map(this.protocolPluggableService::adapt)
                         .collect(Collectors.toList());
@@ -722,7 +739,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         private List<RequestSecurityLevel> supportedRequestSecurityLevels(SecurityPropertySetImpl value) {
             List<RequestSecurityLevel> levels;
-            if (value.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
+            if (isAdvancedSecurity(value.getDeviceProtocol())) {
                 levels = value.getSecuritySuite().getRequestSecurityLevels();
             } else {
                 levels = Collections.emptyList();
@@ -741,7 +758,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         private List<ResponseSecurityLevel> supportedResponseSecurityLevels(SecurityPropertySetImpl value) {
             List<ResponseSecurityLevel> levels;
-            if (value.getDeviceProtocol() instanceof AdvancedDeviceProtocolSecurityCapabilities) {
+            if (isAdvancedSecurity(value.getDeviceProtocol())) {
                 levels = value.getSecuritySuite().getResponseSecurityLevels();
             } else {
                 levels = Collections.emptyList();

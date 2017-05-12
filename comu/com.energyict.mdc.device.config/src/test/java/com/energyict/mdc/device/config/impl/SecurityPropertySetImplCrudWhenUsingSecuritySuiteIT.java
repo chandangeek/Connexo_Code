@@ -79,33 +79,23 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.security.AdvancedDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.RequestSecurityLevel;
 import com.energyict.mdc.upl.security.ResponseSecurityLevel;
 import com.energyict.mdc.upl.security.SecuritySuite;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.fest.assertions.api.Assertions;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
-import java.time.Clock;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -115,6 +105,14 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
