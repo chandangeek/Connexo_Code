@@ -306,7 +306,7 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.processes.keyrenewal</artifactId>
+            <artifactId>mdc.processes.keyrenewal.rest</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
