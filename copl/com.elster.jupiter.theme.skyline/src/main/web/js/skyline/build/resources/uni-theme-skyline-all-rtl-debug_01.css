@@ -137,6 +137,12 @@
   padding-right: 0;
 }
 
+/* line 16, ../../sass/etc/all.scss */
+.unlink-miter-grid {
+  padding-top: 6.37px;
+  display: inline-block;
+}
+
 /* including package uni-theme-skyline */
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
@@ -236,9 +242,6 @@
 /**
  * @var {number}
  * The bottom margin to apply to form items when in auto, anchor, vbox, or table layout
- */
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
@@ -9987,7 +9990,7 @@ a.x-tab .x-tab-inner-right {
 .x-btn-default-toolbar-small-over {
   border-color: #d8d8d8;
   background-image: none;
-  background-color: #a9a9a9;
+  background-color: #5897b3;
 }
 
 /* line 560, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -9995,7 +9998,7 @@ a.x-tab .x-tab-inner-right {
 .x-btn-default-toolbar-small-pressed {
   border-color: #cecece;
   background-image: none;
-  background-color: #909090;
+  background-color: #8ec5dc;
 }
 
 /* line 592, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -10034,7 +10037,7 @@ a.x-tab .x-tab-inner-right {
 }
 /* line 621, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-small-over .x-frame-mc {
-  background-color: #a9a9a9;
+  background-color: #5897b3;
   background-image: url(images/btn/btn-default-toolbar-small-over-fbg.gif);
 }
 
@@ -10063,7 +10066,7 @@ a.x-tab .x-tab-inner-right {
 /* line 644, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-small-menu-active .x-frame-mc,
 .x-btn-default-toolbar-small-pressed .x-frame-mc {
-  background-color: #909090;
+  background-color: #8ec5dc;
   background-image: url(images/btn/btn-default-toolbar-small-pressed-fbg.gif);
 }
 
@@ -10492,7 +10495,7 @@ a.x-tab .x-tab-inner-right {
 .x-btn-default-toolbar-medium-over {
   border-color: #d8d8d8;
   background-image: none;
-  background-color: #a9a9a9;
+  background-color: #5897b3;
 }
 
 /* line 560, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -10500,7 +10503,7 @@ a.x-tab .x-tab-inner-right {
 .x-btn-default-toolbar-medium-pressed {
   border-color: #cecece;
   background-image: none;
-  background-color: #909090;
+  background-color: #8ec5dc;
 }
 
 /* line 592, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -10539,7 +10542,7 @@ a.x-tab .x-tab-inner-right {
 }
 /* line 621, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-medium-over .x-frame-mc {
-  background-color: #a9a9a9;
+  background-color: #5897b3;
   background-image: url(images/btn/btn-default-toolbar-medium-over-fbg.gif);
 }
 
@@ -10568,7 +10571,7 @@ a.x-tab .x-tab-inner-right {
 /* line 644, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-medium-menu-active .x-frame-mc,
 .x-btn-default-toolbar-medium-pressed .x-frame-mc {
-  background-color: #909090;
+  background-color: #8ec5dc;
   background-image: url(images/btn/btn-default-toolbar-medium-pressed-fbg.gif);
 }
 
@@ -10997,7 +11000,7 @@ a.x-tab .x-tab-inner-right {
 .x-btn-default-toolbar-large-over {
   border-color: #d8d8d8;
   background-image: none;
-  background-color: #a9a9a9;
+  background-color: #5897b3;
 }
 
 /* line 560, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -11005,7 +11008,7 @@ a.x-tab .x-tab-inner-right {
 .x-btn-default-toolbar-large-pressed {
   border-color: #cecece;
   background-image: none;
-  background-color: #909090;
+  background-color: #8ec5dc;
 }
 
 /* line 592, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -11044,7 +11047,7 @@ a.x-tab .x-tab-inner-right {
 }
 /* line 621, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-large-over .x-frame-mc {
-  background-color: #a9a9a9;
+  background-color: #5897b3;
   background-image: url(images/btn/btn-default-toolbar-large-over-fbg.gif);
 }
 
@@ -11073,7 +11076,7 @@ a.x-tab .x-tab-inner-right {
 /* line 644, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-default-toolbar-large-menu-active .x-frame-mc,
 .x-btn-default-toolbar-large-pressed .x-frame-mc {
-  background-color: #909090;
+  background-color: #8ec5dc;
   background-image: url(images/btn/btn-default-toolbar-large-pressed-fbg.gif);
 }
 
@@ -16480,7 +16483,7 @@ div.x-lbl-top-err-icon {
 /* line 10, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-item,
 .x-form-field {
-  font: normal 13px Lato;
+  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
 }
 
 /* line 25, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Base.scss */
@@ -16569,7 +16572,7 @@ textarea.x-form-empty-field {
 
 /* line 15, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Display.scss */
 .x-form-display-field {
-  font: normal 13px/17px Lato;
+  font: normal 13px/17px "Lato", helvetica, arial, verdana, sans-serif;
   color: #686868;
   margin-top: 6px;
 }
@@ -17625,7 +17628,7 @@ a.x-color-picker-item:hover {
 
 /* line 104, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/HtmlEditor.scss */
 .x-html-editor-wrap textarea {
-  font: normal 13px Lato;
+  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
   background-color: white;
   resize: none;
 }
@@ -22204,7 +22207,7 @@ a.x-color-picker-item:hover {
 .x-btn-plain-toolbar-small-over {
   border-color: #d8d8d8;
   background-image: none;
-  background-color: #a9a9a9;
+  background-color: #5897b3;
 }
 
 /* line 560, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -22212,7 +22215,7 @@ a.x-color-picker-item:hover {
 .x-btn-plain-toolbar-small-pressed {
   border-color: #cecece;
   background-image: none;
-  background-color: #909090;
+  background-color: #8ec5dc;
 }
 
 /* line 592, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -22251,7 +22254,7 @@ a.x-color-picker-item:hover {
 }
 /* line 621, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-small-over .x-frame-mc {
-  background-color: #a9a9a9;
+  background-color: #5897b3;
   background-image: url(images/btn/btn-plain-toolbar-small-over-fbg.gif);
 }
 
@@ -22280,7 +22283,7 @@ a.x-color-picker-item:hover {
 /* line 644, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-small-menu-active .x-frame-mc,
 .x-btn-plain-toolbar-small-pressed .x-frame-mc {
-  background-color: #909090;
+  background-color: #8ec5dc;
   background-image: url(images/btn/btn-plain-toolbar-small-pressed-fbg.gif);
 }
 
@@ -22697,7 +22700,7 @@ a.x-color-picker-item:hover {
 .x-btn-plain-toolbar-medium-over {
   border-color: #d8d8d8;
   background-image: none;
-  background-color: #a9a9a9;
+  background-color: #5897b3;
 }
 
 /* line 560, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -22705,7 +22708,7 @@ a.x-color-picker-item:hover {
 .x-btn-plain-toolbar-medium-pressed {
   border-color: #cecece;
   background-image: none;
-  background-color: #909090;
+  background-color: #8ec5dc;
 }
 
 /* line 592, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -22744,7 +22747,7 @@ a.x-color-picker-item:hover {
 }
 /* line 621, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-medium-over .x-frame-mc {
-  background-color: #a9a9a9;
+  background-color: #5897b3;
   background-image: url(images/btn/btn-plain-toolbar-medium-over-fbg.gif);
 }
 
@@ -22773,7 +22776,7 @@ a.x-color-picker-item:hover {
 /* line 644, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-medium-menu-active .x-frame-mc,
 .x-btn-plain-toolbar-medium-pressed .x-frame-mc {
-  background-color: #909090;
+  background-color: #8ec5dc;
   background-image: url(images/btn/btn-plain-toolbar-medium-pressed-fbg.gif);
 }
 
@@ -23190,7 +23193,7 @@ a.x-color-picker-item:hover {
 .x-btn-plain-toolbar-large-over {
   border-color: #d8d8d8;
   background-image: none;
-  background-color: #a9a9a9;
+  background-color: #5897b3;
 }
 
 /* line 560, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -23198,7 +23201,7 @@ a.x-color-picker-item:hover {
 .x-btn-plain-toolbar-large-pressed {
   border-color: #cecece;
   background-image: none;
-  background-color: #909090;
+  background-color: #8ec5dc;
 }
 
 /* line 592, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
@@ -23237,7 +23240,7 @@ a.x-color-picker-item:hover {
 }
 /* line 621, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-large-over .x-frame-mc {
-  background-color: #a9a9a9;
+  background-color: #5897b3;
   background-image: url(images/btn/btn-plain-toolbar-large-over-fbg.gif);
 }
 
@@ -23266,7 +23269,7 @@ a.x-color-picker-item:hover {
 /* line 644, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-large-menu-active .x-frame-mc,
 .x-btn-plain-toolbar-large-pressed .x-frame-mc {
-  background-color: #909090;
+  background-color: #8ec5dc;
   background-image: url(images/btn/btn-plain-toolbar-large-pressed-fbg.gif);
 }
 
