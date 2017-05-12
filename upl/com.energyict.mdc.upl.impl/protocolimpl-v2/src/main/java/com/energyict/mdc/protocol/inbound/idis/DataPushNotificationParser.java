@@ -33,7 +33,6 @@ import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.upl.security.SecurityProperty;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
@@ -43,11 +42,9 @@ import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130Properties;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
-import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
 import java.nio.ByteBuffer;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 
@@ -223,7 +220,8 @@ public class DataPushNotificationParser {
 
         if (getSecurityPropertySet(originDeviceIdentifier).getEncryptionDeviceAccessLevel() != (securityPolicy / 16)) {
             throw DataParseException.ioException(new ProtocolException(
-                    "Security mismatch: received incoming event push notification encrypted with security policy " + (securityPolicy / 16) + ", but device in EIServer is configured with security level " + getSecurityPropertySet().getEncryptionDeviceAccessLevel()));
+                    "Security mismatch: received incoming event push notification encrypted with security policy " + (securityPolicy / 16) + ", but device in EIServer is configured with security level " + getSecurityPropertySet()
+                            .getEncryptionDeviceAccessLevel()));
         }
 
         SecurityContext securityContext = getSecurityContext(originDeviceIdentifier);
@@ -264,15 +262,9 @@ public class DataPushNotificationParser {
     }
 
     private DeviceProtocolSecurityPropertySet getSecurityPropertySet(DeviceIdentifier deviceIdentifier) {
-        List<? extends SecurityProperty> securityProperties =
-                context
-                        .getProtocolSecurityProperties(deviceIdentifier)
-                        .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
-        if (!securityProperties.isEmpty()) {
-            return new DeviceProtocolSecurityPropertySetImpl(securityProperties);
-        } else {
-            throw CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier);
-        }
+        return context
+                .getDeviceProtocolSecurityPropertySet(deviceIdentifier)
+                .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
     }
 
     protected SecurityContext getSecurityContext() {
@@ -310,7 +302,9 @@ public class DataPushNotificationParser {
         while (structure.hasMoreElements()) {
             AbstractDataType logicalName = structure.getNextDataType();
             if (!(logicalName instanceof OctetString)) {
-                throw DataParseException.ioException(new ProtocolException("Failed to parse the register data from the Data-notification body: Expected an element of type OctetString (~ the logical name of the object), but was an element of type '" + logicalName.getClass().getSimpleName() + "'"));
+                throw DataParseException.ioException(new ProtocolException("Failed to parse the register data from the Data-notification body: Expected an element of type OctetString (~ the logical name of the object), but was an element of type '" + logicalName
+                        .getClass()
+                        .getSimpleName() + "'"));
             }
             AbstractDataType valueData = structure.getNextDataType();
             AbstractDataType scalerUnit = null;

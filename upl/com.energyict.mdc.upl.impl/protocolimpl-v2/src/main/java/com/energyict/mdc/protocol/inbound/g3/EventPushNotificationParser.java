@@ -21,7 +21,6 @@ import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.upl.security.SecurityProperty;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
@@ -34,7 +33,6 @@ import com.energyict.protocolimplv2.dlms.idis.am540.events.MeterAlarmParser;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.identifiers.*;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
-import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -649,15 +647,9 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
 
     public DeviceProtocolSecurityPropertySet getSecurityPropertySet() {
         if (securityPropertySet == null) {
-            List<? extends SecurityProperty> securityProperties =
-                    getContext()
-                            .getProtocolSecurityProperties(deviceIdentifier)
-                            .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
-            if (!securityProperties.isEmpty()) {
-                this.securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(securityProperties);
-            } else {
-                throw CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier);
-            }
+            this.securityPropertySet = getContext()
+                    .getDeviceProtocolSecurityPropertySet(deviceIdentifier)
+                    .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
         }
         return this.securityPropertySet;
     }
