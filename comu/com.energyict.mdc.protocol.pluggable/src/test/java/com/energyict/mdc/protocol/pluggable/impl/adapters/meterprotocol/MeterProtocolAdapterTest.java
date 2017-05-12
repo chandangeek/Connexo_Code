@@ -13,6 +13,8 @@ import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.CommunicationException;
@@ -33,13 +35,7 @@ import com.energyict.mdc.protocol.pluggable.PropertySpecMockSupport;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.InMemoryPersistence;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceCapabilityAdapterMappingImpl;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceRegisterReadingNotSupported;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.*;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.HhuEnabledMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
@@ -54,9 +50,13 @@ import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -68,25 +68,12 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the adapter between a standard {@link MeterProtocol} and the new {@link DeviceProtocol}.
@@ -502,18 +489,6 @@ public class MeterProtocolAdapterTest {
     }
 
     @Test
-    public void testGetSecurityPropertiesWhenWrappedProtocolImplementsDeviceSecuritySupport() {
-        MeterProtocolWithDeviceSecuritySupport adaptedProtocol = mock(MeterProtocolWithDeviceSecuritySupport.class, withSettings().extraInterfaces(DeviceMessageSupport.class));
-        MeterProtocolAdapterImpl adapter = newMeterProtocolAdapter(adaptedProtocol);
-
-        // Business method
-        adapter.getSecurityProperties();
-
-        // Asserts
-        verify(adaptedProtocol).getSecurityProperties();
-    }
-
-    @Test
     public void testGetSecurityPropertySpecWhenWrappedProtocolDoesNotImplementDeviceSecuritySupport() {
         MeterProtocol adaptedProtocol = new SimpleTestMeterProtocol();
         MeterProtocolAdapterImpl adapter = new TestMeterProtocolAdapter(adaptedProtocol, this.inMemoryPersistence.getPropertySpecService(), this.protocolPluggableService, this.securitySupportAdapterMappingFactory);
@@ -530,17 +505,6 @@ public class MeterProtocolAdapterTest {
         assertThat(propertySpec.isRequired()).isFalse();
     }
 
-    @Test
-    public void testGetSecurityPropertySpecWhenWrappedProtocolImplementsDeviceSecuritySupport() {
-        MeterProtocolWithDeviceSecuritySupport adaptedProtocol = mock(MeterProtocolWithDeviceSecuritySupport.class, withSettings().extraInterfaces(DeviceMessageSupport.class));
-        MeterProtocolAdapterImpl adapter = newMeterProtocolAdapter(adaptedProtocol);
-
-        // Business method
-        adapter.getSecurityPropertySpec(PROPERTY_SPEC_NAME);
-
-        // Asserts
-        verify(adaptedProtocol).getSecurityProperties();
-    }
 
     @Test
     public void testGetAuthenticationAccessLevelsWhenWrappedProtocolDoesNotImplementDeviceSecuritySupport() {
