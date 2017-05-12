@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.security.Privileges;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.users.PrivilegesProvider;

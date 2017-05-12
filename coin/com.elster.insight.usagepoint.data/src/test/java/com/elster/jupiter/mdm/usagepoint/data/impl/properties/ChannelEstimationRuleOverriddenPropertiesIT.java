@@ -346,7 +346,7 @@ public class ChannelEstimationRuleOverriddenPropertiesIT {
     }
 
     private UsagePointEstimation forEstimation(UsagePoint usagePoint) {
-        return inMemoryBootstrapModule.getUsagePointDataModelService().forEstimation(usagePoint);
+        return inMemoryBootstrapModule.getUsagePointService().forEstimation(usagePoint);
     }
 
     private UsagePoint createUsagePoint(String name) {

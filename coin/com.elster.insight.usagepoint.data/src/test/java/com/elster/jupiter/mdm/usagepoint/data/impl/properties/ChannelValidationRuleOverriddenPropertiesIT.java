@@ -376,7 +376,7 @@ public class ChannelValidationRuleOverriddenPropertiesIT {
     }
 
     private UsagePointValidation forValidation(UsagePoint usagePoint) {
-        return inMemoryBootstrapModule.getUsagePointDataModelService().forValidation(usagePoint);
+        return inMemoryBootstrapModule.getUsagePointService().forValidation(usagePoint);
     }
 
     private UsagePoint createUsagePoint(String name) {

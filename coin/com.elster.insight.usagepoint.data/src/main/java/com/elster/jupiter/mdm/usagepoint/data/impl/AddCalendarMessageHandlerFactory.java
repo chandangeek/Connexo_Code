@@ -20,8 +20,8 @@ import java.time.Instant;
 @Component(name = "com.elster.jupiter.mdm.usagepoint.data.bulk.adding.calendar.message.handler.factory",
         service = MessageHandlerFactory.class,
         property = {
-                "subscriber=" + UsagePointDataModelServiceImpl.BULK_HANDLING_QUEUE_SUBSCRIBER,
-                "destination=" + UsagePointDataModelServiceImpl.BULK_HANDLING_QUEUE_DESTINATION
+                "subscriber=" + UsagePointDataModelService.BULK_HANDLING_QUEUE_SUBSCRIBER,
+                "destination=" + UsagePointDataModelService.BULK_HANDLING_QUEUE_DESTINATION
         },
         immediate = true)
 public class AddCalendarMessageHandlerFactory implements MessageHandlerFactory {

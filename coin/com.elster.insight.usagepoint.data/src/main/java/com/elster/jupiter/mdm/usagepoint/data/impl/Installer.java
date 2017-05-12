@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
@@ -50,7 +49,7 @@ public class Installer implements FullInstaller {
                 () -> {
                     DestinationSpec itemizerDestination = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE")
                             .orElseThrow(() -> new IllegalStateException("Queue table spec MSG_RAWQUEUETABLE does not exist."))
-                            .createDestinationSpec(UsagePointDataModelServiceImpl.BULK_ITEMIZER_QUEUE_DESTINATION, RETRY_DELAY);
+                            .createDestinationSpec(UsagePointDataModelService.BULK_ITEMIZER_QUEUE_DESTINATION, RETRY_DELAY);
                     itemizerDestination.activate();
                     itemizerDestination.subscribe(Subscribers.BULK_ITEMIZER, UsagePointDataModelService.COMPONENT_NAME, Layer.DOMAIN);
                 },
@@ -61,7 +60,7 @@ public class Installer implements FullInstaller {
                 () -> {
                     DestinationSpec handlingDestination = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE")
                             .orElseThrow(() -> new IllegalStateException("Queue table spec MSG_RAWQUEUETABLE does not exist."))
-                            .createDestinationSpec(UsagePointDataModelServiceImpl.BULK_HANDLING_QUEUE_DESTINATION, RETRY_DELAY);
+                            .createDestinationSpec(UsagePointDataModelService.BULK_HANDLING_QUEUE_DESTINATION, RETRY_DELAY);
                     handlingDestination.activate();
                     handlingDestination.subscribe(Subscribers.BULK_HANDLER, UsagePointDataModelService.COMPONENT_NAME, Layer.DOMAIN);
                 },

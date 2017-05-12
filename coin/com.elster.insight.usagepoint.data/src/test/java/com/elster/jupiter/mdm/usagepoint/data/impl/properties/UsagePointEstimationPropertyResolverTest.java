@@ -8,8 +8,8 @@ import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
 import com.elster.jupiter.estimation.EstimationPropertyProvider;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelEstimationRuleOverriddenProperties;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointEstimation;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointService;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 public class UsagePointEstimationPropertyResolverTest {
 
     @Mock
-    private UsagePointDataModelService usagePointDataModelService;
+    private UsagePointService usagePointService;
     @Mock
     private MetrologyContractChannelsContainer channelsContainer;
     @Mock
@@ -53,14 +53,14 @@ public class UsagePointEstimationPropertyResolverTest {
 
     @Before
     public void setUp() {
-        this.resolver = new UsagePointEstimationPropertyResolver(usagePointDataModelService);
+        this.resolver = new UsagePointEstimationPropertyResolver(usagePointService);
     }
 
     @Test
     public void resolve() {
         when(channelsContainer.getUsagePoint()).thenReturn(Optional.of(usagePoint));
         when(channelsContainer.getReadingTypes(any())).thenReturn(Collections.singleton(readingType1));
-        when(usagePointDataModelService.forEstimation(usagePoint)).thenReturn(usagePointEstimation);
+        when(usagePointService.forEstimation(usagePoint)).thenReturn(usagePointEstimation);
         doReturn(Arrays.asList(
                 mockOverriddenProperties("r1", "com...estimator", readingType1, ImmutableMap.of("prop1", "value1")),
                 mockOverriddenProperties("r2", "com...estimator", readingType2, ImmutableMap.of("prop2", "value2"))

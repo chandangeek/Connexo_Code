@@ -21,7 +21,7 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.impl.UsagePointConfigModule;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointService;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoritesService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -144,8 +144,8 @@ public class UsagePointDataInMemoryBootstrapModule {
         return injector.getInstance(CustomPropertySetService.class);
     }
 
-    public UsagePointDataModelService getUsagePointDataModelService() {
-        return injector.getInstance(UsagePointDataModelService.class);
+    public UsagePointService getUsagePointService() {
+        return injector.getInstance(UsagePointDataModelServiceImpl.class).getUsagePointService();
     }
 
     public UsagePointDataCompletionService getUsagePointDataCompletionService() {

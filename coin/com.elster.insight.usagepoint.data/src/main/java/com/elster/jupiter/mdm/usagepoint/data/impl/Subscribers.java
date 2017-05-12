@@ -7,8 +7,8 @@ package com.elster.jupiter.mdm.usagepoint.data.impl;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum Subscribers implements TranslationKey {
-    BULK_ITEMIZER(UsagePointDataModelServiceImpl.BULK_ITEMIZER_QUEUE_SUBSCRIBER, "Usage Point bulk itemizer"),
-    BULK_HANDLER(UsagePointDataModelServiceImpl.BULK_HANDLING_QUEUE_SUBSCRIBER, "Usage Point bulk handler");
+    BULK_ITEMIZER(UsagePointDataModelService.BULK_ITEMIZER_QUEUE_SUBSCRIBER, "Usage Point bulk itemizer"),
+    BULK_HANDLER(UsagePointDataModelService.BULK_HANDLING_QUEUE_SUBSCRIBER, "Usage Point bulk handler");
 
     private final String key;
     private final String defaultFormat;

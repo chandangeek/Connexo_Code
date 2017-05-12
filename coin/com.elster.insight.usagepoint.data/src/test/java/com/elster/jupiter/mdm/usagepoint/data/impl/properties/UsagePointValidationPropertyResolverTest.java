@@ -5,7 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.impl.properties;
 
 import com.elster.jupiter.mdm.usagepoint.data.ChannelValidationRuleOverriddenProperties;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointValidation;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 public class UsagePointValidationPropertyResolverTest {
 
     @Mock
-    private UsagePointDataModelService usagePointDataModelService;
+    private UsagePointService usagePointService;
     @Mock
     private MetrologyContractChannelsContainer channelsContainer;
     @Mock
@@ -54,14 +54,14 @@ public class UsagePointValidationPropertyResolverTest {
 
     @Before
     public void setUp() {
-        this.resolver = new UsagePointValidationPropertyResolver(usagePointDataModelService);
+        this.resolver = new UsagePointValidationPropertyResolver(usagePointService);
     }
 
     @Test
     public void resolve() {
         when(channelsContainer.getUsagePoint()).thenReturn(Optional.of(usagePoint));
         when(channelsContainer.getReadingTypes(any())).thenReturn(Collections.singleton(readingType1));
-        when(usagePointDataModelService.forValidation(usagePoint)).thenReturn(usagePointValidation);
+        when(usagePointService.forValidation(usagePoint)).thenReturn(usagePointValidation);
         doReturn(Arrays.asList(
                 mockOverriddenProperties("r1", "com...validator", ValidationAction.FAIL, readingType1, ImmutableMap.of("prop1", "value1")),
                 mockOverriddenProperties("r2", "com...validator", ValidationAction.WARN_ONLY, readingType2, ImmutableMap.of("prop2", "value2"))

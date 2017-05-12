@@ -9,8 +9,8 @@ import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
 import com.elster.jupiter.estimation.EstimationPropertyProvider;
 import com.elster.jupiter.estimation.EstimationPropertyResolver;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelEstimationRuleOverriddenProperties;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointEstimation;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointService;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
@@ -30,14 +30,14 @@ import java.util.Set;
 @SuppressWarnings("unused")
 public class UsagePointEstimationPropertyResolver implements EstimationPropertyResolver {
 
-    private volatile UsagePointDataModelService usagePointDataModelService;
+    private volatile UsagePointService usagePointService;
 
     public UsagePointEstimationPropertyResolver() {
     }
 
-    public UsagePointEstimationPropertyResolver(UsagePointDataModelService usagePointDataModelService) {
+    public UsagePointEstimationPropertyResolver(UsagePointService usagePointService) {
         this();
-        setUsagePointDataModelService(usagePointDataModelService);
+        this.setUsagePointService(usagePointService);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class UsagePointEstimationPropertyResolver implements EstimationPropertyR
         if (channelsContainer instanceof MetrologyContractChannelsContainer) {
             MetrologyContractChannelsContainer container = (MetrologyContractChannelsContainer) channelsContainer;
             Set<ReadingType> readingTypesOfInterest = container.getReadingTypes(Range.all());
-            UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(container.getUsagePoint().get());
+            UsagePointEstimation usagePointEstimation = usagePointService.forEstimation(container.getUsagePoint().get());
             CachedEstimationPropertyProvider propertyProvider = new CachedEstimationPropertyProvider();
             usagePointEstimation.findAllOverriddenProperties().stream()
                     .filter(properties -> readingTypesOfInterest.contains(properties.getReadingType()))
@@ -70,7 +70,7 @@ public class UsagePointEstimationPropertyResolver implements EstimationPropertyR
     }
 
     @Reference
-    public void setUsagePointDataModelService(UsagePointDataModelService usagePointDataModelService) {
-        this.usagePointDataModelService = usagePointDataModelService;
+    public void setUsagePointService(UsagePointService usagePointService) {
+        this.usagePointService = usagePointService;
     }
 }

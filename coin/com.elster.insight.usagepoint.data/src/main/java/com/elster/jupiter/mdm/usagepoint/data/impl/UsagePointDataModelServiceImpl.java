@@ -11,9 +11,7 @@ import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryFlag;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryType;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataModificationSummaryFlags;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointEstimation;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointValidation;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointService;
 import com.elster.jupiter.mdm.usagepoint.data.ValidChannelDataSummaryFlags;
 import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoritesService;
@@ -21,7 +19,6 @@ import com.elster.jupiter.mdm.usagepoint.data.impl.favorites.FavoritesServiceImp
 import com.elster.jupiter.mdm.usagepoint.data.security.Privileges;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -82,6 +79,7 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
 
     private UsagePointDataCompletionService usagePointDataCompletionService;
     private FavoritesService favoritesService;
+    private UsagePointService usagePointService;
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
@@ -138,6 +136,7 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
                 bind(UserService.class).toInstance(userService);
                 bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(UsagePointService.class).toInstance(usagePointService);
             }
         };
     }
@@ -163,11 +162,13 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
     private void createServices() {
         usagePointDataCompletionService = new UsagePointDataCompletionServiceImpl(thesaurus, validationService);
         favoritesService = new FavoritesServiceImpl(dataModel, threadPrincipalService);
+        usagePointService = new UsagePointServiceImpl(dataModel);
     }
 
     private void registerServices(BundleContext bundleContext) {
         registerService(bundleContext, UsagePointDataCompletionService.class, usagePointDataCompletionService);
         registerService(bundleContext, FavoritesService.class, favoritesService);
+        registerService(bundleContext, UsagePointService.class, usagePointService);
     }
 
     private <T> void registerService(BundleContext bundleContext, Class<T> serviceClass, T service) {
@@ -269,21 +270,15 @@ public class UsagePointDataModelServiceImpl implements UsagePointDataModelServic
         return Arrays.asList(MessageSeeds.values());
     }
 
-    @Override
-    public UsagePointValidation forValidation(UsagePoint usagePoint) {
-        return dataModel.getInstance(UsagePointValidationImpl.class).init(usagePoint);
-    }
-
-    @Override
-    public UsagePointEstimation forEstimation(UsagePoint usagePoint) {
-        return dataModel.getInstance(UsagePointEstimationImpl.class).init(usagePoint);
-    }
-
     FavoritesService getFavoritesService() {
         return favoritesService;
     }
 
     UsagePointDataCompletionService getUsagePointDataCompletionService() {
         return usagePointDataCompletionService;
+    }
+
+    UsagePointService getUsagePointService() {
+        return usagePointService;
     }
 }

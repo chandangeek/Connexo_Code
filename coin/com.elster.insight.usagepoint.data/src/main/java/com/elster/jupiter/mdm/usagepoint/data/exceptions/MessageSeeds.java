@@ -5,7 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.exceptions;
 
 
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
+import com.elster.jupiter.mdm.usagepoint.data.impl.UsagePointDataModelService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;

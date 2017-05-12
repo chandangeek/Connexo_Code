@@ -5,7 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.impl.properties;
 
 import com.elster.jupiter.mdm.usagepoint.data.ChannelValidationRuleOverriddenProperties;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointValidation;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
@@ -30,14 +30,14 @@ import java.util.Set;
 @SuppressWarnings("unused")
 public class UsagePointValidationPropertyResolver implements ValidationPropertyResolver {
 
-    private volatile UsagePointDataModelService usagePointDataModelService;
+    private volatile UsagePointService usagePointService;
 
     public UsagePointValidationPropertyResolver() {
     }
 
-    public UsagePointValidationPropertyResolver(UsagePointDataModelService usagePointDataModelService) {
+    public UsagePointValidationPropertyResolver(UsagePointService usagePointService) {
         this();
-        setUsagePointDataModelService(usagePointDataModelService);
+        this.setUsagePointService(usagePointService);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class UsagePointValidationPropertyResolver implements ValidationPropertyR
         if (channelsContainer instanceof MetrologyContractChannelsContainer) {
             MetrologyContractChannelsContainer container = (MetrologyContractChannelsContainer) channelsContainer;
             Set<ReadingType> readingTypesOfInterest = container.getReadingTypes(Range.all());
-            UsagePointValidation usagePointValidation = usagePointDataModelService.forValidation(container.getUsagePoint().get());
+            UsagePointValidation usagePointValidation = usagePointService.forValidation(container.getUsagePoint().get());
             CachedValidationPropertyProvider propertyProvider = new CachedValidationPropertyProvider();
             usagePointValidation.findAllOverriddenProperties().stream()
                     .filter(properties -> readingTypesOfInterest.contains(properties.getReadingType()))
@@ -71,7 +71,7 @@ public class UsagePointValidationPropertyResolver implements ValidationPropertyR
     }
 
     @Reference
-    public void setUsagePointDataModelService(UsagePointDataModelService usagePointDataModelService) {
-        this.usagePointDataModelService = usagePointDataModelService;
+    public void setUsagePointService(UsagePointService usagePointService) {
+        this.usagePointService = usagePointService;
     }
 }
