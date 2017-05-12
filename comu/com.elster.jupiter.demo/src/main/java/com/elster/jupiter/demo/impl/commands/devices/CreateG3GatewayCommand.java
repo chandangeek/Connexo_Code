@@ -13,7 +13,7 @@ import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
-import com.energyict.mdc.common.TypedProperties;
+import com.elster.jupiter.pki.PkiService;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -46,6 +46,7 @@ public class CreateG3GatewayCommand {
 
     private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
+    private final PkiService pkiService;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final ConnectionTaskService connectionTaskService;
     private final Provider<DeviceBuilder> deviceBuilderProvider;
@@ -54,16 +55,19 @@ public class CreateG3GatewayCommand {
     private Map<ComTaskTpl, ComTask> comTasks;
     private String name = GATEWAY_NAME;
     private String serialNumber = GATEWAY_SERIAL;
+    private KeyAccessorValuePersister keyAccessorValuePersister;
 
     @Inject
     public CreateG3GatewayCommand(DeviceService deviceService,
                                   ProtocolPluggableService protocolPluggableService,
+                                  PkiService pkiService,
                                   ConnectionTaskService connectionTaskService,
                                   Provider<DeviceBuilder> deviceBuilderProvider,
                                   Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
                                   Provider<ActivateDevicesCommand> lifecyclePostBuilder) {
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
+        this.pkiService = pkiService;
         this.connectionTaskService = connectionTaskService;
         this.deviceBuilderProvider = deviceBuilderProvider;
         this.connectionMethodsProvider = connectionMethodsProvider;
@@ -173,19 +177,24 @@ public class CreateG3GatewayCommand {
                         .filter(sps -> SECURITY_PROPERTY_SET_NAME.equals(sps.getName()))
                         .findFirst()
                         .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name" + SECURITY_PROPERTY_SET_NAME + "."));
-        TypedProperties typedProperties = TypedProperties.empty();
         securityPropertySet
                 .getPropertySpecs()
                 .stream()
                 .filter(ps -> "AuthenticationKey".equals(ps.getName()))
                 .findFirst()
-                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00112233445566778899AABBCCDDEEFF")));
+                .ifPresent(ps -> getKeyAccessorValuePersister().persistKeyAccessorValue(device, "AuthenticationKey", "00112233445566778899AABBCCDDEEFF"));
         securityPropertySet
                 .getPropertySpecs()
                 .stream()
                 .filter(ps -> "EncryptionKey".equals(ps.getName()))
                 .findFirst()
-                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
-        device.setSecurityProperties(securityPropertySet, typedProperties);
+                .ifPresent(ps -> getKeyAccessorValuePersister().persistKeyAccessorValue(device, "EncryptionKey", "11223344556677889900AABBCCDDEEFF"));
+    }
+
+    private KeyAccessorValuePersister getKeyAccessorValuePersister() {
+        if (keyAccessorValuePersister == null) {
+            keyAccessorValuePersister = new KeyAccessorValuePersister(pkiService);
+        }
+        return keyAccessorValuePersister;
     }
 }

@@ -8,6 +8,7 @@ import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
+import com.elster.jupiter.pki.PkiService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -19,6 +20,7 @@ public class CreateG3DemoBoardCommand {
 
     private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
+    private final PkiService pkiService;
     private final ConnectionTaskService connectionTaskService;
     private final Provider<DeviceBuilder> deviceBuilderProvider;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
@@ -29,12 +31,14 @@ public class CreateG3DemoBoardCommand {
     @Inject
     public  CreateG3DemoBoardCommand(DeviceService deviceService,
                                      ProtocolPluggableService protocolPluggableService,
+                                     PkiService pkiService,
                                      ConnectionTaskService connectionTaskService,
                                      Provider<DeviceBuilder> deviceBuilderProvider,
                                      Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
                                      Provider<ActivateDevicesCommand> activeLifeCyclestatePostBuilder) {
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
+        this.pkiService = pkiService;
         this.connectionTaskService = connectionTaskService;
         this.deviceBuilderProvider = deviceBuilderProvider;
         this.connectionMethodsProvider = connectionMethodsProvider;
@@ -49,6 +53,7 @@ public class CreateG3DemoBoardCommand {
         CreateG3GatewayCommand gatewayCommand = new CreateG3GatewayCommand(
                 deviceService,
                 protocolPluggableService,
+                pkiService,
                 connectionTaskService,
                 deviceBuilderProvider,
                 connectionMethodsProvider,
@@ -56,10 +61,10 @@ public class CreateG3DemoBoardCommand {
         gatewayCommand.setGatewayName(gatewayMrid);
         gatewayCommand.setSerialNumber("Demo board RTU+Server G3");
 
-        CreateG3SlaveCommand firstSlave = new CreateG3SlaveCommand(activeLifeCyclestatePostBuilder);
+        CreateG3SlaveCommand firstSlave = new CreateG3SlaveCommand(pkiService, activeLifeCyclestatePostBuilder);
         firstSlave.setConfig("AS3000");
 
-        CreateG3SlaveCommand secondSlave = new CreateG3SlaveCommand(activeLifeCyclestatePostBuilder);
+        CreateG3SlaveCommand secondSlave = new CreateG3SlaveCommand(pkiService, activeLifeCyclestatePostBuilder);
         secondSlave.setConfig("AS220");
 
         gatewayCommand.run();

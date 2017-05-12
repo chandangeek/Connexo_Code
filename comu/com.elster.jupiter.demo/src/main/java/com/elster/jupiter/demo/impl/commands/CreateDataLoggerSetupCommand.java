@@ -15,6 +15,7 @@ import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceGroupTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.pki.PkiService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceService;
@@ -30,6 +31,7 @@ public class CreateDataLoggerSetupCommand extends CommandWithTransaction {
     private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
     private final ConnectionTaskService connectionTaskService;
+    private final PkiService pkiService;
     private final Provider<DeviceBuilder> deviceBuilderProvider;
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final Provider<ActivateDevicesCommand> activeLifeCyclestatePostBuilder;
@@ -42,6 +44,7 @@ public class CreateDataLoggerSetupCommand extends CommandWithTransaction {
     public CreateDataLoggerSetupCommand(DeviceService deviceService,
                                         ProtocolPluggableService protocolPluggableService,
                                         ConnectionTaskService connectionTaskService,
+                                        PkiService pkiService,
                                         Provider<DeviceBuilder> deviceBuilderProvider,
                                         Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
                                         Provider<ActivateDevicesCommand> activeLifeCyclestatePostBuilder) {
@@ -49,6 +52,7 @@ public class CreateDataLoggerSetupCommand extends CommandWithTransaction {
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
         this.connectionTaskService = connectionTaskService;
+        this.pkiService = pkiService;
         this.deviceBuilderProvider = deviceBuilderProvider;
         this.connectionMethodsProvider = connectionMethodsProvider;
         this.activeLifeCyclestatePostBuilder = activeLifeCyclestatePostBuilder;
@@ -71,6 +75,7 @@ public class CreateDataLoggerSetupCommand extends CommandWithTransaction {
                 deviceService,
                 protocolPluggableService,
                 connectionTaskService,
+                pkiService,
                 deviceBuilderProvider,
                 connectionMethodsProvider,
                 activeLifeCyclestatePostBuilder

@@ -265,6 +265,6 @@ public class CreateA3DeviceCommand {
                 .filter(ps -> "Password".equals(ps.getName()))
                 .findFirst()
                 .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00000000000000000000")));
-        device.setSecurityProperties(securityPropertySet, typedProperties);
+//        device.setSecurityProperties(securityPropertySet, typedProperties);   //TODO: should be replaced KeyAccessorValuePersister#persistKeyAccessorValue
     }
 }

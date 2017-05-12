@@ -61,6 +61,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.properties.rest.PropertyValueInfoServiceModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -95,6 +96,7 @@ import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
 import com.energyict.mdc.app.impl.MdcAppInstaller;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.impl.DeviceAlarmModule;
 import com.energyict.mdc.device.alarms.impl.templates.AbstractDeviceAlarmTemplate;
@@ -120,6 +122,7 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterfaceImpl;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
@@ -184,6 +187,7 @@ import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 
 import com.energyict.protocolimpl.elster.a3.AlphaA3;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -198,6 +202,7 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.List;
@@ -388,7 +393,8 @@ public class DemoTest {
                 new CalendarModule(),
                 new PropertyValueInfoServiceModule(),
                 new DeviceAlarmModule(),
-                new DataQualityKpiModule()
+                new DataQualityKpiModule(),
+                new PkiModule()
         );
         doPreparations();
     }
@@ -519,21 +525,17 @@ public class DemoTest {
         assertThat(scheduledConnectionTask.isDefault()).isTrue();
         assertThat(scheduledConnectionTask.getNumberOfSimultaneousConnections()).isEqualTo(1);
         assertThat(scheduledConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
-//        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {  //TODO
-//            assertThat(scheduledConnectionTask.getProperty("host").getValue()).isEqualTo("10.0.0.135");
-//            assertThat(scheduledConnectionTask.getProperty("portNumber").getValue()).isEqualTo(new BigDecimal(4059));
-//            assertThat(gateway.getSecurityProperties(securityPropertySet)).hasSize(3);
-//            for (SecurityProperty securityProperty : gateway.getSecurityProperties(securityPropertySet)) {
-//                if (SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey().equals(securityProperty.getName())) {
-//                    assertThat(securityProperty.getValue()).isEqualTo(BigDecimal.ONE);
-//                } else if (SecurityPropertySpecName.AUTHENTICATION_KEY.getKey().equals(securityProperty.getName())) {
-//                    assertThat(securityProperty.getValue().toString()).isEqualTo("00112233445566778899AABBCCDDEEFF");
-//                } else if (SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(securityProperty.getName())) {
-//                    assertThat(securityProperty.getValue().toString()).isEqualTo("11223344556677889900AABBCCDDEEFF");
-//                }
-//            }
-//            ctx.commit();
-//        }
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            assertThat(scheduledConnectionTask.getProperty("host").getValue()).isEqualTo("10.0.0.135");
+            assertThat(scheduledConnectionTask.getProperty("portNumber").getValue()).isEqualTo(new BigDecimal(4059));
+            assertThat(securityPropertySet.getClient()).isEqualTo("1");
+            TypedProperties securityProperties = gateway.getSecurityProperties(securityPropertySet);
+            assertThat(securityProperties.propertyNames()).hasSize(2);
+
+            assertThat(securityProperties.getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.getKey())).isEqualTo("00112233445566778899AABBCCDDEEFF");
+            assertThat(securityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.getKey())).isEqualTo("11223344556677889900AABBCCDDEEFF");
+            ctx.commit();
+        }
         assertThat(gateway.getDeviceProtocolProperties().getProperty("ValidateInvokeId")).isEqualTo(Boolean.TRUE);
         assertThat(gateway.getComTaskExecutions()).hasSize(1);
     }
@@ -646,16 +648,12 @@ public class DemoTest {
                 fail("The device with name = " + deviceName + " contains an unwanted register : " + register.getRegisterSpecObisCode());
             }
         }
-//        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) { //TODO
-//            for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
-//                if ("ClientMacAddress".equals(securityProperty.getName())) {
-//                    assertThat(securityProperty.getValue()).isEqualTo(BigDecimal.ONE);
-//                } else if ("Password".equals(securityProperty.getName())) {
-//                    assertThat((String) securityProperty.getValue()).isEqualTo("1234567890123456");
-//                }
-//            }
-//            ctx.commit();
-//        }
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            assertThat(securityPropertySet.getClient()).isEqualTo("1");
+            TypedProperties securityProperties = device.getSecurityProperties(securityPropertySet);
+            assertThat(securityProperties.getProperty("Password")).isEqualTo("1234567890123456");
+            ctx.commit();
+        }
         assertThat(device.getDeviceProtocolProperties().getProperty("callHomeId")).isEqualTo(MAC_ADDRESS);
     }
 
@@ -776,6 +774,7 @@ public class DemoTest {
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommunicationTestServiceCallCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(injector.getInstance(DeviceEMeterInfoCustomPropertySet.class));
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(injector.getInstance(DeviceSAPInfoCustomPropertySet.class));
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(injector.getInstance(ChannelSAPInfoCustomPropertySet.class));
