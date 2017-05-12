@@ -14,8 +14,9 @@ import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleRemoveException;
-
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -28,9 +29,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.Test;
-import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
