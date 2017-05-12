@@ -107,6 +107,15 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                         ]
                     },
                     {
+                        xtype: 'component',
+                        itemId: 'metrology-configuration-field-errors',
+                        cls: 'x-form-invalid-under',
+                        style: {
+                            'white-space': 'normal'
+                        },
+                        hidden: true
+                    },
+                    {
                         xtype: 'radiogroup',
                         itemId: 'custom-attributes-radiogroup',
                         fieldLabel: Uni.I18n.translate('metrologyConfiguration.wizard.customAttributes', 'IMT', 'Custom attributes'),
@@ -199,6 +208,7 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
     },
 
     clearInvalid: function () {
+        this.down('#metrology-configuration-field-errors').hide();
         this.toggleValidation();
     },
 
@@ -220,11 +230,39 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
             }
         } else {
             if (!isValid) {
-                step.getForm().markInvalid(errors);
+                step.getForm().markInvalid(me.mapErrors(errors));
             } else {
                 step.getForm().clearInvalid();
             }
         }
         Ext.resumeLayouts(true);
+    },
+
+    mapErrors: function (errors) {
+        var map = {},
+            errMsg = [],
+            errorsField = this.down('#metrology-configuration-field-errors');
+
+        Ext.Array.each(errors, function (error) {
+
+            if (Ext.String.startsWith(error.id, 'metrologyConfiguration')) {
+                error.id = 'metrologyConfiguration.metrology-configuration-field-errors';
+                errMsg.push(error.msg);
+            }
+
+            errorsField.show();
+            errorsField.update(' '+errMsg.join('<br> '));
+
+            if (!map[error.id]) {
+                map[error.id] = {
+                    id: error.id,
+                    msg: [' '+error.msg]
+                };
+            } else {
+                map[error.id].msg.push(error.msg);
+            }
+        });
+
+        return _.values(map);
     }
 });
