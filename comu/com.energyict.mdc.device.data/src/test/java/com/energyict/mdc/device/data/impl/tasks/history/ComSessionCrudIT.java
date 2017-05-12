@@ -288,6 +288,7 @@ public class ComSessionCrudIT {
         when(encryptionAccessLevel.getId()).thenReturn(0);
         when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encryptionAccessLevel));
         when(this.deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.values()));
+        when(this.deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.empty());
 
         try (TransactionContext ctx = transactionService.getContext()) {
             deviceType = deviceConfigurationService.newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
