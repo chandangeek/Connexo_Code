@@ -95,7 +95,7 @@ class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessageEnable
     @Override
     public DeviceMessageId getDeviceMessageId() {
         if (deviceMessageId == null){
-            deviceMessageId = DeviceMessageId.havingId(this.deviceMessageIdDbValue);
+            deviceMessageId = DeviceMessageId.from(this.deviceMessageIdDbValue);
         }
         return deviceMessageId;
     }
