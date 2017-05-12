@@ -14,7 +14,7 @@
         <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>keyrenewal.rest</artifactId>
+    <artifactId>mdc.processes.keyrenewal.rest</artifactId>
     <version>1.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.process.keyRenewal.rest</name>
