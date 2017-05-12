@@ -56,6 +56,11 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLRequestSecurityLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLResponseSecurityLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLSecuritySuiteLevelAdapter;
 import com.energyict.mdc.tasks.TaskService;
 
 import com.energyict.obis.ObisCode;
@@ -69,6 +74,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
@@ -79,6 +85,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicationJerseyTest {
+
+    static ProtocolPluggableService protocolPluggableService;
+
     @Mock
     MeteringService meteringService;
     @Mock
@@ -91,8 +100,6 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     ValidationService validationService;
     @Mock
     EstimationService estimationService;
-    @Mock
-    ProtocolPluggableService protocolPluggableService;
     @Mock
     EngineConfigurationService engineConfigurationService;
     @Mock
@@ -131,6 +138,30 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     public static final long OK_VERSION = 24L;
     public static final long BAD_VERSION = 17L;
 
+    @BeforeClass
+    public static void before() {
+        protocolPluggableService = mock(ProtocolPluggableService.class);
+        when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new UPLAuthenticationLevelAdapter((com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel) args[0]);
+        });
+        when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new UPLEncryptionLevelAdapter((com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel) args[0]);
+        });
+        when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.SecuritySuite.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new UPLSecuritySuiteLevelAdapter((com.energyict.mdc.upl.security.SecuritySuite) args[0]);
+        });
+        when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.RequestSecurityLevel.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new UPLRequestSecurityLevelAdapter((com.energyict.mdc.upl.security.RequestSecurityLevel) args[0]);
+        });
+        when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.ResponseSecurityLevel.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new UPLResponseSecurityLevelAdapter((com.energyict.mdc.upl.security.ResponseSecurityLevel) args[0]);
+        });
+    }
 
     @Before
     public void setup() {
