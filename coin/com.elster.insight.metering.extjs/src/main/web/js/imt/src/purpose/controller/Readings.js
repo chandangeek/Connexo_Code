@@ -952,9 +952,9 @@ Ext.define('Imt.purpose.controller.Readings', {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
                                     if (comment) {
-                                        readings.set('estimatedCommentNotSaved', true);
-                                        readings.set('commentId', comment.commentId);
-                                        readings.set('commentValue', comment.commentValue);
+                                        reading.set('estimatedCommentNotSaved', true);
+                                        reading.set('commentId', comment.commentId);
+                                        reading.set('commentValue', comment.commentValue);
                                     }
                                     me.updateEstimatedValues(record, reading, estimatedReading, ruleId, action);
                                     return true;
