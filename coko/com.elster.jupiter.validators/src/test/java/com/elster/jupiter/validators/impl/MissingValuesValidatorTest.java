@@ -43,6 +43,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -116,7 +117,8 @@ public class MissingValuesValidatorTest {
             end = base.plus(60, ChronoUnit.MINUTES);
 
             when(channel.getChannelsContainer()).thenReturn(channelsContainer);
-            when(channelsContainer.getStart()).thenReturn(start);
+            when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
+            when(channelsContainer.getRange()).thenReturn(Range.atLeast(start));
             when(intervalReading.getQuantity(readingType)).thenReturn(Quantity.create(BigDecimal.ONE, "Wh"));
             when(intervalReading.getValue()).thenReturn(BigDecimal.ONE);
             when(readingType.getBulkReadingType()).thenReturn(Optional.of(bulkReadingType));
@@ -132,7 +134,6 @@ public class MissingValuesValidatorTest {
         @Test
         public void testValidateNoneMissing() {
             when(channel.toList(any())).thenReturn(Arrays.asList(startPlus10, startPlus20, startPlus30, startPlus40, startPlus50, end));
-            when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
 
             validator.init(channel, readingType, Range.openClosed(start, end));
 
@@ -145,9 +146,74 @@ public class MissingValuesValidatorTest {
         }
 
         @Test
+        public void testValidateNoneMissingFromContainerStartDateNoDelta() {
+            when(channel.toList(eq(Range.closed(start, end)))).thenReturn(Arrays.asList(start, startPlus10, startPlus20, startPlus30, startPlus40, startPlus50, end));
+            when(channel.toList(eq(Range.openClosed(start, end)))).thenReturn(Arrays.asList(startPlus10, startPlus20, startPlus30, startPlus40, startPlus50, end));
+
+            validator.init(channel, readingType, Range.openClosed(start, end));
+
+            for (Instant date : new Instant[]{startPlus10, startPlus20, startPlus30, startPlus50, startPlus40, end}) {
+                when(intervalReading.getTimeStamp()).thenReturn(date);
+                assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.VALID);
+            }
+
+            assertThat(validator.finish()).isEmpty();
+        }
+
+        @Test
+        public void testValidateNoneMissingFromContainerStartDateDelta() {
+            when(channel.toList(eq(Range.closed(start, end)))).thenReturn(Arrays.asList(start, startPlus10, startPlus20, startPlus30, startPlus40, startPlus50, end));
+            when(channel.toList(eq(Range.openClosed(start, end)))).thenReturn(Arrays.asList(startPlus10, startPlus20, startPlus30, startPlus40, startPlus50, end));
+            doReturn(Optional.ofNullable(bulkReadingType)).when(channel).getBulkQuantityReadingType();
+            when(readingType.isBulkQuantityReadingType(eq(bulkReadingType))).thenReturn(true);
+
+            validator.init(channel, readingType, Range.closed(start, end));
+
+            for (Instant date : new Instant[]{startPlus10, startPlus20, startPlus30, startPlus50, startPlus40, end}) {
+                when(intervalReading.getTimeStamp()).thenReturn(date);
+                assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.VALID);
+            }
+
+            assertThat(validator.finish()).isEmpty();
+        }
+
+        @Test
+        public void testValidateNoneMissingOutsideChannelContainerRange() {
+            when(channel.toList(eq(Range.closed(start, end)))).thenReturn(Arrays.asList(start, startPlus10, startPlus20, startPlus30, startPlus40, startPlus50, end));
+            when(channel.toList(eq(Range.openClosed(start, end)))).thenReturn(Arrays.asList(startPlus10, startPlus20, startPlus30, startPlus40, startPlus50, end));
+            when(channelsContainer.getRange()).thenReturn(Range.closedOpen(start, startPlus10));
+
+            validator.init(channel, readingType, Range.openClosed(startPlus10, end));
+
+            for (Instant date : new Instant[]{startPlus10, startPlus20, startPlus30, startPlus50, startPlus40, end}) {
+                when(intervalReading.getTimeStamp()).thenReturn(date);
+                assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.VALID);
+            }
+
+            assertThat(validator.finish()).isEmpty();
+        }
+
+        @Test
+        public void testValidateNoneMissingClosedChannelContainerRangeDelta() {
+            when(channel.toList(eq(Range.closed(start, end)))).thenReturn(Arrays.asList(start, startPlus10, startPlus20, startPlus30, startPlus40, startPlus50, end));
+            when(channel.toList(eq(Range.openClosed(start, end)))).thenReturn(Arrays.asList(startPlus10, startPlus20, startPlus30, startPlus40, startPlus50, end));
+            doReturn(Optional.ofNullable(bulkReadingType)).when(channel).getBulkQuantityReadingType();
+            when(readingType.isBulkQuantityReadingType(eq(bulkReadingType))).thenReturn(true);
+
+            validator.init(channel, readingType, Range.closed(start, end));
+
+            for (Instant date : new Instant[]{startPlus10, startPlus20, startPlus30, startPlus50, startPlus40, end}) {
+                when(intervalReading.getTimeStamp()).thenReturn(date);
+                assertThat(validator.validate(intervalReading)).isEqualTo(ValidationResult.VALID);
+            }
+
+            assertThat(validator.finish()).isEmpty();
+        }
+
+
+        @Test
         public void testValidateNoneMissingEvenIfFirstReadingEverMissesDelta() {
             when(channel.toList(any())).thenReturn(Arrays.asList(startPlus10, startPlus20, startPlus30, startPlus40, startPlus50, end));
-            when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
 
             validator.init(channel, readingType, Range.closed(start, end));
 
@@ -167,7 +233,6 @@ public class MissingValuesValidatorTest {
         @Test
         public void testValidateOneMissingYetThereIsAReadingForOtherReadingTypes() {
             when(channel.toList(any())).thenReturn(Arrays.asList(startPlus10, startPlus20, startPlus30, startPlus40, startPlus50, end));
-            when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
 
             validator.init(channel, readingType, Range.openClosed(start, end));
 
@@ -187,7 +252,6 @@ public class MissingValuesValidatorTest {
         @Test
         public void testValidateSomeMissing() {
             when(channel.toList(any())).thenReturn(Arrays.asList(start, startPlus10, startPlus20, startPlus30, startPlus40, startPlus50, end));
-            when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
 
             validator.init(channel, readingType, Range.closed(start, end));
 
@@ -202,7 +266,6 @@ public class MissingValuesValidatorTest {
         @Test
         public void testValidateAllMissing() {
             when(channel.toList(any())).thenReturn(Arrays.asList(start, startPlus10, startPlus20, startPlus30, startPlus40, startPlus50, end));
-            when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
 
             validator.init(channel, readingType, Range.closed(start, end));
 
@@ -234,6 +297,7 @@ public class MissingValuesValidatorTest {
         public void testValidateForIrregularStartTime() {
             when(channel.toList(any())).thenReturn(Arrays.asList(startPlus10, startPlus20, startPlus30));
 
+
             validator.init(channel, readingType, Range.closed(startPlus7, startPlus30));
 
             assertThat(validator.finish()).contains(
@@ -260,7 +324,6 @@ public class MissingValuesValidatorTest {
         public void testNoMissingsReportedOnIrregularChannels() {
             when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
             when(channel.isRegular()).thenReturn(false);
-            when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
             when(channel.toList(any())).thenReturn(Collections.emptyList());
 
             validator.init(channel, readingType, Range.closed(start, end));
