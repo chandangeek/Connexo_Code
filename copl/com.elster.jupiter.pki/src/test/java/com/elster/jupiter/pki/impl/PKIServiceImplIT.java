@@ -1,6 +1,5 @@
 package com.elster.jupiter.pki.impl;
 
-import certpathvalidator.CertPathValidatorTest;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -27,6 +26,8 @@ import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultPassphraseFactory
 import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
+
+import certpathvalidator.CertPathValidatorTest;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -44,18 +45,9 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.bc.BcPKCS10CertificationRequest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.charset.Charset;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -78,6 +70,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static java.util.stream.Collectors.toList;
@@ -1027,7 +1028,7 @@ public class PKIServiceImplIT {
                 .newSymmetricKeyWrapper(keyAccessorType);
 
         Map<String, Object> map = new HashMap<>();
-        map.put("key", "thisIsNotAValidHexString");
+        map.put("key", "kjkjkjkjkjkjkjkjkjkjkjkjkjkjkjkk"); // incorrect symmetric key
         symmetricKeyWrapper.setProperties(map);
     }
 
@@ -1045,7 +1046,7 @@ public class PKIServiceImplIT {
                 .newSymmetricKeyWrapper(keyAccessorType);
 
         Map<String, Object> map = new HashMap<>();
-        map.put("key", new String(new byte[]{1, 2, 3, 4, 5}, Charset.forName("UTF-8"))); // incorrect symmetric key
+        map.put("key", "0011223344556677889900112233445566"); // incorrect symmetric key
         symmetricKeyWrapper.setProperties(map);
     }
 
