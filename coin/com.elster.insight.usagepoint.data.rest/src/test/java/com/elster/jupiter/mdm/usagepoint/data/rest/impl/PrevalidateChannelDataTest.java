@@ -16,7 +16,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.time.Interval;
@@ -49,6 +49,7 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,6 +81,13 @@ public class PrevalidateChannelDataTest extends UsagePointDataRestApplicationJer
     private Channel channel;
     @Mock
     private ValidationEvaluator validationEvaluator;
+
+    @Captor
+    private ArgumentCaptor<List<BaseReading>> readingsArgumentCaptor;
+    @Captor
+    private ArgumentCaptor<Range<Instant>> rangeArgumentCaptor;
+    @Captor
+    private ArgumentCaptor<ValidationContext> validationContextArgumentCaptor;
 
     private DataAggregationService.MetrologyContractDataEditor editor = FakeBuilder.initBuilderStub(null, DataAggregationService.MetrologyContractDataEditor.class);
 
@@ -191,19 +199,16 @@ public class PrevalidateChannelDataTest extends UsagePointDataRestApplicationJer
         verify(transactionContext, never()).commit();
 
         // verify that readings are saved
-        ArgumentCaptor<List> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
-        verify(editor).updateAll(listArgumentCaptor.capture());
-        assertThat(listArgumentCaptor.getValue()).hasSize(1);
-        assertThat(((BaseReadingImpl) listArgumentCaptor.getValue().get(0)).getValue()).isEqualTo(BigDecimal.ONE);
-        listArgumentCaptor = ArgumentCaptor.forClass(List.class);
-        verify(editor).estimateAll(listArgumentCaptor.capture());
-        assertThat(listArgumentCaptor.getValue()).hasSize(1);
-        assertThat(((BaseReadingImpl) listArgumentCaptor.getValue().get(0)).getValue()).isEqualTo(BigDecimal.TEN);
+        verify(editor).updateAll(readingsArgumentCaptor.capture());
+        assertThat(readingsArgumentCaptor.getValue()).hasSize(1);
+        assertThat(readingsArgumentCaptor.getValue().get(0).getValue()).isEqualTo(BigDecimal.ONE);
+
+        verify(editor).estimateAll(readingsArgumentCaptor.capture());
+        assertThat(readingsArgumentCaptor.getValue()).hasSize(1);
+        assertThat(readingsArgumentCaptor.getValue().get(0).getValue()).isEqualTo(BigDecimal.TEN);
         verify(editor).save();
 
         // verify that validation has been performed on a correct range
-        ArgumentCaptor<ValidationContext> validationContextArgumentCaptor = ArgumentCaptor.forClass(ValidationContext.class);
-        ArgumentCaptor<Range> rangeArgumentCaptor = ArgumentCaptor.forClass(Range.class);
         verify(validationService).validate(validationContextArgumentCaptor.capture(), rangeArgumentCaptor.capture());
         assertThat(validationContextArgumentCaptor.getValue().getChannelsContainer()).isEqualTo(channelsContainer);
         assertThat(validationContextArgumentCaptor.getValue().getReadingType()).isEqualTo(Optional.of(readingType));

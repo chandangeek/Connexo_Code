@@ -334,18 +334,17 @@ public class ResourceHelper {
                             replaceOrActivateMeter(linker, usagePoint, activationTime, meterActivation.meter.name, meterRole);
                         }
                     });
-        }else {
+        } else {
             usagePoint.getMeterActivations().stream()
                     .forEach(m -> {
-                Optional<MeterRole> meterRole = m.getMeterRole();
-                if(meterRole.isPresent()) {
-                    validateUnlinkMeters(usagePoint, meterRole.get());
-                    linker.clear(meterRole.get());
-                }
-            });
+                        Optional<MeterRole> meterRole = m.getMeterRole();
+                        if (meterRole.isPresent()) {
+                            validateUnlinkMeters(usagePoint, meterRole.get());
+                            linker.clear(meterRole.get());
+                        }
+                    });
         }
         linker.completeRemoveOrAdd();
-
     }
 
     private void replaceOrActivateMeter(UsagePointMeterActivator linker, UsagePoint usagePoint, Instant activationTime, String meterName, MeterRole meterRole) {

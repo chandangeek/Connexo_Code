@@ -4,14 +4,13 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.OutOfTheBoxCategory;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.estimation.Estimatable;
@@ -39,11 +38,9 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.ReadingTypeTranslationKeys;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.BigDecimalFunction;
 import com.elster.jupiter.rest.util.IntervalInfo;
@@ -583,12 +580,12 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
         OutputChannelDataInfo info1 = new OutputChannelDataInfo();
         info1.isConfirmed = true;
-        info1.reportedDateTime = INTERVAL_4.upperEndpoint();
-        info1.interval = IntervalInfo.from(INTERVAL_4);
+        info1.reportedDateTime = INTERVAL_3.upperEndpoint();
+        info1.interval = IntervalInfo.from(INTERVAL_3);
         OutputChannelDataInfo info2 = new OutputChannelDataInfo();
         info2.isConfirmed = true;
-        info2.reportedDateTime = INTERVAL_3.upperEndpoint();
-        info2.interval = IntervalInfo.from(INTERVAL_3);
+        info2.reportedDateTime = INTERVAL_4.upperEndpoint();
+        info2.interval = IntervalInfo.from(INTERVAL_4);
 
         // Business method
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData")
@@ -605,12 +602,12 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         Object capturedListElement = readingsCaptor.getValue().get(0);
         assertThat(capturedListElement).isInstanceOf(BaseReading.class);
         BaseReading capturedReading = (BaseReading) capturedListElement;
-        assertThat(capturedReading.getTimeStamp()).isEqualTo(INTERVAL_4.upperEndpoint());
+        assertThat(capturedReading.getTimeStamp()).isEqualTo(INTERVAL_3.upperEndpoint());
 
         capturedListElement = readingsCaptor.getValue().get(1);
         assertThat(capturedListElement).isInstanceOf(BaseReading.class);
         capturedReading = (BaseReading) capturedListElement;
-        assertThat(capturedReading.getTimeStamp()).isEqualTo(INTERVAL_3.upperEndpoint());
+        assertThat(capturedReading.getTimeStamp()).isEqualTo(INTERVAL_4.upperEndpoint());
     }
 
     @Test
