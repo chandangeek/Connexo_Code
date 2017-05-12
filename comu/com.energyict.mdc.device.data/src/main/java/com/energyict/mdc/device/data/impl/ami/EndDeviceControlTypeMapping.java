@@ -9,11 +9,7 @@ import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.ami.commands.ArmRemoteSwitchCommand;
-import com.energyict.mdc.device.data.impl.ami.commands.CloseRemoteSwitchCommand;
-import com.energyict.mdc.device.data.impl.ami.commands.LoadControlInitiateCommand;
-import com.energyict.mdc.device.data.impl.ami.commands.LoadControlTerminateCommand;
-import com.energyict.mdc.device.data.impl.ami.commands.OpenRemoteSwitchCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.*;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -84,7 +80,14 @@ public enum EndDeviceControlTypeMapping {
     },
     ENABLE_SWITCH("0.31.0.26"),
     DISABLE_SUP_CAPACITY_LIM("0.31.139.22"),
-    ENABLE_SUP_CAPACITY_LIM("0.31.139.26");
+    ENABLE_SUP_CAPACITY_LIM("0.31.139.26"),
+    //key renewal
+    KEY_RENEWAL("0.12.32.13", Collections.singletonList(DeviceMessageId.SECURITY_KEY_RENEWAL)) {
+        @Override
+        public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+            return Optional.of(new KeyRenewalCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
+        }
+    };
 
     private final String endDeviceControlTypeMRID;
     private final List<List<DeviceMessageId>> possibleDeviceMessageIdGroups;

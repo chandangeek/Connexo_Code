@@ -16,10 +16,8 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
-import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
-import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
+import com.energyict.mdc.device.data.impl.ami.servicecall.*;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.CommunicationTestServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 import com.energyict.mdc.device.data.security.Privileges;
 
@@ -98,6 +96,7 @@ public class InstallerV10_2Impl implements FullInstaller, PrivilegesProvider {
             createServiceCallType(serviceCallTypeMapping);
         }
         createOnDemandReadServiceCallType();
+        createCommunicationTestServiceCallType();
     }
 
     private void createOnDemandReadServiceCallType() {
@@ -134,6 +133,25 @@ public class InstallerV10_2Impl implements FullInstaller, PrivilegesProvider {
                     .customPropertySet(completionOptionsCustomPropertySet)
                     .create();
         }
+    }
+
+    private void createCommunicationTestServiceCallType() {
+        RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet(new CommunicationTestServiceCallCustomPropertySet()
+                .getId())
+                .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find custom property set ''{0}''", CommunicationTestServiceCallCustomPropertySet.class
+                        .getSimpleName())));
+        RegisteredCustomPropertySet completionOptionsCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(new CompletionOptionsCustomPropertySet()
+                .getId())
+                .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find custom property set ''{0}''", CompletionOptionsCustomPropertySet.class
+                        .getSimpleName())));
+
+
+        serviceCallService.findServiceCallType(CommunicationTestServiceCallHandler.SERVICE_CALL_HANDLER_NAME, CommunicationTestServiceCallHandler.VERSION)
+                .orElseGet(() -> serviceCallService.createServiceCallType(CommunicationTestServiceCallHandler.SERVICE_CALL_HANDLER_NAME, CommunicationTestServiceCallHandler.VERSION)
+                        .handler(CommunicationTestServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
+                        .customPropertySet(customPropertySet)
+                        .customPropertySet(completionOptionsCustomPropertySet)
+                        .create());
     }
 
     private void createDefaultMultiplierType() {

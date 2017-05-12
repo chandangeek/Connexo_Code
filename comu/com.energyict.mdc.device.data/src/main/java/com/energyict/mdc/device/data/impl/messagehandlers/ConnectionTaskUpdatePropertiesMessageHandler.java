@@ -10,7 +10,6 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.common.Password;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.UpdateConnectionTaskPropertiesQueueMessage;
@@ -62,9 +61,7 @@ public class ConnectionTaskUpdatePropertiesMessageHandler implements MessageHand
      */
     private Object convertPropertyStringValueToPropertyValue(PropertySpec propertySpec, String value) {
         Class valueTypeClazz = propertySpec.getValueFactory().getValueType();
-        if (Objects.equals(valueTypeClazz, Password.class)) {
-            return new Password(value);
-        } else if (Objects.equals(valueTypeClazz, Date.class)) {
+        if (Objects.equals(valueTypeClazz, Date.class)) {
             return new Date(Long.valueOf(value));
         } else if (Objects.equals(valueTypeClazz, TimeDuration.class)) {
             try { // String looks like this: '{timeUnit=hours, count=1}'

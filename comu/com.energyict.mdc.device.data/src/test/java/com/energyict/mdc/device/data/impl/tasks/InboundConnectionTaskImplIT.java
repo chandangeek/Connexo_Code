@@ -331,7 +331,6 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask).isNotNull();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(INBOUND_COMPORT_POOL1_ID);
-        assertThat(connectionTask.getConnectionType()).isEqualTo(inboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -363,7 +362,6 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask).isNotNull();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(INBOUND_COMPORT_POOL1_ID);
-        assertThat(connectionTask.getConnectionType()).isEqualTo(inboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // 1 property is locally defined, 1 is inherited and the third is not specified at any level
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -393,7 +391,6 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask).isNotNull();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(INBOUND_COMPORT_POOL1_ID);
-        assertThat(connectionTask.getConnectionType()).isEqualTo(inboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // no properties are locally defined, all 2 are inherited from the connection type pluggable class
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);

@@ -15,7 +15,6 @@ import com.energyict.mdc.device.data.ChannelEstimationRuleOverriddenProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceService;
-
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

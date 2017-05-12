@@ -7,7 +7,6 @@ package com.energyict.mdc.device.data.impl.configchange;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
@@ -46,18 +45,4 @@ public interface ServerDeviceForConfigChange extends Device {
 
     void addLogBooks(List<LogBookSpec> logBookSpecs);
 
-    /**
-     * Updates the securityProperties which are owned by the origin SecurityPropertySet to the new destination SecurityPropertySet
-     *
-     * @param origin      the originSecurityPropertySet
-     * @param destination the destinationSecurityPropertySet
-     */
-    void updateSecurityProperties(SecurityPropertySet origin, SecurityPropertySet destination);
-
-    /**
-     * Deletes all SecurityProperties which are defined for the given SecurityPropertySet on the Device
-     *
-     * @param securityPropertySet the set which modelled the securityProperties
-     */
-    void deleteSecurityPropertiesFor(SecurityPropertySet securityPropertySet);
 }

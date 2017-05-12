@@ -40,10 +40,9 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 import org.joda.time.DateTimeConstants;
-import org.junit.After;
-import org.junit.Test;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -54,6 +53,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+
+import org.junit.After;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -244,7 +246,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         ComPortPool comPortPool = connectionTask.getComPortPool();
         assertThat(comPortPool).isNotNull();
         assertThat(comPortPool.getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionTask.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -276,7 +277,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask).isNotNull();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionTask.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(1);   // Only 1 property is locally defined and higher levels do not specify any property values
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(1);
@@ -306,7 +306,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask).isNotNull();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionTask.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // 1 property is locally defined, 1 is inherited and the third is not specified at any level
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -333,7 +332,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask).isNotNull();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionTask.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // no properties are locally defined, all 2 are inherited from the connection type pluggable class
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);
@@ -362,7 +360,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask).isNotNull();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionTask.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // 2 properties are inherited from the partial connection task and 1 is inherited from the connection type pluggable class
         assertThat(connectionTask.getTypedProperties().getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isEqualTo(UPDATED_IP_ADDRESS_PROPERTY_VALUE);
         assertThat(connectionTask.getTypedProperties().hasInheritedValueFor(IpConnectionProperties.IP_ADDRESS.propertyName())).isTrue();
@@ -384,7 +381,6 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask).isNotNull();
         assertThat(connectionTask.getComPortPool()).isNotNull();
         assertThat(connectionTask.getComPortPool().getId()).isEqualTo(outboundTcpipComPortPool.getId());
-        assertThat(connectionTask.getPluggableClass().getConnectionType()).isEqualTo(outboundIpConnectionTypePluggableClass.getConnectionType());
         assertThat(connectionTask.getProperties()).hasSize(2);   // no properties are locally defined, all 2 are inherited from the partial connection task
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         assertThat(typedProperties.size()).isEqualTo(2);

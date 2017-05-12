@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
@@ -17,6 +18,7 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
@@ -47,12 +49,9 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
-
-import aQute.bnd.annotation.ProviderType;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
@@ -223,53 +222,14 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
     void removeProtocolProperty(String name);
 
     /**
-     * Indicates if there are properties for the device and the specified {@link SecurityPropertySet}.
-     *
-     * @param securityPropertySet The SecurityPropertySet
-     * @return A flag that indicates if this Device has properties for the SecurityPropertySet
+     * Resolve the key accessors and their types to their actual values (if present) and return them as TypedProperties.
      */
-    boolean hasSecurityProperties(SecurityPropertySet securityPropertySet);
+    TypedProperties getSecurityProperties(SecurityPropertySet securityPropertySet);
 
-    /**
-     * Tests if all the security properties that are define in the configuration level
-     * are valid for this specified Device.
-     * Security properties for a SecurityPropertySet can be invalid for the following reasons:
-     * <ul>
-     * <li>No properties have been defined</li>
-     * <li>Some or all of the required properties have not been specified yet</li>
-     * </ul>
-     *
-     * @return A flag that indicates if all security properties are valid for this Device
-     * @see DeviceConfiguration#getSecurityPropertySets()
-     * @see SecurityProperty#isComplete()
-     */
-    boolean securityPropertiesAreValid();
+    //TODO: once there is an actual implementation, remove the default implementation
+    default void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties) {};
 
-    /**
-     * Tests if the properties of the specified {@link SecurityPropertySet}
-     * are complete for this Device.
-     * Security properties for a SecurityPropertySet can be invalid for the following reasons:
-     * <ul>
-     * <li>No properties have been defined</li>
-     * <li>Some or all of the required properties have not been specified yet</li>
-     * </ul>
-     *
-     * @param securityPropertySet The SecurityPropertySet
-     * @return A flag that indicates if all security properties are valid for this Device
-     * @see DeviceConfiguration#getSecurityPropertySets()
-     * @see SecurityProperty#isComplete()
-     */
-    boolean securityPropertiesAreValid(SecurityPropertySet securityPropertySet);
-
-    List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
-
-    /**
-     * Note that this setter does not yet persist the given security properties.
-     * This is done in the save method of this device.
-     */
-    void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties);
-
-    void setSecurityProperty(String propertyName, Object propertyValue);
+    default void setSecurityProperty(String propertyName, Object propertyValue) {};
 
     List<ProtocolDialectProperties> getProtocolDialectPropertiesList();
 
@@ -544,6 +504,29 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
 
     String getModelVersion();
     void setModelVersion(String modelVersion);
+
+    /**
+     * Returns all KeyAccessors defined for this device. The returned list will contain accessors of all kinds: certfificates, keys and passphrases
+     * @return all KeyAccessors defined for this device.
+     */
+    public List<KeyAccessor> getKeyAccessors();
+
+    /**
+     * Get the KeyAccessor (aka 'value') for a KeyAccessorType, if any
+     * @param keyAccessorType The KAt whose value will be retrieved.
+     * @return The actual value (KeyAccessor), or Optional.empty() if no value could be found
+     */
+    public Optional<KeyAccessor> getKeyAccessor(KeyAccessorType keyAccessorType);
+
+    /**
+     * Creates a new KeyAccessor for a certain KeyAccessorType. The KeyAccessor is merely an empty placeholder at this point.
+     * Users can set the value by calling the setter.
+     * @param keyAccessorType The type of key accessor to be created
+     * @return An empty key accessor.
+     */
+    public KeyAccessor newKeyAccessor(KeyAccessorType keyAccessorType);
+
+    public void removeKeyAccessor(KeyAccessor keyAccessor);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.

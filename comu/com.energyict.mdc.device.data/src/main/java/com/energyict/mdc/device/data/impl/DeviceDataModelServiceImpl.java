@@ -26,6 +26,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -43,6 +44,7 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.RegisterService;
@@ -52,7 +54,6 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CustomPropertySetsTran
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
@@ -135,7 +136,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile SchedulingService schedulingService;
     private volatile TaskService mdcTaskService;
-    private volatile SecurityPropertyService securityPropertyService;
     private volatile QueryService queryService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
@@ -149,6 +149,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile LockService lockService;
     private volatile DataVaultService dataVaultService;
+    private volatile PkiService pkiService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ConnectionTaskReportService connectionTaskReportService;
@@ -179,10 +180,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             EngineConfigurationService engineConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, DeviceConfigurationService deviceConfigurationService,
             MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
             SchedulingService schedulingService, MessageService messageService,
-            SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
+            UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
             TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService,
-            UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService, LockService lockService, DataVaultService dataVaultService) {
+            UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService, ThreadPrincipalService threadPrincipalService,
+            LockService lockService, DataVaultService dataVaultService, PkiService pkiService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -204,7 +206,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setSchedulingService(schedulingService);
         setMdcTaskService(mdcTaskService);
         setMessagingService(messageService);
-        setSecurityPropertyService(securityPropertyService);
         setUserService(userService);
         setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         setMeteringGroupsService(meteringGroupsService);
@@ -220,6 +221,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setThreadPrincipalService(threadPrincipalService);
         setLockService(lockService);
         setDataVaultService(dataVaultService);
+        setPkiService(pkiService);
         activate(bundleContext);
     }
 
@@ -246,6 +248,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
+    }
+
+    @Reference
+    public void setPkiService(PkiService pkiService) {
+        this.pkiService = pkiService;
     }
 
     @Reference
@@ -389,11 +396,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     }
 
     @Reference
-    public void setSecurityPropertyService(SecurityPropertyService securityPropertyService) {
-        this.securityPropertyService = securityPropertyService;
-    }
-
-    @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
@@ -534,7 +536,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             public void configure() {
                 bind(DeviceDataModelService.class).toInstance(DeviceDataModelServiceImpl.this);
                 bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
-                bind(SecurityPropertyService.class).toInstance(securityPropertyService);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
@@ -583,6 +584,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(DeviceMessageService.class).toInstance(deviceMessageService);
                 bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
                 bind(LockService.class).toInstance(lockService);
+                bind(PkiService.class).toInstance(pkiService);
             }
         };
     }
@@ -708,6 +710,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         keys.addAll(Arrays.asList(TaskStatusTranslationKeys.values()));
         keys.addAll(Arrays.asList(CompletionCodeTranslationKeys.values()));
         keys.addAll(Arrays.asList(CustomPropertySetsTranslationKeys.values()));
+        keys.addAll(Arrays.asList(KeyAccessorStatus.values()));
         return keys;
     }
 

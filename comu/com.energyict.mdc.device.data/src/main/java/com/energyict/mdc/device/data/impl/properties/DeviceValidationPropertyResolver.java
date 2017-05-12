@@ -15,7 +15,6 @@ import com.energyict.mdc.device.data.ChannelValidationRuleOverriddenProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DeviceValidation;
-
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

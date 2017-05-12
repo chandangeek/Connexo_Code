@@ -89,8 +89,8 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand {
 
     public abstract List<DeviceMessage> createCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate);
 
-    protected boolean hasCommandArgumentValueFor(String commandArgumentName) {
-        return getPropertyValueMap().keySet().stream().anyMatch(propertySpec -> propertySpec.getName().equals(commandArgumentName));
+    protected boolean hasCommandArgumentValueFor(Class clazz) {
+        return getPropertyValueMap().keySet().stream().anyMatch(propertySpec -> propertySpec.getValueFactory().getValueType().equals(clazz));
     }
 
     protected boolean deviceHasSupportFor(DeviceMessageId deviceMessageId) {

@@ -4,10 +4,9 @@
 
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.ValidationAction;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.util.Map;
 

@@ -46,6 +46,8 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -80,11 +82,10 @@ import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
@@ -113,20 +114,11 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -138,6 +130,17 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -191,7 +194,6 @@ public class DeviceImplDoSomethingWithEventsTest {
     public void initializeMocks() {
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(this.deviceProtocol);
-        when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.empty());
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(DEVICE_TYPE_NAME, deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
@@ -309,6 +311,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new InMemoryMessagingModule(),
                     new OrmModule(),
                     new DataVaultModule(),
+                    new PkiModule(),
                     new IssuesModule(),
                     new MdcReadingTypeUtilServiceModule(),
                     new BasicPropertiesModule(),
@@ -368,7 +371,6 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 this.deviceConfigurationService,
                                 this.meteringService, this.validationService, this.estimationService, this.schedulingService,
                                 injector.getInstance(MessageService.class),
-                                injector.getInstance(SecurityPropertyService.class),
                                 injector.getInstance(UserService.class),
                                 injector.getInstance(DeviceMessageSpecificationService.class),
                                 injector.getInstance(MeteringGroupsService.class),
@@ -384,7 +386,9 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(ServiceCallService.class),
                                 injector.getInstance(ThreadPrincipalService.class),
                                 injector.getInstance(LockService.class),
-                                injector.getInstance(DataVaultService.class));
+                                injector.getInstance(DataVaultService.class),
+                                injector.getInstance(PkiService.class)
+                        );
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }
@@ -394,6 +398,7 @@ public class DeviceImplDoSomethingWithEventsTest {
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommunicationTestServiceCallCustomPropertySet());
         }
 
         private void initializeMocks(String testName) {
@@ -454,7 +459,6 @@ public class DeviceImplDoSomethingWithEventsTest {
                 bind(LogService.class).toInstance(mock(LogService.class));
                 bind(DeviceMessageService.class).toInstance(mock(DeviceMessageService.class));
 
-                bind(SecurityPropertyService.class).to(SecurityPropertyServiceImpl.class).in(Scopes.SINGLETON);
                 bind(ConnectionTaskService.class).to(ConnectionTaskServiceImpl.class).in(Scopes.SINGLETON);
                 bind(CommunicationTaskService.class).to(CommunicationTaskServiceImpl.class).in(Scopes.SINGLETON);
                 bind(LoadProfileService.class).to(LoadProfileServiceImpl.class).in(Scopes.SINGLETON);

@@ -7,8 +7,6 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.DeviceDataServices;
 
-import org.omg.CORBA.DATA_CONVERSION;
-
 import java.util.logging.Level;
 
 import static java.util.logging.Level.SEVERE;
@@ -169,14 +167,23 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_DEVICE_NAME(2141, Keys.DUPLICATE_DEVICE_NAME, "Name must be unique"),
     MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK(2142, Keys.MULTIPLE_COMSCHEDULES_WITH_SAME_COMTASK, "You can not set a ComSchedule on the device because it already contains a ComTask which is linked to another ComSchedule"),
     GROUP_IS_USED_BY_ANOTHER_GROUP(2143, Keys.GROUP_IS_USED_BY_ANOTHER_GROUP, "The group is used by another group"),
-    VALIDATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2144, "ValidationPropertyCannotBeOverridden", "Validation rule property with key ''{0}'' can''t be overridden"),
-    ESTIMATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2145, "EstimationPropertyCannotBeOverridden", "Estimation rule property with key ''{0}'' can''t be overridden"),
-    CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER(2146, Keys.CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER, "You cannot change the configuration of a multi-element submeter"),
-    CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED(2147, Keys.CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED,  "You cannot change the configuration of a multi-element enabled device" ),
-    CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED(2148, Keys.CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED, "The device ‘{0}’ can’t be changed to device configuration ‘{1}’ because this device configuration doesn’t provide the necessary amount of channels needed for the linked channels on this device."),
-    NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED(2149, Keys.NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED, "The device configuration ‘{1}’ must be data logger enabled: The device ‘{0}’ has channels linked to data logger slaves."),
-    NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED(2150, Keys.NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED, "The device configuration ‘{1}’ must be multi-element enabled: The device ‘{0}’ has channels linked to multi-element slave devices.")
-    ;
+    CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER(2144, Keys.CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER, "You cannot change the configuration of a multi-element submeter"),
+    CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED(2145, Keys.CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED, "You cannot change the configuration of a multi-element enabled device"),
+    CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED(2146, Keys.CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED, "The device ‘{0}’ can’t be changed to device configuration ‘{1}’ because this device configuration doesn’t provide the necessary amount of channels needed for the linked channels on this device."),
+    NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED(2147, Keys.NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED, "The device configuration ‘{1}’ must be data logger enabled: The device ‘{0}’ has channels linked to data logger slaves."),
+    NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED(2148, Keys.NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED, "The device configuration ‘{1}’ must be multi-element enabled: The device ‘{0}’ has channels linked to multi-element slave devices."),
+    COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE(2149, Keys.COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE, "The device command '{0}' should have an 'Activation date' attribute"),
+    COMMAND_SHOULD_HAVE_A_NORMAL_THRESHOLD_ATTRIBUTE(2150, Keys.COMMAND_SHOULD_HAVE_A_NORMAL_THRESHOLD_ATTRIBUTE, "The device command '{0}' should have a 'Normal threshold' attribute"),
+    COMMAND_SHOULD_HAVE_A_UNIT_ATTRIBUTE(2151, Keys.COMMAND_SHOULD_HAVE_A_UNIT_ATTRIBUTE, "The device command '{0}' should have a 'Unit' attribute"),
+    TEMP_VALUE_NOT_SET(2152, "NoTempValue", "The security accessor does not contain a temporary value"),
+    NO_ACTUAL_CERTIFICATE(2153, "NoActualCertificate", "Certificate renewal requires an actual value in order to create a distinguished name"),
+    CERTIFICATE_ENCODING_EXCEPTION(2154, "CertificateEncodingError", "The certificate is an unrecognized format"),
+    ACTUAL_VALUE_NOT_SET(2155, "NoActualValue", "The security accessor does not contain an actual value"),
+    VETO_CERTIFICATE_DELETION(2156, "VetoCertificateDeletion", "This certificate is still in use."),
+    VALIDATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2157, "ValidationPropertyCannotBeOverridden", "Validation rule property with key ''{0}'' can''t be overridden"),
+    ESTIMATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2158, "EstimationPropertyCannotBeOverridden", "Estimation rule property with key ''{0}'' can''t be overridden"),
+    NO_BASIC_CHECK_COMTASK(2159, Keys.NO_BASIC_CHECK_COMTASK, "A basic check comtask could not be located"),
+    COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE(2160, Keys.COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE, "The device command '{0}' should have a 'key accessor reference' attribute");
 
     private final int number;
     private final String key;
@@ -353,6 +360,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT = "unsatisfied.reading.type.requirements.of.usage.point";
         public static final String NO_STATUS_INFORMATION_COMTASK = "no.status.information.comtask";
         public static final String COULD_NOT_FIND_SERVICE_CALL_TYPE = "could.not.find.service.call.type";
+        public static final String COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE = "command.should.have.an.activation.date.attribute";
+        public static final String COMMAND_SHOULD_HAVE_A_NORMAL_THRESHOLD_ATTRIBUTE = "command.should.have.a.normal.threshold.attribute";
+        public static final String COMMAND_SHOULD_HAVE_A_UNIT_ATTRIBUTE = "command.should.have.a.unit.attribute";
         public static final String COMMAND_ARGUMENT_SPEC_NOT_FOUND = "command.argument.spec.not.found";
         public static final String VETO_ALLOWED_CALENDAR_IN_USE = "allowed.calendar.in.use";
         public static final String CANNOT_CHANGE_CONFIG_DATALOGGER_SLAVE = "device.config.change.not.on.slave";
@@ -367,5 +377,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED = "device.config.change.to.less.channels.provided";
         public static final String NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED = "device.config.not.data.logger.enabled";
         public static final String NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED = "device.config.not.multi.element.enabled";
+        public static final String NO_BASIC_CHECK_COMTASK ="No.comtask.for.basic.check";
+        public static final String COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE ="command.should.have.a.key.accessor.reference.attribute";
     }
 }
