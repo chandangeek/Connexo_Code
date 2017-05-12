@@ -6,7 +6,7 @@ package com.elster.jupiter.mdm.app.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.mdm.app.MdmAppService;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
@@ -35,7 +35,7 @@ public class MdmAppInstaller {
     private volatile UpgradeService upgradeService;
     private volatile ValidationService validationService;
     private volatile CustomPropertySetService customPropertySetService;
-    private volatile UsagePointDataModelService usagePointDataModelService;
+    private volatile UsagePointService usagePointService;
 
     @Activate
     public void activate() {
@@ -46,7 +46,7 @@ public class MdmAppInstaller {
                 bind(UserService.class).toInstance(userService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("Insight","DMA"), dataModel, Installer.class, ImmutableMap.of(version(10, 3), UpgraderV10_3.class));
+        upgradeService.register(InstallIdentifier.identifier("Insight", "DMA"), dataModel, Installer.class, ImmutableMap.of(version(10, 3), UpgraderV10_3.class));
     }
 
     static class Installer implements FullInstaller {
@@ -164,7 +164,7 @@ public class MdmAppInstaller {
     }
 
     @Reference
-    public void setUsagePointDataModelService(UsagePointDataModelService usagePointDataModelService) {
-        this.usagePointDataModelService = usagePointDataModelService;
+    public void setUsagePointService(UsagePointService usagePointService) {
+        this.usagePointService = usagePointService;
     }
 }
