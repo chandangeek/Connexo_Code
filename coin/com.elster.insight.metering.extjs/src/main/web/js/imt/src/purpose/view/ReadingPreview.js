@@ -35,7 +35,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
 
         Ext.suspendLayouts();
         me.down('#general-panel').setTitle(title);
-        me.down('#values-panel').setTitle(me.output.get('name'));
+        me.down('#values-panel').setTitle(title);
         me.down('#qualities-panel').setTitle(title);
         me.down('#general-panel').loadRecord(record);
         me.down('#values-panel').loadRecord(record);
