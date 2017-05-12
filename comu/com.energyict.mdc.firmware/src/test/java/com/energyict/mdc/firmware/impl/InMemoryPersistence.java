@@ -265,7 +265,7 @@ public class InMemoryPersistence {
 
                     @Override
                     public DeviceMessageId getId() {
-                        return DeviceMessageId.havingId(id);
+                        return DeviceMessageId.from(id);
                     }
 
                     @Override

@@ -257,7 +257,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
             return deviceType.get().getDeviceProtocolPluggableClass()
                     .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                             .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
-                            .map(DeviceMessageId::havingId)
+                            .map(DeviceMessageId::from)
                             .collect(Collectors.toList())).orElse(Collections.emptyList())
                     .stream()
                     .filter(firmwareMessageCandidate -> {
