@@ -213,6 +213,11 @@
             <artifactId>calendar</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pki</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <profiles>
