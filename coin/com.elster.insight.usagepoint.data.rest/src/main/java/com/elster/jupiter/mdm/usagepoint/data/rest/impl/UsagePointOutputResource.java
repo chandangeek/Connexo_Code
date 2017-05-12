@@ -4,12 +4,10 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.calendar.CalendarService;
+import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationReport;
@@ -23,8 +21,8 @@ import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.JournaledRegisterReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.JournaledRegisterReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityComment;
@@ -50,7 +48,6 @@ import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -661,17 +658,17 @@ public class UsagePointOutputResource {
     }
 
     private Stream<? extends DataValidationStatus> validateChannel(ChannelsContainer channelsContainer, ReadingType readingType, Range<Instant> validationRange) {
+        Optional<Channel> channel = channelsContainer.getChannel(readingType);
         Range<Instant> containerRange = channelsContainer.getInterval().toOpenClosedRange();
-        if (!containerRange.isConnected(validationRange)) {
+        if (!channel.isPresent() || !containerRange.isConnected(validationRange)) {
             return Stream.empty();
         }
         Range<Instant> rangeToPrevalidate = containerRange.intersection(validationRange);
-        Channel channel = channelsContainer.getChannel(readingType).get();
         validationService.validate(
                 new ValidationContextImpl(ImmutableSet.of(QualityCodeSystem.MDM), channelsContainer, readingType),
                 rangeToPrevalidate);
         return validationService.getEvaluator()
-                .getValidationStatus(ImmutableSet.of(QualityCodeSystem.MDM), channel, Collections.emptyList(), rangeToPrevalidate)
+                .getValidationStatus(ImmutableSet.of(QualityCodeSystem.MDM), channel.get(), Collections.emptyList(), rangeToPrevalidate)
                 .stream();
     }
 
