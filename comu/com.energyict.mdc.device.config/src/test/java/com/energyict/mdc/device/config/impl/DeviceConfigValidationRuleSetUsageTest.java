@@ -27,6 +27,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -89,7 +90,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -139,13 +140,15 @@ public class DeviceConfigValidationRuleSetUsageTest {
     private InboundDeviceProtocolService inboundDeviceProtocolService;
     @Mock
     private LicensedProtocolService licensedProtocolService;
+    @Mock
+    private UserService userService;
 
     @Before
     public void setup() {
         when(principal.getName()).thenReturn("Ernie");
         this.bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
-                new MockModule(),
+                new MyMockModule(),
                 this.bootstrapModule,
                 new ThreadSecurityModule(this.principal),
                 new OrmModule(),
@@ -154,6 +157,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
                 new PubSubModule(),
                 new TransactionModule(),
                 new UtilModule(),
+                new PkiModule(),
                 new NlsModule(),
                 new DomainUtilModule(),
                 new MasterDataModule(),
@@ -283,17 +287,17 @@ public class DeviceConfigValidationRuleSetUsageTest {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel.class);
         when(authenticationAccessLevel.getId()).thenReturn(0);
-        when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
+        when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.singletonList(authenticationAccessLevel));
         com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel encryptionAccessLevel = mock(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(0);
-        when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
+        when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encryptionAccessLevel));
     }
 
-    private class MockModule extends AbstractModule {
+    private class MyMockModule extends AbstractModule {
 
         private final DeviceMessageSpecificationService deviceMessageSpecificationService;
 
-        public MockModule() {
+        public MyMockModule() {
             this.deviceMessageSpecificationService = mock(DeviceMessageSpecificationService.class);
 
             when(deviceMessageSpecificationService.findCategoryById(anyInt())).thenAnswer(invocation -> {

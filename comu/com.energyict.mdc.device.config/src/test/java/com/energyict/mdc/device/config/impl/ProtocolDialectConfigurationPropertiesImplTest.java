@@ -11,7 +11,6 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistenceSupport;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -35,6 +34,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -110,20 +110,13 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -135,6 +128,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
@@ -188,6 +190,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new ThreadSecurityModule(principal),
                 new EventsModule(),
                 new PubSubModule(),
+                new PkiModule(),
                 new TransactionModule(showSqlLogging),
                 new UtilModule(),
                 new NlsModule(),
@@ -452,16 +455,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         }
 
         @Override
-        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-            return Optional.empty();
-        }
-
-        @Override
         public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
             return Collections.emptyList();
         }
@@ -469,6 +462,11 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         @Override
         public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
 
+        }
+
+        @Override
+        public Optional<com.energyict.mdc.upl.properties.PropertySpec> getClientSecurityPropertySpec() {
+            return Optional.empty();
         }
 
         @Override

@@ -33,6 +33,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -52,13 +53,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -93,11 +88,7 @@ import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -113,9 +104,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartialConnectionInitiationTaskCrudIT {
@@ -182,6 +171,7 @@ public class PartialConnectionInitiationTaskCrudIT {
                     new TransactionModule(false),
                     new UtilModule(),
                     new NlsModule(),
+                    new PkiModule(),
                     new DomainUtilModule(),
                     new PartyModule(),
                     new UserModule(),
@@ -336,7 +326,6 @@ public class PartialConnectionInitiationTaskCrudIT {
         assertThat(partialConnectionInitiationTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
         assertThat(partialConnectionInitiationTask.isDefault()).isFalse();
         assertThat(partialConnectionInitiationTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
-        assertThat(partialConnectionInitiationTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialConnectionInitiationTask.getName()).isEqualTo("MyInitiation");
         assertThat(partialConnectionInitiationTask.getProtocolDialectConfigurationProperties()).isNotNull();
         assertThat(partialConnectionInitiationTask.getProtocolDialectConfigurationProperties().getDeviceProtocolDialectName()).isEqualTo("Device Protocol Dialect 1");
@@ -404,7 +393,6 @@ public class PartialConnectionInitiationTaskCrudIT {
         assertThat(reloadedPartialConnectionInitiationTask.getComPortPool().getId()).isEqualTo(outboundComPortPool1.getId());
         assertThat(reloadedPartialConnectionInitiationTask.isDefault()).isFalse();
         assertThat(reloadedPartialConnectionInitiationTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
-        assertThat(reloadedPartialConnectionInitiationTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
         assertThat(reloadedPartialConnectionInitiationTask.getName()).isEqualTo("Changed");
     }
 
@@ -455,7 +443,6 @@ public class PartialConnectionInitiationTaskCrudIT {
         assertThat(reloadedPartialConnectionInitiationTask.getComPortPool().getId()).isEqualTo(outboundComPortPool1.getId());
         assertThat(reloadedPartialConnectionInitiationTask.isDefault()).isFalse();
         assertThat(reloadedPartialConnectionInitiationTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
-        assertThat(reloadedPartialConnectionInitiationTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
         assertThat(reloadedPartialConnectionInitiationTask.getName()).isEqualTo("Changed");
         ProtocolDialectConfigurationProperties dialectConfigurationProperties = reloadedPartialConnectionInitiationTask.getProtocolDialectConfigurationProperties();
         ProtocolDialectConfigurationProperties spyDialectConfigurationProperties = spy(dialectConfigurationProperties);
@@ -559,7 +546,6 @@ public class PartialConnectionInitiationTaskCrudIT {
         assertThat(partialConnectionInitiationTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
         assertThat(partialConnectionInitiationTask.isDefault()).isFalse();
         assertThat(partialConnectionInitiationTask.getConfiguration().getId()).isEqualTo(clonedDeviceConfig.getId());
-        assertThat(partialConnectionInitiationTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialConnectionInitiationTask.getName()).isEqualTo("MyInitiation");
     }
 }

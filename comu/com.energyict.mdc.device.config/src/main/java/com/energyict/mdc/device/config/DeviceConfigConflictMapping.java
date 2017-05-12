@@ -27,7 +27,6 @@ public interface DeviceConfigConflictMapping extends HasId {
     DeviceConfiguration getOriginDeviceConfiguration();
     DeviceConfiguration getDestinationDeviceConfiguration();
     List<ConflictingConnectionMethodSolution> getConflictingConnectionMethodSolutions();
-    List<ConflictingSecuritySetSolution> getConflictingSecuritySetSolutions();
     DeviceType getDeviceType();
 
     boolean isSolved();

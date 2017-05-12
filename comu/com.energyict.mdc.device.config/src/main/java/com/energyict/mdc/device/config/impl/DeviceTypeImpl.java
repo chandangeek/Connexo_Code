@@ -17,11 +17,15 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.pki.CryptographicType;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.TrustStore;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
-import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -29,16 +33,17 @@ import com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceMessageFile;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.DeviceUsageType;
 import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.KeyAccessorTypeUpdater;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.events.EventType;
@@ -60,6 +65,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -72,14 +78,18 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @ValidChangesWithExistingConfigurations(groups = {Save.Update.class})
 @DeviceProtocolPluggableClassValidation(groups = {Save.Create.class, Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements ServerDeviceType {
+
+    private static final EnumSet<CryptographicType> CERTIFICATES = EnumSet.of(CryptographicType.Certificate, CryptographicType.ClientCertificate, CryptographicType.TrustedCertificate);
 
     enum Fields {
         DEVICE_PROTOCOL_PLUGGABLE_CLASS("deviceProtocolPluggableClassId"),
@@ -90,7 +100,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         DEVICETYPEPURPOSE("deviceTypePurpose"),
         DEVICE_LIFE_CYCLE("deviceLifeCycle"),
         FILE_MANAGEMENT_ENABLED("fileManagementEnabled"),
-        DEVICE_MESSAGE_FILES("deviceMessageFiles");
+        DEVICE_MESSAGE_FILES("deviceMessageFiles"),
+        KEY_ACCESSOR_TYPE("keyAccessors");
 
         private final String javaFieldName;
 
@@ -127,6 +138,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private boolean deviceProtocolPluggableClassChanged = false;
     private boolean fileManagementEnabled = false;
     private List<ServerDeviceMessageFile> deviceMessageFiles = new ArrayList<>();
+    private List<KeyAccessorType> keyAccessors = new ArrayList<>();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -290,6 +302,92 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
+    public List<KeyAccessorType> getKeyAccessorTypes() {
+        return Collections.unmodifiableList(this.keyAccessors);
+    }
+
+    @Override
+    public KeyAccessorType.Builder addKeyAccessorType(String name, KeyType keyType) {
+        return new KeyAccessorTypeBuilder(name, keyType, this);
+    }
+
+    @Override
+    public void removeKeyAccessorType(KeyAccessorType keyAccessorType) {
+        getKeyAccessorTypes().stream()
+                .filter(kat -> kat.getId() == keyAccessorType.getId())
+                .findAny()
+                .ifPresent(kat->{
+                    ((KeyAccessorTypeImpl)kat).preDelete();
+                    this.keyAccessors.remove(kat);
+                });
+    }
+
+    @Override
+    public Optional<KeyAccessorTypeUpdater> getKeyAccessorTypeUpdater(KeyAccessorType keyAccessorType) {
+        return getKeyAccessorTypes().stream()
+                .filter(kat -> kat.getId() == keyAccessorType.getId())
+                .findAny()
+                .map(kat->((KeyAccessorTypeImpl) keyAccessorType).startUpdate());
+    }
+
+    @Override
+    public Set<DeviceSecurityUserAction> getKeyAccessorTypeUserActions(KeyAccessorType keyAccessorType) {
+        return getKeyAccessorTypes().stream()
+                .filter(kat -> kat.getId() == keyAccessorType.getId())
+                .findAny()
+                .map(kat->((KeyAccessorTypeImpl) keyAccessorType).getUserActions())
+                .orElse(Collections.emptySet());
+    }
+
+    private class KeyAccessorTypeBuilder implements KeyAccessorType.Builder {
+        private final KeyAccessorTypeImpl underConstruction;
+
+        private KeyAccessorTypeBuilder(String name, KeyType keyType, DeviceTypeImpl deviceType) {
+            underConstruction = getDataModel().getInstance(KeyAccessorTypeImpl.class);
+            underConstruction.setName(name);
+            underConstruction.setKeyType(keyType);
+            underConstruction.setDeviceType(deviceType);
+        }
+
+        @Override
+        public KeyAccessorType.Builder keyEncryptionMethod(String keyEncryptionMethod) {
+            underConstruction.setKeyEncryptionMethod(keyEncryptionMethod);
+            return this;
+        }
+
+        @Override
+        public KeyAccessorType.Builder description(String description) {
+            underConstruction.setDescription(description);
+            return this;
+        }
+
+        @Override
+        public KeyAccessorType.Builder trustStore(TrustStore trustStore) {
+            underConstruction.setTrustStore(trustStore);
+            return this;
+        }
+
+        @Override
+        public KeyAccessorType.Builder duration(TimeDuration duration) {
+            underConstruction.setDuration(duration);
+            return this;
+        }
+
+        @Override
+        public KeyAccessorType add() {
+            if (!CERTIFICATES.contains(underConstruction.getKeyType().getCryptographicType())) {
+                underConstruction.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
+                underConstruction.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
+                underConstruction.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1);
+                underConstruction.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2);
+            }
+            Save.CREATE.validate(getDataModel(), underConstruction);
+            DeviceTypeImpl.this.keyAccessors.add(underConstruction);
+            return underConstruction;
+        }
+    }
+
+    @Override
     public DeviceConfigConflictMappingImpl newConflictMappingFor(DeviceConfiguration origin, DeviceConfiguration destination) {
         DeviceConfigConflictMappingImpl deviceConfigConflictMapping = getDataModel().getInstance(DeviceConfigConflictMappingImpl.class)
                 .initialize(this, origin, destination);
@@ -352,29 +450,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                             .collect(Collectors.toList());
                     conflictsWithGivenConnectionTask.stream()
                             .forEach(deviceConfigConflictMapping::removeConnectionMethodSolution);
-                });
-    }
-
-    @Override
-    public void removeConflictsFor(SecurityPropertySet securityPropertySet) {
-        this.deviceConfigConflictMappings.stream()
-                .filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getDestinationDeviceConfiguration()
-                        .getId() == securityPropertySet.getDeviceConfiguration()
-                        .getId() || deviceConfigConflictMapping.getOriginDeviceConfiguration()
-                        .getId() == securityPropertySet.getDeviceConfiguration().getId())
-                .forEach(deviceConfigConflictMapping -> {
-                    List<ConflictingSecuritySetSolution> conflictsWithGivenSecurityPropertySet = deviceConfigConflictMapping
-                            .getConflictingSecuritySetSolutions()
-                            .stream()
-                            .filter(securitySetSolutionPredicate -> securitySetSolutionPredicate.getOriginDataSource()
-                                    .getId() == securityPropertySet.getId()
-                                    || (securitySetSolutionPredicate.getConflictingMappingAction()
-                                    .equals(DeviceConfigConflictMapping.ConflictingMappingAction.MAP) && securitySetSolutionPredicate
-                                    .getDestinationDataSource()
-                                    .getId() == securityPropertySet.getId()))
-                            .collect(Collectors.toList());
-                    conflictsWithGivenSecurityPropertySet.stream()
-                            .forEach(deviceConfigConflictMapping::removeSecuritySetSolution);
                 });
     }
 

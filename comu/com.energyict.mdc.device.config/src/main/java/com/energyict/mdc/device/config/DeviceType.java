@@ -6,6 +6,8 @@ package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.device.config.exceptions.DuplicateDeviceMessageFileException;
@@ -24,6 +26,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * DeviceType defines the basic common attributes of a
@@ -246,6 +249,41 @@ public interface DeviceType extends HasId, HasName {
     void removeDeviceMessageFile(DeviceMessageFile obsolete);
 
     void update();
+
+    /**
+     * Return a list of all known defined key accessor types on this device type
+     * @return
+     */
+    List<KeyAccessorType> getKeyAccessorTypes();
+
+    /**
+     * Creates a new KeyAccessorType for the device type
+     * @param name The KeyAccessorType name. This name identifies the function of the key (or whatever value) on the
+     * device. It will be the link between shipment import and the key accessors
+     * @param keyType description of the key (or whatever value) stored
+     * methods are registered on the KeyService.
+     * @return The newly created KeyAccessorType
+     */
+    KeyAccessorType.Builder addKeyAccessorType(String name, KeyType keyType);
+
+
+    /**
+     * Gets a specific updater for a key accessor type of a device type
+     * @return An updater for a key accessor type of a device type
+     */
+    Optional<KeyAccessorTypeUpdater> getKeyAccessorTypeUpdater(KeyAccessorType keyAccessorType);
+
+    /**
+     * Gets the specific set of user actions of a key accessor type of a device type
+     * @return a set of DeviceSecurityUserAction
+     */
+    Set<DeviceSecurityUserAction> getKeyAccessorTypeUserActions(KeyAccessorType keyAccessorType);
+
+    /**
+     * removes the KeyAccessorType from the DeviceType
+     * @param keyAccessorType
+     */
+    void removeKeyAccessorType(KeyAccessorType keyAccessorType);
 
     interface DeviceTypeBuilder {
         DeviceTypeBuilder withRegisterTypes(List<RegisterType> registerTypes);

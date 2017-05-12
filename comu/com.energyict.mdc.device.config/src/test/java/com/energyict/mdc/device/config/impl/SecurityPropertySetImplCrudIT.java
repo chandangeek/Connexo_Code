@@ -35,12 +35,18 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.impl.PkiModule;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -56,8 +62,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -81,6 +86,7 @@ import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ValueType;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
 import com.energyict.mdc.scheduling.SchedulingModule;
@@ -88,46 +94,34 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.ValueFactory;
+import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.fest.assertions.api.Assertions;
-import org.fest.assertions.core.Condition;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.time.Clock;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Optional;
+import java.util.*;
 
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3;
-import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4;
-import static java.util.Arrays.asList;
+import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityPropertySetImplCrudIT {
@@ -151,9 +145,31 @@ public class SecurityPropertySetImplCrudIT {
     @Mock
     private DeviceProtocol deviceProtocol;
     @Mock
-    private com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel authLevel, authLevel2;
+    private AuthenticationDeviceAccessLevel authLevel, authLevel2;
     @Mock
-    private com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel encLevel;
+    private EncryptionDeviceAccessLevel encLevel;
+    @Mock
+    private PropertySpec spec1, spec2, spec3;
+    @Mock
+    private PropertySpec clientPropertySpec;
+    @Mock
+    private ValueFactory valueFactory;
+
+    private static class MockModule extends AbstractModule {
+
+        @Override
+        protected void configure() {
+            bind(EventAdmin.class).toInstance(eventAdmin);
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+
+            bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
+            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
+            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+        }
+    }
 
     @BeforeClass
     public static void initializeDatabase() {
@@ -164,8 +180,8 @@ public class SecurityPropertySetImplCrudIT {
         GrantPrivilege superGrant = mock(GrantPrivilege.class);
         when(superGrant.canGrant(any())).thenReturn(true);
         Group superUser = mock(Group.class);
-        when(superUser.getPrivileges()).thenReturn(ImmutableMap.of("", asList(superGrant)));
-        when(principal.getGroups()).thenReturn(asList(superUser));
+        when(superUser.getPrivileges()).thenReturn(ImmutableMap.of("", Collections.singletonList(superGrant)));
+        when(principal.getGroups()).thenReturn(Collections.singletonList(superUser));
         try {
             injector = Guice.createInjector(
                     new MockModule(),
@@ -175,6 +191,7 @@ public class SecurityPropertySetImplCrudIT {
                     new PubSubModule(),
                     new TransactionModule(false),
                     new UtilModule(),
+                    new PkiModule(),
                     new NlsModule(),
                     new DomainUtilModule(),
                     new PartyModule(),
@@ -248,7 +265,8 @@ public class SecurityPropertySetImplCrudIT {
                     injector.getInstance(CalendarService.class),
                     injector.getInstance(CustomPropertySetService.class),
                     UpgradeModule.FakeUpgradeService.getInstance(),
-                    injector.getInstance(DeviceMessageSpecificationService.class));
+                    injector.getInstance(DeviceMessageSpecificationService.class),
+                    injector.getInstance(PkiService.class));
             ctx.commit();
         }
         enhanceEventServiceForConflictCalculation();
@@ -287,14 +305,36 @@ public class SecurityPropertySetImplCrudIT {
     }
 
     @Before
-    public void initializeMocks() {
+    public void initializeMocks() throws InvalidValueException, PropertyValidationException {
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(protocolPluggableService.findDeviceProtocolPluggableClass(anyLong())).thenReturn(Optional.of(deviceProtocolPluggableClass));
+        Mockito.when(valueFactory.fromStringValue(Mockito.any(String.class)))
+                .thenAnswer(invocation -> {
+                    Object[] args = invocation.getArguments();
+                    return args[0];
+                });
+        when(clientPropertySpec.getValueFactory()).thenReturn(valueFactory);
+        when(valueFactory.getValueTypeName()).thenReturn(ValueType.INTEGER.getUplClassName());
+        Mockito.when(clientPropertySpec.validateValue(Mockito.any(Object.class)))
+                .thenAnswer(invocation -> {
+                    Object[] args = invocation.getArguments();
+                    return args.length == 1 && args[0] != null;
+                });
+        when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.of(clientPropertySpec));
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authLevel, authLevel2));
-        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encLevel));
+        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.singletonList(encLevel));
+        when(spec1.getName()).thenReturn("spec1");
+        when(spec2.getName()).thenReturn("spec2");
+        when(spec3.getName()).thenReturn("spec3");
+        when(spec1.getValueFactory()).thenReturn(valueFactory);
+        when(spec2.getValueFactory()).thenReturn(valueFactory);
+        when(spec3.getValueFactory()).thenReturn(valueFactory);
+        when(authLevel.getSecurityProperties()).thenReturn(Collections.singletonList(spec1));
         when(authLevel.getId()).thenReturn(1);
         when(authLevel2.getId()).thenReturn(2);
+        when(authLevel2.getSecurityProperties()).thenReturn(Arrays.asList(spec1, spec2));
         when(encLevel.getId()).thenReturn(2);
+        when(encLevel.getSecurityProperties()).thenReturn(Arrays.asList(spec2, spec3));
     }
 
     @Test
@@ -302,15 +342,17 @@ public class SecurityPropertySetImplCrudIT {
     public void testCreation() {
         SecurityPropertySet propertySet;
         DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
 
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
 
         Optional<SecurityPropertySet> found = deviceConfigurationService.findSecurityPropertySet(propertySet.getId());
@@ -320,10 +362,14 @@ public class SecurityPropertySetImplCrudIT {
         SecurityPropertySet reloaded = found.get();
 
         assertThat(reloaded.getName()).isEqualTo("Name");
+        assertThat(reloaded.getClient()).isEqualTo("client");
         assertThat(reloaded.getAuthenticationDeviceAccessLevel()).isEqualTo(authLevel);
         assertThat(reloaded.getEncryptionDeviceAccessLevel()).isEqualTo(encLevel);
-        assertThat(reloaded.getUserActions()).isEqualTo(EnumSet.of(EDITDEVICESECURITYPROPERTIES1, EDITDEVICESECURITYPROPERTIES2));
-
+        assertThat(reloaded.getSecuritySuite().getId()).isEqualTo(NOT_USED_DEVICE_ACCESS_LEVEL_ID);
+        assertThat(reloaded.getRequestSecurityLevel().getId()).isEqualTo(NOT_USED_DEVICE_ACCESS_LEVEL_ID);
+        assertThat(reloaded.getResponseSecurityLevel().getId()).isEqualTo(NOT_USED_DEVICE_ACCESS_LEVEL_ID);
+        assertThat(reloaded.getConfigurationSecurityProperties().size()).isEqualTo(1);
+        assertTrue(hasMatchingConfigurationSecurityProperty(reloaded.getConfigurationSecurityProperties(), spec1.getName(), keyAccessorType));
     }
 
     @Test
@@ -331,24 +377,31 @@ public class SecurityPropertySetImplCrudIT {
     public void cloneTest() {
         SecurityPropertySet propertySet;
         DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
 
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
         DeviceConfiguration clonedDeviceConfig = deviceType.newConfiguration("Clone").add();
         SecurityPropertySet clonedSecurityPropertySet = ((ServerSecurityPropertySet) propertySet).cloneForDeviceConfig(clonedDeviceConfig);
 
         assertThat(propertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(clonedSecurityPropertySet.getAuthenticationDeviceAccessLevel());
         assertThat(propertySet.getEncryptionDeviceAccessLevel()).isEqualTo(clonedSecurityPropertySet.getEncryptionDeviceAccessLevel());
+        assertThat(propertySet.getSecuritySuite()).isEqualTo(clonedSecurityPropertySet.getSecuritySuite());
+        assertThat(propertySet.getRequestSecurityLevel()).isEqualTo(clonedSecurityPropertySet.getRequestSecurityLevel());
+        assertThat(propertySet.getResponseSecurityLevel()).isEqualTo(clonedSecurityPropertySet.getResponseSecurityLevel());
         assertThat(propertySet.getName()).isEqualTo(clonedSecurityPropertySet.getName());
+        assertThat(propertySet.getClient()).isEqualTo(clonedSecurityPropertySet.getClient());
+        assertThat(propertySet.getConfigurationSecurityProperties().size()).isEqualTo(clonedSecurityPropertySet.getConfigurationSecurityProperties().size());
+        assertTrue(hasMatchingConfigurationSecurityProperty(clonedSecurityPropertySet.getConfigurationSecurityProperties(), spec1.getName(), keyAccessorType));
         assertThat(clonedSecurityPropertySet.getDeviceConfiguration().getId()).isEqualTo(clonedDeviceConfig.getId());
-        assertThat(clonedSecurityPropertySet.getUserActions()).containsOnly(EDITDEVICESECURITYPROPERTIES1, EDITDEVICESECURITYPROPERTIES2);
     }
 
     @Test
@@ -357,14 +410,16 @@ public class SecurityPropertySetImplCrudIT {
         SecurityPropertySet propertySet;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
 
         deviceConfiguration.removeSecurityPropertySet(propertySet);
@@ -380,14 +435,16 @@ public class SecurityPropertySetImplCrudIT {
         SecurityPropertySet propertySet;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
         ComTask testComTask = createTestComTask();
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
         deviceConfiguration.enableComTask(testComTask, propertySet).add();
         // prepareDelete should delete everything
@@ -411,20 +468,21 @@ public class SecurityPropertySetImplCrudIT {
         SecurityPropertySet propertySet;
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
         propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
 
         SecurityPropertySet toUpdate = deviceConfiguration.getSecurityPropertySets().get(0);
-        toUpdate.addUserAction(VIEWDEVICESECURITYPROPERTIES4);
-        toUpdate.setAuthenticationLevel(2);
-        toUpdate.removeUserAction(EDITDEVICESECURITYPROPERTIES1);
+        toUpdate.setAuthenticationLevelId(2);
+        toUpdate.addConfigurationSecurityProperty(spec2.getName(), keyAccessorType);
         toUpdate.update();
 
         Optional<SecurityPropertySet> found = deviceConfigurationService.findSecurityPropertySet(propertySet.getId());
@@ -434,11 +492,90 @@ public class SecurityPropertySetImplCrudIT {
         SecurityPropertySet reloaded = found.get();
 
         assertThat(reloaded.getName()).isEqualTo("Name");
+        assertThat(reloaded.getClient()).isEqualTo("client");
         assertThat(reloaded.getAuthenticationDeviceAccessLevel()).isEqualTo(authLevel2);
         assertThat(reloaded.getEncryptionDeviceAccessLevel()).isEqualTo(encLevel);
-        assertThat(reloaded.getUserActions()).isEqualTo(EnumSet.of(EDITDEVICESECURITYPROPERTIES2, VIEWDEVICESECURITYPROPERTIES4));
+        assertThat(reloaded.getSecuritySuite()).isEqualTo(propertySet.getSecuritySuite());
+        assertThat(reloaded.getRequestSecurityLevel()).isEqualTo(propertySet.getRequestSecurityLevel());
+        assertThat(reloaded.getResponseSecurityLevel()).isEqualTo(propertySet.getResponseSecurityLevel());
+        assertThat(reloaded.getConfigurationSecurityProperties().size()).isEqualTo(2);
+        assertTrue(hasMatchingConfigurationSecurityProperty(reloaded.getConfigurationSecurityProperties(), spec1.getName(), keyAccessorType));
+        assertTrue(hasMatchingConfigurationSecurityProperty(reloaded.getConfigurationSecurityProperties(), spec2.getName(), keyAccessorType));
+    }
 
+    @Test
+    @Transactional
+    public void testUpdateConfigurationSecurityProperties() {
+        SecurityPropertySet propertySet;
+        DeviceConfiguration deviceConfiguration;
+        DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType1 = deviceType.addKeyAccessorType("GUAK1", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        KeyAccessorType keyAccessorType2 = deviceType.addKeyAccessorType("GUAK2", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+        KeyAccessorType keyAccessorType3 = deviceType.addKeyAccessorType("GUAK3", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
+        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+
+        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType1)
+                .addConfigurationSecurityProperty(spec2.getName(), keyAccessorType2)
+                .build();
+
+        SecurityPropertySet toUpdate = deviceConfiguration.getSecurityPropertySets().get(0);
+        toUpdate.setAuthenticationLevelId(2);
+        toUpdate.updateConfigurationSecurityProperty(spec1.getName(), keyAccessorType2);
+        toUpdate.removeConfigurationSecurityProperty(spec2.getName());
+        toUpdate.addConfigurationSecurityProperty(spec3.getName(), keyAccessorType3);
+        toUpdate.update();
+
+        Optional<SecurityPropertySet> found = deviceConfigurationService.findSecurityPropertySet(propertySet.getId());
+
+        assertThat(found.isPresent()).isTrue();
+
+        SecurityPropertySet reloaded = found.get();
+
+        assertThat(reloaded.getName()).isEqualTo("Name");
+        assertThat(reloaded.getClient()).isEqualTo("client");
+        assertThat(reloaded.getAuthenticationDeviceAccessLevel()).isEqualTo(authLevel2);
+        assertThat(reloaded.getEncryptionDeviceAccessLevel()).isEqualTo(encLevel);
+        assertThat(reloaded.getSecuritySuite()).isEqualTo(propertySet.getSecuritySuite());
+        assertThat(reloaded.getRequestSecurityLevel()).isEqualTo(propertySet.getRequestSecurityLevel());
+        assertThat(reloaded.getResponseSecurityLevel()).isEqualTo(propertySet.getResponseSecurityLevel());
+        List<ConfigurationSecurityProperty> configurationSecurityProperties = reloaded.getConfigurationSecurityProperties();
+        assertThat(configurationSecurityProperties.size()).isEqualTo(2);
+        assertTrue(hasMatchingConfigurationSecurityProperty(configurationSecurityProperties, spec1.getName(), keyAccessorType2));
+        assertTrue(hasMatchingConfigurationSecurityProperty(configurationSecurityProperties, spec3.getName(), keyAccessorType3));
+    }
+
+    private boolean hasMatchingConfigurationSecurityProperty(List<ConfigurationSecurityProperty> configurationSecurityProperties, String name, KeyAccessorType keyAccessorType) {
+        return configurationSecurityProperties
+                .stream()
+                .anyMatch(property -> property.getName().equals(name) && property.getKeyAccessorType().equals(keyAccessorType));
+    }
+
+    @Test
+    @Transactional
+    public void testGetPropertySpecs() {
+        SecurityPropertySet propertySet;
+        DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+
+        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
+                .authenticationLevel(2)     // Has spec1 and spec2
+                .encryptionLevel(2)         // Has spec2 and spec3
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
+                .build();
+        Set<com.elster.jupiter.properties.PropertySpec> propertySpecs = propertySet.getPropertySpecs();
+
+        assertThat(propertySpecs.size()).isEqualTo(3);
     }
 
     @Test
@@ -446,15 +583,17 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     public void testCreateWithoutName() {
         DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
 
         deviceConfiguration.createSecurityPropertySet(null)
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
     }
 
@@ -463,15 +602,17 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", property = "name")
     public void testCreateWithEmptyName() {
         DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
 
         deviceConfiguration.createSecurityPropertySet("       ")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
     }
 
@@ -480,15 +621,17 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "name")
     public void testCreateWithLongName() {
         DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
         deviceConfiguration.save();
 
         deviceConfiguration.createSecurityPropertySet("приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--приветик--")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
     }
 
@@ -498,20 +641,22 @@ public class SecurityPropertySetImplCrudIT {
     public void testCreateWithDuplicateNameInSameConfiguration() {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
         deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
         deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
     }
 
@@ -521,20 +666,22 @@ public class SecurityPropertySetImplCrudIT {
     public void testUpdateWithDuplicateNameInSameConfiguration() {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
         deviceConfiguration.createSecurityPropertySet("A")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
         SecurityPropertySet securityPropertySet = deviceConfiguration.createSecurityPropertySet("B")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
 
         // Business method
@@ -544,29 +691,70 @@ public class SecurityPropertySetImplCrudIT {
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INVALID_VALUE + "}")
+    public void testCreateWithoutClient() {
+        DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+
+        deviceConfiguration.createSecurityPropertySet("withoutClient")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
+                .build();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INVALID_VALUE + "}")
+    public void testCreateWithInvalidClient() throws InvalidValueException, PropertyValidationException {
+        when(clientPropertySpec.validateValue(Mockito.any())).thenReturn(false);
+
+        DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
+
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+
+        deviceConfiguration.createSecurityPropertySet("InvalidClient")
+                .client("wrong_client")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
+                .build();
+    }
+
+    @Test
+    @Transactional
     public void testCreateWithDuplicateNameInOtherConfiguration() {
         DeviceType deviceType;
         SecurityPropertySet propertySet;
         String expectedName = "Name";
         deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration1 = deviceType.newConfiguration("Normal-1").add();
         deviceConfiguration1.save();
         deviceConfiguration1.createSecurityPropertySet(expectedName)
+                .client("client1")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
         DeviceConfiguration deviceConfiguration2 = deviceType.newConfiguration("Normal-2").add();
         deviceConfiguration2.save();
 
         // Business method
         propertySet = deviceConfiguration2.createSecurityPropertySet(expectedName)
+                .client("client2")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
 
         // Asserts
@@ -575,6 +763,7 @@ public class SecurityPropertySetImplCrudIT {
         assertThat(found.isPresent()).isTrue();
         SecurityPropertySet reloaded = found.get();
         assertThat(reloaded.getName()).isEqualTo(expectedName);
+        assertThat(reloaded.getClient()).isEqualTo("client2");
     }
 
     @Test
@@ -584,23 +773,25 @@ public class SecurityPropertySetImplCrudIT {
         SecurityPropertySet propertySet;
         String expectedName = "Name";
         deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
         DeviceConfiguration deviceConfiguration1 = deviceType.newConfiguration("Normal-1").add();
         deviceConfiguration1.save();
         deviceConfiguration1.createSecurityPropertySet(expectedName)
+                .client("client1")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
         DeviceConfiguration deviceConfiguration2 = deviceType.newConfiguration("Normal-2").add();
         deviceConfiguration2.save();
 
         propertySet = deviceConfiguration2.createSecurityPropertySet("Other")
+                .client("client2")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
 
         // Business method
@@ -613,6 +804,7 @@ public class SecurityPropertySetImplCrudIT {
         assertThat(found.isPresent()).isTrue();
         SecurityPropertySet reloaded = found.get();
         assertThat(reloaded.getName()).isEqualTo(expectedName);
+        assertThat(reloaded.getClient()).isEqualTo("client2");
     }
 
     @Test
@@ -625,9 +817,8 @@ public class SecurityPropertySetImplCrudIT {
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
         deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
     }
 
@@ -636,16 +827,15 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testAuthenticationLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideAuthenticationLevels() {
         DeviceConfiguration deviceConfiguration;
-        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel>emptyList());
+        when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Collections.<AuthenticationDeviceAccessLevel>emptyList());
         DeviceType deviceType = createDeviceType("MyType");
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
         deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
     }
 
@@ -655,13 +845,15 @@ public class SecurityPropertySetImplCrudIT {
     public void testEncryptionLevelIsRequiredWhenProtocolProvidesAtLeastOneEncryptionLevel() {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
         deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
     }
 
@@ -670,112 +862,76 @@ public class SecurityPropertySetImplCrudIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.UNSUPPORTED_SECURITY_LEVEL + "}")
     public void testEncryptionLevelShouldNotBeSpecifiedWhenProtocolDoesNotProvideEncryptionLevels() {
         DeviceConfiguration deviceConfiguration;
-        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel>emptyList());
+        when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(Collections.<EncryptionDeviceAccessLevel>emptyList());
         DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
         deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
 
         deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
-    }
-
-
-    @Test
-    @Transactional
-    public void testEditIsNotAllowedWithoutUserActions() {
-        DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet;
-        DeviceType deviceType = createDeviceType("MyType");
-
-        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
-
-        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
-                .authenticationLevel(1)
-                .encryptionLevel(2)
-                .build();
-
-        // Business method && asserts
-        assertThat(propertySet.currentUserIsAllowedToEditDeviceProperties()).isFalse();
     }
 
     @Test
     @Transactional
-    public void testEditIsNotAllowedWithOnlyViewUserActions() {
-        DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet;
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.SECURITY_PROPERTY_SET_REQUIRED_PROPERTY_MISSING + "}")
+    public void testCreateWithoutRequiredConfigurationSecurityProperty() {
         DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
-        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+        when(spec1.isRequired()).thenReturn(true);
+        when(spec2.isRequired()).thenReturn(false);
 
-        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+        DeviceConfiguration deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(VIEWDEVICESECURITYPROPERTIES1)
-                .addUserAction(VIEWDEVICESECURITYPROPERTIES2)
-                .addUserAction(VIEWDEVICESECURITYPROPERTIES3)
-                .addUserAction(VIEWDEVICESECURITYPROPERTIES4)
+                .addConfigurationSecurityProperty(spec2.getName(), keyAccessorType)
                 .build();
-
-        // Business method && asserts
-        assertThat(propertySet.currentUserIsAllowedToEditDeviceProperties()).isFalse();
     }
 
     @Test
     @Transactional
-    public void testEditIsAllowedWithAtLeastOneEditUserAction() {
-        DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet;
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.SECURITY_PROPERTY_SET_PROPERTY_NOT_IN_SPEC + "}")
+    public void testCreateWithConfigurationSecurityPropertyNotInSpec() {
         DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
-        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+        when(authLevel.getSecurityProperties()).thenReturn(Collections.emptyList());
+        when(encLevel.getSecurityProperties()).thenReturn(Collections.emptyList());
 
-        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+        DeviceConfiguration deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addConfigurationSecurityProperty(spec1.getName(), keyAccessorType)
                 .build();
-
-        // Business method && asserts
-        assertThat(propertySet.currentUserIsAllowedToEditDeviceProperties()).isTrue();
     }
 
     @Test
     @Transactional
-    public void testViewIsNotAllowedWithOnlyEditUserActions() {
-        DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet;
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+    public void testCreateWithInvalidConfigurationSecurityProperty() {
         DeviceType deviceType = createDeviceType("MyType");
+        KeyType aes128 = injector.getInstance(PkiService.class).newSymmetricKeyType("AES128", "AES", 128).add();
+        KeyAccessorType keyAccessorType = deviceType.addKeyAccessorType("GUAK", aes128).keyEncryptionMethod("SSM").description("general use AK").duration(TimeDuration.days(365)).add();
 
-        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
-
-        propertySet = deviceConfiguration.createSecurityPropertySet("Name")
+        DeviceConfiguration deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
+        deviceConfiguration.createSecurityPropertySet("Name")
+                .client("client")
                 .authenticationLevel(1)
                 .encryptionLevel(2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES3)
-                .addUserAction(EDITDEVICESECURITYPROPERTIES4)
+                .addConfigurationSecurityProperty(spec1.getName(), null) // Passing null, which will ensure PropertySpec.validateValue() fails
                 .build();
-
-        assertThat(propertySet.currentUserIsAllowedToViewDeviceProperties()).isFalse();
-    }
-
-    @Test
-    @Transactional
-    public void testViewIsAllowedWithAtLeastOneViewUserAction() {
-        DeviceConfiguration deviceConfiguration;
-        SecurityPropertySet propertySet;
-        DeviceType deviceType = createDeviceType("MyType");
-
-        deviceConfiguration = createNewInactiveConfiguration(deviceType, "Normal");
-
-        propertySet = createSecurityPropertySet(deviceConfiguration, "Name", 1, 2);
-
-        assertThat(propertySet.currentUserIsAllowedToViewDeviceProperties()).isTrue();
     }
 
     private DeviceType createDeviceType(String name) {
@@ -788,186 +944,7 @@ public class SecurityPropertySetImplCrudIT {
         return deviceConfiguration;
     }
 
-    @Test
-    @Transactional
-    public void simpleConflictTest() {
-        int authenticationLevel = 1;
-        int encryptionLevel = 2;
-        DeviceType deviceType = createDeviceType("simpleConflictTest");
-
-
-        DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
-
-        DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
-
-        DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
-
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).hasSize(2);
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return matchConfigs(deviceConfigConflictMapping, deviceConfiguration1, deviceConfiguration2)
-                        && deviceConfigConflictMapping.getConflictingSecuritySetSolutions().size() == 1
-                        && matchSecurityPropertySets(securityPropertySet1, securityPropertySet2, deviceConfigConflictMapping);
-            }
-        });
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return matchConfigs(deviceConfigConflictMapping, deviceConfiguration2, deviceConfiguration1)
-                        && deviceConfigConflictMapping.getConflictingSecuritySetSolutions().size() == 1
-                        && matchSecurityPropertySets(securityPropertySet2, securityPropertySet1, deviceConfigConflictMapping);
-            }
-        });
-    }
-
-    private DeviceConfiguration createActiveConfiguration(DeviceType deviceType, String name) {
-        DeviceConfiguration deviceConfiguration1 = deviceType.newConfiguration(name).add();
-        deviceConfiguration1.activate();
-        return deviceConfiguration1;
-    }
-
-    @Test
-    @Transactional
-    public void resolveConflictsWhenDeviceConfigBecomesInactiveTest() {
-        int authenticationLevel = 1;
-        int encryptionLevel = 2;
-        DeviceType deviceType = createDeviceType("simpleConflictTest");
-
-        DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
-
-        DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
-
-        deviceConfiguration1.deactivate();
-
-        DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).isEmpty();
-    }
-
-    @Test
-    @Transactional
-    public void resolveSecuritySetConflictWhenRemovalOfSecuritySetTest() {
-        int authenticationLevel = 1;
-        int encryptionLevel = 2;
-        DeviceType deviceType = createDeviceType("simpleConflictTest");
-
-        DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
-
-        DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
-
-        deviceConfiguration1.removeSecurityPropertySet(securityPropertySet1);
-
-        DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).isEmpty();
-    }
-
-    @Test
-    @Transactional
-    public void solvedMappingsAreNotRemovedWhenNewConflictArisesTest() {
-        int authenticationLevel = 1;
-        int encryptionLevel = 2;
-        DeviceType deviceType = createDeviceType("simpleConflictTest");
-
-        DeviceConfiguration deviceConfiguration1 = createActiveConfiguration(deviceType, "FirstConfig");
-        SecurityPropertySet securityPropertySet1 = createSecurityPropertySet(deviceConfiguration1, "NoSecurity", authenticationLevel, encryptionLevel);
-
-        DeviceConfiguration deviceConfiguration2 = createActiveConfiguration(deviceType, "SecondConfig");
-        SecurityPropertySet securityPropertySet2 = createSecurityPropertySet(deviceConfiguration2, "None", authenticationLevel, encryptionLevel);
-
-        DeviceConfigConflictMapping deviceConfigConflictMapping1 = deviceType.getDeviceConfigConflictMappings().get(0);
-        ConflictingSecuritySetSolution conflictingSecuritySetSolution1 = deviceConfigConflictMapping1.getConflictingSecuritySetSolutions().get(0);
-        conflictingSecuritySetSolution1.markSolutionAsRemove();
-        DeviceConfigConflictMapping deviceConfigConflictMapping2 = deviceType.getDeviceConfigConflictMappings().get(1);
-        ConflictingSecuritySetSolution conflictingSecuritySetSolution2 = deviceConfigConflictMapping2.getConflictingSecuritySetSolutions().get(0);
-        conflictingSecuritySetSolution2.markSolutionAsRemove();
-
-        DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).hasSize(2);
-
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return deviceConfigConflictMapping.getConflictingSecuritySetSolutions()
-                        .get(0).getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE)
-                        && deviceConfigConflictMapping.isSolved();
-            }
-        });
-
-        // Logic that we want to test: if new SecuritySet is added, new conflicts will be calculated. Existing solved conflicts should still remain
-        DeviceConfiguration thirdConfig = createActiveConfiguration(deviceType, "ThirdConfig");
-        SecurityPropertySet securityPropertySet3 = createSecurityPropertySet(thirdConfig, "Blablabla", authenticationLevel, encryptionLevel);
-
-        DeviceType finalDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
-        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).hasSize(6);
-
-        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return deviceConfigConflictMapping.getConflictingSecuritySetSolutions()
-                        .get(0).getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE)
-                        && deviceConfigConflictMapping.isSolved();
-            }
-        });
-
-        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return deviceConfigConflictMapping.isSolved();
-            }
-        });
-
-        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(4, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return !deviceConfigConflictMapping.isSolved();
-            }
-        });
-
-    }
-
-    private boolean matchSecurityPropertySets(SecurityPropertySet originSecurityPropertySet, SecurityPropertySet destinationSecurityPropertySet, DeviceConfigConflictMapping deviceConfigConflictMapping) {
-        return deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).getOriginDataSource().getId() == originSecurityPropertySet.getId();
-//                && deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).getDestinationDataSource().getId() == destinationSecurityPropertySet.getId();
-    }
-
-
-    private boolean matchConfigs(DeviceConfigConflictMapping deviceConfigConflictMapping, DeviceConfiguration originConfig, DeviceConfiguration destinationConfig) {
-        return deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == originConfig.getId()
-                && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == destinationConfig.getId();
-    }
-
-    private SecurityPropertySet createSecurityPropertySet(DeviceConfiguration deviceConfiguration, String setName, int authenticationLevel, int encryptionLevel) {
-        return deviceConfiguration.createSecurityPropertySet(setName)
-                .authenticationLevel(authenticationLevel)
-                .encryptionLevel(encryptionLevel)
-                .addUserAction(VIEWDEVICESECURITYPROPERTIES1)
-                .build();
-    }
-
-
     public interface MyDeviceProtocolPluggableClass extends DeviceProtocolPluggableClass {
     }
 
-    private static class MockModule extends AbstractModule {
-
-        @Override
-        protected void configure() {
-            bind(EventAdmin.class).toInstance(eventAdmin);
-            bind(BundleContext.class).toInstance(bundleContext);
-            bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
-            bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
-
-            bind(IdentificationService.class).toInstance(mock(IdentificationService.class));
-            bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
-            bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
-        }
-
-    }
 }

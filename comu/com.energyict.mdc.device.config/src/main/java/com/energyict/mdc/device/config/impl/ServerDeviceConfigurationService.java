@@ -6,6 +6,8 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.QueryStream;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.TrustStore;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
@@ -39,6 +41,15 @@ public interface ServerDeviceConfigurationService extends DeviceConfigurationSer
     ChannelSpec findChannelSpecByDeviceConfigurationAndName(DeviceConfiguration deviceConfig, String name);
 
     /**
+     * Finds and locks a {@link KeyAccessorType} which is uniquely identified by the given ID and with the given VERSION.
+     *
+     * @param id the id of the {@link KeyAccessorType}
+     * @param version the version of the {@link KeyAccessorType}
+     * @return the {@link KeyAccessorType} or empty if the {@link KeyAccessorType} does not exist or does not have the expected version
+     */
+    Optional<KeyAccessorType> findAndLockKeyAccessorTypeByIdAndVersion(long id, long version);
+
+    /**
      * Finds a list of {@link RegisterSpec RegisterSpecs} which are linked to the given {@link ChannelSpec} and
      * has the given {@link ChannelSpecLinkType}.
      *
@@ -63,6 +74,13 @@ public interface ServerDeviceConfigurationService extends DeviceConfigurationSer
      * @return A flag that indicates if the ComTask is used or not
      */
     boolean usedByDeviceConfigurations(ComTask comTask);
+
+    /**
+     * Tests is the mentioned trust store is still referenced from any KeyAccessorType
+     * @param trustStore
+     * @return true is the TrustStore is still in use, false otherwise.
+     */
+    boolean usedByKeyAccessorType(TrustStore trustStore);
 
     Optional<DeviceMessageFile> findDeviceMessageFile(long id);
 

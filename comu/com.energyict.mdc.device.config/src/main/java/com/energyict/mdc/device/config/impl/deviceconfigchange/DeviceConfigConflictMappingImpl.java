@@ -16,7 +16,6 @@ import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.events.EventType;
 
 import javax.inject.Inject;
@@ -41,7 +40,7 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
         DESTINATIONDEVICECONFIG("destinationDeviceConfig"),
         SOLVED("solved"),
         CONNECTIONMETHODSOLUTIONS("connectionMethodSolutions"),
-        SECURITYSETSOLUTIONS("securitySetSolutions")
+        SECURITYSETSOLUTIONS("securitySetSolutions") // Deprecated
         ;
 
         private final String javaFieldName;
@@ -64,7 +63,8 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
     private boolean solved;
     @Valid
     private List<ConflictingConnectionMethodSolution> connectionMethodSolutions = new ArrayList<>();
-    @Valid
+
+    @Deprecated // Field still needed for ORM, but not used anymore
     private List<ConflictingSecuritySetSolution> securitySetSolutions = new ArrayList<>();
 
     @SuppressWarnings("unused") // Managed by ORM
@@ -115,11 +115,6 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
     }
 
     @Override
-    public List<ConflictingSecuritySetSolution> getConflictingSecuritySetSolutions() {
-        return securitySetSolutions;
-    }
-
-    @Override
     public DeviceType getDeviceType() {
         return deviceType.get();
     }
@@ -140,21 +135,13 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
     }
 
     private void updateSolvedState() {
-        this.solved = allConnectionMethodsHaveASolution() && allSecuritySetsHaveASolution();
+        this.solved = allConnectionMethodsHaveASolution();
     }
 
     private void update() {
         updateSolvedState();
         Save.UPDATE.save(dataModel, this);
         dataModel.touch(deviceType.get());
-    }
-
-    private boolean allSecuritySetsHaveASolution() {
-        return this.securitySetSolutions.stream().filter(securitySetSolutionNotDeterminedYet().negate()).count() == securitySetSolutions.size();
-    }
-
-    private Predicate<ConflictingSecuritySetSolution> securitySetSolutionNotDeterminedYet() {
-        return conflictingSecuritySetSolution -> conflictingSecuritySetSolution.getConflictingMappingAction().equals(ConflictingMappingAction.NOT_DETERMINED_YET);
     }
 
     private boolean allConnectionMethodsHaveASolution() {
@@ -173,21 +160,8 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
         return connectionMethodSolution;
     }
 
-    ConflictingSecuritySetSolution newConflictingSecurityPropertySets(SecurityPropertySet origin) {
-        markAsNotSolved();
-        ConflictingSecuritySetSolution securitySetSolution = dataModel.getInstance(ConflictingSecuritySetSolutionImpl.class).initialize(this, origin);
-        this.securitySetSolutions.add(securitySetSolution);
-        updateWithLockCheck();
-        return securitySetSolution;
-    }
-
     public void removeConnectionMethodSolution(ConflictingConnectionMethodSolution conflictingConnectionMethodSolution) {
         this.connectionMethodSolutions.remove(conflictingConnectionMethodSolution);
-        update();
-    }
-
-    public void removeSecuritySetSolution(ConflictingSecuritySetSolution conflictingSecuritySetSolution) {
-        this.securitySetSolutions.remove(conflictingSecuritySetSolution);
         update();
     }
 

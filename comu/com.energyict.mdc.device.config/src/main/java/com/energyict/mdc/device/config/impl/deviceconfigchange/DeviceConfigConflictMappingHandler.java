@@ -9,7 +9,6 @@ import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
 
 import org.osgi.service.component.annotations.Component;
@@ -27,7 +26,6 @@ public class DeviceConfigConflictMappingHandler extends EventHandler<LocalEvent>
 
     static final Pattern CONNECTIONTASK_TOPICS = Pattern.compile("com/energyict/mdc/device/config/partial(.*)connectiontask/(DELETED|CREATED)");
     static final Pattern CONNECTIONTASK_UPDATE_TOPICS = Pattern.compile("com/energyict/mdc/device/config/partial(.*)connectiontask/UPDATED");
-    static final Pattern SECURITYSET_TOPICS = Pattern.compile("com/energyict/mdc/device/config/securitypropertyset/(DELETED|CREATED|UPDATED)");
     static final Pattern DEVICECONFIGURATION_TOPICS = Pattern.compile("com/energyict/mdc/device/config/deviceconfiguration/(DEACTIVATED|ACTIVATED)");
 
     @Inject
@@ -40,7 +38,6 @@ public class DeviceConfigConflictMappingHandler extends EventHandler<LocalEvent>
         String topic = event.getType().getTopic();
         Matcher connectionTaskMatcher = CONNECTIONTASK_TOPICS.matcher(topic);
         Matcher connectionTaskUpdateMatcher = CONNECTIONTASK_UPDATE_TOPICS.matcher(topic);
-        Matcher securitySetMatcher = SECURITYSET_TOPICS.matcher(topic);
         Matcher deviceConfigurationMatcher = DEVICECONFIGURATION_TOPICS.matcher(topic);
         if (connectionTaskMatcher.matches()) {
             PartialConnectionTask partialConnectionTask = (PartialConnectionTask) event.getSource();
@@ -48,9 +45,6 @@ public class DeviceConfigConflictMappingHandler extends EventHandler<LocalEvent>
         } else if(connectionTaskUpdateMatcher.matches()){
             PartialConnectionTaskUpdateDetails partialConnectionTaskUpdateDetails = (PartialConnectionTaskUpdateDetails) event.getSource();
             DeviceConfigConflictMappingEngine.INSTANCE.reCalculateConflicts(partialConnectionTaskUpdateDetails.getPartialConnectionTask().getConfiguration().getDeviceType());
-        } else if (securitySetMatcher.matches()) {
-            SecurityPropertySet securityPropertySet = (SecurityPropertySet) event.getSource();
-            DeviceConfigConflictMappingEngine.INSTANCE.reCalculateConflicts(securityPropertySet.getDeviceConfiguration().getDeviceType());
         } else if (deviceConfigurationMatcher.matches()) {
             DeviceConfiguration deviceConfiguration = (DeviceConfiguration) event.getSource();
             DeviceConfigConflictMappingEngine.INSTANCE.reCalculateConflicts(deviceConfiguration.getDeviceType());

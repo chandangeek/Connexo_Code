@@ -25,6 +25,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -80,6 +81,7 @@ public abstract class PersistenceWithRealProtocolPluggableServiceTest {
         when(deviceProtocolDialect1.getDeviceProtocolDialectDisplayName()).thenReturn("Device Protocol dialect 1");
         when(deviceProtocolDialect2.getDeviceProtocolDialectDisplayName()).thenReturn("Device Protocol dialect 2");
         when(authenticationAccessLevel.getId()).thenReturn(0);
+        when(this.deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.empty());
         when(this.deviceProtocol.getAuthenticationAccessLevels()).thenReturn(Arrays.asList(authenticationAccessLevel));
         com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel encryptionAccessLevel = mock(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(0);

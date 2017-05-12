@@ -8,7 +8,6 @@ import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
@@ -53,10 +52,4 @@ public interface ServerDeviceType extends DeviceType {
      */
     void removeConflictsFor(PartialConnectionTask partialConnectionTask);
 
-    /**
-     * Cleans up the DeviceConfigConflictMapping which uses the given SecurityPropertySet
-     *
-     * @param securityPropertySet the SecurityPropertySet
-     */
-    void removeConflictsFor(SecurityPropertySet securityPropertySet);
 }

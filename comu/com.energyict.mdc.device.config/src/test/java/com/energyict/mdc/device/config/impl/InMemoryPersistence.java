@@ -34,6 +34,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -132,6 +134,7 @@ public class InMemoryPersistence {
     private CalendarService calendarService;
     private PluggableService pluggableService;
     private CustomPropertySetService customPropertySetService;
+    private PkiService pkiService;
 
     private boolean mockProtocolPluggableService;
     private ProtocolPluggableService protocolPluggableService;
@@ -174,6 +177,7 @@ public class InMemoryPersistence {
             injector.getInstance(Publisher.class);
             this.eventService = (EventServiceImpl) injector.getInstance(EventService.class);
             injector.getInstance(NlsService.class);
+            this.pkiService = this.injector.getInstance(PkiService.class);
             finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             deviceLifeCycleConfigurationService = injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
@@ -213,6 +217,7 @@ public class InMemoryPersistence {
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),
+                new PkiModule(),
                 new BpmModule(),
                 new FiniteStateMachineModule(),
                 new UsagePointLifeCycleConfigurationModule(),
@@ -424,6 +429,10 @@ public class InMemoryPersistence {
 
     public DeviceLifeCycleConfigurationService getDeviceLifeCycleConfigurationService() {
         return deviceLifeCycleConfigurationService;
+    }
+
+    public PkiService getPkiService() {
+        return pkiService;
     }
 
     private class MockModule extends AbstractModule {

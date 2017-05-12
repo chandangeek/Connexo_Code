@@ -10,12 +10,11 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 
-import com.energyict.mdc.device.config.ComTaskEnablement;
-
 import javax.inject.Inject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -37,6 +36,8 @@ class UpgraderV10_3 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 3));
         initiateSimultaneousConnectionsForPartialConnectionTasks();
         moveProtocolDialectProperties();
+        migrateDialectNames();
+        moveClientMacAddressSecurityProperty();
     }
 
     // Initiate Partial Connection Tasks: set simultaneousconnections to 1
@@ -44,6 +45,21 @@ class UpgraderV10_3 implements Upgrader {
         logger.fine("Updating partial connection tasks");
         List<String> sql = new ArrayList<>();
         sql.add("UPDATE DTC_PARTIALCONNECTIONTASK SET simultaneousconnections=1 where simultaneousconnections = 0");
+        dataModel.useConnectionRequiringTransaction(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                sql.forEach(sqlCommand -> execute(statement, sqlCommand));
+            }
+        });
+    }
+
+    // Migrate the old names of the dialects to the new names (due to UPL)
+    private void migrateDialectNames() {
+        logger.fine("Migrating dialect names (due to universal protocol layer feature)");
+        List<String> sql = new ArrayList<>();
+        sql.add("UPDATE DTC_DIALECTCONFIGPROPERTIES SET NAME = 'SerialDlmsDialect' WHERE NAME = 'SerialDialect'");
+        sql.add("UPDATE DTC_DIALECTCONFIGPROPERTIES SET DEVICEPROTOCOLDIALECT = 'SerialDlmsDialect' WHERE DEVICEPROTOCOLDIALECT = 'SerialDialect'");
+        sql.add("UPDATE DTC_DIALECTCONFIGPROPERTIES SET NAME = 'TcpDlmsDialect' WHERE NAME = 'TcpDialect'");
+        sql.add("UPDATE DTC_DIALECTCONFIGPROPERTIES SET DEVICEPROTOCOLDIALECT = 'TcpDlmsDialect' WHERE DEVICEPROTOCOLDIALECT = 'TcpDialect'");
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()) {
                 sql.forEach(sqlCommand -> execute(statement, sqlCommand));
@@ -78,4 +94,37 @@ class UpgraderV10_3 implements Upgrader {
         }
     }
 
+    // Move 'ClientMacAddress' security property to the SecurityPropertySet
+    private void moveClientMacAddressSecurityProperty() {
+        logger.fine("Moving Client mac address security attribute to DTC_SECURITYPROPERTYSET");
+
+        List<String> sql = new ArrayList<>();
+        sql.add(generateMoveClientMacAddressSecurityPropertySqlFor("PR1_DLMS_SECURITY"));
+        sql.add(generateMoveClientMacAddressSecurityPropertySqlFor("PKI_DLMS_SECURITY"));
+        dataModel.useConnectionRequiringTransaction(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                sql.forEach(sqlCommand -> execute(statement, sqlCommand));
+            }
+        });
+    }
+
+    private String generateMoveClientMacAddressSecurityPropertySqlFor(String oldTableName) {
+        String sql = "UPDATE DTC_SECURITYPROPERTYSET" +
+                " SET DTC_SECURITYPROPERTYSET.CLIENT =" +
+                "   (SELECT {0}.CLIENTMACADDRESS" +
+                "   FROM {0}" +
+                "   WHERE DTC_SECURITYPROPERTYSET.ID = {0}.PROPERTYSPECPROVIDER" +
+                "   AND {0}.ENDTIME = {1}" +
+                ")" +
+                " WHERE EXISTS" +
+                "   (SELECT 1" +
+                "   FROM {0}" +
+                "   WHERE DTC_SECURITYPROPERTYSET.ID = {0}.PROPERTYSPECPROVIDER" +
+                ")";
+        return MessageFormat.format(
+                sql,
+                oldTableName,
+                "1000000000000000000"   // Which stands for 'eternity'
+        );
+    }
 }

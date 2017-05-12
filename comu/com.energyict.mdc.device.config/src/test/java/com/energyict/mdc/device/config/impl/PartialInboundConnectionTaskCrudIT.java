@@ -33,6 +33,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -51,13 +52,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -96,11 +91,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.assertj.core.api.Assertions;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -117,9 +108,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartialInboundConnectionTaskCrudIT {
@@ -188,6 +177,7 @@ public class PartialInboundConnectionTaskCrudIT {
                     new DomainUtilModule(),
                     new PartyModule(),
                     new UserModule(),
+                    new PkiModule(),
                     new IdsModule(),
                     new BpmModule(),
                     new FiniteStateMachineModule(),
@@ -335,7 +325,6 @@ public class PartialInboundConnectionTaskCrudIT {
         assertThat(partialInboundConnectionTask.getComPortPool().getId()).isEqualTo(inboundComPortPool.getId());
         assertThat(partialInboundConnectionTask.isDefault()).isTrue();
         assertThat(partialInboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
-        assertThat(partialInboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialInboundConnectionTask.getName()).isEqualTo("MyInbound");
 
     }
@@ -428,7 +417,6 @@ public class PartialInboundConnectionTaskCrudIT {
         assertThat(reloadedPartialInboundConnectionTask.getComPortPool().getId()).isEqualTo(inboundComPortPool2.getId());
         assertThat(reloadedPartialInboundConnectionTask.isDefault()).isFalse();
         assertThat(reloadedPartialInboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
-        assertThat(reloadedPartialInboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
         assertThat(reloadedPartialInboundConnectionTask.getName()).isEqualTo("Changed");
     }
 
@@ -474,7 +462,6 @@ public class PartialInboundConnectionTaskCrudIT {
         assertThat(reloadedPartialInboundConnectionTask.getComPortPool().getId()).isEqualTo(inboundComPortPool2.getId());
         assertThat(reloadedPartialInboundConnectionTask.isDefault()).isFalse();
         assertThat(reloadedPartialInboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
-        assertThat(reloadedPartialInboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
         assertThat(reloadedPartialInboundConnectionTask.getName()).isEqualTo("Changed");
         ProtocolDialectConfigurationProperties dialectConfigurationProperties = reloadedPartialInboundConnectionTask.getProtocolDialectConfigurationProperties();
         ProtocolDialectConfigurationProperties spyDialectConfigurationProperties = spy(dialectConfigurationProperties);
@@ -702,7 +689,6 @@ public class PartialInboundConnectionTaskCrudIT {
         assertThat(partialInboundConnectionTask.getComPortPool().getId()).isEqualTo(inboundComPortPool.getId());
         assertThat(partialInboundConnectionTask.isDefault()).isTrue();
         assertThat(partialInboundConnectionTask.getConfiguration().getId()).isEqualTo(clonedDeviceConfig.getId());
-        assertThat(partialInboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialInboundConnectionTask.getName()).isEqualTo("MyInbound");
 
     }

@@ -36,6 +36,8 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -60,14 +62,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingHandler;
@@ -110,11 +105,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.assertj.core.api.Condition;
 import org.joda.time.DateTimeConstants;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -132,14 +123,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartialOutboundConnectionTaskCrudIT {
@@ -212,6 +196,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                     new UtilModule(),
                     new NlsModule(),
                     new EventsModule(),
+                    new PkiModule(),
                     new DomainUtilModule(),
                     new PartyModule(),
                     new UserModule(),
@@ -292,7 +277,8 @@ public class PartialOutboundConnectionTaskCrudIT {
                     injector.getInstance(CalendarService.class),
                     injector.getInstance(CustomPropertySetService.class),
                     UpgradeModule.FakeUpgradeService.getInstance(),
-                    injector.getInstance(DeviceMessageSpecificationService.class));
+                    injector.getInstance(DeviceMessageSpecificationService.class),
+                    injector.getInstance(PkiService.class));
             ctx.commit();
         }
         setupMasterData();
@@ -392,7 +378,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         assertThat(partialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
         assertThat(partialOutboundConnectionTask.isDefault()).isTrue();
         assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
-        assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(COM_WINDOW);
         assertThat(partialOutboundConnectionTask.getNextExecutionSpecs()).isNotNull();
         assertThat(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(new TemporalExpression(TimeDuration.days(1), NINETY_MINUTES));
@@ -528,7 +513,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         assertThat(reloadedPartialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool1.getId());
         assertThat(reloadedPartialOutboundConnectionTask.isDefault()).isFalse();
         assertThat(reloadedPartialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
-        assertThat(reloadedPartialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
         assertThat(reloadedPartialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(newComWindow);
         assertThat(reloadedPartialOutboundConnectionTask.getTemporalExpression().getEvery().getCount()).isEqualTo(12);
         assertThat(reloadedPartialOutboundConnectionTask.getTemporalExpression().getEvery().getTimeUnit()).isEqualTo(TimeDuration.TimeUnit.HOURS);
@@ -583,7 +567,6 @@ public class PartialOutboundConnectionTaskCrudIT {
          assertThat(reloadedPartialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool1.getId());
          assertThat(reloadedPartialOutboundConnectionTask.isDefault()).isFalse();
          assertThat(reloadedPartialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
-         assertThat(reloadedPartialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass2.getConnectionType());
          assertThat(reloadedPartialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(newComWindow);
          assertThat(reloadedPartialOutboundConnectionTask.getTemporalExpression().getEvery().getCount()).isEqualTo(12);
          assertThat(reloadedPartialOutboundConnectionTask.getTemporalExpression().getEvery().getTimeUnit()).isEqualTo(TimeDuration.TimeUnit.HOURS);
@@ -846,7 +829,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         assertThat(partialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
         assertThat(partialOutboundConnectionTask.isDefault()).isTrue();
         assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(deviceConfiguration.getId());
-        assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(COM_WINDOW);
         assertThat(partialOutboundConnectionTask.getNextExecutionSpecs()).isNotNull();
         assertThat(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(new TemporalExpression(TimeDuration.days(1), NINETY_MINUTES));
@@ -1051,7 +1033,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         assertThat(partialOutboundConnectionTask.getComPortPool().getId()).isEqualTo(outboundComPortPool.getId());
         assertThat(partialOutboundConnectionTask.isDefault()).isTrue();
         assertThat(partialOutboundConnectionTask.getConfiguration().getId()).isEqualTo(clonedDeviceConfig.getId());
-        assertThat(partialOutboundConnectionTask.getConnectionType()).isEqualTo(connectionTypePluggableClass.getConnectionType());
         assertThat(partialOutboundConnectionTask.getCommunicationWindow()).isEqualTo(COM_WINDOW);
         assertThat(partialOutboundConnectionTask.getNextExecutionSpecs()).isNotNull();
         assertThat(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression()).isEqualTo(new TemporalExpression(TimeDuration.days(1), NINETY_MINUTES));

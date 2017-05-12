@@ -9,7 +9,6 @@ import com.elster.jupiter.events.LocalEvent;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
 import com.energyict.mdc.device.config.impl.ServerDeviceType;
 
@@ -55,12 +54,6 @@ public class DeviceConfigConflictMappingHandlerTest {
         return localEvent;
     }
 
-    private SecurityPropertySet mockSecurityPropertySet() {
-        SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
-        when(securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        return securityPropertySet;
-    }
-
     /**
      * We verify this by checking whether or not the removeDeviceConfigConflictMappings is called (normally this is the only place where it happens)
      */
@@ -104,39 +97,6 @@ public class DeviceConfigConflictMappingHandlerTest {
         PartialConnectionTaskUpdateDetails partialConnectionTaskUpdateDetails = mock(PartialConnectionTaskUpdateDetails.class);
         when(partialConnectionTaskUpdateDetails.getPartialConnectionTask()).thenReturn(connectionTask);
         LocalEvent localEvent = mockLocalEvent(topic, partialConnectionTaskUpdateDetails);
-
-        new DeviceConfigConflictMappingHandler().onEvent(localEvent);
-
-        verifyRecalculateWasTriggered();
-    }
-
-    @Test
-    public void deleteSecurityPropertySetUpdatesConflictsTest() {
-        String topic = "com/energyict/mdc/device/config/securitypropertyset/DELETED";
-        SecurityPropertySet securityPropertySet = mockSecurityPropertySet();
-        LocalEvent localEvent = mockLocalEvent(topic, securityPropertySet);
-
-        new DeviceConfigConflictMappingHandler().onEvent(localEvent);
-
-        verifyRecalculateWasTriggered();
-    }
-
-    @Test
-    public void createSecurityPropertySetUpdatesConflictsTest() {
-        String topic = "com/energyict/mdc/device/config/securitypropertyset/CREATED";
-        SecurityPropertySet securityPropertySet = mockSecurityPropertySet();
-        LocalEvent localEvent = mockLocalEvent(topic, securityPropertySet);
-
-        new DeviceConfigConflictMappingHandler().onEvent(localEvent);
-
-        verifyRecalculateWasTriggered();
-    }
-
-    @Test
-    public void updateSecurityPropertySetUpdatesConflictsTest() {
-        String topic = "com/energyict/mdc/device/config/securitypropertyset/UPDATED";
-        SecurityPropertySet securityPropertySet = mockSecurityPropertySet();
-        LocalEvent localEvent = mockLocalEvent(topic, securityPropertySet);
 
         new DeviceConfigConflictMappingHandler().onEvent(localEvent);
 

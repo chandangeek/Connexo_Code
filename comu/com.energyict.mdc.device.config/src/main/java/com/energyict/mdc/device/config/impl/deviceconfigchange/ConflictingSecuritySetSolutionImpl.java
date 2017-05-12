@@ -16,9 +16,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Straightforward implementation ofa ConflictingSecuritySetSolution
- */
+@Deprecated // This class was saved just for ORM
 @ActionTypeMapHasDestination(groups = {Save.Create.class, Save.Update.class}, getDestination = ConflictingSecuritySetSolutionImpl.DESTINATION_SECURITY_PROPERTY_SET_FIELD_NAME)
 public class ConflictingSecuritySetSolutionImpl extends AbstractConflictSolution<SecurityPropertySet> implements ConflictingSecuritySetSolution {
 
