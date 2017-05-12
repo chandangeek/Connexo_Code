@@ -63,8 +63,11 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.PlaintextPassphrase;
+import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
@@ -80,6 +83,7 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.DateTimeFormatGenerator;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -96,6 +100,7 @@ import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
@@ -179,7 +184,6 @@ import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -198,6 +202,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -676,11 +681,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private void removeDeviceFromGroup(EnumeratedEndDeviceGroup group, EndDevice endDevice) {
         group
-            .getEntries()
-            .stream()
-            .filter(each -> each.getMember().getId() == endDevice.getId())
-            .findFirst()
-            .ifPresent(group::remove);
+                .getEntries()
+                .stream()
+                .filter(each -> each.getMember().getId() == endDevice.getId())
+                .findFirst()
+                .ifPresent(group::remove);
     }
 
     private void deleteAllIssues() {
@@ -1285,6 +1290,37 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public TypedProperties getSecurityProperties(SecurityPropertySet securityPropertySet) {
+        TypedProperties securityProperties = TypedProperties.empty();
+        for (ConfigurationSecurityProperty configurationSecurityProperty : securityPropertySet.getConfigurationSecurityProperties()) {
+            Optional<KeyAccessor> optionalKeyAccessor = getKeyAccessors()
+                    .stream()
+                    .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(configurationSecurityProperty.getKeyAccessorType().getName()))
+                    .findFirst();
+
+            if (optionalKeyAccessor.isPresent() && optionalKeyAccessor.get().getActualValue().isPresent()) {
+                Object actualValue = optionalKeyAccessor.get().getActualValue().get();
+                if (actualValue instanceof PlaintextSymmetricKey) {
+                    PlaintextSymmetricKey plaintextSymmetricKey = (PlaintextSymmetricKey) actualValue;
+                    if (plaintextSymmetricKey.getKey().isPresent()) {
+                        securityProperties.setProperty(configurationSecurityProperty.getName(), new String(plaintextSymmetricKey.getKey().get().getEncoded(), Charset.forName("UTF-8")));
+                    }
+                } else if (actualValue instanceof PlaintextPassphrase) {
+                    PlaintextPassphrase plaintextPassphrase = (PlaintextPassphrase) actualValue;
+                    if (plaintextPassphrase.getPassphrase().isPresent()) {
+                        securityProperties.setProperty(configurationSecurityProperty.getName(), plaintextPassphrase.getPassphrase().get());
+                    }
+                } else if (actualValue instanceof CertificateWrapper) {
+                    CertificateWrapper certificateWrapper = (CertificateWrapper) actualValue;
+                    securityProperties.setProperty(configurationSecurityProperty.getName(), certificateWrapper);
+                }
+            }
+            // TODO: in case optional is not present, should we silently ignore/or throw an error instead?
+        }
+        return securityProperties;
+    }
+
+    @Override
     public TypedProperties getDeviceProtocolProperties() {
         if (this.getDeviceProtocolPluggableClass().isPresent()) {
             TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceConfiguration().getDeviceProtocolProperties().getTypedProperties());
@@ -1491,9 +1527,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     /**
      * Adds meter readings for a single channel to the timeslot-map.
      *
-     * @param interval The interval over which meter readings are requested
-     * @param meter The meter for which readings are requested
-     * @param mdcChannel The meter's channel for which readings are requested
+     * @param interval                    The interval over which meter readings are requested
+     * @param meter                       The meter for which readings are requested
+     * @param mdcChannel                  The meter's channel for which readings are requested
      * @param sortedLoadProfileReadingMap The map to add the readings to in the correct timeslot
      * @return true if any readings were added to the map, false otherwise
      */
@@ -1670,9 +1706,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * just a list of placeholders for each reading interval within the requestedInterval for all timestamps
      * that occur with the bounds of a meter activation and load profile's last reading.
      *
-     * @param loadProfile The LoadProfile
+     * @param loadProfile       The LoadProfile
      * @param requestedInterval interval over which user wants to see readings
-     * @param meter The Meter
+     * @param meter             The Meter
      * @return The map
      */
     private Map<Instant, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Range<Instant> requestedInterval, Meter meter) {
@@ -2104,7 +2140,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * Sorts the {@link MeterActivation}s of the specified {@link Meter}
      * that overlap with the {@link Interval}, where the most recent activations are returned first.
      *
-     * @param meter The Meter
+     * @param meter    The Meter
      * @param interval The Interval
      * @return The List of MeterActivation
      */
@@ -3273,7 +3309,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public Optional<KeyAccessor> getKeyAccessor(KeyAccessorType keyAccessorType) {
-        return this.keyAccessors.stream().filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId()==keyAccessorType.getId()).findAny();
+        return this.keyAccessors.stream().filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId() == keyAccessorType.getId()).findAny();
     }
 
     @Override

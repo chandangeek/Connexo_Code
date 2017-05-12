@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
@@ -51,8 +52,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
-
-import aQute.bnd.annotation.ProviderType;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
@@ -222,10 +221,12 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
 
     void removeProtocolProperty(String name);
 
+    /**
+     * Resolve the key accessors and their types to their actual values (if present) and return them as TypedProperties.
+     */
+    TypedProperties getSecurityProperties(SecurityPropertySet securityPropertySet);
+
     //TODO: once there is an actual implementation, remove the default implementation
-
-    default TypedProperties getSecurityProperties(SecurityPropertySet securityPropertySet) { return TypedProperties.empty(); };
-
     default void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties) {};
 
     default void setSecurityProperty(String propertyName, Object propertyValue) {};
