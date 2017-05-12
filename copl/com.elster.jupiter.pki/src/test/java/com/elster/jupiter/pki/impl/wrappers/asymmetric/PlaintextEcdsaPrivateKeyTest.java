@@ -23,13 +23,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.nio.charset.Charset;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -56,14 +56,15 @@ public class PlaintextEcdsaPrivateKeyTest {
     @Before
     public void setUp() throws Exception {
         Security.addProvider(new BouncyCastleProvider());
-        when(datavaultService.encrypt(any())).then(invocationOnMock -> new String(((byte[]) invocationOnMock.getArguments()[0]), Charset.forName("UTF-8")));
-        when(datavaultService.decrypt(any())).then(invocationOnMock -> ((String) invocationOnMock.getArguments()[0]).getBytes(Charset.forName("UTF-8")));
+        when(datavaultService.encrypt(any())).then(invocationOnMock -> Base64.getEncoder().encodeToString((byte[]) invocationOnMock.getArguments()[0]));
+        when(datavaultService.decrypt(any())).then(invocationOnMock -> Base64.getDecoder().decode((String) invocationOnMock.getArguments()[0]));
         ValidatorFactory validatorFactory = mock(ValidatorFactory.class);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         Validator validator = mock(Validator.class);
         when(validatorFactory.getValidator()).thenReturn(validator);
         NlsMessageFormat format = mock(NlsMessageFormat.class);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(format);
+        when(thesaurus.getSimpleFormat(any(MessageSeed.class))).thenReturn(format);
         keyType = mock(KeyType.class);
         when(keyType.getKeyAlgorithm()).thenReturn("ECDSA");
         when(keyType.getCurve()).thenReturn("secp256r1");
