@@ -80,8 +80,6 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
     public static final Long NUMBER_OF_SAMPLES_DEFAULT_VALUE = 3L;
     public static final String MAXIMUM_NUMBER_OF_WEEKS = TranslationKeys.MAXIMUM_NUMBER_OF_WEEKS.getKey();
     public static final Long MAXIMUM_NUMBER_OF_WEEKS_DEFAULT_VALUE = 4L;
-    public static final String CALENDAR = TranslationKeys.CALENDAR.getKey();
-    public static final String EVENT_CODE = TranslationKeys.EVENT_CODE.getKey();
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DefaultDateTimeFormatters.mediumDate()
             .withShortTime()
@@ -100,7 +98,7 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
     private CalendarWithEventSettings discardSpecificDay;
     private Calendar calendar;
     private long calendarEventId;
-    private Set<Instant> skippedDays = new HashSet<>();
+    private final Set<Instant> skippedDays = new HashSet<>();
 
     public enum TranslationKeys implements TranslationKey {
         ESTIMATOR_NAME(NearestAvgValueDayEstimator.class.getName(), "Nearest average value (Day)"),
@@ -341,11 +339,15 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
             Instant estimatableTimestamp = estimatable.getTimestamp();
             BigDecimal result = new BigDecimal(0);
             Range<Instant> beforeRange = Range.closedOpen(estimatableTimestamp.minus(maxNumberOfWeeks * ChronoUnit.WEEKS.getDuration().toDays(), ChronoUnit.DAYS)
-                    .minus(estimationBlock.getReadingType().getIntervalLength().get()), estimatableTimestamp);
+                    .minus(estimationBlock.getReadingType().getIntervalLength().get()), estimatableTimestamp.minus(estimationBlock.getReadingType().getIntervalLength().get()));
+            Calendar.ZonedView finalZonedView = zonedView;
             List<? extends BaseReadingRecord> readingsBefore = estimationBlock.getChannel()
-                    .getReadings(beforeRange);
+                    .getReadings(beforeRange)
+                    .stream()
+                    .sorted((r1, r2) -> r2.getTimeStamp().compareTo(r1.getTimeStamp()))
+                    .filter(brcc -> isValidSample(estimationBlock, estimatable.getTimestamp(), brcc, zone, finalZonedView, discardDay))
+                    .collect(Collectors.toList());
             if (discardDay) {
-
                 if (zonedView.dayTypeFor(estimatable.getTimestamp())
                         .getEventOccurrences()
                         .stream()
@@ -361,22 +363,21 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                     return false;
                 }
 
-                final Calendar.ZonedView view = zonedView;
-                readingsBefore = readingsBefore
+/*                readingsBefore = readingsBefore
                         .stream()
                         .sorted((r1, r2) -> r2.getTimeStamp().compareTo(r1.getTimeStamp()))
                         .filter(brcc -> isValidSample(estimationBlock, estimatable.getTimestamp(), brcc, systems, zone))
-                        .collect(Collectors.toList());
-                readingsBefore = skipDayIfHasEvent(readingsBefore, skippedDays, calendarEventId, view, discardDay);
+                        .collect(Collectors.toList());*/
+                //readingsBefore = skipDayIfHasEvent(readingsBefore, calendarEventId, zonedView, discardDay);
 
-            } else {
-                readingsBefore = readingsBefore
+            } /*else {
+*//*                readingsBefore = readingsBefore
                         .stream()
                         .sorted((r1, r2) -> r2.getTimeStamp().compareTo(r1.getTimeStamp()))
                         .filter(brcc -> isValidSample(estimationBlock, estimatable.getTimestamp(), brcc, systems, zone))
-                        .collect(Collectors.toList());
-                readingsBefore = skipDayIfHasEvent(readingsBefore, skippedDays, calendarEventId, zonedView, discardDay);
-            }
+                        .collect(Collectors.toList());*//*
+                //readingsBefore = skipDayIfHasEvent(readingsBefore, calendarEventId, zonedView, discardDay);
+            }*/
 
             if (readingsBefore.size() < numberOfSamples) {
                 String message = getThesaurus().getFormat(MessageSeeds.NEAREST_AVG_VALUE_DAY_ESTIMATOR_FAIL_NOT_ENOUGH_SAMPLES)
@@ -391,7 +392,7 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                     .limit(numberOfSamples)
                     .map(record -> record.getQuantity(estimationBlock.getReadingType()))
                     .map(Quantity::getValue)
-                    .reduce((val, val1) -> val.add(val1)).orElse(null);
+                    .reduce(BigDecimal::add).orElse(null);
 
             if (result != null) {
                 result = result.divide(BigDecimal.valueOf(numberOfSamples), RoundingMode.HALF_UP);
@@ -406,14 +407,35 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
         return true;
     }
 
-    private static boolean isValidSample(EstimationBlock estimationBlock, Instant estimableTime,
-                                         BaseReadingRecord record, Set<QualityCodeSystem> systems, ZoneId zone) {
+    private boolean isValidSample(EstimationBlock estimationBlock, Instant estimableTime,
+                                         BaseReadingRecord record,
+                                  ZoneId zone, Calendar.ZonedView view, Boolean discardDay) {
         return sameTimeOfWeek(ZonedDateTime.ofInstant(record.getTimeStamp(), zone), ZonedDateTime.ofInstant(estimableTime, zone))
-                && record.getQuantity(estimationBlock.getReadingType()) != null;
+                && record.getQuantity(estimationBlock.getReadingType()) != null
+                && fetchSkippedDays(record, calendarEventId, view, discardDay);
     }
 
-    private static List<? extends BaseReadingRecord> skipDayIfHasEvent(List<? extends BaseReadingRecord> readingRecords, Set<Instant> skippedDays
-            , Long calendarEventId, Calendar.ZonedView view, boolean discardDay) {
+    private boolean fetchSkippedDays( BaseReadingRecord record,Long calendarEventId, Calendar.ZonedView view, boolean discardDay){
+        record.getReadingQualities().forEach(quality -> {
+            if (quality.isMissing() || quality.isSuspect()){
+                skippedDays.add(record.getTimeStamp().truncatedTo(ChronoUnit.DAYS));
+            }
+        });
+        if (discardDay){
+            view.dayTypeFor(record.getTimeStamp()).getEventOccurrences().forEach(occurrence -> {
+                if (occurrence.getEvent().getId() == calendarEventId){
+                    skippedDays.add(record.getTimeStamp().truncatedTo(ChronoUnit.DAYS));
+                }
+            });
+        }
+        if (skippedDays.contains(record.getTimeStamp().truncatedTo(ChronoUnit.DAYS))){
+            return false;
+        }
+        return true;
+    }
+
+/*    private List<? extends BaseReadingRecord> skipDayIfHasEvent(List<? extends BaseReadingRecord> readingRecords,
+                                                                       Long calendarEventId, Calendar.ZonedView view, boolean discardDay) {
         skippedDays.addAll(readingRecords
                 .stream()
                 .filter(brr -> brr.getReadingQualities()
@@ -422,7 +444,7 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                 .map(brr -> brr.getTimeStamp().truncatedTo(ChronoUnit.DAYS))
                 .collect(Collectors.toSet())
         );
-        if (discardDay == true) {
+        if (discardDay) {
             skippedDays.addAll(readingRecords
                     .stream()
                     .filter(brrc -> view.dayTypeFor(brrc.getTimeStamp()).getEventOccurrences()
@@ -439,7 +461,7 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                         .stream()
                         .noneMatch(instant -> instant.equals(brrc.getTimeStamp().truncatedTo(ChronoUnit.DAYS))))
                 .collect(Collectors.toList());
-    }
+    }*/
 
     private static boolean sameTimeOfWeek(ZonedDateTime first, ZonedDateTime second) {
         return first.getDayOfWeek().equals(second.getDayOfWeek())
