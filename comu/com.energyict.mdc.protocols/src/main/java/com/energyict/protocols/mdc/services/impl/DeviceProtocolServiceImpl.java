@@ -22,6 +22,7 @@ import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Formatter;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
@@ -138,7 +139,11 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     public void setFormatter(Formatter formatter) {
     }
 
-    //TODO uncomment, this service is needed in some of the constructors of the protocols! (but it's not yet implemented in CXO)
+    @Reference
+    public void setKeyAccessorTypeExtractor(KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+    }
+
+    //TODO uncomment, these 3 services are needed in some of the constructors of the protocols! (but they do not yet exist in CXO)
     /*
     @Reference
     public void setNumberLookupFinder(NumberLookupFinder numberLookupFinder) {

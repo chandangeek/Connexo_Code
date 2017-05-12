@@ -91,6 +91,10 @@ public abstract class AbstractSecuritySupportAdapter {
             return ((LegacySecurityPropertyConverter) getSecuritySupport()).convertFromTypedProperties(typedProperties);
         } else {
             return new DeviceProtocolSecurityPropertySet() {
+                @Override
+                public String getName() {
+                    return "security";
+                }
 
                 @Override
                 public String getClient() {
