@@ -26,19 +26,23 @@ public class CalendarWithEventCodeValueConverter implements PropertyValueConvert
 
     @Override
     public Object convertInfoToValue(PropertySpec propertySpec, Object infoValue) {
-        if (infoValue.toString().equalsIgnoreCase("INSTANCE")) {
+        if (NoneCalendarWithEventSettings.INSTANCE.name().equalsIgnoreCase(infoValue.toString())) {
             return NoneCalendarWithEventSettings.INSTANCE;
         }
-        Map map = (Map) infoValue;
-        String advanceSettings = null;
-        if ((Boolean) map.get("discardDays") == false) {
-            return NoneCalendarWithEventSettings.INSTANCE;
+        if (infoValue instanceof Map){
+            Map map = (Map) infoValue;
+            String advanceSettings = null;
+            if (!(Boolean) map.get("discardDays")) {
+                return NoneCalendarWithEventSettings.INSTANCE;
+            } else {
+                advanceSettings = map.get("discardDays").toString() + ":";
+                advanceSettings += map.getOrDefault("calendar", "") + ":";
+                advanceSettings += map.getOrDefault("eventCode", "");
+            }
+            return propertySpec.getValueFactory().fromStringValue(advanceSettings);
         } else {
-            advanceSettings = map.get("discardDays").toString() + ":";
-            advanceSettings += map.get("calendar") != null ? map.get("calendar").toString() + ":" : "";
-            advanceSettings += map.get("eventCode") != null ? map.get("eventCode").toString() : "";
+            return NoneCalendarWithEventSettings.INSTANCE;
         }
-        return propertySpec.getValueFactory().fromStringValue(advanceSettings);
     }
 
     @Override
