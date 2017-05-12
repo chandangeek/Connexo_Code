@@ -50,6 +50,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -220,7 +221,8 @@ public abstract class BaseTest {
                 new DeviceAlarmModule(),
                 new CalendarModule(),
                 new TimeModule(),
-                new BpmModule()
+                new BpmModule(),
+                new PkiModule()
         );
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
