@@ -39,7 +39,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -123,32 +122,23 @@ public class ValidationStatusFactory {
         Map<ValidationRule, Long> suspectRulesCount = new HashMap<>();
         Map<ValidationRule, Long> informativeRulesCount = new HashMap<>();
         Map<EstimationRule, Long> estimateRulesCount = new HashMap<>();
-        validationStatuses
-                .stream()
-                .forEach(validationStatus -> {
-                    Collection<? extends ReadingQuality> readingQualities = validationStatus.getReadingQualities();
-                    Optional<? extends EstimationRule> estimationRuleOptional = readingQualities.stream()
-                            .map(ReadingQualityRecord.class::cast)
-                            .filter(ReadingQualityRecord::hasEstimatedCategory)
-                            .findFirst()
-                            .flatMap(readingQuality -> estimationService.findEstimationRuleByQualityType(readingQuality.getType()));
-                    if (estimationRuleOptional.isPresent()) {
-                        addEstimationRule(estimateRulesCount, estimationRuleOptional.get());
-                    } else {
-                        boolean suspect = readingQualities
-                                .stream()
-                                .anyMatch(quality -> quality.getType().isSuspect());
-                        if (suspect) {
-                            validationStatus.getOffendedRules().forEach(rule -> {
-                                if (rule.getAction() != ValidationAction.WARN_ONLY) {
-                                    addValidationRule(suspectRulesCount, rule);
-                                }
-                            });
-                        } else {
-                            validationStatus.getOffendedRules().forEach(rule -> addValidationRule(informativeRulesCount, rule));
-                        }
-                    }
-                });
+        validationStatuses.forEach(validationStatus -> {
+            Collection<? extends ReadingQuality> readingQualities = validationStatus.getReadingQualities();
+
+            // add estimation rule
+            readingQualities.stream()
+                    .map(ReadingQualityRecord.class::cast)
+                    .filter(ReadingQualityRecord::hasEstimatedCategory)
+                    .findFirst()
+                    .flatMap(readingQuality -> estimationService.findEstimationRuleByQualityType(readingQuality.getType()))
+                    .ifPresent(estimationRule -> addEstimationRule(estimateRulesCount, estimationRule));
+
+            // add validation rules
+            boolean isSuspect = readingQualities.stream().anyMatch(quality -> quality.getType().isSuspect());
+            validationStatus.getOffendedRules().stream()
+                    .filter(rule -> !isSuspect || ValidationAction.WARN_ONLY != rule.getAction())
+                    .forEach(rule -> addValidationRule(isSuspect ? suspectRulesCount : informativeRulesCount, rule));
+        });
         info.suspectReason = createValidationRuleInfo(suspectRulesCount);
         info.informativeReason = createValidationRuleInfo(informativeRulesCount);
         info.estimateReason = createEstimationRuleInfo(estimateRulesCount);
