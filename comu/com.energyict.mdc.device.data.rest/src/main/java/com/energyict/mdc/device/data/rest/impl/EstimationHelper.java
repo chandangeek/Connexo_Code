@@ -23,6 +23,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.rest.ChannelPeriodType;
 
 import com.google.common.collect.Range;
 
@@ -133,19 +134,20 @@ public class EstimationHelper {
     }
 
     private List<ChannelDataInfo> fillChannelDataInfoList(Channel channel, EstimationBlock block, Estimatable estimatable, List<LoadProfileReading> channelData, boolean isValidationActive, DeviceValidation deviceValidation) {
+        ChannelPeriodType channelPeriodType = ChannelPeriodType.of(channel);
         List<ChannelDataInfo> channelDataInfos = new ArrayList<>();
         for (LoadProfileReading reading : channelData) {
             if (reading.getRange().upperEndpoint().equals(estimatable.getTimestamp())) {
-                channelDataInfos.add(getChannelDataInfo(channel, block, reading, isValidationActive, deviceValidation, estimatable));
+                channelDataInfos.add(getChannelDataInfo(channel, block, reading, isValidationActive, deviceValidation, estimatable, channelPeriodType));
                 break;
             }
         }
         return channelDataInfos;
     }
 
-    private ChannelDataInfo getChannelDataInfo(Channel channel, EstimationBlock block, LoadProfileReading reading, boolean isValidationActive, DeviceValidation deviceValidation, Estimatable estimatable) {
+    private ChannelDataInfo getChannelDataInfo(Channel channel, EstimationBlock block, LoadProfileReading reading, boolean isValidationActive, DeviceValidation deviceValidation, Estimatable estimatable, ChannelPeriodType channelPeriodType) {
         //todo do we need to add the datalogger here?
-        ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, reading, isValidationActive, deviceValidation, null);
+        ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, reading, isValidationActive, deviceValidation, null, channelPeriodType);
         if (!channel.getReadingType().isCumulative()) {
             channelDataInfo.value = estimatable.getEstimation();
             channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
