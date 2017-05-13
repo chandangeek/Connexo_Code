@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.OrmService;
@@ -30,8 +31,6 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.units.Quantity;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageAttributes;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
@@ -69,7 +68,7 @@ public class HeadEndControllerTest {
     private static final TranslationKey CONTACTOR_ACTIVATION_DATE_ATTREIBUTE_TRANSLATION_KEY = new TranslationKey() {
         @Override
         public String getKey() {
-            return DeviceMessageConstants.contactorActivationDateAttributeName;
+            return "ContactorDeviceMessage.activationdate";
         }
 
         @Override
@@ -276,19 +275,19 @@ public class HeadEndControllerTest {
         List<PropertySpec> propertySpecs = new ArrayList<>();
         PropertySpec thresholdPropertySpec = propertySpecService
                 .bigDecimalSpec()
-                .named(DeviceMessageAttributes.normalThresholdAttributeName)
+                .named(new SimpleTranslationKey("LoadBalanceDeviceMessage.parameters.normalthreshold", "Normal threshold"))
                 .fromThesaurus(thesaurus)
                 .markRequired()
                 .finish();
         PropertySpec unitPropertySpec = propertySpecService
                 .stringSpec()
-                .named(DeviceMessageAttributes.unitAttributeName)
+                .named(new SimpleTranslationKey("LoadBalanceDeviceMessage.parameters.unit", "Unit"))
                 .fromThesaurus(thesaurus)
                 .markRequired()
                 .finish();
         PropertySpec loadTolerancePropertySpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
-                .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
+                .named(new SimpleTranslationKey("LoadBalanceDeviceMessage.parameters.overthresholdduration", "Over threshold duration"))
                 .fromThesaurus(thesaurus)
                 .finish();
         propertySpecs.add(thresholdPropertySpec);
@@ -317,19 +316,19 @@ public class HeadEndControllerTest {
         List<PropertySpec> propertySpecs = new ArrayList<>();
         PropertySpec thresholdPropertySpec = propertySpecService
                 .bigDecimalSpec()
-                .named(DeviceMessageAttributes.normalThresholdAttributeName)
+                .named(new SimpleTranslationKey("LoadBalanceDeviceMessage.parameters.normalthreshold", "Normal threshold"))
                 .fromThesaurus(thesaurus)
                 .markRequired()
                 .finish();
         PropertySpec unitPropertySpec = propertySpecService
                 .stringSpec()
-                .named(DeviceMessageAttributes.unitAttributeName)
+                .named(new SimpleTranslationKey("LoadBalanceDeviceMessage.parameters.unit", "Unit"))
                 .fromThesaurus(thesaurus)
                 .markRequired()
                 .finish();
         PropertySpec loadTolerancePropertySpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
-                .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
+                .named(new SimpleTranslationKey("LoadBalanceDeviceMessage.parameters.overthresholdduration", "Over threshold duration"))
                 .fromThesaurus(thesaurus)
                 .finish();
         propertySpecs.add(thresholdPropertySpec);
@@ -371,19 +370,19 @@ public class HeadEndControllerTest {
                 .finish();
         PropertySpec thresholdPropertySpec = propertySpecService
                 .bigDecimalSpec()
-                .named(DeviceMessageAttributes.normalThresholdAttributeName)
+                .named(new SimpleTranslationKey("LoadBalanceDeviceMessage.parameters.normalthreshold", "Normal threshold"))
                 .fromThesaurus(thesaurus)
                 .markRequired()
                 .finish();
         PropertySpec unitPropertySpec = propertySpecService
                 .stringSpec()
-                .named(DeviceMessageAttributes.unitAttributeName)
+                .named(new SimpleTranslationKey("LoadBalanceDeviceMessage.parameters.unit", "Unit"))
                 .fromThesaurus(thesaurus)
                 .markRequired()
                 .finish();
         PropertySpec loadTolerancePropertySpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
-                .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
+                .named(new SimpleTranslationKey("LoadBalanceDeviceMessage.parameters.overthresholdduration", "Over threshold duration"))
                 .fromThesaurus(thesaurus)
                 .finish();
         List<PropertySpec> propertySpecs = new ArrayList<>();
@@ -405,7 +404,7 @@ public class HeadEndControllerTest {
     }
 
     @Test
-    @Expected(value = LocalizedException.class, message = "Could not find the command argument spec " + DeviceMessageConstants.overThresholdDurationAttributeName + " for command " + END_DEVICE_CONTROL_TYPE)
+    @Expected(value = LocalizedException.class, message = "Could not find the command argument spec LoadBalanceDeviceMessage.parameters.overthresholdduration for command " + END_DEVICE_CONTROL_TYPE)
     public void testCommandArgumentSpecNotFound() throws Exception {
         ContactorInfo contactorInfo = new ContactorInfo();
         contactorInfo.status = BreakerStatus.armed;
