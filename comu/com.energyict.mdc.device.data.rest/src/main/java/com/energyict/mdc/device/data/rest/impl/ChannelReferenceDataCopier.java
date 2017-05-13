@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.rest.ChannelPeriodType;
 
 import com.google.common.collect.Range;
 
@@ -98,8 +99,8 @@ public class ChannelReferenceDataCopier {
             Optional.ofNullable(correctedRanges.get(record.getRange()))
                     .flatMap(r -> Optional.ofNullable(referenceReadings.get(r.upperEndpoint())))
                     .ifPresent(referenceReading -> {
-                        ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(sourceChannel, record, isValidationActive, deviceValidation, null);
-                        ChannelDataInfo referenceDataInfo = deviceDataInfoFactory.createChannelDataInfo(referenceChannel, referenceReading, isValidationActive, deviceValidation, null);
+                        ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(sourceChannel, record, isValidationActive, deviceValidation, null, ChannelPeriodType.of(sourceChannel));
+                        ChannelDataInfo referenceDataInfo = deviceDataInfoFactory.createChannelDataInfo(referenceChannel, referenceReading, isValidationActive, deviceValidation, null, ChannelPeriodType.of(referenceChannel));
                         channelDataInfo.value = referenceDataInfo.value
                                 .scaleByPowerOfTen(referenceChannel.getReadingType().getMultiplier().getMultiplier() - sourceChannel.getReadingType().getMultiplier().getMultiplier());
                         channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;

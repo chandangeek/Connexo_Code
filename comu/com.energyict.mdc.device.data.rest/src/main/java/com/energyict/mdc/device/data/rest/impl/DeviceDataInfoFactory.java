@@ -151,7 +151,7 @@ public class DeviceDataInfoFactory {
 
 
     ChannelHistoryDataInfo createChannelHistoryDataInfo(Channel channel, LoadProfileJournalReading loadProfileJournalReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave, ChannelPeriodType channelPeriodType) {
-        ChannelHistoryDataInfo channelHistoryDataInfo = new ChannelHistoryDataInfo(createChannelDataInfo(channel, (LoadProfileReading) loadProfileJournalReading, isValidationActive, deviceValidation, dataLoggerSlave, channelPeriodType));
+        ChannelHistoryDataInfo channelHistoryDataInfo = new ChannelHistoryDataInfo(createChannelDataInfo(channel, loadProfileJournalReading, isValidationActive, deviceValidation, dataLoggerSlave, channelPeriodType));
         channelHistoryDataInfo.journalTime = loadProfileJournalReading.getJournalTime();
         channelHistoryDataInfo.userName = loadProfileJournalReading.getUserName();
         channelHistoryDataInfo.isActive = loadProfileJournalReading.getActive();
