@@ -19,8 +19,9 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointService;
 import com.elster.jupiter.mdm.usagepoint.data.favorites.FavoritesService;
+import com.elster.jupiter.mdm.usagepoint.data.impl.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.rest.impl.favorites.FavoritesResource;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.LocationService;
@@ -123,9 +124,8 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile MeteringTranslationService meteringTranslationService;
     private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private volatile PropertySpecService propertySpecService;
-    private volatile UsagePointDataModelService usagePointDataModelService;
+    private volatile UsagePointService usagePointService;
     private volatile UserService userService;
-    private volatile UsagePointOutputsHistoryHelper usagePointOutputsHistoryHelper;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -371,8 +371,8 @@ public class UsagePointApplication extends Application implements TranslationKey
     }
 
     @Reference
-    public void setUsagePointDataModelService(UsagePointDataModelService usagePointDataModelService) {
-        this.usagePointDataModelService = usagePointDataModelService;
+    public void setUsagePointService(UsagePointService usagePointService) {
+        this.usagePointService = usagePointService;
     }
 
     @Reference
@@ -449,7 +449,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(EstimationTaskInfoFactory.class).to(EstimationTaskInfoFactory.class);
             bind(UsagePointTransitionInfoFactory.class).to(UsagePointTransitionInfoFactory.class);
             bind(propertySpecService).to(PropertySpecService.class);
-            bind(usagePointDataModelService).to(UsagePointDataModelService.class);
+            bind(usagePointService).to(UsagePointService.class);
             bind(ChannelValidationRuleInfoFactory.class).to(ChannelValidationRuleInfoFactory.class);
             bind(ChannelEstimationRuleInfoFactory.class).to(ChannelEstimationRuleInfoFactory.class);
             bind(MetrologyConfigurationHistoryInfoFactory.class).to(MetrologyConfigurationHistoryInfoFactory.class);

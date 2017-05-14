@@ -814,7 +814,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(usagePointConfigurationService.getEstimationRuleSets(contract3)).thenReturn(Collections.singletonList(estimationRuleSet3));
 
         UsagePointEstimation usagePointEstimation = mock(UsagePointEstimation.class);
-        when(usagePointDataModelService.forEstimation(usagePoint)).thenReturn(usagePointEstimation);
+        when(usagePointService.forEstimation(usagePoint)).thenReturn(usagePointEstimation);
         doReturn(Optional.empty()).when(usagePointEstimation).findOverriddenProperties(any(), any());
 
         EstimationRule ruleWithOverriddenProperties = estimationRuleSet2.getRules().get(0);

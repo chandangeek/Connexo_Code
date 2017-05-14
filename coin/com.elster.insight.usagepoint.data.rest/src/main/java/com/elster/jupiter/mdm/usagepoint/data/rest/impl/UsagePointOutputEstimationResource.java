@@ -8,8 +8,8 @@ import com.elster.jupiter.estimation.EstimationPropertyDefinitionLevel;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelEstimationRuleOverriddenProperties;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointEstimation;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 
 public class UsagePointOutputEstimationResource {
 
-    private final UsagePointDataModelService usagePointDataModelService;
+    private final UsagePointService usagePointService;
     private final UsagePointConfigurationService usagePointConfigurationService;
     private final PropertyValueInfoService propertyValueInfoService;
 
@@ -58,11 +58,11 @@ public class UsagePointOutputEstimationResource {
     private final ResourceHelper resourceHelper;
 
     @Inject
-    UsagePointOutputEstimationResource(UsagePointDataModelService usagePointDataModelService, UsagePointConfigurationService usagePointConfigurationService,
+    UsagePointOutputEstimationResource(UsagePointService usagePointService, UsagePointConfigurationService usagePointConfigurationService,
                                        PropertyValueInfoService propertyValueInfoService, ChannelEstimationRuleInfoFactory channelEstimationRuleInfoFactory,
                                        ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory, ExceptionFactory exceptionFactory,
                                        ResourceHelper resourceHelper) {
-        this.usagePointDataModelService = usagePointDataModelService;
+        this.usagePointService = usagePointService;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.propertyValueInfoService = propertyValueInfoService;
         this.channelEstimationRuleInfoFactory = channelEstimationRuleInfoFactory;
@@ -83,7 +83,7 @@ public class UsagePointOutputEstimationResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         ReadingType readingType = deliverable.getReadingType();
-        UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
+        UsagePointEstimation usagePointEstimation = usagePointService.forEstimation(usagePoint);
         List<ChannelEstimationRuleInfo> infos = usagePointConfigurationService.getEstimationRuleSets(deliverable.getMetrologyContract())
                 .stream()
                 .flatMap(estimationRuleSet -> estimationRuleSet.getRules(Collections.singleton(readingType)).stream())
@@ -115,7 +115,7 @@ public class UsagePointOutputEstimationResource {
         ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         EstimationRule estimationRule = resourceHelper.findEstimationRuleOrThrowException(ruleId);
         validateRuleApplicability(estimationRule, deliverable);
-        UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
+        UsagePointEstimation usagePointEstimation = usagePointService.forEstimation(usagePoint);
         return asInfo(estimationRule, deliverable.getReadingType(), usagePointEstimation);
     }
 
@@ -130,7 +130,7 @@ public class UsagePointOutputEstimationResource {
         ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         EstimationRule estimationRule = resourceHelper.findEstimationRuleOrThrowException(channelEstimationRuleInfo.ruleId);
         validateRuleApplicability(estimationRule, deliverable);
-        UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
+        UsagePointEstimation usagePointEstimation = usagePointService.forEstimation(usagePoint);
         UsagePointEstimation.PropertyOverrider propertyOverrider = usagePointEstimation.overridePropertiesFor(estimationRule, deliverable.getReadingType());
 
         List<PropertyInfo> propertyInfos = toPropertyInfoList(channelEstimationRuleInfo.properties);
@@ -160,7 +160,7 @@ public class UsagePointOutputEstimationResource {
         ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         EstimationRule estimationRule = resourceHelper.findEstimationRuleOrThrowException(channelEstimationRuleInfo.ruleId);
         validateRuleApplicability(estimationRule, deliverable);
-        UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
+        UsagePointEstimation usagePointEstimation = usagePointService.forEstimation(usagePoint);
         ChannelEstimationRuleOverriddenProperties channelEstimationRule = usagePointEstimation
                 .findAndLockChannelEstimationRuleOverriddenProperties(channelEstimationRuleInfo.id, channelEstimationRuleInfo.version)
                 .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(estimationRule.getDisplayName())
@@ -195,7 +195,7 @@ public class UsagePointOutputEstimationResource {
         ReadingTypeDeliverable deliverable = findReadingTypeDeliverableOrThrowException(usagePoint, contractId, outputId);
         EstimationRule estimationRule = resourceHelper.findEstimationRuleOrThrowException(channelEstimationRuleInfo.ruleId);
         validateRuleApplicability(estimationRule, deliverable);
-        UsagePointEstimation usagePointEstimation = usagePointDataModelService.forEstimation(usagePoint);
+        UsagePointEstimation usagePointEstimation = usagePointService.forEstimation(usagePoint);
         ChannelEstimationRuleOverriddenProperties channelEstimationRule = usagePointEstimation
                 .findAndLockChannelEstimationRuleOverriddenProperties(channelEstimationRuleInfo.id, channelEstimationRuleInfo.version)
                 .orElseThrow(concurrentModificationExceptionFactory.contextDependentConflictOn(estimationRule.getDisplayName())
