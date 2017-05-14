@@ -175,6 +175,7 @@ Ext.define('Est.estimationrules.controller.Overview', {
             callback: function (record, operation, success) {
                 page.setLoading(false);
                 if (success) {
+                    me.showPreview(null ,record);
                     me.loadEstimationRuleSet(page, grid, router.arguments.ruleSetId);
                     me.getApplication().fireEvent('acknowledge', isActive
                         ? Uni.I18n.translate('estimationrules.deactivateRuleSuccess', 'EST', 'Estimation rule deactivated')
