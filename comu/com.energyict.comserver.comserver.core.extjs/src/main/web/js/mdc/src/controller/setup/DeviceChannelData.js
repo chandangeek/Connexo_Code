@@ -816,6 +816,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             if (event.column) {
                 event.record.get('mainValidationInfo').validationResult = 'validationStatus.ok';
                 if (!event.record.get('estimatedNotSaved')) {
+                    event.record.get('mainValidationInfo').estimatedByRule = false;
                     event.record.set('mainModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
                 }
                 grid.getView().refreshNode(grid.getStore().indexOf(event.record));
@@ -1339,6 +1340,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             reading.set(modificationState, Uni.util.ReadingEditor.modificationState('EDITED'));
         } else if (action === 'estimate') {
             reading.get(validationInfo).estimatedByRule = true;
+            reading.get(validationInfo).estimatedNotSaved = true;
             reading.set(modificationState, Uni.util.ReadingEditor.modificationState(null));
         }
 
@@ -1714,7 +1716,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             intervalsArray = [],
             validationInfo,
             comment = {
-                commentId: commentId,
+                commentId: commentId ? commentId : 0,
                 commentValue: commentValue
             };
 
