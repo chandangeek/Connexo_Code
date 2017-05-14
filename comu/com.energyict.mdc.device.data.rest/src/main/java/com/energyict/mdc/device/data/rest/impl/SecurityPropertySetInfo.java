@@ -5,7 +5,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.properties.rest.PropertyInfo;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 
@@ -21,13 +20,17 @@ public class SecurityPropertySetInfo {
     public SecurityLevelInfo authenticationLevel;
     @JsonProperty("encryptionLevel")
     public SecurityLevelInfo encryptionLevel;
-    public IdWithNameInfo status;
+    @JsonProperty("client")
+    public String client;
+    @JsonProperty("securitySuite")
+    public SecurityLevelInfo securitySuite;
+    @JsonProperty("requestSecurityLevel")
+    public SecurityLevelInfo requestSecurityLevel;
+    @JsonProperty("responseSecurityLevel")
+    public SecurityLevelInfo responseSecurityLevel;
 
     public List<PropertyInfo> properties;
-    public boolean userHasViewPrivilege;
-    public boolean userHasEditPrivilege;
 
-    public boolean saveAsIncomplete;
     public long version;
     public VersionInfo<String> parent;
 

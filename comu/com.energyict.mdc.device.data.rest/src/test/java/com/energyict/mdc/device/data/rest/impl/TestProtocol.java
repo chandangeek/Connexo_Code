@@ -38,6 +38,7 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -70,13 +71,9 @@ public class TestProtocol implements DeviceProtocol {
         this.propertySpecService = propertySpecService;
     }
 
-    public static CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>> getCustomPropertySet(PropertySpecService propertySpecService) {
-        return new BasicAuthenticationCustomPropertySet(propertySpecService);
-    }
-
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-        return Collections.emptyList();
+    public Optional<com.energyict.mdc.upl.properties.PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty();
     }
 
     @Override
@@ -218,20 +215,15 @@ public class TestProtocol implements DeviceProtocol {
 
     }
 
-    @Override
-    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        return Optional.of(getCustomPropertySet(this.propertySpecService));
-    }
-
     private PropertySpec getUserNamePropertySpec() {
         BasicPropertySpec propertySpec = new BasicPropertySpec(new StringFactory());
-        propertySpec.setName(BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.javaName());
+        propertySpec.setName("usrName");
         return propertySpec;
     }
 
     private PropertySpec getPasswordPropertySpec() {
         BasicPropertySpec propertySpec = new BasicPropertySpec(new StringFactory());
-        propertySpec.setName(BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.javaName());
+        propertySpec.setName("password");
         return propertySpec;
     }
 

@@ -123,6 +123,14 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_PROTOCOL_PROPERTIES(302, "NoSuchProtocolDialectProperties", "No protocol dialect with name '{0}'"),
     UPDATE_OF_DEVICE_FAILED(303, "UpdateOfDeviceFailed", "Update of device failed"),
     NO_CALCULATED_READINGTYPE_ON_CHANNEL(304, "noCalculatedReadingTypeOnChannel", "Device''s channel with id {0} doesn''t provide calculated reading type"),
+    NO_SUCH_KEY_ACCESSOR_TYPE(305, "NoSuchKeyAccessorType", "The device type does not have a security accessor with that id"),
+    NO_SUCH_CERTIFICATE(306, "NoSuchCertificate", "Certificate could not be found"),
+    NO_SUCH_TRUSTED_CERTIFICATE(307, "NoSuchTrustedCertificate", "Certificate could not be found in the trust store"),
+    NO_SUCH_TRUST_STORE(308, "NoSuchTrustStore", "No such trust store"),
+    NO_SUCH_KEY_ACCESSOR(309, "NoSuchKeyAccessor", "No such security accessor"),
+    COMMAND_SHOULD_HAVE_A_CONTRACT_ATTRIBUTE(310, "command.should.have.a.contract.attribute", "The device command '{0}' should have a 'Contract' attribute"),
+    COMMAND_SHOULD_HAVE_A_TYPE_ATTRIBUTE(311, "command.should.have.a.type.attribute", "The device command '{0}' should have a 'Type' attribute"),
+    COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE(312, "command.should.have.an.activation.date.attribute", "The device command '{0}' should have an 'Activation date' attribute"),;
     ;
 
     private final int number;

@@ -55,6 +55,9 @@ public class ChannelDataInfo {
 
     public SlaveChannelInfo slaveChannel;
 
+    @JsonProperty("channelPeriodType")
+    public String channelPeriodType;
+
     public IntervalReadingImpl createNew() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value, Collections.emptyList());
     }

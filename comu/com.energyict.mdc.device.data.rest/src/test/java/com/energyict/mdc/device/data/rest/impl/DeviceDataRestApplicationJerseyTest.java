@@ -38,6 +38,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -220,6 +221,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     UserService userService;
     @Mock
     ObisCodeDescriptor obisCodeDescriptor;
+    @Mock
+    PkiService pkiService;
 
     @Mock
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -331,6 +334,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setDeviceAlarmService(deviceAlarmService);
         application.setUserService(userService);
         application.setObisCodeDescriptor(obisCodeDescriptor);
+        application.setPkiService(pkiService);
         return application;
     }
 

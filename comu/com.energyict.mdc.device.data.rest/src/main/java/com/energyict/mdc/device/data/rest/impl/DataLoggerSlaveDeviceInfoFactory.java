@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.MeterActivation;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -112,7 +111,7 @@ public class DataLoggerSlaveDeviceInfoFactory {
         return new DataLoggerSlaveDeviceInfos(devices, this);
     }
 
-    DataLoggerSlaveDeviceInfo newSlaveWithLinkingInfo(Device slave){
+    DataLoggerSlaveDeviceInfo newSlaveWithLinkingInfo(Device slave) {
         DataLoggerSlaveDeviceInfo newSlaveDeviceInfo = new DataLoggerSlaveDeviceInfo(slave);
         if (slave.getDeviceType().isDataloggerSlave()) {
             topologyService.findDataloggerReference(slave, clock.instant()).ifPresent(
@@ -125,7 +124,7 @@ public class DataLoggerSlaveDeviceInfoFactory {
                     newSlaveDeviceInfo.unlinkingTimeStamp = dataLoggerReference.getRange().upperEndpoint().toEpochMilli();
                 }
             });
-        }else{
+        } else {
             multiElementDeviceService.findMultiElementDeviceReference(slave, clock.instant()).ifPresent(
                     multiElementDeviceReference -> {
                         newSlaveDeviceInfo.linkingTimeStamp = multiElementDeviceReference.getRange().lowerEndpoint().toEpochMilli();
