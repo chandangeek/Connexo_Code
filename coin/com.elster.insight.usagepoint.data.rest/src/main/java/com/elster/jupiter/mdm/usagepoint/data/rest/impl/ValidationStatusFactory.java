@@ -102,12 +102,14 @@ public class ValidationStatusFactory {
     public UsagePointValidationStatusInfo getValidationStatusInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract, ChannelsContainer channelsContainer) {
         UsagePointValidationStatusInfo info = new UsagePointValidationStatusInfo();
         if (metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()) {
+            // force update for validation statuses
+            // used here, since further methods (to get validation status) do not include status update
+            validationService.forceUpdateValidationStatus(channelsContainer);
             ValidationEvaluator validationEvaluator = validationService.getEvaluator();
             info.validationActive = validationService.isValidationActive(channelsContainer);
             info.lastChecked = validationService.getLastChecked(channelsContainer).orElse(null);
             info.allDataValidated = validationEvaluator.isAllDataValidated(channelsContainer);
             info.hasSuspects = validationEvaluator.areSuspectsPresent(EnumSet.of(QualityCodeSystem.MDM), channelsContainer);
-
         }
         return info;
     }
