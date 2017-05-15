@@ -13,7 +13,6 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.properties.NumberLookup;
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 
@@ -287,11 +286,9 @@ public class Dsmr23MessageConverterTest extends AbstractMessageConverterTest {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(passwordAttributeName);
         final String myPassword = "MyPr1v@t€P@55wd";
-        final Password gprsPassword = mock(Password.class);
-        when(gprsPassword.getValue()).thenReturn(myPassword);
 
         // business method
-        final String formattedPassword = dsmr23MessageConverter.format(propertySpec, gprsPassword);
+        final String formattedPassword = dsmr23MessageConverter.format(propertySpec, myPassword);
 
         // asserts
         assertThat(formattedPassword).isEqualTo(myPassword);

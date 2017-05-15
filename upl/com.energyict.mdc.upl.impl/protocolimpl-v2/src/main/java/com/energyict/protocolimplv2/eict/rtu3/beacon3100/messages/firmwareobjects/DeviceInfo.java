@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects;
 
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.SecurityProperty;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -18,12 +18,14 @@ public class DeviceInfo {
 
     private TypedProperties generalProperties;
     private TypedProperties dialectProperties;
-    private List<SecurityProperty> securityProperties;
+    private DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet;
+    private List<DeviceMasterDataExtractor.SecurityProperty> securityProperties;
     private long deviceID;
 
-    public DeviceInfo(TypedProperties generalProperties, TypedProperties dialectProperties, List<SecurityProperty> securityProperties, long deviceID) {
+    public DeviceInfo(TypedProperties generalProperties, TypedProperties dialectProperties, DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet, List<DeviceMasterDataExtractor.SecurityProperty> securityProperties, long deviceID) {
         this.generalProperties = generalProperties;
         this.dialectProperties = dialectProperties;
+        this.securityPropertySet = securityPropertySet;
         this.securityProperties = securityProperties;
         this.deviceID = deviceID;
     }
@@ -48,7 +50,12 @@ public class DeviceInfo {
     }
 
     @XmlAttribute
-    public List<SecurityProperty> getSecurityProperties() {
+    public DeviceMasterDataExtractor.SecurityPropertySet getSecurityPropertySet() {
+        return securityPropertySet;
+    }
+
+    @XmlAttribute
+    public List<DeviceMasterDataExtractor.SecurityProperty> getSecurityProperties() {
         return securityProperties;
     }
 }

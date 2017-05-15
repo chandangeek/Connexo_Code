@@ -41,6 +41,7 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.edmi.common.CommandLineProtocol;
@@ -167,6 +168,11 @@ public class MK6 implements DeviceProtocol, CommandLineProtocol {
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return getSecuritySupport().getSecurityProperties();
+    }
+
+    @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return getSecuritySupport().getClientSecurityPropertySpec();
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -8,11 +7,13 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides general security <b>capabilities</b> for Wavenis protocols
@@ -41,6 +42,11 @@ public class WavenisSecuritySupport extends AbstractSecuritySupport implements L
     }
 
     @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty();
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return Collections.singletonList(new StandardAuthenticationAccessLevel());
     }
@@ -65,13 +71,6 @@ public class WavenisSecuritySupport extends AbstractSecuritySupport implements L
             typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()));
             typedProperties.setProperty(ENCRYPTION_KEY_PROPERTY_NAME,
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
-            // override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new EmptyPassword());
-            if (Password.class.isAssignableFrom(property.getClass())) {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
-            } else {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
-            }
         }
         return typedProperties;
     }
@@ -102,6 +101,16 @@ public class WavenisSecuritySupport extends AbstractSecuritySupport implements L
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, encryptionDeviceAccessLevel, getEncryptionAccessLevels()));
 
         return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public String getName() {
+                return "security";
+            }
+
+            @Override
+            public String getClient() {
+                return null;
+            }
+
             @Override
             public int getAuthenticationDeviceAccessLevel() {
                 return authenticationDeviceAccessLevel;

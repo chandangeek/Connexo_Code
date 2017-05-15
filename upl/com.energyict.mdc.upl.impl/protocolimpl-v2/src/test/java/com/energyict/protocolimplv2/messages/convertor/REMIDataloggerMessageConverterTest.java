@@ -5,13 +5,14 @@ import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
+
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.REMIDatalogger;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -74,7 +75,7 @@ public class REMIDataloggerMessageConverterTest extends AbstractV2MessageConvert
             case DeviceMessageConstants.usernameAttributeName:
                 return "user";
             case DeviceMessageConstants.passwordAttributeName:
-                return new SimplePassword("pass");
+                return "pass";
             case DeviceMessageConstants.apnAttributeName:
                 return "apn";
             case DeviceMessageConstants.enableDSTAttributeName:

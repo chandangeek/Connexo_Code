@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -9,6 +7,9 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -30,6 +31,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.DEVICE_ID;
 import static com.energyict.dlms.common.DlmsProtocolProperties.FIX_MBUS_HEX_SHORT_ID;
 import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
 import static com.energyict.dlms.common.DlmsProtocolProperties.MANUFACTURER;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MASTER_KEY;
 import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.NTA_SIMULATION_TOOL;
 import static com.energyict.dlms.common.DlmsProtocolProperties.REQUEST_TIMEZONE;
@@ -73,7 +75,8 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
                 this.serverLowerMacAddressPropertySpec(),
                 this.deviceId(),
                 this.ignoreDstStatusCode(),
-                this.validateLoadProfileChannelsPropertySpec()));
+                this.validateLoadProfileChannelsPropertySpec(),
+                this.masterKeyPropertySpec()));
     }
 
     @Override
@@ -152,6 +155,17 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
 
     protected PropertySpec fixMbusHexShortIdPropertySpec() {
         return this.booleanSpecBuilder(FIX_MBUS_HEX_SHORT_ID, PropertyTranslationKeys.V2_ELSTER_FIX_MBUS_HEX_SHORT_ID).finish();
+    }
+
+    protected PropertySpec masterKeyPropertySpec() {
+//        return this.propertySpecService.referenceSpec(KeyAccessorType.class.getName())    //TODO: temporary using hexSpec, but should use a reference spec
+//                .named(MASTER_KEY, PropertyTranslationKeys.V2_NTA_MASTERKEY)
+//                .describedAs(PropertyTranslationKeys.V2_NTA_MASTERKEY_DESCRIPTION)
+//                .finish();
+        return this.propertySpecService.hexStringSpec()
+                .named(MASTER_KEY, PropertyTranslationKeys.V2_NTA_MASTERKEY)
+                .describedAs(PropertyTranslationKeys.V2_NTA_MASTERKEY_DESCRIPTION)
+                .finish();
     }
 
     /**

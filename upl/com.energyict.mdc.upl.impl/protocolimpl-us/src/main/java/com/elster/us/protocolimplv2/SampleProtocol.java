@@ -180,6 +180,11 @@ public class SampleProtocol implements DeviceProtocol {
     }
 
     @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty();
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return null;
     }

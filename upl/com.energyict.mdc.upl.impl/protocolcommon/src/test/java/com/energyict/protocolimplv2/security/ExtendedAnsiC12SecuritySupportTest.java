@@ -3,8 +3,10 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
+
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -118,6 +120,16 @@ public class ExtendedAnsiC12SecuritySupportTest extends AbstractSecuritySupportT
         securityProperties.setProperty(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString(), calledApTitle);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
+                    @Override
+                    public String getName() {
+                        return "security";
+                    }
+
+                    @Override
+                    public String getClient() {
+                        return null;
+                    }
+
                     @Override
                     public int getAuthenticationDeviceAccessLevel() {
                         return 1;

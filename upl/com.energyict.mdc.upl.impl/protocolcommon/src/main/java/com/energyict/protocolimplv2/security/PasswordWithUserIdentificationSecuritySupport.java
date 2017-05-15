@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -8,18 +7,20 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides general security <b>capabilities</b> for DeviceProtocols
  * that use a single password and a UserIdentification to do authentication/encryption.<br/>
  * Be aware that the UserIdentification is validated as a string, but can also just
  * contain a numerical value.
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 14/01/13
  * Time: 9:28
@@ -34,10 +35,13 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
     }
 
     @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.of(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService));
+    }
+
+    @Override
     public List<PropertySpec> getSecurityProperties() {
-        return Arrays.asList(
-                DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService),
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
+        return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
     }
 
     @Override
@@ -55,13 +59,6 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-            // override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new EmptyPassword());
-            if (Password.class.isAssignableFrom(property.getClass())) {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
-            } else {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
-            }
         }
         return typedProperties;
     }
@@ -78,6 +75,16 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, STANDARD_AUTH_DEVICE_ACCESS_LEVEL, getAuthenticationAccessLevels()));
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, STANDARD_ENCRYPTION_DEVICE_ACCESS_LEVEL, getEncryptionAccessLevels()));
         return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public String getName() {
+                return "security";
+            }
+
+            @Override
+            public String getClient() {
+                return null;
+            }
+
             @Override
             public int getAuthenticationDeviceAccessLevel() {
                 return STANDARD_AUTH_DEVICE_ACCESS_LEVEL;
@@ -102,13 +109,6 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
         }
         if (deviceAccessIdentifier != null) {
             typedProperties.setProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService).getName(), deviceAccessIdentifier);
-        }
-    }
-
-    private static class EmptyPassword implements Password {
-        @Override
-        public String getValue() {
-            return "";
         }
     }
 

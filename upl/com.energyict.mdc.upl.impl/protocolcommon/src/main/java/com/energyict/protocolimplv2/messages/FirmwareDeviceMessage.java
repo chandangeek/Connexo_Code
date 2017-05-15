@@ -9,6 +9,8 @@ import com.energyict.mdc.upl.properties.FirmwareVersion;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
@@ -329,8 +331,8 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.durationSpec(service, broadcastInitialTimeBetweenBlocksAttributeName, broadcastInitialTimeBetweenBlocksAttributeDefaultTranslation, Duration.ofSeconds(1)),
                     this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
                     this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation),
-                    this.passwordSpec(service, broadcastEncryptionKeyAttributeName, broadcastEncryptionKeyAttributeDefaultTranslation),
-                    this.passwordSpec(service, broadcastAuthenticationKeyAttributeName, broadcastAuthenticationKeyAttributeDefaultTranslation),
+                    this.keyAccessorTypeReferenceSpec(service, broadcastEncryptionKeyAttributeName, broadcastEncryptionKeyAttributeDefaultTranslation),
+                    this.keyAccessorTypeReferenceSpec(service, broadcastAuthenticationKeyAttributeName, broadcastAuthenticationKeyAttributeDefaultTranslation),
                     this.stringSpec(
                             service,
                             DeviceMessageConstants.encryptionLevelAttributeName, DeviceMessageConstants.encryptionLevelAttributeDefaultTranslation,
@@ -613,10 +615,10 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                 .finish();
     }
 
-    protected PropertySpec passwordSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    protected PropertySpec keyAccessorTypeReferenceSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
-                .passwordSpec()
+                .referenceSpec(KeyAccessorType.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()

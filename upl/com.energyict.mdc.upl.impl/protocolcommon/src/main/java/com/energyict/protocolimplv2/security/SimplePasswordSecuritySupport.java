@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -9,6 +8,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Collections;
@@ -37,6 +37,11 @@ public class SimplePasswordSecuritySupport extends AbstractSecuritySupport imple
     }
 
     @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty();
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return Collections.singletonList(new SimpleAuthentication());
     }
@@ -60,15 +65,6 @@ public class SimplePasswordSecuritySupport extends AbstractSecuritySupport imple
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-            // override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), null);
-            if (property == null) {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), "");
-            } else if (Password.class.isAssignableFrom(property.getClass())) {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
-            } else {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
-            }
         }
         return typedProperties;
     }
@@ -78,6 +74,16 @@ public class SimplePasswordSecuritySupport extends AbstractSecuritySupport imple
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, AUTH_DEVICE_ACCESS_LEVEL, getAuthenticationAccessLevels()));
         return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public String getName() {
+                return "security";
+            }
+
+            @Override
+            public String getClient() {
+                return null;
+            }
+
             @Override
             public int getAuthenticationDeviceAccessLevel() {
                 return AUTH_DEVICE_ACCESS_LEVEL;

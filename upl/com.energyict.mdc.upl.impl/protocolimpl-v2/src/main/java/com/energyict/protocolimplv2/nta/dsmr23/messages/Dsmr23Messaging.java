@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
@@ -15,10 +16,11 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.NumberLookup;
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
@@ -57,6 +59,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.encry
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
@@ -74,7 +77,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDat
  * - Formats the device message attributes from objects to proper string values
  * - Executes a given message
  * - Has a list of all supported device message specs
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 22/11/13
  * Time: 11:32
@@ -90,6 +93,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     private final TariffCalendarExtractor calendarExtractor;
     private final NumberLookupExtractor numberLookupExtractor;
     private final LoadProfileExtractor loadProfileExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
     /**
      * Boolean indicating whether or not to show the MBus related messages in EIServer
@@ -116,7 +120,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
      */
     protected boolean supportResetWindow = true;
 
-    public Dsmr23Messaging(AbstractMessageExecutor messageExecutor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor) {
+    public Dsmr23Messaging(AbstractMessageExecutor messageExecutor, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(messageExecutor.getProtocol());
         this.messageExecutor = messageExecutor;
         this.propertySpecService = propertySpecService;
@@ -126,6 +130,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
         this.calendarExtractor = calendarExtractor;
         this.numberLookupExtractor = numberLookupExtractor;
         this.loadProfileExtractor = loadProfileExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     protected PropertySpecService getPropertySpecService() {
@@ -156,6 +161,10 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
         return loadProfileExtractor;
     }
 
+    protected KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {
+        return keyAccessorTypeExtractor;
+    }
+
     protected DeviceMessageSpec get(DeviceMessageSpecSupplier supplier) {
         return supplier.get(this.propertySpecService, this.nlsService, this.converter);
     }
@@ -179,6 +188,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
         supportedMessages.add(this.get(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD));
         supportedMessages.add(this.get(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST));
         supportedMessages.add(this.get(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST));
+        supportedMessages.add(this.get(SecurityMessage.KEY_RENEWAL));
 
         // contactor related
         if (getProtocol().hasBreaker()) {
@@ -251,7 +261,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case newAuthenticationKeyAttributeName:
             case passwordAttributeName:
             case newWrappedAuthenticationKeyAttributeName:
-                return ((Password) messageAttribute).getValue();
+                return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
             case meterTimeAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());
             case specialDaysAttributeName:
@@ -266,9 +276,20 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case emergencyProfileActivationDateAttributeName:
             case firmwareUpdateActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());  //Epoch (millis)
+            case keyAccessorTypeAttributeName:
+                this.keyAccessorTypeExtractor.threadContext().setDevice(offlineDevice);
+                return convertKeyAccessorType((KeyAccessorType) messageAttribute, this.keyAccessorTypeExtractor);
+
             default:
                 return messageAttribute.toString();  //Used for String and BigDecimal attributes
         }
+    }
+
+    private String convertKeyAccessorType(KeyAccessorType messageAttribute, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+        Optional<Object> optional = keyAccessorTypeExtractor.tempValue(messageAttribute);
+        return optional.isPresent()
+                ? keyAccessorTypeExtractor.name(messageAttribute) + ">-->" + optional.get().toString()   // Note that the 'toString() should work fine for symmetric keys/passphrases
+                : null;                                                                                 // (as tempValue should already been resolved to String)
     }
 
     @Override

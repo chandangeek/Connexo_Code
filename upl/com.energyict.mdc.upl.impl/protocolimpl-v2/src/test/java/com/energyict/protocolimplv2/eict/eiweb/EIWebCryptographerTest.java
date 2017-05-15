@@ -1,24 +1,25 @@
-/*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- */
-
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.mdc.protocol.inbound.general.InboundConnection;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.security.SecurityProperty;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.identifier.NotFoundException;
 import com.energyict.protocolimpl.properties.TypedProperties;
-import org.junit.Test;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
-import java.util.Collections;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link EIWebCryptographer} component.
@@ -51,7 +52,7 @@ public class EIWebCryptographerTest {
     /**
      * Test that a {@link CommunicationException} is thrown
      * when the device is not ready for inbound communication
-     * because not {@link InboundConnectionTask}s are defined against it.
+     * because no {@link InboundConnection}s are defined against it.
      */
     @Test(expected = CommunicationException.class)
     public void testBuildMD5SeedWithoutConnectionTypeProperties() {
@@ -71,11 +72,10 @@ public class EIWebCryptographerTest {
     public void testBuildMD5SeedExistingDevice() {
         TypedProperties connectionTypeProperties = TypedProperties.empty();
         connectionTypeProperties.setProperty(EIWebConnectionType.MAC_ADDRESS_PROPERTY_NAME, MAC_ADDRESS_VALUE);
-        SecurityProperty encryptionPassword = mock(SecurityProperty.class);
-        when(encryptionPassword.getValue()).thenReturn(new SimplePassword("EIWebCryptographerTest"));
         InboundDiscoveryContext inboundDiscoveryContext = mock(InboundDiscoveryContext.class);
+        Optional<DeviceProtocolSecurityPropertySet> deviceProtocolSecurityPropertySet = createDeviceProtocolSecurityPropertySet("EIWebCryptographerTest");
         when(inboundDiscoveryContext.getConnectionTypeProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(connectionTypeProperties));
-        when(inboundDiscoveryContext.getProtocolSecurityProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(Collections.singletonList(encryptionPassword)));
+        when(inboundDiscoveryContext.getDeviceProtocolSecurityPropertySet(any(DeviceIdentifier.class))).thenReturn(deviceProtocolSecurityPropertySet);
 
         EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDiscoveryContext);
 
@@ -92,9 +92,8 @@ public class EIWebCryptographerTest {
         TypedProperties connectionTypeProperties = TypedProperties.empty();
         connectionTypeProperties.setProperty(EIWebConnectionType.MAC_ADDRESS_PROPERTY_NAME, MAC_ADDRESS_VALUE);
         when(inboundDiscoveryContext.getConnectionTypeProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(connectionTypeProperties));
-        SecurityProperty encryptionPassword = mock(SecurityProperty.class);
-        when(encryptionPassword.getValue()).thenReturn(new SimplePassword("EIWebCryptographerTest"));
-        when(inboundDiscoveryContext.getProtocolSecurityProperties(any(DeviceIdentifier.class))).thenReturn(Optional.of(Collections.singletonList(encryptionPassword)));
+        Optional<DeviceProtocolSecurityPropertySet> deviceProtocolSecurityPropertySet = createDeviceProtocolSecurityPropertySet("EIWebCryptographerTest");
+        when(inboundDiscoveryContext.getDeviceProtocolSecurityPropertySet(any(DeviceIdentifier.class))).thenReturn(deviceProtocolSecurityPropertySet);
 
         EIWebCryptographer cryptographer = new EIWebCryptographer(inboundDiscoveryContext);
 
@@ -116,4 +115,11 @@ public class EIWebCryptographerTest {
         assertThat(cryptographer.wasUsed()).isFalse();
     }
 
+    private Optional<DeviceProtocolSecurityPropertySet> createDeviceProtocolSecurityPropertySet(String password) {
+        DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = mock(DeviceProtocolSecurityPropertySet.class);
+        com.energyict.mdc.upl.properties.TypedProperties securityProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), password);
+        when(deviceProtocolSecurityPropertySet.getSecurityProperties()).thenReturn(securityProperties);
+        return Optional.of(deviceProtocolSecurityPropertySet);
+    }
 }

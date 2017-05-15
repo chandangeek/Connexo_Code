@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -9,11 +8,13 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides general security <b>capabilities</b> for device that have either:
@@ -21,7 +22,7 @@ import java.util.List;
  * <li>No password</li>
  * <li>A password</li>
  * </ul>
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 21/01/13
  * Time: 14:41
@@ -44,6 +45,11 @@ public class NoOrPasswordSecuritySupport extends AbstractSecuritySupport impleme
     }
 
     @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty();
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return Arrays.asList(new NoAuthenticationAccessLevel(), new StandardAuthenticationAccessLevel());
     }
@@ -58,13 +64,6 @@ public class NoOrPasswordSecuritySupport extends AbstractSecuritySupport impleme
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-            // override the password (as it is provided as a Password object instead of a String
-            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new EmptyPassword());
-            if (Password.class.isAssignableFrom(property.getClass())) {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
-            } else {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
-            }
         }
         return typedProperties;
     }
@@ -88,6 +87,16 @@ public class NoOrPasswordSecuritySupport extends AbstractSecuritySupport impleme
 
         return new DeviceProtocolSecurityPropertySet() {
             @Override
+            public String getName() {
+                return "security";
+            }
+
+            @Override
+            public String getClient() {
+                return null;
+            }
+
+            @Override
             public int getAuthenticationDeviceAccessLevel() {
                 return authenticationDeviceAccessLevel.getId();
             }
@@ -102,13 +111,6 @@ public class NoOrPasswordSecuritySupport extends AbstractSecuritySupport impleme
                 return securityRelatedTypedProperties;
             }
         };
-    }
-
-    private static class EmptyPassword implements Password {
-        @Override
-        public String getValue() {
-            return "";
-        }
     }
 
     /**

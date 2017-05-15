@@ -10,6 +10,7 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -23,17 +24,19 @@ public class AM500SecuritySupport extends DsmrSecuritySupport {
     }
 
     @Override
-    protected PropertySpec getClientMacAddressPropertySpec(PropertySpecService propertySpecService) {
-        return UPLPropertySpecFactory
-                .specBuilder(
-                    SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(),
-                    false,
-                    PropertyTranslationKeys.V2_DLMS_CLIENT_MAC_ADDRESS,
-                    () -> propertySpecService.boundedBigDecimalSpec(BigDecimal.valueOf(0), BigDecimal.valueOf(0x7F)))
-                .setDefaultValue(BigDecimal.ONE)
-                .addValues(DeviceSecurityProperty.getPossibleClientMacAddressValues(0, 0x7F))
-                .markExhaustive()
-                .finish();
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.of(
+                UPLPropertySpecFactory
+                        .specBuilder(
+                                SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(),
+                                false,
+                                PropertyTranslationKeys.V2_DLMS_CLIENT_MAC_ADDRESS,
+                                () -> propertySpecService.boundedBigDecimalSpec(BigDecimal.valueOf(0), BigDecimal.valueOf(0x7F)))
+                        .setDefaultValue(BigDecimal.ONE)
+                        .addValues(DeviceSecurityProperty.getPossibleClientMacAddressValues(0, 0x7F))
+                        .markExhaustive()
+                        .finish()
+        );
     }
 
 }

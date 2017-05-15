@@ -1,6 +1,5 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.channels.EmptyConnectionType;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.channels.inbound.EIWebPlusConnectionType;
@@ -54,6 +53,8 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -402,6 +403,11 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return this.deviceProtocolSecurityCapabilities.getSecurityProperties();
+    }
+
+    @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return this.deviceProtocolSecurityCapabilities.getClientSecurityPropertySpec();
     }
 
     @Override

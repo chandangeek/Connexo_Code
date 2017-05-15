@@ -21,7 +21,6 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
     String CLIENT_PRIVATE_KEY_AGREEMENT_KEY = "ClientPrivateKeyAgreementKey";
     String CLIENT_PRIVATE_SIGNING_KEY = "ClientPrivateSigningKey";
     String GENERAL_CIPHERING_KEY_TYPE = "GeneralCipheringKeyType";
-    String SERVER_TLS_CERTIFICATE = "ServerTLSCertificate";
 
     /** Property indicating whether the public client is pre-established or not. */
     String PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED = "PublicClient-PreEstablished";

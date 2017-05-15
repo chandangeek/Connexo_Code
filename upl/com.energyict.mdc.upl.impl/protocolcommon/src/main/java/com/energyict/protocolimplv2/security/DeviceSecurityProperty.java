@@ -3,7 +3,8 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.CertificateWrapper;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
@@ -12,40 +13,13 @@ import java.util.stream.IntStream;
 
 /**
  * Summarizes all used DeviceSecurityProperty
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 10/01/13
  * Time: 16:40
  */
 public enum DeviceSecurityProperty {
 
-    /**
-     * A plain old password, can be a high- or low level password.
-     */
-    PASSWORD {
-        @Override
-        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.PASSWORD).markRequired().finish();
-        }
-    },
-    /**
-     * A key used for encryption of bytes.
-     */
-    ENCRYPTION_KEY {
-        @Override
-        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY).markRequired().finish();
-        }
-    },
-    /**
-     * A key used for authentication to a device.
-     */
-    AUTHENTICATION_KEY {
-        @Override
-        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.AUTHENTICATION_KEY).markRequired().finish();
-        }
-    },
     /**
      * A DLMS clientMacAddress.
      */
@@ -71,58 +45,6 @@ public enum DeviceSecurityProperty {
                     .finish();
         }
     },
-
-    /**
-     * The certificate that matches the private key of the server (the DLMS device) used for digital signature.
-     * The protocols can use this certificate to verify that a received DLMS signature is valid.
-     */
-    SERVER_SIGNATURE_CERTIFICATE {
-        @Override
-        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return certificatePropertySpecBuilder(propertySpecService, SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE).markRequired().finish();
-        }
-    },
-
-    /**
-     * The certificate that matches the private key of the server (the DLMS device) used for key agreement.
-     */
-    SERVER_KEY_AGREEMENT_CERTIFICATE {
-        @Override
-        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return certificatePropertySpecBuilder(propertySpecService, SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE).markRequired().finish();
-        }
-    },
-
-    /**
-     * Defines the phase of Cryptoserver usage.
-     * 0: No Cryptoserver usage.
-     * 1: Phase 1 communication. The keys are decrypted at runtime using the Cryptoserver. The resulting plain text keys are used for the communication session but are never stored or visible.
-     * 2: Phase 2 communication. The keys are never decrypted. Each frame in the communication is encrypted/decrypted by the Cryptoserver, using the encrypted keys.
-     * S: Phase S has the same key format as for phase 0. The s indicates the meter has service keys injected.
-     */
-    CRYPTOSERVER_PHASE {
-        @Override
-        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return UPLPropertySpecFactory
-                    .specBuilder(SecurityPropertySpecName.CRYPTOSERVER_PHASE.toString(), false, propertySpecService::stringSpec)
-                    .setDefaultValue("0")
-                    .addValues("1", "2", "S")
-                    .markExhaustive()
-                    .markRequired()
-                    .finish();
-        }
-    },
-
-    SECURITY_LEVEL {
-        @Override
-        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return UPLPropertySpecFactory
-                    .specBuilder(SecurityPropertySpecName.SECURITY_LEVEL.toString(), false, propertySpecService::stringSpec)
-                    .markRequired()
-                    .finish();
-        }
-    },
-
     /**
      * A character identification of the accessing client.
      */
@@ -135,10 +57,89 @@ public enum DeviceSecurityProperty {
                     .finish();
         }
     },
+
+    /**
+     * A plain old password, can be a high- or low level password.
+     */
+    PASSWORD {
+        @Override
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.PASSWORD).markRequired().finish();
+        }
+    },
+    /**
+     * A key used for encryption of bytes.
+     */
+    ENCRYPTION_KEY {
+        @Override
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY).markRequired().finish();
+        }
+    },
+    /**
+     * A key used for authentication to a device.
+     */
+    AUTHENTICATION_KEY {
+        @Override
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.AUTHENTICATION_KEY).markRequired().finish();
+        }
+    },
+
+    /**
+     * The certificate that matches the private key of the server (the DLMS device) used for digital signature.
+     * The protocols can use this certificate to verify that a received DLMS signature is valid.
+     */
+    SERVER_SIGNATURE_CERTIFICATE {
+        @Override
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE).markRequired().finish();
+        }
+    },
+
+    /**
+     * The certificate that matches the private key of the server (the DLMS device) used for key agreement.
+     */
+    SERVER_KEY_AGREEMENT_CERTIFICATE {
+        @Override
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE).markRequired().finish();
+        }
+    },
+
+    /**
+     * Defines the phase of Cryptoserver usage.
+     * 0: No Cryptoserver usage.
+     * 1: Phase 1 communication. The keys are decrypted at runtime using the Cryptoserver. The resulting plain text keys are used for the communication session but are never stored or visible.
+     * 2: Phase 2 communication. The keys are never decrypted. Each frame in the communication is encrypted/decrypted by the Cryptoserver, using the encrypted keys.
+     * S: Phase S has the same key format as for phase 0. The s indicates the meter has service keys injected.
+     */
+    CRYPTOSERVER_PHASE {    //TODO: should this also be ReferenceSpec<KeyAccessorType>?
+        @Override
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return UPLPropertySpecFactory
+                    .specBuilder(SecurityPropertySpecName.CRYPTOSERVER_PHASE.toString(), false, propertySpecService::stringSpec)
+                    .setDefaultValue("0")
+                    .addValues("1", "2", "S")
+                    .markExhaustive()
+                    .markRequired()
+                    .finish();
+        }
+    },
+
+    SECURITY_LEVEL {    //TODO: should this also be ReferenceSpec<KeyAccessorType>?
+        @Override
+        public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
+            return UPLPropertySpecFactory
+                    .specBuilder(SecurityPropertySpecName.SECURITY_LEVEL.toString(), false, propertySpecService::stringSpec)
+                    .markRequired()
+                    .finish();
+        }
+    },
     /**
      * A username for ANSI C12 protocols.
      */
-    ANSI_C12_USER {
+    ANSI_C12_USER { //TODO: should this also be ReferenceSpec<KeyAccessorType>?
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
@@ -150,7 +151,7 @@ public enum DeviceSecurityProperty {
     /**
      * A UserId for ANSI C12 protocols.
      */
-    ANSI_C12_USER_ID {
+    ANSI_C12_USER_ID {  //TODO: should this also be ReferenceSpec<KeyAccessorType>?
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
@@ -163,7 +164,7 @@ public enum DeviceSecurityProperty {
     /**
      * Indication for ansi protocols to use a binary password.
      */
-    BINARY_PASSWORD {
+    BINARY_PASSWORD {   //TODO: should this also be ReferenceSpec<KeyAccessorType>?
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
@@ -176,7 +177,7 @@ public enum DeviceSecurityProperty {
     /**
      * ANSI ap title.
      */
-    ANSI_CALLED_AP_TITLE {
+    ANSI_CALLED_AP_TITLE {  //TODO: should this also be ReferenceSpec<KeyAccessorType>?
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
@@ -188,7 +189,7 @@ public enum DeviceSecurityProperty {
     /**
      * A key used for encryption of bytes.
      */
-    ANSI_SECURITY_KEY {
+    ANSI_SECURITY_KEY { //TODO: should this also be ReferenceSpec<KeyAccessorType>?
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.ANSI_SECURITY_KEY)
@@ -202,7 +203,7 @@ public enum DeviceSecurityProperty {
     MANUFACTURER_ENCRYPTION_KEY {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER)
+            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER)
                     .markRequired()
                     .finish();
         }
@@ -213,15 +214,15 @@ public enum DeviceSecurityProperty {
     CUSTOMER_ENCRYPTION_KEY {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER)
+            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER)
                     .markRequired()
                     .finish();
         }
     };
 
-    protected static PropertySpecBuilder certificatePropertySpecBuilder(PropertySpecService propertySpecService, SecurityPropertySpecName name) {
+    protected PropertySpecBuilder<Object> keyAccessorTypeReferenceSpecBuilder(PropertySpecService propertySpecService, SecurityPropertySpecName name) {
         return propertySpecService
-                .referenceSpec(CertificateWrapper.class.getName())
+                .referenceSpec(KeyAccessorType.class.getName())
                 .named(name.toString(), name.toString())
                 .describedAs("Description for " + name.toString());
     }

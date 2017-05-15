@@ -224,6 +224,11 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
     }
 
     @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return this.securitySupport.getClientSecurityPropertySpec();
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return this.securitySupport.getAuthenticationAccessLevels();
     }

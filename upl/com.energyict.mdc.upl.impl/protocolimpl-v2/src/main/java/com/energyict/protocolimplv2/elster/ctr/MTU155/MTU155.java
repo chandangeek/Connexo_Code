@@ -45,6 +45,7 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
@@ -391,6 +392,11 @@ public class MTU155 implements DeviceProtocol, SerialNumberSupport {
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return securityCapabilities.getSecurityProperties();
+    }
+
+    @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return securityCapabilities.getClientSecurityPropertySpec();
     }
 
     @Override

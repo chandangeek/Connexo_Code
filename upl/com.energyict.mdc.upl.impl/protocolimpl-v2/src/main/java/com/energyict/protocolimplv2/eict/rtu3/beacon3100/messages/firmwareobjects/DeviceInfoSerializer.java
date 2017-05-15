@@ -1,13 +1,12 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects;
 
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.properties.DeviceGroup;
-import com.energyict.mdc.upl.security.SecurityProperty;
-import com.energyict.mdc.upl.security.SecurityPropertySet;
+
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocol.exception.ProtocolRuntimeException;
@@ -22,8 +21,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOCOL_DIALECT;
 
@@ -96,17 +93,12 @@ public class DeviceInfoSerializer {
         //Add the first security set. Any security set is fine, as long as it can be used to create a unicast session to the meter.
         final Iterator<DeviceMasterDataExtractor.SecurityPropertySet> securityPropertySets = this.deviceMasterDataExtractor.securityPropertySets(slaveDevice).iterator();
         Collection<DeviceMasterDataExtractor.SecurityProperty> protocolSecurityProperties = new ArrayList<>();
+        DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet = null;
         if (securityPropertySets.hasNext()) {
-            protocolSecurityProperties = this.deviceMasterDataExtractor.securityProperties(slaveDevice, securityPropertySets.next());
+            securityPropertySet = securityPropertySets.next();
+            protocolSecurityProperties = this.deviceMasterDataExtractor.securityProperties(slaveDevice, securityPropertySet);
         }
-        return new DeviceInfo(generalProperties, dialectProperties, this.toUpl(protocolSecurityProperties), this.deviceMasterDataExtractor.id(slaveDevice));
-    }
-
-    private List<SecurityProperty> toUpl(Collection<DeviceMasterDataExtractor.SecurityProperty> properties) {
-        return properties
-                .stream()
-                .map(SecurityPropertyAdapter::new)
-                .collect(Collectors.toList());
+        return new DeviceInfo(generalProperties, dialectProperties, securityPropertySet, new ArrayList<>(protocolSecurityProperties), this.deviceMasterDataExtractor.id(slaveDevice));
     }
 
     private String jsonSerialize(Object object) {
@@ -122,29 +114,6 @@ public class DeviceInfoSerializer {
 
     private static ProtocolRuntimeException invalidFormatException(String propertyName, String propertyValue, String message) {
         return DeviceConfigurationException.invalidPropertyFormat(propertyName, propertyValue, message);
-    }
-
-    private static class SecurityPropertyAdapter implements SecurityProperty {
-        final DeviceMasterDataExtractor.SecurityProperty actual;
-
-        private SecurityPropertyAdapter(DeviceMasterDataExtractor.SecurityProperty actual) {
-            this.actual = actual;
-        }
-
-        @Override
-        public String getName() {
-            return this.actual.name();
-        }
-
-        @Override
-        public Object getValue() {
-            return this.actual.value();
-        }
-
-        @Override
-        public SecurityPropertySet getSecurityPropertySet() {
-            throw new UnsupportedOperationException("Getting SecurityPropertySet during serialization to DeviceInfo class is not supported");
-        }
     }
 
 }

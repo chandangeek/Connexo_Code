@@ -7,6 +7,8 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -38,7 +40,7 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.hexStringSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeDefaultTranslation),
-                    this.passwordSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeDefaultTranslation)
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeDefaultTranslation)
             );
         }
     },
@@ -118,7 +120,7 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.hexStringSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeDefaultTranslation),
-                    this.passwordSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeDefaultTranslation),
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.ZigBeeConfigurationDeviceType, DeviceMessageConstants.ZigBeeConfigurationDeviceTypeDefaultTranslation)
             );
         }
@@ -173,10 +175,10 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
                 .finish();
     }
 
-    protected PropertySpec passwordSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    protected PropertySpec keyAccessorTypeReferenceSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
-                .passwordSpec()
+                .referenceSpec(KeyAccessorType.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()
