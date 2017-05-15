@@ -594,7 +594,7 @@ public class UsagePointImpl implements ServerUsagePoint {
         validateMetrologyConfigOverlapping(metrologyConfiguration, start);
         validateMetersForOptionalContracts(this.getMeterActivations(start), optionalContractsToActivate);
         Stage stage = this.getState(start).getStage().get();
-        if (!stage.getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey())) {
+        if (!stage.getName().equals(UsagePointStage.PRE_OPERATIONAL.getKey()) && !stage.getName().equals(UsagePointStage.SUSPENDED.getKey())) {
             throw UsagePointManagementException.incorrectStage(thesaurus);
         }
         validateEffectiveMetrologyConfigurationInterval(start, end);
