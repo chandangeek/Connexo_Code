@@ -7,6 +7,11 @@ Ext.define('Apr.view.taskoverview.TaskFilter', {
     store: 'Apr.store.Tasks',
     xtype: 'taskFilter',
 
+    requires:[
+        'Apr.store.Applications',
+        'Apr.store.Queues'
+    ],
+
     initComponent: function () {
         var me = this;
 
