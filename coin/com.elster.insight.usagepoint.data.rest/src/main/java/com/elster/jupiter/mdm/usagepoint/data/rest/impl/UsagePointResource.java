@@ -1163,6 +1163,7 @@ public class UsagePointResource {
             if (info.metrologyConfiguration != null) {
                 UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
                 info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
+                resourceHelper.activateMeters(info, usagePoint);
                 checkMeterRolesActivationTime(info.metrologyConfiguration.meterRoles, usagePoint.getInstallationTime(), validationBuilder);
                 UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper.findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
                 addCalendars(info, usagePoint);

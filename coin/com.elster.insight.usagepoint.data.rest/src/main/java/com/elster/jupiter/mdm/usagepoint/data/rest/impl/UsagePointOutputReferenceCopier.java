@@ -28,6 +28,7 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -106,7 +107,7 @@ public class UsagePointOutputReferenceCopier {
                 Optional<IntervalReadingRecord> referenceRecord = Optional.ofNullable(referenceRecords.get(range.getValue().upperEndpoint()));
                 Optional<IntervalReadingRecord> sourceRecord = Optional.ofNullable(sourceRecords.get(range.getKey().upperEndpoint()));
                 if (sourceRecord.isPresent() && referenceRecord.isPresent()) {
-                    resultReadings.add(copyRecord(sourceRecord.get(), referenceRecord.get(), referenceChannelDataInfo));
+                    resultReadings.add(copyRecord(sourceRecord.get(), referenceRecord.get(), referenceChannelDataInfo, usagePoint.getZoneId()));
                 } else if (referenceRecord.isPresent()) {
                     resultReadings.add(copyRecord(referenceRecord.get(), range.getKey(), sourceChannel, referenceChannelDataInfo));
                 }
@@ -128,11 +129,12 @@ public class UsagePointOutputReferenceCopier {
         return channelDataInfo;
     }
 
-    private OutputChannelDataInfo copyRecord(IntervalReadingRecord sourceRecord, IntervalReadingRecord referenceReading, ReferenceChannelDataInfo referenceChannelDataInfo) {
+    private OutputChannelDataInfo copyRecord(IntervalReadingRecord sourceRecord, IntervalReadingRecord referenceReading, ReferenceChannelDataInfo referenceChannelDataInfo, ZoneId zoneId) {
         OutputChannelDataInfo channelDataInfo = outputChannelDataInfoFactory.createUpdatedChannelDataInfo(sourceRecord, referenceReading.getValue()
                         .scaleByPowerOfTen(referenceReading.getReadingType().getMultiplier().getMultiplier() - sourceRecord.getReadingType().getMultiplier().getMultiplier()),
                 referenceChannelDataInfo.projectedValue,
-                Optional.empty());
+                Optional.empty(),
+                zoneId);
         channelDataInfo.isProjected = referenceChannelDataInfo.projectedValue;
         return channelDataInfo;
     }
