@@ -144,7 +144,7 @@ public class UsagePointOutputsHistoryHelper {
             DataValidationStatus dataValidationStatus = evaluator.getValidationStatus(
                     EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC),
                     aggregatedChannel,
-                    instant,
+                    record.getReportedDateTime(),
                     readingQualityList);
             record.setValidationStatus(dataValidationStatus);
             record.setInterval(preFilledChannelDataMap.get(instant).getTimePeriod());
@@ -169,22 +169,22 @@ public class UsagePointOutputsHistoryHelper {
             List<? extends ReadingQualityRecord> mergedReadingQualities = new ArrayList<>();
             mergedReadingQualities.addAll(new ArrayList(readingQualityList));
             mergedReadingQualities.addAll(new ArrayList(journaledReadingQualities));
-            mergedReadingQualities.forEach(mergedReadingQuality -> {
+            mergedReadingQualities.stream().distinct().forEach(mergedReadingQuality -> {
                 Optional<? extends BaseReadingRecord> journaledReadingRecord;
                 if (mergedReadingQuality.getTypeCode().compareTo("3.5.258") == 0 || mergedReadingQuality.getTypeCode()
                         .compareTo("3.5.259") == 0) {
                     journaledReadingRecord = value.getValue().stream()
-                            .sorted(Comparator.comparing(BaseReading::getTimeStamp).reversed())
-                            .filter(record -> record.getTimeStamp().equals(mergedReadingQuality.getReadingTimestamp()))
+                            .sorted(Comparator.comparing(JournaledReadingRecord::getReportedDateTime).reversed())
+                            .filter(record -> record.getReportedDateTime().compareTo(mergedReadingQuality.getTimestamp()) <= 0)
                             .findFirst();
                 } else {
                     journaledReadingRecord = value.getValue().stream()
-                            .sorted(Comparator.comparing(BaseReading::getTimeStamp))
-                            .filter(record -> record.getTimeStamp().equals(mergedReadingQuality.getReadingTimestamp()))
+                            .sorted(Comparator.comparing(JournaledReadingRecord::getReportedDateTime))
+                            .filter(record -> record.getReportedDateTime().compareTo(mergedReadingQuality.getTimestamp()) >= 0)
                             .findFirst();
                 }
-                journaledReadingRecord.ifPresent(journalReadingRecord -> {
-                    List<ReadingQualityRecord> qualityRecords = (List<ReadingQualityRecord>) ((JournaledReadingRecord) journalReadingRecord)
+                journaledReadingRecord.ifPresent(record -> {
+                    List<ReadingQualityRecord> qualityRecords = (List<ReadingQualityRecord>) ((JournaledReadingRecord) record)
                             .getReadingRecordQualities();
                     qualityRecords.add(mergedReadingQuality);
                     ((JournaledReadingRecord) journaledReadingRecord.get()).setReadingQualityRecords(qualityRecords);
@@ -208,12 +208,11 @@ public class UsagePointOutputsHistoryHelper {
                 .forEach(baseReadingRecords ->
                         baseReadingRecords.forEach(baseReadingRecord ->
                                 map.put(baseReadingRecord, preFilledChannelDataMap.get(baseReadingRecord.getTimeStamp()))));
-        List<JournaledReadingRecord> result = historicalReadings.entrySet()
+
+        return historicalReadings.entrySet()
                 .stream()
                 .flatMap(value -> value.getValue().stream())
                 .collect(Collectors.toList());
-
-        return result;
     }
 
     private Map<Instant, List<JournaledReadingRecord>> mapJournaledRecordsByTimestamp(List<? extends BaseReadingRecord> records) {

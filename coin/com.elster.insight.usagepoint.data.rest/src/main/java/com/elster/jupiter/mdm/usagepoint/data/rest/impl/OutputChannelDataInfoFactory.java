@@ -6,14 +6,16 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.JournaledChannelReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityComment;
-import com.elster.jupiter.metering.JournaledChannelReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.rest.util.IntervalInfo;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.ExtraCollectors;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
@@ -27,6 +29,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -175,18 +178,31 @@ public class OutputChannelDataInfoFactory {
                 outputChannelDataInfo.value = record.getValue();
                 outputChannelDataInfo.interval = IntervalInfo.from(record.getInterval());
                 outputChannelDataInfo.dataValidated = record.getValidationStatus().completelyValidated();
-                outputChannelDataInfo.journalTime = ((JournaledChannelReadingRecord)storedRecord).getJournalTime();
-                outputChannelDataInfo.userName = ((JournaledChannelReadingRecord)storedRecord).getUserName();
+                outputChannelDataInfo.journalTime = ((JournaledChannelReadingRecord) storedRecord).getJournalTime();
+                outputChannelDataInfo.userName = ((JournaledChannelReadingRecord) storedRecord).getUserName();
                 outputChannelDataInfo.reportedDateTime = record.getReportedDateTime();
+
+                extractModificationFlag(record, record.getValidationStatus()).ifPresent(modificationFlag -> {
+                    outputChannelDataInfo.modificationFlag = modificationFlag.getFirst();
+                    outputChannelDataInfo.editedInApp = modificationFlag.getLast().getType().system().map(ReadingModificationFlag::getApplicationInfo).orElse(null);
+                    if (modificationFlag.getLast() instanceof ReadingQualityRecord) {
+                        Instant timestamp = ((ReadingQualityRecord) modificationFlag.getLast()).getTimestamp();
+                        outputChannelDataInfo.modificationDate = timestamp;
+                        if (timestamp != null) {
+                            outputChannelDataInfo.reportedDateTime = timestamp;
+                        }
+                    }
+                });
+
                 if (record.getReadingQualities() != null) {
                     outputChannelDataInfo.readingQualities = record.getReadingQualities().stream()
                             .map(readingQualityInfoFactory::asInfo)
                             .collect(Collectors.toList());
+                    setEstimationComment(outputChannelDataInfo, record.getReadingQualities());
                 }
                 setValidationStatus(outputChannelDataInfo, record.getValidationStatus(), record);
                 infos.add(outputChannelDataInfo);
-            }
-            else {
+            } else {
                 OutputChannelHistoryDataInfo outputChannelHistoryDataInfo = new OutputChannelHistoryDataInfo();
                 outputChannelHistoryDataInfo.value = record.getValue();
                 outputChannelHistoryDataInfo.interval = IntervalInfo.from(record.getInterval());
@@ -225,5 +241,32 @@ public class OutputChannelDataInfoFactory {
                 .stream()
                 .anyMatch(quality -> quality.getType().isConfirmed());
         outputChannelDataInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
+    }
+
+    private void setEstimationComment(OutputChannelHistoryDataInfo info, List<? extends ReadingQuality> readingQualities) {
+        readingQualities.stream()
+                .map(ReadingQuality::getComment)
+                .filter(Objects::nonNull)
+                .filter(comment -> !Checks.is(comment).emptyOrOnlyWhiteSpace())
+                .findFirst()
+                .ifPresent(comment -> {
+                    info.commentId = getCommentIdByValue(comment);
+                    info.commentValue = comment;
+        });
+    }
+
+    private long getCommentIdByValue(String commentValue) {
+        return meteringService.getAllReadingQualityComments(ReadingQualityCommentCategory.ESTIMATION)
+                .stream()
+                .filter(readingQualityComment -> readingQualityComment.getComment().equals(commentValue))
+                .map(ReadingQualityComment::getId)
+                .findFirst().orElse(0L);
+    }
+
+    private Optional<Pair<ReadingModificationFlag, ReadingQuality>> extractModificationFlag(JournaledReadingRecord readingRecord, DataValidationStatus validationStatus) {
+        return Optional.ofNullable(
+                ReadingModificationFlag.getModificationFlagWithQualityRecord(
+                        validationStatus.getReadingQualities(),
+                        Optional.ofNullable(readingRecord)));
     }
 }

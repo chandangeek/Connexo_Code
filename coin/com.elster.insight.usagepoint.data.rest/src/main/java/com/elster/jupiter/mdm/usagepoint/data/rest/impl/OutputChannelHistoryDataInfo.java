@@ -19,6 +19,9 @@ public class OutputChannelHistoryDataInfo extends OutputChannelDataInfo {
     @JsonProperty("version")
     public long version;
 
+    public long commentId;
+    public String commentValue;
+
     public OutputChannelHistoryDataInfo() {
     }
 }
