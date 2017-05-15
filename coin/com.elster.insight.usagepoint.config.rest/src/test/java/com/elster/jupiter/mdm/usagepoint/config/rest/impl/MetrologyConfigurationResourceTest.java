@@ -105,9 +105,9 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(this.config1.getContracts()).thenReturn(Collections.singletonList(this.metrologyContract1));
         when(this.config2.getContracts()).thenReturn(Collections.singletonList(this.metrologyContract2));
 
-        ValidationRuleSetVersion validationRuleSetVersion = mockValidationRuleSetVersion(vrs);
-        ValidationRuleSetVersion validationRuleSetVersion2 = mockValidationRuleSetVersion(vrs2);
-        ValidationRuleSetVersion validationRuleSetVersion3 = mockValidationRuleSetVersion(vrs3);
+        ValidationRuleSetVersion validationRuleSetVersion = mockValidationRuleSetVersion(vrs, 1);
+        ValidationRuleSetVersion validationRuleSetVersion2 = mockValidationRuleSetVersion(vrs2, 2);
+        ValidationRuleSetVersion validationRuleSetVersion3 = mockValidationRuleSetVersion(vrs3, 3);
         EstimationRule estimationRule = mock(EstimationRule.class);
         doReturn(Collections.singleton(mockReadingType())).when(estimationRule).getReadingTypes();
         when(ers.getName()).thenReturn("EstimationRuleSet");
@@ -148,10 +148,11 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(usagePointConfigurationService.isLinkableEstimationRuleSet(metrologyContract1, ers, Arrays.asList(ers2, ers3))).thenReturn(true);
     }
 
-    private ValidationRuleSetVersion mockValidationRuleSetVersion(ValidationRuleSet validationRuleSet) {
+    private ValidationRuleSetVersion mockValidationRuleSetVersion(ValidationRuleSet validationRuleSet, long id) {
         ValidationRuleSetVersion validationRuleSetVersion = mock(ValidationRuleSetVersion.class);
         ValidationRule validationRule = mock(ValidationRule.class);
         ReadingType readingType = mockReadingType();
+        when(validationRuleSetVersion.getId()).thenReturn(id);
         when(validationRuleSetVersion.getStatus()).thenReturn(ValidationVersionStatus.CURRENT);
         when(validationRuleSetVersion.getRuleSet()).thenReturn(validationRuleSet);
         doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
@@ -330,8 +331,32 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         String json = target("/metrologyconfigurations/1/contracts").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<Integer>get("$.contracts[0].validationRuleSets[0].id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.contracts[0].validationRuleSets[0].name")).isEqualTo("ValidationRuleSet");
+        assertThat(jsonModel.<List<?>>get("$.contracts[*]")).hasSize(1);
+        assertThat(jsonModel.<List<?>>get("$.contracts[0].validationRuleSets[*]")).hasSize(1);
+        JsonModel ruleSet = jsonModel.getSubModel("$.contracts[0].validationRuleSets[0]");
+        assertThat(ruleSet.<Integer>get("$.id")).isEqualTo(1);
+        assertThat(ruleSet.<String>get("$.name")).isEqualTo("ValidationRuleSet");
+        assertThat(ruleSet.<Boolean>get("$.hasCurrent")).isTrue();
+        assertThat(ruleSet.<Integer>get("$.currentVersionId")).isEqualTo(1);
+        assertThat(ruleSet.<Integer>get("$.currentVersion.id")).isEqualTo(1);
+        assertThat(ruleSet.<String>get("$.currentVersion.status")).isEqualTo(ValidationVersionStatus.CURRENT.name());
+        assertThat(ruleSet.<Integer>get("$.currentVersion.numberOfRules")).isEqualTo(1);
+    }
+
+    @Test
+    public void testLinkedValidationRuleSetsWithNoActiveVersions() {
+        vrs.getRuleSetVersions().forEach(version -> when(version.getStatus()).thenReturn(ValidationVersionStatus.FUTURE));
+        String json = target("/metrologyconfigurations/1/contracts").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List<?>>get("$.contracts[*]")).hasSize(1);
+        assertThat(jsonModel.<List<?>>get("$.contracts[0].validationRuleSets[*]")).hasSize(1);
+        JsonModel ruleSet = jsonModel.getSubModel("$.contracts[0].validationRuleSets[0]");
+        assertThat(ruleSet.<Integer>get("$.id")).isEqualTo(1);
+        assertThat(ruleSet.<String>get("$.name")).isEqualTo("ValidationRuleSet");
+        assertThat(ruleSet.<Boolean>get("$.hasCurrent")).isFalse();
+        assertThat(ruleSet.hasPath("$.currentVersionId")).isFalse();
+        assertThat(ruleSet.hasPath("$.currentVersion")).isFalse();
     }
 
     @Test

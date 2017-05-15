@@ -22,9 +22,9 @@ public class ValidationRuleSetInfo {
     public Long startDate;
     public Long endDate;
     public int numberOfVersions;
-    public Boolean hasCurrent;
+    public boolean hasCurrent;
     public long version;
-    public long currentVersionId;
+    public Long currentVersionId;
     public ValidationRuleSetVersionInfo currentVersion;
     public List<UsagePointLifeCycleStateInfo> lifeCycleStates;
 

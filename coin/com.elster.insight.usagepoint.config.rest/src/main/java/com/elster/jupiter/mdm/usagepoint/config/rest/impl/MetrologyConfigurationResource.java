@@ -31,10 +31,10 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.ValidationVersionStatus;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
+import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -58,7 +58,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -237,14 +237,13 @@ public class MetrologyConfigurationResource {
             List<ValidationRuleSetInfo> validationRuleSetInfos = new ArrayList<>();
             if (!usagePointConfigurationService.getValidationRuleSets(metrologyContract).isEmpty()) {
                 for (ValidationRuleSet validationRuleSet : usagePointConfigurationService.getValidationRuleSets(metrologyContract)) {
-                    ValidationRuleSetVersion activeRuleSetVersion = validationRuleSet.getRuleSetVersions()
+                    ValidationRuleSetInfo validationRuleSetInfo = new ValidationRuleSetInfo(validationRuleSet,
+                            resourceHelper.getUsagePointLifeCycleStateInfos(metrologyContract, validationRuleSet));
+                    validationRuleSet.getRuleSetVersions()
                             .stream()
                             .filter(validationRuleSetVersion -> validationRuleSetVersion.getStatus() == ValidationVersionStatus.CURRENT)
                             .findFirst()
-                            .get();
-                    ValidationRuleSetInfo validationRuleSetInfo = new ValidationRuleSetInfo(validationRuleSet,
-                            activeRuleSetVersion,
-                            resourceHelper.getUsagePointLifeCycleStateInfos(metrologyContract, validationRuleSet));
+                            .ifPresent(version -> validationRuleSetInfo.currentVersion = new ValidationRuleSetVersionInfo(version));
                     validationRuleSetInfos.add(validationRuleSetInfo);
                 }
             }
@@ -258,7 +257,7 @@ public class MetrologyConfigurationResource {
             metrologyContractInfo.estimationRuleSets = estimationRuleSetInfos;
             metrologyContractInfos.add(metrologyContractInfo);
         }
-        Collections.sort(metrologyContractInfos, (MetrologyContractInfo a, MetrologyContractInfo b) -> a.name.compareTo(b.name));
+        metrologyContractInfos.sort(Comparator.comparing(a -> a.name, String.CASE_INSENSITIVE_ORDER));
         return PagedInfoList.fromCompleteList("contracts", metrologyContractInfos, queryParameters);
     }
 
