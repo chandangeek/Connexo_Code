@@ -1,15 +1,13 @@
 package com.energyict.mdc.upl;
 
-import com.energyict.mdc.upl.crypto.KeyStoreService;
-import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.io.UPLSocketService;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Formatter;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
@@ -21,7 +19,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.SecurityService;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -39,7 +36,6 @@ public class Services {
     private static AtomicReference<ObjectMapperService> OBJECT_MAPPER_SERVICE = new AtomicReference<>();
     private static AtomicReference<PropertySpecService> PROPERTY_SPEC_SERVICE = new AtomicReference<>();
     private static AtomicReference<NlsService> NLS_SERVICE = new AtomicReference<>();
-    private static AtomicReference<SecurityService> SECURITY_SERVICE = new AtomicReference<>();
     private static AtomicReference<UPLSocketService> SOCKET_SERVICE = new AtomicReference<>();
     private static AtomicReference<Converter> CONVERTER = new AtomicReference<>();
     private static AtomicReference<DeviceMasterDataExtractor> DEVICE_MASTER_DATA_EXTRACTOR = new AtomicReference<>();
@@ -56,11 +52,9 @@ public class Services {
     private static AtomicReference<CollectedDataFactory> COLLECTED_DATA_FACTORY = new AtomicReference<>();
     private static AtomicReference<IssueFactory> ISSUE_FACTORY = new AtomicReference<>();
     private static AtomicReference<Formatter> FORMATTER = new AtomicReference<>();
-    private static AtomicReference<X509Service> X509 = new AtomicReference<>();
-    private static AtomicReference<KeyStoreService> KEY_STORE_SERVICE = new AtomicReference<>();
     private static AtomicReference<CertificateWrapperExtractor> CERTIFICATE_WRAPPER_EXTRACTOR = new AtomicReference<>();
-    private static AtomicReference<CertificateAliasFinder> CERTIFICATE_ALIAS_FINDER = new AtomicReference<>();
     private static AtomicReference<DeviceIdentifier.Finder> DEVICE_FINDER = new AtomicReference<>();
+    private static AtomicReference<KeyAccessorTypeExtractor> KEY_ACCESSOR_TYPE_EXTRACTOR = new AtomicReference<>();
 
     public static Object serviceOfType(Class serviceType) {
         if (PropertySpecService.class.equals(serviceType)) {
@@ -71,8 +65,6 @@ public class Services {
             return objectMapperService();
         } else if (NlsService.class.equals(serviceType)) {
             return nlsService();
-        } else if (SecurityService.class.equals(serviceType)) {
-            return securityService();
         } else if (UPLSocketService.class.equals(serviceType)) {
             return socketService();
         } else if (Converter.class.equals(serviceType)) {
@@ -83,8 +75,6 @@ public class Services {
             return numberLookupFinder();
         } else if (CertificateWrapperExtractor.class.equals(serviceType)) {
             return certificateWrapperExtractor();
-        } else if (CertificateAliasFinder.class.equals(serviceType)) {
-            return certificateAliasFinder();
         } else if (LoadProfileExtractor.class.equals(serviceType)) {
             return loadProfileExtractor();
         } else if (DeviceMasterDataExtractor.class.equals(serviceType)) {
@@ -107,12 +97,10 @@ public class Services {
             return issueFactory();
         } else if (Formatter.class.equals(serviceType)) {
             return formatter();
-        } else if (X509Service.class.equals(serviceType)) {
-            return x509Service();
-        } else if (KeyStoreService.class.equals(serviceType)) {
-            return keyStoreService();
         } else if (RegisterExtractor.class.equals(serviceType)) {
             return registerExtractor();
+        } else if (KeyAccessorTypeExtractor.class.equals(serviceType)) {
+            return keyAccessorTypeExtractor();
         } else {
             throw new UnknownServiceType(serviceType);
         }
@@ -148,14 +136,6 @@ public class Services {
 
     public static void nlsService(NlsService nlsService) {
         NLS_SERVICE.set(nlsService);
-    }
-
-    public static SecurityService securityService() {
-        return SECURITY_SERVICE.get();
-    }
-
-    public static void securityService(SecurityService securityService) {
-        SECURITY_SERVICE.set(securityService);
     }
 
     public static UPLSocketService socketService() {
@@ -212,14 +192,6 @@ public class Services {
 
     public static void certificateWrapperExtractor(CertificateWrapperExtractor certificateWrapperExtractor) {
         CERTIFICATE_WRAPPER_EXTRACTOR.set(certificateWrapperExtractor);
-    }
-
-    public static CertificateAliasFinder certificateAliasFinder() {
-        return CERTIFICATE_ALIAS_FINDER.get();
-    }
-
-    public static void certificateAliasFinder(CertificateAliasFinder certificateAliasFinder) {
-        CERTIFICATE_ALIAS_FINDER.set(certificateAliasFinder);
     }
 
     public static DeviceMasterDataExtractor deviceMasterDataExtractor() {
@@ -302,28 +274,20 @@ public class Services {
         FORMATTER.set(dateFormatter);
     }
 
-    public static X509Service x509Service() {
-        return X509.get();
-    }
-
-    public static void x509Service(X509Service x509Service) {
-        X509.set(x509Service);
-    }
-
-    public static KeyStoreService keyStoreService() {
-        return KEY_STORE_SERVICE.get();
-    }
-
-    public static void keyStoreService(KeyStoreService service) {
-        KEY_STORE_SERVICE.set(service);
-    }
-
     public static DeviceIdentifier.Finder deviceFinder() {
         return DEVICE_FINDER.get();
     }
 
     public static void deviceFinder(DeviceIdentifier.Finder deviceFinder) {
         DEVICE_FINDER.set(deviceFinder);
+    }
+
+    public static KeyAccessorTypeExtractor keyAccessorTypeExtractor() {
+        return KEY_ACCESSOR_TYPE_EXTRACTOR.get();
+    }
+
+    public static void keyAccessorTypeExtractor(KeyAccessorTypeExtractor extractor) {
+        KEY_ACCESSOR_TYPE_EXTRACTOR.set(extractor);
     }
 
     /**

@@ -73,14 +73,6 @@ public interface PropertySpecService {
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
-     * {@link PropertySpec} of {@link Password} values.
-     *
-     * @return The PropertySpecBuilder
-     */
-    PropertySpecBuilderWizard.NlsOptions<Password> passwordSpec();
-
-    /**
-     * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of Boolean values.
      *
      * @return The PropertySpecBuilder

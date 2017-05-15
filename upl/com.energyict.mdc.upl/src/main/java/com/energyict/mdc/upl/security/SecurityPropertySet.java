@@ -13,6 +13,8 @@ package com.energyict.mdc.upl.security;
  */
 public interface SecurityPropertySet {
 
+    String getClient();
+
     AuthenticationDeviceAccessLevel getAuthenticationDeviceAccessLevel();
 
     int getAuthenticationDeviceAccessLevelId();

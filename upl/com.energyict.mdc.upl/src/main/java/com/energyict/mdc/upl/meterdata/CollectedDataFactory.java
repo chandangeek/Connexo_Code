@@ -6,7 +6,8 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.upl.security.CertificateAlias;
+import com.energyict.mdc.upl.security.CertificateWrapper;
+
 import com.energyict.obis.ObisCode;
 
 import java.security.cert.X509Certificate;
@@ -56,7 +57,7 @@ public interface CollectedDataFactory {
      * This adds a certificate (with a given alias) in the EIServer DLMS trust store.
      * No device properties are updated with this alias though.
      */
-    CollectedMessage createCollectedMessageWithCertificates(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, List<CertificateAlias> certificateAliases);
+    CollectedMessage createCollectedMessageWithCertificates(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, List<CertificateWrapper> certificateWrappers);
 
     CollectedMessageList createCollectedMessageList(List<OfflineDeviceMessage> offlineDeviceMessages);
 

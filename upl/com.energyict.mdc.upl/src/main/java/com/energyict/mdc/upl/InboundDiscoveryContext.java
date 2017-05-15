@@ -1,11 +1,8 @@
 package com.energyict.mdc.upl;
 
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.upl.crypto.KeyStoreService;
-import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -15,11 +12,10 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.SecurityProperty;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -89,13 +85,7 @@ public interface InboundDiscoveryContext {
 
     DeviceMessageFileExtractor getMessageFileExtractor();
 
-    KeyStoreService getKeyStoreService();
-
     CertificateWrapperExtractor getCertificateWrapperExtractor();
-
-    CertificateAliasFinder getCertificateAliasFinder();
-
-    X509Service getX509Service();
 
     /**
      * Gets the {@link TypedProperties} of the {@link ConnectionType}
@@ -107,13 +97,13 @@ public interface InboundDiscoveryContext {
     Optional<TypedProperties> getConnectionTypeProperties(DeviceIdentifier deviceIdentifier);
 
     /**
-     * Gets the {@link SecurityProperty security properties} of the
+     * Gets the {@link DeviceProtocolSecurityPropertySet} of the
      * Device that is currently communicating in this context.
      *
      * @param deviceIdentifier The object that uniquely identifies the Device
-     * @return The List of SecurityProperty or <code>Optional.empty()</code> if the Device is not ready for inbound communication
+     * @return The DeviceProtocolSecurityPropertySet or <code>Optional.empty()</code> if the Device is not ready for inbound communication
      */
-    Optional<List<? extends SecurityProperty>> getProtocolSecurityProperties(DeviceIdentifier deviceIdentifier);
+    Optional<DeviceProtocolSecurityPropertySet> getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier);
 
     /**
      * Returns the dialect properties for the

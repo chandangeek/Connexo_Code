@@ -1,15 +1,12 @@
-package com.energyict.mdc.protocol.security;
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.upl.security.RequestSecurityLevel;
-import com.energyict.mdc.upl.security.ResponseSecurityLevel;
-import com.energyict.mdc.upl.security.SecuritySuite;
+package com.energyict.mdc.upl.security;
 
 /**
- * Models advanced security options
- *
- * @author khe
- * @since 8/02/2016 - 11:33
+ * @author stijn
+ * @since 04.05.17 - 16:48
  */
 public interface AdvancedDeviceProtocolSecurityPropertySet extends DeviceProtocolSecurityPropertySet {
 
