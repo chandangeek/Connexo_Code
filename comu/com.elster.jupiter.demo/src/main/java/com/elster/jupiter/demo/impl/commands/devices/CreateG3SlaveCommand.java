@@ -10,18 +10,15 @@ import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPost
 import com.elster.jupiter.demo.impl.commands.ActivateDevicesCommand;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
+import com.elster.jupiter.pki.PkiService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
-import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.TimeZone;
@@ -46,8 +43,7 @@ public class CreateG3SlaveCommand {
                         .setProperty("PSK", "00112233445566778899AABBCCDDEEFF")
                         .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
                         .setProperty("HLSsecretASCII", "1234567890123456")
-                        .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
-                        .setProperty("ClientMacAddress", BigDecimal.ONE);
+                        .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"));
             }
         },
         AS220 {
@@ -64,8 +60,7 @@ public class CreateG3SlaveCommand {
                         .setProperty("PSK", "92DA010836AA91222BCBEA49713DD9C1")
                         .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
                         .setProperty("HLSsecretASCII", "1234567890123456")
-                        .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
-                        .setProperty("ClientMacAddress", BigDecimal.ONE);
+                        .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"));
             }
         };
 
@@ -73,6 +68,7 @@ public class CreateG3SlaveCommand {
 
     }
 
+    private final PkiService pkiService;
     private final Provider<ActivateDevicesCommand> lifecyclePostBuilder;
 
     private String name;
@@ -81,7 +77,8 @@ public class CreateG3SlaveCommand {
 
 
     @Inject
-    public CreateG3SlaveCommand(Provider<ActivateDevicesCommand> lifecyclePostBuilder) {
+    public CreateG3SlaveCommand(PkiService pkiService, Provider<ActivateDevicesCommand> lifecyclePostBuilder) {
+        this.pkiService = pkiService;
         this.lifecyclePostBuilder = lifecyclePostBuilder;
     }
 
@@ -98,6 +95,7 @@ public class CreateG3SlaveCommand {
 
     public void run() {
         DeviceConfiguration deviceConfiguration = getConfiguration();
+        meterConfig.setPkiService(pkiService);
         meterConfig.setDeviceConfiguration(deviceConfiguration);
         meterConfig.setSecurityPropertySet(deviceConfiguration.getSecurityPropertySets().stream().filter(s -> SECURITY_SET_NAME.equals(s.getName())).findFirst().get());
 
@@ -138,6 +136,7 @@ public class CreateG3SlaveCommand {
         private TypedProperties props = TypedProperties.empty();
         private DeviceConfiguration deviceConfiguration;
         private SecurityPropertySet securityPropertySet;
+        private PkiService pkiService;
 
         MeterConfig() {
         }
@@ -163,10 +162,12 @@ public class CreateG3SlaveCommand {
             return securityPropertySet;
         }
 
-        TypedProperties getSecuritySetProperties(){
-            TypedProperties securitySetProperties = TypedProperties.empty();
-            securitySetProperties.setProperty("ClientMacAddress", props.getProperty("ClientMacAddress"));
-            return securitySetProperties;
+        public PkiService getPkiService() {
+            return pkiService;
+        }
+
+        public void setPkiService(PkiService pkiService) {
+            this.pkiService = pkiService;
         }
 
         Device getDevice() {
@@ -174,7 +175,7 @@ public class CreateG3SlaveCommand {
                     .withName((String) props.getProperty("name"))
                     .withDeviceConfiguration(deviceConfiguration)
                     .withSerialNumber((String) props.getProperty("serialNumber"))
-                    .withPostBuilder(new SecurityPropertyPostBuilder(this))
+                    .withPostBuilder(new SecurityPropertyPostBuilder(this, getPkiService()))
                     .withPostBuilder(new ProtocolPropertyPostBuilder(this))
                     .get();
         }
@@ -185,38 +186,34 @@ public class CreateG3SlaveCommand {
         @Override
         public void accept(DeviceConfiguration configuration) {
              configuration.createSecurityPropertySet(SECURITY_SET_NAME)
-                     .authenticationLevel(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue())
-                     .encryptionLevel(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue())
-                     .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1)
-                     .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
-                     .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1)
-                     .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2)
+                     .authenticationLevel(3)    //HIGH_LEVEL_MD5
+                     .encryptionLevel(0)        //NO_ENCRYPTION
                      .build();
         }
     }
 
     private static class SecurityPropertyPostBuilder implements Consumer<Device>{
         MeterConfig meterConfig;
+        PkiService pkiService;
 
-        SecurityPropertyPostBuilder(MeterConfig meterConfig){
+        SecurityPropertyPostBuilder(MeterConfig meterConfig, PkiService pkiService){
             this.meterConfig = meterConfig;
+            this.pkiService = pkiService;
         }
 
         @Override
         public void accept(Device device) {
             SecurityPropertySet securityPropertySet = meterConfig.getSecurityPropertySet();
-            TypedProperties typedProperties = meterConfig.getSecuritySetProperties();
-
             securityPropertySet
                     .getPropertySpecs()
                     .stream()
                     .filter(ps -> "Password".equals(ps.getName()))
                     .findFirst()
-                    .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("1234567890123456")));
+                    .ifPresent(ps -> getKeyAccessorValuePersister().persistKeyAccessorValue(device, "Password", "1234567890123456"));
+        }
 
-            device.setSecurityProperties(securityPropertySet, typedProperties);
-
-            device.save();
+        private KeyAccessorValuePersister getKeyAccessorValuePersister() {
+               return new KeyAccessorValuePersister(pkiService);
         }
     }
 

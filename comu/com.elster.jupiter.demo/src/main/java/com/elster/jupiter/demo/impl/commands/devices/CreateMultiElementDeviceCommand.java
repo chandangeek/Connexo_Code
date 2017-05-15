@@ -5,7 +5,6 @@
 package com.elster.jupiter.demo.impl.commands.devices;
 
 import com.elster.jupiter.demo.impl.Builders;
-import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
@@ -14,29 +13,19 @@ import com.elster.jupiter.demo.impl.commands.ActivateDevicesCommand;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
-import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
-import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -152,29 +141,9 @@ public class CreateMultiElementDeviceCommand {
                 .withYearOfCertification(2015)
                 .withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder())
                 .get();
-       // addConnectionTasksToDevice(device);
-       // device = deviceBuilderProvider.get().withName(name).get();
-       // addSecurityPropertiesToDevice(device);
-       // device = deviceBuilderProvider.get().withName(name).get();
         addComTaskToDevice(device, ComTaskTpl.READ_DATA_LOGGER_REGISTER_DATA);
         addComTaskToDevice(device, ComTaskTpl.READ_DATA_LOGGER_LOAD_PROFILE_DATA);
         return deviceBuilderProvider.get().withName(name).get();
-    }
-
-
-    private void addConnectionTasksToDevice(Device device) {
-        DeviceConfiguration configuration = device.getDeviceConfiguration();
-        PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
-        ScheduledConnectionTask deviceConnectionTask = device.getScheduledConnectionTaskBuilder(connectionTask)
-                .setComPortPool(Builders.from(OutboundTCPComPortPoolTpl.ORANGE).get())
-                .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
-                .setNextExecutionSpecsFrom(null)
-                .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "localhost")
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), new BigDecimal(4059))
-                .setNumberOfSimultaneousConnections(1)
-                .add();
-        connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
     }
 
     private void addComTaskToDevice(Device device, ComTaskTpl comTask) {
@@ -182,50 +151,4 @@ public class CreateMultiElementDeviceCommand {
         ComTaskEnablement taskEnablement = configuration.getComTaskEnablementFor(comTasks.get(comTask)).get();
         device.newManuallyScheduledComTaskExecution(taskEnablement, null).add();
     }
-
-    private void addSecurityPropertiesToDevice(Device device) {
-        DeviceConfiguration configuration = device.getDeviceConfiguration();
-        SecurityPropertySet securityPropertySetHigh =
-                configuration
-                        .getSecurityPropertySets()
-                        .stream()
-                        .filter(sps -> SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5.getName().equals(sps.getName()))
-                        .findFirst()
-                        .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5.getName() + "."));
-        TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty("ClientMacAddress", BigDecimal.ONE);
-        securityPropertySetHigh
-                .getPropertySpecs()
-                .stream()
-                .filter(ps -> "Password".equals(ps.getName()))
-                .findFirst()
-                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("ntaSim")));
-        securityPropertySetHigh
-                .getPropertySpecs()
-                .stream()
-                .filter(ps -> "AuthenticationKey".equals(ps.getName()))
-                .findFirst()
-                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00112233445566778899AABBCCDDEEFF")));
-        securityPropertySetHigh
-                .getPropertySpecs()
-                .stream()
-                .filter(ps -> "EncryptionKey".equals(ps.getName()))
-                .findFirst()
-                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
-        device.setSecurityProperties(securityPropertySetHigh, typedProperties);
-
-        SecurityPropertySet securityPropertySetNone =
-                configuration
-                        .getSecurityPropertySets()
-                        .stream()
-                        .filter(sps -> SecurityPropertySetTpl.NO_SECURITY.getName().equals(sps.getName()))
-                        .findFirst()
-                        .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SecurityPropertySetTpl.NO_SECURITY.getName() + "."));
-        TypedProperties typedPropertiesNone = TypedProperties.empty();
-        typedPropertiesNone.setProperty("ClientMacAddress", BigDecimal.ONE);
-        device.setSecurityProperties(securityPropertySetNone, typedProperties);
-
-        device.save();
-    }
-
 }

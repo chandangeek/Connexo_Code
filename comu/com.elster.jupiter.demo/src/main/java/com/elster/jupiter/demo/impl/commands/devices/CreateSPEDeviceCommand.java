@@ -10,7 +10,6 @@ import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.WebRTUNTASimultationToolPropertyPostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.ConnectionsDevicePostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.SecurityPropertiesDevicePostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetCustomAttributeValuesToDevicePostBuilder;
 import com.elster.jupiter.demo.impl.commands.ActivateDevicesCommand;
 import com.elster.jupiter.demo.impl.commands.AddLocationInfoToDevicesCommand;
@@ -146,7 +145,6 @@ public class CreateSPEDeviceCommand {
                 .withPostBuilder(this.connectionsDevicePostBuilderProvider.get()
                         .withComPortPool(Builders.from(deviceTypeTpl.getPoolTpl()).get())
                         .withHost(this.host))
-                .withPostBuilder(new SecurityPropertiesDevicePostBuilder())
                 .withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder())
                 .withPostBuilder(this.setCustomAttributeValuesToDevicePostBuilderProvider.get())
                 .get();

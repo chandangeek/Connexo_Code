@@ -20,7 +20,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -37,8 +36,8 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.energyict.obis.ObisCode;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -163,9 +162,6 @@ public class CreateA3DeviceCommand {
                 .addProperty("portNumber", new BigDecimal(1153))
                 .asDefault(true).build();
         SecurityPropertySet securityPropertySet = configuration.createSecurityPropertySet(SECURITY_PROPERTY_NAME).authenticationLevel(2).encryptionLevel(2).build();
-        for (DeviceSecurityUserAction action : DeviceSecurityUserAction.values()) {
-            securityPropertySet.addUserAction(action);
-        }
         securityPropertySet.update();
         addComTasksToDeviceConfiguration(configuration,
                 ComTaskTpl.READ_LOAD_PROFILE_DATA,
@@ -233,9 +229,9 @@ public class CreateA3DeviceCommand {
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "166.150.217.174")
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), new BigDecimal(1153))
-                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.propertySpecName(), TimeDuration.minutes(1))
+                .setProperty("host", "166.150.217.174")
+                .setProperty("portNumber", new BigDecimal(1153))
+                .setProperty("connectionTimeout", TimeDuration.minutes(1))
                 .setNumberOfSimultaneousConnections(1)
                 .add();
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
@@ -269,6 +265,6 @@ public class CreateA3DeviceCommand {
                 .filter(ps -> "Password".equals(ps.getName()))
                 .findFirst()
                 .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00000000000000000000")));
-        device.setSecurityProperties(securityPropertySet, typedProperties);
+//        device.setSecurityProperties(securityPropertySet, typedProperties);   //TODO: should be replaced KeyAccessorValuePersister#persistKeyAccessorValue
     }
 }

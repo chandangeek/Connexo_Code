@@ -269,6 +269,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.alarms</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pki</artifactId>
+        </dependency>
 
         <!-- TESTS -->
         <dependency>

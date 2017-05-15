@@ -42,7 +42,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -396,7 +395,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         for (int i = 0; i < nrOfCorruptedDevices; i++) {
             int devicePosition = (int) ((devices.size() - 1) * Math.random());
             devices.get(devicePosition).getScheduledConnectionTasks().forEach(connectionTask -> {
-                connectionTask.setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "UNKNOWN");
+                connectionTask.setProperty("host", "UNKNOWN");
                 connectionTask.saveAllProperties();
             });
             devicesWithCorruptedConnectionSettings.add(devices.get(devicePosition).getName());

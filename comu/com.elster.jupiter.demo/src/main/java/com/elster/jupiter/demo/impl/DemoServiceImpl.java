@@ -58,6 +58,8 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.PassphraseFactory;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeService;
@@ -188,6 +190,8 @@ public class DemoServiceImpl {
     private volatile CommandRuleService commandRuleService;
     private volatile UsagePointLifeCycleService usagePointLifeCycleService;
     private volatile UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
+    private volatile PkiService pkiService;
+    private volatile PassphraseFactory passphraseFactory;
 
     private volatile TopologyService topologyService;
 
@@ -244,7 +248,9 @@ public class DemoServiceImpl {
             DataQualityKpiService dataQualityKpiService,
             TopologyService topologyService,
             UsagePointLifeCycleService usagePointLifeCycleService,
-            UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
+            UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
+            PkiService pkiService,
+            PassphraseFactory passphraseFactory) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -293,6 +299,8 @@ public class DemoServiceImpl {
         setDataQualityKpiService(dataQualityKpiService);
         setUsagePointLifeCycleService(usagePointLifeCycleService);
         setUsagePointLifeCycleConfigurationService(usagePointLifeCycleConfigurationService);
+        setPkiService(pkiService);
+        setPassphraseFactory(passphraseFactory);
         activate();
         reThrowEx = true;
     }
@@ -352,6 +360,7 @@ public class DemoServiceImpl {
                 bind(DataQualityKpiService.class).toInstance(dataQualityKpiService);
                 bind(UsagePointLifeCycleService.class).toInstance(usagePointLifeCycleService);
                 bind(UsagePointLifeCycleConfigurationService.class).toInstance(usagePointLifeCycleConfigurationService);
+                bind(PkiService.class).toInstance(pkiService);
             }
         });
         Builders.initWith(this.injector);
@@ -629,6 +638,18 @@ public class DemoServiceImpl {
     @Reference
     public void setUsagePointLifeCycleConfigurationService(UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setPkiService(PkiService pkiService) {
+        this.pkiService = pkiService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setPassphraseFactory(PassphraseFactory passphraseFactory) {
+        this.passphraseFactory = passphraseFactory;
     }
 
     private void executeTransaction(Runnable toRunInsideTransaction) {
