@@ -50,7 +50,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         {ref: 'leftCommunicationDetails', selector: '#left-communication-details'},
         {ref: 'rightCommunicationDetails', selector: '#right-communication-details'},
         {ref: 'showConnectionDetailsButton', selector: '#btn-show-connection-details'},
+        {ref: 'hideConnectionDetailsButton', selector: '#btn-hide-connection-details'},
         {ref: 'showCommunicationDetailsButton', selector: '#btn-show-communication-details'},
+        {ref: 'hideCommunicationDetailsButton', selector: '#btn-hide-communication-details'},
         {ref: 'connectionSummaryField', selector: '#connection-summary'},
         {ref: 'communicationSummaryField', selector: '#communication-summary'},
         {ref: 'comPortField', selector: '#comPort'},
@@ -85,8 +87,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
             'button[action=showConnectionDetails]': {
                 click: this.showConnectionDetails
             },
+            'button[action=hideConnectionDetails]': {
+                click: this.hideConnectionDetails
+            },
             'button[action=showCommunicationDetails]': {
                 click: this.showCommunicationDetails
+            },
+            'button[action=hideCommunicationDetails]': {
+                click: this.hideCommunicationDetails
             }
         });
     },
@@ -149,8 +157,12 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         me.getRightConnectionDetails().setVisible(!errorList.length > 0);
         me.getLeftConnectionDetails().setVisible(!errorList.length > 0);
         me.getShowConnectionDetailsButton().setVisible(errorList.length > 0);
-        connectionSummary.setVisible(errorList.length > 0);
-        connectionSummary.setValue(errorList.join('<br/>'));
+        me.getHideConnectionDetailsButton().setVisible(!errorList.length > 0);
+        if(errorList.length > 0){
+            connectionSummary.setValue(errorList.join('<br/>'));
+        }else{
+            Uni.I18n.translate('deviceconnectionhistory.noErrorsOrWarnings', 'MDC', 'No errors or warnings.')
+        }
 
         me.getStatusLink().setValue('<a href="#/devices/' + this.deviceId
             + '/connectionmethods/'
@@ -207,8 +219,12 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         me.getRightCommunicationDetails().setVisible(!errorList.length > 0);
         me.getLeftCommunicationDetails().setVisible(!errorList.length > 0);
         me.getShowCommunicationDetailsButton().setVisible(errorList.length > 0);
-        communicationSummary.setVisible(errorList.length > 0);
-        communicationSummary.setValue(errorList.join('<br/>'));
+        me.getHideCommunicationDetailsButton().setVisible(!errorList.length > 0);
+        if(errorList.length > 0){
+            communicationSummary.setValue(errorList.join('<br/>'));
+        }else {
+            Uni.I18n.translate('devicecommunicationhistory.noErrorsOrWarnings', 'MDC', 'No errors or warnings.');
+        }
 
         deviceCommunicationTaskExecutionPreviewMenu.record = communication;
         me.getDeviceCommunicationTaskExecutionPreview().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), communication.get('name'), me.device.get('name')));
@@ -274,6 +290,16 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         me.getRightConnectionDetails().setVisible(true);
         me.getLeftConnectionDetails().setVisible(true);
         me.getShowConnectionDetailsButton().setVisible(false);
+        me.getHideConnectionDetailsButton().setVisible(true);
+    },
+
+    hideConnectionDetails: function (){
+        var me = this;
+
+        me.getRightConnectionDetails().setVisible(false);
+        me.getLeftConnectionDetails().setVisible(false);
+        me.getShowConnectionDetailsButton().setVisible(true);
+        me.getHideConnectionDetailsButton().setVisible(false);
     },
 
     showCommunicationDetails: function (){
@@ -282,6 +308,16 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
         me.getRightCommunicationDetails().setVisible(true);
         me.getLeftCommunicationDetails().setVisible(true);
         me.getShowCommunicationDetailsButton().setVisible(false);
+        me.getHideCommunicationDetailsButton().setVisible(true);
+    },
+
+    hideCommunicationDetails: function (){
+        var me = this;
+
+        me.getRightCommunicationDetails().setVisible(false);
+        me.getLeftCommunicationDetails().setVisible(false);
+        me.getShowCommunicationDetailsButton().setVisible(true);
+        me.getHideCommunicationDetailsButton().setVisible(false);
     },
 
     previewConnectionLog: function () {
