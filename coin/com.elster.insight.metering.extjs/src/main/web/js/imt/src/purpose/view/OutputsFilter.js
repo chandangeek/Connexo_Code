@@ -4,6 +4,9 @@ Ext.define('Imt.purpose.view.OutputsFilter', {
     store: 'Imt.purpose.store.Outputs',
     hasDefaultFilters: true,
     defaultPeriod: null,
+    requires: [
+        'Imt.usagepointmanagement.store.Periods'
+    ],
 
     initComponent: function () {
         var me = this;
