@@ -6,6 +6,15 @@ Ext.define('Bpm.view.task.TasksTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'bpm-view-tasks-topfilter',
     store: 'Bpm.store.task.Tasks',
+
+    requires: [
+        'Bpm.store.task.TasksFilterDueDates',
+        'Bpm.store.task.TasksFilterProcesses',
+        'Bpm.store.task.TasksFilterStatuses',
+        'Bpm.store.task.TasksFilterWorkgroups',
+        'Bpm.store.task.TasksFilterUsers'
+    ],
+
     initComponent: function () {
         var me = this;
 
@@ -61,7 +70,7 @@ Ext.define('Bpm.view.task.TasksTopFilter', {
                 valueField: 'name',
                 store: 'Bpm.store.task.TasksFilterUsers'
             }
-        ]
+        ];
         me.callParent(arguments);
     }
     });

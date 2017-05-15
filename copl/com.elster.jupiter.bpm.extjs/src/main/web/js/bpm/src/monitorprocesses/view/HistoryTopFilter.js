@@ -6,6 +6,13 @@ Ext.define('Bpm.monitorprocesses.view.HistoryTopFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     xtype: 'bpm-view-history-processes-topfilter',
     store: 'Bpm.monitorprocesses.store.HistoryProcesses',
+
+    requires: [
+        'Bpm.monitorprocesses.store.HistoryProcessesFilterProcesses',
+        'Bpm.monitorprocesses.store.HistoryProcessesFilterStatuses',
+        'Bpm.monitorprocesses.store.HistoryProcessesFilterUsers'
+    ],
+
     initComponent: function () {
         var me = this;
 
