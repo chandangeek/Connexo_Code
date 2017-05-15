@@ -5,13 +5,10 @@
 package com.elster.jupiter.demo.impl.commands.devices;
 
 import com.elster.jupiter.demo.impl.Builders;
-import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
-import com.elster.jupiter.demo.impl.builders.device.SecurityPropertiesDevicePostBuilder;
 import com.elster.jupiter.demo.impl.commands.ActivateDevicesCommand;
 import com.elster.jupiter.demo.impl.commands.AddLocationInfoToDevicesCommand;
-import com.elster.jupiter.demo.impl.commands.CreateUsagePointsForDevicesCommand;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -113,8 +110,7 @@ public class CreateHANDeviceCommand {
                     .withShippingDate(this.clock.instant().minusSeconds(60))
                     .withSerialNumber(serialPrefix + this.serialNumber.substring(0, 8) + serialSuffix)
                     .withDeviceConfiguration(this.deviceConfiguration)
-                    .withComSchedules(Collections.singletonList(Builders.from(comschedule).get()))
-                    .withPostBuilder(new SecurityPropertiesDevicePostBuilder());
+                    .withComSchedules(Collections.singletonList(Builders.from(comschedule).get()));
             deviceBuilder.get();
 
             Device device = deviceService.findDeviceByName(name).get();
