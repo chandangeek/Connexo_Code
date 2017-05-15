@@ -64,6 +64,7 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -523,7 +524,6 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
             getDeviceSecuritySupport().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
         } else {
             this.smartMeterProtocolSecuritySupportAdapter.setSecurityPropertySet(deviceProtocolSecurityPropertySet);
-            this.meterProtocol.addProperties(this.propertiesAdapter.getProperties());
         }
         this.meterProtocol.addProperties(this.propertiesAdapter.getProperties());
     }
