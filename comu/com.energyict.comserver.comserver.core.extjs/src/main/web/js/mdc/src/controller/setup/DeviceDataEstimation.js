@@ -191,7 +191,8 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
             ruleSetIsActive = record.get('active'),
             page = me.getPage();
 
-        record.getProxy().setExtraParam('mRID', encodeURIComponent(me.mRID));
+        record.getProxy().setExtraParam('mRID', encodeURIComponent(me.device.get('mRID')));
+        record.getProxy().setExtraParam('deviceId', encodeURIComponent(me.deviceId));
         record.set('active', !ruleSetIsActive);
         page.setLoading();
         record.save({

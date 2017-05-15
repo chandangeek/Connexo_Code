@@ -10,10 +10,12 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'readingTime', dateFormat: 'time', type: 'date'},
         {name: 'value', type: 'float', useNull: true },
         {name: 'isBulk', type: 'boolean'},
+        {name: 'isProjected', type: 'boolean', defaultValue: false},
         {name: 'collectedValue', type: 'float', useNull: true},
         {name: 'intervalFlags', type: 'auto'},
         {name: 'validationStatus', type: 'auto'},
         {name: 'estimatedNotSaved', type: 'auto'},
+        {name: 'estimatedCommentNotSaved', type: 'auto'},
         {name: 'validationActive', type: 'auto'},
         {name: 'mainValidationInfo', type: 'auto'},
         {name: 'bulkValidationInfo', type: 'auto'},
@@ -24,6 +26,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'slaveChannel', type: 'auto', defaultValue: null},
         'plotband',
         {name: 'readingQualities', type: 'auto', defaultValue: null},
+        {name: 'channelPeriodType', type: 'string', defaultValue: 'other'},
         {
             name: 'interval_end',
             persist: false,
@@ -87,6 +90,32 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
             }
         },
         {
+            name: 'mainCommentValue',
+            type: 'string',
+            mapping: function (data) {
+                var result = null,
+                    mainValidationInfo = data.mainValidationInfo;
+
+                if (mainValidationInfo && mainValidationInfo.commentValue) {
+                    result = mainValidationInfo.commentValue;
+                }
+                return result;
+            }
+        },
+        {
+            name: 'bulkCommentValue',
+            type: 'string',
+            mapping: function (data) {
+                var result = null,
+                    bulkValidationInfo = data.bulkValidationInfo;
+
+                if (bulkValidationInfo && bulkValidationInfo.commentValue) {
+                    result = bulkValidationInfo.commentValue;
+                }
+                return result;
+            }
+        },
+        {
             name: 'readingProperties',
             persist: false,
             mapping: function (data) {
@@ -122,6 +151,24 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                 }
                 return result;
             }
+        },
+        {
+            name: 'potentialSuspect',
+            persist: false,
+            defaultValue: false
+        },
+        {
+            name: 'bulkPotentialSuspect',
+            persist: false,
+            defaultValue: false
+        },
+        {
+            name: 'validationRules',
+            persist: false
+        },
+        {
+            name: 'bulkValidationRules',
+            persist: false
         }
     ],
 

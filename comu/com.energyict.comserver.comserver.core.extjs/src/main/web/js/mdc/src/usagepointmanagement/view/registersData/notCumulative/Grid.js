@@ -45,7 +45,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Grid', {
                         dataIndex: 'measurementPeriod',
                         flex: 2,
                         renderer: function (value) {
-                            if(!Ext.isEmpty(value)) {
+                            if (!Ext.isEmpty(value)) {
                                 var endDate = new Date(value.end);
                                 if (value.start && value.end) {
                                     var startDate = new Date(value.start);

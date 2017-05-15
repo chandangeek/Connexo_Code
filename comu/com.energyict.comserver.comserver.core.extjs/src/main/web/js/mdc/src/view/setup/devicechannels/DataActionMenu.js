@@ -15,6 +15,19 @@ Ext.define('Mdc.view.setup.devicechannels.DataActionMenu', {
                 section: this.SECTION_VIEW
             },
             {
+                itemId: 'confirm-value',
+                hidden: true,
+                text: Uni.I18n.translate('general.confirm', 'MDC', 'Confirm'),
+                action: 'confirmValue',
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'copy-form-value',
+                text: Uni.I18n.translate('general.copyFromReference', 'MDC', 'Copy from reference'),
+                action: 'copyFromReference',
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'edit-value',
                 text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                 action: 'editValue',
@@ -22,10 +35,17 @@ Ext.define('Mdc.view.setup.devicechannels.DataActionMenu', {
                 section: this.SECTION_EDIT
             },
             {
-                itemId: 'confirm-value',
+                itemId: 'correct-value',
                 hidden: true,
-                text: Uni.I18n.translate('general.confirm', 'MDC', 'Confirm'),
-                action: 'confirmValue',
+                text: Uni.I18n.translate('general.correct', 'MDC', 'Correct'),
+                action: 'correctValue',
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'edit-estimation-comment',
+                hidden: true,
+                text: Uni.I18n.translate('general.editEstimationComment', 'MDC', 'Edit estimation comment'),
+                action: 'editEstimationComment',
                 section: this.SECTION_ACTION
             },
             {

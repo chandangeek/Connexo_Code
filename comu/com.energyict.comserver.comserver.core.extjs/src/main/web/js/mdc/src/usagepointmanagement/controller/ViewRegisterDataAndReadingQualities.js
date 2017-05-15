@@ -111,8 +111,8 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewRegisterDataAndReadingQualit
 
     setDataFilter: function () {
         return {
-                defaultFromDate: moment().startOf('day').subtract(1, 'years').toDate(),
-                defaultDuration: '1years'
-            };
+            defaultFromDate: moment().startOf('day').subtract(1, 'years').toDate(),
+            defaultDuration: '1years'
+        };
     }
 });

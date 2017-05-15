@@ -59,7 +59,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
                     name: 'measurementPeriod',
                     htmlEncode: false,
                     renderer: function (value) {
-                        if(!Ext.isEmpty(value)) {
+                        if (!Ext.isEmpty(value)) {
                             var endDate = new Date(value.end);
                             if (value.start && value.end) {
                                 var startDate = new Date(value.start);
@@ -93,8 +93,8 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.event.Preview', {
         if (me.register.get('registerType') === 'EVENT_BILLING_VALUE') {
             var interval = record.get('measurementPeriod'),
                 title = Uni.I18n.translate(
-                'general.dateAtTime', 'MDC', '{0} at {1}',
-                [Uni.DateTime.formatDateTimeShort(new Date(interval.end)), Uni.DateTime.formatDateTimeShort(new Date(interval.end))], false);
+                    'general.dateAtTime', 'MDC', '{0} at {1}',
+                    [Uni.DateTime.formatDateTimeShort(new Date(interval.end)), Uni.DateTime.formatDateTimeShort(new Date(interval.end))], false);
         } else {
             var time = record.get('measurementTime'),
                 title = time ? Uni.DateTime.formatDateTimeShort(new Date(time)) : '-';
