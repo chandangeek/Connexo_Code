@@ -65,6 +65,8 @@ import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -78,6 +80,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -235,8 +238,10 @@ public class ValidationOnStoreIT {
 
                 validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                     @Override
-                    public List<ValidationRuleSet> resolve(ValidationContext validationContext) {
-                        return Collections.singletonList(validationRuleSet);
+                    public Map<ValidationRuleSet, RangeSet<Instant>> resolve(ValidationContext validationContext) {
+                        RangeSet<Instant> rangeSet = TreeRangeSet.create();
+                        rangeSet.add(Range.atLeast(date1));
+                        return Collections.singletonMap(validationRuleSet, rangeSet);
                     }
 
                     @Override

@@ -45,6 +45,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.DataValidationTask;
@@ -63,6 +64,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 import org.osgi.framework.BundleContext;
 
 import javax.inject.Provider;
@@ -84,6 +87,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -113,6 +117,8 @@ import static org.mockito.Mockito.when;
 public class ValidationServiceImplTest {
 
     private static final String NAME = "name";
+    private static final String RULESETNAME1 = "rulesetname1";
+    private static final String RULESETNAME2 = "rulesetname2";
     private static final QualityCodeSystem SYSTEM = QualityCodeSystem.MDC;
     private static final long ID = 561651L;
     private ValidationServiceImpl validationService;
@@ -225,8 +231,11 @@ public class ValidationServiceImplTest {
     @Mock
     private SearchService searchService;
 
+    RangeSet<Instant> rangeSet = TreeRangeSet.create();
+
     @Before
     public void setUp() {
+        rangeSet.add(Range.atLeast(Instant.EPOCH));
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.isInstalled()).thenReturn(true);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
@@ -254,6 +263,7 @@ public class ValidationServiceImplTest {
         doReturn(channel2).when(cimChannel2).getChannel();
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainer.getStart()).thenReturn(Instant.EPOCH);
+        when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.atLeast(Instant.EPOCH)));
         doReturn(fetcher).when(cimChannel1).findReadingQualities();
 
         validationService = new ValidationServiceImpl(bundleContext, clock, messageService, eventService, taskService, meteringService,
@@ -385,7 +395,9 @@ public class ValidationServiceImplTest {
         ValidationRule validationRule = mock(IValidationRule.class);
         doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
         doReturn(Collections.singletonList(validationRule)).when(validationRuleSet).getRules(anyList());
-        when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Collections.singletonList(validationRuleSet));
+
+        when(validationRuleSetResolver.resolve(any(ValidationContext.class)))
+                .thenReturn(Collections.singletonMap(validationRuleSet, rangeSet));
         validationService.validate(Collections.emptySet(), channelsContainer);
 
         ArgumentCaptor<ChannelsContainerValidation> channelsContainerValidationArgumentCaptor = ArgumentCaptor.forClass(ChannelsContainerValidation.class);
@@ -429,7 +441,7 @@ public class ValidationServiceImplTest {
         ValidationRule validationRule = mock(IValidationRule.class);
         doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
         doReturn(Collections.singletonList(validationRule)).when(validationRuleSet).getRules(anyList());
-        when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Collections.singletonList(validationRuleSet));
+        when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Collections.singletonMap(validationRuleSet, rangeSet));
         Map<Channel, Range<Instant>> changeScope = ImmutableMap.of(channel1, Range.atLeast(Instant.EPOCH));
         validationService.validate(channelsContainer, changeScope);
         verify(channelsContainerValidation1).moveLastCheckedBefore(ImmutableMap.of(channel1.getId(), Range.atLeast(Instant.EPOCH)));
@@ -448,23 +460,28 @@ public class ValidationServiceImplTest {
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.of(meterValidation));
         when(meterValidation.getActivationStatus()).thenReturn(true);
 
-        ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(NAME, SYSTEM);
-        validationRuleSet.save();
+        IValidationRuleSet validationRuleSet = mock(IValidationRuleSet.class);
+        when(validationRuleSet.getId()).thenReturn(1L);
+        when(dataModel.getInstance(ChannelsContainerValidationImpl.class))
+                .thenReturn(new ChannelsContainerValidationImpl(dataModel, clock))
+                .thenReturn(new ChannelsContainerValidationImpl(dataModel, clock))
+                .thenReturn(new ChannelsContainerValidationImpl(dataModel, clock));
 
-        when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Collections.singletonList(validationRuleSet));
+        when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Collections.singletonMap(validationRuleSet, rangeSet));
         validationService.validate(Collections.emptySet(), channelsContainer);
 
-        List<ChannelsContainerValidation> channelsContainerValidations = validationService
+        List<? extends ChannelsContainerValidation> channelsContainerValidations = validationService
                 .getUpdatedChannelsContainerValidations(new ValidationContextImpl(channelsContainer));
         assertThat(channelsContainerValidations).hasSize(1);
         assertThat(channelsContainerValidations.get(0).getChannelsContainer()).isEqualTo(channelsContainer);
         assertThat(channelsContainerValidations.get(0).getRuleSet()).isEqualTo(validationRuleSet);
         ChannelsContainerValidation activationRuleSet1 = channelsContainerValidations.get(0);
 
-        ValidationRuleSet validationRuleSet2 = validationService.createValidationRuleSet(NAME, SYSTEM);
-        validationRuleSet2.save();
+        IValidationRuleSet validationRuleSet2 = mock(IValidationRuleSet.class);
+        when(validationRuleSet2.getId()).thenReturn(2L);
 
-        when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Arrays.asList(validationRuleSet, validationRuleSet2));
+        doReturn(Stream.of(validationRuleSet, validationRuleSet2).collect(Collectors.toMap(e -> e, e -> rangeSet)))
+                .when(validationRuleSetResolver).resolve(any(ValidationContext.class));
         validationService.validate(Collections.emptySet(), channelsContainer);
         channelsContainerValidations = validationService.getUpdatedChannelsContainerValidations(new ValidationContextImpl(channelsContainer));
         assertThat(channelsContainerValidations).hasSize(2);
@@ -473,7 +490,8 @@ public class ValidationServiceImplTest {
         assertThat(channelsContainerValidations.stream().map(ChannelsContainerValidation::getRuleSet).collect(Collectors.toSet()))
                 .containsOnly(validationRuleSet, validationRuleSet2);
 
-        when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Collections.singletonList(validationRuleSet2));
+        when(validationRuleSetResolver.resolve(any(ValidationContext.class)))
+                .thenReturn(Collections.singletonMap(validationRuleSet2, rangeSet));
         validationService.validate(Collections.emptySet(), channelsContainer);
         channelsContainerValidations = validationService.getUpdatedChannelsContainerValidations(new ValidationContextImpl(channelsContainer));
         assertThat(channelsContainerValidations).hasSize(1);
@@ -767,7 +785,7 @@ public class ValidationServiceImplTest {
         when(meter.getId()).thenReturn(ID);
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
         when(meterValidationFactory.getOptional(ID)).thenReturn(Optional.empty());
-        when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Collections.emptyList());
+        when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Collections.emptyMap());
 
 
         validationService.activateValidation(meter);
@@ -968,9 +986,11 @@ public class ValidationServiceImplTest {
         when(mdcValidationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
         IValidationRuleSet mdmValidationRuleSet = mock(IValidationRuleSet.class);
         when(mdmValidationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
-        when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Arrays.asList(mdcValidationRuleSet, mdmValidationRuleSet));
+        when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Stream.of(mdcValidationRuleSet, mdmValidationRuleSet)
+                .collect(Collectors.toMap(e -> e, e -> rangeSet)));
         ChannelsContainerValidationImpl channelsContainerValidation = mock(ChannelsContainerValidationImpl.class);
         when(dataModel.getInstance(ChannelsContainerValidationImpl.class)).thenReturn(channelsContainerValidation);
+        when(channelsContainerValidation.init(eq(channelsContainer))).thenReturn(channelsContainerValidation);
         when(channelsContainerValidation.init(channelsContainer)).thenReturn(channelsContainerValidation);
         when(channelsContainerValidation.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainerValidation.getRuleSet()).thenReturn(mdcValidationRuleSet);
@@ -978,7 +998,7 @@ public class ValidationServiceImplTest {
         validationService.validate(EnumSet.of(QualityCodeSystem.MDC), channelsContainer);
 
         verify(validationRuleSetResolver).resolve(any(ValidationContext.class));
-        verify(channelsContainerValidation).init(channelsContainer);
+        verify(channelsContainerValidation).init(eq(channelsContainer));
     }
 
     @Test
@@ -988,9 +1008,11 @@ public class ValidationServiceImplTest {
         when(mdcValidationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
         IValidationRuleSet mdmValidationRuleSet = mock(IValidationRuleSet.class);
         when(mdmValidationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
-        when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Arrays.asList(mdcValidationRuleSet, mdmValidationRuleSet));
+        when(validationRuleSetResolver.resolve(any(ValidationContext.class))).thenReturn(Stream.of(mdcValidationRuleSet, mdmValidationRuleSet)
+                .collect(Collectors.toMap(e -> e, e -> rangeSet)));
         ChannelsContainerValidationImpl channelsContainerValidation = mock(ChannelsContainerValidationImpl.class);
         when(dataModel.getInstance(ChannelsContainerValidationImpl.class)).thenReturn(channelsContainerValidation);
+        when(channelsContainerValidation.init(eq(channelsContainer))).thenReturn(channelsContainerValidation);
         when(channelsContainerValidation.init(channelsContainer)).thenReturn(channelsContainerValidation);
         when(channelsContainerValidation.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainerValidation.getRuleSet()).thenReturn(mdcValidationRuleSet);
@@ -998,6 +1020,6 @@ public class ValidationServiceImplTest {
         validationService.validate(Collections.emptySet(), channelsContainer);
 
         verify(validationRuleSetResolver).resolve(any(ValidationContext.class));
-        verify(channelsContainerValidation, times(2)).init(channelsContainer);
+        verify(channelsContainerValidation, times(2)).init(eq(channelsContainer));
     }
 }

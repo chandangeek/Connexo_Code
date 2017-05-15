@@ -142,6 +142,17 @@ public interface ValidationService {
     void validate(ValidationContext validationContext, Instant validateAtMostFrom);
 
     /**
+     * Validates the scope of data corresponding to a given {@link ValidationContext} on a given interval.
+     *
+     * @param validationContext Target {@link ValidationContext}.
+     * @param interval An interval of data that requires (re)validation, i.e.
+     * (re)validation will be performed starting from the start of a given interval inclusively until the end of interval.
+     * However if current last checked timestamp for a part of given {@code validationContext} is before the start of interval,
+     * validation will be performed starting from last checked timestamp exclusively.
+     */
+    void validate(ValidationContext validationContext, Range<Instant> interval);
+
+    /**
      * Resets last checked date on {@link Channel Channels} specified in the given map before the beginning of corresponding {@link Range Ranges},
      * and re-validates the data again if 'validation-on-storage' is active on their {@link ChannelsContainer ChannelsContainers}.
      * Does not take channel dependencies into account, i.e. does not guarantee the order of validation.

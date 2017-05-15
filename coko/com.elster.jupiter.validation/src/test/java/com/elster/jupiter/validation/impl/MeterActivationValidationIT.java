@@ -61,6 +61,8 @@ import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -72,7 +74,6 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.After;
@@ -115,6 +116,7 @@ public class MeterActivationValidationIT {
     @Mock
     private KpiService kpiService;
 
+    private RangeSet<Instant> rangeSet = TreeRangeSet.create();
 
     private class MockModule extends AbstractModule {
 
@@ -129,7 +131,8 @@ public class MeterActivationValidationIT {
 
     @Before
     public void setUp() throws SQLException {
-        when(ruleSetResolver.resolve(any())).thenAnswer(invocation -> Arrays.asList(validationRuleSet));
+        rangeSet.add(Range.atLeast(Instant.EPOCH));
+        when(ruleSetResolver.resolve(any())).thenAnswer(invocation -> Collections.singletonMap(validationRuleSet, rangeSet));
         when(validatorFactory.available()).thenReturn(Collections.singletonList("autoPass"));
         when(validatorFactory.create("autoPass", Collections.emptyMap())).thenReturn(validator);
         when(validatorFactory.createTemplate("autoPass")).thenReturn(validator);

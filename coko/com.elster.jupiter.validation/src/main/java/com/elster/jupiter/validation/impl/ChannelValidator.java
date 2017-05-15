@@ -142,7 +142,7 @@ class ChannelValidator {
     }
 
     private void handleRuleFailed(ValidatedResult target) {
-        if (!isEditedConfirmedOrEstimated(target.getTimestamp())) {
+        if (!isConfirmed(target.getTimestamp())) {
             setValidationQuality(target);
             if (ValidationAction.FAIL.equals(rule.getAction())) {
                 setSuspectQuality(target, rule.getRuleSet().getQualityCodeSystem());
@@ -184,13 +184,10 @@ class ChannelValidator {
                 .findFirst();
     }
 
-    private boolean isEditedConfirmedOrEstimated(Instant timeStamp) {
+    private boolean isConfirmed(Instant timeStamp) {
         return existingReadingQualities.get(timeStamp).stream()
                 .filter(ReadingQualityRecord::isActual)
-                .anyMatch(
-                        either(ReadingQualityRecord::isConfirmed)
-                                .or(ReadingQualityRecord::hasEstimatedCategory)
-                );
+                .anyMatch(ReadingQualityRecord::isConfirmed);
     }
 
     private Instant determineLastChecked(ValidatedResult target, Instant lastChecked) {
