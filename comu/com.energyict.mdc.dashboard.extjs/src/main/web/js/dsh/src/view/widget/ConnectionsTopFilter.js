@@ -8,6 +8,17 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
 
     store: 'Dsh.store.ConnectionTasks',
 
+    requires:[
+        'Dsh.store.filter.Devices',
+        'Dsh.store.filter.DeviceGroup',
+        'Dsh.store.filter.CurrentState',
+        'Dsh.store.filter.LatestStatus',
+        'Dsh.store.filter.LatestResult',
+        'Dsh.store.filter.CommPortPool',
+        'Dsh.store.filter.ConnectionType',
+        'Dsh.store.filter.DeviceType'
+    ],
+
     initComponent: function () {
         var me = this,
             devicesStore = Ext.getStore('Dsh.store.filter.Devices') || Ext.create('Dsh.store.filter.Devices');
