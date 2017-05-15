@@ -199,7 +199,9 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
                 Stream.of(com.elster.protocolimpl.nls.PropertyTranslationKeys.values()),
                 Stream.of(com.elster.us.nls.PropertyTranslationKeys.values()),
                 Stream.of(com.energyict.protocolimpl.nls.PropertyTranslationKeys.values()),
-                Stream.of(com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys.values()))
+                Stream.of(com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys.values()),
+                Stream.of(com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys.values()),
+                Stream.of(com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys.values()))
                 .flatMap(Function.identity())
                 .map(com.energyict.mdc.upl.nls.TranslationKey.class::cast)
                 .map(ConnexoTranslationKeyAdapter::new)
