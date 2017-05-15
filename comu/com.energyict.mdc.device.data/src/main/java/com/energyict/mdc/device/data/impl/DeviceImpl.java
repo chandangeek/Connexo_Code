@@ -184,6 +184,7 @@ import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -197,12 +198,12 @@ import javax.validation.ConstraintValidatorContext;
 import javax.validation.Payload;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import javax.xml.bind.DatatypeConverter;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -1303,7 +1304,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 if (actualValue instanceof PlaintextSymmetricKey) {
                     PlaintextSymmetricKey plaintextSymmetricKey = (PlaintextSymmetricKey) actualValue;
                     if (plaintextSymmetricKey.getKey().isPresent()) {
-                        securityProperties.setProperty(configurationSecurityProperty.getName(), new String(plaintextSymmetricKey.getKey().get().getEncoded(), Charset.forName("UTF-8")));
+                        securityProperties.setProperty(configurationSecurityProperty.getName(), DatatypeConverter.printHexBinary(plaintextSymmetricKey.getKey().get().getEncoded()));
                     }
                 } else if (actualValue instanceof PlaintextPassphrase) {
                     PlaintextPassphrase plaintextPassphrase = (PlaintextPassphrase) actualValue;
