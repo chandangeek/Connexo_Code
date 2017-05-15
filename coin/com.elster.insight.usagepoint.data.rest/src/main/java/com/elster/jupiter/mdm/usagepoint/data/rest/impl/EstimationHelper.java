@@ -26,9 +26,9 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +104,7 @@ public class EstimationHelper {
         for (EstimationResult result : results) {
             for (EstimationBlock block : result.estimated()) {
                 for (Estimatable estimatable : block.estimatables()) {
-                    getChannelDataInfo(estimatable, channelData, markAsProjected, readingQualityComment).ifPresent(info ->  {
+                    getChannelDataInfo(estimatable, channelData, markAsProjected, readingQualityComment, channel.getZoneId()).ifPresent(info ->  {
                         info.isProjected = markAsProjected;
                         channelDataInfos.add(info);
                     });
@@ -123,14 +123,14 @@ public class EstimationHelper {
     }
 
 
-    private Optional<OutputChannelDataInfo> getChannelDataInfo(Estimatable estimatable, List<IntervalReadingRecord> channelData, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment) {
+    private Optional<OutputChannelDataInfo> getChannelDataInfo(Estimatable estimatable, List<IntervalReadingRecord> channelData, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment, ZoneId zoneId) {
         return channelData.stream()
                 .filter(readingRecord -> readingRecord.getTimeStamp().equals(estimatable.getTimestamp()))
-                .map(readingRecord -> getChannelDataInfo(readingRecord, estimatable, markAsProjected, readingQualityComment))
+                .map(readingRecord -> getChannelDataInfo(readingRecord, estimatable, markAsProjected, readingQualityComment, zoneId))
                 .findFirst();
     }
 
-    private OutputChannelDataInfo getChannelDataInfo(IntervalReadingRecord reading, Estimatable estimatable, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment) {
-        return channelDataInfoFactory.createUpdatedChannelDataInfo(reading, estimatable.getEstimation(), markAsProjected, readingQualityComment);
+    private OutputChannelDataInfo getChannelDataInfo(IntervalReadingRecord reading, Estimatable estimatable, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment, ZoneId zoneId) {
+        return channelDataInfoFactory.createUpdatedChannelDataInfo(reading, estimatable.getEstimation(), markAsProjected, readingQualityComment, zoneId);
     }
 }

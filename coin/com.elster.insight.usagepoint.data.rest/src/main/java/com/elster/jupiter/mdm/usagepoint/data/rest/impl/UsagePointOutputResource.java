@@ -90,6 +90,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1295,7 +1296,7 @@ public class UsagePointOutputResource {
                     List<IntervalReadingRecord> intervalReadingRecords = channel.getIntervalReadings(intervals);
                     result.addAll(intervalReadingRecords.stream()
                             .filter(record -> timestamps.contains(record.getTimeStamp()))
-                            .map(readingRecord -> createCorrectedChannelDataInfo(info, readingRecord))
+                            .map(readingRecord -> createCorrectedChannelDataInfo(info, readingRecord, usagePoint.getZoneId()))
                             .collect(Collectors.toList()));
                 });
 
@@ -1314,9 +1315,9 @@ public class UsagePointOutputResource {
         return filter.hasProperty("suspect") ? hasSuspects : info -> true;
     }
 
-    private OutputChannelDataInfo createCorrectedChannelDataInfo(ValueCorrectionInfo info, IntervalReadingRecord record) {
+    private OutputChannelDataInfo createCorrectedChannelDataInfo(ValueCorrectionInfo info, IntervalReadingRecord record, ZoneId zoneId) {
         return outputChannelDataInfoFactory.createUpdatedChannelDataInfo(record, info.type.apply(record.getValue(), info.amount), info.projected,
-                resourceHelper.getReadingQualityComment(info.commentId));
+                resourceHelper.getReadingQualityComment(info.commentId), zoneId);
     }
 
     private String getFullAliasNameElement(ReadingType readingType) {

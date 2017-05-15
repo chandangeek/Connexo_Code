@@ -24,6 +24,8 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -135,12 +137,12 @@ public class OutputChannelDataInfoFactory {
                 });
     }
 
-    public OutputChannelDataInfo createUpdatedChannelDataInfo(IntervalReadingRecord readingRecord, BigDecimal newValue, boolean isProjected, Optional<ReadingQualityComment> readingQualityComment) {
+    public OutputChannelDataInfo createUpdatedChannelDataInfo(IntervalReadingRecord readingRecord, BigDecimal newValue, boolean isProjected, Optional<ReadingQualityComment> readingQualityComment, ZoneId zoneId) {
         OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
         outputChannelDataInfo.reportedDateTime = readingRecord.getReportedDateTime();
         readingRecord.getReadingType().getIntervalLength().ifPresent(intervalLength -> {
-            Instant readingTimeStamp = readingRecord.getTimeStamp();
-            outputChannelDataInfo.interval = IntervalInfo.from(Range.openClosed(readingTimeStamp.minus(intervalLength), readingTimeStamp));
+            ZonedDateTime readingTimeStamp = ZonedDateTime.ofInstant(readingRecord.getTimeStamp(), zoneId);
+            outputChannelDataInfo.interval = IntervalInfo.from(Range.openClosed(readingTimeStamp.minus(intervalLength).toInstant(), readingTimeStamp.toInstant()));
         });
         outputChannelDataInfo.value = newValue;
         outputChannelDataInfo.isProjected = isProjected;
