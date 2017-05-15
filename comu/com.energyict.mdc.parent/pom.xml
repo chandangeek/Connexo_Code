@@ -385,6 +385,12 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.processes.keyrenewal.rest</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.protocols</artifactId>
                 <version>2.0.0${revision}</version>
                 <scope>provided</scope>
@@ -434,7 +440,7 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.upl</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -681,6 +687,7 @@
                 <module>../com.energyict.mdc.metering</module>
                 <module>../com.energyict.mdc.pluggable</module>
                 <module>../com.energyict.mdc.pluggable.rest</module>
+                <module>../com.energyict.mdc.processes.keyrenewal</module>
                 <module>../com.energyict.mdc.protocol.api</module>
                 <module>../com.energyict.mdc.protocol.pluggable</module>
                 <module>../com.energyict.mdc.protocols</module>
