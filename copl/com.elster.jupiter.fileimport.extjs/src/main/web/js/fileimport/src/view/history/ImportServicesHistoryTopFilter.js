@@ -9,6 +9,11 @@ Ext.define('Fim.view.history.ImportServicesHistoryTopFilter', {
     store: 'Fim.store.ImportServicesHistory',
     includeServiceCombo: true,
 
+    requires: [
+        'Fim.store.ImportServicesFilter',
+        'Fim.store.Status'
+    ],
+
     initComponent: function () {
         var me = this;
 
