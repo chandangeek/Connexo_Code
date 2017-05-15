@@ -13,11 +13,12 @@ import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.KeyAccessorType;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 
-import java.nio.charset.Charset;
+import javax.xml.bind.DatatypeConverter;
 import java.util.Optional;
 
 /**
@@ -102,7 +103,7 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
     private Optional<Object> handlePlainTextSymmetricKey(Optional<OfflineKeyAccessor> offlineKeyAccessor) {
         PlaintextSymmetricKey plaintextSymmetricKey = (PlaintextSymmetricKey) offlineKeyAccessor.get().getActualValue().get();
         if (plaintextSymmetricKey.getKey().isPresent()) {
-            return Optional.of(new String(plaintextSymmetricKey.getKey().get().getEncoded(), Charset.forName("UTF-8")));
+            return Optional.of(DatatypeConverter.printHexBinary(plaintextSymmetricKey.getKey().get().getEncoded()));
         }
         return Optional.empty();
     }
