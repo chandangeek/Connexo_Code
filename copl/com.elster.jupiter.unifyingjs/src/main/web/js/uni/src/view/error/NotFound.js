@@ -15,11 +15,7 @@ Ext.define('Uni.view.error.NotFound', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate(
-                'error.pageNotFoundTitle',
-                'UNI',
-                "Sorry! We couldn't find it."
-            ),
+            title: Uni.I18n.translate('error.pageNotFoundTitle', 'UNI', "Sorry! We couldn't find it."),
             layout: {
                 type: 'fit',
                 align: 'stretch'
@@ -27,22 +23,10 @@ Ext.define('Uni.view.error.NotFound', {
             items: [
                 {
                     xtype: 'no-items-found-panel',
-                    title: '<span style="color: #eb5642">'
-                    + Uni.I18n.translate(
-                        'error.pageNotFound',
-                        'UNI',
-                        'Page not found'
-                    ) + '</span>',
+                    title: '<span style="color: #eb5642">' + Uni.I18n.translate('error.pageNotFound', 'UNI', 'Page not found') + '</span>',
                     reasons: [
-                        Uni.I18n.translate(
-                            'error.pageNotFoundPageMisspelled',
-                            'UNI',
-                            "The URL is misspelled."
-                        ),
-                        Uni.I18n.translate(
-                            'error.pageNotFoundPageNotAvailable',
-                            'UNI', "The page you are looking for is not available."
-                        )
+                        Uni.I18n.translate('error.pageNotFoundPageMisspelled', 'UNI', 'The URL is misspelled.'),
+                        Uni.I18n.translate('error.pageNotFoundPageNotAvailable', 'UNI', 'The page you are looking for is not available.')
                     ],
                     stepItems: []
                 }

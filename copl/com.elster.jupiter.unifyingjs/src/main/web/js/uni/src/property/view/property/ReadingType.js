@@ -2,11 +2,14 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Uni.property.view.property.IrregularReadingType', {
+Ext.define('Uni.property.view.property.ReadingType', {
     extend: 'Uni.property.view.property.BaseCombo',
-    layout: 'fit',
+
     getEditCmp: function () {
-        var me = this;
+        var me = this,
+            filter = me.getFilter('', me.property.getPropertyType().get('simplePropertyType'));
+
+        Ext.getStore('Uni.property.store.ReadingTypes').getProxy().setExtraParam('filter', Ext.encode(filter));
 
         return {
             xtype: 'combobox',
@@ -14,7 +17,6 @@ Ext.define('Uni.property.view.property.IrregularReadingType', {
             name: this.getName(),
             store: 'Uni.property.store.ReadingTypes',
             width: me.width,
-            maxWidth: 283,
             readOnly: me.isReadOnly,
             blankText: me.blankText,
             emptyText: Uni.I18n.translate('property.readingType.emptyText', 'UNI', 'Start typing to select a reading type'),
@@ -30,16 +32,7 @@ Ext.define('Uni.property.view.property.IrregularReadingType', {
                 change: {
                     fn: function (combo, newValue) {
                         var index = combo.getStore().findExact('mRID', newValue),
-                            filter = [
-                                {
-                                    property: 'fullAliasName',
-                                    value: '*' + combo.getRawValue() + '*'
-                                },
-                                {
-                                    property: 'equidistant',
-                                    value: false
-                                }
-                            ];
+                            filter = me.getFilter(combo.getRawValue(), me.property.getPropertyType().get('simplePropertyType'));
 
                         combo.readingTypeData = index >= 0 ? combo.getStore().getAt(index).getData() : null;
                         combo.getStore().getProxy().setExtraParam('filter', Ext.encode(filter));
@@ -58,6 +51,18 @@ Ext.define('Uni.property.view.property.IrregularReadingType', {
 
     getField: function () {
         return this.down('combobox');
+    },
+
+    getDisplayCmp: function () {
+        return {
+            xtype: 'displayfield',
+            flex: 1,
+            fieldLabel: this.fieldLabel,
+            minWidth: 130,
+            maxWidth: 200,
+            name: this.getName(),
+            itemId: this.key + 'displayfield'
+        }
     },
 
     comboLimitNotification: function (combo) {
@@ -107,19 +112,40 @@ Ext.define('Uni.property.view.property.IrregularReadingType', {
     setDefaultFilter: function (value) {
         var me = this,
             combo = me.getField(),
-            filter = [
-                {
-                    property: 'fullAliasName',
-                    value: '*' + value.fullAliasName + '*'
-                },
-                {
-                    property: 'equidistant',
-                    value: false
-                }
-            ];
+            filter = me.getFilter(value.fullAliasName, me.property.getPropertyType().get('simplePropertyType'));
 
         combo.getStore().getProxy().setExtraParam('filter', Ext.encode(filter));
         combo.readingTypeData = value;
         combo.getStore().load();
+    },
+
+    getFilter: function (value, type) {
+        var defaultFilter = {
+            property: 'fullAliasName',
+            value: '*' + value + '*'
+        };
+
+        switch (type) {
+            case 'ANY_READINGTYPE':
+                return [defaultFilter];
+            case 'IRREGULAR_READINGTYPE':
+                return [
+                    defaultFilter,
+                    {
+                        property: 'equidistant',
+                        value: false
+                    }
+                ];
+            case 'REGULAR_READINGTYPE':
+                return [
+                    defaultFilter,
+                    {
+                        property: 'equidistant',
+                        value: true
+                    }
+                ];
+            default:
+                return [defaultFilter];
+        }
     }
 });
