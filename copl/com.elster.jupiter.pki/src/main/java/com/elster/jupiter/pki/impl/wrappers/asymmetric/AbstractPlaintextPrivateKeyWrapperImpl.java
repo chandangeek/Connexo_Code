@@ -17,6 +17,7 @@ import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
+
 import com.google.common.collect.ImmutableMap;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
@@ -31,8 +32,8 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
 
 import javax.validation.constraints.Size;
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -249,7 +250,7 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
             @Override
             void copyFromMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyWrapperImpl privateKey) {
                 if (properties.containsKey(getPropertyName())) {
-                    byte[] decode = ((String) properties.get(getPropertyName())).getBytes(Charset.forName("UTF-8"));
+                    byte[] decode = DatatypeConverter.parseHexBinary((String) properties.get(getPropertyName()));
                     privateKey.encryptedPrivateKey = privateKey.dataVaultService.encrypt(decode);
                 }
             }
@@ -257,7 +258,7 @@ abstract public class AbstractPlaintextPrivateKeyWrapperImpl implements Plaintex
             @Override
             void copyToMap(Map<String, Object> properties, AbstractPlaintextPrivateKeyWrapperImpl privateKey) {
                 byte[] decrypt = privateKey.dataVaultService.decrypt(privateKey.encryptedPrivateKey);
-                properties.put(getPropertyName(), new String(decrypt, Charset.forName("UTF-8")));
+                properties.put(getPropertyName(), DatatypeConverter.printHexBinary(decrypt));
             }
         },;
 
