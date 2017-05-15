@@ -46,6 +46,8 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.ReadingQualityComment;
+import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -581,6 +583,24 @@ public class MeteringServiceImpl implements ServerMeteringService {
         dailyVaults().stream()
                 .filter(testRetention(purgeConfiguration.dailyRetention()))
                 .forEach(vault -> vault.setRetentionDays(purgeConfiguration.dailyDays()));
+    }
+
+    @Override
+    public List<ReadingQualityComment> getAllReadingQualityComments(ReadingQualityCommentCategory category) {
+        return dataModel.mapper(ReadingQualityComment.class).select(Where.where("category").isEqualTo(category));
+    }
+
+    @Override
+    public ReadingQualityComment createReadingQualityComment(ReadingQualityCommentCategory category, String comment) {
+        ReadingQualityCommentImpl readingQualityComment = dataModel.getInstance(ReadingQualityCommentImpl.class);
+        readingQualityComment.init(comment, category);
+        dataModel.persist(readingQualityComment);
+        return readingQualityComment;
+    }
+
+    @Override
+    public Optional<ReadingQualityComment> findReadingQualityComment(long id) {
+        return this.dataModel.mapper(ReadingQualityComment.class).getOptional(id);
     }
 
     private Predicate<Vault> testRetention(Optional<Period> periodHolder) {

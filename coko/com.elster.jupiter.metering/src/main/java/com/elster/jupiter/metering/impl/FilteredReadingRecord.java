@@ -4,7 +4,8 @@
 
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 
 /**
  * Decorates an IntervalReading by selecting only certain values in a possibly different order.
@@ -17,7 +18,6 @@ public class FilteredReadingRecord extends FilteredBaseReadingRecord implements 
         super(filtered,indices);
         this.filtered = filtered;
     }
-    
     @Override
     public String getReadingTypeCode() {
     	return getReadingType().getMRID();

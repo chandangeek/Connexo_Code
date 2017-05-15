@@ -7,6 +7,7 @@ package com.elster.jupiter.metering;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -219,4 +220,9 @@ public interface MeteringService {
 
     List<MeterRole> getMeterRoles();
 
+    List<ReadingQualityComment> getAllReadingQualityComments(ReadingQualityCommentCategory category);
+
+    ReadingQualityComment createReadingQualityComment(ReadingQualityCommentCategory category, String comment);
+
+    Optional<ReadingQualityComment> findReadingQualityComment(long id);
 }

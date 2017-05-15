@@ -19,12 +19,14 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.DefaultTranslationKey;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.util.Ranges;
 
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.time.Year;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +42,7 @@ import java.util.Set;
  */
 public class MetrologyContractDataEditorImpl implements DataAggregationService.MetrologyContractDataEditor {
     private final UsagePoint usagePoint;
+    private final ZoneId usagePointZoneId;
     private final MetrologyContract contract;
     private final ReadingTypeDeliverable deliverable;
     private final QualityCodeSystem qualityCodeSystem;
@@ -60,6 +63,7 @@ public class MetrologyContractDataEditorImpl implements DataAggregationService.M
             this.timeOfUseValidator = new StrictValidator(this.deliverable.getReadingType().getTou());
         }
         this.mode = Mode.OPEN;
+        this.usagePointZoneId = usagePoint.getZoneId();
     }
 
     @Override
@@ -128,19 +132,30 @@ public class MetrologyContractDataEditorImpl implements DataAggregationService.M
         if (effectiveMetrologyConfigurationRange.isPresent()) {
             return this.editors.get(effectiveMetrologyConfigurationRange.get());
         } else {
-            Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = this.usagePoint.getEffectiveMetrologyConfiguration(readingTimestamp);
-            if (effectiveMetrologyConfiguration.isPresent()) {
-                if (this.dataAggregationService.hasContract(effectiveMetrologyConfiguration.get(), this.contract)) {
-                    ActiveEditor editor = new ActiveEditor(effectiveMetrologyConfiguration.get());
-                    this.editors.put(effectiveMetrologyConfiguration.get().getRange(), editor);
+            List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfigurations
+                    = this.usagePoint.getEffectiveMetrologyConfigurations(toReadingInterval(readingTimestamp));
+            if (effectiveMetrologyConfigurations.size() == 1) {
+                EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = effectiveMetrologyConfigurations.get(0);
+                if (this.dataAggregationService.hasContract(effectiveMetrologyConfiguration, this.contract)) {
+                    ActiveEditor editor = new ActiveEditor(effectiveMetrologyConfiguration);
+                    Range<Instant> effectiveRange = effectiveMetrologyConfiguration.getRange();
+                    this.editors.put(Ranges.copy(effectiveRange).asOpenClosed(), editor);
                     return editor;
                 } else {
-                    throw new IllegalArgumentException("The metrology configuration linked to usage point " + this.usagePoint.getMRID() + " @" + readingTimestamp + " does not contain the contract " + this.contract.getId());
+                    throw new IllegalArgumentException("The metrology configuration linked to usage point " + this.usagePoint.getMRID()
+                            + " @" + readingTimestamp + " does not contain the contract " + this.contract.getId());
                 }
             } else {
                 throw new IllegalArgumentException("No metrology configuration linked to usage point " + this.usagePoint.getMRID() + " @" + readingTimestamp);
             }
         }
+    }
+
+    private Range<Instant> toReadingInterval(Instant instant) {
+        ZonedDateTime readingTime = ZonedDateTime.ofInstant(instant, usagePointZoneId);
+        return this.deliverable.getReadingType().getIntervalLength()
+                .map(intervalLength -> Range.open(readingTime.minus(intervalLength).toInstant(), instant))
+                .orElse(Range.closed(instant, instant));
     }
 
     @Override

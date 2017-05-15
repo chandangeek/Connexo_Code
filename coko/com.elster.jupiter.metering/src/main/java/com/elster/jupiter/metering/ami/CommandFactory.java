@@ -4,12 +4,15 @@
 
 package com.elster.jupiter.metering.ami;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.time.Instant;
 
+@ConsumerType
 public interface CommandFactory {
 
     EndDeviceCommand createCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType) throws UnsupportedCommandException;
@@ -23,5 +26,7 @@ public interface CommandFactory {
     EndDeviceCommand createEnableLoadLimitCommand(EndDevice endDevice, Quantity quantity) throws UnsupportedCommandException;
 
     EndDeviceCommand createDisableLoadLimitCommand(EndDevice endDevice) throws UnsupportedCommandException;
+
+    EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, KeyAccessorType keyAccessortype) throws UnsupportedCommandException;
 
 }
