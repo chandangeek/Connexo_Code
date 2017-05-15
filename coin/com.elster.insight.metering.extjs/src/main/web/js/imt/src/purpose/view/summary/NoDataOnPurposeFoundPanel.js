@@ -8,7 +8,6 @@ Ext.define('Imt.purpose.view.summary.NoDataOnPurposeFoundPanel', {
     title: Uni.I18n.translate('readings.list.empty', 'IMT', 'No data is available'),
     reasons: [
         Uni.I18n.translate('readings.list.reason.3', 'IMT', 'No data complies with the filter.'),
-        Uni.I18n.translate('readings.list.reason1x', 'IMT', 'No metrology configurations in the specified period of time'),
-        Uni.I18n.translate('readings.list.reason4', 'IMT', 'No data matching to the filters')
+        Uni.I18n.translate('readings.list.reason1x', 'IMT', 'No metrology configurations in the specified period of time')
     ]
 });
