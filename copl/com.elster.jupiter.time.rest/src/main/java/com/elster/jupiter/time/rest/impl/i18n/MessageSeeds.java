@@ -9,12 +9,12 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
-    INVALID_RANGE (0001, Keys.INVALID_RANGE, "Invalid date range: start date is later than end date", Level.SEVERE);
+    INVALID_RANGE (1, Keys.INVALID_RANGE, "Invalid date range: start date is later than end date", Level.SEVERE),
+    INVALID_TIME_DURATION(2, "InvalidTimeDuration", "Invalid time duration", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -55,14 +55,6 @@ public enum MessageSeeds implements MessageSeed {
     @Override
     public Level getLevel() {
         return this.level;
-    }
-
-    public String getFormated(Object... args){
-        return MessageSeeds.getFormated(this, args);
-    }
-
-    public static String getFormated(MessageSeed messageSeed, Object... args){
-        return MessageFormat.format(messageSeed.getDefaultFormat(), args);
     }
 
     public void log(Logger logger, Thesaurus thesaurus, Object... args) {
