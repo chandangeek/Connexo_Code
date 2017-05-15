@@ -11,6 +11,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.services.HexService;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.tasks.ClockTask;
@@ -22,6 +24,7 @@ import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -55,6 +58,8 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     private volatile DeviceService deviceService;
     private volatile TopologyService topologyService;
     private volatile ProtocolPluggableService protocolPluggableService;
+    private volatile IdentificationService identificationService;
+    private volatile HexService hexService;
 
     @Activate
     public void activate() {
@@ -89,6 +94,16 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
+    }
+
+    @Reference
+    public void setIdentificationService(IdentificationService identificationService) {
+        this.identificationService = identificationService;
+    }
+
+    @Reference
+    public void setHexService(HexService hexService) {
+        this.hexService = hexService;
     }
 
     @Override
@@ -168,11 +183,19 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private Collection<SecurityProperty> securityProperties(Device device, com.energyict.mdc.device.config.SecurityPropertySet securityPropertySet) {
-        return device
-                .getSecurityProperties(securityPropertySet)
-                .stream()
-                .map(SecurityPropertyAdapter::new)
-                .collect(Collectors.toList());
+        TypedProperties securityProperties = device.getSecurityProperties(securityPropertySet);
+        return securityProperties.propertyNames().stream()
+                .map(propertyName -> new SecurityProperty() {
+                    @Override
+                    public String name() {
+                        return propertyName;
+                    }
+
+                    @Override
+                    public Object value() {
+                        return securityProperties.getTypedProperty(propertyName);
+                    }
+                }).collect(Collectors.toList());
     }
 
     @Override
@@ -748,24 +771,6 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
         }
     }
 
-    private static class SecurityPropertyAdapter implements SecurityProperty {
-        private final com.energyict.mdc.protocol.api.security.SecurityProperty actual;
-
-        private SecurityPropertyAdapter(com.energyict.mdc.protocol.api.security.SecurityProperty actual) {
-            this.actual = actual;
-        }
-
-        @Override
-        public String name() {
-            return this.actual.getName();
-        }
-
-        @Override
-        public Object value() {
-            return TypedPropertiesValueAdapter.adaptToUPLValue(this.actual.getValue());
-        }
-    }
-
     private class NextExecutionSpecsAdapter implements NextExecutionSpecs {
         private final com.energyict.mdc.scheduling.NextExecutionSpecs actual;
 
@@ -916,6 +921,16 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
         }
 
         @Override
+        public String name() {
+            return this.actual.getName();
+        }
+
+        @Override
+        public String client() {
+            return this.actual.getClient();
+        }
+
+        @Override
         public int authenticationDeviceAccessLevelId() {
             return this.actual.getAuthenticationDeviceAccessLevel().getId();
         }
@@ -923,6 +938,21 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
         @Override
         public int encryptionDeviceAccessLevelId() {
             return this.actual.getEncryptionDeviceAccessLevel().getId();
+        }
+
+        @Override
+        public int securitySuite() {
+            return this.actual.getSecuritySuite().getId();
+        }
+
+        @Override
+        public int requestSecurityLevelId() {
+            return this.actual.getResponseSecurityLevel().getId();
+        }
+
+        @Override
+        public int responseSecurityLevelId() {
+            return this.actual.getResponseSecurityLevel().getId();
         }
 
         @Override

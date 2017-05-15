@@ -4,11 +4,9 @@
 
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.TemporalAmountValueFactory;
-import com.energyict.mdc.dynamic.impl.PasswordFactory;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLValueFactoryAdapter;
 import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -29,7 +27,6 @@ public enum AnotherUPLDeviceMessageTestSpec implements DeviceMessageSpec {
             mockPropertySpec("testMessageSpec.simpleBigDecimal", ConnexoToUPLValueFactoryAdapter.adapt(new BigDecimalFactory())),
             mockPropertySpec("testMessageSpec.simpleString", ConnexoToUPLValueFactoryAdapter.adapt(new StringFactory()))),
     TEST_SPEC_WITH_EXTENDED_SPECS(
-            mockPropertySpec("testMessageSpec.codetable", ConnexoToUPLValueFactoryAdapter.adapt(new PasswordFactory(mock(DataVaultService.class)))),
             mockPropertySpec("testMessageSpec.activationdate", ConnexoToUPLValueFactoryAdapter.adapt(new TemporalAmountValueFactory()))),
     TEST_SPEC_WITHOUT_SPECS;
 
