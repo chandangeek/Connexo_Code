@@ -143,7 +143,7 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
             HasPropertyValidator factory =((HasPropertyValidator) valueFactory);
             throw new InvalidValueException(factory.invalidMessage(), this.getName(), factory.getReferenceValue());   //Guideline: property name
         }
-        throw new InvalidValueException("XisNotValidValueForAttributeY", "The value \\\"{1}\\\" is not valid for the attribute specification {0}." , this.getName(), value);
+        throw new InvalidValueException("XisNotValidValueForAttributeY", "The value '{1}' is not valid for the attribute specification {0}." , this.getName(), value);
     }
 
     @SuppressWarnings("unchecked")
