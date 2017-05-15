@@ -4,7 +4,8 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.upl.security.CertificateWrapper;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 /**
  * Provides an implementation for the {@link PersistentDomainExtension} interface for {@link DlmsSecuritySuite1And2Support}.
@@ -20,18 +21,18 @@ public class DlmsSecuritySuite1And2Properties extends DlmsSecurityProperties {
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
         super.copyActualPropertiesFrom(propertyValues);
-        this.serverSignatureCertificate = (CertificateWrapper) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString());
-        this.serverAgreementCertificate = (CertificateWrapper) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
+        this.serverSignatureCertificate = (CertificateWrapper) getTypedPropertyValue(propertyValues, SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
+        this.serverAgreementCertificate = (CertificateWrapper) getTypedPropertyValue(propertyValues, SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
     }
 
     @Override
     protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
         super.copyActualPropertiesTo(propertySetValues);
         if (this.serverSignatureCertificate != null) {
-            setTypedPropertyValueTo(propertySetValues, SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString(), this.serverSignatureCertificate);
+            setTypedPropertyValueTo(propertySetValues, SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString(), this.serverSignatureCertificate);
         }
         if (this.serverAgreementCertificate != null) {
-            setTypedPropertyValueTo(propertySetValues, SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString(), this.serverAgreementCertificate);
+            setTypedPropertyValueTo(propertySetValues, SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString(), this.serverAgreementCertificate);
         }
     }
 

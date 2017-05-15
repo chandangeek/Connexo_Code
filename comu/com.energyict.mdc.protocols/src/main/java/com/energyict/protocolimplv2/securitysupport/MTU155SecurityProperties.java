@@ -45,7 +45,7 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
     }
 
     public enum ActualFields {
-        PASSWORD("password", com.energyict.protocolimplv2.security.SecurityPropertySpecName.PASSWORD.toString()) {
+        PASSWORD("password", com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys.PASSWORD.toString()) {
             @Override
             protected String getValue(MTU155SecurityProperties perClientProperties) {
                 return perClientProperties.password;
@@ -56,7 +56,7 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
                 perClientProperties.password = value;
             }
         },
-        SERVICE_ENCRYPTION_KEY("serviceEncryptionKey", com.energyict.protocolimplv2.security.SecurityPropertySpecName.ENCRYPTION_KEY_2.toString()) {
+        SERVICE_ENCRYPTION_KEY("serviceEncryptionKey", com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_2.toString()) {
             @Override
             protected String getValue(MTU155SecurityProperties perClientProperties) {
                 return perClientProperties.serviceEncryptionKey;
@@ -67,7 +67,7 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
                 perClientProperties.serviceEncryptionKey = value;
             }
         },
-        FACTORY_ENCRYPTION_KEY("factoryEncryptionKey", com.energyict.protocolimplv2.security.SecurityPropertySpecName.ENCRYPTION_KEY_3.toString()) {
+        FACTORY_ENCRYPTION_KEY("factoryEncryptionKey", com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_3.toString()) {
             @Override
             protected String getValue(MTU155SecurityProperties perClientProperties) {
                 return perClientProperties.factoryEncryptionKey;
@@ -78,7 +78,7 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
                 perClientProperties.factoryEncryptionKey = value;
             }
         },
-        TEMPORARY_ENCRYPTION_KEY("temporaryEncryptionKey", com.energyict.protocolimplv2.security.SecurityPropertySpecName.ENCRYPTION_KEY_1.toString()) {
+        TEMPORARY_ENCRYPTION_KEY("temporaryEncryptionKey", com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_1.toString()) {
             @Override
             protected String getValue(MTU155SecurityProperties perClientProperties) {
                 return perClientProperties.temporaryEncryptionKey;

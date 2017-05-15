@@ -114,18 +114,18 @@ public class DlmsSecurityPkiProperties extends CommonBaseDeviceSecurityPropertie
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        this.password = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.PASSWORD.toString());
-        this.authenticationKey.set((KeyAccessorType) propertyValues.getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString()));
-        this.encryptionKey.set((KeyAccessorType) propertyValues.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString()));
+        this.password = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecTranslationKeys.PASSWORD.toString());
+        this.authenticationKey.set((KeyAccessorType) propertyValues.getProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString()));
+        this.encryptionKey.set((KeyAccessorType) propertyValues.getProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString()));
     }
 
     @Override
     protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
         if (!is(this.password).empty()) {
-            setTypedPropertyValueTo(propertySetValues, SecurityPropertySpecName.PASSWORD.toString(), this.password);
+            setTypedPropertyValueTo(propertySetValues, SecurityPropertySpecTranslationKeys.PASSWORD.toString(), this.password);
         }
-        this.setReferencePropertyIfNotNull(propertySetValues, SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), this.authenticationKey);
-        this.setReferencePropertyIfNotNull(propertySetValues, SecurityPropertySpecName.ENCRYPTION_KEY.toString(), this.encryptionKey);
+        this.setReferencePropertyIfNotNull(propertySetValues, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), this.authenticationKey);
+        this.setReferencePropertyIfNotNull(propertySetValues, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), this.encryptionKey);
     }
 
     @Override

@@ -4,7 +4,8 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import javax.validation.constraints.Size;
 import java.util.stream.Stream;
@@ -74,7 +75,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
     }
 
     public enum ActualFields {
-        PUBLIC_PASSWORD("publicPassword", SecurityPropertySpecName.PASSWORD_PUBLIC) {
+        PUBLIC_PASSWORD("publicPassword", SecurityPropertySpecTranslationKeys.PASSWORD_PUBLIC) {
             @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.publicPassword;
@@ -85,7 +86,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.publicPassword = value;
             }
         },
-        DATA_PASSWORD("dataPassword", SecurityPropertySpecName.PASSWORD_DATA) {
+        DATA_PASSWORD("dataPassword", SecurityPropertySpecTranslationKeys.PASSWORD_DATA) {
             @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.dataPassword;
@@ -96,7 +97,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.dataPassword = value;
             }
         },
-        EXTRA_DATA_PASSWORD("extraDataPassword", SecurityPropertySpecName.PASSWORD_EXT_DATA) {
+        EXTRA_DATA_PASSWORD("extraDataPassword", SecurityPropertySpecTranslationKeys.PASSWORD_EXT_DATA) {
             @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.extraDataPassword;
@@ -107,7 +108,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.extraDataPassword = value;
             }
         },
-        MANAGEMENT_PASSWORD("managementPassword", SecurityPropertySpecName.PASSWORD_MANAGEMENT) {
+        MANAGEMENT_PASSWORD("managementPassword", SecurityPropertySpecTranslationKeys.PASSWORD_MANAGEMENT) {
             @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.managementPassword;
@@ -118,7 +119,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.managementPassword = value;
             }
         },
-        FIRMWARE_PASSWORD("firmwarePassword", SecurityPropertySpecName.PASSWORD_FIRMWARE) {
+        FIRMWARE_PASSWORD("firmwarePassword", SecurityPropertySpecTranslationKeys.PASSWORD_FIRMWARE) {
             @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.firmwarePassword;
@@ -129,7 +130,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.firmwarePassword = value;
             }
         },
-        MANUFACTURER_PASSWORD("manufacturerPassword", SecurityPropertySpecName.PASSWORD_MANUFACTURER) {
+        MANUFACTURER_PASSWORD("manufacturerPassword", SecurityPropertySpecTranslationKeys.PASSWORD_MANUFACTURER) {
             @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.manufacturerPassword;
@@ -140,7 +141,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.manufacturerPassword = value;
             }
         },
-        PUBLIC_ENCRYPTION_KEY("publicEncryptionKey", SecurityPropertySpecName.ENCRYPTION_KEY_PUBLIC) {
+        PUBLIC_ENCRYPTION_KEY("publicEncryptionKey", SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_PUBLIC) {
             @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.publicEncryptionKey;
@@ -151,7 +152,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.publicEncryptionKey = value;
             }
         },
-        DATA_ENCRYPTION_KEY("dataEncryptionKey", SecurityPropertySpecName.ENCRYPTION_KEY_DATA) {
+        DATA_ENCRYPTION_KEY("dataEncryptionKey", SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_DATA) {
             @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.dataEncryptionKey;
@@ -162,7 +163,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.dataEncryptionKey = value;
             }
         },
-        EXTRA_DATA_ENCRYPTION_KEY("extraDataEncryptionKey", SecurityPropertySpecName.ENCRYPTION_KEY_EXT_DATA) {
+        EXTRA_DATA_ENCRYPTION_KEY("extraDataEncryptionKey", SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_EXT_DATA) {
             @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.extraDataEncryptionKey;
@@ -173,7 +174,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.extraDataEncryptionKey = value;
             }
         },
-        MANAGEMENT_ENCRYPTION_KEY("managementEncryptionKey", SecurityPropertySpecName.ENCRYPTION_KEY_MANAGEMENT) {
+        MANAGEMENT_ENCRYPTION_KEY("managementEncryptionKey", SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANAGEMENT) {
             @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.managementEncryptionKey;
@@ -184,7 +185,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.managementEncryptionKey = value;
             }
         },
-        FIRMWARE_ENCRYPTION_KEY("firmwareEncryptionKey", SecurityPropertySpecName.ENCRYPTION_KEY_FIRMWARE) {
+        FIRMWARE_ENCRYPTION_KEY("firmwareEncryptionKey", SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_FIRMWARE) {
             @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.firmwareEncryptionKey;
@@ -195,7 +196,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.firmwareEncryptionKey = value;
             }
         },
-        MANUFACTURER_ENCRYPTION_KEY("manufacturerEncryptionKey", SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER) {
+        MANUFACTURER_ENCRYPTION_KEY("manufacturerEncryptionKey", SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANUFACTURER) {
             @Override
             protected String getValue(DlmsSecurityPerClientProperties perClientProperties) {
                 return perClientProperties.manufacturerEncryptionKey;
@@ -206,7 +207,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.manufacturerEncryptionKey = value;
             }
         },
-        PUBLIC_AUTHENTICATION_KEY("publicAuthenticationKey", SecurityPropertySpecName.AUTHENTICATION_KEY_PUBLIC) {
+        PUBLIC_AUTHENTICATION_KEY("publicAuthenticationKey", SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_PUBLIC) {
             @Override
             public String databaseName() {
                 return "PUBLIC_AUTH_KEY";
@@ -222,7 +223,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.publicAuthenticationKey = value;
             }
         },
-        DATA_AUTHENTICATION_KEY("dataAuthenticationKey", SecurityPropertySpecName.AUTHENTICATION_KEY_DATA) {
+        DATA_AUTHENTICATION_KEY("dataAuthenticationKey", SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_DATA) {
             @Override
             public String databaseName() {
                 return "DATA_AUTH_KEY";
@@ -238,7 +239,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.dataAuthenticationKey = value;
             }
         },
-        EXTRA_DATA_AUTHENTICATION_KEY("extraDataAuthenticationKey", SecurityPropertySpecName.AUTHENTICATION_KEY_EXT_DATA) {
+        EXTRA_DATA_AUTHENTICATION_KEY("extraDataAuthenticationKey", SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_EXT_DATA) {
             @Override
             public String databaseName() {
                 return "EXTRA_DATA_AUTH_KEY";
@@ -254,7 +255,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.extraDataAuthenticationKey = value;
             }
         },
-        MANAGEMENT_AUTHENTICATION_KEY("managementAuthenticationKey", SecurityPropertySpecName.AUTHENTICATION_KEY_MANAGEMENT) {
+        MANAGEMENT_AUTHENTICATION_KEY("managementAuthenticationKey", SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_MANAGEMENT) {
             @Override
             public String databaseName() {
                 return "MANAGEMENT_AUTH_KEY";
@@ -270,7 +271,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.managementAuthenticationKey = value;
             }
         },
-        FIRMWARE_AUTHENTICATION_KEY("firmwareAuthenticationKey", SecurityPropertySpecName.AUTHENTICATION_KEY_FIRMWARE) {
+        FIRMWARE_AUTHENTICATION_KEY("firmwareAuthenticationKey", SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_FIRMWARE) {
             @Override
             public String databaseName() {
                 return "FIRMWARE_AUTH_KEY";
@@ -286,7 +287,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
                 perClientProperties.firmwareAuthenticationKey = value;
             }
         },
-        MANUFACTURER_AUTHENTICATION_KEY("manufacturerAuthenticationKey", SecurityPropertySpecName.AUTHENTICATION_KEY_MANUFACTURER) {
+        MANUFACTURER_AUTHENTICATION_KEY("manufacturerAuthenticationKey", SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_MANUFACTURER) {
             @Override
             public String databaseName() {
                 return "MANUFACTURER_AUTH_KEY";
@@ -304,9 +305,9 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
         };
 
         private final String javaName;
-        private final SecurityPropertySpecName propertySpecName;
+        private final SecurityPropertySpecTranslationKeys propertySpecName;
 
-        ActualFields(String javaName, SecurityPropertySpecName propertySpecName) {
+        ActualFields(String javaName, SecurityPropertySpecTranslationKeys propertySpecName) {
             this.javaName = javaName;
             this.propertySpecName = propertySpecName;
         }
@@ -319,7 +320,7 @@ public class DlmsSecurityPerClientProperties extends CommonBaseDeviceSecurityPro
             return name();
         }
 
-        public SecurityPropertySpecName propertySpecName() {
+        public SecurityPropertySpecTranslationKeys propertySpecName() {
             return propertySpecName;
         }
 

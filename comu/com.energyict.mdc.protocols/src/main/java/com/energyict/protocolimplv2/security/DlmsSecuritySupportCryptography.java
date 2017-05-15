@@ -18,7 +18,7 @@
 //import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 //import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 //import com.energyict.protocols.mdc.services.impl.TranslationKeys;
-//import com.energyict.protocols.naming.SecurityPropertySpecName;
+//import com.energyict.protocols.naming.SecurityPropertySpecTranslationKeys;
 //
 //import javax.inject.Inject;
 //import java.math.BigDecimal;
@@ -122,20 +122,20 @@
 //        if (deviceProtocolSecurityPropertySet != null) {
 //            typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
 //            // override the password (as it is provided as a Password object instead of a String
-//            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password(""));
+//            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecTranslationKeys.PASSWORD.getKey(), new Password(""));
 //            if (Password.class.isAssignableFrom(property.getClass())) {
-//                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), ((Password) property).getValue());
+//                typedProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.getKey(), ((Password) property).getValue());
 //            } else {
-//                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), property);
+//                typedProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.getKey(), property);
 //            }
 //            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME,
 //                    deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel() +
 //                            ":" +
 //                            deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel());
 //            typedProperties.setProperty(getDataTransportEncryptionKeyLegacyPropertyName(),
-//                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.getKey(), ""));
+//                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.getKey(), ""));
 //            typedProperties.setProperty(getDataTransportAuthenticationKeyLegacyPropertyname(),
-//                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.getKey(), ""));
+//                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.getKey(), ""));
 //        }
 //        return typedProperties;
 //    }
@@ -176,13 +176,13 @@
 //    }
 //
 //    private void checkForCorrectClientMacAddressPropertySpecType(TypedProperties typedProperties) {
-//        final Object clientMacAddress = typedProperties.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey());
+//        final Object clientMacAddress = typedProperties.getProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.getKey());
 //        if (clientMacAddress != null && String.class.isAssignableFrom(clientMacAddress.getClass())) {
-//            typedProperties.removeProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey());
+//            typedProperties.removeProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.getKey());
 //            try {
-//                typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), new BigDecimal((String) clientMacAddress));
+//                typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.getKey(), new BigDecimal((String) clientMacAddress));
 //            } catch (NumberFormatException e) {
-//                typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), new BigDecimal("1"));
+//                typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.getKey(), new BigDecimal("1"));
 //
 //            }
 //        }

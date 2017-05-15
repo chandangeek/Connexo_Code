@@ -4,7 +4,8 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import javax.validation.constraints.Size;
 
@@ -63,16 +64,16 @@ public class WavenisSecurityProperties extends CommonBaseDeviceSecurityPropertie
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
-        this.password = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.PASSWORD.toString());
-        this.encryptionKey = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.ENCRYPTION_KEY.toString());
+        this.password = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecTranslationKeys.PASSWORD.toString());
+        this.encryptionKey = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString());
     }
 
     @Override
     protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
         if (!is(this.password).empty()) {
-            setTypedPropertyValueTo(propertySetValues, SecurityPropertySpecName.PASSWORD.toString(), this.password);
+            setTypedPropertyValueTo(propertySetValues, SecurityPropertySpecTranslationKeys.PASSWORD.toString(), this.password);
         }
-        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecName.ENCRYPTION_KEY.toString(), this.encryptionKey);
+        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), this.encryptionKey);
     }
 
     @Override
