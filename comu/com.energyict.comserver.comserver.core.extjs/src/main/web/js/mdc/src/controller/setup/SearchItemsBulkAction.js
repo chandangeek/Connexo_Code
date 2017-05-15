@@ -668,7 +668,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             } else {
                                 wizard.down('#confirmButton').enable();
                                 var message = me.buildConfirmMessage();
-                                additionalText = Uni.I18n.translate('searchItems.bulk.changeDevConfigWarningMessage', 'MDC', 'The device configuration change can possibly lead to critical data loss (security settings, connection attributes...).');
+                                additionalText = Uni.I18n.translate('searchItems.bulk.changeDevConfigWarningMessage', 'MDC', 'Changing the device configuration could lead to critical data loss (security settings, connection methods, communication tasks,...).');
                                 nextCmp.showChangeDeviceConfigConfirmation(message.title, message.body, null, additionalText)
                             }
                         });
