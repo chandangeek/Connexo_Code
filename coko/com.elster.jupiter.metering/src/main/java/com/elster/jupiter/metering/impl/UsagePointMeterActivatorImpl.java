@@ -220,20 +220,31 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             }
         });
 
-        this.activationChanges.forEach(s -> {
-            Meter meter = s.getMeter();
-            MeterRole meterRole = s.getMeterRole();
-            if(meter != null && meterRole != null && s.getUsagePoint() != null && s.getRange() != null) {
+        ElementVisitor<Activation> activateVisitor = new MeterActivationModificationVisitor(this.metrologyConfigurationService.getDataModel());
+
+        this.activationChanges.forEach(activation -> {
+            Meter meter = activation.getMeter();
+            MeterRole meterRole = activation.getMeterRole();
+            if (meter != null && meterRole != null && activation.getUsagePoint() != null && activation.getRange() != null) {
                 MeterActivationImpl meterActivation = this.metrologyConfigurationService.getDataModel()
                         .query(MeterActivationImpl.class).select(Where.where("meter").isEqualTo(meter)).stream()
                         .filter(ma -> ma.getEnd() == null)
                         .findFirst().get();
 
-                meterActivation.setUsagePoint(usagePoint);
+                meterActivation.doSetUsagePoint(usagePoint);
                 meterActivation.doSetMeterRole(meterRole);
                 meterActivation.save();
+
+                this.meterTimeLines = new HashMap<>();
+                convertMeterActivationsToStreamOfMeters(this.usagePoint.getMeterActivations())
+                        .forEach(m -> getMeterTimeLine(m, this.meterTimeLines));
+                getMeterTimeLine(meter, this.meterTimeLines).adjust(activation, activateVisitor);
+                notifyInterestedComponents();
             }
         });
+
+        this.usagePoint.touch();
+        refreshMeterActivations();
     }
 
     @Override
@@ -259,12 +270,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         refreshMeterActivations();
 
         notifyInterestedComponents();
-    }
-
-    private MeterActivation getLastMeterActivation(Meter meter) {
-        return meter.getMeterActivations().stream()
-                .filter(ma -> ma.getEnd() == null)
-                .findFirst().get();
     }
 
     private Stream<Meter> convertMeterActivationsToStreamOfMeters(List<MeterActivation> meterActivations) {
