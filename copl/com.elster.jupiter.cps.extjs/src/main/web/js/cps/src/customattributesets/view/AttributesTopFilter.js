@@ -8,6 +8,10 @@ Ext.define('Cps.customattributesets.view.AttributesTopFilter', {
 
     store: 'Cps.customattributesets.store.CustomAttributeSets',
 
+    requires:[
+        'Cps.customattributesets.store.AttributeTypes'
+    ],
+
     filters: [
         {
             type: 'combobox',
