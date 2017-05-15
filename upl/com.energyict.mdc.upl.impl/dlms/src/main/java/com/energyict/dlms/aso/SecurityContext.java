@@ -1,5 +1,8 @@
 package com.energyict.dlms.aso;
 
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -22,15 +25,13 @@ import com.energyict.encryption.asymetric.signature.ECDSASignatureImpl;
 import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.encryption.kdf.KDF;
 import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DataEncryptionException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolcommon.exceptions.CodingException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -503,7 +504,7 @@ public class SecurityContext {
                         KeyAgreement keyAgreement = new KeyAgreementImpl(getECCCurve());
                         Certificate serverKeyAgreementCertificate = getGeneralCipheringSecurityProvider().getServerKeyAgreementCertificate();
                         if (serverKeyAgreementCertificate == null) {
-                            throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
+                            throw DeviceConfigurationException.missingProperty(SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString());
                         }
 
                         byte[] sharedSecretZ = keyAgreement.generateSecret(serverKeyAgreementCertificate.getPublicKey());
@@ -677,7 +678,7 @@ public class SecurityContext {
                     ECDSASignatureImpl ecdsaSignature = new ECDSASignatureImpl(getECCCurve());
                     X509Certificate serverSignatureCertificate = getGeneralCipheringSecurityProvider().getServerSignatureCertificate();
                     if (serverSignatureCertificate == null) {
-                        throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString());
+                        throw DeviceConfigurationException.missingProperty(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
                     }
 
                     if (!ecdsaSignature.verify(serverEphemeralPublicKeyBytes, signature, serverSignatureCertificate.getPublicKey())) {

@@ -654,7 +654,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
                 .markRequired()
                 .finish();
     }
-
+    DeviceProtocolDialectTranslationKeys
     protected PropertySpec hexStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service

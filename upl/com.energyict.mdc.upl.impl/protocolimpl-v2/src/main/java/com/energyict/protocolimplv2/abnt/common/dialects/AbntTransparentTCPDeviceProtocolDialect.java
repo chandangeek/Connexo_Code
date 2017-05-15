@@ -1,12 +1,13 @@
 package com.energyict.protocolimplv2.abnt.common.dialects;
 
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.math.BigDecimal;
@@ -34,7 +35,7 @@ public class AbntTransparentTCPDeviceProtocolDialect extends AbstractDeviceProto
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.ABNT_SERIAL_DIALECT_NAME.getName();
+        return DeviceProtocolDialectTranslationKeys.ABNT_SERIAL_DIALECT_NAME.getName();
     }
 
     @Override

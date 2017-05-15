@@ -2,8 +2,9 @@ package com.energyict.protocolimplv2.edmi.mk10.properties;
 
 import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -75,7 +76,7 @@ public class MK10Properties {
     }
 
     public String getPassword() {
-        return properties.getTypedProperty(SecurityPropertySpecName.PASSWORD.toString());
+        return properties.getTypedProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString());
     }
 
     public TimeZone getTimeZone() {

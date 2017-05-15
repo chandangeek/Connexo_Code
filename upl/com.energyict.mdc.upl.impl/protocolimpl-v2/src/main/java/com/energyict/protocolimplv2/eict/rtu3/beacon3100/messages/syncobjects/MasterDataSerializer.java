@@ -1,9 +1,5 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.cosem.Clock;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
@@ -13,20 +9,25 @@ import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.cosem.Clock;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -271,9 +272,9 @@ public class MasterDataSerializer {
         final byte[] dlmsMeterKEK = this.parseKey(masterDevice, Beacon3100ConfigurationSupport.DLMS_METER_KEK);
 
         //Get the DLMS keys from the device. If they are empty, an empty OctetString will be sent to the beacon.
-        final byte[] password = getSecurityKey(device, SecurityPropertySpecName.PASSWORD.toString());
-        final byte[] ak = getSecurityKey(device, SecurityPropertySpecName.AUTHENTICATION_KEY.toString());
-        final byte[] ek = getSecurityKey(device, SecurityPropertySpecName.ENCRYPTION_KEY.toString());
+        final byte[] password = getSecurityKey(device, SecurityPropertySpecTranslationKeys.PASSWORD.toString());
+        final byte[] ak = getSecurityKey(device, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString());
+        final byte[] ek = getSecurityKey(device, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString());
 
         final String wrappedPassword = password == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(dlmsMeterKEK, password), "");
         final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(dlmsMeterKEK, ak), "");
@@ -301,17 +302,17 @@ public class MasterDataSerializer {
 
         for (DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet : this.extractor.securityPropertySets(device)) {
             for (DeviceMasterDataExtractor.SecurityProperty protocolSecurityProperty : this.extractor.securityProperties(device, securityPropertySet)) {
-                if (protocolSecurityProperty.name().equals(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString())) {
+                if (protocolSecurityProperty.name().equals(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString())) {
                     clientId = ((BigDecimal) protocolSecurityProperty.value()).intValue();
-                } else if (protocolSecurityProperty.name().equals(SecurityPropertySpecName.PASSWORD.toString())) {
+                } else if (protocolSecurityProperty.name().equals(SecurityPropertySpecTranslationKeys.PASSWORD.toString())) {
                     if (securityPropertySet.authenticationDeviceAccessLevelId() >= 3) {
                         hlsPassword = parseASCIIPassword(device, protocolSecurityProperty.name(), (String) protocolSecurityProperty.value());
                     } else {
                         password = parseASCIIPassword(device, protocolSecurityProperty.name(), (String) protocolSecurityProperty.value());
                     }
-                } else if (protocolSecurityProperty.name().equals(SecurityPropertySpecName.AUTHENTICATION_KEY.toString())) {
+                } else if (protocolSecurityProperty.name().equals(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString())) {
                     ak = parseKey(device, protocolSecurityProperty.name(), (String) protocolSecurityProperty.value());
-                } else if (protocolSecurityProperty.name().equals(SecurityPropertySpecName.ENCRYPTION_KEY.toString())) {
+                } else if (protocolSecurityProperty.name().equals(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString())) {
                     ek = parseKey(device, protocolSecurityProperty.name(), (String) protocolSecurityProperty.value());
                 }
             }
@@ -583,7 +584,7 @@ public class MasterDataSerializer {
         BigDecimal clientMacAddress =
                 securityProperties
                         .stream()
-                        .filter(each -> each.name().equals(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString()))
+                        .filter(each -> each.name().equals(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString()))
                         .findAny()
                         .map(DeviceMasterDataExtractor.SecurityProperty::value)
                         .map(BigDecimal.class::cast)
@@ -603,7 +604,7 @@ public class MasterDataSerializer {
         return securityPropertySet
                 .propertySpecs()
                 .stream()
-                .filter(each -> each.getName().equals(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString()))
+                .filter(each -> each.getName().equals(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString()))
                 .findAny()
                 .map(PropertySpec::getDefaultValue)
                 .map(BigDecimal.class::cast)
@@ -635,14 +636,14 @@ public class MasterDataSerializer {
         if (masterDevice != null) {
             this.extractor
                     .configuration(masterDevice)
-                    .dialectProperties(DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName())
+                    .dialectProperties(DeviceProtocolDialectTranslationKeys.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName())
                     .ifPresent(allProperties::setAllProperties);
         }
 
         addDefaultDialectValuesIfNecessary(allProperties);
 
         //Add the name of the gateway dialect. The downstream protocol talks directly to the e-meter, just like when using the gateway functionality of the beacon.
-        allProperties.setProperty(DEVICE_PROTOCOL_DIALECT.getName(), DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
+        allProperties.setProperty(DEVICE_PROTOCOL_DIALECT.getName(), DeviceProtocolDialectTranslationKeys.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
 
         return new Beacon3100ProtocolConfiguration(javaClassName, allProperties);
     }
@@ -699,7 +700,7 @@ public class MasterDataSerializer {
             } else {
                 for (DeviceMasterDataExtractor.SecurityProperty protocolSecurityProperty : this.extractor.securityProperties(device, securityPropertySet)) {
                     //Only add this security set if it is for the given clientMacAddress
-                    if (protocolSecurityProperty.name().equals(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString())
+                    if (protocolSecurityProperty.name().equals(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString())
                             && ((BigDecimal) protocolSecurityProperty.value()).intValue() == clientMacAddress) {
                         securitySets.add(securityPropertySet);
                     }
@@ -712,7 +713,7 @@ public class MasterDataSerializer {
             for (DeviceMasterDataExtractor.SecurityProperty securityProperty : securityProperties) {
                 if (securityProperty.name().equals(propertyName)) {
                     final String propertyValue = (String) securityProperty.value();
-                    if (propertyName.equals(SecurityPropertySpecName.PASSWORD.toString())) {
+                    if (propertyName.equals(SecurityPropertySpecTranslationKeys.PASSWORD.toString())) {
                         return parseASCIIPassword(this.extractor.id(device), propertyName, propertyValue);
                     } else {
                         return parseKey(device, propertyName, propertyValue);

@@ -2,9 +2,10 @@ package com.energyict.mdc.tasks;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.math.BigDecimal;
@@ -35,7 +36,7 @@ public class MirrorTcpDeviceProtocolDialect extends AbstractDeviceProtocolDialec
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.BEACON_MIRROR_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName();
+        return DeviceProtocolDialectTranslationKeys.BEACON_MIRROR_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName();
     }
 
     @Override

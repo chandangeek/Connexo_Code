@@ -85,22 +85,22 @@ public class CryptoDlmsSecuritySupport extends AbstractSecuritySupport implement
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-            typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), deviceProtocolSecurityPropertySet.getClient()); // Add the ClientMacAddress
+            typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), deviceProtocolSecurityPropertySet.getClient()); // Add the ClientMacAddress
 
             // HlsSecret
             typedProperties.setProperty(HLS_SECRET_LEGACY_PROPERTY_NAME,
-                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), ""));
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), ""));
 
             //AK
             typedProperties.setProperty(DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME,
-                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), ""));
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), ""));
 
             //EK
             typedProperties.setProperty(DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME,
-                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), ""));
 
             //CryptoServer phase property
-            typedProperties.setProperty(CRYPTOSERVER_LEGACY_PROPERTY_NAME, deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.CRYPTOSERVER_PHASE.toString(), ""));
+            typedProperties.setProperty(CRYPTOSERVER_LEGACY_PROPERTY_NAME, deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecTranslationKeys.CRYPTOSERVER_PHASE.toString(), ""));
         }
         return typedProperties;
     }
@@ -118,21 +118,21 @@ public class CryptoDlmsSecuritySupport extends AbstractSecuritySupport implement
 
         //Add properties that have a new key name or format (compared to EIServer 8.x)
         if (oldTypedProperties.hasValueFor(HLS_SECRET_LEGACY_PROPERTY_NAME)) {
-            result.setProperty(SecurityPropertySpecName.PASSWORD.toString(), oldTypedProperties.getStringProperty(HLS_SECRET_LEGACY_PROPERTY_NAME));
+            result.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), oldTypedProperties.getStringProperty(HLS_SECRET_LEGACY_PROPERTY_NAME));
         }
         if (oldTypedProperties.hasValueFor(HEX_PASSWORD_LEGACY_PROPERTY_NAME)) {
-            result.setProperty(SecurityPropertySpecName.PASSWORD.toString(), oldTypedProperties.getStringProperty(HEX_PASSWORD_LEGACY_PROPERTY_NAME));
+            result.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), oldTypedProperties.getStringProperty(HEX_PASSWORD_LEGACY_PROPERTY_NAME));
         }
         if (oldTypedProperties.hasValueFor(DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME)) {
-            result.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), oldTypedProperties.getStringProperty(DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME));
+            result.setProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), oldTypedProperties.getStringProperty(DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME));
         }
         if (oldTypedProperties.hasValueFor(DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME)) {
-            result.setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), oldTypedProperties.getStringProperty(DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME));
+            result.setProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), oldTypedProperties.getStringProperty(DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME));
         }
         if (oldTypedProperties.hasValueFor(CRYPTOSERVER_LEGACY_PROPERTY_NAME)) {
-            result.setProperty(SecurityPropertySpecName.CRYPTOSERVER_PHASE.toString(), oldTypedProperties.getStringProperty(CRYPTOSERVER_LEGACY_PROPERTY_NAME));
+            result.setProperty(SecurityPropertySpecTranslationKeys.CRYPTOSERVER_PHASE.toString(), oldTypedProperties.getStringProperty(CRYPTOSERVER_LEGACY_PROPERTY_NAME));
         } else {
-            result.setProperty(SecurityPropertySpecName.CRYPTOSERVER_PHASE.toString(), DeviceSecurityProperty.CRYPTOSERVER_PHASE.getPropertySpec(this.propertySpecService).getPossibleValues().getDefault());
+            result.setProperty(SecurityPropertySpecTranslationKeys.CRYPTOSERVER_PHASE.toString(), DeviceSecurityProperty.CRYPTOSERVER_PHASE.getPropertySpec(this.propertySpecService).getPossibleValues().getDefault());
         }
 
         return new DeviceProtocolSecurityPropertySet() {
@@ -164,22 +164,22 @@ public class CryptoDlmsSecuritySupport extends AbstractSecuritySupport implement
     }
 
     private String loadCorrectClientMacAddressPropertyValue(TypedProperties typedProperties) {
-        final Object clientMacAddress = typedProperties.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString());
+        final Object clientMacAddress = typedProperties.getProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString());
         if (clientMacAddress != null) {
             if (String.class.isAssignableFrom(clientMacAddress.getClass())) {
-                typedProperties.removeProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString());
+                typedProperties.removeProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString());
                 try {
-                    typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), new BigDecimal((String) clientMacAddress));
+                    typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), new BigDecimal((String) clientMacAddress));
                     return (String) clientMacAddress;
                 } catch (NumberFormatException e) {
-                    typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), new BigDecimal(DEFAULT_CLIENT));
+                    typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), new BigDecimal(DEFAULT_CLIENT));
                     return DEFAULT_CLIENT;
                 }
             } else if (BigDecimal.class.isAssignableFrom(clientMacAddress.getClass())) {
                 return String.valueOf(((BigDecimal) clientMacAddress).intValue());
             }
         }
-        typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), new BigDecimal(DEFAULT_CLIENT));
+        typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), new BigDecimal(DEFAULT_CLIENT));
         return DEFAULT_CLIENT;
     }
 

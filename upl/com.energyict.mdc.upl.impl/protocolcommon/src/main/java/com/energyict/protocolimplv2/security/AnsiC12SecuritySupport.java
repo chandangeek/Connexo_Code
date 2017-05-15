@@ -97,9 +97,9 @@ public class AnsiC12SecuritySupport extends AbstractSecuritySupport implements L
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
 
         if (authenticationDeviceAccessLevelProperty == null) {
-            securityRelatedTypedProperties.setProperty(SecurityPropertySpecName.BINARY_PASSWORD.toString(), 0);
-            securityRelatedTypedProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER.toString(), "");
-            securityRelatedTypedProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER_ID.toString(), 0);
+            securityRelatedTypedProperties.setProperty(SecurityPropertySpecTranslationKeys.BINARY_PASSWORD.toString(), 0);
+            securityRelatedTypedProperties.setProperty(SecurityPropertySpecTranslationKeys.ANSI_C12_USER.toString(), "");
+            securityRelatedTypedProperties.setProperty(SecurityPropertySpecTranslationKeys.ANSI_C12_USER_ID.toString(), 0);
         } else {
             securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, authenticationDeviceAccessLevel, getAuthenticationAccessLevels()));
         }

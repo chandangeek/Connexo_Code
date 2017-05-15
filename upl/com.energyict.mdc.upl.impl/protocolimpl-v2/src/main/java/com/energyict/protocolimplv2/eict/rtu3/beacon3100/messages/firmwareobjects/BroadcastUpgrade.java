@@ -35,7 +35,7 @@ import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -169,9 +169,9 @@ public class BroadcastUpgrade {
 
         //Note that all meters will have the same AK and broadcast EK. (this is defined in the IDIS P2 spec)
         TypedProperties securityProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
-        securityProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), broadcastClientMacAddress);
-        securityProperties.setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), broadcastAuthenticationHexKey);
-        securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), broadcastEncryptionHexKey);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), broadcastClientMacAddress);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), broadcastAuthenticationHexKey);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), broadcastEncryptionHexKey);
         final DeviceProtocolSecurityPropertySetImpl securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(Integer.toString(broadcastClientMacAddress.intValue()),  0, encryptionLevel, 0, 0, 0, securityProperties);//Auth level 0 does not matter, since there's no association created (pre-established)
         blockTransferProperties.setSecurityPropertySet(securityPropertySet);
         blockTransferProperties.addProperties(securityPropertySet.getSecurityProperties());

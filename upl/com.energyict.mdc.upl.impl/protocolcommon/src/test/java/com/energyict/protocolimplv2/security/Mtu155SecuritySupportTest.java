@@ -34,24 +34,24 @@ public class Mtu155SecuritySupportTest extends AbstractSecuritySupportTest {
 
 
         // check for the password propertySpec
-        Optional<PropertySpec> passwordPropertySpec = mtuSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.PASSWORD.getKey());
+        Optional<PropertySpec> passwordPropertySpec = mtuSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.PASSWORD.getKey());
         assertPropertySpecsEqual(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService), passwordPropertySpec);
 
         // check for the encryptionKey1 propertySpec
-        Optional<PropertySpec> encryptionKey1PropertySpec = mtuSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY_1.getKey());
+        Optional<PropertySpec> encryptionKey1PropertySpec = mtuSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_1.getKey());
         assertTrue(encryptionKey1PropertySpec.isPresent());
-        assertEquals(encryptionKey1PropertySpec.get().getName(), SecurityPropertySpecName.ENCRYPTION_KEY_1.getKey());
+        assertEquals(encryptionKey1PropertySpec.get().getName(), SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_1.getKey());
 
         // check for the encryptionKey2 propertySpec
-        Optional<PropertySpec> encryptionKey2PropertySpec = mtuSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY_2.getKey());
+        Optional<PropertySpec> encryptionKey2PropertySpec = mtuSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_2.getKey());
         assertTrue(encryptionKey2PropertySpec.isPresent());
-        assertEquals(encryptionKey2PropertySpec.get().getName(), SecurityPropertySpecName.ENCRYPTION_KEY_2.getKey());
+        assertEquals(encryptionKey2PropertySpec.get().getName(), SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_2.getKey());
 
         // check for the encryptionKey3 propertySpec
 
-        Optional<PropertySpec> encryptionKey3PropertySpec = mtuSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY_3.getKey());
+        Optional<PropertySpec> encryptionKey3PropertySpec = mtuSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_3.getKey());
         assertTrue(encryptionKey3PropertySpec.isPresent());
-        assertEquals(encryptionKey3PropertySpec.get().getName(), SecurityPropertySpecName.ENCRYPTION_KEY_3.getKey());
+        assertEquals(encryptionKey3PropertySpec.get().getName(), SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_3.getKey());
     }
 
 
@@ -132,9 +132,9 @@ public class Mtu155SecuritySupportTest extends AbstractSecuritySupportTest {
         Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport(propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String encryptionKey_2_Value = "MyEncryptionKey_2";
-        securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString(), encryptionKey_2_Value);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_2.toString(), encryptionKey_2_Value);
         String passwordValue = "MyPassword";
-        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), passwordValue);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
                     @Override
@@ -211,7 +211,7 @@ public class Mtu155SecuritySupportTest extends AbstractSecuritySupportTest {
         Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport(propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
-        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), passwordValue);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
                     @Override
@@ -242,7 +242,7 @@ public class Mtu155SecuritySupportTest extends AbstractSecuritySupportTest {
 
         // business method
         TypedProperties legacyProperties = mtu155SecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
-        assertThat(legacyProperties.getProperty(SecurityPropertySpecName.PASSWORD.toString())).isEqualTo(passwordValue);
+        assertThat(legacyProperties.getProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString())).isEqualTo(passwordValue);
     }
 
 }

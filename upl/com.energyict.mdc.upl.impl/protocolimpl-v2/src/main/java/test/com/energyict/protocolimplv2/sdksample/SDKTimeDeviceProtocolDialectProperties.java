@@ -2,7 +2,8 @@ package test.com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+
+import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.util.Arrays;
@@ -26,7 +27,7 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.SDK_SAMPLE_TIME_DEVICE_PROTOCOL_DIALECT_NAME.getName();
+        return DeviceProtocolDialectTranslationKeys.SDK_SAMPLE_TIME_DEVICE_PROTOCOL_DIALECT_NAME.getName();
     }
 
     @Override

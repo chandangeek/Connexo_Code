@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.nta.dsmr50.elster.am540;
 
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.protocol.exception.DeviceConfigurationException;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr50.Dsmr50ConfigurationSupport;
@@ -109,17 +109,17 @@ public class Dsmr50Properties extends DlmsProperties {
 
     public boolean useBeaconMirrorDeviceDialect() {
         String dialectName = getProperties().getStringProperty(DEVICE_PROTOCOL_DIALECT.getName());
-        return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.BEACON_MIRROR_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
+        return dialectName != null && dialectName.equals(DeviceProtocolDialectTranslationKeys.BEACON_MIRROR_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
     }
 
     public boolean useBeaconGatewayDeviceDialect() {
         String dialectName = getProperties().getStringProperty(DEVICE_PROTOCOL_DIALECT.getName());
-        return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
+        return dialectName != null && dialectName.equals(DeviceProtocolDialectTranslationKeys.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
     }
 
     public boolean useSerialDialect() {
         String dialectName = getProperties().getStringProperty(DEVICE_PROTOCOL_DIALECT.getName());
-        return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.SERIAL_DLMS_PROTOCOL_DIALECT_NAME.getName());
+        return dialectName != null && dialectName.equals(DeviceProtocolDialectTranslationKeys.SERIAL_DLMS_PROTOCOL_DIALECT_NAME.getName());
     }
 
     /**

@@ -33,7 +33,7 @@ public class SimplePasswordSecuritySupportTest extends AbstractSecuritySupportTe
         assertThat(simplePasswordSecuritySupport.getSecurityProperties()).hasSize(1);
 
         // check for the password propertySpec
-        Optional<PropertySpec> passwordPropertySpec = simplePasswordSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.PASSWORD.getKey());
+        Optional<PropertySpec> passwordPropertySpec = simplePasswordSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.PASSWORD.getKey());
         assertPropertySpecsEqual(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService), passwordPropertySpec);
     }
 
@@ -72,7 +72,7 @@ public class SimplePasswordSecuritySupportTest extends AbstractSecuritySupportTe
         SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport(propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
-        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), passwordValue);
 
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {

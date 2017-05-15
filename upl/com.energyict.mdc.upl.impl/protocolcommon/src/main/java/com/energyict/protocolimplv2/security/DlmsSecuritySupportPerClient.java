@@ -43,109 +43,109 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
 
     private PropertySpec getEncryptionKeyPublicPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.ENCRYPTION_KEY_PUBLIC.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_PUBLIC, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_PUBLIC.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_PUBLIC, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getEncryptionKeyDataPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.ENCRYPTION_KEY_DATA.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_DATA, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_DATA.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_DATA, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getEncryptionKeyExtDataPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.ENCRYPTION_KEY_EXT_DATA.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_EXT_DATA, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_EXT_DATA.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_EXT_DATA, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getEncryptionKeyManagementPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.ENCRYPTION_KEY_MANAGEMENT.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_MANAGEMENT, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANAGEMENT.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_MANAGEMENT, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getEncryptionKeyFirmwarePropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.ENCRYPTION_KEY_FIRMWARE.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_FIRMWARE, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_FIRMWARE.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_FIRMWARE, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getEncryptionKeyManufacturerPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_MANUFACTURER, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANUFACTURER.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_MANUFACTURER, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getAuthenticationKeyPublicPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.AUTHENTICATION_KEY_PUBLIC.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_PUBLIC, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_PUBLIC.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_PUBLIC, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getAuthenticationKeyDataPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.AUTHENTICATION_KEY_DATA.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_DATA, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_DATA.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_DATA, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getAuthenticationKeyExtDataPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.AUTHENTICATION_KEY_EXT_DATA.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_EXT_DATA, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_EXT_DATA.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_EXT_DATA, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getAuthenticationKeyManagementPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.AUTHENTICATION_KEY_MANAGEMENT.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_MANAGEMENT, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_MANAGEMENT.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_MANAGEMENT, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getAuthenticationKeyFirmwarePropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.AUTHENTICATION_KEY_FIRMWARE.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_FIRMWARE, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_FIRMWARE.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_FIRMWARE, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getAuthenticationKeyManufacturerPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.AUTHENTICATION_KEY_MANUFACTURER.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_MANUFACTURER, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_MANUFACTURER.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_MANUFACTURER, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getPasswordPublicPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.PASSWORD_PUBLIC.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_PUBLIC, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.PASSWORD_PUBLIC.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_PUBLIC, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getPasswordDataPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.PASSWORD_DATA.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_DATA, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.PASSWORD_DATA.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_DATA, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getPasswordExtDataPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.PASSWORD_EXT_DATA.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_EXT_DATA, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.PASSWORD_EXT_DATA.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_EXT_DATA, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getPasswordManagementPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.PASSWORD_MANAGEMENT.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_MANAGEMENT, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.PASSWORD_MANAGEMENT.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_MANAGEMENT, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getPasswordFirmwarePropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.PASSWORD_FIRMWARE.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_FIRMWARE, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.PASSWORD_FIRMWARE.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_FIRMWARE, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
     private PropertySpec getPasswordManufacturerPropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecName.PASSWORD_MANUFACTURER.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_MANUFACTURER, propertySpecService::encryptedStringSpec)
+                .specBuilder(SecurityPropertySpecTranslationKeys.PASSWORD_MANUFACTURER.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_MANUFACTURER, propertySpecService::encryptedStringSpec)
                 .finish();
     }
 
@@ -176,7 +176,7 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
     @Override
     public List<String> getLegacySecurityProperties() {
         return Arrays.asList(
-                SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(),
+                SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(),
                 DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME,
                 SECURITY_LEVEL_PROPERTY_NAME,
                 DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME
@@ -259,7 +259,7 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
         TypedProperties typedProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-            typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), deviceProtocolSecurityPropertySet.getClient()); // Add the ClientMacAddress
+            typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), deviceProtocolSecurityPropertySet.getClient()); // Add the ClientMacAddress
             convertToProperPassword(deviceProtocolSecurityPropertySet, typedProperties);
 
             final int clientId = AuthenticationAccessLevelIds.getClientIdFor(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel());
@@ -271,7 +271,7 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
                     getDataTransportEncryptionKeyPropertyValue(deviceProtocolSecurityPropertySet));
             typedProperties.setProperty(DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME,
                     getDataTransportAuthenticationKeyPropertyValue(deviceProtocolSecurityPropertySet));
-            typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(),
+            typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(),
                     clientId
             );
         }
@@ -280,15 +280,15 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
 
     private Object getDataTransportAuthenticationKeyPropertyValue(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         List<String> authenticationKeyNames = Arrays.asList(
-                SecurityPropertySpecName.AUTHENTICATION_KEY_PUBLIC.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY_DATA.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY_EXT_DATA.toString(),
-                SecurityPropertySpecName.AUTHENTICATION_KEY_MANAGEMENT.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY_FIRMWARE.toString(), SecurityPropertySpecName.AUTHENTICATION_KEY_MANUFACTURER.toString());
+                SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_PUBLIC.toString(), SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_DATA.toString(), SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_EXT_DATA.toString(),
+                SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_MANAGEMENT.toString(), SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_FIRMWARE.toString(), SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_MANUFACTURER.toString());
         return getValueFrom(authenticationKeyNames, deviceProtocolSecurityPropertySet);
     }
 
     private Object getDataTransportEncryptionKeyPropertyValue(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         List<String> encryptionKeyNames = Arrays.asList(
-                SecurityPropertySpecName.ENCRYPTION_KEY_PUBLIC.toString(), SecurityPropertySpecName.ENCRYPTION_KEY_DATA.toString(), SecurityPropertySpecName.ENCRYPTION_KEY_EXT_DATA.toString(),
-                SecurityPropertySpecName.ENCRYPTION_KEY_MANAGEMENT.toString(), SecurityPropertySpecName.ENCRYPTION_KEY_FIRMWARE.toString(), SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString());
+                SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_PUBLIC.toString(), SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_DATA.toString(), SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_EXT_DATA.toString(),
+                SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANAGEMENT.toString(), SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_FIRMWARE.toString(), SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANUFACTURER.toString());
         return getValueFrom(encryptionKeyNames, deviceProtocolSecurityPropertySet);
     }
 
@@ -304,18 +304,18 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
 
     private void convertToProperPassword(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet, TypedProperties typedProperties) {
         List<String> passWordPropertyNames = Arrays.asList(
-                SecurityPropertySpecName.PASSWORD_PUBLIC.toString(), SecurityPropertySpecName.PASSWORD_DATA.toString(), SecurityPropertySpecName.PASSWORD_EXT_DATA.toString(),
-                SecurityPropertySpecName.PASSWORD_MANAGEMENT.toString(), SecurityPropertySpecName.PASSWORD_FIRMWARE.toString(), SecurityPropertySpecName.PASSWORD_MANUFACTURER.toString());
+                SecurityPropertySpecTranslationKeys.PASSWORD_PUBLIC.toString(), SecurityPropertySpecTranslationKeys.PASSWORD_DATA.toString(), SecurityPropertySpecTranslationKeys.PASSWORD_EXT_DATA.toString(),
+                SecurityPropertySpecTranslationKeys.PASSWORD_MANAGEMENT.toString(), SecurityPropertySpecTranslationKeys.PASSWORD_FIRMWARE.toString(), SecurityPropertySpecTranslationKeys.PASSWORD_MANUFACTURER.toString());
         boolean notFound = true;
         for (String passWordPropertyName : passWordPropertyNames) {
             final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(passWordPropertyName);
             if (property != null && notFound) {
-                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
+                typedProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), property);
                 notFound = false;
             }
         }
         if (notFound) {
-            typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), "");
+            typedProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), "");
         }
     }
 
@@ -365,7 +365,7 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
     }
 
     private int getClientMacAddressValue(TypedProperties typedProperties) {
-        final Object clientMacAddress = typedProperties.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString());
+        final Object clientMacAddress = typedProperties.getProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString());
         if (clientMacAddress != null) {
             if (String.class.isAssignableFrom(clientMacAddress.getClass())) {
                 return Integer.valueOf((String) clientMacAddress);
