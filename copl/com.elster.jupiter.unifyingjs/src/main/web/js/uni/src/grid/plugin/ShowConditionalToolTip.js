@@ -72,7 +72,7 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
                                             tooltip = cell.getAttribute('data-qtip');
 
                                         if (text && (width < tm.getSize(text).width)) {
-                                            cell.set({'data-qtip': tooltip || text});
+                                            cell.set({'data-qtip': tooltip || Ext.String.htmlEncode(text)});
                                         } else {
                                             cell.set({'data-qtip': (tooltip !== Ext.String.htmlEncode(text) ? tooltip : null) || undefined});
                                         }

@@ -56,7 +56,7 @@ Ext.define("Ext.ux.exporter.csvformatter.CsvFormatter", {
                 if (Ext.isFunction(col.renderer)) {
                     //Sometimes value in cell can be invalid. In this case, whole record won't be added in export file.
                     try {
-                        var value = col.renderer(record.get(name), {column: col}, record);
+                        var value = col.renderer(record.get(name), {column: col}, record, index);
                         //to handle specific case if renderer returning html(img tags inside div)
                         this.parserDiv.innerHTML = value;
                         var values = [];
