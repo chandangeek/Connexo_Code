@@ -36,9 +36,9 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
             mcIsLinked = !!me.usagePoint.get('metrologyConfiguration'),
             isReadyForLinkingMC = me.usagePoint.get('isReadyForLinkingMC'),
             hasEffectiveMCs = me.usagePoint.get('hasEffectiveMCs'),
-            stage = me.usagePoint.get('state').stage,
-            canModify = stage === 'PRE_OPERATIONAL' || stage === 'SUSPENDED';
-            console.log(me.hasEffectiveMCs);
+            stage = me.usagePoint.get('state').stageName.split('.')[2],
+            canUnlinkMC = stage === 'preoperational',
+            canModify = stage === 'preoperational' || stage === 'suspended';
 
         me.content = [
             {
@@ -51,7 +51,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                         xtype: 'button',
                         itemId: 'unlink-metrology-configuration-button',
                         text: Uni.I18n.translate('usagePoint.metrologyConfiguration.unlink', 'IMT', 'Unlink metrology configuration'),
-                        privileges: hasEffectiveMCs && Imt.privileges.UsagePoint.canAdministrate(),
+                        privileges: canUnlinkMC && hasEffectiveMCs && Imt.privileges.UsagePoint.canAdministrate(),
                         usagePoint: me.usagePoint
                     }
                 ],

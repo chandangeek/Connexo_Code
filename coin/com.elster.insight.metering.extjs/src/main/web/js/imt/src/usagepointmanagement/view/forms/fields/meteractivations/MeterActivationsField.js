@@ -11,6 +11,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
         bindable: 'Ext.util.Bindable'
     },
     meterRoles: null,
+    usagePoint: null,
     initComponent: function () {
         var me = this;
 
@@ -69,8 +70,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
 
         store.each(function (record) {
             var result = record.getData();
-
-            value.push(result);
+            if (!Ext.isEmpty(result.meterRole)) {
+                value.push(result);
+            }
         });
 
         return !Ext.isEmpty(value) ? value : null;

@@ -5,7 +5,7 @@
 Ext.define('Imt.metrologyconfiguration.model.ValidationRuleSet', {
     extend: 'Uni.model.Version',
     fields: [
-        'id', 'name',
+        'id', 'name', 'lifeCycleStates',
         {name: 'currentVersionId', persist: false},
         {
             name: 'currentVersion',
@@ -44,6 +44,13 @@ Ext.define('Imt.metrologyconfiguration.model.ValidationRuleSet', {
                 }
 
                 return result;
+            }
+        },
+        {
+            name: 'lifeCycleStatesCount',
+            persist: false,
+            mapping: function (data) {
+                return  data.lifeCycleStates && data.lifeCycleStates.length ? data.lifeCycleStates.length : Uni.I18n.translate('general.all', 'IMT', 'All');
             }
         },
         {name: 'metrologyContract', persist: false},

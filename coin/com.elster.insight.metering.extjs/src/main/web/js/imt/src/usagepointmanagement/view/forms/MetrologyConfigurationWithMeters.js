@@ -113,6 +113,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
             ]);
             me.add({
                 xtype: 'metrology-configuration-with-meters-info',
+                usagePoint: me.usagePoint,
                 itemId: 'metrology-configuration-with-meters-info',
                 hidden: true,
                 listeners: {

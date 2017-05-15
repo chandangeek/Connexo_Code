@@ -348,6 +348,13 @@ Ext.define('Imt.controller.History', {
                                                 }, {single: true});
                                                 return this;
                                             }
+                                        },
+                                        history: {
+                                            title: Uni.I18n.translate('general.history', 'IMT', 'History'),
+                                            route: 'history',
+                                            controller: 'Imt.purpose.controller.Readings',
+                                            action: 'viewHistory',
+                                            privileges: Imt.privileges.UsagePoint.admin
                                         }
                                     }
                                 }
