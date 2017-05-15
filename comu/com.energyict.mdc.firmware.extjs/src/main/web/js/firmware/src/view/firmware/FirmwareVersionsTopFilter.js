@@ -8,6 +8,11 @@ Ext.define('Fwc.view.firmware.FirmwareVersionsTopFilter', {
 
     store: 'Fwc.store.Firmwares',
 
+    requires: [
+        'Fwc.store.SupportedFirmwareTypes',
+        'Fwc.store.FirmwareStatuses'
+    ],
+
     filters: [
         {
             type: 'combobox',
