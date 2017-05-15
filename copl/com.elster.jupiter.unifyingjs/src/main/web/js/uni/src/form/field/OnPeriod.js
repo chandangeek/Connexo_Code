@@ -160,8 +160,7 @@ Ext.define('Uni.form.field.OnPeriod', {
                 xtype: 'container',
                 itemId: 'option-doy',
                 layout: {
-                    type: 'hbox',
-                    align: 'stretch'
+                    type: 'hbox'
                 },
                 items: [
                     {
@@ -187,7 +186,6 @@ Ext.define('Uni.form.field.OnPeriod', {
                         maxValue: 31,
                         width: 64,
                         allowBlank: false,
-                        hideLabel: true,
                         margin: '0 6 0 6'
                     },
                     {
@@ -271,8 +269,22 @@ Ext.define('Uni.form.field.OnPeriod', {
             }
         }, me);
 
-        me.getOptionDayOfYearContainer().down('[name=period-day-interval]').on('change', function () {
-            me.selectOptionDayOfYear();
+        me.getOptionDayOfYearContainer().down('[name=period-day-interval]').on('change', function (scope, newValue, oldValue) {
+            if ((newValue >= scope.minValue) && (newValue <= scope.maxValue)) {
+                me.selectOptionDayOfYear();
+            }
+        }, me);
+
+        me.getOptionDayOfYearContainer().down('[name=period-day-interval]').on('blur', function (field) {
+            var value = field.getValue();
+
+            if (value < field.minValue) {
+                field.setValue(field.minValue);
+                me.selectOptionDayOfYear();
+            } else if (value > field.maxValue) {
+                field.setValue(field.maxValue);
+                me.selectOptionDayOfYear();
+            }
         }, me);
 
         me.getOptionDayOfYearContainer().down('[name=period-month-interval]').on('change', function () {
