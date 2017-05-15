@@ -56,6 +56,7 @@ Ext.define('Imt.usagepointhistory.view.meters.MetersGrid', {
             {
                 header: Uni.I18n.translate('general.ongoingProcesses', 'IMT', 'Ongoing processes'),
                 dataIndex: 'ongoingProcesses',
+                align: 'right',
                 renderer: function (value) {
                     return value ? value.length : '-';
                 },
