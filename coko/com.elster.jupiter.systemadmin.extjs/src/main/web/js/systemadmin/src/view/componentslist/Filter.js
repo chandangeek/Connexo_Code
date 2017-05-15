@@ -7,6 +7,12 @@ Ext.define('Sam.view.componentslist.Filter', {
     alias: 'widget.components-filter',
     store: 'Sam.store.SystemComponents',
 
+    requires:[
+        'Sam.store.AvailableAndLicensedApplications',
+        'Sam.store.BundleTypes',
+        'Sam.store.ComponentStatuses'
+    ],
+
     initComponent: function () {
         var me = this;
 
