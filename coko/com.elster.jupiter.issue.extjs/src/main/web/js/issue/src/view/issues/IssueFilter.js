@@ -8,6 +8,16 @@ Ext.define('Isu.view.issues.IssueFilter', {
     isOverviewFilter: false,
     store: undefined,
 
+    requires:[
+        'Isu.store.IssueTypes',
+        'Isu.store.IssueStatuses',
+        'Isu.store.IssueWorkgroupAssignees',
+        'Isu.store.IssueAssignees',
+        'Isu.store.Devices',
+        'Isu.store.DueDate',
+        'Isu.store.IssueReasons'
+    ],
+
     initComponent: function () {
         var me = this;
 
