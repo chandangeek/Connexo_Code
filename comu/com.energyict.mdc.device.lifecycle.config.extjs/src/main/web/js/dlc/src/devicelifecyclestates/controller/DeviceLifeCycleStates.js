@@ -81,6 +81,9 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             },
             'AddProcessesToState button[name=add]': {
                 click: this.addSelectedProcesses
+            },
+            'AddProcessesToState add-process-to-state-selection-grid': {
+                selectionchange: this.enableAddBtn
             }
         });
     },
@@ -382,5 +385,13 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             });
         }
         this.forwardToPreviousPage();
+    },
+
+    enableAddBtn: function (selectionModel) {
+        var addBtn = Ext.ComponentQuery.query('AddProcessesToState button[action=addTransitionBusinessProcess]')[0];
+        if (addBtn) {
+            addBtn.setDisabled(selectionModel.getSelection().length === 0);
+        }
     }
+
 });
