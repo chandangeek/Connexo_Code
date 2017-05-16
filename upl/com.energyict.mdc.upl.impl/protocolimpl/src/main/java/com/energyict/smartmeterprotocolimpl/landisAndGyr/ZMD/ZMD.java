@@ -12,11 +12,7 @@ import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.upl.security.DeviceSecuritySupport;
-import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -52,7 +48,6 @@ import com.energyict.protocolimpl.dlms.siemenszmd.LogBookReader;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
-import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging.ZMDMessages;
 
 import java.io.IOException;
@@ -61,7 +56,6 @@ import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,7 +66,7 @@ import java.util.logging.Logger;
  * Date: 13/12/11
  * Time: 16:02
  */
-public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, ProtocolLink, SerialNumberSupport, DeviceSecuritySupport {
+public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, ProtocolLink, SerialNumberSupport {
     protected static final ObisCode[] SerialNumberSelectionObjects = {
             // Identification numbers 1.1, 1.2, 1.3 and 1.4
             ObisCode.fromString("1.0.0.0.0.255"), ObisCode.fromString("1.0.0.0.1.255"), ObisCode.fromString("1.0.0.0.2.255"), ObisCode.fromString("1.0.0.0.3.255"),
@@ -99,7 +93,6 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
     private final ZMDMessages messageProtocol;
 
     private DeviceProtocolSecurityCapabilities securitySupport;
-    private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
 
     public ZMD(DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -400,37 +393,5 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
 
             return data;
         }
-    }
-
-    @Override
-    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        getProperties().setSecurityPropertySet(deviceProtocolSecurityPropertySet);
-    }
-
-    @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return getSecuritySupport().getSecurityProperties();
-    }
-
-    @Override
-    public Optional<PropertySpec> getClientSecurityPropertySpec() {
-        return getSecuritySupport().getClientSecurityPropertySpec();
-    }
-
-    @Override
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return getSecuritySupport().getAuthenticationAccessLevels();
-    }
-
-    @Override
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return getSecuritySupport().getEncryptionAccessLevels();
-    }
-
-    public DeviceProtocolSecurityCapabilities getSecuritySupport() {
-        if (this.securitySupport == null) {
-            this.securitySupport = new SimplePasswordSecuritySupport(propertySpecService);
-        }
-        return this.securitySupport;
     }
 }

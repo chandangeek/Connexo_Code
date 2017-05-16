@@ -1,16 +1,17 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 
-import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
+import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -28,7 +29,6 @@ import java.util.stream.Stream;
  * Date: 18/06/13
  * Time: 15:02
  */
-//TODO: as we have introduced client support (#getClientSecurityPropertySpec) is this class still relevant? Check to review/update!
 public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implements LegacyDeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
@@ -42,111 +42,82 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
     }
 
     private PropertySpec getEncryptionKeyPublicPropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_PUBLIC.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_PUBLIC, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_PUBLIC).markRequired().finish();
     }
 
     private PropertySpec getEncryptionKeyDataPropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_DATA.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_DATA, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_DATA).markRequired().finish();
     }
 
     private PropertySpec getEncryptionKeyExtDataPropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_EXT_DATA.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_EXT_DATA, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_EXT_DATA).markRequired().finish();
     }
 
     private PropertySpec getEncryptionKeyManagementPropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANAGEMENT.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_MANAGEMENT, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANAGEMENT).markRequired().finish();
     }
 
     private PropertySpec getEncryptionKeyFirmwarePropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_FIRMWARE.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_FIRMWARE, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_FIRMWARE).markRequired().finish();
     }
 
     private PropertySpec getEncryptionKeyManufacturerPropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANUFACTURER.toString(), true, PropertyTranslationKeys.SECURITY_ENCRYPTION_KEY_MANUFACTURER, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANUFACTURER).markRequired().finish();
     }
 
     private PropertySpec getAuthenticationKeyPublicPropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_PUBLIC.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_PUBLIC, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_PUBLIC).markRequired().finish();
     }
 
     private PropertySpec getAuthenticationKeyDataPropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_DATA.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_DATA, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_DATA).markRequired().finish();
     }
 
     private PropertySpec getAuthenticationKeyExtDataPropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_EXT_DATA.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_EXT_DATA, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_EXT_DATA).markRequired().finish();
     }
 
     private PropertySpec getAuthenticationKeyManagementPropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_MANAGEMENT.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_MANAGEMENT, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_MANAGEMENT).markRequired().finish();
     }
 
     private PropertySpec getAuthenticationKeyFirmwarePropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_FIRMWARE.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_FIRMWARE, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_FIRMWARE).markRequired().finish();
     }
 
     private PropertySpec getAuthenticationKeyManufacturerPropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_MANUFACTURER.toString(), true, PropertyTranslationKeys.SECURITY_AUTHENTICATION_KEY_MANUFACTURER, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY_MANUFACTURER).markRequired().finish();
     }
 
     private PropertySpec getPasswordPublicPropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.PASSWORD_PUBLIC.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_PUBLIC, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.PASSWORD_PUBLIC).markRequired().finish();
     }
 
     private PropertySpec getPasswordDataPropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.PASSWORD_DATA.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_DATA, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.PASSWORD_DATA).markRequired().finish();
     }
 
     private PropertySpec getPasswordExtDataPropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.PASSWORD_EXT_DATA.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_EXT_DATA, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.PASSWORD_EXT_DATA).markRequired().finish();
     }
 
     private PropertySpec getPasswordManagementPropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.PASSWORD_MANAGEMENT.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_MANAGEMENT, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.PASSWORD_MANAGEMENT).markRequired().finish();
     }
 
     private PropertySpec getPasswordFirmwarePropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.PASSWORD_FIRMWARE.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_FIRMWARE, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.PASSWORD_FIRMWARE).markRequired().finish();
     }
 
     private PropertySpec getPasswordManufacturerPropertySpec() {
-        return UPLPropertySpecFactory
-                .specBuilder(SecurityPropertySpecTranslationKeys.PASSWORD_MANUFACTURER.toString(), true, PropertyTranslationKeys.SECURITY_PASSWORD_MANUFACTURER, propertySpecService::encryptedStringSpec)
-                .finish();
+        return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.PASSWORD_MANUFACTURER).markRequired().finish();
+    }
+
+    protected PropertySpecBuilder<Object> keyAccessorTypeReferenceSpecBuilder(PropertySpecService propertySpecService, SecurityPropertySpecTranslationKeys securityPropertySpecTranslationKey) {
+        return propertySpecService
+                .referenceSpec(KeyAccessorType.class.getName())
+                .named(securityPropertySpecTranslationKey.getKey(), securityPropertySpecTranslationKey)
+                .describedAs(new DescriptionTranslationKey(securityPropertySpecTranslationKey));
     }
 
     @Override
@@ -176,7 +147,7 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
     @Override
     public List<String> getLegacySecurityProperties() {
         return Arrays.asList(
-                SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(),
+                SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.getKey(),
                 DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME,
                 SECURITY_LEVEL_PROPERTY_NAME,
                 DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME
@@ -185,7 +156,7 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
 
     @Override
     public Optional<PropertySpec> getClientSecurityPropertySpec() {
-        return Optional.of(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(this.propertySpecService));
+        return Optional.empty(); // Client implicit defined in the different authentication/encryption levels
     }
 
     @Override
@@ -259,7 +230,6 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
         TypedProperties typedProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-            typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), deviceProtocolSecurityPropertySet.getClient()); // Add the ClientMacAddress
             convertToProperPassword(deviceProtocolSecurityPropertySet, typedProperties);
 
             final int clientId = AuthenticationAccessLevelIds.getClientIdFor(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel());
@@ -267,13 +237,9 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
                     AuthenticationAccessLevelIds.getSimpleAuthenticationAccessLevelForClientMacAndNewAccessLevel(clientId, deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()) +
                             ":" +
                             EncryptionAccessLevelIds.getSimpleEncryptionAccessLevelForClientMacAndNewAccessLevel(clientId, deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()));
-            typedProperties.setProperty(DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME,
-                    getDataTransportEncryptionKeyPropertyValue(deviceProtocolSecurityPropertySet));
-            typedProperties.setProperty(DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME,
-                    getDataTransportAuthenticationKeyPropertyValue(deviceProtocolSecurityPropertySet));
-            typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(),
-                    clientId
-            );
+            typedProperties.setProperty(DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME, getDataTransportEncryptionKeyPropertyValue(deviceProtocolSecurityPropertySet));
+            typedProperties.setProperty(DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME, getDataTransportAuthenticationKeyPropertyValue(deviceProtocolSecurityPropertySet));
+            typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), clientId);
         }
         return typedProperties;
     }
@@ -562,59 +528,59 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
     private enum DefaultTranslations {
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_0(authenticationTranslationKeyConstant + "0", "No Authentication Public client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_1(authenticationTranslationKeyConstant + "1", "Low level Authentication Public client"),
-        DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_10(authenticationTranslationKeyConstant + "10", "SHA - 1Authentication DataCollection client"),
+        DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_10(authenticationTranslationKeyConstant + "10", "SHA1 - Authentication DataCollection client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_11(authenticationTranslationKeyConstant + "11", "GMAC Authentication DataCollection client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_12(authenticationTranslationKeyConstant + "12", "No Authentication Extended DataCollection client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_13(authenticationTranslationKeyConstant + "13", "Low level Authentication Extended DataCollection client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_15(authenticationTranslationKeyConstant + "15", "Md5 Authentication Extended DataCollection client"),
-        DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_16(authenticationTranslationKeyConstant + "16", "SHA - 1Authentication Extended DataCollection client"),
+        DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_16(authenticationTranslationKeyConstant + "16", "SHA1 - Authentication Extended DataCollection client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_17(authenticationTranslationKeyConstant + "17", "GMAC Authentication Extended DataCollection client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_18(authenticationTranslationKeyConstant + "18", "No Authentication Management client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_19(authenticationTranslationKeyConstant + "19", "Low level Authentication Management client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_21(authenticationTranslationKeyConstant + "21", "Md5 Authentication Management client"),
-        DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_22(authenticationTranslationKeyConstant + "22", "SHA - 1Authentication Management client"),
+        DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_22(authenticationTranslationKeyConstant + "22", "SHA1 - Authentication Management client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_23(authenticationTranslationKeyConstant + "23", "GMAC Authentication Management client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_24(authenticationTranslationKeyConstant + "24", "No Authentication Firmware client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_25(authenticationTranslationKeyConstant + "25", "Low level Authentication Firmware client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_27(authenticationTranslationKeyConstant + "27", "Md5 Authentication Firmware client"),
-        DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_28(authenticationTranslationKeyConstant + "28", "SHA - 1Authentication Firmware client"),
+        DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_28(authenticationTranslationKeyConstant + "28", "SHA1 - Authentication Firmware client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_29(authenticationTranslationKeyConstant + "29", "GMAC Authentication Firmware client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_3(authenticationTranslationKeyConstant + "3", "Md5 Authentication Public client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_30(authenticationTranslationKeyConstant + "30", "No Authentication Manufacturer client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_31(authenticationTranslationKeyConstant + "31", "Low level Authentication Manufacturer client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_33(authenticationTranslationKeyConstant + "33", "Md5 Authentication Manufacturer client"),
-        DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_34(authenticationTranslationKeyConstant + "34", "SHA - 1Authentication Manufacturer client"),
+        DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_34(authenticationTranslationKeyConstant + "34", "SHA1 - Authentication Manufacturer client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_35(authenticationTranslationKeyConstant + "35", "GMAC Authentication Manufacturer client"),
-        DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_4(authenticationTranslationKeyConstant + "4", "SHA - 1Authentication Public client"),
+        DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_4(authenticationTranslationKeyConstant + "4", "SHA1 - Authentication Public client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_5(authenticationTranslationKeyConstant + "5", "GMAC Authentication Public client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_6(authenticationTranslationKeyConstant + "6", "No Authentication DataCollection client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_7(authenticationTranslationKeyConstant + "7", "Low level Authentication DataCollection client"),
         DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_9(authenticationTranslationKeyConstant + "9", "Md5 Authentication DataCollection client"),
 
         DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_0(encryptionTranslationKeyConstant + "0", "No Encryption Public client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_1(encryptionTranslationKeyConstant + "1", "Message Encryption Public client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_10(encryptionTranslationKeyConstant + "10", "Message Authentication Extended DataCollection client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_11(encryptionTranslationKeyConstant + "11", "Message Encryption and Authentication Extended DataCollection client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_1(encryptionTranslationKeyConstant + "1", "Message Authentication Public client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_10(encryptionTranslationKeyConstant + "10", "Message Encryption Extended DataCollection client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_11(encryptionTranslationKeyConstant + "11", "Message Authentication and Encryption Extended DataCollection client"),
         DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_12(encryptionTranslationKeyConstant + "12", "No Encryption Management client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_13(encryptionTranslationKeyConstant + "13", "Message Encryption Management client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_14(encryptionTranslationKeyConstant + "14", "Message Authentication Management client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_15(encryptionTranslationKeyConstant + "15", "Message Encryption and Authentication Management client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_13(encryptionTranslationKeyConstant + "13", "Message Authentication Management client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_14(encryptionTranslationKeyConstant + "14", "Message Encryption Management client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_15(encryptionTranslationKeyConstant + "15", "Message Authentication and Encryption Management client"),
         DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_16(encryptionTranslationKeyConstant + "16", "No Encryption Firmware client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_17(encryptionTranslationKeyConstant + "17", "Message Encryption Firmware client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_18(encryptionTranslationKeyConstant + "18", "Message Authentication Firmware client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_19(encryptionTranslationKeyConstant + "19", "Message Encryption and Authentication Firmware client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_2(encryptionTranslationKeyConstant + "2", "Message Authentication Public client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_17(encryptionTranslationKeyConstant + "17", "Message Authentication Firmware client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_18(encryptionTranslationKeyConstant + "18", "Message Encryption Firmware client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_19(encryptionTranslationKeyConstant + "19", "Message Authentication and Encryption Firmware client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_2(encryptionTranslationKeyConstant + "2", "Message Encryption Public client"),
         DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_20(encryptionTranslationKeyConstant + "20", "No Encryption Manufacturer client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_21(encryptionTranslationKeyConstant + "21", "Message Encryption Manufacturer client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_22(encryptionTranslationKeyConstant + "22", "Message Authentication Manufacturer client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_23(encryptionTranslationKeyConstant + "23", "Message Encryption and Authentication Manufacturer client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_3(encryptionTranslationKeyConstant + "3", "Message Encryption and Authentication Public client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_21(encryptionTranslationKeyConstant + "21", "Message Authentication Manufacturer client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_22(encryptionTranslationKeyConstant + "22", "Message Encryption Manufacturer client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_23(encryptionTranslationKeyConstant + "23", "Message Authentication and Encryption Manufacturer client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_3(encryptionTranslationKeyConstant + "3", "Message Authentication and Encryption Public client"),
         DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_4(encryptionTranslationKeyConstant + "4", "No Encryption DataCollection client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_5(encryptionTranslationKeyConstant + "5", "Message Encryption DataCollection client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_6(encryptionTranslationKeyConstant + "6", "Message Authentication DataCollection client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_7(encryptionTranslationKeyConstant + "7", "Message Encryption and Authentication DataCollection client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_5(encryptionTranslationKeyConstant + "5", "Message Authentication DataCollection client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_6(encryptionTranslationKeyConstant + "6", "Message Encryption DataCollection client"),
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_7(encryptionTranslationKeyConstant + "7", "Message Authentication and Encryption DataCollection client"),
         DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_8(encryptionTranslationKeyConstant + "8", "No Encryption Extended DataCollection client"),
-        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_9(encryptionTranslationKeyConstant + "9", "Message Encryption Extended DataCollection client");
+        DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_9(encryptionTranslationKeyConstant + "9", "Message Authentication Extended DataCollection client");
 
         private final String key;
         private final String defaultTranslation;
