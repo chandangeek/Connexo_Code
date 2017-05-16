@@ -48,6 +48,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
     public static final String EQUAL_DISTRIBUTION_ESTIMATOR = EqualDistribution.class.getName();
     public static final String MAIN_CHECK_ESTIMATOR = MainCheckEstimator.class.getName();
     public static final String NEAREST_AVERAGE_VALUE_DAY_ESTIMATOR = NearestAvgValueDayEstimator.class.getName();
+    public static final String REFERENCE_SUBSTITUTION_ESTIMATOR = ReferenceSubstitutionEstimator.class.getName();
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
@@ -213,6 +214,17 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
             @Override
             AbstractEstimator createTemplate(EstimatorParameters estimatorParameters) {
                 return new NearestAvgValueDayEstimator(estimatorParameters.thesaurus,estimatorParameters.propertySpecService,estimatorParameters.validationService,estimatorParameters.meteringService,estimatorParameters.timeService,estimatorParameters.calendarService);
+            }
+        },
+        REFERENCE_SUBSTITUTION(REFERENCE_SUBSTITUTION_ESTIMATOR){
+            @Override
+            Estimator create(EstimatorParameters estimatorParameters){
+                return new ReferenceSubstitutionEstimator(estimatorParameters.thesaurus, estimatorParameters.metrologyConfigurationService, estimatorParameters.validationService, estimatorParameters.propertySpecService,  estimatorParameters.meteringService, estimatorParameters.props);
+            }
+
+            @Override
+            AbstractEstimator createTemplate(EstimatorParameters estimatorParameters) {
+                return new ReferenceSubstitutionEstimator(estimatorParameters.thesaurus, estimatorParameters.metrologyConfigurationService, estimatorParameters.validationService, estimatorParameters.propertySpecService, estimatorParameters.meteringService);
             }
         };
 

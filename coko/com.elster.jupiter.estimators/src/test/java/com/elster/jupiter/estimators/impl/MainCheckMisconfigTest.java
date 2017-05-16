@@ -6,43 +6,20 @@ package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.assertions.JupiterAssertions;
-import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.Estimator;
-import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.validation.ValidationResult;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
+import static com.elster.jupiter.estimators.impl.Utils.BIG_DECIMAL_100;
+import static com.elster.jupiter.estimators.impl.Utils.INSTANT_2016_FEB_01;
+import static com.elster.jupiter.estimators.impl.Utils.INSTANT_2016_FEB_02;
 import static org.junit.Assert.assertEquals;
 
 public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
-
-    private static final String READING_TIME_1 = "20160101000000";
-    private static final String READING_TIME_2 = "20160102000000";
-
-    private static final Double BIG_DECIMAL_100 = 100D;
-
-    private static final Logger LOGGER = Logger.getLogger(MainCheckMisconfigTest.class.getName());
-    private LogRecorder logRecorder;
-
-    @Before
-    public void setUp() {
-        logRecorder = new LogRecorder(Level.ALL);
-        LOGGER.addHandler(logRecorder);
-        LoggingContext.getCloseableContext().with("rule", "rule");
-    }
-
-    @After
-    public void tearDown() {
-        LoggingContext.getCloseableContext().close();
-        LOGGER.removeHandler(logRecorder);
-    }
 
     @Test
     public void noPurposeTest() {
@@ -51,14 +28,14 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
                 .withLogger(LOGGER)
                 .withBlock(new BlockConfiguration()
                         .withEstimatable(new EstimatableConf()
-                                .of(instant(READING_TIME_1))
+                                .of(INSTANT_2016_FEB_01)
                                 .withReferenceValue(new ReferenceValue()
-                                        .withValue(bigDecimal(BIG_DECIMAL_100))
+                                        .withValue(BIG_DECIMAL_100)
                                         .withValidationResult(ValidationResult.VALID)))
                         .withEstimatable(new EstimatableConf()
-                                .of(instant(READING_TIME_2))
+                                .of(INSTANT_2016_FEB_02)
                                 .withReferenceValue(new ReferenceValue()
-                                        .withValue(bigDecimal(BIG_DECIMAL_100))
+                                        .withValue(BIG_DECIMAL_100)
                                         .withValidationResult(ValidationResult.VALID))));
 
         estimationConfiguration.mockAll();
@@ -70,7 +47,7 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
         assertEquals(1, estimationResult.remainingToBeEstimated().size());
         assertEquals(2, estimationResult.remainingToBeEstimated().get(0).estimatables().size());
 
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Fri, 1 Jan 2016 12:00 AM until Sat, 2 Jan 2016 12:00 AM\" using method Main/Check substitution on [Daily] Secondary Delta A+ (kWh) since the specified purpose doesn't exist on the usage point name")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Mon, 1 Feb 2016 12:00 AM until Tue, 2 Feb 2016 12:00 AM\" using method Main/Check substitution on [Daily] Secondary Delta A+ (kWh) since the specified purpose doesn't exist on the usage point name")).atLevel(Level.WARNING);
     }
 
     @Test
@@ -80,14 +57,14 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
                 .withBlock(new BlockConfiguration()
                         .withNoCheckChannel()
                         .withEstimatable(new EstimatableConf()
-                                .of(instant(READING_TIME_1))
+                                .of(INSTANT_2016_FEB_01)
                                 .withReferenceValue(new ReferenceValue()
-                                        .withValue(bigDecimal(BIG_DECIMAL_100))
+                                        .withValue(BIG_DECIMAL_100)
                                         .withValidationResult(ValidationResult.VALID)))
                         .withEstimatable(new EstimatableConf()
-                                .of(instant(READING_TIME_2))
+                                .of(INSTANT_2016_FEB_02)
                                 .withReferenceValue(new ReferenceValue()
-                                        .withValue(bigDecimal(BIG_DECIMAL_100))
+                                        .withValue(BIG_DECIMAL_100)
                                         .withValidationResult(ValidationResult.VALID))));
 
         estimationConfiguration.mockAll();
@@ -99,7 +76,7 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
         assertEquals(1, estimationResult.remainingToBeEstimated().size());
         assertEquals(2, estimationResult.remainingToBeEstimated().get(0).estimatables().size());
 
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Fri, 1 Jan 2016 12:00 AM until Sat, 2 Jan 2016 12:00 AM\" using method Main/Check substitution on [Daily] Secondary Delta A+ (kWh) since 'check' output with matching reading type on the specified purpose doesn't exist on usage point name")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Mon, 1 Feb 2016 12:00 AM until Tue, 2 Feb 2016 12:00 AM\" using method Main/Check substitution on [Daily] Secondary Delta A+ (kWh) since 'check' output with matching reading type on the specified purpose doesn't exist on usage point name")).atLevel(Level.WARNING);
     }
 
     @Test
@@ -108,14 +85,14 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
                 .withLogger(LOGGER)
                 .withBlock(new BlockConfiguration()
                         .withEstimatable(new EstimatableConf()
-                                .of(instant(READING_TIME_1))
+                                .of(INSTANT_2016_FEB_01)
                                 .withReferenceValue(new ReferenceValue()
-                                        .withValue(bigDecimal(BIG_DECIMAL_100))
+                                        .withValue(BIG_DECIMAL_100)
                                         .withValidationResult(ValidationResult.SUSPECT)))
                         .withEstimatable(new EstimatableConf()
-                                .of(instant(READING_TIME_2))
+                                .of(INSTANT_2016_FEB_02)
                                 .withReferenceValue(new ReferenceValue()
-                                        .withValue(bigDecimal(BIG_DECIMAL_100))
+                                        .withValue(BIG_DECIMAL_100)
                                         .withValidationResult(ValidationResult.VALID))));
 
         estimationConfiguration.mockAll();
@@ -127,7 +104,7 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
         assertEquals(1, estimationResult.remainingToBeEstimated().size());
         assertEquals(2, estimationResult.remainingToBeEstimated().get(0).estimatables().size());
 
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Fri, 1 Jan 2016 12:00 AM until Sat, 2 Jan 2016 12:00 AM\" using method Main/Check substitution on usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) since data from check output is suspect or missing")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Mon, 1 Feb 2016 12:00 AM until Tue, 2 Feb 2016 12:00 AM\" using method Main/Check substitution on usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) since data from check output is suspect or missing")).atLevel(Level.WARNING);
     }
 
     @Test
@@ -136,12 +113,12 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
                 .withLogger(LOGGER)
                 .withBlock(new BlockConfiguration()
                         .withEstimatable(new EstimatableConf()
-                                .of(instant(READING_TIME_1))
+                                .of(INSTANT_2016_FEB_01)
                                 .withNoReferenceValue())
                         .withEstimatable(new EstimatableConf()
-                                .of(instant(READING_TIME_2))
+                                .of(INSTANT_2016_FEB_02)
                                 .withReferenceValue(new ReferenceValue()
-                                        .withValue(bigDecimal(BIG_DECIMAL_100))
+                                        .withValue(BIG_DECIMAL_100)
                                         .withValidationResult(ValidationResult.VALID))));
 
         estimationConfiguration.mockAll();
@@ -153,7 +130,7 @@ public class MainCheckMisconfigTest extends MainCheckEstimatorTest {
         assertEquals(1, estimationResult.remainingToBeEstimated().size());
         assertEquals(2, estimationResult.remainingToBeEstimated().get(0).estimatables().size());
 
-        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Fri, 1 Jan 2016 12:00 AM until Sat, 2 Jan 2016 12:00 AM\" using method Main/Check substitution on usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) since data from check output is suspect or missing")).atLevel(Level.WARNING);
+        JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.contains("Failed to estimate period \"Mon, 1 Feb 2016 12:00 AM until Tue, 2 Feb 2016 12:00 AM\" using method Main/Check substitution on usage point name/Purpose/[Daily] Secondary Delta A+ (kWh) since data from check output is suspect or missing")).atLevel(Level.WARNING);
     }
 
 }
