@@ -154,14 +154,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
             errorList.push(' '); //new empty line
         }
 
-        me.getRightConnectionDetails().setVisible(!errorList.length > 0);
-        me.getLeftConnectionDetails().setVisible(!errorList.length > 0);
-        me.getShowConnectionDetailsButton().setVisible(errorList.length > 0);
-        me.getHideConnectionDetailsButton().setVisible(!errorList.length > 0);
+        me.getRightConnectionDetails().setVisible(false);
+        me.getLeftConnectionDetails().setVisible(false);
+        me.getShowConnectionDetailsButton().setVisible(true);
+        me.getHideConnectionDetailsButton().setVisible(false);
         if(errorList.length > 0){
             connectionSummary.setValue(errorList.join('<br/>'));
         }else{
-            Uni.I18n.translate('deviceconnectionhistory.noErrorsOrWarnings', 'MDC', 'No errors or warnings.')
+            connectionSummary.setValue(Uni.I18n.translate('deviceconnectionhistory.noErrorsOrWarnings', 'MDC', 'No errors or warnings.'));
         }
 
         me.getStatusLink().setValue('<a href="#/devices/' + this.deviceId
@@ -216,14 +216,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
             errorList.push(' '); //new empty line
         }
 
-        me.getRightCommunicationDetails().setVisible(!errorList.length > 0);
-        me.getLeftCommunicationDetails().setVisible(!errorList.length > 0);
-        me.getShowCommunicationDetailsButton().setVisible(errorList.length > 0);
-        me.getHideCommunicationDetailsButton().setVisible(!errorList.length > 0);
+        me.getRightCommunicationDetails().setVisible(false);
+        me.getLeftCommunicationDetails().setVisible(false);
+        me.getShowCommunicationDetailsButton().setVisible(true);
+        me.getHideCommunicationDetailsButton().setVisible(false);
         if(errorList.length > 0){
             communicationSummary.setValue(errorList.join('<br/>'));
         }else {
-            Uni.I18n.translate('devicecommunicationhistory.noErrorsOrWarnings', 'MDC', 'No errors or warnings.');
+            communicationSummary.setValue(Uni.I18n.translate('devicecommunicationhistory.noErrorsOrWarnings', 'MDC', 'No errors or warnings.'));
         }
 
         deviceCommunicationTaskExecutionPreviewMenu.record = communication;

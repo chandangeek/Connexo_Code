@@ -155,18 +155,18 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
             errorListCommunication.push(' '); //new empty line
         }
 
-        me.getComTaskConnectionDetails().setVisible(!errorListConnection.length > 0);
-        me.getShowComTaskConnectionDetails().setVisible(errorListConnection.length > 0);
-        me.getHideComTaskConnectionDetails().setVisible(!errorListConnection.length > 0);
+        me.getComTaskConnectionDetails().setVisible(false);
+        me.getShowComTaskConnectionDetails().setVisible(true);
+        me.getHideComTaskConnectionDetails().setVisible(false);
         if(errorListConnection.length > 0){
             comTaskConnectionSummary.setValue(errorListConnection.join('<br/>'));
         }else{
             comTaskConnectionSummary.setValue(Uni.I18n.translate('deviceconnectionhistory.noErrorsOrWarnings', 'MDC', 'No errors or warnings.'));
         }
 
-        me.getComTaskCommunicationDetails().setVisible(!errorListCommunication.length > 0);
-        me.getShowComTaskCommunicationDetails().setVisible(errorListCommunication.length > 0);
-        me.getHideComTaskCommunicationDetails().setVisible(!errorListCommunication.length > 0);
+        me.getComTaskCommunicationDetails().setVisible(false);
+        me.getShowComTaskCommunicationDetails().setVisible(true);
+        me.getHideComTaskCommunicationDetails().setVisible(false);
         if(errorListCommunication.length > 0){
             comTaskCommunicationSummary.setValue(errorListCommunication.join('<br/>'));
         }else{
