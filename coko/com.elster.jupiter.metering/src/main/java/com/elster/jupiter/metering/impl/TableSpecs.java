@@ -2064,7 +2064,7 @@ public enum TableSpecs {
     },
     MTR_READINGQUALITY_COMMENT {
         @Override
-        void addTo(DataModel dataModel) {
+        void addTo(DataModel dataModel, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService) {
             Table<ReadingQualityComment> table = dataModel.addTable(name(), ReadingQualityComment.class);
             table.since(Version.version(10, 3));
             table.map(ReadingQualityCommentImpl.class);
