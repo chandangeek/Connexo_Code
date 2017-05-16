@@ -8,6 +8,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
         'Uni.util.FormErrorMessage',
         'Uni.form.field.ComboReturnedRecordData',
         'Mdc.store.TimeUnitsYearsSeconds',
+        'Mdc.securityaccessors.store.TrustStores',
         'Mdc.securityaccessors.store.KeyTypes',
         'Mdc.securityaccessors.store.KeyEncryptionMethods'
     ],
