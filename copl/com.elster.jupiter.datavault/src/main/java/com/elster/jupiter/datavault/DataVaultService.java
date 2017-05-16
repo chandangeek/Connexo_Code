@@ -13,6 +13,7 @@ public interface DataVaultService extends Encrypter {
     String COMPONENT_NAME = "DVA";
 
     String encrypt(byte[] decrypted);
+
     byte[] decrypt(String encrypted);
 
 }
