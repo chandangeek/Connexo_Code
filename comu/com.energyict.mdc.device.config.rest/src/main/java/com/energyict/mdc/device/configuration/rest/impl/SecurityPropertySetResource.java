@@ -174,6 +174,12 @@ public class SecurityPropertySetResource {
                     securityPropertySet.addConfigurationSecurityProperty(propertySpec.getName(), keyAccessor);
                 }
             }
+            // Remove the no longer used configuration security properties
+            List<ConfigurationSecurityProperty> toRemove = securityPropertySet.getConfigurationSecurityProperties()
+                    .stream()
+                    .filter(property -> securityPropertySet.getPropertySpecs().stream().noneMatch(spec -> spec.getName().equals(property.getName())))
+                    .collect(Collectors.toList());
+            toRemove.forEach(property -> securityPropertySet.removeConfigurationSecurityProperty(property.getName()));
         } else {
             // Remove all properties
             securityPropertySet.getConfigurationSecurityProperties().forEach(property -> securityPropertySet.removeConfigurationSecurityProperty(property.getName()));
