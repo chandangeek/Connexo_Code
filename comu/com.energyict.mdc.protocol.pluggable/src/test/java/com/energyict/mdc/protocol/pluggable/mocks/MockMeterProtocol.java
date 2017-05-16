@@ -43,15 +43,21 @@ import java.util.logging.Logger;
 public class MockMeterProtocol implements MeterProtocol, MessageProtocol {
 
     private final PropertySpecService propertySpecService;
+    private final String javaClassName;
 
     public MockMeterProtocol(PropertySpecService propertySpecService) {
+        this(propertySpecService, MockMeterProtocol.class.getName());
+    }
+
+    public MockMeterProtocol(PropertySpecService propertySpecService, String javaClassName) {
         super();
         this.propertySpecService = propertySpecService;
+        this.javaClassName = javaClassName;
     }
 
     @Override
     public String getProtocolDescription() {
-        return this.getClass().getName();
+        return javaClassName;
     }
 
     @Override

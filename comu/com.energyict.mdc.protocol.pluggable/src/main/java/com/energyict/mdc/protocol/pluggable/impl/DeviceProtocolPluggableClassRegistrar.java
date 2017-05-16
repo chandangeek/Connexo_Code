@@ -12,7 +12,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.upl.DeviceDescriptionSupport;
 
 import java.time.Instant;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,21 +35,21 @@ public class DeviceProtocolPluggableClassRegistrar extends PluggableClassRegistr
     }
 
     public void registerAll(List<LicensedProtocol> licensedProtocols) {
-        Iterator<LicensedProtocol> licensedProtocolIterator = licensedProtocols.iterator();
-        boolean registerNext = true;
-        while (registerNext && licensedProtocolIterator.hasNext()) {
-            LicensedProtocol licensedProtocol = licensedProtocolIterator.next();
+        int registered = 0;
+        for (LicensedProtocol licensedProtocol: licensedProtocols){
             try {
-                if (this.deviceProtocolDoesNotExist(licensedProtocol)) {
+                List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = this.protocolPluggableService.findDeviceProtocolPluggableClassesByClassName(licensedProtocol.getClassName());
+                if (deviceProtocolPluggableClasses.isEmpty()) {
                     this.createDeviceProtocol(licensedProtocol);
                     this.created(licensedProtocol);
                 } else {
                     this.alreadyExists(licensedProtocol);
                 }
-            } catch (NoServiceFoundThatCanLoadTheJavaClass e) {
+                registered++;
+            }catch (NoServiceFoundThatCanLoadTheJavaClass e) {
                 this.logWarning(() -> e.getMessage() + "; will retry later");
-                registerNext = false;
-            } catch (RuntimeException e) {
+            }
+            catch (RuntimeException e) {
                 this.creationFailed(licensedProtocol);
                 if (e.getCause() != null) {
                     handleCreationException(licensedProtocol.getClassName(), e.getCause());
@@ -61,8 +60,9 @@ public class DeviceProtocolPluggableClassRegistrar extends PluggableClassRegistr
                 this.logError(() -> "Failure to register device protocol " + toLogMessage(licensedProtocol) + " see error message below:");
                 handleCreationException(licensedProtocol.getClassName(), e);
             }
+
         }
-        this.completed(licensedProtocols.size(), "device protocol");
+        this.completed(registered, "device protocol");
     }
 
     private boolean deviceProtocolDoesNotExist(LicensedProtocol licensedProtocolRule) {
