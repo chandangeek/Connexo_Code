@@ -19,8 +19,8 @@ import java.util.logging.Level;
  */
 public enum MessageSeeds implements MessageSeed {
 
-    TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE(100, Keys.TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE, "Action '{0}' cannot be executed against the device (id={1}) because the device's life cycle does not support that action in its current state"),
-    BPM_ACTION_SOURCE_IS_NOT_CURRENT_STATE(101, Keys.BPM_ACTION_SOURCE_IS_NOT_CURRENT_STATE, "Business process with deployment id '{0}' and process id '{1}' cannot be executed against the device (id={2}) because the device's life cycle does not support that action in its current state"),
+    TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE(100, Keys.TRANSITION_ACTION_SOURCE_IS_NOT_CURRENT_STATE, "Action ''{0}'' cannot be executed against the device (id={1}) because the device's life cycle does not support that action in its current state"),
+    BPM_ACTION_SOURCE_IS_NOT_CURRENT_STATE(101, Keys.BPM_ACTION_SOURCE_IS_NOT_CURRENT_STATE, "Business process with deployment id ''{0}'' and process id ''{1}'' cannot be executed against the device (id={2}) because the device's life cycle does not support that action in its current state"),
     NOT_ALLOWED_2_EXECUTE(102, Keys.NOT_ALLOWED_2_EXECUTE, "The current user is not allowed to execute this action"),
 
     // MicroChecks
