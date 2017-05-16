@@ -15,7 +15,8 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
     ],
 
     stores: [
-        'Imt.rulesets.store.ValidationRuleSetPurposesToAdd'
+        'Imt.rulesets.store.ValidationRuleSetPurposesToAdd',
+        'Imt.rulesets.store.UsagePointStatesToAdd'
     ],
 
     models: [
@@ -28,7 +29,10 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
 
     refs: [
         {ref: 'page', selector: '#add-purposes-to-validation-rule-set'},
-        {ref: 'previewPanel', selector: '#add-purposes-to-validation-rule-set #metrology-configuration-purpose-preview'}
+        {ref: 'previewPanel', selector: '#add-purposes-to-validation-rule-set #metrology-configuration-purpose-preview'},
+        {ref: 'purposesGrid', selector: '#add-purposes-to-validation-rule-set #add-metrology-configuration-purposes-grid'},
+        {ref: 'statesGrid', selector: '#add-purposes-to-validation-rule-set #add-usage-point-states-grid'},
+        {ref: 'statesErrorMessage', selector: '#add-purposes-to-validation-rule-set #add-usage-point-states-error'}
     ],
 
     addPurposesLink: '/api/ucr/validationrulesets/{0}/purposes/add',
@@ -40,6 +44,9 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
             '#add-purposes-to-validation-rule-set #add-metrology-configuration-purposes-grid': {
                 select: me.showPreview,
                 addSelected: me.addPurposesToRuleSet
+            },
+            '#add-purposes-to-validation-rule-set #add-metrology-configuration-purposes-bottom-toolbar #addButton': {
+                click: me.addPurposesAndStatesToRuleSet
             }
         });
     },
@@ -49,7 +56,8 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
-            availableToAddPurposesStore = me.getStore('Imt.rulesets.store.ValidationRuleSetPurposesToAdd');
+            availableToAddPurposesStore = me.getStore('Imt.rulesets.store.ValidationRuleSetPurposesToAdd'),
+            usagePointStatesStore = me.getStore('Imt.rulesets.store.UsagePointStatesToAdd');
 
         mainView.setLoading();
         me.getModel('Cfg.model.ValidationRuleSet').load(ruleSetId, {
@@ -65,11 +73,13 @@ Ext.define('Imt.rulesets.controller.AddPurposesToValidationRuleSet', {
                 router: router,
                 cancelHref: router.getRoute('administration/rulesets/overview/metrologyconfigurationpurposes').buildUrl(),
                 purposesStore: availableToAddPurposesStore,
+                usagePointStatesStore: usagePointStatesStore,
                 ruleSetId: ruleSetId
             }));
             availableToAddPurposesStore.getProxy().setExtraParam('ruleSetId', ruleSetId);
             me.getPage().down('#stepsMenu').setHeader(record.get('name'));
             availableToAddPurposesStore.load();
+            usagePointStatesStore.load();
         }
 
         function loadCallback() {

@@ -339,7 +339,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             wizard.remove(currentSteps[i], true);
         }
         // remove menu items after current step
-        for (var j = currentStepNumber; j < currentMenuItems.length-1; j++) {
+        for (var j = currentStepNumber; j < currentMenuItems.length; j++) {
             navigation.remove(currentMenuItems[j], true);
         }
 
@@ -402,6 +402,8 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 
     addLinkMetrologyConfigurationStep: function (stepsToAdd, navigationItemsToAdd) {
         var title = Uni.I18n.translate('general.linkMetrologyConfiguration', 'IMT', 'Link metrology configuration'),
+            wizard = this.getWizard(),
+            usagePoint = wizard.getRecord(),
             stepNumber = stepsToAdd.length + 1;
 
         stepNumber++;
@@ -412,7 +414,8 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             navigationIndex: stepNumber,
             stepName: 'metrologyConfigurationWithMetersInfo',
             ui: 'large',
-            isWizardStep: true
+            isWizardStep: true,
+            usagePoint: usagePoint
         });
         navigationItemsToAdd.push({
             itemId: 'navigation-metrology-configuration-with-meters-info',

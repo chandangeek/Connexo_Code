@@ -281,15 +281,15 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             if (record.get('modificationFlag')) {
                 point.edited = true;
             }
-            if (record.get('estimatedByRule')) {
+            if (properties.suspect) {
+                point.color = suspectColor;
+                point.tooltipColor = tooltipSuspectColor
+            } else if (record.get('estimatedByRule')) {
                 point.color = estimatedColor;
                 point.tooltipColor = tooltipEstimatedColor;
             } else if (properties.notValidated) {
                 point.color = notValidatedColor;
                 point.tooltipColor = tooltipNotValidatedColor
-            } else if (properties.suspect) {
-                point.color = suspectColor;
-                point.tooltipColor = tooltipSuspectColor
             } else if (properties.informative) {
                 point.color = informativeColor;
                 point.tooltipColor = tooltipInformativeColor;

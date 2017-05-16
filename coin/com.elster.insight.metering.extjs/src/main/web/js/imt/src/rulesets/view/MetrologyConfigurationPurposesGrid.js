@@ -11,6 +11,7 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposesGrid', {
     router: null,
     addLink: null,
     adminPrivileges: null,
+    showStates: false,
 
     initComponent: function () {
         var me = this,
@@ -42,6 +43,12 @@ Ext.define('Imt.rulesets.view.MetrologyConfigurationPurposesGrid', {
             {
                 header: Uni.I18n.translate('general.purpose', 'IMT', 'Purpose'),
                 dataIndex: 'name',
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('general.usagePointStates', 'IMT', 'Usage point states'),
+                dataIndex: 'lifeCycleStatesCount',
+                hidden: !me.showStates,
                 flex: 1
             },
             {

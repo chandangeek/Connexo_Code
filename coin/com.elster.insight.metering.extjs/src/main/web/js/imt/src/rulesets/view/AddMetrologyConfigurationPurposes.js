@@ -11,7 +11,8 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposes', {
         'Imt.rulesets.view.MetrologyConfigurationPurposeDetails',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.util.FormInfoMessage',
-        'Imt.rulesets.view.AddMetrologyConfigurationPurposesGrid'
+        'Imt.rulesets.view.AddMetrologyConfigurationPurposesGrid',
+        'Imt.rulesets.view.StatesGridWithPreviewContainer'
     ],
     purposesStore: null,
     router: null,
@@ -19,7 +20,52 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposes', {
     ruleSetId: null,
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            bottomToolbar,
+            previewComponent;
+
+        bottomToolbar = Ext.create('Ext.toolbar.Toolbar',{
+            padding: '10 0 10 0',
+            itemId: 'add-metrology-configuration-purposes-bottom-toolbar',
+            items: [
+                {
+                    xtype: 'button',
+                    itemId: 'addButton',
+                    text: Uni.I18n.translate('general.add', 'IMT', 'Add'),
+                    action: 'add',
+                    ui: 'action',
+                    disabled: true
+                },
+                {
+                    xtype: 'button',
+                    itemId: 'cancelButton',
+                    text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
+                    action: 'cancel',
+                    ui: 'link',
+                    href: me.cancelHref
+                }
+            ]
+        });
+
+        previewComponent = !!me.usagePointStatesStore ? {
+            xtype: 'add-metrology-configuration-preview-container',
+            bottomToolbar: bottomToolbar,
+            usagePointStatesStore: me.usagePointStatesStore,
+            detailsComponent: {
+                xtype: 'metrology-configuration-purpose-details',
+                itemId: 'metrology-configuration-purpose-preview',
+                frame: true
+            }
+        } : {
+            xtype: 'container',
+            items: [
+                {
+                    xtype: 'metrology-configuration-purpose-details',
+                    itemId: 'metrology-configuration-purpose-preview',
+                    frame: true
+                }
+            ]
+        };
 
         me.content = [
             {
@@ -40,6 +86,8 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposes', {
                             xtype: 'add-metrology-configuration-purposes-grid',
                             itemId: 'add-metrology-configuration-purposes-grid',
                             store: me.purposesStore,
+                            externalBottomToolbar: bottomToolbar,
+                            bottomToolbarHidden: !!me.usagePointStatesStore,
                             router: me.router,
                             cancelHref: me.cancelHref
                         },
@@ -66,11 +114,7 @@ Ext.define('Imt.rulesets.view.AddMetrologyConfigurationPurposes', {
                                 }
                             ]
                         },
-                        previewComponent: {
-                            xtype: 'metrology-configuration-purpose-details',
-                            itemId: 'metrology-configuration-purpose-preview',
-                            frame: true
-                        }
+                        previewComponent: previewComponent
                     }
                 ]
             }

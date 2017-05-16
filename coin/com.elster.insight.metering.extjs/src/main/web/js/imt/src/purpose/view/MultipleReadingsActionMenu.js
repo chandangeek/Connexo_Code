@@ -8,11 +8,33 @@ Ext.define('Imt.purpose.view.MultipleReadingsActionMenu', {
     initComponent: function() {
         this.items = [
             {
+                itemId: 'copy-form-value',
+                privileges: Imt.privileges.UsagePoint.admin,
+                text: Uni.I18n.translate('general.copyFromReference', 'IMT', 'Copy from reference'),
+                action: 'copyFromReference',
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'confirm-value',
                 privileges: Imt.privileges.UsagePoint.admin,
                 hidden: true,
                 text: Uni.I18n.translate('general.confirmValue', 'IMT', 'Confirm'),
                 action: 'confirmValue',
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'correct-value',
+                hidden: true,
+                text: Uni.I18n.translate('general.correct', 'IMT', 'Correct'),
+                action: 'correctValue',
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'edit-estimation-comment',
+                privileges: Imt.privileges.UsagePoint.admin,
+                hidden: true,
+                text: Uni.I18n.translate('general.editEstimationComment', 'IMT', 'Edit estimation comment'),
+                action: 'editEstimationComment',
                 section: this.SECTION_ACTION
             },
             {
@@ -43,6 +65,13 @@ Ext.define('Imt.purpose.view.MultipleReadingsActionMenu', {
                 privileges: Imt.privileges.UsagePoint.admin,
                 text: Uni.I18n.translate('general.estimateValueWithRule', 'IMT', 'Estimate with rule'),
                 action: 'estimateWithRule',
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'view-history',
+                privileges: Imt.privileges.UsagePoint.admin,
+                text: Uni.I18n.translate('general.viewHistory', 'IMT', 'View history'),
+                action: 'viewHistory',
                 section: this.SECTION_ACTION
             },
             {

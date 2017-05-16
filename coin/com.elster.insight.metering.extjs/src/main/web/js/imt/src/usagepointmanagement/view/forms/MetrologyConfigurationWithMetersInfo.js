@@ -9,6 +9,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
     title: Uni.I18n.translate('general.meterRoles', 'IMT', 'Meter roles'),
     ui: 'medium',
     style: 'padding-left: 0;padding-right: 0;',
+    usagePoint: null,
 
     initComponent: function () {
         var me = this;
@@ -17,6 +18,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.MetrologyConfigurationWithMeters
             {
                 xtype: 'meter-activations-field',
                 itemId: 'meter-activations-field',
+                usagePoint: me.usagePoint,
                 name: 'metrologyConfiguration.meterRoles',
                 listeners: {
                     meterActivationsChange: function (allMetersSpecified) {
