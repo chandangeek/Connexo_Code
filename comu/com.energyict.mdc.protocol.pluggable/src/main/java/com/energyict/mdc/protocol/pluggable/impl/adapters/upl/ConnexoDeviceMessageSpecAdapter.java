@@ -34,6 +34,10 @@ public class ConnexoDeviceMessageSpecAdapter implements com.energyict.mdc.upl.me
         return new ConnexoDeviceMessageCategoryAdapter(cxoDeviceMessageSpec.getCategory());
     }
 
+    public DeviceMessageSpec getCxoDeviceMessageSpec() {
+        return cxoDeviceMessageSpec;
+    }
+
     @Override
     public String getName() {
         return cxoDeviceMessageSpec.getName();

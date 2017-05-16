@@ -6,7 +6,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
@@ -24,6 +23,8 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+
+import com.energyict.protocol.MessageProtocol;
 
 import java.sql.SQLException;
 import java.util.Collections;
@@ -85,7 +86,7 @@ public class MeterProtocolMessageAdapterTest {
     private void initializeMocks() {
         DeviceProtocolMessageService deviceProtocolMessageService = this.inMemoryPersistence.getDeviceProtocolMessageService();
         when(deviceProtocolMessageService.createDeviceProtocolMessagesFor(SimpleLegacyMessageConverter.class.getName())).
-                thenReturn(new SimpleLegacyMessageConverter(propertySpecService));
+                thenReturn(new SimpleLegacyMessageConverter());
         doThrow(DeviceProtocolAdapterCodingExceptions.class).
                 when(deviceProtocolMessageService).createDeviceProtocolMessagesFor("com.energyict.comserver.adapters.meterprotocol.Certainly1NotKnown2ToThisClass3PathLegacyConverter");
         TariffCalendarExtractor.ThreadContext threadContext = mock(TariffCalendarExtractor.ThreadContext.class);

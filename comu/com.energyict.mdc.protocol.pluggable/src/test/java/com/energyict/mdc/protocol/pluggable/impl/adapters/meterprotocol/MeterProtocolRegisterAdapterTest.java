@@ -6,10 +6,10 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.MessageSeeds;
-import com.energyict.mdc.protocol.api.UnsupportedException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.mocks.MockCollectedRegister;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
+import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;

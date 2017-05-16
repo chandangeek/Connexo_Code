@@ -5,18 +5,19 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cbo.Quantity;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+
+import com.energyict.cbo.Quantity;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProfileData;
@@ -24,6 +25,7 @@ import com.energyict.protocol.ProfileData;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -164,12 +166,12 @@ public class MockMeterProtocol implements MeterProtocol, MessageProtocol {
     }
 
     @Override
-    public Object getCache() {
+    public Serializable getCache() {
         return null;
     }
 
     @Override
-    public void setCache(Object cacheObject) {
+    public void setCache(Serializable cacheObject) {
 
     }
 

@@ -6,9 +6,9 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
@@ -19,6 +19,7 @@ import com.energyict.protocol.ProfileData;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -146,12 +147,12 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
     }
 
     @Override
-    public Object getCache() {
+    public Serializable getCache() {
         return null;
     }
 
     @Override
-    public void setCache(Object cacheObject) {
+    public void setCache(Serializable cacheObject) {
         // nothing to set
     }
 
@@ -184,6 +185,16 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(com.energyict.mdc.upl.properties.TypedProperties typedProperties) {
         return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public String getName() {
+                return "SimpleTestSecurity";
+            }
+
+            @Override
+            public String getClient() {
+                return null;
+            }
+
             @Override
             public int getAuthenticationDeviceAccessLevel() {
                 return 0;

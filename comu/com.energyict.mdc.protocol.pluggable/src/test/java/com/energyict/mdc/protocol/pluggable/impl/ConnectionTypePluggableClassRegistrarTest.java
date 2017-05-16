@@ -9,19 +9,16 @@ import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.mocks.MockOutboundConnectionType;
-
-import java.util.Collections;
-
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Collections;
+
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link ConnectionTypePluggableClassRegistrar} component.
@@ -37,7 +34,14 @@ public class ConnectionTypePluggableClassRegistrarTest {
     @Mock
     private ConnectionTypeService connectionTypeService;
 
-    private TransactionService transactionService = new FakeTransactionService(null);
+    private TransactionService actualTransactionService = mock(TransactionService.class);
+
+    private TransactionService transactionService = new FakeTransactionService(actualTransactionService);
+
+    @Before
+    public void before() {
+        when(actualTransactionService.isInTransaction()).thenReturn(false);
+    }
 
     @Test
     public void testRegistration() {

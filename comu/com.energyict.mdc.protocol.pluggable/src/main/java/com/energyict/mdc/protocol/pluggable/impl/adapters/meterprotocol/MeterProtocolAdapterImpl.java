@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
@@ -17,27 +15,22 @@ import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
-import com.energyict.mdc.protocol.api.device.data.RegisterProtocol;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
-import com.energyict.mdc.protocol.api.legacy.CachingProtocol;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceProtocolSecuritySupportAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AdapterDeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
@@ -47,12 +40,13 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
@@ -67,14 +61,18 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.RegisterProtocol;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -257,7 +255,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     private TimeZone getDeviceTimeZoneFromProperties() {
-        TimeZone timeZone = this.propertiesAdapter.getProperties().getTypedProperty(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName());
+        TimeZone timeZone = this.propertiesAdapter.getProperties().getTypedProperty(LegacyProtocolProperties.DEVICE_TIMEZONE_PROPERTY_NAME);
         if (timeZone == null) {
             return TimeZone.getDefault();
         } else {
@@ -499,24 +497,6 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        if (this.delegateSecurityToActualProtocol()) {
-            return getDeviceSecuritySupport().getSecurityPropertySpecs();
-        } else {
-            return this.meterProtocolSecuritySupportAdapter.getSecurityPropertySpecs();
-        }
-    }
-
-    @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-        if (this.delegateSecurityToActualProtocol()) {
-            return getDeviceSecuritySupport().getSecurityProperties();
-        } else {
-            return this.meterProtocolSecuritySupportAdapter.getSecurityProperties();
-        }
-    }
-
-    @Override
     public List<com.energyict.mdc.upl.properties.PropertySpec> getUPLPropertySpecs() {
         return new ArrayList<>(getPropertySpecs().stream().map(ConnexoToUPLPropertSpecAdapter::new).collect(Collectors.toList()));
     }
@@ -524,6 +504,15 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     @Override
     public void setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties properties) throws PropertyValidationException {
         this.propertiesAdapter.copyProperties(properties);
+    }
+
+    @Override
+    public Optional<com.energyict.mdc.upl.properties.PropertySpec> getClientSecurityPropertySpec() {
+        if (this.delegateSecurityToActualProtocol()) {
+            return getDeviceSecuritySupport().getClientSecurityPropertySpec();
+        } else {
+            return this.meterProtocolSecuritySupportAdapter.getClientSecurityPropertySpec();
+        }
     }
 
     @Override
@@ -541,14 +530,6 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
             return getDeviceSecuritySupport().getEncryptionAccessLevels();
         } else {
             return this.meterProtocolSecuritySupportAdapter.getEncryptionAccessLevels();
-        }
-    }
-
-    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        if (this.delegateSecurityToActualProtocol()) {
-            return this.getDeviceSecuritySupport().getCustomPropertySet();
-        } else {
-            return this.meterProtocolSecuritySupportAdapter.getCustomPropertySet();
         }
     }
 

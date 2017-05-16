@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.LicensedProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol;
+import org.junit.Before;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,10 +24,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link DeviceProtocolPluggableClassRegistrar} component.
@@ -44,8 +42,14 @@ public class DeviceProtocolPluggableClassRegistrarTest {
     @Mock
     private MeteringService meteringService;
 
-    private TransactionService transactionService = new FakeTransactionService(null);
+    private final TransactionService actualTransactionService = mock(TransactionService.class);
 
+    private TransactionService transactionService = new FakeTransactionService(actualTransactionService);
+
+    @Before
+    public void before() {
+        when(actualTransactionService.isInTransaction()).thenReturn(false);
+    }
     @Test
     public void testRegistration() {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);

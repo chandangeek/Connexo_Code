@@ -13,19 +13,18 @@ import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
-import com.energyict.mdc.protocol.api.InvalidPropertyException;
-import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
@@ -36,14 +35,7 @@ import com.energyict.mdc.protocol.pluggable.PropertySpecMockSupport;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.InMemoryPersistence;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceCapabilityAdapterMappingImpl;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceRegisterReadingNotSupported;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecurityProperties;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.*;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.HhuEnabledMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
@@ -53,21 +45,11 @@ import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
-import com.energyict.dialer.core.SerialCommunicationChannel;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.stream.Collectors;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,17 +58,22 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.stream.Collectors;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the adapter between a standard {@link MeterProtocol} and the new {@link DeviceProtocol}.
@@ -138,10 +125,10 @@ public class MeterProtocolAdapterTest {
         when(capabilityAdapterMappingFactory.getCapabilitiesMappingForDeviceProtocol(MockDeviceProtocol.class.getCanonicalName())).thenReturn(6);  //6 = master and session capability
         PropertySpecService propertySpecService = inMemoryPersistence.getPropertySpecService();
         this.propertySpecMockSupport = new PropertySpecMockSupport();
-        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName(), propertySpecService);
-        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.javaName(), propertySpecService);
-        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.javaName(), propertySpecService);
-        propertySpecMockSupport.mockStringPropertySpec(MeterProtocol.NODEID, propertySpecService);
+        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecuritySupport.FIRST, propertySpecService);
+        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecuritySupport.SECOND, propertySpecService);
+        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecuritySupport.THIRD, propertySpecService);
+        propertySpecMockSupport.mockStringPropertySpec(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), propertySpecService);
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn("whatever");
         PropertySpecBuilder propertySpecBuilder = FakeBuilder.initBuilderStub(propertySpec, PropertySpecBuilder.class);
@@ -164,10 +151,10 @@ public class MeterProtocolAdapterTest {
     }
 
     private void mockPropertySpecs() {
-        this.propertySpecMockSupport.mockStringPropertySpec(MeterProtocol.NODEID, inMemoryPersistence.getPropertySpecService());
-        this.propertySpecMockSupport.mockStringPropertySpec(MeterProtocol.ADDRESS, inMemoryPersistence.getPropertySpecService());
-        this.propertySpecMockSupport.mockStringPropertySpec(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), inMemoryPersistence.getPropertySpecService());
-        this.propertySpecMockSupport.mockStringPropertySpec(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName(), inMemoryPersistence.getPropertySpecService());
+        this.propertySpecMockSupport.mockStringPropertySpec(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), inMemoryPersistence.getPropertySpecService());
+        this.propertySpecMockSupport.mockStringPropertySpec(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), inMemoryPersistence.getPropertySpecService());
+        this.propertySpecMockSupport.mockStringPropertySpec(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, inMemoryPersistence.getPropertySpecService());
+        this.propertySpecMockSupport.mockStringPropertySpec(LegacyProtocolProperties.DEVICE_TIMEZONE_PROPERTY_NAME, inMemoryPersistence.getPropertySpecService());
     }
 
     @After
@@ -361,11 +348,11 @@ public class MeterProtocolAdapterTest {
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
 
         // Calling all business method on CachingProtocol
-        meterProtocolAdapter.setCache(cacheObject);
+        meterProtocolAdapter.setCache((Serializable) cacheObject);
         meterProtocolAdapter.getCache();
 
         // Verify that the adapter properly forwarded the method calls to the meterProtocol
-        verify(meterProtocol).setCache(cacheObject);
+        verify(meterProtocol).setCache((Serializable) cacheObject);
         verify(meterProtocol).getCache();
     }
 
@@ -495,22 +482,10 @@ public class MeterProtocolAdapterTest {
         MeterProtocolAdapterImpl adapter = new TestMeterProtocolAdapter(adaptedProtocol, this.inMemoryPersistence.getPropertySpecService(), this.protocolPluggableService, this.securitySupportAdapterMappingFactory);
 
         // Business method
-        List<PropertySpec> securityProperties = adapter.getSecurityPropertySpecs();
+        List<com.energyict.mdc.upl.properties.PropertySpec> securityProperties = adapter.getSecurityProperties();
 
         // Asserts
-        assertThat(securityProperties).isEqualTo(new SimpleTestDeviceSecuritySupport(inMemoryPersistence.getPropertySpecService()).getSecurityPropertySpecs());
-    }
-
-    @Test
-    public void testGetSecurityPropertiesWhenWrappedProtocolImplementsDeviceSecuritySupport() {
-        MeterProtocolWithDeviceSecuritySupport adaptedProtocol = mock(MeterProtocolWithDeviceSecuritySupport.class, withSettings().extraInterfaces(DeviceMessageSupport.class));
-        MeterProtocolAdapterImpl adapter = newMeterProtocolAdapter(adaptedProtocol);
-
-        // Business method
-        adapter.getSecurityPropertySpecs();
-
-        // Asserts
-        verify(adaptedProtocol).getSecurityPropertySpecs();
+        assertThat(securityProperties).isEqualTo(new SimpleTestDeviceSecuritySupport(inMemoryPersistence.getPropertySpecService()).getSecurityProperties());
     }
 
     @Test
@@ -520,27 +495,16 @@ public class MeterProtocolAdapterTest {
 
         // Business method
         Optional<com.energyict.mdc.upl.properties.PropertySpec> whatEverPropertySpec = adapter.getSecurityPropertySpec(PROPERTY_SPEC_NAME);
-        Optional<com.energyict.mdc.upl.properties.PropertySpec> firstPropertySpec = adapter.getSecurityPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName());
+        Optional<com.energyict.mdc.upl.properties.PropertySpec> firstPropertySpec = adapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.FIRST);
 
         // Asserts
         assertThat(whatEverPropertySpec).isEmpty();
         assertThat(firstPropertySpec).isPresent();
         com.energyict.mdc.upl.properties.PropertySpec propertySpec = firstPropertySpec.get();
-        assertThat(propertySpec.getName()).isEqualTo(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName());
+        assertThat(propertySpec.getName()).isEqualTo(SimpleTestDeviceSecuritySupport.FIRST);
         assertThat(propertySpec.isRequired()).isFalse();
     }
 
-    @Test
-    public void testGetSecurityPropertySpecWhenWrappedProtocolImplementsDeviceSecuritySupport() {
-        MeterProtocolWithDeviceSecuritySupport adaptedProtocol = mock(MeterProtocolWithDeviceSecuritySupport.class, withSettings().extraInterfaces(DeviceMessageSupport.class));
-        MeterProtocolAdapterImpl adapter = newMeterProtocolAdapter(adaptedProtocol);
-
-        // Business method
-        adapter.getSecurityPropertySpec(PROPERTY_SPEC_NAME);
-
-        // Asserts
-        verify(adaptedProtocol).getSecurityProperties();
-    }
 
     @Test
     public void testGetAuthenticationAccessLevelsWhenWrappedProtocolDoesNotImplementDeviceSecuritySupport() {
