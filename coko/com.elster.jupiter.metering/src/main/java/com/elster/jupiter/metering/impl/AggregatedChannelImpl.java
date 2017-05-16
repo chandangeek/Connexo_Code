@@ -158,8 +158,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                                 Function.identity()));
 
         // return elements, sorted by timestamp
-        TreeMap<Instant, IntervalReadingRecord> orderedReadings = new TreeMap<>();
-        orderedReadings.putAll(calculatedReadings);
+        Map<Instant, IntervalReadingRecord> orderedReadings = new TreeMap<>(calculatedReadings);
         orderedReadings.putAll(persistedReadings);
 
         return new ArrayList<>(orderedReadings.values());
@@ -276,10 +275,14 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
         if (!isRegular()) {
             return Collections.emptyList();
         }
-        return getTimeSeries().getJournalEntries(interval).stream()
+        List<BaseReadingRecord> aggregatedDataToMerge = getCalculatedIntervalReadings(interval).entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
+        List<BaseReadingRecord> journaledData = getTimeSeries().getJournalEntries(interval).stream()
                 .map(entry -> new JournaledChannelReadingRecordImpl(this, entry))
                 .map(reading -> reading.filter(readingType))
-                .collect(ExtraCollectors.toImmutableList());
+                .collect(Collectors.toList());
+        aggregatedDataToMerge.addAll(journaledData);
+
+        return aggregatedDataToMerge;
     }
 
     @Override
@@ -287,10 +290,14 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
         if (isRegular()) {
             return Collections.emptyList();
         }
-        return getTimeSeries().getJournalEntries(interval).stream()
+        List<ReadingRecord> aggregatedDataToMerge = getCalculatedRegisterReadings(interval);
+        List<? extends ReadingRecord> journaledData = getTimeSeries().getJournalEntries(interval).stream()
                 .map(entry -> new JournaledRegisterReadingRecordImpl(this, entry))
                 .map(reading -> reading.filter(readingType))
                 .collect(ExtraCollectors.toImmutableList());
+        aggregatedDataToMerge.addAll(journaledData);
+
+        return aggregatedDataToMerge;
     }
 
     @Override
@@ -325,7 +332,9 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<BaseReadingRecord> getReadingsUpdatedSince(ReadingType readingType, Range<Instant> interval, Instant since) {
-        throw new UnsupportedOperationException();
+        return getReadings(readingType, interval).stream()
+                .filter(reading -> reading.getReportedDateTime().isAfter(since))
+                .collect(Collectors.toList());
     }
 
     @Override

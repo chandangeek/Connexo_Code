@@ -8,7 +8,6 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.units.Quantity;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
