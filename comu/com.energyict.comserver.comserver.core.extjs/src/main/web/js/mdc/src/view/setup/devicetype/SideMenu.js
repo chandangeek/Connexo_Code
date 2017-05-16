@@ -119,6 +119,12 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/firmwareversions'
                 },
                 {
+                    text: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
+                    privileges: Mdc.privileges.DeviceType.view,
+                    itemId: 'securityAccessorsLink',
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/securityaccessors'
+                },
+                {
                     text: Uni.I18n.translate('devicetypemenu.timeOfUseCalendars', 'MDC', 'Time of use calendars'),
                     privileges: Mdc.privileges.DeviceType.view,
                     itemId: 'timeOfUseLink',
@@ -140,6 +146,12 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
                     itemId: 'fileManagementLink',
                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/filemanagement',
                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceTypeCapability.supportsFileManagement
+                },
+                {
+                    text: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),
+                    privileges: Mdc.privileges.DeviceType.view,
+                    itemId: 'securityAccessorsLink',
+                    href: '#/administration/devicetypes/' + me.deviceTypeId + '/securityaccessors'
                 },
                 {
                     text: Uni.I18n.translate('devicetypemenu.timeOfUseCalendars', 'MDC', 'Time of use calendars'),

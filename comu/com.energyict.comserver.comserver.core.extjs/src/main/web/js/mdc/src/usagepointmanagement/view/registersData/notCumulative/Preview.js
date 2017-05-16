@@ -48,7 +48,7 @@ Ext.define('Mdc.usagepointmanagement.view.registersData.notCumulative.Preview', 
                         fieldLabel: Uni.I18n.translate('general.measurementPeriod', 'MDC', 'Measurement period'),
                         name: 'measurementPeriod',
                         renderer: function (value) {
-                            if(!Ext.isEmpty(value)) {
+                            if (!Ext.isEmpty(value)) {
                                 var endDate = new Date(value.end);
                                 if (value.start && value.end) {
                                     var startDate = new Date(value.start);

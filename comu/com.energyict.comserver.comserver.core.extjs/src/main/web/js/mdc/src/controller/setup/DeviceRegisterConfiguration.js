@@ -388,15 +388,15 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                                     widget.down('#register-specifications').add(config);
                                 },
                             loadSlaveHistoryIfNeeded = function () {
-                                    if (!Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')) {
-                                        slaveHistoryStore.getProxy().setParams(deviceId, registerId);
+                                if (!Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')) {
+                                    slaveHistoryStore.getProxy().setParams(deviceId, registerId);
                                     slaveHistoryStore.load(function () {
-                                            func();
-                                        });
-                                    } else {
                                         func();
-                                    }
-                                };
+                                    });
+                                } else {
+                                    func();
+                                }
+                            };
 
                             if (registersOfDeviceStore.getTotalCount() === 0) {
                                 registersOfDeviceStore.getProxy().setExtraParam('deviceId', deviceId);

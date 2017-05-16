@@ -8,6 +8,12 @@ Ext.define('Mdc.view.setup.devicechannels.DataBulkActionMenu', {
     initComponent: function () {
         this.items = [
             {
+                itemId: 'copy-form-value',
+                text: Uni.I18n.translate('general.copyFromReference', 'MDC', 'Copy from reference'),
+                action: 'copyFromReference',
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'confirm-value',
                 hidden: true,
                 text: Uni.I18n.translate('general.confirm', 'MDC', 'Confirm'),
@@ -15,10 +21,24 @@ Ext.define('Mdc.view.setup.devicechannels.DataBulkActionMenu', {
                 section: this.SECTION_ACTION
             },
             {
+                itemId: 'correct-value',
+                hidden: true,
+                text: Uni.I18n.translate('general.correct', 'MDC', 'Correct'),
+                action: 'correctValue',
+                section: this.SECTION_ACTION
+            },
+            {
                 itemId: 'estimate-value',
                 //hidden: true,
                 text: Uni.I18n.translate('general.editWithEstimator', 'MDC', 'Edit with estimator'),
                 action: 'estimateValue',
+                section: this.SECTION_ACTION
+            },
+            {
+                itemId: 'edit-estimation-comment',
+                hidden: true,
+                text: Uni.I18n.translate('general.editEstimationComment', 'MDC', 'Edit estimation comment'),
+                action: 'editEstimationComment',
                 section: this.SECTION_ACTION
             },
             {

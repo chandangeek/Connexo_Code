@@ -94,7 +94,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
-                    return me.formatColumn(v, metaData, record, record.get('mainValidationInfo'));
+                    return me.formatColumn(v, metaData, record, 'mainValidationInfo');
                 },
                 editor: {
                     xtype: 'textfield',
@@ -113,7 +113,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
-                    return me.formatColumn(v, metaData, record, record.get('mainValidationInfo'));
+                    return me.formatColumn(v, metaData, record, 'mainValidationInfo');
                 },
                 hidden: Mdc.dynamicprivileges.DeviceState.canEditData(),
                 width: 200
@@ -132,7 +132,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 align: 'right',
                 hidden: Ext.isEmpty(calculatedReadingType),
                 renderer: function (v, metaData, record) {
-                    return me.formatColumn(v, metaData, record, record.get('bulkValidationInfo'));
+                    return me.formatColumn(v, metaData, record, 'bulkValidationInfo');
                 }
             },
             {
@@ -181,6 +181,13 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 items: [
                     {
                         xtype: 'button',
+                        itemId: 'pre-validate-button',
+                        text: Uni.I18n.translate('general.preValidate', 'MDC', 'Pre-validate'),
+                        privileges: Mdc.privileges.Device.administrateDeviceData,
+                        disabled: true
+                    },
+                    {
+                        xtype: 'button',
                         itemId: 'save-changes-button',
                         text: Uni.I18n.translate('general.saveChanges', 'MDC', 'Save changes'),
                         privileges: Mdc.privileges.Device.administrateDeviceData,
@@ -212,18 +219,26 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
 
     formatColumn: function (v, metaData, record, validationInfo) {
         var me = this,
+            validationFlag = validationInfo === 'mainValidationInfo' ? 'mainValidationInfo' : validationInfo ==='bulkValidationInfo' ? 'bulkValidationInfo' : null,
+            validationInfo = validationFlag ? record.get(validationInfo) : validationInfo,
             status = validationInfo.validationResult ? validationInfo.validationResult.split('.')[1] : '',
             icon = '',
+            validationRules = validationFlag === 'mainValidationInfo' ? record.get('validationRules') : record.get('bulkValidationRules'),
             app,
             date,
             tooltipText,
             formattedDate,
+            estimationComment = null,
             value = Ext.isEmpty(v)
                 ? '-'
                 : Uni.Number.formatNumber(
                 v.toString(),
                 me.channelRecord && !Ext.isEmpty(me.channelRecord.get('overruledNbrOfFractionDigits')) ? me.channelRecord.get('overruledNbrOfFractionDigits') : -1
             );
+
+        if (validationFlag && validationInfo && validationInfo.commentValue) {
+            estimationComment = validationInfo.commentValue;
+        }
 
         if (status === 'notValidated') {
             icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;" data-qtip="'
@@ -235,19 +250,38 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 + Uni.I18n.translate('general.suspect', 'MDC', 'Suspect') + '"></span>';
         }
 
-        if (validationInfo.estimatedByRule && !record.isModified('value')) {
+        if (validationInfo.estimatedByRule && status !== 'suspect') {
             date = Ext.isDate(record.get('readingTime')) ? record.get('readingTime') : new Date(record.get('readingTime'));
-            formattedDate =Uni.DateTime.formatDateTimeLong(date)
-            app = validationInfo.editedInApp ? validationInfo.editedInApp.name : null;
-            tooltipText = !Ext.isEmpty(app)
-                ? Uni.I18n.translate('general.estimatedOnXApp', 'MDC', 'Estimated in {0} on {1}', [app, formattedDate])
-                : Uni.I18n.translate('general.estimatedOnX', 'MDC', 'Estimated on {0}', formattedDate);
+            formattedDate = Uni.DateTime.formatDateTimeLong(date);
+            tooltipText = Uni.I18n.translate('general.estimatedOnX', 'MDC', 'Estimated on {0}', formattedDate);
+            if (estimationComment) {
+                tooltipText += ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'MDC', 'Estimation comment: {0}', estimationComment);
+            }
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
                 + tooltipText + '"></span>';
         } else if ((validationInfo.isConfirmed || validationInfo.confirmedNotSaved) && !record.isModified('value')) {
             icon = '<span class="icon-checkmark" style="margin-left:10px; position:absolute;" data-qtip="'
                 + Uni.I18n.translate('reading.validationResult.confirmed', 'MDC', 'Confirmed') + '"></span>';
         }
-        return value + icon;
+        if ((record.get('potentialSuspect') || record.get('bulkPotentialSuspect')) && validationRules.length) {
+            icon = this.addPotentialSuspectFlag(icon, record, validationRules);
+        }
+        return value + icon + '<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    },
+
+    addPotentialSuspectFlag: function (icon, record, validationRules) {
+        var validationRulesToken = '',
+            tooltip;
+
+        if (validationRules.length === 1) {
+            validationRulesToken = validationRules[0].name;
+        } else {
+            validationRulesToken = validationRules.reduce(function(previousValue, currentValue) {
+                return (Ext.isObject(previousValue) ? previousValue.name : previousValue) + ', ' + currentValue.name;
+            });
+        }
+        tooltip = Uni.I18n.translate('general.potentialSuspect', 'MDC', 'Potential suspect') + '.<br>' + Uni.I18n.translate('general.validationRules', 'MDC', 'Validation rules') + ': ' + validationRulesToken;
+        icon += '<span class="icon-flag6" style="margin-left:27px; color: red; position:absolute;" data-qtip="' + tooltip + '"></span>';
+        return icon;
     }
 });

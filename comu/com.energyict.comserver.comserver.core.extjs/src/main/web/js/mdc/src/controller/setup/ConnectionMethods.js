@@ -773,6 +773,10 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             {
                 property: 'direction',
                 value: direction
+            },
+            {
+                property: 'deviceConfigId',
+                value: parseInt(me.deviceConfigurationId)
             }
         ]));
         connectionTypesStore.load({

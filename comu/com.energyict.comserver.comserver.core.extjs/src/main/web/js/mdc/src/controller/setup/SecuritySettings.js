@@ -11,28 +11,32 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         'setup.securitysettings.SecuritySettingFiltering',
         'setup.securitysettings.SecuritySettingSorting',
         'setup.securitysettings.SecuritySettingSideFilter',
-        'setup.securitysettings.SecuritySettingForm',
-        'setup.executionlevels.AddExecutionLevels'
+        'setup.securitysettings.SecuritySettingForm'
     ],
 
     stores: [
         'SecuritySettingsOfDeviceConfiguration',
+        'SecuritySuites',
         'AuthenticationLevels',
         'EncryptionLevels',
-        'AvailableExecLevelsForSecSettingsOfDevConfig'
+        'RequestSecurityLevels',
+        'ResponseSecurityLevels',
+        'ConfigurationSecurityProperties'
     ],
 
     refs: [
         {ref: 'formPanel', selector: 'securitySettingForm'},
+        {ref: 'securitySettingPreview', selector: 'securitySettingPreview'},
+        {ref: 'securitySettingPreviewForm', selector: '#mdc-security-settings-preview-form'},
+        {ref: 'securitySettingPreviewDetailsTitle', selector: '#mdc-security-settings-preview-details-title'},
+        {ref: 'securitySettingFormDetailsTitle', selector: '#mdc-security-settings-form-details-title'},
         {ref: 'securityGridPanel', selector: 'securitySettingGrid'},
-        {ref: 'executionLevelGridAddLink', selector: '#execution-level-grid-add-link'},
-        {ref: 'addExecutionLevelPanel', selector: '#addExecutionLevelPanel'},
-        {ref: 'executionLevelAddGrid', selector: '#execution-level-add-grid'},
-        {ref: 'addExecutionLevels', selector: 'add-execution-levels'},
-        {ref: 'executionLevelGridPanel', selector: '#execution-level-grid'},
-        {ref: 'executionLevelAddLink', selector: '#execution-level-grid #createExecutionLevel'},
-        {ref: 'executionLevelsForSecuritySettingPreview', selector: '#execution-level-grid-title'},
-        {ref: 'executionLevelsPreviewContainer', selector: '#execution-levels-grid-preview-container'}
+        {ref: 'securitySuiteCombobox', selector: '#securitySuiteCombobox'},
+        {ref: 'authCombobox', selector: '#authCombobox'},
+        {ref: 'encrCombobox', selector: '#encrCombobox'},
+        {ref: 'clientField', selector: '#client-field'},
+        {ref: 'requestSecurityCombobox', selector: '#requestSecurityCombobox'},
+        {ref: 'responseSecurityCombobox', selector: '#responseSecurityCombobox'}
     ],
     config: {
         deviceTypeName: null,
@@ -40,11 +44,16 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     },
 
     secId: -1,
+    currentDeviceTypeId: undefined,
+    currentDeviceConfigurationId: undefined,
+    deviceProtocolSupportsClient: undefined,
+    deviceProtocolSupportSecuritySuites: undefined,
 
     init: function () {
-        this.control({
+        var me = this;
+        me.control({
             'securitySettingSetup securitySettingGrid': {
-                select: this.loadGridItemDetail
+                select: me.loadGridItemDetail
             },
             'securitySettingSetup': {
                 afterrender: this.loadStore
@@ -58,36 +67,126 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             'menu menuitem[action=deletesecuritysetting]': {
                 click: this.removeSecuritySetting
             },
-            'add-execution-levels grid': {
-                selectionchange: this.hideExecutionLevelsErrorPanel
+            '#securitySuiteCombobox': {
+                select: this.updateUsedSecurityLevelPossibilitiesBasedOnSecuritySuiteAndTriggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified
             },
-            'add-execution-levels button[action=add]': {
-                click: this.addExecutionLevels
+            '#authCombobox': {
+                select: this.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified
             },
-            '#execution-level-grid actioncolumn': {
-                deleteExecutionLevel: this.removeExecutionLevel
+            '#encrCombobox': {
+                select: this.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified
             },
-            '#execution-level-grid button[action=createExecutionLevel]': {
-                click: this.createAddExecutionLevelHistory
-            }
 
+            '#requestSecurityCombobox': {
+                select: this.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified
+            },
+            '#responseSecurityCombobox': {
+                select: this.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified
+            }
         });
 
-        this.listen({
-            store: {
-                '#Mdc.store.SecuritySettingsOfDeviceConfiguration': {
-                    load: this.selectFirstIfPossible
+        me.store = this.getStore('Mdc.store.SecuritySettingsOfDeviceConfiguration');
+        me.getSecuritySuitesStore().on('load', function (store, records, success) {
+            if (me.getSecuritySuiteCombobox() !== undefined) {
+                if (success && records && records.length === 0) {
+                    me.getSecuritySuiteCombobox().setValue(-1);
+                    me.getSecuritySuiteCombobox().hide();
+                } else if (success && records) {
+                    if (records.length === 1) me.getSecuritySuiteCombobox().setValue(records[0].get('id'));
+                    if (me.getSecuritySuiteCombobox().getValue() === -1) {
+                        me.getSecuritySuiteCombobox().clearValue();
+                        me.getSecuritySuiteCombobox().clearInvalid();
+                    }
+                    me.getSecuritySuiteCombobox().enable();
+                    me.getSecuritySuiteCombobox().show();
                 }
             }
         });
 
-        this.store = this.getStore('Mdc.store.SecuritySettingsOfDeviceConfiguration');
+        me.getAuthenticationLevelsStore().on('load', function (store, records, success) {
+            if (success && records && records.length === 0) {
+                me.getAuthCombobox().setValue(-1);
+                me.getAuthCombobox().hide();
+            } else if (success && records) {
+                if (records.length === 1) me.getAuthCombobox().setValue(records[0].get('id'));
+                if (me.isInvalidLevel(records, me.getAuthCombobox().getValue())) {
+                    me.getAuthCombobox().clearValue();
+                    me.getAuthCombobox().clearInvalid();
+                }
+                me.getAuthCombobox().enable();
+                me.getAuthCombobox().show();
+            }
+        });
+        me.getEncryptionLevelsStore().on('load', function (store, records, success) {
+            if (success && records && records.length === 0) {
+                me.getEncrCombobox().setValue(-1);
+                me.getEncrCombobox().hide();
+            } else if (success && records) {
+                if (records.length === 1) me.getEncrCombobox().setValue(records[0].get('id'));
+                if (me.isInvalidLevel(records, me.getEncrCombobox().getValue())) {
+                    me.getEncrCombobox().clearValue();
+                    me.getEncrCombobox().clearInvalid();
+                }
+                me.getEncrCombobox().enable();
+                me.getEncrCombobox().show();
+            }
+        });
+        me.getRequestSecurityLevelsStore().on('load', function (store, records, success) {
+            if (success && records && records.length === 0) {
+                me.getRequestSecurityCombobox().setValue(-1);
+                me.getRequestSecurityCombobox().hide();
+            } else if (success && records) {
+                if (records.length === 1) me.getRequestSecurityCombobox().setValue(records[0].get('id'));
+                if (me.isInvalidLevel(records, me.getRequestSecurityCombobox().getValue())) {
+                    me.getRequestSecurityCombobox().clearValue();
+                    me.getRequestSecurityCombobox().clearInvalid();
+                }
+                me.getRequestSecurityCombobox().enable();
+                me.getRequestSecurityCombobox().show();
+            }
+        });
+        me.getResponseSecurityLevelsStore().on('load', function (store, records, success) {
+            if (success && records && records.length === 0) {
+                me.getResponseSecurityCombobox().setValue(-1);
+                me.getResponseSecurityCombobox().hide();
+            } else if (success && records) {
+                if (records.length === 1) me.getResponseSecurityCombobox().setValue(records[0].get('id'));
+                if (me.isInvalidLevel(records, me.getResponseSecurityCombobox().getValue())) {
+                    me.getResponseSecurityCombobox().clearValue();
+                    me.getResponseSecurityCombobox().clearInvalid();
+                }
+                me.getResponseSecurityCombobox().enable();
+                me.getResponseSecurityCombobox().show();
+            }
+        });
+        me.getConfigurationSecurityPropertiesStore().on('load', function (store, records, success) {
+            var formPanel = me.getFormPanel(),
+                form = formPanel.down('form#myForm'),
+                propertyForm = formPanel.down('property-form');
+                record = form.getRecord();
+
+            if (success && records.length) {
+                record.propertiesStore.removeAll();
+                record.propertiesStore.add(records);
+                propertyForm.loadRecord(record);
+                propertyForm.show();
+                form.getRecord();
+                me.getSecuritySettingFormDetailsTitle().setVisible(true);
+            } else {
+                propertyForm.hide();
+                me.getSecuritySettingFormDetailsTitle().setVisible(false);
+            }
+        });
     },
 
-    createAddExecutionLevelHistory: function () {
-        var grid = this.getSecurityGridPanel(),
-            lastSelected = grid.getView().getSelectionModel().getLastSelected();
-        location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings/' + lastSelected.getData().id + '/privileges/add';
+    isInvalidLevel: function (records, level) {
+        if (level === -1) return true;
+        for (i = 0; i < records.length; i++) {
+            if (records[i].getId() === level) {
+                return false;
+            }
+        }
+        return true;
     },
 
     editRecord: function () {
@@ -125,55 +224,23 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 waitMsg: Uni.I18n.translate('general.removing', 'MDC', 'Removing...'),
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.remove', 'MDC', 'Security setting removed'));
-                    me.store.load({
-                        callback: function (records) {
-                            if (records.length === 0) {
-                                me.getExecutionLevelsForSecuritySettingPreview().setVisible(false);
-                                me.getExecutionLevelsPreviewContainer().setVisible(false);
-                            }
-                        }
-                    });
+                    me.store.load();
                 },
                 failure: function (response, request) {
-                    var errorInfo = Uni.I18n.translate('devicesecuritysetting.removeErrorTitle', 'MDC', 'Couldn\'t perform your action'),
-                        errorText = Uni.I18n.translate('devicesecuritysetting.removeErrorMsg', 'MDC', 'Error during removal of security setting') + '.' + Uni.I18n.translate('general.error.unknown', 'MDC', "Unknown error occurred"),
-                        errorCode = '';
+                    var errorInfo = Uni.I18n.translate('devicesecuritysetting.removeErrorMsg', 'MDC', 'Error during removal of security setting'),
+                        errorText = Uni.I18n.translate('general.error.unknown', 'MDC', "Unknown error occurred");
 
                     if (response.status == 400) {
                         var result = Ext.JSON.decode(response.responseText, true);
                         if (result && result.message) {
                             errorText = result.message;
                         }
-                        if (result && result.errorCode) {
-                            errorCode = result.errorCode;
-                        }
-                        me.getApplication().getController('Uni.controller.Error').showError(errorInfo, errorText, errorCode);
+                        me.getApplication().getController('Uni.controller.Error').showError(errorInfo, errorText);
                     }
                 }
             });
         }
     },
-
-    selectFirstIfPossible: function (store) {
-        var grid = this.getSecurityGridPanel();
-        if (!Ext.isEmpty(grid)) {
-            var gridView = grid.getView(),
-                selectionModel = gridView.getSelectionModel(),
-                securityCount = store.getCount();
-            if (securityCount > 1) {
-                var index = store.find("id", this.secId);
-                if (index == -1) {
-                    selectionModel.select(0);
-                } else {
-                    selectionModel.select(index);
-                    this.secId = -1;
-                }
-            } else if (securityCount == 1) {
-                selectionModel.select(0);
-            }
-        }
-    },
-
 
     loadStore: function () {
         this.store.load({
@@ -184,54 +251,59 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     },
 
     loadGridItemDetail: function (rowmodel, record, index) {
-        var detailPanel = Ext.ComponentQuery.query('securitySettingSetup securitySettingPreview')[0],
-            form = detailPanel.down('form'),
-            preloader = Ext.create('Ext.LoadMask', {
-                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
-                target: form
-            });
+        var me = this;
+        var securitySetting = me.getSecurityGridPanel().getSelectionModel().getSelection();
+        me.getSecuritySettingPreview().down('property-form').remove();
+        if (securitySetting.length == 1) {
+            var securitySettingName = securitySetting[0].get('name');
+            me.getSecuritySettingPreview().setTitle(Ext.String.htmlEncode(securitySettingName));
+            me.getSecuritySettingPreviewForm().loadRecord(securitySetting[0]);
+            me.getSecuritySettingPreview().down('property-form').readOnly = true;
+            me.getSecuritySettingPreview().down('property-form').loadRecord(securitySetting[0]);
+            me.getSecuritySettingPreviewDetailsTitle().setVisible(securitySetting[0].propertiesStore.data.items.length > 0);
+        }
+    },
 
-        preloader.show();
-        detailPanel.setTitle(Ext.String.htmlEncode(record.getData().name));
-        form.loadRecord(record);
+    triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified: function (combobox, objList) {
+        var me = this,
+            authCombobox = me.getAuthCombobox(),
+            encrCombobox = me.getEncrCombobox(),
+            securitySuiteCombobox = me.getSecuritySuiteCombobox(),
+            requestSecurityCombobox = me.getRequestSecurityCombobox(),
+            responseSecurityCombobox = me.getResponseSecurityCombobox(),
+            authenticationLevelId = authCombobox.getValue(),
+            encryptionLevelId = encrCombobox.getValue(),
+            securitySuiteId = securitySuiteCombobox.getValue(),
+            requestSecurityLevelId = requestSecurityCombobox.getValue(),
+            responseSecurityLevelId = responseSecurityCombobox.getValue(),
+            configurationSecurityPropertiesStore = me.getConfigurationSecurityPropertiesStore();
 
-        var executionLevelsgrid = Ext.ComponentQuery.query('securitySettingSetup execution-level-grid')[0];
-        var executionLevelscontainer = Ext.ComponentQuery.query('securitySettingSetup #execution-levels-grid-preview-container')[0];
-        var executionLevelsTitle = Ext.ComponentQuery.query('securitySettingSetup #execution-level-grid-title')[0];
-        this.getExecutionLevelGridAddLink() &&
-        this.getExecutionLevelGridAddLink().getEl().set({href: executionLevelscontainer.emptyComponent.stepItems[0].href + record.get('id') + '/privileges/add'});
-        this.getExecutionLevelAddLink() &&
-        this.getExecutionLevelAddLink().getEl().set({href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings/' + record.get('id') + '/privileges/add'});
-
-        var preview = Ext.ComponentQuery.query('securitySettingSetup #execution-levels-grid-preview-container')[0];
-        preview.bindStore(record.executionLevels());
-        executionLevelsgrid.store = record.executionLevels();
-        var view = executionLevelsgrid.getView();
-        view.bindStore(record.executionLevels());
-
-        preview.onLoad();
-
-        executionLevelsTitle.show();
-        executionLevelscontainer.show();
-
-        this.getExecutionLevelsForSecuritySettingPreview().setTitle(
-            Uni.I18n.translate('securitySetting.executionLevel.gridTitle', 'MDC', "Privileges of '{0}'", [record.getData().name])
-        );
-
-        executionLevelsgrid.down('pagingtoolbartop').store = record.executionLevels();
-        executionLevelsgrid.down('pagingtoolbartop').store.totalCount = record.executionLevels().getCount();
-        executionLevelsgrid.down('pagingtoolbartop').displayMsg =
-            Uni.I18n.translatePlural('executionLevel.pagingtoolbartop.displayMsg', record.executionLevels().getCount(), 'MDC',
-                'No privileges', '{0} privilege', '{0} privileges');
-        executionLevelsgrid.down('pagingtoolbartop').updateInfo();
-
-        preloader.destroy();
+        if ((!authCombobox.isVisible() || authenticationLevelId !== null) &&
+            (!encrCombobox.isVisible() || encryptionLevelId !== null) &&
+            (!securitySuiteCombobox.isVisible() || securitySuiteId !== null) &&
+            (!requestSecurityCombobox.isVisible() || requestSecurityLevelId !== null) &&
+            (!responseSecurityCombobox.isVisible() || responseSecurityLevelId !== null)) {
+            configurationSecurityPropertiesStore.getProxy().setUrl(me.currentDeviceTypeId, me.currentDeviceConfigurationId);
+            configurationSecurityPropertiesStore.getProxy().setExtraParam('authenticationLevelId', authenticationLevelId);
+            configurationSecurityPropertiesStore.getProxy().setExtraParam('encryptionLevelId', encryptionLevelId);
+            configurationSecurityPropertiesStore.getProxy().setExtraParam('securitySuiteId', securitySuiteId);
+            configurationSecurityPropertiesStore.getProxy().setExtraParam('requestSecurityLevelId', requestSecurityLevelId);
+            configurationSecurityPropertiesStore.getProxy().setExtraParam('responseSecurityLevelId', responseSecurityLevelId);
+            configurationSecurityPropertiesStore.load();
+        } else {
+            // Else, not all of the security levels are specified
+            me.getFormPanel().down('property-form').hide();
+            me.getSecuritySettingFormDetailsTitle().setVisible(false);
+        }
     },
 
     showSecuritySettings: function (deviceTypeId, deviceConfigurationId) {
         var me = this,
-            widget = Ext.widget('securitySettingSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId}),
-            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            securitySuitesStore = me.getSecuritySuitesStore();
+
+        me.currentDeviceTypeId = deviceTypeId;
+        me.currentDeviceConfigurationId = deviceConfigurationId;
 
         if (mainView) mainView.setLoading(Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
         me.deviceTypeId = deviceTypeId;
@@ -244,12 +316,23 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
+                        me.deviceProtocolSupportsClient = deviceConfig.get('deviceProtocolSupportsClient');
+                        me.deviceProtocolSupportSecuritySuites = deviceConfig.get('deviceProtocolSupportSecuritySuites');
+                        securitySuitesStore.getProxy().setUrl(me.currentDeviceTypeId, me.currentDeviceConfigurationId);
+                        securitySuitesStore.getProxy().setExtraParam('securitySuiteId', null);
+                        widget = Ext.widget('securitySettingSetup', {
+                            deviceTypeId: deviceTypeId,
+                            deviceConfigId: deviceConfigurationId,
+                            deviceProtocolSupportsClient: me.deviceProtocolSupportsClient,
+                            deviceProtocolSupportSecuritySuites: me.deviceProtocolSupportSecuritySuites
+                        });
+                        widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
+                        me.getApplication().fireEvent('changecontentevent', widget);
+
                         if (mainView) mainView.setLoading(false);
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                        widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
                         me.deviceTypeName = deviceType.get('name');
                         me.deviceConfigName = deviceConfig.get('name');
-                        me.getApplication().fireEvent('changecontentevent', widget);
                     }
                 });
             }
@@ -258,6 +341,9 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
     showSecuritySettingsCreateView: function (deviceTypeId, deviceConfigurationId) {
         var me = this;
+
+        me.currentDeviceTypeId = deviceTypeId;
+        me.currentDeviceConfigurationId = deviceConfigurationId;
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -268,26 +354,34 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         me.setDeviceTypeName(deviceType.get('name'));
                         me.setDeviceConfigName(deviceConfig.get('name'));
-
-                        var form = Ext.widget('securitySettingForm', {
-                            deviceTypeId: deviceTypeId,
-                            deviceConfigurationId: deviceConfigurationId,
-                            securityHeader: Uni.I18n.translate('securitySetting.addSecuritySetting', 'MDC', 'Add security setting'),
-                            actionButtonName: Uni.I18n.translate('general.add', 'MDC', 'Add'),
-                            securityAction: 'add'
-                        });
-                        var record = me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).create();
-                        form.down('form#myForm').loadRecord(record);
-                        me.getApplication().fireEvent('changecontentevent', form);
+                        me.deviceProtocolSupportsClient = deviceConfig.get('deviceProtocolSupportsClient');
+                        me.deviceProtocolSupportSecuritySuites = deviceConfig.get('deviceProtocolSupportSecuritySuites');
+                            container = Ext.widget('securitySettingForm', {
+                                deviceTypeId: deviceTypeId,
+                                deviceConfigurationId: deviceConfigurationId,
+                                securityHeader: Uni.I18n.translate('securitySetting.addSecuritySetting', 'MDC', 'Add security setting'),
+                                actionButtonName: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                securityAction: 'add'
+                            }),
+                            record = me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).create();
+                        me.configureProxyOfAllSecurityStores(null);
+                        me.loadAllSecurityStores(true, me.deviceProtocolSupportSecuritySuites);
+                        me.hideClientFieldIfNotApplicable(me.deviceProtocolSupportsClient);
+                        container.down('form#myForm').loadRecord(record);
+                        container.down('property-form').loadRecord(record);
+                        me.getApplication().fireEvent('changecontentevent', container);
 
                     }
                 });
-            },
+            }
         });
     },
 
     showSecuritySettingsEditView: function (deviceTypeId, deviceConfigurationId, securitySettingId) {
         var me = this;
+
+        me.currentDeviceTypeId = deviceTypeId;
+        me.currentDeviceConfigurationId = deviceConfigurationId;
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -298,24 +392,149 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         me.setDeviceTypeName(deviceType.get('name'));
                         me.setDeviceConfigName(deviceConfig.get('name'));
+                        me.deviceProtocolSupportsClient = deviceConfig.get('deviceProtocolSupportsClient');
+                        me.deviceProtocolSupportSecuritySuites = deviceConfig.get('deviceProtocolSupportSecuritySuites');
                         me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).load(securitySettingId, {
                             success: function (securitySetting) {
-                                var form = Ext.widget('securitySettingForm', {
+                                var container = Ext.widget('securitySettingForm', {
                                     deviceTypeId: deviceTypeId,
                                     deviceConfigurationId: deviceConfigurationId,
                                     securityHeader: Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", securitySetting.get('name')),
                                     actionButtonName: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                                     securityAction: 'save'
                                 });
-                                form.down('form#myForm').loadRecord(securitySetting);
+                                me.configureProxyOfAllSecurityStores(securitySetting.get('securitySuiteId'));
+                                me.loadAllSecurityStores(false, me.deviceProtocolSupportSecuritySuites);
+                                me.hideClientFieldIfNotApplicable(me.deviceProtocolSupportsClient);
+                                container.down('form#myForm').loadRecord(securitySetting);
+                                var propertyForm = container.down('property-form');
+                                if (securitySetting.properties().count()) {
+                                    propertyForm.show();
+                                    propertyForm.loadRecord(securitySetting);
+                                    me.getSecuritySettingFormDetailsTitle().setVisible(true);
+                                } else {
+                                    propertyForm.hide();
+                                    me.getSecuritySettingFormDetailsTitle().setVisible(false);
+                                }
+
                                 me.getApplication().fireEvent('loadSecuritySetting', securitySetting);
-                                me.getApplication().fireEvent('changecontentevent', form);
+                                me.getApplication().fireEvent('changecontentevent', container);
                             }
                         });
                     }
                 });
-            },
+            }
         });
+    },
+
+    hideClientFieldIfNotApplicable: function (deviceProtocolSupportsClient) {
+        var me = this,
+            clientField = me.getClientField();
+
+        if (!deviceProtocolSupportsClient) {
+            clientField.allowBlank = true;   // If the protocol doesn't support it, then don't require a values
+            clientField.hide();
+        }
+    },
+
+    configureProxyOfAllSecurityStores: function (securitySuiteId) {
+        var me = this,
+            securitySuitesStore = me.getSecuritySuitesStore(),
+            authenticationLevelStore = me.getAuthenticationLevelsStore(),
+            encryptionLevelStore = me.getEncryptionLevelsStore(),
+            requestSecurityLevelStore = me.getRequestSecurityLevelsStore(),
+            responseSecurityLevelStore = me.getResponseSecurityLevelsStore();
+
+        securitySuitesStore.getProxy().setUrl(me.currentDeviceTypeId, me.currentDeviceConfigurationId);
+        authenticationLevelStore.getProxy().setUrl(me.currentDeviceTypeId, me.currentDeviceConfigurationId);
+        encryptionLevelStore.getProxy().setUrl(me.currentDeviceTypeId, me.currentDeviceConfigurationId);
+        requestSecurityLevelStore.getProxy().setUrl(me.currentDeviceTypeId, me.currentDeviceConfigurationId);
+        responseSecurityLevelStore.getProxy().setUrl(me.currentDeviceTypeId, me.currentDeviceConfigurationId);
+        securitySuitesStore.getProxy().setExtraParam('securitySuiteId', securitySuiteId);
+        authenticationLevelStore.getProxy().setExtraParam('securitySuiteId', securitySuiteId);
+        encryptionLevelStore.getProxy().setExtraParam('securitySuiteId', securitySuiteId);
+        requestSecurityLevelStore.getProxy().setExtraParam('securitySuiteId', securitySuiteId);
+        responseSecurityLevelStore.getProxy().setExtraParam('securitySuiteId', securitySuiteId);
+    },
+
+    loadAllSecurityStores: function (createView, deviceProtocolSupportSecuritySuites) {
+        var me = this,
+            authCombobox = me.getAuthCombobox(),
+            encrCombobox = me.getEncrCombobox(),
+            requestSecurityCombobox = me.getRequestSecurityCombobox(),
+            responseSecurityCombobox = me.getResponseSecurityCombobox(),
+            securitySuitesStore = me.getSecuritySuitesStore(),
+            authenticationLevelStore = me.getAuthenticationLevelsStore(),
+            encryptionLevelStore = me.getEncryptionLevelsStore(),
+            requestSecurityLevelStore = me.getRequestSecurityLevelsStore(),
+            responseSecurityLevelStore = me.getResponseSecurityLevelsStore();
+
+        if (createView) {
+            if (deviceProtocolSupportSecuritySuites) {
+                authCombobox.disable(); // Disable these fields (they will become enabled again after selection of a security suite)
+                encrCombobox.disable();
+                requestSecurityCombobox.disable();
+                responseSecurityCombobox.disable();
+            } else {
+                authenticationLevelStore.load();
+                encryptionLevelStore.load();
+                me.hideSecuritySuiteFields();
+            }
+        } else {
+            authenticationLevelStore.load();
+            encryptionLevelStore.load();
+            if (deviceProtocolSupportSecuritySuites) {
+                securitySuitesStore.load();
+                requestSecurityLevelStore.load();
+                responseSecurityLevelStore.load();
+            } else {
+                me.hideSecuritySuiteFields();
+            }
+        }
+    },
+
+    hideSecuritySuiteFields: function () {
+        var me = this;
+
+        me.getSecuritySuiteCombobox().allowBlank = true;
+        me.getSecuritySuiteCombobox().hide();
+        me.getRequestSecurityCombobox().allowBlank = true;
+        me.getRequestSecurityCombobox().hide();
+        me.getResponseSecurityCombobox().allowBlank = true;
+        me.getResponseSecurityCombobox().hide();
+    },
+
+    updateUsedSecurityLevelPossibilitiesBasedOnSecuritySuiteAndTriggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified: function (combobox, record) {
+        var me = this,
+            authCombobox = me.getAuthCombobox(),
+            authSecurityLevelsStore = authCombobox.getStore(),
+            encrCombobox = me.getEncrCombobox(),
+            encrSecurityLevelsStore = encrCombobox.getStore(),
+            requestSecurityCombobox = me.getRequestSecurityCombobox(),
+            requestSecurityLevelsStore = requestSecurityCombobox.getStore(),
+            responseSecurityCombobox = me.getResponseSecurityCombobox(),
+            responseSecurityLevelsStore = responseSecurityCombobox.getStore(),
+            storesToLoad = 4;
+
+        callBackFunction = function () {
+            storesToLoad--;
+            if (storesToLoad <= 0) {
+                // Delay the update of attributes till all stores are loaded
+                me.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified();
+            }
+        };
+        authSecurityLevelsStore.getProxy().setUrl(me.currentDeviceTypeId, me.currentDeviceConfigurationId);
+        authSecurityLevelsStore.getProxy().setExtraParam('securitySuiteId', me.getSecuritySuiteCombobox().getValue());
+        authSecurityLevelsStore.load({callback: callBackFunction});
+        encrSecurityLevelsStore.getProxy().setUrl(me.currentDeviceTypeId, me.currentDeviceConfigurationId);
+        encrSecurityLevelsStore.getProxy().setExtraParam('securitySuiteId', me.getSecuritySuiteCombobox().getValue());
+        encrSecurityLevelsStore.load({callback: callBackFunction});
+        requestSecurityLevelsStore.getProxy().setUrl(me.currentDeviceTypeId, me.currentDeviceConfigurationId);
+        requestSecurityLevelsStore.getProxy().setExtraParam('securitySuiteId', me.getSecuritySuiteCombobox().getValue());
+        requestSecurityLevelsStore.load({callback: callBackFunction});
+        responseSecurityLevelsStore.getProxy().setUrl(me.currentDeviceTypeId, me.currentDeviceConfigurationId);
+        responseSecurityLevelsStore.getProxy().setExtraParam('securitySuiteId', me.getSecuritySuiteCombobox().getValue());
+        responseSecurityLevelsStore.load({callback: callBackFunction});
     },
 
     createSecuritySettingModel: function (deviceTypeId, deviceConfigurationId) {
@@ -327,9 +546,13 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     onSubmit: function (btn) {
         var me = this,
             formPanel = me.getFormPanel(),
-            form = formPanel.down('form#myForm').getForm();
+            form = formPanel.down('form#myForm'),
+            propertyForm = formPanel.down('property-form'),
+            record = form.getRecord();
 
-        if (form.isValid()) {
+        form.getForm().clearInvalid();
+        propertyForm.getForm().clearInvalid();
+        if (form.isValid() && propertyForm.isValid()) {
             me.hideErrorPanel();
             var preloader = Ext.create('Ext.LoadMask', {
                 msg: Uni.I18n.translate('general.saving', 'MDC', 'Saving...'),
@@ -337,7 +560,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             });
             preloader.show();
             form.updateRecord();
-            form.getRecord().save({
+            propertyForm.updateRecord();
+            record.propertiesStore = propertyForm.getRecord() !== undefined ? propertyForm.getRecord().properties() : undefined;
+
+            record.save({
                 backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/deviceconfigurations/view/securitysettings').buildUrl(),
                 success: function (response) {
                     me.handleSuccessRequest(response, Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.edit', 'MDC', 'Security setting saved'));
@@ -347,7 +573,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         if (operation.error.status == 400) {
                             var result = Ext.JSON.decode(operation.response.responseText, true);
                             if (result && result.errors) {
-                                form.markInvalid(result.errors)
+                                form.getForm().markInvalid(result.errors);
+                                propertyForm.getForm().markInvalid(result.errors);
                             }
                             me.showErrorPanel();
                         }
@@ -379,184 +606,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         }
         me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/deviceconfigurations/view/securitysettings').forward();
         this.getApplication().fireEvent('acknowledge', headerText);
-    },
-
-    showAddExecutionLevelsView: function (deviceTypeId, deviceConfigId, securitySettingId) {
-        var me = this,
-            model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
-            store = Ext.data.StoreManager.lookup('AvailableExecLevelsForSecSettingsOfDevConfig');
-        store.getProxy().setExtraParam('deviceType', deviceTypeId);
-        store.getProxy().setExtraParam('deviceConfig', deviceConfigId);
-        store.getProxy().setExtraParam('securityProperty', securitySettingId);
-        store.getProxy().setExtraParam('available', true);
-        store.load(
-            {
-                callback: function () {
-                    var self = this;
-                    Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
-                        success: function (deviceType) {
-                            me.getApplication().fireEvent('loadDeviceType', deviceType);
-                            var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
-                            model.getProxy().setExtraParam('deviceType', deviceTypeId);
-                            model.load(deviceConfigId, {
-                                success: function (deviceConfig) {
-                                    me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                                    var modelSecuritySet = Ext.ModelManager.getModel('Mdc.model.SecuritySetting');
-                                    modelSecuritySet.getProxy().setExtraParam('deviceType', deviceTypeId);
-                                    modelSecuritySet.getProxy().setExtraParam('deviceConfig', deviceConfigId);
-                                    modelSecuritySet.load(securitySettingId, {
-                                        success: function (securitySetting) {
-                                            me.getApplication().fireEvent('loadSecuritySetting', securitySetting);
-                                            var widget = Ext.widget('add-execution-levels', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigId, securitySettingId: securitySettingId})
-                                            me.getApplication().fireEvent('changecontentevent', widget);
-                                            me.getAddExecutionLevelPanel().setTitle(Uni.I18n.translate('executionLevels.addExecutionLevels', 'MDC', 'Add privileges'));
-                                            store.load(function () {
-                                                me.getExecutionLevelAddGrid().getSelectionModel().deselectAll();
-                                            });
-                                            //  var numberOfExecutionLevelsLabel = Ext.ComponentQuery.query('add-execution-levels toolbar label[name=ExecutionLevelCount]')[0],
-                                            //var grid = Ext.ComponentQuery.query('add-execution-levels grid')[0];
-                                            //numberOfExecutionLevelsLabel.setText(Uni.I18n.translate('executionlevels.noExecutionLevelsSelected', 'MDC','No execution levels selected'));
-                                            //  if (self.getCount() < 1) {
-                                            //     grid.hide();
-                                            //     grid.next().show();
-                                            // }
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    });
-                }
-            }
-        );
-    },
-
-    addExecutionLevels: function (btn) {
-        var self = this,
-            addView = this.getAddExecutionLevels(),
-            grid = this.getExecutionLevelAddGrid();
-        var url = '/api/dtc/devicetypes/' + addView.deviceTypeId + '/deviceconfigurations/' + addView.deviceConfigurationId + '/securityproperties/' + addView.securitySettingId + '/executionlevels/',
-            preloader = Ext.create('Ext.LoadMask', {
-                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
-                target: addView
-            }),
-            records = grid.getSelectionModel().getSelection(),
-            ids = [];
-        if (records.length === 0) {
-            self.showExecutionLevelsErrorPanel();
-        } else {
-            Ext.Array.each(records, function (item) {
-                ids.push(item.internalId);
-            });
-            var jsonIds = Ext.encode(ids);
-            //preloader.show();
-            var router = this.getController('Uni.controller.history.Router');
-            Ext.Ajax.request({
-                url: url,
-                method: 'POST',
-                jsonData: jsonIds,
-                success: function () {
-                    router.getRoute('administration/devicetypes/view/deviceconfigurations/view/securitysettings').forward();
-                    self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('executionlevels.acknowledgment.added', 'MDC', 'Privileges added'));
-                },
-                failure: function (response) {
-                    if (response.status == 400) {
-                        var result = Ext.decode(response.responseText, true),
-                            errorTitle = Uni.I18n.translate('general.failedToAddTitle', 'MDC', 'Couldn\'t perform your action'),
-                            errorText = Uni.I18n.translate('general.failedToAdd', 'MDC', 'Failed to add') + '.' + Uni.I18n.translate('executionlevels.add.failure', 'MDC', 'Privileges could not be added. There was a problem accessing the database'),
-                            code = '';
-
-                        if (result !== null) {
-                            errorTitle = result.error;
-                            errorText = result.message;
-                            code = result.errorCode;
-                        }
-
-                        self.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText, code);
-                    }
-                },
-                callback: function () {
-                    preloader.destroy();
-                }
-            });
-        }
-    },
-
-    removeExecutionLevel: function () {
-        var me = this,
-            grid = me.getExecutionLevelGridPanel(),
-            lastSelected = grid.getView().getSelectionModel().getLastSelected();
-
-        var securitySettingsGrid = me.getSecurityGridPanel(),
-            securitySetting = securitySettingsGrid.getView().getSelectionModel().getLastSelected().getData().id;
-        Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('executionlevel.removeExecutionLevel', 'MDC', 'The privilege will no longer be available.'),
-            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", [lastSelected.getData().name]),
-            config: {
-                executionLevelToDelete: lastSelected,
-                securitySetting: securitySetting,
-                me: me
-            },
-            fn: me.removeExecutionLevelRecord
-        });
-    },
-
-    removeExecutionLevelRecord: function (btn, text, cfg) {
-        if (btn === 'confirm') {
-            var me = cfg.config.me,
-                executionLevelToDelete = cfg.config.executionLevelToDelete,
-                securitySetting = cfg.config.securitySetting;
-            var securitySettingSelected = me.getSecurityGridPanel().getSelectionModel().getLastSelected();
-            var selectedIndex = me.store.indexOf(securitySettingSelected);
-            Ext.Ajax.request({
-                url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/securityproperties/' + securitySetting + '/executionlevels/' + executionLevelToDelete.getData().id,
-                method: 'DELETE',
-                jsonData: executionLevelToDelete.getRecordData(),
-                waitMsg: Uni.I18n.translate('general.removing', 'MDC', 'Removing...'),
-                success: function () {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('executionlevel.acknowledgment.removed', 'MDC', 'Privilege removed'));
-                    me.store.load(function () {
-                        me.getSecurityGridPanel().getSelectionModel().select(selectedIndex);
-                    });
-                },
-                failure: function (response, request) {
-                    var errorInfo = Uni.I18n.translate('executionLevel.removeErrorTitle', 'MDC', 'Couldn\'t perform your action'),
-                        errorText = Uni.I18n.translate('executionLevel.removeErrorMsg', 'MDC', 'Error during removal of privilege') + '.' + Uni.I18n.translate('general.error.unknown', 'MDC', "Unknown error occurred"),
-                        code='';
-
-                    if (response.status == 400) {
-                        var result = Ext.JSON.decode(response.responseText, true);
-                        if (result && result.message) {
-                            errorText = result.message;
-                        }
-                        if (result && result.errorCode) {
-                            code = result.errorCode;
-                        }
-                        me.getApplication().getController('Uni.controller.Error').showError(errorInfo, errorText, code);
-                    }
-                }
-            });
-        }
-    },
-
-    showExecutionLevelsErrorPanel: function () {
-        var me = this,
-            formErrorsPanel = me.getAddExecutionLevelPanel().down('#add-execution-level-errors'),
-            errorPanel = me.getAddExecutionLevelPanel().down('#add-execution-level-selection-error');
-
-        formErrorsPanel.show();
-        errorPanel.show();
-    },
-
-    hideExecutionLevelsErrorPanel: function () {
-        var me = this,
-            formErrorsPanel = me.getAddExecutionLevelPanel().down('#add-execution-level-errors'),
-            errorPanel = me.getAddExecutionLevelPanel().down('#add-execution-level-selection-error');
-
-        formErrorsPanel.hide();
-        errorPanel.hide();
-
     }
-
 
 });

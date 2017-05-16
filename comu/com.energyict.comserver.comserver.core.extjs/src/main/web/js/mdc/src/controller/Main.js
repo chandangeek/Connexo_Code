@@ -122,6 +122,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities',
         'Mdc.usagepointmanagement.controller.ViewRegisterDataAndReadingQualities',
         'Mdc.controller.setup.CommandLimitationRules',
+        'Mdc.securityaccessors.controller.SecurityAccessors',
+        'Mdc.securityaccessors.controller.DeviceSecurityAccessors',
         'Mdc.controller.setup.DeviceRegisterValidation'
     ],
 
