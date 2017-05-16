@@ -587,7 +587,9 @@ public class UsagePointResource {
                                                 UsagePointInfo info) {
         UsagePoint usagePoint =  resourceHelper.findAndLockUsagePointByNameOrThrowException(name, info.version);
 
-        usagePoint.getCurrentEffectiveMetrologyConfiguration().ifPresent(emc -> emc.close(emc.getStart()));
+        usagePoint.getEffectiveMetrologyConfigurations().stream()
+                .findFirst()
+                .ifPresent(emc -> emc.close(emc.getStart()));
 
         return Response.ok().build();
     }

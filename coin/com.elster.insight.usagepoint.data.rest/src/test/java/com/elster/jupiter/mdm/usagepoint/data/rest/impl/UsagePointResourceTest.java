@@ -73,15 +73,10 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationTask;
+
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 import org.joda.time.DateMidnight;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -98,6 +93,13 @@ import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -554,7 +556,8 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(response.getStatus()).isEqualTo(202);
         verify(usagePoint, never()).apply(any(UsagePointMetrologyConfiguration.class));
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
-        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
+        when(effectiveMetrologyConfigurationOnUsagePoint.getStart()).thenReturn(now);
 
         response = target("usagepoints/" + USAGE_POINT_NAME + "/metrologyconfiguration").queryParam("validate", "false").request().put(Entity.json(info));
 
@@ -562,8 +565,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         verify(usagePoint).apply(eq(usagePointMetrologyConfiguration), any(Instant.class));
 
         //unlink usage point
-
-        when(effectiveMetrologyConfigurationOnUsagePoint.getStart()).thenReturn(now);
 
         UsagePointInfo usagePointInfo = new UsagePointInfo();
         usagePointInfo.id = usagePoint.getId();
