@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.TranslationKey;
@@ -43,7 +41,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -66,12 +63,10 @@ import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -89,6 +84,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static com.energyict.mdc.device.data.rest.impl.DeviceMessageResourceTest.Necessity.Required;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -116,7 +115,6 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         super.setupTranslations();
         Stream.of(TrackingCategory.values()).forEach(this::mockTranslation);
         Stream.of(DeviceMessageStatusTranslationKeys.values()).forEach(this::mockTranslation);
-        Stream.of(ContactorDeviceMessage.values()).forEach(this::mockTranslation);
     }
 
     private void mockTranslation(TranslationKey translationKey) {
@@ -777,11 +775,6 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
                 EnumSet.of(DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN);
 
         @Override
-        public Optional<CustomPropertySet<com.energyict.mdc.upl.meterdata.Device, ? extends PersistentDomainExtension<com.energyict.mdc.upl.meterdata.Device>>> getCustomPropertySet() {
-            return Optional.empty();
-        }
-
-        @Override
         public List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
             return Collections.emptyList();
         }
@@ -792,8 +785,8 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         }
 
         @Override
-        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.emptyList();
+        public Optional<com.energyict.mdc.upl.properties.PropertySpec> getClientSecurityPropertySpec() {
+            return Optional.empty();
         }
 
         @Override

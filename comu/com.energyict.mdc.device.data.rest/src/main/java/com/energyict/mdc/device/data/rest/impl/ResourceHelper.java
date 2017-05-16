@@ -13,6 +13,8 @@ import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -59,7 +61,6 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -105,6 +106,7 @@ public class ResourceHelper {
     private final Thesaurus thesaurus;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final ValidationService validationService;
+    private final MeteringService meteringService;
 
     @Inject
     public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory,
@@ -113,7 +115,7 @@ public class ResourceHelper {
                           ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService,
                           MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock, MasterDataService masterDataService,
                           TopologyService topologyService, NlsService nlsService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
-                          MultiElementDeviceService multiElementDeviceService, ValidationService validationService) {
+                          MeteringService meteringService, MultiElementDeviceService multiElementDeviceService, ValidationService validationService) {
         super();
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
@@ -133,6 +135,7 @@ public class ResourceHelper {
         this.topologyService = topologyService;
         this.multiElementDeviceService = multiElementDeviceService;
         this.clock = clock;
+        this.meteringService = meteringService;
         this.validationService = validationService;
 
         this.thesaurus = nlsService.getThesaurus(DeviceApplication.COMPONENT_NAME, Layer.REST)
@@ -150,6 +153,10 @@ public class ResourceHelper {
 
     public Device findDeviceByNameOrThrowException(String deviceName) {
         return deviceService.findDeviceByName(deviceName).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, deviceName));
+    }
+
+    public Optional<Device> findDeviceByName(String deviceName) {
+        return deviceService.findDeviceByName(deviceName);
     }
 
     public Long getCurrentDeviceVersion(String deviceName) {
@@ -883,6 +890,10 @@ public class ResourceHelper {
                 e)).collect(Collectors.toList());
     }
 
+    public Optional<ReadingQualityComment> getReadingQualityComment(long id) {
+        return meteringService.findReadingQualityComment(id);
+    }
+
     @SuppressWarnings("unchecked")
     public CustomPropertySetInfo getRegisterCustomPropertySetInfo(Register register, Instant effectiveTimestamp) {
         Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = getRegisteredCustomPropertySet(register);
@@ -1160,7 +1171,7 @@ public class ResourceHelper {
         if (device.getDeviceConfiguration().isDataloggerEnabled()) {
             slaves.addAll(topologyService.findDataLoggerSlaves(device));
         }
-        if (device.getDeviceConfiguration().isMultiElementEnabled()){
+        if (device.getDeviceConfiguration().isMultiElementEnabled()) {
             slaves.addAll(multiElementDeviceService.findMultiElementSlaves(device));
         }
         return slaves
@@ -1174,7 +1185,7 @@ public class ResourceHelper {
         if (slave.getDeviceType().isDataloggerSlave()) {
             return topologyService.findDataloggerReference(slave, clock.instant())
                     .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint());
-        }else{
+        } else {
             return multiElementDeviceService.findMultiElementDeviceReference(slave, clock.instant())
                     .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint());
         }

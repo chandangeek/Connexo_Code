@@ -67,6 +67,7 @@ public class DeviceDataInfoFactory {
     private final Clock clock;
     private final ResourceHelper resourceHelper;
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
+    private final ReadingQualityInfoFactory readingQualityInfoFactory;
 
     @Inject
     public DeviceDataInfoFactory(
@@ -76,7 +77,8 @@ public class DeviceDataInfoFactory {
             ValidationRuleInfoFactory validationRuleInfoFactory,
             Clock clock,
             ResourceHelper resourceHelper,
-            ReadingTypeInfoFactory readingTypeInfoFactory) {
+            ReadingTypeInfoFactory readingTypeInfoFactory,
+            ReadingQualityInfoFactory readingQualityInfoFactory) {
         this.obisCodeDescriptor = obisCodeDescriptor;
         this.meteringTranslationService = meteringTranslationService;
         this.validationInfoFactory = validationInfoFactory;
@@ -85,6 +87,7 @@ public class DeviceDataInfoFactory {
         this.clock = clock;
         this.resourceHelper = resourceHelper;
         this.readingTypeInfoFactory = readingTypeInfoFactory;
+        this.readingQualityInfoFactory = readingQualityInfoFactory;
     }
 
     ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave, ChannelPeriodType channelPeriodType) {
@@ -109,7 +112,6 @@ public class DeviceDataInfoFactory {
                 .filter(record -> (record.getType().getSystemCode() == QualityCodeSystem.ENDDEVICE.ordinal()))
                 .map(rq -> getSimpleName(rq.getType()))
                 .collect(Collectors.toList());
-
 
         Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues()
                 .entrySet()
@@ -149,7 +151,7 @@ public class DeviceDataInfoFactory {
 
 
     ChannelHistoryDataInfo createChannelHistoryDataInfo(Channel channel, LoadProfileJournalReading loadProfileJournalReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave, ChannelPeriodType channelPeriodType) {
-        ChannelHistoryDataInfo channelHistoryDataInfo = new ChannelHistoryDataInfo(createChannelDataInfo(channel, (LoadProfileReading) loadProfileJournalReading, isValidationActive, deviceValidation, dataLoggerSlave, channelPeriodType));
+        ChannelHistoryDataInfo channelHistoryDataInfo = new ChannelHistoryDataInfo(createChannelDataInfo(channel, loadProfileJournalReading, isValidationActive, deviceValidation, dataLoggerSlave, channelPeriodType));
         channelHistoryDataInfo.journalTime = loadProfileJournalReading.getJournalTime();
         channelHistoryDataInfo.userName = loadProfileJournalReading.getUserName();
         channelHistoryDataInfo.isActive = loadProfileJournalReading.getActive();
@@ -289,7 +291,7 @@ public class DeviceDataInfoFactory {
                 .filter(type -> type.system().isPresent())
                 .filter(type -> type.category().isPresent())
                 .filter(type -> type.qualityIndex().isPresent())
-                .map(type -> ReadingQualityInfo.fromReadingQualityType(meteringTranslationService, type))
+                .map(readingQualityInfoFactory::fromReadingQualityType)
                 .collect(Collectors.toList());
     }
 
@@ -443,5 +445,13 @@ public class DeviceDataInfoFactory {
         FlagsRegisterInfo flagsRegisterInfo = new FlagsRegisterInfo();
         addCommonRegisterInfo(flagsRegister, flagsRegisterInfo, topologyService);
         return flagsRegisterInfo;
+    }
+
+    public PrevalidatedChannelDataInfo createPrevalidatedChannelDataInfo(DataValidationStatus dataValidationStatus) {
+        PrevalidatedChannelDataInfo info = new PrevalidatedChannelDataInfo();
+        info.readingTime = dataValidationStatus.getReadingTimestamp();
+        info.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
+        info.bulkValidationRules = validationRuleInfoFactory.createInfosForBulkDataValidationStatus(dataValidationStatus);
+        return info;
     }
 }

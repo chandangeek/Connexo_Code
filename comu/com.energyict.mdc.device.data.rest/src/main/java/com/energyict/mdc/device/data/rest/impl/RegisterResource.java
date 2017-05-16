@@ -29,7 +29,6 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
-
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;

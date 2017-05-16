@@ -41,4 +41,10 @@ class MinimalVeeReadingValueInfo {
     @JsonProperty("ruleId")
     public long ruleId;
 
+    @JsonProperty("commentId")
+    public long commentId;
+
+    @JsonProperty("commentValue")
+    public String commentValue;
+
 }
