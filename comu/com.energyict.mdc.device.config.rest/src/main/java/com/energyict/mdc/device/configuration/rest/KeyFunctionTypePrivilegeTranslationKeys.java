@@ -16,8 +16,8 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-09-04 (15:11)
  */
-public enum SecurityPropertySetPrivilegeTranslationKeys implements TranslationKey {
-
+public enum KeyFunctionTypePrivilegeTranslationKeys implements TranslationKey {
+    // Remark: the translations SHOULD contain the "Edit" or "View" part. If not you can't distinguish them in Connexo Admin > Edit role page
     EDIT_1(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, "Edit level 1"),
     EDIT_2(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2, "Edit level 2"),
     EDIT_3(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3, "Edit level 3"),
@@ -30,7 +30,7 @@ public enum SecurityPropertySetPrivilegeTranslationKeys implements TranslationKe
     private final DeviceSecurityUserAction action;
     private final String defaultFormat;
 
-    SecurityPropertySetPrivilegeTranslationKeys(DeviceSecurityUserAction action, String defaultFormat) {
+    KeyFunctionTypePrivilegeTranslationKeys(DeviceSecurityUserAction action, String defaultFormat) {
         this.action = action;
         this.defaultFormat = defaultFormat;
     }
@@ -45,7 +45,7 @@ public enum SecurityPropertySetPrivilegeTranslationKeys implements TranslationKe
         return this.defaultFormat;
     }
 
-    public static SecurityPropertySetPrivilegeTranslationKeys from(String privilege) {
+    public static KeyFunctionTypePrivilegeTranslationKeys from(String privilege) {
         return Stream
                 .of(values())
                 .filter(each -> each.action.getPrivilege().equals(privilege))

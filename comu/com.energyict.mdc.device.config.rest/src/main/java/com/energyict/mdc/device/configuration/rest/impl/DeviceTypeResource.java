@@ -102,6 +102,7 @@ public class DeviceTypeResource {
     private final Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider;
     private final Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider;
     private final Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider;
+    private final Provider<SecurityAccessorResource> keyFunctionTypeResourceProvider;
     private final ProtocolPluggableService protocolPluggableService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final CalendarInfoFactory calendarInfoFactory;
@@ -124,7 +125,7 @@ public class DeviceTypeResource {
             CalendarService calendarService,
             ExceptionFactory exceptionFactory,
             Thesaurus thesaurus,
-            RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory, RegisterTypeInfoFactory registerTypeInfoFactory) {
+            RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory, RegisterTypeInfoFactory registerTypeInfoFactory, Provider<SecurityAccessorResource> keyFunctionTypeResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -140,6 +141,7 @@ public class DeviceTypeResource {
         this.thesaurus = thesaurus;
         this.registerTypeOnDeviceTypeInfoFactory = registerTypeOnDeviceTypeInfoFactory;
         this.registerTypeInfoFactory = registerTypeInfoFactory;
+        this.keyFunctionTypeResourceProvider = keyFunctionTypeResourceProvider;
     }
 
     @GET
@@ -441,6 +443,11 @@ public class DeviceTypeResource {
     @Path("/{deviceTypeId}/conflictmappings")
     public DeviceConfigConflictMappingResource getDeviceConflictMappingResource() {
         return deviceConflictMappingResourceProvider.get();
+    }
+
+    @Path("/{deviceTypeId}/securityaccessors")
+    public SecurityAccessorResource getKeyFunctionTypeResource() {
+        return keyFunctionTypeResourceProvider.get();
     }
 
     @GET

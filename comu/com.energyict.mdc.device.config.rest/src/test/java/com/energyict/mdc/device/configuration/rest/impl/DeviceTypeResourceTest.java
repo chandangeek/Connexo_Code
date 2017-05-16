@@ -36,7 +36,6 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.AllowedCalendar;
@@ -67,12 +66,10 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.upl.DeviceFunction;
+
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -92,6 +89,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.LongStream;
+
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -306,7 +308,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         return logBookType;
     }
 
-    private DeviceType mockDeviceType(String name, long id) {
+    //TODO: chekc if this override is needed?
+    protected DeviceType mockDeviceType(String name, long id) {
         DeviceType deviceType = mock(DeviceType.class);
         RegisteredCustomPropertySet registeredCustomPropertySet = mockRegisteredCustomPropertySet();
         when(deviceType.getRegisterTypeTypeCustomPropertySet(anyObject())).thenReturn(Optional.of(registeredCustomPropertySet));
@@ -332,7 +335,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         return deviceType;
     }
 
-    private DeviceLifeCycle mockStandardDeviceLifeCycle() {
+    protected DeviceLifeCycle mockStandardDeviceLifeCycle() {
         DeviceLifeCycle deviceLifeCycle = mock(DeviceLifeCycle.class);
         when(deviceLifeCycle.getId()).thenReturn(1L);
         when(deviceLifeCycle.getName()).thenReturn("Default");
@@ -478,6 +481,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getDeviceFunction()).thenReturn(DeviceFunction.METER);
+        when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.of(mock(com.energyict.mdc.upl.properties.PropertySpec.class)));
         when(deviceConfiguration.canActAsGateway()).thenReturn(true);
         when(deviceConfiguration.getGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
         when(deviceConfiguration.isDirectlyAddressable()).thenReturn(true);
@@ -496,7 +500,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat((List) map.get("deviceConfigurations")).hasSize(1)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("deviceConfigurations")).get(0);
-        assertThat(jsonDeviceConfiguration).hasSize(17);
+        assertThat(jsonDeviceConfiguration).hasSize(19);
         assertThat(jsonDeviceConfiguration.get("id")).isEqualTo(113)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon")
@@ -508,6 +512,10 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(jsonDeviceConfiguration.get("deviceProtocolPluggableClass")).isEqualTo("device protocol name")
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("deviceFunction")).isEqualTo("Meter")
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("deviceProtocolSupportsClient")).isEqualTo(true)
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("deviceProtocolSupportSecuritySuites")).isEqualTo(false)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("registerCount")).isEqualTo(2)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -526,6 +534,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(jsonDeviceConfiguration.get("multiElementEnabled")).isEqualTo(false)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("version")).isEqualTo(((Number) OK_VERSION).intValue())
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("validateOnStore")).isEqualTo(false)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 
@@ -586,6 +596,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getDeviceFunction()).thenReturn(DeviceFunction.METER);
+        when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.empty());
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol name");
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
@@ -1381,7 +1392,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         typedProperties.setProperty("macAddress", "aa:bb:cc:dd:ee:ff");
 
         ConnectionType connectionType = mock(ConnectionType.class);
-        when(connectionType.getPropertySpecs()).thenReturn(Arrays.<PropertySpec>asList(propertySpec1));
+        List<PropertySpec> propertySpecs = Arrays.<PropertySpec>asList(propertySpec1);
+        when(connectionType.getPropertySpecs()).thenReturn(propertySpecs);
 
         NextExecutionSpecs nextExecSpecs = mock(NextExecutionSpecs.class);
         when(nextExecSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.minutes(60)));

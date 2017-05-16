@@ -34,6 +34,9 @@ public enum MessageSeeds implements MessageSeed {
     UNKNOWN_PRIVILEGE_ID(33, "NoSuchExecutionLevels", "No such execution levels: {0}"),
     NO_SUCH_DEVICE_MESSAGE_SPEC(34, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
     FILE_IO(35, Keys.FILE_IO, "Failure while doing IO on file"),
+    NO_KEY_TYPE_FOUND(36, "noKeyTypeFound", "No key type with id {0}"),
+    NO_KEY_TYPE_FOUND_NAME(37, "noKeyTypeFoundName", "No key type with name {0}"),
+    NO_TRUST_STORE_FOUND(38, "noTrustStoreFound", "No trust store with id {0}"),
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_0(100, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_0, "Unrestricted authentication"),
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_1(103, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_1, "Restricted authentication"),
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_2(105, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_2, "Read only authentication"),
@@ -145,8 +148,10 @@ public enum MessageSeeds implements MessageSeed {
     MULTI_ELEMENT_SLAVE_AT_LEAST_ONE_DATASOURCE(226, Keys.MULTI_ELEMENT_SLAVE_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before you can " +
             "activate a multi-element slave configuration"),
     MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE(227, Keys.MULTI_ELEMENT_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before " +
-            "you can activate a multi-element device configuration")
-    ;
+            "you can activate a multi-element device configuration"),
+    NO_SUCH_KEY_ACCESSOR_TYPE(228, "NoSuchKeyAccessorType", "No such security accessor"),
+    INVALID_VALUE(229, "InvalidValue", "Invalid value"),
+    INVALID_TIME_DURATION(230, "TimeDurationTooLong", "Validity period must be shorter than or equal to 30 years.");
 
     private final int number;
     private final String key;
