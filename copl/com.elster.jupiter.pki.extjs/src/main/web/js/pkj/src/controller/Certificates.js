@@ -241,7 +241,7 @@ Ext.define('Pkj.controller.Certificates', {
                             form.getForm().markInvalid(responseObject.errors);
                         } else {
                             me.getApplication().getController('Uni.controller.Error')
-                                .showError(Uni.I18n.translate('general.certificateUploadFailed', 'PKJ', 'Failed to upload file'), responseObject.message);
+                                .showError(Uni.I18n.translate('general.certificateUploadFailed', 'PKJ', 'Failed to upload file'), responseObject.message, responseObject.errorCode);
                         }
                     }
                 } else {
