@@ -13,6 +13,10 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.ResultPanel', {
     router: null,
     response: null,
 
+    requires: [
+        'Uni.util.FormInfoMessage'
+    ],
+
     addErrorItems: function (checks) {
         var me = this,
             errorsContainer = me.down('#errors-container');
@@ -25,13 +29,12 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.ResultPanel', {
                 items: [
                     {
                         xtype: 'container',
-                        html: '-' + check.id + '?'
-
+                        html: '<span style="color:#eb5642;">' + '- ' + check.id + '</span>'
                     },
                     {
                         xtype: 'button',
                         tooltip: check.name,
-                        iconCls: 'uni-icon-info-small',
+                        text: '<span class="icon-info" style="cursor:default; display:inline-block; color:#eb5642; font-size:16px;"></span>',
                         cls: 'uni-btn-transparent',
                         style: {
                             display: 'inline-block',
@@ -68,17 +71,32 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.ResultPanel', {
                 },
                 {
                     xtype: 'panel',
-                    title: Uni.I18n.translate('devicetransitionexecute.wizard.step2fail', 'MDC', "Unable to change device state to '{0}'", [me.response.targetState]),
                     items: [
                         {
-                            xtype: 'container',
-                            html: me.response.message + (me.response.microChecks && me.response.microChecks.length ? ':' : '')
-                        },
-                        {
-                            xtype: 'container',
-                            itemId: 'errors-container'
+                            xtype: 'uni-form-info-message',
+                            margin: '7 0 17 0',
+                            iconCmp: {
+                                xtype: 'component',
+                                style: 'font-size: 22px; color: #eb5642; margin: 0px -22px 0px 0px;',
+                                cls: 'icon-warning'
+                            },
+                            style: 'border: 1px solid #eb5642; border-radius: 10px;',
+                            bodyStyle: 'color: #eb5642; padding: 5px 0 5px 32px',
+                            text: Uni.I18n.translate('general.bulkActionError', 'MDC', 'An error was encountered when performing the bulk action.'),
+                            itemId: 'mdc-transition-result-panel-error-msg'
                         }
                     ]
+                },
+                {
+                    xtype: 'container',
+                    html: '<span style="color:#eb5642;">' + (me.response.microChecks && me.response.microChecks.length
+                        ? Uni.I18n.translate('devicetransitionexecute.wizard.step2.checksFail', 'MDC', "Unable to change device state to '{0}' due to failed pretransition checks" + ':', me.response.targetState)
+                        : Uni.I18n.translate('devicetransitionexecute.wizard.step2.fail', 'MDC', "Unable to change device state to '{0}' ({1})", [me.response.targetState, me.response.message])
+                    ) + '</span>'
+                },
+                {
+                    xtype: 'container',
+                    itemId: 'errors-container'
                 }
             ];
         }
