@@ -24,13 +24,13 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
             {
                 header: Uni.I18n.translate('deviceSecuritySetting.name', 'MDC', 'Security setting'),
                 dataIndex: 'name',
-                flex: 2
+                flex: 3
             },
             {
                 header: Uni.I18n.translate('securitySetting.client', 'MDC', 'Client'),
                 itemId: 'mdc-deviceSecuritySettingGrid-client',
                 dataIndex: 'client',
-                flex: 3
+                flex: 2
             },
             {
                 header: Uni.I18n.translate('securitySetting.securitySuite', 'MDC', 'Security suite'),
@@ -68,7 +68,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('deviceSecuritySetting.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} security settings'),
                 displayMoreMsg: Uni.I18n.translate('deviceSecuritySetting.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} security settings'),
-                emptyMsg: Uni.I18n.translate('deviceSecuritySetting.pagingtoolbartop.emptyMsg', 'MDC', 'There are no security settings to display'),
+                emptyMsg: Uni.I18n.translate('deviceSecuritySetting.pagingtoolbartop.emptyMsg', 'MDC', 'There are no security settings to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
