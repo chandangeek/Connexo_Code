@@ -37,7 +37,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
         }
     ],
 
-    init: function () {        
+    init: function () {
         this.control({
             'validation-mc-rule-sets purpose-with-rule-sets-grid': {
                 select: this.showRules
@@ -96,18 +96,38 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
             rulesStore = me.getStore('Imt.store.ValidationRules');
 
         Ext.suspendLayouts();
-        if (view.down('#purpose-rule-sets-add-rule-button')) {
-            view.down('#purpose-rule-sets-add-rule-button').setHref(me.getController('Uni.controller.history.Router')
-                .getRoute('administration/rulesets/overview/versions/overview/rules/add').buildUrl({ruleSetId: ruleSet.get('id'), versionId: ruleSet.get('currentVersionId')}));
+        if (ruleSet.get('currentVersionId')) {
+            rulesStore.getProxy().extraParams = {
+                ruleSetId: ruleSet.get('id'),
+                versionId: ruleSet.get('currentVersionId')
+            };
+
+            rulesStore.load(function (record) {
+                if (record[0]) {
+                    view.down('#purpose-rules-grid-paging-top').child('#displayItem')
+                        .setText(Uni.I18n.translate('metrologyConfiguration.validation.rulesCount', 'IMT', '{0} validation rule(s)', rulesStore.getCount()));
+                } else {
+                    view.down('#purpose-no-validation-rule-set').hide();
+                    view.down('#purpose-no-validation-rules').show();
+                    if (view.down('#purpose-rule-sets-add-rule-button')) {
+                        view.down('#purpose-rule-sets-add-rule-button').setHref(me.getController('Uni.controller.history.Router')
+                            .getRoute('administration/rulesets/overview/versions/overview/rules/add').buildUrl({
+                                ruleSetId: ruleSet.get('id'),
+                                versionId: ruleSet.get('currentVersionId')
+                            }));
+                    }
+                }
+            });
+        } else {
+            rulesStore.loadData({});
+            rulesStore.fireEvent('load');
+            view.down('#purpose-no-validation-rules').hide();
+            view.down('#purpose-no-validation-rule-set').show();
+
+            if (view.down('#purpose-add-rule-set-button')) {
+                view.down('#purpose-add-rule-set-button').setHref('#/administration/validation/rulesets/' + ruleSet.get('id') + '/versions/add');
+            }
         }
-        rulesStore.getProxy().extraParams = {
-            ruleSetId: ruleSet.get('id'),
-            versionId: ruleSet.get('currentVersionId')
-        };
-        rulesStore.load(function () {
-            view.down('#purpose-rules-grid-paging-top').child('#displayItem')
-                .setText(Uni.I18n.translate('metrologyConfiguration.validation.rulesCount', 'IMT', '{0} validation rule(s)', rulesStore.getCount()));
-        });
         Ext.resumeLayouts(true);
     },
 
@@ -221,11 +241,11 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
                 return state.getRecordData();
             });
 
-        if(!statesGrid.allStatesSelected && !states.length){
+        if (!statesGrid.allStatesSelected && !states.length) {
             statesErrorMessage.show()
         } else {
             statesErrorMessage.hide();
-            Ext.Array.each(records,function(record){
+            Ext.Array.each(records, function (record) {
                 record.set('lifeCycleStates', statesData);
             });
             purpose.estimationRuleSets().removeAll();
@@ -243,7 +263,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
 
     },
 
-    showRulesTab: function(panel) {
+    showRulesTab: function (panel) {
         var me = this,
             purposesWithLinkedRuleSetsStore = me.getStore('Imt.metrologyconfiguration.store.PurposesWithValidationRuleSets'),
             rulesStore = me.getStore('Imt.store.ValidationRules'),
