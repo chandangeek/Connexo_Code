@@ -61,7 +61,7 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
