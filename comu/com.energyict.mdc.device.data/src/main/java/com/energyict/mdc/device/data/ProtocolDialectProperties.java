@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.data;
 
 import aQute.bnd.annotation.ProviderType;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.pluggable.PluggableClassUsage;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;

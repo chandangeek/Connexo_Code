@@ -18,7 +18,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
@@ -229,7 +229,7 @@ class ProtocolDialectPropertiesImpl
         if (this.getProtocolDialectConfigurationProperties() != null) {
             typedProperties = TypedProperties.inheritingFrom(this.getProtocolDialectConfigurationProperties().getTypedProperties());
         }
-        typedProperties.setAllProperties(this.getLocalTypedProperties());
+        typedProperties.setAllLocalProperties(this.getLocalTypedProperties());
         return typedProperties;
     }
 

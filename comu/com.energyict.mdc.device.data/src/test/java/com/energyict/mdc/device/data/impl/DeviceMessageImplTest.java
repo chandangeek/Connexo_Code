@@ -10,7 +10,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;

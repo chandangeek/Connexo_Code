@@ -24,7 +24,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
