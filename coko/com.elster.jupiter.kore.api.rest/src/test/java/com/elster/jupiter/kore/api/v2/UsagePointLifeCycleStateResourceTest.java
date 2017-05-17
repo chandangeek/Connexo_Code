@@ -43,6 +43,8 @@ public class UsagePointLifeCycleStateResourceTest extends PlatformPublicApiJerse
     @Mock
     UsagePointTransition usagePointTransition;
 
+    private final Instant effectiveTimestamp = Instant.ofEpochMilli(1490875811000L);
+
     @Override
     @Before
     public void setUp() throws Exception {
@@ -61,7 +63,7 @@ public class UsagePointLifeCycleStateResourceTest extends PlatformPublicApiJerse
         UsagePointStateChangeRequest usagePointStateChangeRequest = mock(UsagePointStateChangeRequest.class);
         when(usagePointStateChangeRequest.getStatus()).thenReturn(UsagePointStateChangeRequest.Status.COMPLETED);
         when(usagePointLifeCycleService.performTransition(usagePoint, usagePointTransition, "INS", Collections.emptyMap())).thenReturn(usagePointStateChangeRequest);
-
+        when(usagePointLifeCycleService.scheduleTransition(usagePoint, usagePointTransition, effectiveTimestamp, "INS", Collections.emptyMap())).thenReturn(usagePointStateChangeRequest);
     }
 
     @Test
@@ -104,13 +106,24 @@ public class UsagePointLifeCycleStateResourceTest extends PlatformPublicApiJerse
         assertThat(model.<List>get("$")).hasSize(6);
         assertThat(model.<List<String>>get("$")).containsOnly("id", "isInitial", "link", "name", "stage", "version");
     }
+    @Test
+    public void testScheduleTransition() throws Exception {
+        UsagePointTransitionInfo info = new UsagePointTransitionInfo();
+        info.id = 1L;
+        info.effectiveTimestamp = effectiveTimestamp;
 
+        // Business method
+        Response response = target("/usagepointlifecyclestate/" + MRID + "/transition").request().post(Entity.json(info));
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(usagePointLifeCycleService).scheduleTransition(usagePoint, usagePointTransition, effectiveTimestamp, "INS", Collections.emptyMap());
+    }
     @Test
     public void testPerformTransition() throws Exception {
         UsagePointTransitionInfo info = new UsagePointTransitionInfo();
         info.transitionNow = true;
         info.id = 1L;
-        info.effectiveTimestamp = Instant.ofEpochMilli(1490875811000L);
 
         // Business method
         Response response = target("/usagepointlifecyclestate/" + MRID + "/transition").request().post(Entity.json(info));

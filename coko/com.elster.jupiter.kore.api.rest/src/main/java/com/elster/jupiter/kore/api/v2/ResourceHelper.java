@@ -114,7 +114,7 @@ public class ResourceHelper {
         UsagePointTransition transition = getTransitionByIdOrThrowException(info.id);
 
         UsagePointStateChangeRequest changeRequest;
-        if (info.transitionNow && info.effectiveTimestamp == null) {
+        if (info.transitionNow || info.effectiveTimestamp == null) {
             changeRequest = this.usagePointLifeCycleService.performTransition(usagePoint, transition, "INS", Collections.emptyMap());
         } else {
             changeRequest = this.usagePointLifeCycleService.scheduleTransition(usagePoint, transition, info.effectiveTimestamp, "INS", Collections.emptyMap());
