@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.engine.config;
 
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 
 import java.util.List;
