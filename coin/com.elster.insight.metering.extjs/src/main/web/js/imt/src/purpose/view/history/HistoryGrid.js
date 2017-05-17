@@ -68,6 +68,9 @@ Ext.define('Imt.purpose.view.history.HistoryGrid', {
         var status = record.get('validationResult') ? record.get('validationResult').split('.')[1] : '',
             value = Ext.isEmpty(v) ? '-' : v,
             estimatedByRule = record.get('estimatedByRule'),
+            estimationComment = record.get('commentValue')
+                ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'IMT', 'Estimation comment: {0}', record.get('commentValue'))
+                : '',
             icon = '';
 
         if (status === 'notValidated') {
@@ -85,7 +88,7 @@ Ext.define('Imt.purpose.view.history.HistoryGrid', {
                 + Uni.I18n.translate('reading.estimated', 'IMT', 'Estimated on {0} at {1}', [
                     Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
                     Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
-                ], false) + '"></span>';
+                ], false) + estimationComment + '"></span>';
             if (record.get('isProjected') === true) {
                 icon = this.addProjectedFlag(icon);
             }

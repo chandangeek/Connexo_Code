@@ -88,11 +88,10 @@ Ext.define('Imt.purpose.model.Reading', {
             type: 'string',
             persist: false,
             mapping: function (data) {
-                var result = null,
-                    mainValidationInfo = data.mainValidationInfo;
+                var result = null;
 
-                if (mainValidationInfo && mainValidationInfo.commentValue) {
-                    result = mainValidationInfo.commentValue;
+                if (data.commentValue) {
+                    result = data.commentValue;
                 }
                 return result;
             }
