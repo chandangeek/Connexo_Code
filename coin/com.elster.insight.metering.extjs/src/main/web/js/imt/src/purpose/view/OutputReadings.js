@@ -271,7 +271,7 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             point.color = okColor;
             point.tooltipColor = tooltipOkColor;
             if (!Ext.isEmpty(readinqQualities)) {
-                point.showQualityIcon = readinqQualities.find(function (rq) {
+                point.showQualityIcon = _.find(readinqQualities, function (rq) {
                     return rq.cimCode.slice(0,2) != '3.';
                 });
             }
