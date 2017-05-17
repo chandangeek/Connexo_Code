@@ -11,7 +11,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
