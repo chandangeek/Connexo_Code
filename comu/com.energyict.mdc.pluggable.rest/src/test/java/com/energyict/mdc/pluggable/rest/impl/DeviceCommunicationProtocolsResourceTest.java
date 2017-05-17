@@ -13,7 +13,7 @@ import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.dynamic.PropertySpecService;

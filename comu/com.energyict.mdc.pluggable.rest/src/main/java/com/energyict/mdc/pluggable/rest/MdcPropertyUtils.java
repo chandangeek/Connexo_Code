@@ -19,7 +19,7 @@ import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.properties.rest.PropertyValuesResourceInfo;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.pluggable.rest.impl.CalendarResource;
