@@ -1,0 +1,88 @@
+<!--
+  ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.energyict</groupId>
+        <artifactId>protocols</artifactId>
+        <version>1.0.0${revision}</version>
+    </parent>
+
+    <artifactId>protocol-api</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0.0${revision}</version>
+    <name>protocol-api</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.upl</artifactId>
+            <version>1.0.0${revision}</version>
+        </dependency>
+    </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>eict-releases</id>
+            <name>EnergyICT releases repository</name>
+            <url>http://source.eict.vpdc/nexus/content/repositories/releases/</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>eict-snapshots</id>
+            <name>EnergyICT snapshots repository</name>
+            <url>http://source.eict.vpdc/nexus/content/repositories/snapshots/</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- Repositories specification. -->
+    <repositories>
+        <repository>
+            <id>eict-public-snapshots</id>
+            <name>EnergyICT snapshots repository group</name>
+            <url>http://source.eict.vpdc/nexus/content/groups/public-snapshots/
+            </url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+
+        <repository>
+            <id>eict-public</id>
+            <name>EnergyICT public repository group</name>
+            <url>http://source.eict.vpdc/nexus/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <scm>
+        <developerConnection>scm:svn:http://source.eict.vpdc/svn/labo/tags/protocol-api-9.1.27</developerConnection>
+    </scm>
+</project>
