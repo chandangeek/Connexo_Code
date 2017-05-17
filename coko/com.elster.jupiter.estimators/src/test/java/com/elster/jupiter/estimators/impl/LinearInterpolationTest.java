@@ -164,23 +164,6 @@ public class LinearInterpolationTest {
     }
 
     @Test
-    public void testLinearInterpolationDoesNotEstimateWhenReadingTypeIsNotCumulative() {
-        doReturn(false).when(readingType).isCumulative();
-
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(MAX_PERIOD_OF_CONSECUTIVE_SUSPECTS, TimeDuration.days(1));
-
-        Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService, properties);
-        estimator.init(LOGGER);
-
-        EstimationResult estimationResult = estimator.estimate(Collections.singletonList(estimationBlock), QualityCodeSystem.EXTERNAL);
-
-        assertThat(estimationResult.estimated()).isEmpty();
-        assertThat(estimationResult.remainingToBeEstimated()).containsExactly(estimationBlock);
-        assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
-    }
-
-    @Test
     public void testLinearInterpolationDoesNotEstimateWhenBeforeReadingNotThere() {
         doReturn(Optional.empty()).when(channel).getReading(BEFORE.toInstant());
 
