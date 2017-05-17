@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import com.energyict.mdc.upl.TypedProperties;
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
