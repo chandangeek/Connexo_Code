@@ -20,7 +20,7 @@ import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import junit.framework.TestCase;
 import org.json.JSONException;
 
@@ -129,8 +129,8 @@ public class EventPushNotificationParserTest extends TestCase {
         when(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(dataTransportLevel);
 
         TypedProperties securityProperties = com.energyict.mdc.upl.TypedProperties.empty();
-        securityProperties.setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), aKey);
-        securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), eKey);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), aKey);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), eKey);
         when(deviceProtocolSecurityPropertySet.getSecurityProperties()).thenReturn(securityProperties);
         return Optional.of(deviceProtocolSecurityPropertySet);
     }

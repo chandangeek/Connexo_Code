@@ -66,7 +66,7 @@ import com.energyict.protocolimplv2.messages.convertor.AbstractMessageConverter;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import org.xml.sax.SAXException;
 
 import java.io.File;
@@ -509,9 +509,9 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 keyAccessorName,
                 getProtocol().getDlmsSessionProperties().getSecurityPropertySet().getName()
         );
-        if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecName.AUTHENTICATION_KEY.getKey())) {
+        if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.getKey())) {
             renewKey(newSymmetricKey, masterKey, 2);
-        } else if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecName.ENCRYPTION_KEY.getKey())) {
+        } else if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.getKey())) {
             renewKey(newSymmetricKey, masterKey, 0);
         } else {
             throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType is not used as authentication or encryption key in the security setting. Therefore it is not clear which key should be renewed.");

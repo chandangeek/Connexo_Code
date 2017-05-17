@@ -80,14 +80,14 @@ public class Mtu155SecuritySupport extends AbstractSecuritySupport implements Le
     public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
-            typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(),
-                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), ""));
+            typedProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(),
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), ""));
             typedProperties.setProperty(KEY_T_LEGACY_PROPERTY,
-                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString(), ""));
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_1.toString(), ""));
             typedProperties.setProperty(KEY_C_LEGACY_PROPERTY,
-                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString(), ""));
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_2.toString(), ""));
             typedProperties.setProperty(KEY_F_LEGACY_PROPERTY,
-                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString(), ""));
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_3.toString(), ""));
             typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()));
         }
         return typedProperties;
@@ -146,18 +146,18 @@ public class Mtu155SecuritySupport extends AbstractSecuritySupport implements Le
     }
 
     private PropertySpec getEncryptionKeyTPropertySpec() {
-        return this.encryptionkeyPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY_1);
+        return this.encryptionkeyPropertySpec(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_1);
     }
 
     private PropertySpec getEncryptionKeyCPropertySpec() {
-        return this.encryptionkeyPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY_2);
+        return this.encryptionkeyPropertySpec(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_2);
     }
 
     private PropertySpec getEncryptionKeyFPropertySpec() {
-        return this.encryptionkeyPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY_3);
+        return this.encryptionkeyPropertySpec(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_3);
     }
 
-    private PropertySpec encryptionkeyPropertySpec(SecurityPropertySpecName name) {
+    private PropertySpec encryptionkeyPropertySpec(SecurityPropertySpecTranslationKeys name) {
         return propertySpecService
                 .encryptedStringSpec()
                 .named(name.toString(), name.toString())

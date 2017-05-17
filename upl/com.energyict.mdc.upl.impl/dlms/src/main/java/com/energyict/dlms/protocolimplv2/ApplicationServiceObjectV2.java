@@ -1,5 +1,9 @@
 package com.energyict.dlms.protocolimplv2;
 
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.io.NestedIOException;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
@@ -17,9 +21,6 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.encryption.asymetric.signature.ECDSASignatureImpl;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DataEncryptionException;
@@ -28,7 +29,7 @@ import com.energyict.protocol.exception.ProtocolExceptionReference;
 import com.energyict.protocolcommon.exceptions.CodingException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -163,7 +164,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                         configuredCertificate = generalCipheringSecurityProvider.getServerSignatureCertificate().getEncoded();
                     } catch (CertificateEncodingException e) {
                         silentDisconnect();
-                        throw DeviceConfigurationException.invalidPropertyFormat(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString(), "x", "Should be a valid X.509 v3 certificate");
+                        throw DeviceConfigurationException.invalidPropertyFormat(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString(), "x", "Should be a valid X.509 v3 certificate");
                     }
 
                     if (!Arrays.equals(acse.getRespondingApplicationEntityQualifier(), configuredCertificate)) {
@@ -340,7 +341,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             ECDSASignatureImpl signing = new ECDSASignatureImpl(getSecurityContext().getECCCurve());
             X509Certificate serverSignatureCertificate = getGeneralCipheringSecurityProvider().getServerSignatureCertificate();
             if (serverSignatureCertificate == null) {
-                throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString());
+                throw DeviceConfigurationException.missingProperty(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
             }
 
             if (signing.verify(plainText, serverDigest, serverSignatureCertificate.getPublicKey())) {

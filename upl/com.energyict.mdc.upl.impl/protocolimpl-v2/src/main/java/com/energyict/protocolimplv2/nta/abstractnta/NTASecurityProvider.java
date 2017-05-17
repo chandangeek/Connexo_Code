@@ -1,12 +1,13 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.properties.TypedProperties;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -51,7 +52,7 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] getAuthenticationKey() {
         if (this.authenticationKey == null) {
-            String hex = properties.getTypedProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString());
+            String hex = properties.getTypedProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString());
             this.authenticationKey = DLMSUtils.hexStringToByteArray(hex);
         }
         return this.authenticationKey;
@@ -66,7 +67,7 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] getGlobalKey() {
         if (this.encryptionKey == null) {
-            String hex = properties.getTypedProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString());
+            String hex = properties.getTypedProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString());
             this.encryptionKey = DLMSUtils.hexStringToByteArray(hex);
         }
         return this.encryptionKey;
@@ -79,7 +80,7 @@ public class NTASecurityProvider implements SecurityProvider {
      */
     public byte[] getHLSSecret() {
         if (this.hlsSecret == null) {
-            String passwordString = properties.getTypedProperty(SecurityPropertySpecName.PASSWORD.toString());
+            String passwordString = properties.getTypedProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString());
             byte[] passwordBytes = new byte[passwordString.length()];
             for (int i = 0; i < passwordString.length(); i++) {
                 passwordBytes[i] = (byte) passwordString.charAt(i);
@@ -92,7 +93,7 @@ public class NTASecurityProvider implements SecurityProvider {
     @Override
     public byte[] getMasterKey() {
         if (this.masterKey == null) {
-            String hex = properties.getTypedProperty(SecurityPropertySpecName.MASTER_KEY.toString());
+            String hex = properties.getTypedProperty(SecurityPropertySpecTranslationKeys.MASTER_KEY.toString());
             this.masterKey = DLMSUtils.hexStringToByteArray(hex);
         }
         return this.masterKey;

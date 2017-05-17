@@ -80,7 +80,7 @@ public class E120 extends AbstractProtocol implements RegisterProtocol {
     private static final String PK_TIMEOUT = PROP_TIMEOUT;
     private static final String PK_RETRIES = PROP_RETRIES;
     private static final String PK_EXTENDED_LOGGING = PROP_EXTENDED_LOGGING;
-    private static final String PK_USER_ID = "userId";
+    private static final String PK_USER_ID = "UserId";
     private static final String PK_PASSWORD = PASSWORD.getName();
     private static final String PK_CHANNEL_MAP = "ChannelMap";
 

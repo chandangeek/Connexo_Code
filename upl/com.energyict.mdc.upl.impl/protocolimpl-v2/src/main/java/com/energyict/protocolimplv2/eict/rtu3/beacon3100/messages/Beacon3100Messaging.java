@@ -1,5 +1,32 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.DeviceGroupExtractor;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceGroup;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -42,32 +69,6 @@ import com.energyict.encryption.asymetric.keyagreement.KeyAgreementImpl;
 import com.energyict.encryption.asymetric.signature.ECDSASignatureImpl;
 import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
-import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.upl.DeviceGroupExtractor;
-import com.energyict.mdc.upl.DeviceMasterDataExtractor;
-import com.energyict.mdc.upl.NotInObjectListException;
-import com.energyict.mdc.upl.ObjectMapperService;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessage;
-import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
-import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.Device;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.DeviceGroup;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exception.DeviceConfigurationException;
@@ -111,7 +112,7 @@ import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessag
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.messages.validators.KeyMessageChangeValidator;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -503,13 +504,13 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 return Optional.of(multicastSerializer.serialize(device, offlineDevice, deviceMessage, getBeacon3100Properties()));
             } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS.id()
                     || deviceMessage.getMessageId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT.id()) {
-                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.AUTHENTICATION_KEY);
+                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY);
             } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS.id()
                     || deviceMessage.getMessageId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT.id()) {
-                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.ENCRYPTION_KEY);
+                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY);
             } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS.id()
                     || deviceMessage.getMessageId() == SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT.id()) {
-                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecName.MASTER_KEY);
+                new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecTranslationKeys.MASTER_KEY);
             }
         } catch (DeviceConfigurationException e) {
             return Optional.of("DeviceConfigurationException " + e.getMessage());
@@ -1033,9 +1034,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         //Server certificate for signing/key agreement is modelled as a security property
         if (SecurityMessage.CertificateType.DigitalSignature.equals(certificateType) || SecurityMessage.CertificateType.KeyAgreement.equals(certificateType)) {
             if (SecurityMessage.CertificateType.DigitalSignature.equals(certificateType)) {
-                propertyName = SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString();
+                propertyName = SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString();
             } else {
-                propertyName = SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE.toString();
+                propertyName = SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE.toString();
             }
 
             //Note that updating the alias security property will also add the given certificate under that alias, to the DLMS key store.
@@ -1147,7 +1148,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         ecdsaSignature = new ECDSASignatureImpl(eccCurve);
         X509Certificate serverSignatureCertificate = ((GeneralCipheringSecurityProvider) securityProvider).getServerSignatureCertificate();
         if (serverSignatureCertificate == null) {
-            throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString());
+            throw DeviceConfigurationException.missingProperty(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString());
         }
         boolean verify = ecdsaSignature.verify(serverSignData, serverSignature, serverSignatureCertificate.getPublicKey());
         if (!verify) {
@@ -1167,7 +1168,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         String securityPropertyName = "";
         if (keyId == 0) {
-            securityPropertyName = SecurityPropertySpecName.ENCRYPTION_KEY.toString();
+            securityPropertyName = SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString();
             getProtocol().getDlmsSessionProperties().getSecurityProvider().changeEncryptionKey(agreedKey);
             byte[] oldEncryptionKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getGlobalKey();
             if (!Arrays.equals(oldEncryptionKey, agreedKey)) { //reset FC values after the EK key change
@@ -1175,7 +1176,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
             }
         } else if (keyId == 2) {
-            securityPropertyName = SecurityPropertySpecName.AUTHENTICATION_KEY.toString();
+            securityPropertyName = SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString();
             getProtocol().getDlmsSessionProperties().getSecurityProvider().changeAuthenticationKey(agreedKey);
         }
 

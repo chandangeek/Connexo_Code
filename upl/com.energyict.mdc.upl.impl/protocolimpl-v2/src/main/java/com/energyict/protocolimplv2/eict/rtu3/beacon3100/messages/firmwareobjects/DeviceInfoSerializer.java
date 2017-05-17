@@ -11,7 +11,7 @@ import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocol.exception.ProtocolRuntimeException;
 import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
 import com.energyict.protocolimplv2.dlms.idis.am540.AM540;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -83,12 +83,12 @@ public class DeviceInfoSerializer {
         //Get the dialect properties, from the Beacon3100 gateway device (configured in its connection task)
         final TypedProperties dialectProperties =
                 this.deviceMasterDataExtractor
-                        .dialectProperties(beacon3100, DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName())
+                        .dialectProperties(beacon3100, DeviceProtocolDialectTranslationKeys.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName())
                         .map(TypedProperties::copyOf)
                         .orElseGet(TypedProperties::empty);
 
         //Add the name of the gateway dialect in the properties, need to communicate directly to the device, using the gateway
-        dialectProperties.setProperty(DEVICE_PROTOCOL_DIALECT.getName(), DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
+        dialectProperties.setProperty(DEVICE_PROTOCOL_DIALECT.getName(), DeviceProtocolDialectTranslationKeys.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
 
         //Add the first security set. Any security set is fine, as long as it can be used to create a unicast session to the meter.
         final Iterator<DeviceMasterDataExtractor.SecurityPropertySet> securityPropertySets = this.deviceMasterDataExtractor.securityPropertySets(slaveDevice).iterator();

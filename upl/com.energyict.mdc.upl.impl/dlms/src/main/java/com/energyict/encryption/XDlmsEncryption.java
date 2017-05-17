@@ -4,7 +4,7 @@ import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 
 /**
@@ -152,7 +152,7 @@ public class XDlmsEncryption {
     public void setGlobalKey(byte[] globalKey) {
         if (globalKey == null || globalKey.length != getGlobalKeyLength()) {
             String value = (globalKey == null ? "null" : ProtocolTools.getHexStringFromBytes(globalKey, ""));
-            throw DeviceConfigurationException.invalidPropertyFormat(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), value, "Should be a hex string of " + (getGlobalKeyLength() * 2) + " characters");
+            throw DeviceConfigurationException.invalidPropertyFormat(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), value, "Should be a hex string of " + (getGlobalKeyLength() * 2) + " characters");
         } else {
             this.globalKey = globalKey.clone();
         }
@@ -180,7 +180,7 @@ public class XDlmsEncryption {
     public void setAuthenticationKey(byte[] authenticationKey) {
         if (authenticationKey == null || authenticationKey.length != getAuthenticationKeyLength()) {
             String value = (authenticationKey == null ? "null" : ProtocolTools.getHexStringFromBytes(authenticationKey, ""));
-            throw DeviceConfigurationException.invalidPropertyFormat(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), value, "Should be a hex string of " + (getAuthenticationKeyLength() * 2) + " characters");
+            throw DeviceConfigurationException.invalidPropertyFormat(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), value, "Should be a hex string of " + (getAuthenticationKeyLength() * 2) + " characters");
         } else {
             this.authenticationKey = authenticationKey.clone();
         }

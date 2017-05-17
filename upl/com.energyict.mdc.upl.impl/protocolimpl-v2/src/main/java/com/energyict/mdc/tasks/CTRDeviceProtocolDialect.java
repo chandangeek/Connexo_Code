@@ -3,9 +3,10 @@ package com.energyict.mdc.tasks;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.util.Arrays;
@@ -35,7 +36,7 @@ public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.CTR_DEVICE_PROTOCOL_DIALECT_NAME.getName();
+        return DeviceProtocolDialectTranslationKeys.CTR_DEVICE_PROTOCOL_DIALECT_NAME.getName();
     }
 
     @Override

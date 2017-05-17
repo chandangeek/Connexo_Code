@@ -31,13 +31,13 @@ public class DlmsSecuritySupportTest extends AbstractSecuritySupportTest {
         assertThat(dlmsSecuritySupport.getSecurityProperties()).hasSize(3);
 
         // check for the password propertySpec
-        assertPropertySpecsEqual(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService), dlmsSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.PASSWORD.getKey()));
+        assertPropertySpecsEqual(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService), dlmsSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.PASSWORD.getKey()));
 
         // check for the encryptionKey propertySpec
-        assertPropertySpecsEqual(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService), dlmsSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY.getKey()));
+        assertPropertySpecsEqual(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService), dlmsSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.getKey()));
 
         // check for the authenticationKey propertySpec
-        assertPropertySpecsEqual(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService), dlmsSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.AUTHENTICATION_KEY.getKey()));
+        assertPropertySpecsEqual(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(propertySpecService), dlmsSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.getKey()));
     }
 
     @Test
@@ -201,13 +201,13 @@ public class DlmsSecuritySupportTest extends AbstractSecuritySupportTest {
         DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport(propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String encryptionKeyValue = "MyEncryptionKey";
-        securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), encryptionKeyValue);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), encryptionKeyValue);
         String authenticationKeyValue = "MyAuthenticationKey";
-        securityProperties.setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), authenticationKeyValue);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), authenticationKeyValue);
         String clientMacAddressValue = "1";
-        securityProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), clientMacAddressValue);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), clientMacAddressValue);
         String passwordValue = "MyPassword";
-        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), passwordValue);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
                     @Override
@@ -320,7 +320,7 @@ public class DlmsSecuritySupportTest extends AbstractSecuritySupportTest {
         final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
         String clientMacAddressValue = "1";
-        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), passwordValue);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
                     @Override
@@ -352,7 +352,7 @@ public class DlmsSecuritySupportTest extends AbstractSecuritySupportTest {
         // business method
         TypedProperties legacyProperties = dlmsSecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
 
-        assertThat(legacyProperties.getProperty(SecurityPropertySpecName.PASSWORD.toString())).isEqualTo(passwordValue);
+        assertThat(legacyProperties.getProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString())).isEqualTo(passwordValue);
 
     }
 

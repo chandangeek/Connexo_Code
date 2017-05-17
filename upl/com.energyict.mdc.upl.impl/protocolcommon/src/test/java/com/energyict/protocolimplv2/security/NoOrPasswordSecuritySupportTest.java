@@ -2,11 +2,13 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+
 import org.fest.assertions.core.Condition;
-import org.junit.Test;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -27,7 +29,7 @@ public class NoOrPasswordSecuritySupportTest extends AbstractSecuritySupportTest
         assertThat(noOrPasswordSecuritySupport.getSecurityProperties()).hasSize(1);
 
         // check for the password propertySpec
-        Optional<PropertySpec> passwordPropertySpec = noOrPasswordSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecName.PASSWORD.getKey());
+        Optional<PropertySpec> passwordPropertySpec = noOrPasswordSecuritySupport.getSecurityPropertySpec(SecurityPropertySpecTranslationKeys.PASSWORD.getKey());
         assertPropertySpecsEqual(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService), passwordPropertySpec);
     }
 

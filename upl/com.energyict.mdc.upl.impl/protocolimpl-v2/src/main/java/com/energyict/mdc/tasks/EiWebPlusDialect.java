@@ -3,9 +3,10 @@ package com.energyict.mdc.tasks;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class EiWebPlusDialect extends AbstractDeviceProtocolDialect {
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.EIWEBPLUS_DIALECT_NAME.getName();
+        return DeviceProtocolDialectTranslationKeys.EIWEBPLUS_DIALECT_NAME.getName();
     }
 
     @Override

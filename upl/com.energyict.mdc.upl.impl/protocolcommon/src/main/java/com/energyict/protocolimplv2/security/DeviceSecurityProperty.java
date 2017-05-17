@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 
+import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;
@@ -37,8 +38,8 @@ public enum DeviceSecurityProperty {
         private PropertySpec getPropertySpec(PropertySpecService propertySpecService, BigDecimal defaultValue) {
             return propertySpecService
                     .boundedBigDecimalSpec(BigDecimal.ONE, BigDecimal.valueOf(0x7F))
-                    .named(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString())
-                    .describedAs("Description for " + SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
+                    .named(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.getKey(), SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS)
+                    .describedAs(new DescriptionTranslationKey(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS))
                     .setDefaultValue(defaultValue)
                     .addValues(getPossibleClientMacAddressValues(1, 0x7F))
                     .markRequired()
@@ -52,7 +53,7 @@ public enum DeviceSecurityProperty {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
-                    .specBuilder(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString(), false, propertySpecService::stringSpec)
+                    .specBuilder(SecurityPropertySpecTranslationKeys.DEVICE_ACCESS_IDENTIFIER.getKey(), false, SecurityPropertySpecTranslationKeys.DEVICE_ACCESS_IDENTIFIER, propertySpecService::stringSpec)
                     .markRequired()
                     .finish();
         }
@@ -64,7 +65,7 @@ public enum DeviceSecurityProperty {
     PASSWORD {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.PASSWORD).markRequired().finish();
+            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.PASSWORD).markRequired().finish();
         }
     },
     /**
@@ -73,7 +74,7 @@ public enum DeviceSecurityProperty {
     ENCRYPTION_KEY {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY).markRequired().finish();
+            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY).markRequired().finish();
         }
     },
     /**
@@ -82,7 +83,7 @@ public enum DeviceSecurityProperty {
     AUTHENTICATION_KEY {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.AUTHENTICATION_KEY).markRequired().finish();
+            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY).markRequired().finish();
         }
     },
 
@@ -93,7 +94,7 @@ public enum DeviceSecurityProperty {
     SERVER_SIGNATURE_CERTIFICATE {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE).markRequired().finish();
+            return keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE).markRequired().finish();
         }
     },
 
@@ -103,7 +104,7 @@ public enum DeviceSecurityProperty {
     SERVER_KEY_AGREEMENT_CERTIFICATE {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.SERVER_KEY_AGREEMENT_CERTIFICATE).markRequired().finish();
+            return keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.SERVER_KEY_AGREEMENT_CERTIFICATE).markRequired().finish();
         }
     },
 
@@ -118,7 +119,7 @@ public enum DeviceSecurityProperty {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
-                    .specBuilder(SecurityPropertySpecName.CRYPTOSERVER_PHASE.toString(), false, propertySpecService::stringSpec)
+                    .specBuilder(SecurityPropertySpecTranslationKeys.CRYPTOSERVER_PHASE.getKey(), false, SecurityPropertySpecTranslationKeys.CRYPTOSERVER_PHASE, propertySpecService::stringSpec)
                     .setDefaultValue("0")
                     .addValues("1", "2", "S")
                     .markExhaustive()
@@ -131,7 +132,7 @@ public enum DeviceSecurityProperty {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
-                    .specBuilder(SecurityPropertySpecName.SECURITY_LEVEL.toString(), false, propertySpecService::stringSpec)
+                    .specBuilder(SecurityPropertySpecTranslationKeys.SECURITY_LEVEL.getKey(), false, SecurityPropertySpecTranslationKeys.SECURITY_LEVEL, propertySpecService::stringSpec)
                     .markRequired()
                     .finish();
         }
@@ -143,7 +144,7 @@ public enum DeviceSecurityProperty {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
-                    .specBuilder(SecurityPropertySpecName.ANSI_C12_USER.toString(), false, propertySpecService::stringSpec)
+                    .specBuilder(SecurityPropertySpecTranslationKeys.ANSI_C12_USER.getKey(), false, SecurityPropertySpecTranslationKeys.ANSI_C12_USER, propertySpecService::stringSpec)
                     .markRequired()
                     .finish();
         }
@@ -155,7 +156,7 @@ public enum DeviceSecurityProperty {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
-                    .specBuilder(SecurityPropertySpecName.ANSI_C12_USER_ID.toString(), false, propertySpecService::bigDecimalSpec)
+                    .specBuilder(SecurityPropertySpecTranslationKeys.ANSI_C12_USER_ID.getKey(), false, SecurityPropertySpecTranslationKeys.ANSI_C12_USER_ID, propertySpecService::bigDecimalSpec)
                     .setDefaultValue(BigDecimal.ONE)
                     .markRequired()
                     .finish();
@@ -168,7 +169,7 @@ public enum DeviceSecurityProperty {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
-                    .specBuilder(SecurityPropertySpecName.BINARY_PASSWORD.toString(), false, propertySpecService::booleanSpec)
+                    .specBuilder(SecurityPropertySpecTranslationKeys.BINARY_PASSWORD.getKey(), false, SecurityPropertySpecTranslationKeys.BINARY_PASSWORD, propertySpecService::booleanSpec)
                     .setDefaultValue(false)
                     .markRequired()
                     .finish();
@@ -181,7 +182,7 @@ public enum DeviceSecurityProperty {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
             return UPLPropertySpecFactory
-                    .specBuilder(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString(), false, propertySpecService::stringSpec)
+                    .specBuilder(SecurityPropertySpecTranslationKeys.ANSI_CALLED_AP_TITLE.getKey(), false, SecurityPropertySpecTranslationKeys.ANSI_CALLED_AP_TITLE, propertySpecService::stringSpec)
                     .markRequired()
                     .finish();
         }
@@ -192,7 +193,7 @@ public enum DeviceSecurityProperty {
     ANSI_SECURITY_KEY { //TODO: should this also be ReferenceSpec<KeyAccessorType>?
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecName.ANSI_SECURITY_KEY)
+            return this.encryptedStringSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.ANSI_SECURITY_KEY)
                     .markRequired()
                     .finish();
         }
@@ -203,7 +204,7 @@ public enum DeviceSecurityProperty {
     MANUFACTURER_ENCRYPTION_KEY {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER)
+            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_MANUFACTURER)
                     .markRequired()
                     .finish();
         }
@@ -214,17 +215,17 @@ public enum DeviceSecurityProperty {
     CUSTOMER_ENCRYPTION_KEY {
         @Override
         public PropertySpec getPropertySpec(PropertySpecService propertySpecService) {
-            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER)
+            return this.keyAccessorTypeReferenceSpecBuilder(propertySpecService, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_CUSTOMER)
                     .markRequired()
                     .finish();
         }
     };
 
-    protected PropertySpecBuilder<Object> keyAccessorTypeReferenceSpecBuilder(PropertySpecService propertySpecService, SecurityPropertySpecName name) {
+    protected PropertySpecBuilder<Object> keyAccessorTypeReferenceSpecBuilder(PropertySpecService propertySpecService, SecurityPropertySpecTranslationKeys securityPropertySpecTranslationKey) {
         return propertySpecService
                 .referenceSpec(KeyAccessorType.class.getName())
-                .named(name.toString(), name.toString())
-                .describedAs("Description for " + name.toString());
+                .named(securityPropertySpecTranslationKey.getKey(), securityPropertySpecTranslationKey)
+                .describedAs(new DescriptionTranslationKey(securityPropertySpecTranslationKey));
     }
 
     /**
@@ -238,11 +239,11 @@ public enum DeviceSecurityProperty {
                 .toArray(new BigDecimal[upperLimit - lowerLimit + 1]);
     }
 
-    protected PropertySpecBuilder<String> encryptedStringSpecBuilder(PropertySpecService propertySpecService, SecurityPropertySpecName name) {
+    protected PropertySpecBuilder<String> encryptedStringSpecBuilder(PropertySpecService propertySpecService, SecurityPropertySpecTranslationKeys securityPropertySpecTranslationKey) {
         return propertySpecService
                 .encryptedStringSpec()
-                .named(name.toString(), name.toString())
-                .describedAs("Description for " + name.toString());
+                .named(securityPropertySpecTranslationKey.getKey(), securityPropertySpecTranslationKey)
+                .describedAs(new DescriptionTranslationKey(securityPropertySpecTranslationKey));
     }
 
     public abstract PropertySpec getPropertySpec(PropertySpecService propertySpecService);

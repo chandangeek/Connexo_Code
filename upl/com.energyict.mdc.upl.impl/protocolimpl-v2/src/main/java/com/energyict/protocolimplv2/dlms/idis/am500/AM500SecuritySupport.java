@@ -7,7 +7,7 @@ import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -28,7 +28,7 @@ public class AM500SecuritySupport extends DsmrSecuritySupport {
         return Optional.of(
                 UPLPropertySpecFactory
                         .specBuilder(
-                                SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(),
+                                SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(),
                                 false,
                                 PropertyTranslationKeys.V2_DLMS_CLIENT_MAC_ADDRESS,
                                 () -> propertySpecService.boundedBigDecimalSpec(BigDecimal.valueOf(0), BigDecimal.valueOf(0x7F)))

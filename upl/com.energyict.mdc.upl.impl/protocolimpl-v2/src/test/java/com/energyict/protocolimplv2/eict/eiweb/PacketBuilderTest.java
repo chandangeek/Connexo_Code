@@ -12,7 +12,7 @@ import com.energyict.LittleEndianOutputStream;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.DataEncryptionException;
 import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import org.fest.assertions.core.Condition;
 
 import java.io.ByteArrayInputStream;
@@ -433,7 +433,7 @@ public class PacketBuilderTest {
     private Optional<DeviceProtocolSecurityPropertySet> createDeviceProtocolSecurityPropertySet() {
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = mock(DeviceProtocolSecurityPropertySet.class);
         com.energyict.mdc.upl.properties.TypedProperties securityProperties = com.energyict.mdc.upl.TypedProperties.empty();
-        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), "zorro");
+        securityProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), "zorro");
         when(deviceProtocolSecurityPropertySet.getSecurityProperties()).thenReturn(securityProperties);
         return Optional.of(deviceProtocolSecurityPropertySet);
     }
