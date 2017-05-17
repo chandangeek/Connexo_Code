@@ -253,9 +253,9 @@ public class UsagePointOutputResource {
                                             deliverables = filterDeliverables(filter, deliverables);
                                             outputInfos.addAll(deliverables
                                                     .map(deliverable -> outputInfoFactory.asFullInfo(deliverable, effectiveMC, contract))
-                                                    .sorted(Comparator.comparing(info -> info.name))
                                                     .collect(Collectors.toList()));
                                         }));
+                outputInfos.sort(Comparator.comparing(info -> info.name));
                 outputInfoList = outputInfos;
             }
         } else {
@@ -306,7 +306,7 @@ public class UsagePointOutputResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public PagedInfoList getIntervalsOfUsagePointPurpose(@PathParam("name") String name, @PathParam("purposeId") long contractId, @BeanParam JsonQueryFilter filter,
                                                          @BeanParam JsonQueryParameters queryParameters) {
-        List<OutputIntervalInfo> infoList;
+        Set<OutputIntervalInfo> infoList;
         OutputIntervalInfoFactory outputIntervalInfoFactory = new OutputIntervalInfoFactory();
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
@@ -324,8 +324,8 @@ public class UsagePointOutputResource {
                         .map(ReadingTypeDeliverable::getReadingType)
                         .filter(ReadingType::isRegular)
                         .map(readingType -> outputIntervalInfoFactory.asIntervalInfo(readingType)))
-                .collect(Collectors.toList());
-        return PagedInfoList.fromCompleteList("intervals", infoList, queryParameters);
+                .collect(Collectors.toSet());
+        return PagedInfoList.fromCompleteList("intervals", infoList.stream().collect(Collectors.toList()), queryParameters);
     }
 
     @GET
@@ -481,7 +481,6 @@ public class UsagePointOutputResource {
 
                                             Map<Instant, ChannelReadingWithValidationStatus> outputChannelDataMap = new TreeMap<>(Collections.reverseOrder());
                                             for (Pair<ReadingTypeDeliverable, AggregatedChannel> pair : deliverablesWithOutputId) {
-                                                AggregatedChannel channel = pair.getLast();
                                                 ReadingTypeDeliverable deliverable = pair.getFirst();
                                                 putChannelDataFromMetrologyConfiguration(usagePoint, outputChannelDataMap, contract, deliverable.getReadingType(), filter, effectiveMC);
                                                 List<OutputChannelDataInfo> outputChannelDataInfoList = outputChannelDataMap.values().stream()
