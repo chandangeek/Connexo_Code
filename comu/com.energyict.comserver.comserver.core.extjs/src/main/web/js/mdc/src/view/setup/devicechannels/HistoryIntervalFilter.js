@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.devicechannels.HistoryIntervalFilter', {
                     }
                 ]
             }
-        ]
+        ];
 
         me.callParent(arguments);
     }
