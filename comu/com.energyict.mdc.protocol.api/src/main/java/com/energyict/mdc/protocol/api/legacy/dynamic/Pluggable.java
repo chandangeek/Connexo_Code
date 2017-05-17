@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.protocol.api.legacy.dynamic;
 
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 
 /**
  * defines the contract between a pluggable class implementation and the
