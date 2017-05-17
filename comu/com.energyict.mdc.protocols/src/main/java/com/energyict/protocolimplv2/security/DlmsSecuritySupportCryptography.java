@@ -9,7 +9,7 @@
 //import com.elster.jupiter.nls.Thesaurus;
 //import com.elster.jupiter.properties.PropertySpec;
 //import com.energyict.mdc.common.Password;
-//import com.energyict.mdc.common.TypedProperties;
+//import com.energyict.mdc.upl.TypedProperties;
 //import com.energyict.mdc.dynamic.PropertySpecService;
 //import com.energyict.mdc.protocol.api.device.BaseDevice;
 //import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
