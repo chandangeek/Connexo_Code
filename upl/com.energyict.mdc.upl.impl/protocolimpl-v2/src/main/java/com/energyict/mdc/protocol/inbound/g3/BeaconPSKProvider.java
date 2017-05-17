@@ -43,10 +43,10 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
      */
     @Override
     protected OctetString wrap(TypedProperties properties, byte[] pskBytes) {
-        return this.wrap(com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties), pskBytes);
+        return this.wrap(com.energyict.mdc.upl.TypedProperties.copyOf(properties), pskBytes);
     }
 
-    private OctetString wrap(com.energyict.protocolimpl.properties.TypedProperties properties, byte[] pskBytes) {
+    private OctetString wrap(com.energyict.mdc.upl.TypedProperties properties, byte[] pskBytes) {
         final String pskEncryptionKey = properties.getStringProperty(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY);
 
         if (pskEncryptionKey == null || pskEncryptionKey.isEmpty()) {

@@ -206,7 +206,7 @@ public class AlphaBasic extends AbstractProtocol implements Alpha, SerialNumberS
         for (int i=0;i<passwords.size();i++) {
             String password = passwords.get(i);
             try {
-                TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+                TypedProperties properties = com.energyict.mdc.upl.TypedProperties.empty();
                 properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD.getName(), password);
                 setUPLProperties(properties);
                 init(commChannel.getInputStream(),commChannel.getOutputStream(),null,null);

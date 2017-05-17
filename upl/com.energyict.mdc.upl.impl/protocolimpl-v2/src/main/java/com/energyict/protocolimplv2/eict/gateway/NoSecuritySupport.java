@@ -46,7 +46,7 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
 
     @Override
     public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        return com.energyict.protocolimpl.properties.TypedProperties.empty();
+        return com.energyict.mdc.upl.TypedProperties.empty();
     }
 
     @Override
@@ -74,7 +74,7 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
 
             @Override
             public TypedProperties getSecurityProperties() {
-                return com.energyict.protocolimpl.properties.TypedProperties.empty();
+                return com.energyict.mdc.upl.TypedProperties.empty();
             }
         };
     }

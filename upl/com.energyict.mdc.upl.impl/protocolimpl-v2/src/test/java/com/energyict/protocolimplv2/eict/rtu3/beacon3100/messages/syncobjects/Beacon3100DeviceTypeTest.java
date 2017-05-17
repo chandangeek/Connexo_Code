@@ -2,8 +2,8 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.properties.TypedProperties;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -23,8 +23,8 @@ public class Beacon3100DeviceTypeTest {
         Beacon3100MeterSerialConfiguration beaconSerial1 = new Beacon3100MeterSerialConfiguration(new ObisCode(0, 0, 96, 2, 0, 255), 1);
 
 
-        Beacon3100ProtocolConfiguration beaconProtocol = new Beacon3100ProtocolConfiguration("com.beacon.1", new TypedProperties());
-        Beacon3100ProtocolConfiguration beaconProtocol1 = new Beacon3100ProtocolConfiguration("com.beacon.2", new TypedProperties());
+        Beacon3100ProtocolConfiguration beaconProtocol = new Beacon3100ProtocolConfiguration("com.beacon.1", TypedProperties.empty());
+        Beacon3100ProtocolConfiguration beaconProtocol1 = new Beacon3100ProtocolConfiguration("com.beacon.2", TypedProperties.empty());
 
         List<SchedulableItem> lpObisCodes = new ArrayList<>();
         lpObisCodes.add(new SchedulableItem(new ObisCode(0, 0, 99, 1, 0, 255), new Unsigned32(1)));
@@ -88,8 +88,8 @@ public class Beacon3100DeviceTypeTest {
         Beacon3100MeterSerialConfiguration beaconSerial1 = new Beacon3100MeterSerialConfiguration(new ObisCode(0, 0, 96, 2, 0, 255), 1);
 
 
-        Beacon3100ProtocolConfiguration beaconProtocol = new Beacon3100ProtocolConfiguration("com.beacon.1", new TypedProperties());
-        Beacon3100ProtocolConfiguration beaconProtocol1 = new Beacon3100ProtocolConfiguration("com.beacon.2", new TypedProperties());
+        Beacon3100ProtocolConfiguration beaconProtocol = new Beacon3100ProtocolConfiguration("com.beacon.1", TypedProperties.empty());
+        Beacon3100ProtocolConfiguration beaconProtocol1 = new Beacon3100ProtocolConfiguration("com.beacon.2", TypedProperties.empty());
 
         List<SchedulableItem> lpObisCodes = new ArrayList<>();
         lpObisCodes.add(new SchedulableItem(new ObisCode(0, 0, 99, 1, 0, 255), new Unsigned32(1)));

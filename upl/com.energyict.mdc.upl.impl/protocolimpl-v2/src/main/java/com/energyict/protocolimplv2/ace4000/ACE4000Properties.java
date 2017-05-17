@@ -32,11 +32,11 @@ public class ACE4000Properties {
     ACE4000Properties(PropertySpecService propertySpecService) {
         super();
         this.propertySpecService = propertySpecService;
-        this.properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        this.properties = com.energyict.mdc.upl.TypedProperties.empty();
     }
 
     private void copyProperties(TypedProperties properties) {
-        this.properties = com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties);
+        this.properties = com.energyict.mdc.upl.TypedProperties.copyOf(properties);
     }
 
     void setAllProperties(TypedProperties properties) {

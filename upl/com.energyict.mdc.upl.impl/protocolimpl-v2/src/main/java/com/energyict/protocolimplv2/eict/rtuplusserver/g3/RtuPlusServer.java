@@ -180,7 +180,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport, Proto
      * Note that this happens without setting up an association, since the it's pre-established for the public client.
      */
     protected void readFrameCounter() {
-        com.energyict.protocolimpl.properties.TypedProperties clone = com.energyict.protocolimpl.properties.TypedProperties.copyOf(getDlmsSessionProperties().getProperties());
+        com.energyict.mdc.upl.TypedProperties clone = com.energyict.mdc.upl.TypedProperties.copyOf(getDlmsSessionProperties().getProperties());
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
         G3GatewayProperties publicClientProperties = new G3GatewayProperties();
         publicClientProperties.addProperties(clone);

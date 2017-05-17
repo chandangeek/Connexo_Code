@@ -16,7 +16,7 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimpl.utils.DummyDLMSConnection;
 import com.energyict.protocolimpl.utils.MockSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
@@ -62,7 +62,7 @@ public class MeterTopologyTest {
 
     @Test
     public void getSerialNumberTest() throws PropertyValidationException {
-        TypedProperties props = new TypedProperties();
+        TypedProperties props = TypedProperties.empty();
         props.setProperty(SmartMeterProtocol.Property.SERIALNUMBER.getName(), "MasterSerialNumber");
         WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, tariffCalendarExtractor, messageFileFinder, deviceMessageFileExtractor, propertySpecService, numberLookupFinder, numberLookupExtractor);
         meterProtocol.setUPLProperties(props);
@@ -85,7 +85,7 @@ public class MeterTopologyTest {
 
     @Test
     public void getPhysicalAddressTest() throws PropertyValidationException {
-        TypedProperties props = new TypedProperties();
+        TypedProperties props = TypedProperties.empty();
         props.setProperty(SmartMeterProtocol.Property.SERIALNUMBER.getName(), "MasterSerialNumber");
         WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, tariffCalendarExtractor, messageFileFinder, deviceMessageFileExtractor, propertySpecService, numberLookupFinder, numberLookupExtractor);
         meterProtocol.setUPLProperties(props);
@@ -108,7 +108,7 @@ public class MeterTopologyTest {
 
     @Test
     public void constructDiscoveryComposedCosemObjectTest() throws PropertyValidationException {
-        TypedProperties props = new TypedProperties();
+        TypedProperties props = TypedProperties.empty();
         props.setProperty(SmartMeterProtocol.Property.SERIALNUMBER.getName(), "MasterSerialNumber");
         WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, tariffCalendarExtractor, messageFileFinder, deviceMessageFileExtractor, propertySpecService, numberLookupFinder, numberLookupExtractor);
         meterProtocol.setUPLProperties(props);

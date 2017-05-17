@@ -109,7 +109,7 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     private TypedProperties typedProperties;
 
     public DlmsProtocolProperties() {
-        this(com.energyict.protocolimpl.properties.TypedProperties.empty());
+        this(com.energyict.mdc.upl.TypedProperties.empty());
     }
 
     public DlmsProtocolProperties(TypedProperties properties) {

@@ -70,7 +70,7 @@ public class NTASecurityProvider implements SecurityProvider {
      * @param properties - contains the keys for the authentication/encryption
      */
     public NTASecurityProvider(TypedProperties properties) {
-        this.properties = com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties);
+        this.properties = com.energyict.mdc.upl.TypedProperties.copyOf(properties);
     }
 
     protected int getSecurityLevel() {

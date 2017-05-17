@@ -30,7 +30,7 @@ class ZMDProperties extends DlmsProtocolProperties {
 
     private SecurityProvider securityProvider;
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
-    TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+    TypedProperties properties = com.energyict.mdc.upl.TypedProperties.empty();
 
     private final PropertySpecService propertySpecService;
 

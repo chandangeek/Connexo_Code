@@ -453,7 +453,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
         final Beacon3100Properties publicClientProperties = new Beacon3100Properties(certificateWrapperExtractor);
 
-        publicClientProperties.addProperties(com.energyict.protocolimpl.properties.TypedProperties.copyOf(getDlmsSessionProperties().getProperties()));
+        publicClientProperties.addProperties(com.energyict.mdc.upl.TypedProperties.copyOf(getDlmsSessionProperties().getProperties()));
         publicClientProperties.getProperties().setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS.toString(),
                 BigDecimal.valueOf(ClientConfiguration.PUBLIC.clientId));
 

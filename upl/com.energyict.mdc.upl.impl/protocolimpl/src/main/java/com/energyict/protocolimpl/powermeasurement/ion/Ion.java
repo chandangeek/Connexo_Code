@@ -590,7 +590,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
         final String nodeId = discoverInfo.getNodeId();
         final int baudrate = discoverInfo.getBaudrate();
 
-        TypedProperties p = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties p = com.energyict.mdc.upl.TypedProperties.empty();
         p.setProperty("SecurityLevel", "0");
         p.setProperty(NODEID.getName(), nodeId == null ? "" : nodeId);
 

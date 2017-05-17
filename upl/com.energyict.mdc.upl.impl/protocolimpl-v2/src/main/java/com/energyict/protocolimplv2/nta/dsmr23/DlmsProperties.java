@@ -88,14 +88,14 @@ public class DlmsProperties implements DlmsSessionProperties {
      */
     private static final boolean PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED_DEFAULT = false;
 
-    private final com.energyict.protocolimpl.properties.TypedProperties properties;
+    private final com.energyict.mdc.upl.TypedProperties properties;
     protected SecurityProvider securityProvider;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
     private String serialNumber = "";
     private Integer dataTransportSecurityLevel = null;
 
     public DlmsProperties() {
-        this.properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        this.properties = com.energyict.mdc.upl.TypedProperties.empty();
     }
 
     @Override
@@ -104,7 +104,7 @@ public class DlmsProperties implements DlmsSessionProperties {
     }
 
     @Override
-    public com.energyict.protocolimpl.properties.TypedProperties getProperties() {
+    public com.energyict.mdc.upl.TypedProperties getProperties() {
         return properties;
     }
 

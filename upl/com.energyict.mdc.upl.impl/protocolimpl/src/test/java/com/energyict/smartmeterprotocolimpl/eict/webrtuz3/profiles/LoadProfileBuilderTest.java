@@ -14,7 +14,7 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology.MeterTopology;
@@ -59,7 +59,7 @@ public class LoadProfileBuilderTest {
 
     @Test
     public void isDataObisCodeTest() throws PropertyValidationException {
-        TypedProperties props = new TypedProperties();
+        TypedProperties props = TypedProperties.empty();
         props.setProperty(SmartMeterProtocol.Property.SERIALNUMBER.getName(), "MasterSerialNumber");
         WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, calendarExtractor, messageFileFinder, deviceMessageFileExtractor, propertySpecService, numberLookupFinder, numberLookupExtractor);
         meterProtocol.setUPLProperties(props);
@@ -76,7 +76,7 @@ public class LoadProfileBuilderTest {
 
     @Test
     public void constructLoadProfileConfigComposedCosemObjectTest() throws PropertyValidationException {
-        TypedProperties props = new TypedProperties();
+        TypedProperties props = TypedProperties.empty();
         props.setProperty(SmartMeterProtocol.Property.SERIALNUMBER.getName(), "MasterSerialNumber");
         WebRTUZ3 meterProtocol = new WebRTUZ3(calendarFinder, calendarExtractor, messageFileFinder, deviceMessageFileExtractor, propertySpecService, numberLookupFinder, numberLookupExtractor);
         meterProtocol.setUPLProperties(props);

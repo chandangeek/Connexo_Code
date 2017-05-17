@@ -25,7 +25,7 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
     private TypedProperties securityProperties;
 
     public DeviceProtocolSecurityPropertySetImpl(DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet, List<? extends DeviceMasterDataExtractor.SecurityProperty> securityProperties) {
-        this.securityProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        this.securityProperties = com.energyict.mdc.upl.TypedProperties.empty();
         for (DeviceMasterDataExtractor.SecurityProperty securityProperty : securityProperties) {
             this.securityProperties.setProperty(securityProperty.name(), securityProperty.value());
         }

@@ -36,7 +36,7 @@ public class SELProperties implements HasDynamicProperties {
     private TypedProperties properties;
 
     public SELProperties(PropertySpecService propertySpecService) {
-        this(com.energyict.protocolimpl.properties.TypedProperties.empty(), propertySpecService);
+        this(com.energyict.mdc.upl.TypedProperties.empty(), propertySpecService);
     }
 
     public SELProperties(TypedProperties properties, PropertySpecService propertySpecService) {

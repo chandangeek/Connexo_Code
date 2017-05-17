@@ -42,11 +42,11 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
     private static final int DEFAULT_PROFILE_INTERVAL = 900;
 
     public AbstractProtocolProperties(TypedProperties properties) {
-        this.protocolProperties = com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties);
+        this.protocolProperties = com.energyict.mdc.upl.TypedProperties.copyOf(properties);
     }
 
     public AbstractProtocolProperties() {
-        this(com.energyict.protocolimpl.properties.TypedProperties.empty());
+        this(com.energyict.mdc.upl.TypedProperties.empty());
     }
 
     @ProtocolProperty

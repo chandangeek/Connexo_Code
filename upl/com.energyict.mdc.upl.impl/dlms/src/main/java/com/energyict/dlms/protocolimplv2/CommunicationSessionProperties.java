@@ -40,7 +40,7 @@ public interface CommunicationSessionProperties {
     TypedProperties getProperties();
 
     default void setProperties(Properties properties) {
-        this.addProperties(com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties));
+        this.addProperties(com.energyict.mdc.upl.TypedProperties.copyOf(properties));
     }
 
     /**

@@ -568,7 +568,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * @return the current securityProvider (currently only LocalSecurityProvider is available)
      */
     public SecurityProvider getSecurityProvider() {
-        com.energyict.protocolimpl.properties.TypedProperties props = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        com.energyict.mdc.upl.TypedProperties props = com.energyict.mdc.upl.TypedProperties.empty();
         props.setProperty(LocalSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY, this.authenticationLevel.getAuthenticationValue());
         props.setProperty(LocalSecurityProvider.DATATRANSPORTKEY, this.encryptionLevel.getEncryptionValue());
         props.setProperty(PASSWORD.getName(), password);

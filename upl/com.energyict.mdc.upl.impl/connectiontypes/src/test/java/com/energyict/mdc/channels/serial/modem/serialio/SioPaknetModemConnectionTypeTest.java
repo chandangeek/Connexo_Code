@@ -74,7 +74,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
     }
 
     private TypedProperties getProperProperties() {
-        com.energyict.protocolimpl.properties.TypedProperties result = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        com.energyict.mdc.upl.TypedProperties result = com.energyict.mdc.upl.TypedProperties.empty();
 
         result.setProperty(TypedPaknetModemProperties.DELAY_BEFORE_SEND, Duration.ofMillis(10));
         result.setProperty(TypedPaknetModemProperties.COMMAND_TIMEOUT, Duration.ofMillis(COMMAND_TIMEOUT_VALUE));
@@ -163,7 +163,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
         TimeoutSerialComChannel comChannel = getTimeoutSerialComChannel(COMMAND_TIMEOUT_VALUE + 10);
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "First_Not_CorrectAnswer", "Second_Not_CorrectAnswer", "Third_Not_CorrectAnswer"));
 
-        com.energyict.protocolimpl.properties.TypedProperties typedProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        com.energyict.mdc.upl.TypedProperties typedProperties = com.energyict.mdc.upl.TypedProperties.empty();
         typedProperties.setProperty(TypedPaknetModemProperties.DELAY_BEFORE_SEND, Duration.ofMillis(10));
         typedProperties.setProperty(TypedPaknetModemProperties.COMMAND_TIMEOUT, Duration.ofMillis(COMMAND_TIMEOUT_VALUE));
         typedProperties.setProperty(TypedPaknetModemProperties.COMMAND_TRIES, new BigDecimal(3));
@@ -220,7 +220,7 @@ public class SioPaknetModemConnectionTypeTest extends AbstractModemTests {
     }
 
     private SioPaknetModemConnectionType createConnectionType(TestableSerialComChannel comChannel) throws ConnectionException, PropertyValidationException {
-        return createConnectionType(comChannel, com.energyict.protocolimpl.properties.TypedProperties.empty());
+        return createConnectionType(comChannel, com.energyict.mdc.upl.TypedProperties.empty());
     }
 
     private SioPaknetModemConnectionType createConnectionType(TestableSerialComChannel comChannel, TypedProperties overrides) throws ConnectionException, PropertyValidationException {

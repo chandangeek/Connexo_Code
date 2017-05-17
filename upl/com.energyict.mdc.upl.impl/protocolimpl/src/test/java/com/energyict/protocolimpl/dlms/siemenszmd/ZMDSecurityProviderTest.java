@@ -19,7 +19,7 @@ public class ZMDSecurityProviderTest {
 
     @Test
     public void testEncryptByManufacturer() throws Exception {
-        TypedProperties props = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties props = com.energyict.mdc.upl.TypedProperties.empty();
         props.setProperty("Password", "0000000");
 
         ZMDSecurityProvider sProvider = new ZMDSecurityProvider(props);
@@ -37,14 +37,14 @@ public class ZMDSecurityProviderTest {
         String rValue1 = "12345670";
         assertArrayEquals(rValue1.getBytes(), sProvider.associationEncryptionByManufacturer(aValue1.getBytes()));
 
-        props = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        props = com.energyict.mdc.upl.TypedProperties.empty();
         props.setProperty("Password", "5102074");
         sProvider = new ZMDSecurityProvider(props);
         String aValue2 = "18811E81";    // Level1
         String rValue2 = "59831FC1";
         assertArrayEquals(rValue2.getBytes(), sProvider.associationEncryptionByManufacturer(aValue2.getBytes()));
 
-        props = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        props = com.energyict.mdc.upl.TypedProperties.empty();
         props.setProperty("Password", "1234567");
         sProvider = new ZMDSecurityProvider(props);
         String aValue3 = "8B729272";    // Level2

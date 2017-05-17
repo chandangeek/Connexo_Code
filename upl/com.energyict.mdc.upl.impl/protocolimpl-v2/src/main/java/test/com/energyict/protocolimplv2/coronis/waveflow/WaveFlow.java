@@ -42,7 +42,7 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolcommon.exceptions.CodingException;
 import com.energyict.protocolimpl.properties.Temporals;
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
