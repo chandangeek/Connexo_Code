@@ -3,7 +3,7 @@ package com.energyict.mdc.protocol.pluggable.adapters.upl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.protocol.pluggable.UPLEndDeviceGroupHolder;
 
 import java.util.Properties;
