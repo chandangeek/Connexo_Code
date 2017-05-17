@@ -32,7 +32,7 @@ import java.util.Set;
 public class TypedProperties implements com.energyict.mdc.upl.properties.TypedProperties {
 
     private Map<String, Object> props = new HashMap<>();
-    private TypedProperties inheritedProperties;
+    private com.energyict.mdc.upl.properties.TypedProperties inheritedProperties;
     private UnmodifiableTypedProperties unmodifiableView;
 
     protected TypedProperties() {
@@ -57,7 +57,7 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
      * @param inheritedProperties The set of properties that will be inherited
      * @return The TypedProperties with inherited properties of which none have been overrule yet
      */
-    public static TypedProperties inheritingFrom(TypedProperties inheritedProperties) {
+    public static TypedProperties inheritingFrom(com.energyict.mdc.upl.properties.TypedProperties inheritedProperties) {
         TypedProperties typedProperties = empty();
         typedProperties.inheritedProperties = inheritedProperties;
         return typedProperties;
@@ -71,20 +71,14 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
      * @return The copy of the TypedProperties
      */
     public static TypedProperties copyOf(com.energyict.mdc.upl.properties.TypedProperties other) {
-        if (other instanceof TypedProperties) {
-            TypedProperties otherTypedProperties = (TypedProperties) other;
-
-            TypedProperties result;
-            if (otherTypedProperties.getInheritedProperties() == null) {
-                result = empty();
-            } else {
-                result = inheritingFrom(otherTypedProperties.getInheritedProperties());
-            }
-            result.setAllProperties(otherTypedProperties);
-            return result;
+        TypedProperties result;
+        if (other.getInheritedProperties() == null) {
+            result = empty();
         } else {
-            throw new IllegalArgumentException("Expected instance of " + TypedProperties.class.getName() + " but got " + other.getClass().getName());
+            result = inheritingFrom(other.getInheritedProperties());
         }
+        result.setAllProperties(other);
+        return result;
     }
 
     /**
@@ -138,34 +132,26 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
      * @param includeInheritedProperties boolean indicating whether or not the inherited values should be set as well -
      *                                   if true, the inherited properties are added <b>as local</b> property of this instance
      */
-    private void setAllProperties(TypedProperties otherTypedProperties, boolean includeInheritedProperties) {
+    private void setAllProperties(com.energyict.mdc.upl.properties.TypedProperties otherTypedProperties, boolean includeInheritedProperties) {
         /* If needed, first we add the inherited properties, then the local (so we can overwrite the inherited) */
         if (includeInheritedProperties && otherTypedProperties.getInheritedProperties() != null) {
             this.setAllProperties(otherTypedProperties.getInheritedProperties(), true);
         }
 
         //Now add the local properties
-        this.props.putAll(otherTypedProperties.props);
+        otherTypedProperties
+                .localPropertyNames()
+                .forEach(name -> this.props.put(name, otherTypedProperties.getProperty(name)));
     }
 
     @Override
     public void setAllLocalProperties(com.energyict.mdc.upl.properties.TypedProperties otherTypedProperties) {
-        if (otherTypedProperties instanceof TypedProperties) {
-            TypedProperties other = (TypedProperties) otherTypedProperties;
-            this.setAllProperties(other, false);
-        } else {
-            throw new IllegalArgumentException("Expected instance of " + this.getClass().getName());
-        }
+        this.setAllProperties(otherTypedProperties, false);
     }
 
     @Override
     public void setAllProperties(com.energyict.mdc.upl.properties.TypedProperties otherTypedProperties) {
-        if (otherTypedProperties instanceof TypedProperties) {
-            TypedProperties other = (TypedProperties) otherTypedProperties;
-            this.setAllProperties(other, true);
-        } else {
-            throw new IllegalArgumentException("Expected instance of " + this.getClass().getName());
-        }
+        this.setAllProperties(otherTypedProperties, true);
     }
 
     /**
@@ -438,7 +424,7 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
     }
 
     @XmlAttribute
-    public TypedProperties getInheritedProperties() {
+    public com.energyict.mdc.upl.properties.TypedProperties getInheritedProperties() {
         return inheritedProperties;
     }
 

@@ -149,7 +149,7 @@ public class UnmodifiableTypedProperties extends TypedProperties {
     }
 
     @Override
-    public TypedProperties getInheritedProperties() {
+    public com.energyict.mdc.upl.properties.TypedProperties getInheritedProperties() {
         return delegate.getInheritedProperties();
     }
 
