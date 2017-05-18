@@ -94,6 +94,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             model.destroy({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type removed'));
+                    me.getController('Uni.controller.history.Router').getRoute('administration/loadprofiletypes').forward();
                 },
                 callback: function () {
                     widget.setLoading(false);
