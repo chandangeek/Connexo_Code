@@ -4,10 +4,7 @@
 
 package com.energyict.mdc.protocol.pluggable.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
@@ -23,14 +20,10 @@ import java.util.Optional;
  * @since 2017-03-23 (09:50)
  */
 public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities {
-    @Override
-    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        return Optional.empty();
-    }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return Collections.emptyList();
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty();
     }
 
     @Override

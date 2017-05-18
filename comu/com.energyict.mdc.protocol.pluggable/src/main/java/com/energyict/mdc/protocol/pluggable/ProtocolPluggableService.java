@@ -17,6 +17,9 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
+import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
+import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
@@ -40,8 +43,11 @@ public interface ProtocolPluggableService {
     String COMPONENTNAME = "PPC";
 
     void addLicensedProtocolService(LicensedProtocolService licensedProtocolService);
+
     void addDeviceProtocolService(DeviceProtocolService deviceProtocolService);
+
     void addInboundDeviceProtocolService(InboundDeviceProtocolService inboundDeviceProtocolService);
+
     void addConnectionTypeService(ConnectionTypeService connectionTypeService);
 
     ProtocolDeploymentListenerRegistration register(ProtocolDeploymentListener listener);
@@ -130,7 +136,7 @@ public interface ProtocolPluggableService {
      * Creates a new {@link DeviceProtocolPluggableClass} with the specified name
      * and implemented by the specified java class name.
      *
-     * @param name The name for the PluggableClass
+     * @param name      The name for the PluggableClass
      * @param className The name of java class that implements the DeviceProtocolPluggableClass
      * @return The newly created DeviceProtocolPluggableClass
      */
@@ -140,8 +146,8 @@ public interface ProtocolPluggableService {
      * Creates a new {@link DeviceProtocolPluggableClass} with the specified name
      * and implemented by the specified java class name.
      *
-     * @param name The name for the PluggableClass
-     * @param className The name of java class that implements the DeviceProtocolPluggableClass
+     * @param name            The name for the PluggableClass
+     * @param className       The name of java class that implements the DeviceProtocolPluggableClass
      * @param typedProperties The TypedProperties
      * @return The newly created DeviceProtocolPluggableClass
      */
@@ -165,7 +171,7 @@ public interface ProtocolPluggableService {
      * <li>The java class effectively implements the {@link com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol} interface</li>
      * </ul>
      *
-     * @param name The name of the PluggableClass
+     * @param name          The name of the PluggableClass
      * @param javaClassName The name of the java implementation class
      * @return The PluggableClass that is not yet saved
      * @see PluggableClass#setProperty(com.elster.jupiter.properties.PropertySpec, Object)
@@ -184,9 +190,9 @@ public interface ProtocolPluggableService {
      * <li>All of the specified properties are compatible with the java class' property specs</li>
      * </ul>
      *
-     * @param name The name of the PluggableClass
+     * @param name          The name of the PluggableClass
      * @param javaClassName The name of the java implementation class
-     * @param properties The TypedProperties
+     * @param properties    The TypedProperties
      * @return The PluggableClass that is not yet saved
      * @see PluggableClass#setProperty(com.elster.jupiter.properties.PropertySpec, Object)
      * @see PluggableClass#save()
@@ -197,6 +203,7 @@ public interface ProtocolPluggableService {
     void deleteInboundDeviceProtocolPluggableClass(long id);
 
     List<ConnectionTypePluggableClass> findConnectionTypePluggableClassByClassName(String javaClassName);
+
     Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClassByName(String name);
 
     Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClass(long id);
@@ -213,7 +220,7 @@ public interface ProtocolPluggableService {
      * <li>The java class effectively implements the {@link com.energyict.mdc.protocol.api.ConnectionType} interface</li>
      * </ul>
      *
-     * @param name The name of the PluggableClass
+     * @param name          The name of the PluggableClass
      * @param javaClassName The name of the java implementation class
      * @return The PluggableClass that is not yet saved
      * @see PluggableClass#setProperty(com.elster.jupiter.properties.PropertySpec, Object)
@@ -232,9 +239,9 @@ public interface ProtocolPluggableService {
      * <li>All of the specified properties are compatible with the java class' property specs</li>
      * </ul>
      *
-     * @param name The name of the PluggableClass
+     * @param name          The name of the PluggableClass
      * @param javaClassName The name of the java implementation class
-     * @param properties The TypedProperties
+     * @param properties    The TypedProperties
      * @return The PluggableClass that is not yet saved
      * @see PluggableClass#setProperty(com.elster.jupiter.properties.PropertySpec, Object)
      * @see PluggableClass#save()
@@ -247,7 +254,7 @@ public interface ProtocolPluggableService {
      * dialect of the {@link DeviceProtocolPluggableClass} with the specified name.
      *
      * @param pluggableClass The DeviceProtocolPluggableClass
-     * @param dialectName The name of the dialect
+     * @param dialectName    The name of the dialect
      * @return The DeviceProtocolDialectUsagePluggableClass
      */
     DeviceProtocolDialectUsagePluggableClass getDeviceProtocolDialectUsagePluggableClass(DeviceProtocolPluggableClass pluggableClass, String dialectName);
@@ -306,8 +313,36 @@ public interface ProtocolPluggableService {
     EncryptionDeviceAccessLevel adapt(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel uplLevel);
 
     /**
+     * Adapts a {@link com.energyict.mdc.upl.security.SecuritySuite UPL security suite device access level}
+     * to the Connexo interface.
+     *
+     * @param uplLevel The UPL com.energyict.mdc.upl.security.SecuritySuite
+     * @return The Connexo {@link SecuritySuite}
+     */
+    SecuritySuite adapt(com.energyict.mdc.upl.security.SecuritySuite uplLevel);
+
+    /**
+     * Adapts a {@link com.energyict.mdc.upl.security.RequestSecurityLevel UPL request security device access level}
+     * to the Connexo interface.
+     *
+     * @param uplLevel The UPL com.energyict.mdc.upl.security.RequestSecurityLevel
+     * @return The Connexo {@link RequestSecurityLevel}
+     */
+    RequestSecurityLevel adapt(com.energyict.mdc.upl.security.RequestSecurityLevel uplLevel);
+
+    /**
+     * Adapts a {@link com.energyict.mdc.upl.security.ResponseSecurityLevel UPL response security device access level}
+     * to the Connexo interface.
+     *
+     * @param uplLevel The UPL com.energyict.mdc.upl.security.ResponseSecurityLevel
+     * @return The Connexo {@link ResponseSecurityLevel}
+     */
+    ResponseSecurityLevel adapt(com.energyict.mdc.upl.security.ResponseSecurityLevel uplLevel);
+
+    /**
      * Adapts a {@link com.energyict.mdc.upl.messages.DeviceMessageCategory Connexo device message category}
      * to the UPL interface.
+     *
      * @param connexoCategory The Connexo device message category
      * @return The UPL device message category
      */
@@ -316,6 +351,7 @@ public interface ProtocolPluggableService {
     /**
      * Adapts a {@link com.energyict.mdc.upl.messages.DeviceMessageSpec Connexo device message specification}
      * to the UPL interface.
+     *
      * @param connexoSpec The Connexo device message specification
      * @return The UPL device message specification
      */

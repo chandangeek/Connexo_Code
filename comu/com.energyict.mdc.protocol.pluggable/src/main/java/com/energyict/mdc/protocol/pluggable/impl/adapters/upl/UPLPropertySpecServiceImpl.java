@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
@@ -18,16 +19,12 @@ import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.NumberLookup;
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySelectionMode;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.StringLookup;
-import com.energyict.mdc.upl.security.CertificateAlias;
-import com.energyict.mdc.upl.security.CertificateWrapper;
-import com.energyict.mdc.upl.security.PrivateKeyAlias;
 import com.energyict.obis.ObisCode;
 import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Activate;
@@ -131,12 +128,6 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
-    public PropertySpecBuilderWizard.NlsOptions<Password> passwordSpec() {
-        com.elster.jupiter.properties.PropertySpecBuilderWizard.NlsOptions<com.energyict.mdc.common.Password> spec = this.actual.passwordSpec();
-        return new PasswordNlsOptionsAdapter(spec, getProtocolThesaurus());
-    }
-
-    @Override
     public PropertySpecBuilderWizard.NlsOptions<Integer> integerSpec() {
         return new NlsOptionsAdapter<>(this.actual.specForValuesOf(new IntegerFactory()), getProtocolThesaurus());
     }
@@ -220,9 +211,7 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
         NUMBER_LOOKUP("com.energyict.mdc.upl.properties.NumberLookup", NumberLookup.class),
         STRING_LOOKUP("com.energyict.mdc.upl.properties.StringLookup", StringLookup.class),
 
-        CERTIFICATE_WRAPPER("com.energyict.mdc.upl.security.CertificateWrapper", CertificateWrapper.class),     //TODO wait for certificate security feature
-        CERTIFICATE_ALIAS("com.energyict.mdc.upl.security.CertificateAlias", CertificateAlias.class),           //TODO wait for certificate security feature
-        PRIVATE_KEY_ALIAS("com.energyict.mdc.upl.security.PrivateKeyAlias", PrivateKeyAlias.class);             //TODO wait for certificate security feature
+        KEY_ACCESSOR_TYPE("com.energyict.mdc.upl.security.KeyAccessorType", KeyAccessorType.class);
 
         private final String uplClassName;
         private final Class connexoClass;
@@ -297,60 +286,6 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
         @Override
         public PropertySpecBuilder<T> describedAs(String description) {
             return new PropertySpecBuilderAdapter<>(this.actual.describedAs(description));
-        }
-    }
-
-    private static class PasswordNlsOptionsAdapter implements PropertySpecBuilderWizard.NlsOptions<Password> {
-        private final com.elster.jupiter.properties.PropertySpecBuilderWizard.NlsOptions<com.energyict.mdc.common.Password> actual;
-        private final Thesaurus thesaurus;
-
-        private PasswordNlsOptionsAdapter(com.elster.jupiter.properties.PropertySpecBuilderWizard.NlsOptions<com.energyict.mdc.common.Password> actual, Thesaurus thesaurus) {
-            this.actual = actual;
-            this.thesaurus = thesaurus;
-        }
-
-        @Override
-        public PropertySpecBuilderWizard.ThesaurusBased<Password> named(TranslationKey nameTranslationKey) {
-            return new PasswordThesaurusBasedAdapter(this.actual.named(new ConnexoTranslationKeyAdapter(nameTranslationKey)), this.thesaurus);
-        }
-
-        @Override
-        public PropertySpecBuilderWizard.ThesaurusBased<Password> named(String name, TranslationKey displayNameTranslationKey) {
-            return new PasswordThesaurusBasedAdapter(this.actual.named(name, new ConnexoTranslationKeyAdapter(displayNameTranslationKey)), this.thesaurus);
-        }
-
-        @Override
-        public PropertySpecBuilderWizard.HardCoded<Password> named(String name, String displayName) {
-            return new PasswordHardCodedAdapter(this.actual.named(name, displayName));
-        }
-    }
-
-    private static class PasswordThesaurusBasedAdapter implements PropertySpecBuilderWizard.ThesaurusBased<Password> {
-        private final com.elster.jupiter.properties.PropertySpecBuilderWizard.ThesaurusBased<com.energyict.mdc.common.Password> actual;
-        private final com.elster.jupiter.nls.Thesaurus thesaurus;
-
-        private PasswordThesaurusBasedAdapter(com.elster.jupiter.properties.PropertySpecBuilderWizard.ThesaurusBased<com.energyict.mdc.common.Password> actual, com.elster.jupiter.nls.Thesaurus thesaurus) {
-            this.actual = actual;
-            this.thesaurus = thesaurus;
-        }
-
-        @Override
-        public PropertySpecBuilder<Password> describedAs(TranslationKey descriptionTranslationKey) {
-            this.actual.describedAs(new ConnexoTranslationKeyAdapter(descriptionTranslationKey));
-            return new PasswordPropertySpecBuilderAdapter(this.actual.fromThesaurus(this.thesaurus));
-        }
-    }
-
-    private static class PasswordHardCodedAdapter implements PropertySpecBuilderWizard.HardCoded<Password> {
-        private final com.elster.jupiter.properties.PropertySpecBuilderWizard.HardCoded<com.energyict.mdc.common.Password> actual;
-
-        private PasswordHardCodedAdapter(com.elster.jupiter.properties.PropertySpecBuilderWizard.HardCoded<com.energyict.mdc.common.Password> actual) {
-            this.actual = actual;
-        }
-
-        @Override
-        public PropertySpecBuilder<Password> describedAs(String description) {
-            return new PasswordPropertySpecBuilderAdapter(this.actual.describedAs(description));
         }
     }
 

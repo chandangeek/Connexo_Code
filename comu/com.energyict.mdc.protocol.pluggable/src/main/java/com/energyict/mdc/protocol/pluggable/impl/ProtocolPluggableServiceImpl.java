@@ -48,6 +48,9 @@ import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
+import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
+import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingException;
@@ -69,9 +72,13 @@ import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistrati
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.UnknownPluggableClassPropertiesException;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLDeviceMessageSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLRequestSecurityLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLResponseSecurityLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLSecuritySuiteLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.TranslationKeys;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactoryImpl;
@@ -105,7 +112,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.upl.security.CertificateAlias;
+import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -878,13 +885,28 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     }
 
     @Override
+    public SecuritySuite adapt(com.energyict.mdc.upl.security.SecuritySuite uplLevel) {
+        return new UPLSecuritySuiteLevelAdapter(uplLevel);
+    }
+
+    @Override
+    public RequestSecurityLevel adapt(com.energyict.mdc.upl.security.RequestSecurityLevel uplLevel) {
+        return new UPLRequestSecurityLevelAdapter(uplLevel);
+    }
+
+    @Override
+    public ResponseSecurityLevel adapt(com.energyict.mdc.upl.security.ResponseSecurityLevel uplLevel) {
+        return new UPLResponseSecurityLevelAdapter(uplLevel);
+    }
+
+    @Override
     public com.energyict.mdc.upl.messages.DeviceMessageCategory adapt(DeviceMessageCategory connexoCategory) {
         return new ConnexoDeviceMessageCategoryAdapter(connexoCategory);
     }
 
     @Override
     public com.energyict.mdc.upl.messages.DeviceMessageSpec adapt(DeviceMessageSpec connexoSpec) {
-        return new ConnexoDeviceMessageSpecAdapter(connexoSpec);
+        return connexoSpec instanceof UPLDeviceMessageSpecAdapter ? ((UPLDeviceMessageSpecAdapter) connexoSpec).getUplDeviceMessageSpec() : new ConnexoDeviceMessageSpecAdapter(connexoSpec);
     }
 
     @Override
@@ -1085,8 +1107,8 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         }
 
         @Override
-        public CollectedMessage createCollectedMessageWithCertificates(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, List<CertificateAlias> certificateAliases) {
-            return this.getCollectedDataFactory().createCollectedMessageWithCertificates(deviceIdentifier, messageIdentifier, certificateAliases);
+        public CollectedMessage createCollectedMessageWithCertificates(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, List<CertificateWrapper> certificateWrappers) {
+            return this.getCollectedDataFactory().createCollectedMessageWithCertificates(deviceIdentifier, messageIdentifier, certificateWrappers);
         }
 
         @Override

@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
+import com.energyict.protocol.MessageResult;
 
 import java.io.IOException;
 
@@ -16,6 +16,6 @@ public interface MessageResultExecutor {
      * @return the result of the action
      * @throws IOException whenever you want
      */
-    public MessageResult performMessageResult() throws IOException;
+    MessageResult performMessageResult() throws IOException;
 
 }

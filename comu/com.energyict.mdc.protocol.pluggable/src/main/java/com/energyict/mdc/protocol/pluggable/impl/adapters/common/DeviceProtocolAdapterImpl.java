@@ -4,37 +4,33 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
-import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
-import com.energyict.mdc.protocol.api.HHUEnabler;
-import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.protocol.api.legacy.CachingProtocol;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.TranslationKeys;
 import com.energyict.mdc.upl.DeviceCachingSupport;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
-import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.protocol.HHUEnabler;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -98,7 +94,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     }
 
     @Override
-    public void setCache(Object cacheObject) {
+    public void setCache(Serializable cacheObject) {
         if (cacheObject != null && cacheObject instanceof DeviceProtocolCache) {
             ((DeviceProtocolCache) cacheObject).setContentChanged(false);
         }
@@ -106,7 +102,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     }
 
     @Override
-    public Object getCache() {
+    public Serializable getCache() {
         return getCachingProtocol().getCache();
     }
 
@@ -137,7 +133,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
         if (deviceProtocolCache instanceof DeviceProtocolCacheAdapter) {
             DeviceProtocolCacheAdapter deviceCacheAdapter = (DeviceProtocolCacheAdapter) deviceProtocolCache;
-            setCache(this.protocolPluggableService.unMarshallDeviceProtocolCache(deviceCacheAdapter.getLegacyJsonCache()).orElse(null));
+            setCache((Serializable) this.protocolPluggableService.unMarshallDeviceProtocolCache(deviceCacheAdapter.getLegacyJsonCache()).orElse(null));
         }
     }
 
@@ -162,8 +158,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
         Integer mapping = this.capabilityAdapterMappingFactory.getCapabilitiesMappingForDeviceProtocol(getProtocolClass().getCanonicalName());
         if (mapping != null) {
             return getCapabilitesListFromFlags(mapping);
-        }
-        else {
+        } else {
             return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SESSION);  //Default, if there's no mapping available
         }
     }
@@ -196,7 +191,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
         TimeZone[] timeZones = Arrays.asList(TimeZone.getAvailableIDs()).stream().map(TimeZone::getTimeZone).toArray(TimeZone[]::new);
         PropertySpecBuilder<TimeZone> builder = this.propertySpecService
                 .timezoneSpec()
-                .named(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName(), TranslationKeys.DEVICE_TIME_ZONE)
+                .named(LegacyProtocolProperties.DEVICE_TIMEZONE_PROPERTY_NAME, TranslationKeys.DEVICE_TIME_ZONE)
                 .fromThesaurus(this.thesaurus)
                 .addValues(timeZones)
                 .setDefaultValue(TimeZone.getTimeZone(DEFAULT_TIMEZONE))
@@ -210,7 +205,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     private PropertySpec nodeAddressPropertySpec(boolean required) {
         PropertySpecBuilder<String> builder = this.propertySpecService
                 .stringSpec()
-                .named(MeterProtocol.NODEID, TranslationKeys.NODE_ID)
+                .named(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), TranslationKeys.NODE_ID)
                 .fromThesaurus(thesaurus);
         if (required) {
             builder.markRequired();
@@ -221,7 +216,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     private PropertySpec deviceIdPropertySpec(boolean required) {
         PropertySpecBuilder<String> builder = this.propertySpecService
                 .stringSpec()
-                .named(MeterProtocol.ADDRESS, TranslationKeys.ADDRESS)
+                .named(com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS.getName(), TranslationKeys.ADDRESS)
                 .fromThesaurus(thesaurus);
         if (required) {
             builder.markRequired();
@@ -232,7 +227,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     private PropertySpec callHomeIdPropertySpec(boolean required) {
         PropertySpecBuilder<String> builder = this.propertySpecService
                 .stringSpec()
-                .named(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), TranslationKeys.CALL_HOME_ID)
+                .named(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, TranslationKeys.CALL_HOME_ID)
                 .fromThesaurus(thesaurus);
         if (required) {
             builder.markRequired();
@@ -241,11 +236,6 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     }
 
     protected abstract AbstractDeviceProtocolSecuritySupportAdapter getSecuritySupportAdapter();
-
-    @Override
-    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        return this.getSecuritySupportAdapter().getCustomPropertySet();
-    }
 
     public DeviceProtocolSecurityPropertySet getLegacyTypedPropertiesAsSecurityPropertySet(TypedProperties typedProperties) {
         return getSecuritySupportAdapter().getLegacyTypedPropertiesAsSecurityPropertySet(typedProperties);

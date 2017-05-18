@@ -63,6 +63,7 @@ public class UpgraderV10_3 implements Upgrader {
         PLUGGABLE_CLASS_NAMES_MAPPING.put("InboundIp", "InboundIpConnectionType");
         PLUGGABLE_CLASS_NAMES_MAPPING.put("EIWeb", "EIWebConnectionType");
         PLUGGABLE_CLASS_NAMES_MAPPING.put("Empty", "EmptyConnectionType");
+        PLUGGABLE_CLASS_NAMES_MAPPING.put("LegacyOpticalDlms", "LegacyOpticalDlmsConnectionType");
 
         PLUGGABLE_CLASS_NAMES_MAPPING.put("General Electric KV ANSI", "General Electric KVx ANSI");
         PLUGGABLE_CLASS_NAMES_MAPPING.put("EICT SDK DeviceProtocol", "EnergyICT SDK DeviceProtocol");
@@ -94,6 +95,7 @@ public class UpgraderV10_3 implements Upgrader {
         PLUGGABLE_CLASS_JAVA_CLASS_NAMES_MAPPING.put("com.energyict.protocols.impl.channels.ip.InboundIpConnectionType", "com.energyict.mdc.channels.ip.InboundIpConnectionType");
         PLUGGABLE_CLASS_JAVA_CLASS_NAMES_MAPPING.put("com.energyict.protocols.impl.channels.inbound.EIWebConnectionType", "com.energyict.mdc.channels.inbound.EIWebConnectionType");
         PLUGGABLE_CLASS_JAVA_CLASS_NAMES_MAPPING.put("com.energyict.protocols.impl.channels.EmptyConnectionType", "com.energyict.mdc.channels.EmptyConnectionType");
+        PLUGGABLE_CLASS_JAVA_CLASS_NAMES_MAPPING.put("com.energyict.protocols.impl.channels.serial.optical.dlms.LegacyOpticalDlmsConnectionType", "com.energyict.mdc.channels.dlms.LegacyOpticalDlmsConnectionType");
 
         PLUGGABLE_CLASS_JAVA_CLASS_NAMES_MAPPING.put("com.energyict.protocolimplv2.sdksample.SDKDeviceProtocol", "test.com.energyict.protocolimplv2.sdksample.SDKDeviceProtocol");
         PLUGGABLE_CLASS_JAVA_CLASS_NAMES_MAPPING.put("com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithAllProperties", "test.com.energyict.protocolimplv2.sdksample.SDKDeviceProtocolTestWithAllProperties");
@@ -130,6 +132,14 @@ public class UpgraderV10_3 implements Upgrader {
         updateAllSecurityAdapterMappings();
         updateAllPluggableClassNames();
         updateAllPluggableClassJavaClassNames();
+        deleteUnsupportedConnectionTypes();
+    }
+
+    /**
+     * Delete 2 legacy connection types that are no longer supported since UPL
+     */
+    private void deleteUnsupportedConnectionTypes() {
+
     }
 
     /**
