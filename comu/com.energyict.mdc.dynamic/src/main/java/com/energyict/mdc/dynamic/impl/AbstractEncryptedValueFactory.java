@@ -55,7 +55,7 @@ public abstract class AbstractEncryptedValueFactory<T> extends AbstractValueFact
 
     @Override
     public String toStringValue(T object) {
-         return valueToDatabase(object).toString();
+         return object.toString(); // valueToDatabase(object).toString();
     }
 
     @Override
