@@ -9,8 +9,6 @@ Ext.define('Cfg.view.common.CopyFromReferenceWindow', {
     title: Uni.I18n.translate('general.copyFromReference', 'CFG', 'Copy from reference'),
     records: null,
     usagePoint: null,
-    frame: true,
-    monitorResize: false,
 
     requires: [
         'Uni.view.readings.EstimationComment',

@@ -5,6 +5,7 @@
 Ext.define('Cfg.view.common.EditEstimationComment', {
     extend: 'Ext.window.Window',
     alias: 'widget.reading-edit-estimation-comment-window',
+    modal: true,
     title: Uni.I18n.translate('general.editEstimationComment', 'CFG', 'Edit estimation comment'),
     modificationState: null,
     records: null,
