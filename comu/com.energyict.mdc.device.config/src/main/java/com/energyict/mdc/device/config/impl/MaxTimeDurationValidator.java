@@ -24,7 +24,7 @@ public class MaxTimeDurationValidator implements ConstraintValidator<MaxTimeDura
 
     @Override
     public boolean isValid(TimeDuration timeDuration, ConstraintValidatorContext constraintValidatorContext) {
-        if (timeDuration!=null) {
+        if (timeDuration!=null && timeDuration.getCount() != 0) {
             if (timeDuration.getSeconds()>maxValue || timeDuration.getSeconds()<0) {
                 constraintValidatorContext.buildConstraintViolationWithTemplate(message)
                         .addConstraintViolation()
