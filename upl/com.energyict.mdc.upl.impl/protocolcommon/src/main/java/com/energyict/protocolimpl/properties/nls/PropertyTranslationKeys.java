@@ -162,9 +162,9 @@ public enum PropertyTranslationKeys implements TranslationKey {
     SDKSAMPLE_SIMULATE_REAL_COMMUNICATION("upl.property.sdksample.simulateRealCommunication", "Simulate real communication"),
     SDKSAMPLE_SIMULATE_REAL_COMMUNICATION_DESCRIPTION("upl.property.sdksample.simulateRealCommunication.description", "Simulate real communication"),
     SDKSAMPLE_LOAD_PROFILE_OBIS_CODE("upl.property.sdksample.loadProfileObisCode", "Loadprofile obiscode"),
-    SDKSAMPLE_LOAD_PROFILE_OBIS_CODE_DESCRIPTION("upl.property.sdksample.loadProfileObisCode.description", "Loadprofile obiscode")
-
-    ;
+    SDKSAMPLE_LOAD_PROFILE_OBIS_CODE_DESCRIPTION("upl.property.sdksample.loadProfileObisCode.description", "Loadprofile obiscode"),
+    SDKSAMPLE_DEVICE_ALARM_EVENT_TYPE("upl.property.sdksample.deviceAlarmEventType", "Device alarm event type"),
+    SDKSAMPLE_DEVICE_ALARM_EVENT_TYPE_DESCRIPTION("upl.property.sdksample.deviceAlarmEventType.description", "Device Alarm event type description");
 
     private final String key;
     private final String defaultFormat;

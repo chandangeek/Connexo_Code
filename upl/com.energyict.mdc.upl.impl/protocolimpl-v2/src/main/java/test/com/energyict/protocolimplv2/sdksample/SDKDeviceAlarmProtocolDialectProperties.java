@@ -7,19 +7,20 @@ package test.com.energyict.protocolimplv2.sdksample;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
+import com.energyict.cim.EndDeviceEventTypeMapping;
+import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class SDKDeviceAlarmProtocolDialectProperties extends AbstractDeviceProtocolDialect {
 
-    public static final String RAISE_ON_EVENT_PROPERTY_NAME = "raiseOnEventPropertyName";
-    public static final String CLEARING_EVENT_PROPERTY_NAME = "clearingEventPropertyName";
+    static final String DEVICE_ALARM_EVENT_TYPE_PROPERTY_NAME = "deviceAlarmEventType";
 
-    public static final String RAISE_ON_EVENT_MASK = "*.12.*.257";
-    public static final String CLEARING_EVENT_MASK = "*.12.*.219";
+    static final String DEFAULT_EVENT_TYPE_VALUE = EndDeviceEventTypeMapping.OTHER.getEventType().getCode();
 
     public SDKDeviceAlarmProtocolDialectProperties(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -37,27 +38,7 @@ public class SDKDeviceAlarmProtocolDialectProperties extends AbstractDeviceProto
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        return Arrays.asList(
-                this.getAlarmRaiseOnEventPropertyNamePropertySpec(),
-                this.getAlarmClearEventPropertyNamePropertySpec()
-        );
-    }
-
-
-    private PropertySpec getAlarmRaiseOnEventPropertyNamePropertySpec() {
-        return this.alarmEventsPropertySpec(RAISE_ON_EVENT_PROPERTY_NAME, RAISE_ON_EVENT_MASK);
-    }
-
-    private PropertySpec getAlarmClearEventPropertyNamePropertySpec() {
-        return this.alarmEventsPropertySpec(CLEARING_EVENT_PROPERTY_NAME, CLEARING_EVENT_MASK);
-    }
-
-    private PropertySpec alarmEventsPropertySpec(String propName, String propValue) {
-        return propertySpecService
-                .stringSpec()
-                .named(propName, propName)
-                .describedAs("Description for " + propName)
-                .addValues(propValue)
-                .finish();
+        return Collections.singletonList(
+                UPLPropertySpecFactory.specBuilder(DEVICE_ALARM_EVENT_TYPE_PROPERTY_NAME, false, PropertyTranslationKeys.SDKSAMPLE_DEVICE_ALARM_EVENT_TYPE, propertySpecService::stringSpec).finish());
     }
 }

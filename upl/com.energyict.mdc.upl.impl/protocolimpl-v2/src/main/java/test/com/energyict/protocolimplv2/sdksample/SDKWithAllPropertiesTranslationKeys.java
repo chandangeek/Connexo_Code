@@ -63,7 +63,8 @@ public enum SDKWithAllPropertiesTranslationKeys implements TranslationKey {
     CLOCK_OFFSET_WHEN_WRITING("SDK.clockOffsetWhenWriting", "Clock offset when writing"),
     SLAVE_ONE_SERIAL_NUMBER("SDK.slaveOneSerialNumber", "Slave one serial number"),
     SLAVE_TWO_SERIAL_NUMBER("SDK.slaveTwoSerialNumber", "Slave two serial number"),
-    BREAKER_STATUS("SDK.breakerStatus", "Breaker status"),;
+    BREAKER_STATUS("SDK.breakerStatus", "Breaker status"),
+    SDKDEVICEALARM_EVENT_TYPE_PROPERTY("SDK.deviceAlarmEventType", "Device alarm event type");
 
     private final String key;
     private final String defaultFormat;

@@ -256,6 +256,12 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
                         .named(SDKWithAllPropertiesTranslationKeys.SDKPRIVATE_KEY_ALIASROPERTY)
                         .describedAs(SDKWithAllPropertiesTranslationKeys.SDKPRIVATE_KEY_ALIASROPERTY)
                         .finish());
+        optionalProperties.add(
+                this.propertySpecService
+                        .referenceSpec(com.energyict.mdc.upl.security.PrivateKeyAlias.class.getName())
+                        .named(SDKWithAllPropertiesTranslationKeys.SDKDEVICEALARM_EVENT_TYPE_PROPERTY)
+                        .describedAs(SDKWithAllPropertiesTranslationKeys.SDKDEVICEALARM_EVENT_TYPE_PROPERTY)
+                        .finish());
         return optionalProperties;
     }
 

@@ -1,6 +1,5 @@
 package test.com.energyict.protocolimplv2.sdksample;
 
-import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.channels.EmptyConnectionType;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.channels.inbound.EIWebPlusConnectionType;
@@ -54,6 +53,8 @@ import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -265,7 +266,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         List<CollectedLogBook> collectedLogBooks = new ArrayList<>();
         simulateRealCommunicationIfApplicable();
-        logBooks.stream().forEach(logBookReader -> {
+        logBooks.forEach(logBookReader -> {
             CollectedLogBook collectedLogBook = collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
             Instant powerDownDate = Instant.now().minusSeconds(13);
             Instant powerUpDate = powerDownDate.plusSeconds(2);
@@ -295,26 +296,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
             powerUp.addAdditionalInformation("Current", "2.61A");
             powerUp.addAdditionalInformation("Max. power", "35461W");
             powerUp.addAdditionalInformation("Reason", "Testing purpose");
-            MeterProtocolEvent tamper =
-                    new MeterProtocolEvent(
-                            Date.from(powerUpDate.minusSeconds(20)),
-                            23,
-                            7,
-                            EndDeviceEventTypeMapping.TAMPER.getEventType(),
-                            "A device tamper has occured",
-                            1,
-                            3);
-            MeterProtocolEvent tamperCleared =
-                    new MeterProtocolEvent(
-                            Date.from(powerUpDate.plusSeconds(20)),
-                            65,
-                            77,
-                            EndDeviceEventTypeMapping.TAMPER_CLEARED.getEventType(),
-                            "A device tamper has occured",
-                            1,
-                            4);
-            tamper.addAdditionalInformation("Reason", "Testing purpose");
-            collectedLogBook.setCollectedMeterEvents(Arrays.asList(powerDown, powerUp, tamper, tamperCleared));
+            collectedLogBook.setCollectedMeterEvents(Arrays.asList(powerDown, powerUp, getAlarmEvent()));
             collectedLogBooks.add(collectedLogBook);
         });
         return collectedLogBooks;
@@ -330,6 +312,64 @@ public class SDKDeviceProtocol implements DeviceProtocol {
                 logger.severe(e.getMessage());
             }
         });
+    }
+
+    private boolean checkMatchingEvent(String eventTypeMask, String inputEvent) {
+        String testVal;
+        String regexVal;
+        if (eventTypeMask.contains("*")) {
+            testVal = inputEvent;
+            regexVal = escape(eventTypeMask).replaceAll("\\*", "\\\\d+");     //Replace the * wildcards with proper regex wildcard
+        } else {
+            return eventTypeMask.equals(inputEvent);
+        }
+        return testVal.matches(regexVal);
+    }
+
+    private String escape(String cimCode) {
+        return cimCode.replaceAll("\\.", "\\\\.");
+    }
+
+    private MeterProtocolEvent getAlarmEvent() {
+        String TAMPER_RAISE_ON_EVENT_MASK = "*.12.*.257";
+        String TAMPER_CLEARING_EVENT_MASK = "*.12.*.219";
+        Instant timeStamp = Instant.now();
+        MeterProtocolEvent event =
+                new MeterProtocolEvent(
+                        Date.from(timeStamp),
+                        0,
+                        6,
+                        EndDeviceEventTypeMapping.OTHER.getEventType(),
+                        "A random event has occured",
+                        1,
+                        3);
+
+        String alarmEventType = getDeviceAlarmEventType();
+        if (checkMatchingEvent(TAMPER_RAISE_ON_EVENT_MASK, alarmEventType)) {
+            event =
+                    new MeterProtocolEvent(
+                            Date.from(timeStamp),
+                            23,
+                            7,
+                            EndDeviceEventTypeMapping.TAMPER.getEventType(),
+                            "A device tamper has occured",
+                            1,
+                            3);
+        } else if (checkMatchingEvent(TAMPER_CLEARING_EVENT_MASK, alarmEventType)) {
+            event =
+                    new MeterProtocolEvent(
+                            Date.from(timeStamp),
+                            65,
+                            8,
+                            EndDeviceEventTypeMapping.TAMPER_CLEARED.getEventType(),
+                            "A device tamper has occured",
+                            1,
+                            3);
+        } else {
+            //just fall through
+        }
+        event.addAdditionalInformation("Reason", "Testing purpose");
+        return event;
     }
 
     private Optional<Duration> getDelayAfterRequest() {
@@ -464,6 +504,11 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     private TemporalAmount getTimeDeviationPropertyForWrite() {
         return this.typedProperties.getTypedProperty(SDKTimeDeviceProtocolDialectProperties.CLOCK_OFFSET_TO_WRITE_PROPERTY_NAME, Duration.ofSeconds(0));
     }
+
+    private String getDeviceAlarmEventType() {
+        return this.typedProperties.getTypedProperty(SDKDeviceAlarmProtocolDialectProperties.DEVICE_ALARM_EVENT_TYPE_PROPERTY_NAME, SDKDeviceAlarmProtocolDialectProperties.DEFAULT_EVENT_TYPE_VALUE);
+    }
+
 
     private String getSlaveOneSerialNumber() {
         return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialectProperties.slaveOneSerialNumberPropertyName, "");
