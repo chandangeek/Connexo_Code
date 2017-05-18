@@ -115,7 +115,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
 
         record.save({
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.success', 'FWC', 'Firmware upload scheduled.'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.success', 'FWC', 'Firmware upload scheduled'));
                 container.setLoading(false);
                 router.getRoute('devices/device/firmware').forward();
             },
@@ -192,7 +192,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             isNotEdit: true,
             jsonData: _.pick(container.device.getData(), 'version'),
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.retried', 'FWC', 'Firmware upload retried.'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.retried', 'FWC', 'Firmware upload retried'));
                 router.getRoute().forward();
             },
             callback: function () {
@@ -218,7 +218,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         message.destroy({
             isNotEdit: true,
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.cancelled', 'FWC', 'Firmware upload cancelled.'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.cancelled', 'FWC', 'Firmware upload cancelled'));
                 router.getRoute().forward();
             },
             failure: function () {
@@ -349,7 +349,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                         method: 'PUT',
                         jsonData: Ext.encode(message.getData()),
                         success: function () {
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.activation.success', 'FWC', 'Firmware activation has started.'));
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.activation.success', 'FWC', 'Firmware activation has started'));
                             router.getRoute().forward();
                         },
                         failure: function () {
