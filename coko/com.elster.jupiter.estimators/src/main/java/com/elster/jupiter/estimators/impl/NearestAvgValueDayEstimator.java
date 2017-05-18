@@ -7,10 +7,8 @@ package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.CalendarWithEventSettings;
 import com.elster.jupiter.estimation.CalendarWithEventSettingsFactory;
@@ -22,14 +20,7 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.NoneCalendarWithEventSettings;
 import com.elster.jupiter.estimators.AbstractEstimator;
 import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.CimChannel;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -54,23 +45,16 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.Temporal;
-import java.time.temporal.TemporalAmount;
-import java.time.temporal.TemporalField;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.lang.Math.abs;
 
 
 public class NearestAvgValueDayEstimator extends AbstractEstimator implements Estimator {
@@ -344,7 +328,7 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
             List<? extends BaseReadingRecord> readingsBefore = estimationBlock.getChannel()
                     .getReadings(beforeRange)
                     .stream()
-                    .sorted((r1, r2) -> r2.getTimeStamp().compareTo(r1.getTimeStamp()))
+                    .sorted(Comparator.comparing(BaseReadingRecord::getTimeStamp))
                     .filter(brcc -> isValidSample(estimationBlock, estimatable.getTimestamp(), brcc, zone, finalZonedView, discardDay))
                     .collect(Collectors.toList());
             if (discardDay) {
@@ -362,23 +346,7 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
                     LoggingContext.get().warning(getLogger(), message);
                     return false;
                 }
-
-/*                readingsBefore = readingsBefore
-                        .stream()
-                        .sorted((r1, r2) -> r2.getTimeStamp().compareTo(r1.getTimeStamp()))
-                        .filter(brcc -> isValidSample(estimationBlock, estimatable.getTimestamp(), brcc, systems, zone))
-                        .collect(Collectors.toList());*/
-                //readingsBefore = skipDayIfHasEvent(readingsBefore, calendarEventId, zonedView, discardDay);
-
-            } /*else {
-*//*                readingsBefore = readingsBefore
-                        .stream()
-                        .sorted((r1, r2) -> r2.getTimeStamp().compareTo(r1.getTimeStamp()))
-                        .filter(brcc -> isValidSample(estimationBlock, estimatable.getTimestamp(), brcc, systems, zone))
-                        .collect(Collectors.toList());*//*
-                //readingsBefore = skipDayIfHasEvent(readingsBefore, calendarEventId, zonedView, discardDay);
-            }*/
-
+            }
             if (readingsBefore.size() < numberOfSamples) {
                 String message = getThesaurus().getFormat(MessageSeeds.NEAREST_AVG_VALUE_DAY_ESTIMATOR_FAIL_NOT_ENOUGH_SAMPLES)
                         .format(blockToString(estimationBlock), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
@@ -408,60 +376,28 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
     }
 
     private boolean isValidSample(EstimationBlock estimationBlock, Instant estimableTime,
-                                         BaseReadingRecord record,
+                                  BaseReadingRecord record,
                                   ZoneId zone, Calendar.ZonedView view, Boolean discardDay) {
+        fillSkipDays(record, calendarEventId, view, discardDay);
         return sameTimeOfWeek(ZonedDateTime.ofInstant(record.getTimeStamp(), zone), ZonedDateTime.ofInstant(estimableTime, zone))
                 && record.getQuantity(estimationBlock.getReadingType()) != null
-                && fetchSkippedDays(record, calendarEventId, view, discardDay);
+                && skippedDays.contains(record.getTimeStamp().truncatedTo(ChronoUnit.DAYS));
     }
 
-    private boolean fetchSkippedDays( BaseReadingRecord record,Long calendarEventId, Calendar.ZonedView view, boolean discardDay){
+    private void fillSkipDays(BaseReadingRecord record, Long calendarEventId, Calendar.ZonedView view, boolean discardDay) {
         record.getReadingQualities().forEach(quality -> {
-            if (quality.isMissing() || quality.isSuspect()){
+            if (quality.isMissing() || quality.isSuspect()) {
                 skippedDays.add(record.getTimeStamp().truncatedTo(ChronoUnit.DAYS));
             }
         });
-        if (discardDay){
+        if (discardDay) {
             view.dayTypeFor(record.getTimeStamp()).getEventOccurrences().forEach(occurrence -> {
-                if (occurrence.getEvent().getId() == calendarEventId){
+                if (occurrence.getEvent().getId() == calendarEventId) {
                     skippedDays.add(record.getTimeStamp().truncatedTo(ChronoUnit.DAYS));
                 }
             });
         }
-        if (skippedDays.contains(record.getTimeStamp().truncatedTo(ChronoUnit.DAYS))){
-            return false;
-        }
-        return true;
     }
-
-/*    private List<? extends BaseReadingRecord> skipDayIfHasEvent(List<? extends BaseReadingRecord> readingRecords,
-                                                                       Long calendarEventId, Calendar.ZonedView view, boolean discardDay) {
-        skippedDays.addAll(readingRecords
-                .stream()
-                .filter(brr -> brr.getReadingQualities()
-                        .stream()
-                        .anyMatch(rqr -> rqr.isSuspect() || rqr.isMissing()))
-                .map(brr -> brr.getTimeStamp().truncatedTo(ChronoUnit.DAYS))
-                .collect(Collectors.toSet())
-        );
-        if (discardDay) {
-            skippedDays.addAll(readingRecords
-                    .stream()
-                    .filter(brrc -> view.dayTypeFor(brrc.getTimeStamp()).getEventOccurrences()
-                            .stream()
-                            .map(EventOccurrence::getEvent)
-                            .map(HasId::getId)
-                            .anyMatch(eventId -> eventId == calendarEventId))
-                    .map(brrc -> brrc.getTimeStamp().truncatedTo(ChronoUnit.DAYS))
-                    .collect(Collectors.toSet()));
-        }
-        return readingRecords
-                .stream()
-                .filter(brrc -> skippedDays
-                        .stream()
-                        .noneMatch(instant -> instant.equals(brrc.getTimeStamp().truncatedTo(ChronoUnit.DAYS))))
-                .collect(Collectors.toList());
-    }*/
 
     private static boolean sameTimeOfWeek(ZonedDateTime first, ZonedDateTime second) {
         return first.getDayOfWeek().equals(second.getDayOfWeek())
