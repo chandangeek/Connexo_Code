@@ -10374,6 +10374,24 @@ div.x-form-spinner-down {
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
+/* line 5, ../../sass/src/form/field/Combobox.scss */
+.combo-limit-notification {
+  color: #828282;
+  font-size: 11px;
+}
+
+/* line 10, ../../sass/src/form/field/Combobox.scss */
+.stretchy-combo {
+  width: 100%;
+}
+/* line 12, ../../sass/src/form/field/Combobox.scss */
+.stretchy-combo .x-form-trigger-wrap {
+  width: 100% !important;
+}
+
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 /* line 5, ../../sass/src/picker/Date.scss */
 .x-datepicker {
   border-color: #70bb51;

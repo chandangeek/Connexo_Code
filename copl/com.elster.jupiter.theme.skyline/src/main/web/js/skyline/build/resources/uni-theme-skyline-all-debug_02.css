@@ -7241,7 +7241,7 @@ h6 {
 
 /* line 43, ../../sass/src/grid/DefaultColumn.scss */
 .x-td-content-middle {
-  vertical-align: middle;
+  vertical-align: top;
 }
 
 /*
