@@ -49,6 +49,7 @@ import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -71,6 +72,7 @@ import static org.mockito.Mockito.when;
  * @since 2015-12-03 (10:37)
  */
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class AllDeviceProtocolsTest {
 
     private static final Set<String> NO_LONGER_SUPPORTED = new HashSet<>();

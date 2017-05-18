@@ -15,14 +15,14 @@ import com.energyict.mdc.protocol.api.services.UnableToCreateProtocolInstance;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.RuntimeEnvironment;
-import com.energyict.mdc.upl.crypto.KeyStoreService;
-import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.io.UPLSocketService;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
 import com.energyict.mdc.upl.messages.legacy.Formatter;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.RegisterExtractor;
@@ -32,9 +32,9 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.SecurityService;
-import com.energyict.protocolimplv2.securitysupport.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.impl.channels.ip.IpMessageSeeds;
+
+import com.energyict.protocolimplv2.securitysupport.CustomPropertySetTranslationKeys;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -77,10 +77,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-    }
-
-    @Reference
-    public void setSecurityService(SecurityService securityService) {
     }
 
     @Reference
@@ -144,11 +140,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     }
 
     @Reference
-    public void setX509Service(X509Service x509Service) {
-    }
-
-    @Reference
-    public void setKeyStoreService(KeyStoreService keyStoreService) {
+    public void setKeyAccessorTypeExtractor(KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
     }
 
     //TODO uncomment, these 3 services are needed in some of the constructors of the protocols! (but they do not yet exist in CXO)
@@ -156,14 +148,11 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     @Reference
     public void setNumberLookupFinder(NumberLookupFinder numberLookupFinder) {
     }
+    */
 
     @Reference
     public void setCertificateWrapperExtractor(CertificateWrapperExtractor certificateWrapperExtractor) {
     }
-
-    @Reference
-    public void setCertificateAliasFinder(CertificateAliasFinder certificateAliasFinder) {
-    }*/
 
     @Override
     public Object createProtocol(String className) {

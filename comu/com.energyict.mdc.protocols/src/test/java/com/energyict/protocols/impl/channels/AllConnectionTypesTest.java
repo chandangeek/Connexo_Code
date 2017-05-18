@@ -51,15 +51,10 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.protocols.mdc.services.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -68,6 +63,14 @@ import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.util.Optional;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -80,6 +83,7 @@ import static org.mockito.Mockito.when;
  * Tests the creation of all known connection types contained in this bundle.
  */
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class AllConnectionTypesTest {
 
     @Mock

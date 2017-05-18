@@ -9,10 +9,12 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Adapts the given UPL {@link DeviceProtocolSecurityCapabilities} (from protocols 9.1) to the CXO format (that has CPS support etc).
@@ -59,6 +61,11 @@ public abstract class AbstractSecuritySupportAdapter {
      */
     protected abstract DeviceProtocolSecurityCapabilities getSecuritySupport();
 
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        // The client security property spec is defined in the 9.1 protocol code base
+        return getSecuritySupport().getClientSecurityPropertySpec();
+    }
+
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         //The levels for this security set are defined in the 9.1 protocol code base
         return getSecuritySupport().getAuthenticationAccessLevels();
@@ -67,10 +74,6 @@ public abstract class AbstractSecuritySupportAdapter {
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         //The levels for this security set are defined in the 9.1 protocol code base
         return getSecuritySupport().getEncryptionAccessLevels();
-    }
-
-    public List<PropertySpec> getSecurityProperties() {
-        return getSecuritySupport().getSecurityProperties();
     }
 
     public com.energyict.mdc.upl.properties.TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
@@ -88,6 +91,15 @@ public abstract class AbstractSecuritySupportAdapter {
             return ((LegacySecurityPropertyConverter) getSecuritySupport()).convertFromTypedProperties(typedProperties);
         } else {
             return new DeviceProtocolSecurityPropertySet() {
+                @Override
+                public String getName() {
+                    return "security";
+                }
+
+                @Override
+                public String getClient() {
+                    return null;
+                }
 
                 @Override
                 public int getAuthenticationDeviceAccessLevel() {

@@ -10,8 +10,8 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.channels.ip.CTRInboundDialHomeIdConnectionType;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
-import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.validation.constraints.Size;
 
@@ -27,7 +27,7 @@ public class CTRInboundDialHomeIdConnectionProperties extends AbstractVersionedP
     @SuppressWarnings("unused")
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String dialHomeId;
+    private String callHomeId;
 
     @Override
     public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
@@ -36,12 +36,12 @@ public class CTRInboundDialHomeIdConnectionProperties extends AbstractVersionedP
     }
 
     private void copyDialHomeId(CustomPropertySetValues propertyValues) {
-        this.dialHomeId = (String) propertyValues.getProperty(Fields.DIAL_HOME_ID.propertySpecName());
+        this.callHomeId = (String) propertyValues.getProperty(Fields.DIAL_HOME_ID.propertySpecName());
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(Fields.DIAL_HOME_ID.propertySpecName(), this.dialHomeId);
+        propertySetValues.setProperty(Fields.DIAL_HOME_ID.propertySpecName(), this.callHomeId);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class CTRInboundDialHomeIdConnectionProperties extends AbstractVersionedP
         DIAL_HOME_ID {
             @Override
             public String propertySpecName() {
-                return ConnectionTypePropertySpecName.CTR_INBOUND_DIAL_HOME_ID.propertySpecName();
+                return LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME;
             }
 
             @Override
