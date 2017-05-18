@@ -37,13 +37,15 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                 flex: 0.8,
                 editor: {
                     xtype: 'combo',
-                    width: 220,
                     multiSelect: false,
                     emptyText: Uni.I18n.translate('usagepoint.meterRole.select', 'IMT', 'Select a meter role'),
                     store: new Ext.create('Imt.usagepointmanagement.store.AllMeterRoles'),
                     displayField: 'displayName',
                     valueField: 'key',
                     cls: 'stretchy-combo',
+                    style: {
+                        'max-width' : '270px'
+                    },
                     listeners: {
                         afterrender: function (field) {
                             field.bindStore(new Ext.create('Imt.usagepointmanagement.store.AllMeterRoles'));
@@ -85,7 +87,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                 flex: 0.8,
                 editor: {
                     xtype: 'combo',
-                    width: 220,
                     fieldType: 'meterCombo',
                     multiSelect: false,
                     emptyText: Uni.I18n.translate('usagepoint.setMeters.strtTyping', 'IMT', 'Start typing to select a meter'),
@@ -99,6 +100,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                     minChars: 1,
                     loadStore: false,
                     cls: 'stretchy-combo',
+                    style: {
+                        'max-width' : '270px'
+                    },
                     listeners: Ext.merge(me.meterComboLiseners, {
                         afterrender: function (field) {
                             if (field.cell.record.get('isAddRow') == true) {
