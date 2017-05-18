@@ -35,6 +35,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -577,6 +578,8 @@ public class UsagePointReadingDataSelectorImplTest {
                 .complete();
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
+        when(channelContainer1.getInterval()).thenReturn(Interval.of(EXPORT_INTERVAL));
+        when(channelContainer2.getInterval()).thenReturn(Interval.of(EXPORT_INTERVAL));
         doReturn(Arrays.asList(readingRecord1, readingRecord2)).when(channelContainer1).getReadings(EXPORT_INTERVAL, readingType1);
         doReturn(Collections.singletonList(readingRecord1)).when(channelContainer1).getReadings(EXPORT_INTERVAL, readingType2);
         doReturn(Arrays.asList(readingRecord1, readingRecord2)).when(channelContainer2).getReadings(EXPORT_INTERVAL, readingType3);
@@ -603,6 +606,8 @@ public class UsagePointReadingDataSelectorImplTest {
                 .complete();
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
+        when(channelContainer1.getInterval()).thenReturn(Interval.of(EXPORT_INTERVAL));
+        when(channelContainer2.getInterval()).thenReturn(Interval.of(EXPORT_INTERVAL));
         doReturn(Arrays.asList(readingRecord1, readingRecord2)).when(channelContainer1).getReadings(EXPORT_INTERVAL, readingType1);
         doReturn(Collections.singletonList(readingRecord1)).when(channelContainer1).getReadings(EXPORT_INTERVAL, readingType2);
         doReturn(Arrays.asList(readingRecord1, readingRecord2)).when(channelContainer2).getReadings(EXPORT_INTERVAL, readingType3);
@@ -660,6 +665,8 @@ public class UsagePointReadingDataSelectorImplTest {
                 .complete();
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
+        when(channelContainer1.getInterval()).thenReturn(Interval.of(EXPORT_INTERVAL));
+        when(channelContainer2.getInterval()).thenReturn(Interval.of(EXPORT_INTERVAL));
         doReturn(Arrays.asList(readingRecord1, readingRecord2)).when(channelContainer1).getReadings(EXPORT_INTERVAL, readingType1);
         doReturn(Collections.singletonList(readingRecord1)).when(channelContainer1).getReadings(EXPORT_INTERVAL, readingType2);
         doReturn(Arrays.asList(readingRecord1, readingRecord2)).when(channelContainer2).getReadings(EXPORT_INTERVAL, readingType3);

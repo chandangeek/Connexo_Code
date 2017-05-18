@@ -8,6 +8,7 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
 
 class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
 
-    private Map<UsagePoint, Boolean> isCompletData = new HashMap<>();
+    private Map<UsagePoint, Boolean> isCompleteData = new HashMap<>();
     private Map<UsagePoint, Boolean> hasSuspectData = new HashMap<>();
 
     @Inject
@@ -80,31 +81,23 @@ class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
     boolean isComplete(IReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings) {
         switch (item.getSelector().getStrategy().getMissingDataOption()) {
             case EXCLUDE_OBJECT:
-                if (!isCompletData.containsKey(item.getDomainObject())) {
-                    ((UsagePoint) item.getDomainObject()).getEffectiveMetrologyConfigurations(exportInterval).stream()
-                            .map(metrologyConfiguration ->
-                                    metrologyConfiguration.getMetrologyConfiguration().getContracts())
-                            .flatMap(Collection::stream)
-                            .filter(contract -> ((UsagePointReadingSelectorConfig)item.getSelector()).getMetrologyPurpose().map(purpose -> purpose.equals(contract.getMetrologyPurpose())).orElse(true))
-                            .map(MetrologyContract::getDeliverables)
-                            .flatMap(Collection::stream)
-                            .map(ReadingTypeDeliverable::getReadingType)
-                            .filter(readingType ->
-                                    item.getSelector().getReadingTypes().contains(readingType))
-                            .forEach(readingType -> {
-                                Set<Instant> instants = new HashSet<>(item.getReadingContainer().toList(readingType, exportInterval));
-                                try (TransactionContext context = getTransactionService().getContext()) {
-                                    item.getReadingContainer().getReadings(exportInterval, readingType).stream()
-                                            .map(BaseReadingRecord::getTimeStamp)
-                                            .forEach(instants::remove);
-                                }
-                                if (!instants.isEmpty()) {
-                                    isCompletData.putIfAbsent((UsagePoint) item.getDomainObject(), false);
-                                }
-                            });
-                    isCompletData.putIfAbsent((UsagePoint) item.getDomainObject(), true);
+                if (!isCompleteData.containsKey(item.getDomainObject())) {
+                    boolean hasMissing = ((UsagePoint) item.getDomainObject()).getEffectiveMetrologyConfigurations(exportInterval).stream()
+                            .anyMatch(metrologyConfiguration ->
+                                    metrologyConfiguration.getMetrologyConfiguration().getContracts().stream()
+                                            .filter(contract -> ((UsagePointReadingSelectorConfig) item.getSelector()).getMetrologyPurpose()
+                                                    .map(purpose -> purpose.equals(contract.getMetrologyPurpose()))
+                                                    .orElse(true))
+                                            .anyMatch(contract -> metrologyConfiguration.getChannelsContainer(contract).map(
+                                                    channelsContainer -> contract.getDeliverables().stream().map(ReadingTypeDeliverable::getReadingType)
+                                                            .filter(readingType -> item.getSelector().getReadingTypes().contains(readingType))
+                                                            .anyMatch(readingType -> hasMissings(channelsContainer, exportInterval, readingType))
+                                                    ).orElse(false)
+                                            )
+                            );
+                    isCompleteData.putIfAbsent((UsagePoint) item.getDomainObject(), !hasMissing);
                 }
-                return isCompletData.get(item.getDomainObject());
+                return isCompleteData.get(item.getDomainObject());
             default:
                 Set<Instant> instants = new HashSet<>(item.getReadingContainer().toList(item.getReadingType(), exportInterval));
                 readings.stream()
@@ -118,14 +111,18 @@ class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
     void handleExcludeObject(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
         if (!hasSuspectData.containsKey(item.getDomainObject())) {
             if (hasUnvalidatedReadings(item, readings) || ((UsagePoint) item.getDomainObject()).getEffectiveMetrologyConfigurations(interval).stream()
-                    .map(metrologyConfiguration -> metrologyConfiguration.getMetrologyConfiguration().getContracts())
-                    .flatMap(Collection::stream)
-                    .filter(contract -> ((UsagePointReadingSelectorConfig)item.getSelector()).getMetrologyPurpose().map(purpose -> purpose.equals(contract.getMetrologyPurpose())).orElse(true))
-                    .map(MetrologyContract::getDeliverables)
-                    .flatMap(Collection::stream)
-                    .map(ReadingTypeDeliverable::getReadingType)
-                    .filter(readingType -> item.getSelector().getReadingTypes().contains(readingType))
-                    .anyMatch(readingType -> hasSuspects(item, readingType, interval))) {
+                    .anyMatch(metrologyConfiguration ->
+                            metrologyConfiguration.getMetrologyConfiguration().getContracts().stream()
+                                    .filter(contract -> ((UsagePointReadingSelectorConfig) item.getSelector()).getMetrologyPurpose()
+                                            .map(purpose -> purpose.equals(contract.getMetrologyPurpose()))
+                                            .orElse(true))
+                                    .anyMatch(contract -> metrologyConfiguration.getChannelsContainer(contract).map(
+                                            channelsContainer -> contract.getDeliverables().stream().map(ReadingTypeDeliverable::getReadingType)
+                                                    .filter(readingType -> item.getSelector().getReadingTypes().contains(readingType))
+                                                    .anyMatch(readingType -> hasSuspects(channelsContainer, readingType, interval))
+                                            ).orElse(false)
+                                    )
+                    )) {
                 hasSuspectData.putIfAbsent((UsagePoint) item.getDomainObject(), true);
                 logExportWindow(MessageSeeds.SUSPECT_WINDOW, interval, itemDescription);
                 readings.clear();
@@ -140,11 +137,33 @@ class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
         }
     }
 
-    private boolean hasSuspects(IReadingTypeDataExportItem item, ReadingType readingType, Range<Instant> interval) {
-        return item.getReadingContainer()
-                .getReadingQualities(getQualityCodeSystems(), QualityCodeIndex.SUSPECT, readingType, interval).stream()
-                .map(ReadingQualityRecord::getReadingTimestamp)
-                .findAny()
-                .isPresent();
+    private boolean hasMissings(ChannelsContainer channelsContainer, Range<Instant> exportInterval, ReadingType readingType) {
+        Range<Instant> channelContainerRange = channelsContainer.getInterval().toOpenClosedRange();
+        if (exportInterval.isConnected(channelContainerRange)) {
+            Range<Instant> actualRange = exportInterval.intersection(channelContainerRange);
+            Set<Instant> instants = new HashSet<>(channelsContainer.toList(readingType, actualRange));
+            try (TransactionContext context = getTransactionService().getContext()) {
+                channelsContainer.getReadings(actualRange, readingType).stream()
+                        .map(BaseReadingRecord::getTimeStamp)
+                        .forEach(instants::remove);
+            }
+            if (!instants.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasSuspects(ChannelsContainer channelsContainer, ReadingType readingType, Range<Instant> exportInterval) {
+        Range<Instant> channelContainerRange = channelsContainer.getInterval().toOpenClosedRange();
+        if (exportInterval.isConnected(channelContainerRange)) {
+            Range<Instant> actualRange = exportInterval.intersection(channelContainerRange);
+            return channelsContainer
+                    .getReadingQualities(getQualityCodeSystems(), QualityCodeIndex.SUSPECT, readingType, actualRange).stream()
+                    .map(ReadingQualityRecord::getReadingTimestamp)
+                    .findAny()
+                    .isPresent();
+        }
+        return false;
     }
 }
