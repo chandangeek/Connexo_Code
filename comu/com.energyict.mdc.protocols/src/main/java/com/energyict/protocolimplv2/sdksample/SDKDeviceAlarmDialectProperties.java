@@ -39,16 +39,14 @@ class SDKDeviceAlarmDialectProperties extends CommonDeviceProtocolDialectPropert
     }
 
     enum ActualFields {
-        DEVICE_ALARM_EVENT_TYPE("deviceAlarmEventType", SDKTranslationKeys.DEVICE_ALARM_EVENT_TYPE, "DeviceAlarmEventType", "DEVICE_ALARM_EVENT_TYPE");
+        DEVICE_ALARM_EVENT_TYPE("deviceAlarmEventType", "DeviceAlarmEventType", "DEVICE_ALARM_EVENT_TYPE");
 
         private final String javaName;
-        private final TranslationKey nameTranslationKey;
         private final String propertySpecName;
         private final String databaseName;
 
-        ActualFields(String javaName, TranslationKey nameTranslationKey, String propertySpecName, String databaseName) {
+        ActualFields(String javaName, String propertySpecName, String databaseName) {
             this.javaName = javaName;
-            this.nameTranslationKey = nameTranslationKey;
             this.propertySpecName = propertySpecName;
             this.databaseName = databaseName;
         }
