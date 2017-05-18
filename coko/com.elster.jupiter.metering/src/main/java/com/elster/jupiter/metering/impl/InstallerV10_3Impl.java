@@ -81,12 +81,16 @@ public class InstallerV10_3Impl implements FullInstaller {
                 this::createCheckMetrologyPurpose,
                 logger
         );
-
+        doTry(
+                "Install default stage sets",
+                this::installDefaultStageSets,
+                logger
+        );
     }
 
     private void createRecordSpec() {
-        idsService.createRecordSpec(SyntheticLoadProfileService.COMPONENTNAME, SyntheticLoadProfileServiceImpl.RECORD_SPEC_ID, "slp")
-                .addFieldSpec("value", FieldType.NUMBER)
+        idsService.createRecordSpec(SyntheticLoadProfileService.COMPONENTNAME, SyntheticLoadProfileServiceImpl.RECORD_SPEC_ID, "Synthetic Load Profile Interval Data")
+                .addFieldSpec("Value", FieldType.NUMBER)
                 .create();
     }
 
