@@ -693,7 +693,7 @@ public class UsagePointResource {
         List<MetrologyConfigurationHistoryInfo> infos = usagePoint.getEffectiveMetrologyConfigurations()
                 .stream()
                 .map(metrologyConfiguration -> metrologyConfigurationHistoryInfoFactory.from(metrologyConfiguration, usagePoint, auth))
-                .sorted(Comparator.comparing((MetrologyConfigurationHistoryInfo info) -> info.current).thenComparing(info -> info.start).reversed())
+                .sorted(Comparator.comparing((MetrologyConfigurationHistoryInfo info) -> info.start).thenComparing(info -> info.current).reversed())
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("data", infos, queryParameters);
@@ -1030,8 +1030,8 @@ public class UsagePointResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         List<HistoricalMeterActivationInfo> meterActivationInfoList = usagePoint.getMeterActivations().stream()
                 .map(ma -> historicalMeterActivationInfoFactory.from(ma, usagePoint, auth))
-                .sorted(Comparator.comparing((HistoricalMeterActivationInfo info) -> info.current)
-                        .thenComparing((HistoricalMeterActivationInfo info) -> info.start).reversed()
+                .sorted(Comparator.comparing((HistoricalMeterActivationInfo info) -> info.start)
+                        .thenComparing((HistoricalMeterActivationInfo info) -> info.current).reversed()
                         .thenComparing(info -> info.meterRole).thenComparing(info -> info.meter))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("meters", meterActivationInfoList, queryParameters);

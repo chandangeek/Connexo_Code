@@ -27,8 +27,8 @@ public class HistoricalMeterActivationInfoFactory {
     public HistoricalMeterActivationInfo from(MeterActivation meterActivation, UsagePoint usagePoint, String auth) {
         HistoricalMeterActivationInfo info = new HistoricalMeterActivationInfo();
         info.id = meterActivation.getId();
-        info.start = meterActivation.getStart() == null ? null : meterActivation.getStart();
-        info.end = meterActivation.getEnd() == null ? null : meterActivation.getEnd();
+        info.start = meterActivation.getStart();
+        info.end = meterActivation.getEnd();
         info.current = meterActivation.isEffectiveAt(clock.instant());
         meterActivation.getMeter().ifPresent(meter -> {
             info.meter = meter.getName();

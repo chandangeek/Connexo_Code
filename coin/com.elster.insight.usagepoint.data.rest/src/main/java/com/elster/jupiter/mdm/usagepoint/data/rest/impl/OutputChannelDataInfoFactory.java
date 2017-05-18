@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.aggregation.AggregatedReadingQuality;
 import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.rest.util.IntervalInfo;
@@ -227,7 +228,9 @@ public class OutputChannelDataInfoFactory {
                 .sorted(Comparator.reverseOrder())
                 .findFirst()
                 .orElse(null);
-        outputChannelDataInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
+        outputChannelDataInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities().stream()
+                .filter(readingQuality -> !(readingQuality instanceof AggregatedReadingQuality))
+                .collect(Collectors.toList()));
         if (outputChannelDataInfo.estimatedByRule != null) {
             outputChannelDataInfo.ruleId = outputChannelDataInfo.estimatedByRule.id;
         }
