@@ -8,6 +8,11 @@ Ext.define('Imt.usagepointmanagement.view.transitionexecute.ResultPanel', {
 
     router: null,
     response: null,
+
+    requires: [
+        'Uni.util.FormInfoMessage'
+    ],
+
     addErrorItems: function (failedItems) {
         var me = this,
             errorsPanel = me.down('#errors-panel');
@@ -19,12 +24,12 @@ Ext.define('Imt.usagepointmanagement.view.transitionexecute.ResultPanel', {
                 layout: 'hbox',
                 items: [
                     {
-                        html: '- ' + failedItem.id
+                        html: '<span style="color:#eb5642;">' + '- ' + failedItem.id + '</span>'
                     },
                     {
                         xtype: 'button',
                         tooltip: failedItem.name,
-                        iconCls: 'uni-icon-info-small',
+                        text: '<span class="icon-info" style="cursor:default; display:inline-block; color:#eb5642; font-size:16px;"></span>',
                         cls: 'uni-btn-transparent'
                     }
                 ]
@@ -35,8 +40,8 @@ Ext.define('Imt.usagepointmanagement.view.transitionexecute.ResultPanel', {
 
     initComponent: function () {
         var me = this,
-            failed = me.response.status.id == 'FAILED',
-            scheduled = me.response.status.id == 'SCHEDULED',
+            failed = me.response.status.id === 'FAILED',
+            scheduled = me.response.status.id === 'SCHEDULED',
             failedItems;
 
         if (!failed) {
@@ -51,16 +56,33 @@ Ext.define('Imt.usagepointmanagement.view.transitionexecute.ResultPanel', {
         } else {
             me.items = [
                 {
-                    title: Uni.I18n.translate('usagepointtransitionexecute.wizard.step2fail', 'IMT', "Unable to change usage point state to '{0}'", me.response.toStateName),
+                    xtype: 'panel',
                     items: [
                         {
-                            html: me.response.message
-                        },
-                        {
-                            margin: '0 0 10 0',
-                            itemId: 'errors-panel'
+                            xtype: 'uni-form-info-message',
+                            margin: '7 0 17 0',
+                            iconCmp: {
+                                xtype: 'component',
+                                style: 'font-size: 22px; color: #eb5642; margin: 0px -22px 0px 0px;',
+                                cls: 'icon-warning'
+                            },
+                            style: 'border: 1px solid #eb5642; border-radius: 10px;',
+                            bodyStyle: 'color: #eb5642; padding: 5px 0 5px 32px',
+                            text: Uni.I18n.translate('general.bulkActionError', 'IMT', 'An error was encountered when performing the bulk action.'),
+                            itemId: 'imt-transition-result-panel-error-msg'
                         }
                     ]
+                },
+                {
+                    xtype: 'container',
+                    html: '<span style="color:#eb5642;">' + (me.response.microChecks && me.response.microChecks.length
+                            ? Uni.I18n.translate('devicetransitionexecute.wizard.step2.checksFail', 'IMT', "Unable to change usage point state to '{0}' due to failed pretransition checks" + ':', me.response.toStateName)
+                            : Uni.I18n.translate('devicetransitionexecute.wizard.step2.fail', 'IMT', "Unable to change usage point state to '{0}' ({1})", [me.response.toStateName, me.response.message])
+                    ) + '</span>'
+                },
+                {
+                    xtype: 'container',
+                    itemId: 'errors-panel'
                 }
             ];
         }
