@@ -100,8 +100,6 @@ public class UpgraderV10_3 implements Upgrader {
         GasDayRelativePeriodCreator.createAll(this.meteringService, this.timeService);
         installerV10_3.install(dataModelUpgrader, Logger.getLogger(UpgraderV10_3.class.getName()));
         userService.addModulePrivileges(privilegesProviderV10_3);
-        installerV10_3.installDefaultStageSets();
-        installerV10_3.createQueues();
     }
 
     private void installTemplates() {
