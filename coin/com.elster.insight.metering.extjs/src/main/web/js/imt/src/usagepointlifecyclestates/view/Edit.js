@@ -60,12 +60,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                             displayField: 'name',
                             queryMode: 'local',
                             forceSelection: true,
-                            width: 285,
-                            listeners: {
-                                change: function (combobox) {
-
-                                }
-                            }
+                            width: 285
                         },
                         {
                             xtype: 'displayfield-with-info-icon',
