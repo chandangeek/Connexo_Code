@@ -1169,7 +1169,7 @@ public class UsagePointResource {
                 checkMeterRolesActivationTime(info.metrologyConfiguration.meterRoles, usagePoint.getInstallationTime(), validationBuilder);
                 UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper.findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
                 addCalendars(info, usagePoint);
-                usagePoint.apply(usagePointMetrologyConfiguration);
+                usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
                 resourceHelper.activateMeters(info, usagePoint);
             }
         }

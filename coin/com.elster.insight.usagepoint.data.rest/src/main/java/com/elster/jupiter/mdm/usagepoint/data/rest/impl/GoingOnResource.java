@@ -77,7 +77,7 @@ public class GoingOnResource {
     }
 
     private String filterFor(UsagePoint usagePoint) {
-        return "?variableid=usagePointId&variablevalue=" + usagePoint.getId();
+        return "?variableid=usagePointId&variablevalue=" + usagePoint.getMRID();
     }
 
     private final class GoingOnInfoFactory {

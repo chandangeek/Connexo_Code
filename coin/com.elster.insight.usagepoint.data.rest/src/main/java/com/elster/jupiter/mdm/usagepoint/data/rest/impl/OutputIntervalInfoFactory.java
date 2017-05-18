@@ -17,21 +17,21 @@ import java.time.temporal.TemporalAmount;
  */
 public class OutputIntervalInfoFactory {
 
-    public OutputIntervalInfoFactory(){
+    public OutputIntervalInfoFactory() {
     }
 
     public OutputIntervalInfo asIntervalInfo(ReadingType readingType) {
         MacroPeriod macroPeriod = readingType.getMacroPeriod();
         TimeAttribute measuringPeriod = readingType.getMeasuringPeriod();
         TimeDuration timeDuration = null;
-        switch (readingType.getMacroPeriod()){
+        switch (readingType.getMacroPeriod()) {
             case DAILY:
                 timeDuration = TimeDuration.days(1);
                 return new OutputIntervalInfo(macroPeriod.getId(), macroPeriod.getDescription(), timeDuration);
             case MONTHLY:
                 timeDuration = TimeDuration.months(1);
                 return new OutputIntervalInfo(macroPeriod.getId(), macroPeriod.getDescription(), timeDuration);
-            case  YEARLY:
+            case YEARLY:
                 timeDuration = TimeDuration.years(1);
                 return new OutputIntervalInfo(macroPeriod.getId(), macroPeriod.getDescription(), timeDuration);
             case WEEKLYS:
