@@ -944,7 +944,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(readingRecord.getTimeStamp()).thenReturn(now.plusSeconds(60));
         when(readingRecord.getReadingType()).thenReturn(regularReadingType);
         when(regularReadingType.getIntervalLength()).thenReturn(Optional.of(temporalAmount));
-        when(temporalAmount.subtractFrom(any(Instant.class))).thenReturn(ZonedDateTime.ofInstant(now, ZoneId.systemDefault()));
+        when(temporalAmount.subtractFrom(any(ZonedDateTime.class))).thenReturn(ZonedDateTime.ofInstant(now, ZoneId.systemDefault()));
 
         JsonModel model = JsonModel.create(target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/correctValues").request()
                 .put(Entity.json(valueCorrectionInfo), String.class));

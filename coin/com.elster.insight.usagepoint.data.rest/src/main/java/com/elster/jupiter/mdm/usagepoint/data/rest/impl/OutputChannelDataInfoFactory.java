@@ -144,8 +144,9 @@ public class OutputChannelDataInfoFactory {
         OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
         outputChannelDataInfo.reportedDateTime = readingRecord.getReportedDateTime();
         readingRecord.getReadingType().getIntervalLength().ifPresent(intervalLength -> {
-            ZonedDateTime readingTimeStamp = ZonedDateTime.ofInstant(readingRecord.getTimeStamp(), zoneId);
-            outputChannelDataInfo.interval = IntervalInfo.from(Range.openClosed(readingTimeStamp.minus(intervalLength).toInstant(), readingTimeStamp.toInstant()));
+            Instant readingTimeStamp = readingRecord.getTimeStamp();
+            ZonedDateTime recordTimeStamp = ZonedDateTime.ofInstant(readingTimeStamp, zoneId);
+            outputChannelDataInfo.interval = IntervalInfo.from(Range.openClosed(recordTimeStamp.minus(intervalLength).toInstant(), readingTimeStamp));
         });
         outputChannelDataInfo.value = newValue;
         outputChannelDataInfo.isProjected = isProjected;
