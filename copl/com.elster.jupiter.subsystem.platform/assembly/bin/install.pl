@@ -796,8 +796,6 @@ sub activate_sso {
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.externalurl=http://$HOST_NAME");
             add_to_file("$CATALINA_BASE/conf/connexo.properties","$PUBLIC_KEY_PROPERTIES");
 
-            add_to_file($config_file,"$PUBLIC_KEY_PROPERTIES");
-
             #if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
             #    system("sc config \"Apache2.4\"  start= delayed-auto");
             #    system("sc start Apache2.4");
@@ -876,7 +874,16 @@ sub start_tomcat {
 			replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{password\}',"$ENCRYPTED_PASSWORD");
 			replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{host\}',"$FACTS_DB_HOST");
 			replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{port\}',"$FACTS_DB_PORT");
-			replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{instance\}',"$FACTS_DB_NAME");
+			replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{tnsnames\}',"");
+			if("$FACTS_DB_USE_SERVICE_NAME" eq "yes"){
+				replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{mode\}',"SERVICE");
+				replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{instance\}',"");
+				replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{service\}',"$FACTS_DB_NAME");
+			} else {
+				replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{mode\}',"SID");
+				replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{instance\}',"$FACTS_DB_NAME");
+				replace_in_file("$CONNEXO_DIR/datasource.xml",'\$\{service\}',"");
+			}
 
 			chdir "$CONNEXO_DIR";
 			if ("$ACTIVATE_SSO" eq "yes") {
@@ -884,7 +891,7 @@ sub start_tomcat {
             } else {
                 system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
             }
-			unlink("$CONNEXO_DIR/datasource.xml");
+			#unlink("$CONNEXO_DIR/datasource.xml");
 		}
 
 		if ("$INSTALL_FLOW" eq "yes") {
