@@ -28,7 +28,7 @@ public class SDKDeviceAlarmProtocolDialectProperties extends AbstractDeviceProto
 
     @Override
     public String getDeviceProtocolDialectName() {
-        return DeviceProtocolDialectNameEnum.SDK_DEVICE_ALARM_DIALECT_NAME.getName();
+        return DeviceProtocolDialectNameEnum.SDK_SAMPLE_DEVICE_ALARM_DIALECT_NAME.getName();
     }
 
     @Override
