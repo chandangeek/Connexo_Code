@@ -55,11 +55,23 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                             labelWidth: 250
                         },
                         {
-                            xtype: 'button',
-                            itemId: 'btn-show-connection-details',
-                            text: Uni.I18n.translate('deviceconnectionhistory.showConnectionDetails','MDC','Show connection details'),
-                            action: 'showConnectionDetails',
-                            margin: '0 0 0 10'
+                            xtype: 'container',
+                            layout: {
+                                type: 'hbox'
+                            },
+                            width: 250,
+                            items: [
+                                {
+                                    xtype: 'component',
+                                    flex: 1
+                                },
+                                {
+                                    xtype: 'button',
+                                    itemId: 'btn-show-connection-details',
+                                    text: Uni.I18n.translate('deviceconnectionhistory.showConnectionDetails','MDC','Show connection details'),
+                                    action: 'showConnectionDetails'
+                                }
+                            ]
                         },
                         {
                             xtype: 'form',
@@ -127,8 +139,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                         itemId: 'comPort',
                                         htmlEncode: false
                                     }
-
-
                                 ]
                             },
                                 {
@@ -204,8 +214,27 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                         }
                                     ]
                                 }]
+                        },
+                        {
+                            xtype: 'container',
+                            layout: {
+                                type: 'hbox'
+                            },
+                            width: 250,
+                            items: [
+                                {
+                                    xtype: 'component',
+                                    flex: 1
+                                },
+                                {
+                                    xtype: 'button',
+                                    itemId: 'btn-hide-connection-details',
+                                    text: Uni.I18n.translate('deviceconnectionhistory.hideConnectionDetails','MDC','Hide connection details'),
+                                    action: 'hideConnectionDetails',
+                                    hidden: true
+                                }
+                            ]
                         }
-
                     ]
                 }
             ]
