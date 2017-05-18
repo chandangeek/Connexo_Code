@@ -124,9 +124,6 @@ Ext.define('Scs.controller.ServiceCalls', {
                         me.setBreadcrumb(parents);
                         var tp = view.down('tabpanel');
                         var page = view.down('scs-landing-page');
-                        if (page && tp.getActiveTab().getItemId() === "specifications-tab") {
-                            view.down('scs-landing-page').updateLandingPage(record);
-                        }
 
                         Uni.util.History.setSuspended(false);
                     } else {
@@ -136,7 +133,6 @@ Ext.define('Scs.controller.ServiceCalls', {
                             record: record
                         });
                         me.setBreadcrumb(parents);
-                        view.updateLandingPage(record);
                     }
 
                     me.getApplication().fireEvent('changecontentevent', view);

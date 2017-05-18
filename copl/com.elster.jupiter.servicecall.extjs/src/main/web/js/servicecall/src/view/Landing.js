@@ -13,6 +13,7 @@ Ext.define('Scs.view.Landing', {
     serviceCallId: null,
     router: null,
     record: null,
+    serviceCallLoaded: false,
 
     initComponent: function () {
         var me = this;
@@ -55,11 +56,15 @@ Ext.define('Scs.view.Landing', {
             ]
         };
         this.callParent(arguments);
+        me.updateLandingPage(me.record);
     },
 
     updateLandingPage: function (record) {
         var me = this,
             previewForm = me.down('#service-call-landing-page-form');
-        previewForm.updatePreview(record);
+        if (me.serviceCallLoaded === false && !Ext.isEmpty(record)) {
+            previewForm.updatePreview(record);
+            me.serviceCallLoaded = true
+        }
     }
 });
