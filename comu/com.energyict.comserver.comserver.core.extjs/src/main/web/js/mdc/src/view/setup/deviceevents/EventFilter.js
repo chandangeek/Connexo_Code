@@ -8,6 +8,12 @@ Ext.define('Mdc.view.setup.deviceevents.EventFilter', {
 
     store: 'Mdc.store.LogbookOfDeviceData',
 
+    requires:[
+        'Mdc.store.Domains',
+        'Mdc.store.Subdomains',
+        'Mdc.store.EventsOrActions'
+    ],
+
     filters: [
         {
             type: 'date',

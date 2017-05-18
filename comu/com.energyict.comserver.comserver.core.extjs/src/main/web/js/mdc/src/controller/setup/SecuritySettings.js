@@ -108,7 +108,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 me.getAuthCombobox().setValue(-1);
                 me.getAuthCombobox().hide();
             } else if (success && records) {
-                if (records.length === 1) me.getAuthCombobox().setValue(records[0].get('id'));
+                if (records.length === 1) {
+                    me.getAuthCombobox().setValue(records[0].get('id'));
+                    me.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified();
+                }
                 if (me.isInvalidLevel(records, me.getAuthCombobox().getValue())) {
                     me.getAuthCombobox().clearValue();
                     me.getAuthCombobox().clearInvalid();
@@ -122,7 +125,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 me.getEncrCombobox().setValue(-1);
                 me.getEncrCombobox().hide();
             } else if (success && records) {
-                if (records.length === 1) me.getEncrCombobox().setValue(records[0].get('id'));
+                if (records.length === 1) {
+                    me.getEncrCombobox().setValue(records[0].get('id'));
+                    me.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified();
+                }
                 if (me.isInvalidLevel(records, me.getEncrCombobox().getValue())) {
                     me.getEncrCombobox().clearValue();
                     me.getEncrCombobox().clearInvalid();
@@ -136,7 +142,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 me.getRequestSecurityCombobox().setValue(-1);
                 me.getRequestSecurityCombobox().hide();
             } else if (success && records) {
-                if (records.length === 1) me.getRequestSecurityCombobox().setValue(records[0].get('id'));
+                if (records.length === 1) {
+                    me.getRequestSecurityCombobox().setValue(records[0].get('id'));
+                    me.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified();
+                }
                 if (me.isInvalidLevel(records, me.getRequestSecurityCombobox().getValue())) {
                     me.getRequestSecurityCombobox().clearValue();
                     me.getRequestSecurityCombobox().clearInvalid();
@@ -150,7 +159,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 me.getResponseSecurityCombobox().setValue(-1);
                 me.getResponseSecurityCombobox().hide();
             } else if (success && records) {
-                if (records.length === 1) me.getResponseSecurityCombobox().setValue(records[0].get('id'));
+                if (records.length === 1) {
+                    me.getResponseSecurityCombobox().setValue(records[0].get('id'));
+                    me.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified();
+                }
                 if (me.isInvalidLevel(records, me.getResponseSecurityCombobox().getValue())) {
                     me.getResponseSecurityCombobox().clearValue();
                     me.getResponseSecurityCombobox().clearInvalid();
@@ -264,7 +276,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         }
     },
 
-    triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified: function (combobox, objList) {
+    triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified: function () {
         var me = this,
             authCombobox = me.getAuthCombobox(),
             encrCombobox = me.getEncrCombobox(),

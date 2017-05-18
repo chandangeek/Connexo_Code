@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.devicechannels.HistoryFilter', {
                     }
                 ]
             }
-        ]
+        ];
 
         me.callParent(arguments);
     }

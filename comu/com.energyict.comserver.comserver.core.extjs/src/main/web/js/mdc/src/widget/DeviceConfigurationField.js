@@ -52,7 +52,13 @@ Ext.define('Mdc.widget.DeviceConfigurationField', {
                             valueId = value.data.id;
                         }
                         configCombo.getStore().getProxy().setExtraParam('deviceType', valueId);
+                        configCombo.getStore().on('load', function(store) {
+                            if (store.getTotalCount()===1) {
+                                configCombo.setValue(store.getAt(0).get('id'));
+                            }
+                        }, me, {single:true});
                         if (configCombo.isDisabled()) {
+                            configCombo.getStore().reload();
                             configCombo.enable();
                         } else {
                             configCombo.reset();
