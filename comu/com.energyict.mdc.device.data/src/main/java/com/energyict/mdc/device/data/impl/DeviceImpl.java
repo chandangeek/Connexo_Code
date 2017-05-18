@@ -1375,7 +1375,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private Meter createKoreMeter(AmrSystem amrSystem) {
         FiniteStateMachine stateMachine = this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine();
-        Instant maximumPastEffectiveTimestamp = this.getDeviceType().getDeviceLifeCycle().getMaximumPastEffectiveTimestamp();
+        Instant maximumPastEffectiveTimestamp = this.getDeviceType().getDeviceLifeCycle().getMaximumPastEffectiveTimestamp().atZone(this.clock.getZone())
+                .truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant maximumFutureEffectiveTimestamp = this.getDeviceType().getDeviceLifeCycle().getMaximumFutureEffectiveTimestamp();
         if (koreHelper.getInitialMeterActivationStartDate().get().isBefore(maximumPastEffectiveTimestamp) ||
                 koreHelper.getInitialMeterActivationStartDate().get().isAfter(maximumFutureEffectiveTimestamp)) {
