@@ -13,6 +13,10 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
         'Dsh.view.communicationsbulk.Browse'
     ],
 
+    stores: [
+        'Dsh.store.CommunicationTasksBuffered'
+    ],
+
     refs: [
         {
             ref: 'wizard',
@@ -42,11 +46,27 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
     },
 
     showOverview: function () {
-        var me = this;
+        var me = this,
+            communicationsTasksBufferedStore = me.getStore('Dsh.store.CommunicationTasksBuffered');
 
         this.getApplication().fireEvent('changecontentevent', Ext.widget('communications-bulk-browse', {
             router: me.getController('Uni.controller.history.Router')
         }));
+
+        communicationsTasksBufferedStore.data.clear();
+        me.setLoading(true);
+        communicationsTasksBufferedStore.on({
+            load: {fn: this.onStoreLoaded, scope: this, single: true}
+        });
+        communicationsTasksBufferedStore.loadPage(1, {
+            params: {
+                filter : me.getFilterObjectStringFromQueryString()
+            }
+        });
+    },
+
+    onStoreLoaded: function() {
+        this.setLoading(false);
     },
 
     doRequest: function () {
@@ -95,6 +115,10 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
                 }
             }
         });
+    },
+
+    setLoading: function(loadingState) {
+        this.getWizard().setLoading(loadingState);
     },
 
     moveTo: function (button) {
@@ -198,6 +222,24 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
                 cancelBtn.hide();
                 break;
         }
+    },
+
+    getFilterObjectStringFromQueryString: function() {
+        var filterObject = this.getFilterObjectFromQueryString(),
+            result = [];
+
+        for (var dataIndex in filterObject) {
+            var value = filterObject[dataIndex];
+
+            if (filterObject.hasOwnProperty(dataIndex) && Ext.isDefined(value) && !Ext.isEmpty(value)) {
+                var filter = {
+                    property: dataIndex,
+                    value: value
+                };
+                result.push(filter);
+            }
+        }
+        return Ext.encode(result);
     },
 
     getFilterObjectFromQueryString: function() {
