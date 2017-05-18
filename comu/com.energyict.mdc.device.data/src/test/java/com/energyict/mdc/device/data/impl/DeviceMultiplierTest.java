@@ -54,7 +54,10 @@ import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
@@ -66,6 +69,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.internal.matchers.Any;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -199,6 +203,8 @@ public class DeviceMultiplierTest {
             };
         });
         when(clock.instant()).thenReturn(now);
+        ZoneId zoneId = ZoneId.systemDefault();
+        when(clock.getZone()).thenReturn(zoneId);
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
         when(amrSystem.findMeter(String.valueOf(ID))).thenReturn(Optional.of(meter));
         when(amrSystem.newMeter(anyString(), anyString())).thenReturn(meterBuilder);
@@ -230,8 +236,8 @@ public class DeviceMultiplierTest {
         when(meter.getUsagePoint(any())).thenReturn(Optional.empty());
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
-        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.MIN);
-        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.MAX);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(now.minus(3000, ChronoUnit.DAYS));
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(now.MAX);
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
     }
 
