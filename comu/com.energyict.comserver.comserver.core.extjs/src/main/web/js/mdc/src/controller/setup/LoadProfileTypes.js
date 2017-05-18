@@ -368,11 +368,15 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             assignedRegisterTypesIds.push(item.getId());
         });
 
-        store.on('load', function(records) {
-            cardContainer.getLayout().setActiveItem(records.data.length===0 ? 1 : 0);
-            if (assignedRegisterTypes && assignedRegisterTypes.length && me.getEditPage()) {
-                me.getEditPage().down('radiogroup').items.items[1].setValue(true);
-                grid.setGridVisible(true);
+        store.on('load', function(loadedStore, records) {
+            if (records.length===0) {
+                cardContainer.getLayout().setActiveItem(1);
+            } else {
+                cardContainer.getLayout().setActiveItem(0);
+                if (assignedRegisterTypes && assignedRegisterTypes.length && me.getEditPage()) {
+                    me.getEditPage().down('radiogroup').items.items[1].setValue(true);
+                    grid.setGridVisible(true);
+                }
             }
         }, me, {single: true});
 
