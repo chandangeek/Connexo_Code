@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.GeneralCipheringKeyType;
@@ -10,12 +13,9 @@ import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
-import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -170,7 +170,11 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public int getClientMacAddress() {
-        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
+        try {
+            return Integer.parseInt(getSecurityPropertySet().getClient());
+        } catch (NumberFormatException e) {
+            return BigDecimal.ONE.intValue();
+        }
     }
 
     @Override

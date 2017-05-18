@@ -29,15 +29,12 @@ import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
-import com.energyict.mdc.upl.crypto.KeyStoreService;
-import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -50,12 +47,18 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.migration.MigratePropertiesFromPreviousSecuritySet;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.RequestSecurityLevel;
+import com.energyict.mdc.upl.security.ResponseSecurityLevel;
+import com.energyict.mdc.upl.security.SecuritySuite;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -75,6 +78,8 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.Beacon3100Reg
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
+import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
+import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -91,7 +96,7 @@ import java.util.logging.Level;
  * @author khe
  * @since 18/06/2015 - 15:07
  */
-public class Beacon3100 extends AbstractDlmsProtocol { //implements MigratePropertiesFromPreviousSecuritySet, AdvancedDeviceProtocolSecurityCapabilities {
+public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertiesFromPreviousSecuritySet, AdvancedDeviceProtocolSecurityCapabilities {
 
     /**
      * Enumerates the different clients for the Beacon.
@@ -212,28 +217,22 @@ public class Beacon3100 extends AbstractDlmsProtocol { //implements MigratePrope
     private final ObjectMapperService objectMapperService;
     private final DeviceMasterDataExtractor extractor;
     private final DeviceGroupExtractor deviceGroupExtractor;
-    private final X509Service x509Service;
-    private final KeyStoreService keyStoreService;
     private final CertificateWrapperExtractor certificateWrapperExtractor;
-    private final CertificateAliasFinder certificateAliasFinder;
     private final DeviceExtractor deviceExtractor;
     protected Beacon3100Messaging beacon3100Messaging;
     private BeaconCache beaconCache = null;
     private Beacon3100RegisterFactory registerFactory;
     private Beacon3100LogBookFactory logBookFactory;
 
-    public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, X509Service x509Service, KeyStoreService keyStoreService, CertificateWrapperExtractor certificateWrapperExtractor, DeviceExtractor deviceExtractor, CertificateAliasFinder certificateAliasFinder) {
+    public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, CertificateWrapperExtractor certificateWrapperExtractor, DeviceExtractor deviceExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
         this.converter = converter;
         this.objectMapperService = objectMapperService;
         this.extractor = extractor;
         this.deviceGroupExtractor = deviceGroupExtractor;
-        this.x509Service = x509Service;
-        this.keyStoreService = keyStoreService;
         this.certificateWrapperExtractor = certificateWrapperExtractor;
         this.deviceExtractor = deviceExtractor;
-        this.certificateAliasFinder = certificateAliasFinder;
     }
 
     @Override
@@ -258,7 +257,7 @@ public class Beacon3100 extends AbstractDlmsProtocol { //implements MigratePrope
      * Unless of course the whole session is done with the public client, then there's no need to read out the FC.
      */
     protected void handleFrameCounter(ComChannel comChannel) {
-        if (!frameCounterReadoutRequired()){
+        if (!frameCounterReadoutRequired()) {
             getLogger().info("Skipping FC handling due to lower security level.");
             return; // there is no need to read-out the frame-counter
         }
@@ -278,7 +277,7 @@ public class Beacon3100 extends AbstractDlmsProtocol { //implements MigratePrope
     }
 
     private boolean frameCounterReadoutRequired() {
-        if (getDlmsSessionProperties().getAuthenticationSecurityLevel() < 5){
+        if (getDlmsSessionProperties().getAuthenticationSecurityLevel() < 5) {
             return false;
         }
 
@@ -311,7 +310,7 @@ public class Beacon3100 extends AbstractDlmsProtocol { //implements MigratePrope
     /**
      * Get the frame counter from the cache, for the given clientId.
      * If no frame counter is available in the cache (value -1), use the configured InitialFC property.
-     * <p/>
+     * <p>
      * Additionally, the FC value can be validated with ValidateCachedFrameCounterAndFallback
      */
     private boolean getCachedFrameCounter(ComChannel comChannel, int clientId) {
@@ -417,14 +416,13 @@ public class Beacon3100 extends AbstractDlmsProtocol { //implements MigratePrope
 
         return client.getFrameCounterOBIS();
     }
-/*
+
     protected AdvancedDeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
             dlmsSecuritySupport = new DlmsSecuritySuite1And2Support(this.getPropertySpecService());
         }
         return (AdvancedDeviceProtocolSecurityCapabilities) dlmsSecuritySupport;
-    }*/
-/*
+    }
 
     @Override
     public List<SecuritySuite> getSecuritySuites() {
@@ -440,7 +438,6 @@ public class Beacon3100 extends AbstractDlmsProtocol { //implements MigratePrope
     public List<ResponseSecurityLevel> getResponseSecurityLevels() {
         return getSecuritySupport().getResponseSecurityLevels();
     }
-*/
 
     /**
      * First read out the frame counter for the management client, using the public client. It has a pre-established association.
@@ -460,7 +457,7 @@ public class Beacon3100 extends AbstractDlmsProtocol { //implements MigratePrope
         publicClientProperties.getProperties().setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS.toString(),
                 BigDecimal.valueOf(ClientConfiguration.PUBLIC.clientId));
 
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, 0, 0, 0, getDlmsSessionProperties().getProperties()));    //SecurityLevel 0:0
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(Integer.toString(ClientConfiguration.PUBLIC.clientId), 0, 0, 0, 0, 0, getDlmsSessionProperties().getProperties()));    //SecurityLevel 0:0
 
         final DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties, getDlmsSessionProperties().getSerialNumber());
 
@@ -554,9 +551,7 @@ public class Beacon3100 extends AbstractDlmsProtocol { //implements MigratePrope
                 new InboundIpConnectionType(),
                 new TLSConnectionType(
                         this.getPropertySpecService(),
-                        this.nlsService,
-                        this.x509Service,
-                        this.keyStoreService));
+                        this.certificateWrapperExtractor));
     }
 
     @Override
@@ -593,7 +588,7 @@ public class Beacon3100 extends AbstractDlmsProtocol { //implements MigratePrope
 
     protected Beacon3100Messaging getBeacon3100Messaging() {
         if (beacon3100Messaging == null) {
-            beacon3100Messaging = new Beacon3100Messaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), objectMapperService, this.getPropertySpecService(), this.nlsService, this.converter, this.extractor, this.deviceGroupExtractor, deviceExtractor, certificateAliasFinder, certificateWrapperExtractor);
+            beacon3100Messaging = new Beacon3100Messaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), objectMapperService, this.getPropertySpecService(), this.nlsService, this.converter, this.extractor, this.deviceGroupExtractor, deviceExtractor, certificateWrapperExtractor);
         }
         return beacon3100Messaging;
     }
@@ -718,9 +713,9 @@ public class Beacon3100 extends AbstractDlmsProtocol { //implements MigratePrope
     }
 
     private G3NetworkManagement getG3NetworkManagement() throws NotInObjectListException {
-        if(getDlmsSessionProperties().getReadOldObisCodes()) {
+        if (getDlmsSessionProperties().getReadOldObisCodes()) {
             return this.getDlmsSession().getCosemObjectFactory().getG3NetworkManagement();
-        }else{
+        } else {
             return this.getDlmsSession().getCosemObjectFactory().getG3NetworkManagement(Beacon3100Messaging.G3_NETWORK_MANAGEMENT_NEW_OBISCODE);
         }
     }
@@ -822,10 +817,11 @@ public class Beacon3100 extends AbstractDlmsProtocol { //implements MigratePrope
      * This is used by the ProtocolSecurityRelationTypeUpgrader to migrate old, existing security properties that were created for
      * the previous security relation to the new security relation.
      */
-/*    @Override
+    @Override
     public DeviceProtocolSecurityCapabilities getPreviousSecuritySupport() {
         return new DsmrSecuritySupport(this.getPropertySpecService());
-    }*/
+    }
+
     @Override
     public ManufacturerInformation getManufacturerInformation() {
         return null;

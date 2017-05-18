@@ -31,7 +31,7 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
     }
 
     protected DeviceProtocol newGatewayProtocol(InboundDiscoveryContext context) {
-        return new Beacon3100(context.getPropertySpecService(), context.getNlsService(), context.getConverter(), context.getCollectedDataFactory(), context.getIssueFactory(), context.getObjectMapperService(), context.getDeviceMasterDataExtractor(), context.getDeviceGroupExtractor(), context.getX509Service(), context.getKeyStoreService(), context.getCertificateWrapperExtractor(), context.getDeviceExtractor(), context.getCertificateAliasFinder());
+        return new Beacon3100(context.getPropertySpecService(), context.getNlsService(), context.getConverter(), context.getCollectedDataFactory(), context.getIssueFactory(), context.getObjectMapperService(), context.getDeviceMasterDataExtractor(), context.getDeviceGroupExtractor(), context.getCertificateWrapperExtractor(), context.getDeviceExtractor());
     }
 
     protected DlmsSession getDlmsSession(DeviceProtocol gatewayProtocol) {
@@ -79,9 +79,9 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
     }
 
     protected G3NetworkManagement getG3NetworkManagement(DeviceProtocol gatewayProtocol, DlmsSession dlmsSession) throws NotInObjectListException {
-        if(((Beacon3100)gatewayProtocol).getDlmsSessionProperties().getReadOldObisCodes()) {
+        if (((Beacon3100) gatewayProtocol).getDlmsSessionProperties().getReadOldObisCodes()) {
             return dlmsSession.getCosemObjectFactory().getG3NetworkManagement();
-        }else{
+        } else {
             return dlmsSession.getCosemObjectFactory().getG3NetworkManagement(Beacon3100Messaging.G3_NETWORK_MANAGEMENT_NEW_OBISCODE);
         }
     }

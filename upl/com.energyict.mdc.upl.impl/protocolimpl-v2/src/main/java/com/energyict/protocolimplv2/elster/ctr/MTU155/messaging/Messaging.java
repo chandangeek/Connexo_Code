@@ -15,10 +15,10 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Builder;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
@@ -149,7 +149,7 @@ public class Messaging implements DeviceMessageSupport {
             case DeviceMessageConstants.executionKeyAttributeName:
             case DeviceMessageConstants.temporaryKeyAttributeName:
             case DeviceMessageConstants.passwordAttributeName:
-                return ((Password) messageAttribute).getValue();
+                return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
             case DeviceMessageConstants.activityCalendarAttributeName:
                 return CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalendar) messageAttribute, this.calendarExtractor);
             case DeviceMessageConstants.loadProfileAttributeName:

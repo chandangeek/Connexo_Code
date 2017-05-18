@@ -7,12 +7,10 @@ package com.energyict.protocolimplv2.eict.eiweb;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.security.SecurityProperty;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocolimpl.properties.TypedProperties;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
-
-import java.util.List;
 
 /**
  * @author Rudi Vankeirsbilck (rudi)
@@ -41,23 +39,16 @@ public class EIWebCryptographer {
                         .getConnectionTypeProperties(deviceIdentifier)
                         .map(TypedProperties::copyOf)
                         .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
-        List<? extends SecurityProperty> securityProperties =
-                this.inboundDiscoveryContext
-                        .getProtocolSecurityProperties(deviceIdentifier)
-                        .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
-        String encryptionPassword = this.getEncryptionPassword(securityProperties);
+        TypedProperties securityProperties = this.inboundDiscoveryContext
+                .getDeviceProtocolSecurityPropertySet(deviceIdentifier)
+                .map(DeviceProtocolSecurityPropertySet::getSecurityProperties)
+                .map(TypedProperties::copyOf)
+                .orElseThrow(() -> CommunicationException.notConfiguredForInboundCommunication(deviceIdentifier));
+
+        String encryptionPassword = securityProperties.getStringProperty(EIWEB_PROTOCOL_PASSWORD_PROPERTY_NAME);
         String macAddress = connectionTypeProperties.getStringProperty(EIWebConnectionType.MAC_ADDRESS_PROPERTY_NAME);
         String md5SeedBuilder = source + macAddress + encryptionPassword;
         return new StringBasedMD5Seed(md5SeedBuilder);
-    }
-
-    private String getEncryptionPassword(List<? extends SecurityProperty> securityProperties) {
-        for (SecurityProperty securityProperty : securityProperties) {
-            if (EIWEB_PROTOCOL_PASSWORD_PROPERTY_NAME.equals(securityProperty.getName())) {
-                return (String) securityProperty.getValue();
-            }
-        }
-        return null;
     }
 
     public boolean wasUsed() {

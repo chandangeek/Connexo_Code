@@ -1,5 +1,15 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects;
 
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.axrdencoding.BitString;
@@ -12,15 +22,6 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.MulticastIC;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
-import com.energyict.mdc.upl.NotInObjectListException;
-import com.energyict.mdc.upl.ObjectMapperService;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
@@ -171,7 +172,7 @@ public class BroadcastUpgrade {
         securityProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), broadcastClientMacAddress);
         securityProperties.setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), broadcastAuthenticationHexKey);
         securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), broadcastEncryptionHexKey);
-        final DeviceProtocolSecurityPropertySetImpl securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(0, encryptionLevel, 0, 0, 0, securityProperties);//Auth level 0 does not matter, since there's no association created (pre-established)
+        final DeviceProtocolSecurityPropertySetImpl securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(Integer.toString(broadcastClientMacAddress.intValue()),  0, encryptionLevel, 0, 0, 0, securityProperties);//Auth level 0 does not matter, since there's no association created (pre-established)
         blockTransferProperties.setSecurityPropertySet(securityPropertySet);
         blockTransferProperties.addProperties(securityPropertySet.getSecurityProperties());
         blockTransferProperties.getSecurityProvider().setInitialFrameCounter(highestFrameCounter + 1);
@@ -288,7 +289,7 @@ public class BroadcastUpgrade {
         final AM540Properties am540Properties = new AM540Properties(this.propertySpecService);
         am540Properties.addProperties(slaveDeviceInfo.getGeneralProperties());
         am540Properties.addProperties(slaveDeviceInfo.getDialectProperties());
-        final DeviceProtocolSecurityPropertySetImpl securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(slaveDeviceInfo.getSecurityProperties());
+        final DeviceProtocolSecurityPropertySetImpl securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(slaveDeviceInfo.getSecurityPropertySet(), slaveDeviceInfo.getSecurityProperties());
         am540Properties.addProperties(securityPropertySet.getSecurityProperties());
         am540Properties.setSecurityPropertySet(securityPropertySet);
 

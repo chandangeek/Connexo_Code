@@ -7,6 +7,8 @@ import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -49,8 +51,8 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
-                    this.passwordSpec(service, DeviceMessageConstants.openKeyAttributeName, DeviceMessageConstants.openKeyAttributeDefaultTranslation),
-                    this.passwordSpec(service, DeviceMessageConstants.transferKeyAttributeName, DeviceMessageConstants.transferKeyAttributeDefaultTranslation)
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.openKeyAttributeName, DeviceMessageConstants.openKeyAttributeDefaultTranslation),
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.transferKeyAttributeName, DeviceMessageConstants.transferKeyAttributeDefaultTranslation)
             );
         }
     },
@@ -245,10 +247,10 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
         return this.hexStringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).setDefaultValue(defaultValue).finish();
     }
 
-    protected PropertySpec passwordSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    protected PropertySpec keyAccessorTypeReferenceSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
-                .passwordSpec()
+                .referenceSpec(KeyAccessorType.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()

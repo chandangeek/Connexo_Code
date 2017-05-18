@@ -1,6 +1,5 @@
 package test.com.energyict.protocolimplv2.coronis.muc;
 
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.mdc.channels.ip.socket.ServerWavenisGatewayComChannel;
 import com.energyict.mdc.channels.ip.socket.WavenisGatewayComChannel;
 import com.energyict.mdc.channels.ip.socket.WavenisGatewayConnectionType;
@@ -33,6 +32,8 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
@@ -237,6 +238,11 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return getSecuritySupport().getSecurityProperties();
+    }
+
+    @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return getSecuritySupport().getClientSecurityPropertySpec();
     }
 
     @Override

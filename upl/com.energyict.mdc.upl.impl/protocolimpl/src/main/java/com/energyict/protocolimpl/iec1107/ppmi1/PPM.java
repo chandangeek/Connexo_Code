@@ -38,7 +38,6 @@ import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
-import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -258,7 +257,6 @@ public class PPM extends AbstractPPM implements SerialNumberSupport {
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC1107_NODEID),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC1107_SERIALNUMBER),
                 this.stringSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.IEC1107_PROFILEINTERVAL),
-                new PasswordPropertySpec(PASSWORD.getName(), true, 8, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.IEC1107_PASSWORD).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.IEC1107_PASSWORD_DESCRIPTION).format()),
                 this.stringSpec(PK_OPUS, PropertyTranslationKeys.IEC1107_OPUS),
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.IEC1107_TIMEOUT),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.IEC1107_RETRIES),

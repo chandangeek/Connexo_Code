@@ -445,6 +445,11 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return this.deviceProtocolSecurityCapabilities.getClientSecurityPropertySpec();
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return this.deviceProtocolSecurityCapabilities.getAuthenticationAccessLevels();
     }

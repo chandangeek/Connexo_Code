@@ -1,16 +1,17 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.protocolimpl.properties.TypedProperties;
 import org.fest.assertions.core.Condition;
-import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
+
+import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -1064,16 +1065,24 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(propertySpecService).getName())).isNull();
     }
 
-
     @Test
     public void testPasswordConversion() {
         DlmsSecuritySupportPerClient dlmsSecuritySupportPerClient = new DlmsSecuritySupportPerClient(propertySpecService);
         final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
-        Password password = new SimplePassword(passwordValue);
-        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD_DATA.toString(), password);
+        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD_DATA.toString(), passwordValue);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
+                    @Override
+                    public String getName() {
+                        return "security";
+                    }
+
+                    @Override
+                    public String getClient() {
+                        return "1";
+                    }
+
                     @Override
                     public int getAuthenticationDeviceAccessLevel() {
                         return DlmsSecuritySupportPerClient.AuthenticationAccessLevelIds.DATA_CLIENT_GMAC_AUTHENTICATION.getAccessLevel();
@@ -1150,6 +1159,16 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD_MANAGEMENT.toString(), passwordValue);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySet() {
+                    @Override
+                    public String getName() {
+                        return "security";
+                    }
+
+                    @Override
+                    public String getClient() {
+                        return "1";
+                    }
+
                     @Override
                     public int getAuthenticationDeviceAccessLevel() {
                         return DlmsSecuritySupportPerClient.AuthenticationAccessLevelIds.MANAGEMENT_CLIENT_GMAC_AUTHENTICATION.getAccessLevel();

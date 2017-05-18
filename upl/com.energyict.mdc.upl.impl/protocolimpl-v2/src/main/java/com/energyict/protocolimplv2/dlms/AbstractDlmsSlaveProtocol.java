@@ -30,6 +30,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolcommon.exceptions.CodingException;
@@ -83,6 +84,11 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return getSecurityCapabilities().getSecurityProperties();
+    }
+
+    @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return getSecurityCapabilities().getClientSecurityPropertySpec();
     }
 
     /**

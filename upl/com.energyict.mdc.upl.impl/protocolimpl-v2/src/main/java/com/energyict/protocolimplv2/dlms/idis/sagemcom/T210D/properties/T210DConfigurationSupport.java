@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.properties;
 
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.PrivateKeyAlias;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.AM130ConfigurationSupport;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class T210DConfigurationSupport extends AM130ConfigurationSupport {
      * The private key of the client (the ComServer) used for digital signature (ECDSA)
      */
     private PropertySpec clientPrivateSigningKeyPropertySpec() {
-        return this.getPropertySpecService().referenceSpec(PrivateKeyAlias.class.getName())
+        return this.getPropertySpecService().referenceSpec(KeyAccessorType.class.getName())
                 .named(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY, DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY)
                 .describedAs(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY)
                 .finish();

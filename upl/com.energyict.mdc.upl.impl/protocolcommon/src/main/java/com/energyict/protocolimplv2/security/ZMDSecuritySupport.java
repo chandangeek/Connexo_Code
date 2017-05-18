@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -17,9 +17,7 @@ public class ZMDSecuritySupport extends DlmsSecuritySupport{
 
     @Override
     protected List<PropertySpec> getManufactureSpecificSecurityProperties(PropertySpecService propertySpecService) {
-        return Arrays.asList(
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService),
-                    getClientMacAddressPropertySpec(propertySpecService));
+        return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
     }
 
 }

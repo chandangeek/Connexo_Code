@@ -5,17 +5,18 @@ import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
+
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.ParseException;
 import java.util.Date;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -96,9 +97,9 @@ public class Dsmr23MBusDeviceMessageConverterTest extends AbstractV2MessageConve
             case DeviceMessageConstants.contactorModeAttributeName:
                 return 1;
             case DeviceMessageConstants.openKeyAttributeName:
-                return new SimplePassword("open");
+                return "open";
             case DeviceMessageConstants.transferKeyAttributeName:
-                return new SimplePassword("transfer");
+                return "transfer";
             default:
                 return "";
         }

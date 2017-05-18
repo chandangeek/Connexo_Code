@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.SecurityProperty;
 
 import java.util.List;
 
@@ -15,6 +15,8 @@ import java.util.List;
  */
 public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProtocolSecurityPropertySet {
 
+    private String name;
+    private String client;
     private int authenticationDeviceAccessLevel;
     private int encryptionDeviceAccessLevel;
     private int securitySuite;
@@ -22,28 +24,42 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
     private int responseSecurityLevel;
     private TypedProperties securityProperties;
 
-    public DeviceProtocolSecurityPropertySetImpl(List<? extends SecurityProperty> securityProperties) {
+    public DeviceProtocolSecurityPropertySetImpl(DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet, List<? extends DeviceMasterDataExtractor.SecurityProperty> securityProperties) {
         this.securityProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
-        for (SecurityProperty securityProperty : securityProperties) {
-            this.securityProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
+        for (DeviceMasterDataExtractor.SecurityProperty securityProperty : securityProperties) {
+            this.securityProperties.setProperty(securityProperty.name(), securityProperty.value());
         }
-        if (!securityProperties.isEmpty()) {
-            SecurityProperty firstProperty = securityProperties.get(0);
-            authenticationDeviceAccessLevel = firstProperty.getSecurityPropertySet().getAuthenticationDeviceAccessLevelId();
-            encryptionDeviceAccessLevel = firstProperty.getSecurityPropertySet().getEncryptionDeviceAccessLevelId();
-            securitySuite = firstProperty.getSecurityPropertySet().getSecuritySuiteId();
-            requestSecurityLevel = firstProperty.getSecurityPropertySet().getRequestSecurityLevelId();
-            responseSecurityLevel = firstProperty.getSecurityPropertySet().getResponseSecurityLevelId();
+
+        if (securityPropertySet != null){
+            name = securityPropertySet.name();
+            client = securityPropertySet.client();
+            authenticationDeviceAccessLevel = securityPropertySet.authenticationDeviceAccessLevelId();
+            encryptionDeviceAccessLevel = securityPropertySet.encryptionDeviceAccessLevelId();
+            securitySuite = securityPropertySet.securitySuite();
+            requestSecurityLevel = securityPropertySet.requestSecurityLevelId();
+            responseSecurityLevel = securityPropertySet.responseSecurityLevelId();
         }
     }
 
-    public DeviceProtocolSecurityPropertySetImpl(int authenticationDeviceAccessLevel, int encryptionDeviceAccessLevel, int securitySuite, int requestSecurityLevel, int responseSecurityLevel, TypedProperties securityProperties) {
+    public DeviceProtocolSecurityPropertySetImpl(String client, int authenticationDeviceAccessLevel, int encryptionDeviceAccessLevel, int securitySuite, int requestSecurityLevel, int responseSecurityLevel, TypedProperties securityProperties) {
+        this.name = "unknown";
+        this.client = client;
         this.authenticationDeviceAccessLevel = authenticationDeviceAccessLevel;
         this.encryptionDeviceAccessLevel = encryptionDeviceAccessLevel;
         this.securityProperties = securityProperties;
         this.securitySuite = securitySuite;
         this.requestSecurityLevel = requestSecurityLevel;
         this.responseSecurityLevel = responseSecurityLevel;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String getClient() {
+        return client;
     }
 
     @Override

@@ -1,19 +1,19 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
+import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
-import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am130.properties.IDISSecurityProvider;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -115,13 +115,8 @@ public class AM540Properties extends IDISProperties {
         return getProperties().getTypedProperty(AM540ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, AM540ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE);
     }
 
-    @Override
-    public int getClientMacAddress() {
-        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
-    }
-
     public boolean usesPublicClient() {
-        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE) == PUBLIC_CLIENT_MAC_ADDRESS;
+        return getClientMacAddress() == PUBLIC_CLIENT_MAC_ADDRESS;
     }
 
     public boolean useBeaconMirrorDeviceDialect() {

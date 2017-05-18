@@ -270,6 +270,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_NTA_SERVER_LOWER_MAC_ADDRESS_DESCRIPTION("upl.property.v2.nta.serverLowerMacAddress.description", "Server lower MAC address"),
     V2_NTA_NODEID("upl.property.v2.nta.nodeId", "Node address"),
     V2_NTA_NODEID_DESCRIPTION("upl.property.v2.nta.nodeId.description", "Node address"),
+    V2_NTA_MASTERKEY("upl.property.v2.masterkey", "Master key"),
+    V2_NTA_MASTERKEY_DESCRIPTION("upl.property.v2.masterkey.description", "Master key"),
 
     V2_ELSTER_GATEWAY_LOGICAL_DEVICE_ID("upl.property.v2.elster.gatewayLogicalDeviceId", "Gateway logical device id"),
     V2_ELSTER_GATEWAY_LOGICAL_DEVICE_ID_DESCRIPTION("upl.property.v2.elster.gatewayLogicalDeviceId.description", "Gateway logical device id"),

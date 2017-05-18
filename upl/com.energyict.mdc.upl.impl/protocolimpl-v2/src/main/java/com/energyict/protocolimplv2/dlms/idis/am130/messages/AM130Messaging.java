@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.dlms.idis.am130.messages;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -11,8 +10,8 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.Password;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
@@ -111,14 +110,6 @@ public class AM130Messaging extends IDISMessaging {
         supportedMessages.add(NetworkConnectivityMessage.SetUseDHCPFlag.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(NetworkConnectivityMessage.SetPrimaryDNSAddress.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(NetworkConnectivityMessage.SetSecondaryDNSAddress.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
-    }
-
-    @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, com.energyict.mdc.upl.properties.PropertySpec propertySpec, Object messageAttribute) {
-        if (messageAttribute instanceof Password) {
-            return ((Password) messageAttribute).getValue();
-        }
-        return super.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 
     @Override

@@ -25,6 +25,11 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
     }
 
     @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty();
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return Collections.emptyList();
     }
@@ -47,6 +52,16 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public String getName() {
+                return "security";
+            }
+
+            @Override
+            public String getClient() {
+                return null;
+            }
+
             @Override
             public int getAuthenticationDeviceAccessLevel() {
                 return DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;

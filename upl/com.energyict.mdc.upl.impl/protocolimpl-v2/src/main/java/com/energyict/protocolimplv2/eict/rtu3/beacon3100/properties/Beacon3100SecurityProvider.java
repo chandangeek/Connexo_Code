@@ -9,13 +9,13 @@ import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.CertificateWrapper;
-import com.energyict.mdc.upl.security.PrivateKeyAlias;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
+import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
@@ -26,7 +26,7 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECPoint;
-import java.security.spec.InvalidKeySpecException;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -151,12 +151,6 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
     }
 
     @Override
-    public String getClientPrivateSigningKeyLabel() {
-        PrivateKeyAlias privateKey = properties.getTypedProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
-        return privateKey.getAlias();
-    }
-
-    @Override
     public PrivateKey getClientPrivateKeyAgreementKey() {
         if (clientPrivateKeyAgreementKey == null) {
             clientPrivateKeyAgreementKey = parsePrivateKey(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY);
@@ -172,7 +166,12 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
         if (certificateWrapper == null) {
             return null;
         } else {
-            X509Certificate certificate = certificateWrapperExtractor.getCertificate(certificateWrapper);
+            Optional<X509Certificate> optionalCertificate = certificateWrapperExtractor.getCertificate(certificateWrapper);
+            if (!optionalCertificate.isPresent()) {
+                return null;
+            }
+
+            X509Certificate certificate = optionalCertificate.get();
             String propertyValue = "Certificate with serial number '" + certificate.getSerialNumber() + "'";
             try {
                 return validateCertificate(propertyName, propertyValue, certificate);
@@ -251,16 +250,17 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
      * Throw the proper exception if the private key could not be found based on the configured alias.
      */
     private PrivateKey parsePrivateKey(String propertyName) {
-        PrivateKeyAlias alias = properties.getTypedProperty(propertyName);
-        if (alias == null) {
+        CertificateWrapper certificateWrapper = properties.getTypedProperty(propertyName);
+        if (certificateWrapper == null) {
             throw DeviceConfigurationException.missingProperty(propertyName);
         } else {
+            String alias = certificateWrapperExtractor.getAlias(certificateWrapper);
             try {
-                PrivateKey privateKey = alias.getPrivateKey();
+                PrivateKey privateKey = certificateWrapperExtractor.getPrivateKey(certificateWrapper);
                 if (privateKey == null) {
                     throw DeviceConfigurationException.invalidPropertyFormat(
                             propertyName,
-                            alias.getAlias(),
+                            alias,
                             "The configured alias does not refer to an existing entry in the EIServer persisted key store.");
                 }
 
@@ -272,39 +272,43 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
                     if (privateKeyBytes.length != keySize) {
                         throw DeviceConfigurationException.invalidPropertyFormat(
                                 propertyName,
-                                "Private key with alias '" + alias.getAlias() + "'",
+                                "Private key with alias '" + alias + "'",
                                 "The private key should be for the " + getECCCurve().getCurveName() + " elliptic curve (DLMS security suite " + securitySuite + ")");
                     }
                 } else {
                     throw DeviceConfigurationException.invalidPropertyFormat(
                             propertyName,
-                            "Private key with alias '" + alias.getAlias() + "'",
+                            "Private key with alias '" + alias + "'",
                             "The private key should be for elliptic curve cryptography");
                 }
 
 
                 return privateKey;
-            } catch (InvalidKeySpecException e) {
+            } catch (InvalidKeyException e) {
                 throw DeviceConfigurationException.invalidPropertyFormat(
                         propertyName,
-                        "Private key with alias '" + alias.getAlias() + "'",
+                        "Private key with alias '" + alias + "'",
                         "The private key must be a valid, PKCS8 encoded key");
             }
         }
     }
 
     /**
-     * The PrivateKeyAlias contains both the private key and its matching certificate, fetched from the EIServer persisted key store.
+     * The client CertificateWrapper contains both the private key and its matching certificate, fetched from the EIServer persisted key store.
      */
     private X509Certificate parseCertificateOfPrivateKey(String propertyName) {
-        PrivateKeyAlias alias = properties.getTypedProperty(propertyName);
-        if (alias == null) {
+        CertificateWrapper certificateWrapper = properties.getTypedProperty(propertyName);
+        if (certificateWrapper == null) {
             return null;
         } else {
-            String propertyValue = "Certificate with alias '" + alias.getAlias() + "'";
+            String alias = certificateWrapperExtractor.getAlias(certificateWrapper);
+            String propertyValue = "Certificate with alias '" + alias + "'";
             try {
-                Certificate certificate = alias.getCertificate();
-                return validateCertificate(propertyName, propertyValue, certificate);
+                Optional<X509Certificate> certificate = certificateWrapperExtractor.getCertificate(certificateWrapper);
+                if (!certificate.isPresent()) {
+                    return null;
+                }
+                return validateCertificate(propertyName, propertyValue, certificate.get());
             } catch (CertificateException e) {
                 throw DeviceConfigurationException.invalidPropertyFormat(
                         propertyName,

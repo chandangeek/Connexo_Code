@@ -5,9 +5,10 @@ import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.protocolimplv2.eict.eiweb.SimplePassword;
+
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;
+
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
@@ -44,6 +45,6 @@ public class Dsmr50MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
-        return new SimplePassword("key");
+        return "key";
     }
 }
