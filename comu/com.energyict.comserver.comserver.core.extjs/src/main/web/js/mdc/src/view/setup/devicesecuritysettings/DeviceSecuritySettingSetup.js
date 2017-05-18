@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
                 ui: 'large',
                 xtype: 'panel',
                 itemId: 'deviceSecuritySettingSetupPanel',
-                title: Uni.I18n.translate('general.securitySettings', 'MDC', 'Security settings'),
+                title: Uni.I18n.translate('general.securitySets', 'MDC', 'Security sets'),
 
                 items: [
                     {

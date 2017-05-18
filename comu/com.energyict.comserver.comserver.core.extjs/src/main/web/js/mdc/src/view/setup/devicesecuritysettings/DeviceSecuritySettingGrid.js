@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('deviceSecuritySetting.name', 'MDC', 'Security setting'),
+                header: Uni.I18n.translate('general.securitySet', 'MDC', 'Security set'),
                 dataIndex: 'name',
                 flex: 3
             },
@@ -66,14 +66,14 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('deviceSecuritySetting.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} security settings'),
-                displayMoreMsg: Uni.I18n.translate('deviceSecuritySetting.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} security settings'),
-                emptyMsg: Uni.I18n.translate('deviceSecuritySetting.pagingtoolbartop.emptyMsg', 'MDC', 'There are no security settings to display')
+                displayMsg: Uni.I18n.translate('deviceSecuritySet.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} security sets'),
+                displayMoreMsg: Uni.I18n.translate('deviceSecuritySet.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} security sets'),
+                emptyMsg: Uni.I18n.translate('deviceSecuritySet.pagingtoolbartop.emptyMsg', 'MDC', 'There are no security sets to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('deviceSecuritySetting.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Security settings per page'),
+                itemsPerPageMsg: Uni.I18n.translate('deviceSecuritySet.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Security sets per page'),
                 dock: 'bottom'
             }
         ];
