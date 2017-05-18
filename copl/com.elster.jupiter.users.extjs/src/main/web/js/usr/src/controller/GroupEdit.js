@@ -248,10 +248,10 @@ Ext.define('Usr.controller.GroupEdit', {
             record.save({
                 backUrl: me.backUrl,
                 success: function (record) {
-                    var message = (me.mode === 'edit')
-                        ? Uni.I18n.translate('role.saved', 'USR', 'Role saved.')
-                        : Uni.I18n.translate('role.added', 'USR', 'Role added.');
-                    me.getApplication().fireEvent('acknowledge', message);
+                    me.getApplication().fireEvent('acknowledge', (me.mode === 'edit')
+                        ? Uni.I18n.translate('role.saved', 'USR', 'Role saved')
+                        : Uni.I18n.translate('role.added', 'USR', 'Role added')
+                    );
                     me.back();
                 },
                 failure: function (record, operation) {
