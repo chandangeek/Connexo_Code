@@ -35,9 +35,9 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step3', {
                 {
                     itemId: 'step3-errors',
                     xtype: 'uni-form-error-message',
-                    width: '100%',
+                    width: 613,
                     hidden: true,
-                    text: Uni.I18n.translate('searchItems.bulk.calendarError', 'IMT', 'It is required to select a calendar to go to the next step.')
+                    text: Uni.I18n.translate('searchItems.bulk.calendarErrorMsg', 'IMT', 'There are errors on this page that require your attention')
                 }
             ]
         },
@@ -50,7 +50,6 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step3', {
                 xtype: 'form',
                 itemId: 'frm-add-user-directory',
                 ui: 'large',
-                //width: '100%',
                 defaults: {
                     labelWidth: 250,
                     width: 600,
