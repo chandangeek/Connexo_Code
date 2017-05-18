@@ -587,7 +587,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         menu.down('#correct-value').setVisible(canCorrect);
         menu.down('#clear-projected').setVisible(canClearProjected);
         menu.down('#mark-projected').setVisible(canMarkProjected);
-        button.setDisabled(!menu.query('menuitem[hidden=false]').length);
+        button.setDisabled(!selectedRecords.length || !menu.query('menuitem[hidden=false]').length);
         Ext.resumeLayouts();
     },
 
