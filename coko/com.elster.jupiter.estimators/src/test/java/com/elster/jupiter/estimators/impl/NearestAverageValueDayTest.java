@@ -307,7 +307,7 @@ public class NearestAverageValueDayTest {
         EstimationResult result = estimator.estimate(singletonList(block), QualityCodeSystem.MDC);
 
         assertThat(result.estimated()).contains(block);
-        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(54));
+        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(50002));
     }
 
     @Test
@@ -325,7 +325,7 @@ public class NearestAverageValueDayTest {
         EstimationResult result = estimator.estimate(singletonList(block), QualityCodeSystem.MDC);
 
         assertThat(result.estimated()).contains(block);
-        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(54));
+        assertThat(estimable.getEstimation()).isEqualTo(BigDecimal.valueOf(50002));
     }
 
     @Test

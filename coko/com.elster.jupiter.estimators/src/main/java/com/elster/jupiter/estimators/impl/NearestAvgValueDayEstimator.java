@@ -381,7 +381,7 @@ public class NearestAvgValueDayEstimator extends AbstractEstimator implements Es
         fillSkipDays(record, calendarEventId, view, discardDay);
         return sameTimeOfWeek(ZonedDateTime.ofInstant(record.getTimeStamp(), zone), ZonedDateTime.ofInstant(estimableTime, zone))
                 && record.getQuantity(estimationBlock.getReadingType()) != null
-                && skippedDays.contains(record.getTimeStamp().truncatedTo(ChronoUnit.DAYS));
+                && !skippedDays.contains(record.getTimeStamp().truncatedTo(ChronoUnit.DAYS));
     }
 
     private void fillSkipDays(BaseReadingRecord record, Long calendarEventId, Calendar.ZonedView view, boolean discardDay) {
