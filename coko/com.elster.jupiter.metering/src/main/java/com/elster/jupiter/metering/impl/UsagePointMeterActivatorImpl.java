@@ -147,7 +147,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         meter.getState(meterStartDate).get().getStage().ifPresent(stage -> {
             EndDeviceStage deviceStage = EndDeviceStage.fromKey(stage.getName());
             if (!deviceStage.equals(EndDeviceStage.OPERATIONAL) && !deviceStage.equals(EndDeviceStage.PRE_OPERATIONAL)) {
-                throw new UsagePointMeterActivationException.IncorrectDeviceStageWithoutMetrologyConfig(metrologyConfigurationService.getThesaurus(), meter.getName(), this.usagePoint.getName(), formatDate(meterStartDate));
+                throw new UsagePointMeterActivationException.IncorrectLifeCycleStage(metrologyConfigurationService.getThesaurus(), meter.getName(), this.usagePoint.getName(), formatDate(meterStartDate));
             }
         });
     }
