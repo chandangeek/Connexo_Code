@@ -496,7 +496,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(channel1.getMainReadingType()).thenReturn(readingType1);
         when(registerReadingRecord.getTimePeriod()).thenReturn(Optional.of(Range.all()));
         DataValidationStatus dataValidationStatus = mockValidationStatus(READING_TIME_STAMP_1, mockValidationRule(1, "MinMax"));
-        when(evaluator.getValidationStatus(eq(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC)), eq(channel1), any(Instant.class), eq(Collections.emptyList())))
+        when(evaluator.getValidationStatus(eq(EnumSet.of(QualityCodeSystem.MDM)), eq(channel1), any(Instant.class), eq(Collections.emptyList())))
                 .thenReturn(dataValidationStatus);
 
         Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/historicalregisterdata")

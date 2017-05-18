@@ -26,6 +26,10 @@ public class JournaledReadingRecord implements BaseReadingRecord {
     private Range<Instant> interval;
     private List<? extends ReadingQualityRecord> readingQualityRecords = new ArrayList<>();
 
+    public JournaledReadingRecord(BaseReadingRecord readingRecord) {
+        this.readingRecord = readingRecord;
+    }
+
     public Range<Instant> getInterval() {
         return interval;
     }
@@ -50,11 +54,7 @@ public class JournaledReadingRecord implements BaseReadingRecord {
         this.readingQualityRecords = readingQualityRecords;
     }
 
-    public JournaledReadingRecord(BaseReadingRecord readingRecord) {
-        this.readingRecord = readingRecord;
-    }
-
-    public List<? extends ReadingQualityRecord> getReadingRecordQualities() {
+    public List<? extends ReadingQualityRecord> getPersistedReadingQualities() {
         return readingRecord.getReadingQualities();
     }
 

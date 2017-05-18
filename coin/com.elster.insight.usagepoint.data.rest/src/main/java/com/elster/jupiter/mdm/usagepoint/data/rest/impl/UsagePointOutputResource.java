@@ -22,7 +22,6 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.JournaledRegisterReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityComment;
@@ -535,10 +534,6 @@ public class UsagePointOutputResource {
 
     private <T extends BaseReadingRecord> Map<Instant, T> toMap(List<T> readings) {
         return readings.stream().collect(Collectors.toMap(BaseReadingRecord::getTimeStamp, Function.identity()));
-    }
-
-    private Map<? extends ReadingRecord, Instant> toRegisterReadingRecordMap(List<JournaledRegisterReadingRecord> readingRecords) {
-        return readingRecords.stream().collect(Collectors.toMap(Function.identity(), JournaledRegisterReadingRecord::getTimeStamp));
     }
 
     @PUT
@@ -1078,52 +1073,70 @@ public class UsagePointOutputResource {
     @GET
     @Path("/{purposeId}/outputs/{outputId}/historicalregisterdata")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTER_ANY_USAGEPOINT)
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT})
     @Transactional
     public PagedInfoList getOutputRegisterHistoryData(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                       @PathParam("outputId") long outputId, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        List<OutpitRegisterHistoryDataInfo> data = new ArrayList<>();
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfig = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract contract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfig, contractId);
+        MetrologyPurpose purpose = contract.getMetrologyPurpose();
+        ReadingType readingType = resourceHelper.findReadingTypeDeliverableOrThrowException(contract, outputId, usagePoint.getName()).getReadingType();
+
+        List<OutputRegisterHistoryDataInfo> data = new ArrayList<>();
         if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
-            boolean changedDataOnly = filter.getString("changedDataOnly") != null && (filter.getString("changedDataOnly").compareToIgnoreCase("yes") == 0);
+            String changedDataOnlyFlag = filter.getString("changedDataOnly");
+            boolean changedDataOnly = changedDataOnlyFlag != null && (changedDataOnlyFlag.equalsIgnoreCase("yes"));
             Range<Instant> requestedInterval = Range.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
-            usagePoint.getEffectiveMetrologyConfigurations(requestedInterval).forEach(effectiveMC -> {
-                MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
-                ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
-                effectiveMC.getChannelsContainer(metrologyContract).ifPresent(channelsContainer -> {
-                    Range<Instant> containerRange = channelsContainer.getInterval().toOpenClosedRange();
-                    if (containerRange.isConnected(requestedInterval)) {
-                        Range<Instant> effectiveInterval = containerRange.intersection(requestedInterval);
-                        AggregatedChannel aggregatedChannel = effectiveMC.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
-                        Set<JournaledReadingRecord> collectedData = usagePointOutputsHistoryHelper.collectHistoricalRegisterData(usagePoint, aggregatedChannel, effectiveInterval, readingTypeDeliverable
-                                .getReadingType(), changedDataOnly);
-                        data.addAll(outputRegisterDataInfoFactory.createHistoricalRegisterInfo(collectedData));
-                    }
-                });
-            });
+            usagePoint.getEffectiveMetrologyConfigurations(requestedInterval).forEach(effectiveMC ->
+                findMetrologyContractForPurpose(effectiveMC, purpose).ifPresent(metrologyContract ->
+                    effectiveMC.getChannelsContainer(metrologyContract).ifPresent(channelsContainer -> {
+                        Range<Instant> containerRange = channelsContainer.getInterval().toOpenClosedRange();
+                        if (containerRange.isConnected(requestedInterval)) {
+                            Range<Instant> effectiveInterval = containerRange.intersection(requestedInterval);
+                            effectiveMC.getAggregatedChannel(metrologyContract, readingType).ifPresent(aggregatedChannel -> {
+                                Set<JournaledReadingRecord> collectedData = usagePointOutputsHistoryHelper.collectHistoricalRegisterData(usagePoint, aggregatedChannel,
+                                        effectiveInterval, readingType, changedDataOnly);
+                                data.addAll(outputRegisterDataInfoFactory.createHistoricalRegisterInfo(collectedData));
+                            });
+                        }
+                    })));
         }
 
+        data.sort(Comparator.comparing(info -> ((OutputRegisterHistoryDataInfo) info).interval.end)
+                .thenComparing(Comparator.comparing(info -> ((OutputRegisterHistoryDataInfo) info).reportedDateTime).reversed()));
         return PagedInfoList.fromCompleteList("data", data, queryParameters);
     }
 
     @GET
     @Path("/{purposeId}/outputs/{outputId}/historicalchanneldata")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTER_ANY_USAGEPOINT)
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT})
     @Transactional
     public PagedInfoList getOutputChannelHistoryData(@PathParam("name") String name, @PathParam("purposeId") long contractId,
                                                      @PathParam("outputId") long outputId, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfig = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract contract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfig, contractId);
+        MetrologyPurpose purpose = contract.getMetrologyPurpose();
+
         List<OutputChannelHistoryDataInfo> data = new ArrayList<>();
         if (filter.hasProperty(INTERVAL_START) && filter.hasProperty(INTERVAL_END)) {
-            data.addAll(usagePoint.getEffectiveMetrologyConfigurations(Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END)))
-                    .stream().flatMap(effectiveMC -> {
-                        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
+            Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant(INTERVAL_START), filter.getInstant(INTERVAL_END));
+            data.addAll(usagePoint.getEffectiveMetrologyConfigurations(requestedInterval).stream()
+                    .map(effectiveMC -> findMetrologyContractForPurpose(effectiveMC, purpose).map(metrologyContract -> {
                         ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
-                        boolean changedDataOnly = filter.getString("changedDataOnly") != null && (filter.getString("changedDataOnly").compareToIgnoreCase("yes") == 0);
-                        return outputChannelDataInfoFactory.createOutputChannelHistoryDataInfo(usagePointOutputsHistoryHelper.collectHistoricalChannelData(filter, usagePoint, metrologyContract,
-                                effectiveMC, readingTypeDeliverable.getReadingType(), changedDataOnly)).stream();
-                    }).collect(Collectors.toList()));
+                        boolean changedDataOnly = filter.getString("changedDataOnly") != null && (filter.getString("changedDataOnly")
+                                .equalsIgnoreCase("yes"));
+                        return outputChannelDataInfoFactory.createOutputChannelHistoryDataInfo(usagePointOutputsHistoryHelper
+                                .collectHistoricalChannelData(requestedInterval, usagePoint, metrologyContract,
+                                        effectiveMC, readingTypeDeliverable.getReadingType(), changedDataOnly))
+                                .stream();
+                    })).flatMap(Functions.asStream())
+                    .flatMap(Function.identity())
+                    .sorted(Comparator.comparing(info -> ((OutputChannelHistoryDataInfo) info).interval.end)
+                            .thenComparing(Comparator.comparing(info -> ((OutputChannelHistoryDataInfo) info).reportedDateTime).reversed()))
+                    .collect(Collectors.toList()));
         }
 
         return PagedInfoList.fromCompleteList("data", data, queryParameters);

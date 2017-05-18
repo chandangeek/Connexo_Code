@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
-public class OutpitRegisterHistoryDataInfo {
+public class OutputRegisterHistoryDataInfo {
 
     public IntervalInfo interval;
     public String userName;

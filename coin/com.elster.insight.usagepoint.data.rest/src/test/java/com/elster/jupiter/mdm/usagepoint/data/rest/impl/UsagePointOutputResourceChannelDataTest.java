@@ -993,17 +993,25 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
     @Test
     public void testGetHistoryFromChannel() throws IOException {
-        Range effectiveRange = Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_1.upperEndpoint());
+        Range<Instant> effectiveRange = Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_1.upperEndpoint());
         ValidationRule minMax = mockValidationRule(1, "MinMax");
-        IntervalReadingRecord intervalReadingRecord = mockIntervalReadingRecord(effectiveRange, new BigDecimal(555));
-        DataValidationStatus dataValidationStatus = mockValidationStatus(intervalReadingRecord.getTimeStamp(), minMax);
+
+        JournaledReadingRecord journaledReadingRecord = mock(JournaledReadingRecord.class);
+        when(journaledReadingRecord.getTimePeriod()).thenReturn(Optional.of(effectiveRange));
+        when(journaledReadingRecord.getTimeStamp()).thenReturn(effectiveRange.upperEndpoint());
+        when(journaledReadingRecord.getValue()).thenReturn(new BigDecimal(555));
+        when(journaledReadingRecord.getReadingType()).thenReturn(regularReadingType);
+        when(regularReadingType.getIntervalLength()).thenReturn(Optional.empty());
+
+        DataValidationStatus dataValidationStatus = mockValidationStatus(journaledReadingRecord.getReportedDateTime(), minMax);
 
         when(usagePoint.getEffectiveMetrologyConfigurations(effectiveRange)).thenReturn(Collections.singletonList(effectiveMC1));
         when(channelsContainer1.getInterval()).thenReturn(Interval.of(effectiveRange));
-        when(channel1.getJournaledChannelReadings(any(ReadingType.class), any(Range.class))).thenReturn(Collections.singletonList(intervalReadingRecord));
+        when(channel1.getJournaledChannelReadings(any(ReadingType.class), any(Range.class))).thenReturn(Collections.singletonList(journaledReadingRecord));
         when(channel1.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_1.upperEndpoint()))).thenReturn(Collections.singletonList(INTERVAL_1.upperEndpoint()));
-        when(evaluator.getValidationStatus(eq(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC)), eq(channel1), any(Instant.class), eq(Collections.emptyList())))
+        when(evaluator.getValidationStatus(eq(EnumSet.of(QualityCodeSystem.MDM)), eq(channel1), any(Instant.class), eq(Collections.emptyList())))
                 .thenReturn(dataValidationStatus);
+
         mockIntervalReadingsWithValidationResult();
 
         Response response = target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/historicalchanneldata")

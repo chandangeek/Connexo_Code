@@ -16,7 +16,6 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.streams.ExtraCollectors;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -86,7 +85,7 @@ public class OutputChannelDataInfoFactory {
                     .findFirst()
                     .orElse(null);
             outputChannelDataInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
-            if(outputChannelDataInfo.estimatedByRule != null) {
+            if (outputChannelDataInfo.estimatedByRule != null) {
                 outputChannelDataInfo.ruleId = outputChannelDataInfo.estimatedByRule.id;
             }
             outputChannelDataInfo.isProjected = status.getReadingQualities()
@@ -157,7 +156,7 @@ public class OutputChannelDataInfoFactory {
     }
 
     private long getEstimationCommentIdByValue(String commentValue) {
-         return meteringService.getAllReadingQualityComments(ReadingQualityCommentCategory.ESTIMATION)
+        return meteringService.getAllReadingQualityComments(ReadingQualityCommentCategory.ESTIMATION)
                 .stream()
                 .filter(readingQualityComment -> readingQualityComment.getComment().equals(commentValue))
                 .map(ReadingQualityComment::getId)
@@ -171,18 +170,22 @@ public class OutputChannelDataInfoFactory {
         return info;
     }
 
-    public List<OutputChannelHistoryDataInfo> createOutputChannelHistoryDataInfo(List<JournaledReadingRecord> result) {
-        List <OutputChannelHistoryDataInfo> infos = new ArrayList<>();
-        result.forEach(record -> {
+    public List<OutputChannelHistoryDataInfo> createOutputChannelHistoryDataInfo(List<JournaledReadingRecord> journaledReadingRecords) {
+        List<OutputChannelHistoryDataInfo> infos = new ArrayList<>();
+        journaledReadingRecords.forEach(record -> {
             BaseReadingRecord storedRecord = record.getStoredReadingRecord();
+            OutputChannelHistoryDataInfo outputChannelDataInfo = new OutputChannelHistoryDataInfo();
+            outputChannelDataInfo.value = record.getValue();
+            outputChannelDataInfo.interval = IntervalInfo.from(record.getInterval());
+            outputChannelDataInfo.dataValidated = record.getValidationStatus().completelyValidated();
+            outputChannelDataInfo.reportedDateTime = record.getReportedDateTime();
+            outputChannelDataInfo.readingQualities = record.getReadingQualities().stream()
+                    .map(readingQualityInfoFactory::asInfo)
+                    .collect(Collectors.toList());
+
             if (storedRecord instanceof JournaledChannelReadingRecord) {
-                OutputChannelHistoryDataInfo outputChannelDataInfo = new OutputChannelHistoryDataInfo();
-                outputChannelDataInfo.value = record.getValue();
-                outputChannelDataInfo.interval = IntervalInfo.from(record.getInterval());
-                outputChannelDataInfo.dataValidated = record.getValidationStatus().completelyValidated();
                 outputChannelDataInfo.journalTime = ((JournaledChannelReadingRecord) storedRecord).getJournalTime();
                 outputChannelDataInfo.userName = ((JournaledChannelReadingRecord) storedRecord).getUserName();
-                outputChannelDataInfo.reportedDateTime = record.getReportedDateTime();
 
                 extractModificationFlag(record, record.getValidationStatus()).ifPresent(modificationFlag -> {
                     outputChannelDataInfo.modificationFlag = modificationFlag.getFirst();
@@ -202,27 +205,19 @@ public class OutputChannelDataInfoFactory {
                             .collect(Collectors.toList());
                     setEstimationComment(outputChannelDataInfo, record.getReadingQualities());
                 }
-                setValidationStatus(outputChannelDataInfo, record.getValidationStatus(), record);
+
+                setValidationStatus(outputChannelDataInfo, record.getValidationStatus());
                 infos.add(outputChannelDataInfo);
             } else {
-                OutputChannelHistoryDataInfo outputChannelHistoryDataInfo = new OutputChannelHistoryDataInfo();
-                outputChannelHistoryDataInfo.value = record.getValue();
-                outputChannelHistoryDataInfo.interval = IntervalInfo.from(record.getInterval());
-                outputChannelHistoryDataInfo.journalTime = Instant.EPOCH;
-                outputChannelHistoryDataInfo.dataValidated = record.getValidationStatus().completelyValidated();
-                outputChannelHistoryDataInfo.reportedDateTime = record.getReportedDateTime();
-                outputChannelHistoryDataInfo.userName = "";
-                outputChannelHistoryDataInfo.readingQualities = record.getReadingQualities().stream()
-                        .map(readingQualityInfoFactory::asInfo)
-                        .collect(Collectors.toList());
-                infos.add(outputChannelHistoryDataInfo);
+                outputChannelDataInfo.journalTime = Instant.EPOCH;
+                outputChannelDataInfo.userName = "";
+                infos.add(outputChannelDataInfo);
             }
         });
-        return infos.stream().sorted(Comparator.comparing(info -> ((OutputChannelHistoryDataInfo)info).interval.end)
-                .thenComparing(Comparator.comparing(info -> ((OutputChannelHistoryDataInfo) info).reportedDateTime).reversed())).collect(ExtraCollectors.toImmutableList());
+        return infos;
     }
 
-    private void setValidationStatus(OutputChannelDataInfo outputChannelDataInfo, DataValidationStatus status, JournaledReadingRecord record) {
+    private void setValidationStatus(OutputChannelDataInfo outputChannelDataInfo, DataValidationStatus status) {
         outputChannelDataInfo.validationResult = ValidationStatus.forResult(status.getValidationResult());
         outputChannelDataInfo.dataValidated = status.completelyValidated();
         outputChannelDataInfo.action = decorate(status.getReadingQualities()
@@ -233,7 +228,7 @@ public class OutputChannelDataInfoFactory {
                 .findFirst()
                 .orElse(null);
         outputChannelDataInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
-        if(outputChannelDataInfo.estimatedByRule != null) {
+        if (outputChannelDataInfo.estimatedByRule != null) {
             outputChannelDataInfo.ruleId = outputChannelDataInfo.estimatedByRule.id;
         }
         outputChannelDataInfo.isProjected = status.getReadingQualities()
@@ -254,7 +249,7 @@ public class OutputChannelDataInfoFactory {
                 .ifPresent(comment -> {
                     info.commentId = getCommentIdByValue(comment);
                     info.commentValue = comment;
-        });
+                });
     }
 
     private long getCommentIdByValue(String commentValue) {

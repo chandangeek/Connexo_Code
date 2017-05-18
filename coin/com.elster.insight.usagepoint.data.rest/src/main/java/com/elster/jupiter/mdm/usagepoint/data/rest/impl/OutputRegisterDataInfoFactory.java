@@ -12,7 +12,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.rest.util.IntervalInfo;
-import com.elster.jupiter.util.streams.ExtraCollectors;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -135,23 +134,23 @@ public class OutputRegisterDataInfoFactory {
                 .collect(Collectors.toList());
     }
 
-    public List<OutpitRegisterHistoryDataInfo> createHistoricalRegisterInfo(Set<JournaledReadingRecord>readingRecords) {
-        List<OutpitRegisterHistoryDataInfo> data = new ArrayList<>();
+    public List<OutputRegisterHistoryDataInfo> createHistoricalRegisterInfo(Set<JournaledReadingRecord>readingRecords) {
+        List<OutputRegisterHistoryDataInfo> data = new ArrayList<>();
         readingRecords.forEach(journaledReadingRecord -> {
-            OutpitRegisterHistoryDataInfo outpitRegisterHistoryDataInfo = new OutpitRegisterHistoryDataInfo();
+            OutputRegisterHistoryDataInfo outputRegisterHistoryDataInfo = new OutputRegisterHistoryDataInfo();
             BaseReadingRecord record = journaledReadingRecord.getStoredReadingRecord();
             DataValidationStatus status = journaledReadingRecord.getValidationStatus();
-            outpitRegisterHistoryDataInfo.interval = IntervalInfo.from(journaledReadingRecord.getInterval());
-            outpitRegisterHistoryDataInfo.userName = ((JournaledRegisterReadingRecord)record).getUserName();
-            outpitRegisterHistoryDataInfo.timeStamp = record.getReportedDateTime();
-            outpitRegisterHistoryDataInfo.value = record.getValue();
-            outpitRegisterHistoryDataInfo.reportedDateTime = record.getReportedDateTime();
-            outpitRegisterHistoryDataInfo.readingQualities = journaledReadingRecord.getReadingQualities().stream()
+            outputRegisterHistoryDataInfo.interval = IntervalInfo.from(journaledReadingRecord.getInterval());
+            outputRegisterHistoryDataInfo.userName = ((JournaledRegisterReadingRecord)record).getUserName();
+            outputRegisterHistoryDataInfo.timeStamp = record.getReportedDateTime();
+            outputRegisterHistoryDataInfo.value = record.getValue();
+            outputRegisterHistoryDataInfo.reportedDateTime = record.getReportedDateTime();
+            outputRegisterHistoryDataInfo.readingQualities = journaledReadingRecord.getReadingQualities().stream()
                     .map(readingQualityInfoFactory::asInfo)
                     .collect(Collectors.toList());
-            outpitRegisterHistoryDataInfo.dataValidated = status.completelyValidated();
-            outpitRegisterHistoryDataInfo.validationResult = ValidationStatus.forResult(status.getValidationResult());
-            outpitRegisterHistoryDataInfo.validationAction = decorate(status.getReadingQualities()
+            outputRegisterHistoryDataInfo.dataValidated = status.completelyValidated();
+            outputRegisterHistoryDataInfo.validationResult = ValidationStatus.forResult(status.getValidationResult());
+            outputRegisterHistoryDataInfo.validationAction = decorate(status.getReadingQualities()
                     .stream())
                     .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
                     .map(readingQuality -> readingQuality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
@@ -159,10 +158,8 @@ public class OutputRegisterDataInfoFactory {
                     .findFirst()
                     .orElse(null);
 
-            data.add(outpitRegisterHistoryDataInfo);
+            data.add(outputRegisterHistoryDataInfo);
         });
-        return data.stream().sorted(Comparator.comparing(info -> ((OutpitRegisterHistoryDataInfo)info).interval.end)
-                .thenComparing(Comparator.comparing(info -> ((OutpitRegisterHistoryDataInfo) info).reportedDateTime).reversed())).collect(ExtraCollectors
-                .toImmutableList());
+        return data;
     }
 }
