@@ -36,8 +36,13 @@ public class CalendarWithEventCodeValueConverter implements PropertyValueConvert
                 return NoneCalendarWithEventSettings.INSTANCE;
             } else {
                 advanceSettings = map.get("discardDays").toString() + ":";
-                advanceSettings += map.getOrDefault("calendar", "") + ":";
-                advanceSettings += map.getOrDefault("eventCode", "");
+                if (map.get("calendar") == null || map.get("eventCode") == null){
+                    return propertySpec.getValueFactory().fromStringValue(advanceSettings);
+                }
+                else {
+                    advanceSettings += map.get("calendar");
+                    advanceSettings += map.get("eventCode");
+                }
             }
             return propertySpec.getValueFactory().fromStringValue(advanceSettings);
         } else {
