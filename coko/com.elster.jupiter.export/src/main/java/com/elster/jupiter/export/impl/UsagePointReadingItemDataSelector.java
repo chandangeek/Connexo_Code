@@ -57,9 +57,9 @@ class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
             readings = super.getReadings(item, exportInterval);
         }
         Set<Instant> instants = new TreeSet<>(item.getReadingContainer().toList(item.getReadingType(), exportInterval));
-        return readings.stream()
+        return item.getReadingType().isRegular() ? readings.stream()
                 .filter(reading -> instants.contains(reading.getTimeStamp()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()) : readings;
     }
 
     @Override
