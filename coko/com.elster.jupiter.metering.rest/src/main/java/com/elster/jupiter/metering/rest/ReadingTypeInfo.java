@@ -101,6 +101,7 @@ public class ReadingTypeInfo {
             }
             if(!readingType.getUnit().equals(ReadingTypeUnit.NOTAPPLICABLE)) {
                 this.unitOfMeasure = readingType.getMultiplier().getSymbol() + readingType.getUnit().getSymbol();
+            } else {
                 if (readingType.getMultiplier() != null) {
                     this.unitOfMeasure = getDisplayableSymbol(readingType.getMultiplier().getMultiplier());
                 }
