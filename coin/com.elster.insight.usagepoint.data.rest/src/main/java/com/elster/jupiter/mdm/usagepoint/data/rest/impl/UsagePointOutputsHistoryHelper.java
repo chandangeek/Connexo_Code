@@ -167,7 +167,8 @@ public class UsagePointOutputsHistoryHelper {
             mergedReadingQualities.forEach(mergedReadingQuality -> {
                 Optional<? extends BaseReadingRecord> journaledReadingRecord;
                 if (mergedReadingQuality.getTypeCode().equals("3.5.258") || mergedReadingQuality.getTypeCode()
-                        .equals("3.5.259") || mergedReadingQuality.hasValidationCategory()) {
+                        .equals("3.5.259") || mergedReadingQuality.hasValidationCategory()
+                        || mergedReadingQuality.getComment() != null) {
                     journaledReadingRecord = records.stream()
                             .filter(record -> record.getReportedDateTime().compareTo(mergedReadingQuality.getTimestamp()) <= 0)
                             .max(Comparator.comparing(JournaledReadingRecord::getReportedDateTime));
