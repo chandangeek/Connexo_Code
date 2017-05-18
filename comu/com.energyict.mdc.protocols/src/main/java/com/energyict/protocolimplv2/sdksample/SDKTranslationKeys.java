@@ -48,6 +48,7 @@ public enum SDKTranslationKeys implements TranslationKey {
     SLAVE_ONE_SERIAL_NUMBER("SDK.slaveOneSerialNumber", "Slave one serial number"),
     SLAVE_TWO_SERIAL_NUMBER("SDK.slaveTwoSerialNumber", "Slave two serial number"),
     BREAKER_STATUS("SDK.breakerStatus", "Breaker status"),
+    DEVICE_ALARM_EVENT_TYPE("SDK.deviceAlarmEventType", "Device alarm event type")
     ;
 
     private final String key;
