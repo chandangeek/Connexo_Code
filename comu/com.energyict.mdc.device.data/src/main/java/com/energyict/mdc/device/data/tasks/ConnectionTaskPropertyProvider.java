@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.device.data.tasks;
 
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 
 import java.util.List;
 
