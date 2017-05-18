@@ -795,6 +795,8 @@ sub activate_sso {
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.url=http://$HOST_NAME:$CONNEXO_HTTP_PORT");
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.externalurl=http://$HOST_NAME");
             add_to_file("$CATALINA_BASE/conf/connexo.properties","$PUBLIC_KEY_PROPERTIES");
+			
+			add_to_file($config_file,"$PUBLIC_KEY_PROPERTIES");
 
             #if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
             #    system("sc config \"Apache2.4\"  start= delayed-auto");
@@ -891,7 +893,7 @@ sub start_tomcat {
             } else {
                 system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
             }
-			#unlink("$CONNEXO_DIR/datasource.xml");
+			unlink("$CONNEXO_DIR/datasource.xml");
 		}
 
 		if ("$INSTALL_FLOW" eq "yes") {
