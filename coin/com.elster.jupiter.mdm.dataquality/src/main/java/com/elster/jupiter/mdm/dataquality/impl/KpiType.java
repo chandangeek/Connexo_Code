@@ -70,10 +70,7 @@ class KpiType {
             super(generateWithClauseAliasName(validator), name(validator) + "Kpi", name(validator).toUpperCase());
         }
 
-        private static String name(Validator validator) {
-            String simpleName = validator.getClass().getSimpleName();
-            return "Validator_" + Math.abs(simpleName.hashCode());
-        }
+        private static String name(Validator validator) { return validator.getClass().getSimpleName(); }
 
         private static String generateWithClauseAliasName(Validator validator) {
             String className = validator.getClass().getName();
@@ -86,10 +83,7 @@ class KpiType {
             super(generateWithClauseAlias(estimator), name(estimator) + "Kpi", name(estimator).toUpperCase());
         }
 
-        private static String name(Estimator estimator) {
-            String simpleName = estimator.getClass().getSimpleName();
-            return "Estimator_" + Math.abs(simpleName.hashCode());
-        }
+        private static String name(Estimator estimator) { return estimator.getClass().getSimpleName(); }
 
         private static String generateWithClauseAlias(Estimator estimator) {
             String className = estimator.getClass().getName();
