@@ -131,7 +131,7 @@ public class OutputChannelDataInfoFactory {
                 .collect(Collectors.toList());
         outputChannelDataInfo.readingQualities = readingQualityInfos;
         readingQualityInfos.stream()
-                .filter(readingQualityInfo -> readingQualityInfo.comment != null)
+                .filter(readingQualityInfo -> readingQualityInfo.comment != null && !Checks.is(readingQualityInfo.comment).emptyOrOnlyWhiteSpace())
                 .findFirst()
                 .ifPresent(readingQuality -> {
                     outputChannelDataInfo.commentId = getEstimationCommentIdByValue(readingQuality.comment);
@@ -183,28 +183,28 @@ public class OutputChannelDataInfoFactory {
                     .map(readingQualityInfoFactory::asInfo)
                     .collect(Collectors.toList());
 
+            extractModificationFlag(record, record.getValidationStatus()).ifPresent(modificationFlag -> {
+                outputChannelDataInfo.modificationFlag = modificationFlag.getFirst();
+                outputChannelDataInfo.editedInApp = modificationFlag.getLast().getType().system().map(ReadingModificationFlag::getApplicationInfo).orElse(null);
+                if (modificationFlag.getLast() instanceof ReadingQualityRecord) {
+                    Instant timestamp = ((ReadingQualityRecord) modificationFlag.getLast()).getTimestamp();
+                    outputChannelDataInfo.modificationDate = timestamp;
+                    if (timestamp != null) {
+                        outputChannelDataInfo.reportedDateTime = timestamp;
+                    }
+                }
+            });
+
+            if (record.getReadingQualities() != null) {
+                outputChannelDataInfo.readingQualities = record.getReadingQualities().stream()
+                        .map(readingQualityInfoFactory::asInfo)
+                        .collect(Collectors.toList());
+                setEstimationComment(outputChannelDataInfo, record.getReadingQualities());
+            }
+
             if (storedRecord instanceof JournaledChannelReadingRecord) {
                 outputChannelDataInfo.journalTime = ((JournaledChannelReadingRecord) storedRecord).getJournalTime();
                 outputChannelDataInfo.userName = ((JournaledChannelReadingRecord) storedRecord).getUserName();
-
-                extractModificationFlag(record, record.getValidationStatus()).ifPresent(modificationFlag -> {
-                    outputChannelDataInfo.modificationFlag = modificationFlag.getFirst();
-                    outputChannelDataInfo.editedInApp = modificationFlag.getLast().getType().system().map(ReadingModificationFlag::getApplicationInfo).orElse(null);
-                    if (modificationFlag.getLast() instanceof ReadingQualityRecord) {
-                        Instant timestamp = ((ReadingQualityRecord) modificationFlag.getLast()).getTimestamp();
-                        outputChannelDataInfo.modificationDate = timestamp;
-                        if (timestamp != null) {
-                            outputChannelDataInfo.reportedDateTime = timestamp;
-                        }
-                    }
-                });
-
-                if (record.getReadingQualities() != null) {
-                    outputChannelDataInfo.readingQualities = record.getReadingQualities().stream()
-                            .map(readingQualityInfoFactory::asInfo)
-                            .collect(Collectors.toList());
-                    setEstimationComment(outputChannelDataInfo, record.getReadingQualities());
-                }
 
                 setValidationStatus(outputChannelDataInfo, record.getValidationStatus());
                 infos.add(outputChannelDataInfo);

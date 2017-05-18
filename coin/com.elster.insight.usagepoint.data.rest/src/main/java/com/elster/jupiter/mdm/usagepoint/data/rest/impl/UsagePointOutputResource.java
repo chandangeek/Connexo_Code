@@ -556,9 +556,7 @@ public class UsagePointOutputResource {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
         }
 
-
         EditedChannelReadingSet editedReadings = new EditedChannelReadingSet(resourceHelper).init(channelDataInfos);
-
 
         this.dataAggregationService.edit(usagePoint, metrologyContract, readingTypeDeliverable, QualityCodeSystem.MDM)
                 .estimateAll(editedReadings.getEstimatedReadings())
