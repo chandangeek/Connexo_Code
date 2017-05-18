@@ -77,6 +77,7 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
             }
         }
 
+        unitOfMeasure = unitOfMeasure ? unitOfMeasure : '';
         validationResultText += estimatedByRule ? me.getEstimationFlagWithTooltip(estimatedByRule, record) : '';
         if (editedAndProjected) {
             validationResultText = '<span style="margin-left:5px; font-weight:bold; cursor: default" data-qtip="'

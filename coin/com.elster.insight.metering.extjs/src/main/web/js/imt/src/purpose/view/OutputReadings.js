@@ -171,8 +171,8 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                             }
                             else {
                                 var store = me.grid.getStore(),
-                                    count = store.getCount()
-                                hasValues = false;
+                                    count = store.getCount(),
+                                    hasValues = false;
 
                                 for (var i = 0; i < count; i++) {
                                     if (store.getAt(i).get('value')) {
