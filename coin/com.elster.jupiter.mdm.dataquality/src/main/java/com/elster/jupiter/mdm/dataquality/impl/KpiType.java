@@ -71,7 +71,8 @@ class KpiType {
         }
 
         private static String name(Validator validator) {
-            return validator.getClass().getSimpleName();
+            String simpleName = validator.getClass().getSimpleName();
+            return "Validator_" + Math.abs(simpleName.hashCode());
         }
 
         private static String generateWithClauseAliasName(Validator validator) {
@@ -86,7 +87,8 @@ class KpiType {
         }
 
         private static String name(Estimator estimator) {
-            return estimator.getClass().getSimpleName();
+            String simpleName = estimator.getClass().getSimpleName();
+            return "Estimator_" + Math.abs(simpleName.hashCode());
         }
 
         private static String generateWithClauseAlias(Estimator estimator) {
