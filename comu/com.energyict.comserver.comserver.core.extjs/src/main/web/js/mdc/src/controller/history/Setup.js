@@ -1123,7 +1123,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             filter: 'Mdc.model.LogbookOfDeviceDataFilter'
                         },
                         securitysettings: {
-                            title: Uni.I18n.translate('general.securitySettings', 'MDC', 'Security settings'),
+                            title: Uni.I18n.translate('general.securitySets', 'MDC', 'Security sets'),
                             route: 'securitysettings',
                             controller: 'Mdc.controller.setup.DeviceSecuritySettings',
                             privileges: Ext.Array.merge(Mdc.privileges.Device.deviceOperator, Mdc.privileges.DeviceSecurity.viewOrEditLevels),
@@ -1538,21 +1538,21 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     },
                                                     //Security settings routes
                                                     securitysettings: {
-                                                        title: Uni.I18n.translate('general.securitySettings', 'MDC', 'Security settings'),
+                                                        title: Uni.I18n.translate('general.securitySets', 'MDC', 'Security sets'),
                                                         route: 'securitysettings',
                                                         privileges: Mdc.privileges.DeviceType.view,
                                                         controller: 'Mdc.controller.setup.SecuritySettings',
                                                         action: 'showSecuritySettings',
                                                         items: {
                                                             create: {
-                                                                title: Uni.I18n.translate('securitySetting.addSecuritySetting', 'MDC', 'Add security setting'),
+                                                                title: Uni.I18n.translate('securitySetting.addSecuritySet', 'MDC', 'Add security set'),
                                                                 route: 'add',
                                                                 privileges: Mdc.privileges.DeviceType.admin,
                                                                 controller: 'Mdc.controller.setup.SecuritySettings',
                                                                 action: 'showSecuritySettingsCreateView'
                                                             },
                                                             edit: {
-                                                                title: Uni.I18n.translate('securitySetting.edit', 'MDC', 'Edit security setting'),
+                                                                title: Uni.I18n.translate('securitySetting.edit', 'MDC', 'Edit security set'),
                                                                 route: '{securitySettingId}/edit',
                                                                 privileges: Mdc.privileges.DeviceType.admin,
                                                                 controller: 'Mdc.controller.setup.SecuritySettings',
