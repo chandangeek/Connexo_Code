@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.properties.HasDynamicProperties;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 
 import aQute.bnd.annotation.ProviderType;
 
