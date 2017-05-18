@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -52,6 +51,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -211,14 +211,12 @@ public abstract class JobExecution implements ScheduledJob {
         return comServerDAO;
     }
 
-
-
     protected void prepareComTaskExecution(ComTaskExecution comTaskExecution, ComTaskExecutionConnectionSteps connectionSteps, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet, GroupedDeviceCommand groupedDeviceCommand, CommandCreator commandCreator) {
         final List<ProtocolTask> protocolTasks = generateProtocolTaskList(comTaskExecution);
         commandCreator.createCommands(
                 groupedDeviceCommand,
                 getProtocolDialectTypedProperties(getConnectionTask().getDevice(), getConnectionTask().getProtocolDialectConfigurationProperties()),
-                this.preparationContext.createNewComChannelPlaceHolder(),
+                this.preparationContext.getComChannelPlaceHolder(),
                 protocolTasks,
                 deviceProtocolSecurityPropertySet,
                 connectionSteps,
@@ -469,11 +467,6 @@ public abstract class JobExecution implements ScheduledJob {
 
         ComChannelPlaceHolder getComChannelPlaceHolder() {
             return comChannelPlaceHolder;
-        }
-
-        public ComChannelPlaceHolder createNewComChannelPlaceHolder(){
-            this.comChannelPlaceHolder = ComChannelPlaceHolder.empty();
-            return getComChannelPlaceHolder();
         }
 
         public void setComChannel(ComPortRelatedComChannel comChannel) {
