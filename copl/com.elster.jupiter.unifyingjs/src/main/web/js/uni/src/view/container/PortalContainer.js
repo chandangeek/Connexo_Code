@@ -57,7 +57,7 @@ Ext.define('Uni.view.container.PortalContainer', {
                 var menu = this.down('menu');
                 if(menu) {
                     menu.removeAll();
-                    me.up('panel').applyBullets(items);
+                    me.applyBullets(items);
                     menu.add(items);
                 }
             }

@@ -11,6 +11,12 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypeTopFilter', {
     isEquidistant: false,
     isActive: false,
 
+    requires: [
+        'Uni.store.UnitsOfMeasure',
+        'Uni.store.TimeOfUse',
+        'Uni.store.Intervals'
+    ],
+
     initComponent: function () {
         var me = this;
 
