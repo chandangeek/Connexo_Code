@@ -240,7 +240,22 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
         me.remove(grid);
         me.add({
             xtype: 'purpose-data-grid',
-            outputs: me.outputs
+            outputs: me.outputs,
+            dockedItems: [
+                {
+                    xtype: 'toolbar',
+                    items: [
+                        '->',
+                        {
+                            xtype: 'exporterbutton',
+                            ui: 'icon',
+                            iconCls: 'icon-file-download',
+                            text: '',
+                            component: this.up('grid'),
+                        }
+                    ]
+                }
+            ]
         });
         Ext.resumeLayouts(true);
     },
