@@ -220,6 +220,11 @@
             <artifactId>upgrade</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pki</artifactId>
+        </dependency>
+
         <!--INTEGRATION TESTS-->
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
