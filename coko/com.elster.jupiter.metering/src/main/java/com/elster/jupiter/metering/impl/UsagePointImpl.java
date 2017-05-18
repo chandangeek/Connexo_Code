@@ -1377,8 +1377,8 @@ public class UsagePointImpl implements ServerUsagePoint {
 
         comparisons.add(Operator.GREATERTHAN.compare("readingtimestamp", range.lowerEndpoint().toEpochMilli()));
         comparisons.add(Operator.LESSTHANOREQUAL.compare("readingtimestamp", range.upperEndpoint().toEpochMilli()));
-        if (readingTypes.size() > 0) {
-            comparisons.add(Operator.IN.compare("readingtype", readingTypes.stream().map(IdentifiedObject::getMRID).collect(Collectors.toList()).toArray()));
+        if (!readingTypes.isEmpty()) {
+            comparisons.add(Operator.IN.compare("readingtype", readingTypes.stream().map(IdentifiedObject::getMRID).toArray((String[]::new))));
         }
         comparisons.add(Operator.IN.compare("channelid", aggregatedChannel.getId()));
 
