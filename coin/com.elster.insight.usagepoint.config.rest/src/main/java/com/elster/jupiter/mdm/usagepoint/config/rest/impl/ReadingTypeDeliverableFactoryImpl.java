@@ -87,7 +87,7 @@ public class ReadingTypeDeliverableFactoryImpl implements ReadingTypeDeliverable
         metrologyConfiguration.getEventSets().stream()
                 .flatMap(eventSet -> eventSet.getEvents().stream())
                 .filter(event -> event.getCode()==readingTypeDeliverable.getReadingType().getTou())
-                .forEach(event2 -> info.eventNames.add(info.eventNames.size(),event2.getName()));
+                .forEach(event2 -> info.eventNames.add(info.eventNames.size(),event2.getName() + " (" + event2.getCode() + ")"));
         return info;
     }
 
