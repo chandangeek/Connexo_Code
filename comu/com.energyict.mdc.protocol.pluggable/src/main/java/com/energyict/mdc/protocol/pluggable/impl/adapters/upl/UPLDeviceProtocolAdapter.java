@@ -30,10 +30,10 @@ import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -223,24 +223,12 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
 
     @Override
     public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
-        com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(dialectProperties);
-        deviceProtocol.addDeviceProtocolDialectProperties(adaptedProperties);
+        deviceProtocol.addDeviceProtocolDialectProperties(dialectProperties);
     }
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(deviceProtocolSecurityPropertySet.getSecurityProperties());
-        DeviceProtocolSecurityPropertySetImpl adaptedSecurityPropertySet = new DeviceProtocolSecurityPropertySetImpl(
-                deviceProtocolSecurityPropertySet.getName(),
-                deviceProtocolSecurityPropertySet.getClient(),
-                deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel(),
-                deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel(),
-                deviceProtocolSecurityPropertySet instanceof AdvancedDeviceProtocolSecurityPropertySet ? ((AdvancedDeviceProtocolSecurityPropertySet) deviceProtocolSecurityPropertySet).getSecuritySuite() : -1,
-                deviceProtocolSecurityPropertySet instanceof AdvancedDeviceProtocolSecurityPropertySet ? ((AdvancedDeviceProtocolSecurityPropertySet) deviceProtocolSecurityPropertySet).getRequestSecurityLevel() : -1,
-                deviceProtocolSecurityPropertySet instanceof AdvancedDeviceProtocolSecurityPropertySet ? ((AdvancedDeviceProtocolSecurityPropertySet) deviceProtocolSecurityPropertySet).getResponseSecurityLevel() : -1,
-                adaptedProperties
-        );
-        deviceProtocol.setSecurityPropertySet(adaptedSecurityPropertySet);
+        deviceProtocol.setSecurityPropertySet(deviceProtocolSecurityPropertySet);
     }
 
     @Override
