@@ -22,6 +22,7 @@ import com.energyict.mdc.protocol.api.security.SecuritySuite;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -65,7 +66,7 @@ public class SecurityPropertySetInfoFactory {
 
         TypedProperties typedProperties = this.toTypedProperties(securityPropertySet.getConfigurationSecurityProperties());
         info.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(securityPropertySet.getPropertySpecs(), typedProperties);
-        Collections.sort(info.properties, (o1, o2) -> o1.name.compareToIgnoreCase(o2.name)); // Properties are sorted by their name
+        Collections.sort(info.properties, Comparator.comparing(propertyInfo -> propertyInfo.name)); // Properties are sorted by their name
         return info;
     }
 

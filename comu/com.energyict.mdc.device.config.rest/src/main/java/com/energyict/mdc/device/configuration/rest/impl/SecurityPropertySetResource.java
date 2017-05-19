@@ -6,6 +6,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
@@ -50,6 +51,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -340,7 +342,9 @@ public class SecurityPropertySetResource {
                 .securitySuite(getIdParameterFromUriParams(uriInfo, "securitySuiteId").orElse(-1))
                 .requestSecurityLevel(getIdParameterFromUriParams(uriInfo, "requestSecurityLevelId").orElse(-1))
                 .responseSecurityLevel(getIdParameterFromUriParams(uriInfo, "responseSecurityLevelId").orElse(-1));
-        return PagedInfoList.fromPagedList("data", mdcPropertyUtils.convertPropertySpecsToPropertyInfos(builder.getPropertySpecs(), TypedProperties.empty()), queryParameters);
+        List<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(builder.getPropertySpecs(), TypedProperties.empty());
+        propertyInfos.sort(Comparator.comparing(propertyInfo -> propertyInfo.name));
+        return PagedInfoList.fromPagedList("data", propertyInfos, queryParameters);
     }
 
     private com.energyict.mdc.upl.security.SecuritySuite findSecuritySuiteByIdOrThrowException(AdvancedDeviceProtocolSecurityCapabilities advancedDeviceProtocolSecurityCapabilities, long id) {
