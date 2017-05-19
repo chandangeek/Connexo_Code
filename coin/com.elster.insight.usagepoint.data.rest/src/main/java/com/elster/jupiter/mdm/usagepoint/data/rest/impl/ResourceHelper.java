@@ -5,6 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationService;
@@ -17,6 +18,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.UsagePointMeterActivationException;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
+import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -77,13 +79,14 @@ public class ResourceHelper {
     private final Thesaurus thesaurus;
     private final UserService userService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
 
     @Inject
     public ResourceHelper(MeteringService meteringService, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory,
                           ConcurrentModificationExceptionFactory conflictFactory, MetrologyConfigurationService metrologyConfigurationService,
                           UsagePointLifeCycleService usagePointLifeCycleService, Clock clock, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
                           ValidationService validationService, EstimationService estimationService, Thesaurus thesaurus, UserService userService,
-                          ThreadPrincipalService threadPrincipalService) {
+                          ThreadPrincipalService threadPrincipalService, CustomPropertySetInfoFactory customPropertySetInfoFactory) {
         super();
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
@@ -98,6 +101,7 @@ public class ResourceHelper {
         this.thesaurus = thesaurus;
         this.userService = userService;
         this.threadPrincipalService = threadPrincipalService;
+        this.customPropertySetInfoFactory = customPropertySetInfoFactory;
     }
 
     public MeterRole findMeterRoleOrThrowException(String key) {
@@ -388,6 +392,13 @@ public class ResourceHelper {
                                 dateTimeFormatter.format(LocalDateTime.ofInstant(clock.instant(), ZoneId.systemDefault())));
                     });
         }
+    }
+
+    public void persistCustomProperties(UsagePoint usagePoint, CustomPropertySetInfo customPropertySetInfo) {
+        UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
+                .getPropertySet(customPropertySetInfo.id);
+        propertySet.setValues(customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
+                propertySet.getCustomPropertySet().getPropertySpecs()));
     }
 
     public List<UsagePointTransition> getAvailableTransitions(UsagePoint usagePoint) {
