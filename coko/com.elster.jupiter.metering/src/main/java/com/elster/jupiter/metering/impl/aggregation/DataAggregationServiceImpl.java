@@ -257,7 +257,11 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                 }
             }
         } else {
-            meterActivationSets.forEach(set -> this.prepare(usagePoint, set, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation));
+            meterActivationSets.forEach(set -> {
+                if (!set.getMeterActivations().isEmpty()) {
+                    this.prepare(usagePoint, set, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation);
+            }
+            });
         }
         return deliverablesPerMeterActivation;
     }
