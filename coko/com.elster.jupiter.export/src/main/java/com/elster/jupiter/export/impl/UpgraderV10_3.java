@@ -31,10 +31,9 @@ public class UpgraderV10_3 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, version(10, 3));
-
-        upgradeStandardSelectors();
         upgradeReadingTypeDataSelector();
+        dataModelUpgrader.upgrade(dataModel, version(10, 3));
+        upgradeStandardSelectors();
     }
 
     private void upgradeStandardSelectors() {
@@ -81,22 +80,22 @@ public class UpgraderV10_3 implements Upgrader {
             try (Statement statement = connection.createStatement()) {
                 statement.execute("UPDATE DES_RTDATASELECTOR SET DES_RTDATASELECTOR.NEW_EXPORT_COMPLETE = " +
                         MissingDataOption.EXCLUDE_INTERVAL.ordinal() +
-                        " WHERE DES_RTDATASELECTOR.EXPORT_COMPLETE = N");
+                        " WHERE DES_RTDATASELECTOR.EXPORT_COMPLETE = 'N'");
             }
             try (Statement statement = connection.createStatement()) {
                 statement.execute("UPDATE DES_RTDATASELECTOR SET DES_RTDATASELECTOR.NEW_EXPORT_COMPLETE = " +
                         MissingDataOption.EXCLUDE_ITEM.ordinal() +
-                        " WHERE DES_RTDATASELECTOR.EXPORT_COMPLETE = Y");
+                        " WHERE DES_RTDATASELECTOR.EXPORT_COMPLETE = 'Y'");
             }
             try (Statement statement = connection.createStatement()) {
                 statement.execute("UPDATE DES_RTDATASELECTORJRNL SET DES_RTDATASELECTORJRNL.NEW_EXPORT_COMPLETE = " +
                         MissingDataOption.EXCLUDE_INTERVAL.ordinal() +
-                        " WHERE DES_RTDATASELECTORJRNL.EXPORT_COMPLETE = ?");
+                        " WHERE DES_RTDATASELECTORJRNL.EXPORT_COMPLETE = 'N'");
             }
             try (Statement statement = connection.createStatement()) {
                 statement.execute("UPDATE DES_RTDATASELECTORJRNL SET DES_RTDATASELECTORJRNL.NEW_EXPORT_COMPLETE = " +
                         MissingDataOption.EXCLUDE_ITEM.ordinal() +
-                        " WHERE DES_RTDATASELECTORJRNL.EXPORT_COMPLETE = ?");
+                        " WHERE DES_RTDATASELECTORJRNL.EXPORT_COMPLETE = 'Y'");
             }
             try (Statement statement = connection.createStatement()) {
                 statement.execute("ALTER TABLE DES_RTDATASELECTOR DROP COLUMN EXPORT_COMPLETE");
