@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl.commands.store.common;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
@@ -14,6 +15,7 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
@@ -47,13 +49,14 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
         CommandRoot commandRoot = createCommandRoot();
         GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, null);
         TypedProperties typedProperties = mock(TypedProperties.class);
+        TypedProperties uplAdaptedProperties = (TypedProperties) TypedPropertiesValueAdapter.adaptToUPLValues(offlineDevice, typedProperties);
         CommandFactory.createAddProperties(groupedDeviceCommand, comTaskExecution, typedProperties, typedProperties, null);
 
         // adapter call
         groupedDeviceCommand.execute(executionContext);
 
         // verify that the addProperties is called on the deviceProtocol
-        verify(deviceProtocol).copyProperties(typedProperties);
+        verify(deviceProtocol).copyProperties(uplAdaptedProperties);
     }
 
     @Test
@@ -64,14 +67,16 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
         CommandRoot commandRoot = createCommandRoot();
         GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, null);
         TypedProperties typedProperties = mock(TypedProperties.class);
+        TypedProperties uplAdaptedProperties = (TypedProperties) TypedPropertiesValueAdapter.adaptToUPLValues(offlineDevice, typedProperties);
         TypedProperties otherTypedProperties = mock(TypedProperties.class);
+        TypedProperties uplAdaptedOtherProperties = (TypedProperties) TypedPropertiesValueAdapter.adaptToUPLValues(offlineDevice, otherTypedProperties);
         CommandFactory.createAddProperties(groupedDeviceCommand, comTaskExecution, typedProperties, otherTypedProperties, null);
 
         // adapter call
         groupedDeviceCommand.execute(executionContext);
 
         // verify that the addDeviceProtocolDialectProperties is called on the deviceProtocol
-        verify(deviceProtocol).addDeviceProtocolDialectProperties(otherTypedProperties);
+        verify(deviceProtocol).addDeviceProtocolDialectProperties(uplAdaptedOtherProperties);
     }
 
     @Test
@@ -82,7 +87,9 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
         CommandRoot commandRoot = createCommandRoot();
         GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, null);
         TypedProperties typedProperties = mock(TypedProperties.class);
+        TypedProperties uplAdaptedProperties = (TypedProperties) TypedPropertiesValueAdapter.adaptToUPLValues(offlineDevice, typedProperties);
         TypedProperties otherTypedProperties = mock(TypedProperties.class);
+        TypedProperties uplAdaptedOtherTypedProperties = (TypedProperties) TypedPropertiesValueAdapter.adaptToUPLValues(offlineDevice, otherTypedProperties);
         CommandFactory.createAddProperties(groupedDeviceCommand, comTaskExecution, typedProperties, otherTypedProperties, null);
 
         // adapter call
@@ -90,8 +97,8 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
 
         // verify that the addProperties is called before the addDeviceProtocolDialectProperties
         InOrder order = Mockito.inOrder(deviceProtocol);
-        order.verify(deviceProtocol).copyProperties(typedProperties);
-        order.verify(deviceProtocol).addDeviceProtocolDialectProperties(otherTypedProperties);
+        order.verify(deviceProtocol).copyProperties(uplAdaptedProperties);
+        order.verify(deviceProtocol).addDeviceProtocolDialectProperties(uplAdaptedOtherTypedProperties);
         order.verify(deviceProtocol).setSecurityPropertySet(Matchers.<DeviceProtocolSecurityPropertySet>any());
     }
 

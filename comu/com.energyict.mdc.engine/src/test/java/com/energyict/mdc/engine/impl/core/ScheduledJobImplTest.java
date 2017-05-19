@@ -200,6 +200,7 @@ public class ScheduledJobImplTest {
         when(this.comPortPool.getId()).thenReturn(COM_PORT_POOL_ID);
         when(this.comPortPool.getComPortType()).thenReturn(ComPortType.TCP);
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
+        when(this.deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(this.securityPropertySet));
         when(this.deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(this.comTaskEnablement));
         when(this.basicCheckTask.getMaximumClockDifference()).thenReturn(Optional.<TimeDuration>empty());
         when(this.comTaskEnablement.getDeviceConfiguration()).thenReturn(this.deviceConfiguration);

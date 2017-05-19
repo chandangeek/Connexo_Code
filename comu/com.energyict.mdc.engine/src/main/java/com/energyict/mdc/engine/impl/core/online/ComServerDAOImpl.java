@@ -33,7 +33,10 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.RegisterService;
+import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskPropertyImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -80,7 +83,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
@@ -299,8 +301,19 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<ConnectionTaskProperty> findProperties(final ConnectionTask connectionTask) {
-        return this.serviceProvider.transactionService().execute(connectionTask::getProperties);
+        List<ConnectionTaskProperty> connectionTaskProperties = this.serviceProvider.transactionService().execute(connectionTask::getProperties);
+        return adaptToUPLValues(connectionTask, connectionTaskProperties);
     }
+
+    private List<ConnectionTaskProperty> adaptToUPLValues(ConnectionTask connectionTask, List<ConnectionTaskProperty> connectionTaskProperties) {
+           return connectionTaskProperties.stream().map(property -> new ConnectionTaskPropertyImpl(
+                   (ConnectionTaskImpl) connectionTask,
+                   property.getName(),
+                   TypedPropertiesValueAdapter.adaptToUPLValue(connectionTask.getDevice(), property.getValue()),
+                   property.getActivePeriod(),
+                   property.getPluggableClass()))
+           .collect(Collectors.toList());
+       }
 
     @Override
     public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, final ComServer comServer) {
@@ -859,7 +872,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                     DeviceProtocolDialect deviceProtocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialect();
                     addDefaultValuesIfNecessary(deviceProtocolDialect, result);
 
-                    return TypedPropertiesValueAdapter.adaptToUPLValues(result);
+                    return TypedPropertiesValueAdapter.adaptToUPLValues(device, result);
                 }
             }
         }
@@ -945,7 +958,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             return null;
         } else {
             TypedProperties typedProperties = connectionTask.getTypedProperties();
-            return TypedPropertiesValueAdapter.adaptToUPLValues(typedProperties);
+            return TypedPropertiesValueAdapter.adaptToUPLValues(device, typedProperties);
         }
     }
 
@@ -965,7 +978,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         } else if (!outboundConnectionTasks.isEmpty()) {
             result = outboundConnectionTasks.get(0).getTypedProperties();
         }
-        return TypedPropertiesValueAdapter.adaptToUPLValues(result);
+        return TypedPropertiesValueAdapter.adaptToUPLValues(device, result);
     }
 
     @Override
@@ -974,7 +987,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             Optional<Device> device = this.getDeviceFor(identifier);
             TypedProperties typedProperties = device.map(Device::getDeviceProtocolProperties).orElse(null);
             if (typedProperties != null) {
-                return TypedPropertiesValueAdapter.adaptToUPLValues(typedProperties);
+                return TypedPropertiesValueAdapter.adaptToUPLValues(device.get(), typedProperties);
             } else {
                 return null;
             }
@@ -987,7 +1000,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     public com.energyict.mdc.upl.properties.TypedProperties getDeviceLocalProtocolProperties(DeviceIdentifier deviceIdentifier) {
         Optional<Device> device = getDeviceFor(deviceIdentifier);
         if (device.isPresent()) {
-            com.energyict.mdc.upl.properties.TypedProperties localProperties = TypedProperties.empty();
+            TypedProperties localProperties = TypedProperties.empty();
 
             TypedProperties deviceProtocolProperties = device.get().getDeviceProtocolProperties();
             deviceProtocolProperties
@@ -995,7 +1008,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                     .stream()
                     .forEach(localName -> localProperties.setProperty(localName, deviceProtocolProperties.getProperty(localName)));
 
-            return TypedPropertiesValueAdapter.adaptToUPLValues(localProperties);
+            return TypedPropertiesValueAdapter.adaptToUPLValues(device.get(), localProperties);
         }
         return null;
     }
