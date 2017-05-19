@@ -52,11 +52,23 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                     labelWidth: 250
                 },
                 {
-                    xtype: 'button',
-                    itemId: 'btn-com-task-show-communication-details',
-                    text: Uni.I18n.translate('devicecommunicationtaskhistory.showCommunicationDetails','MDC','Show communication details'),
-                    action: 'showComTaskCommunicationDetails',
-                    margin: '0 0 0 10'
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    width: 250,
+                    items: [
+                        {
+                            xtype: 'component',
+                            flex: 1
+                        },
+                        {
+                            xtype: 'button',
+                            itemId: 'btn-com-task-show-communication-details',
+                            text: Uni.I18n.translate('devicecommunicationtaskhistory.showCommunicationDetails','MDC','Show communication details'),
+                            action: 'showComTaskCommunicationDetails'
+                        }
+                    ]
                 },
                 {
                     xtype: 'form',
@@ -146,6 +158,26 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                             ]
                         }
                     ]
+                },
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    width: 250,
+                    items: [
+                        {
+                            xtype: 'component',
+                            flex: 1
+                        },
+                        {
+                            xtype: 'button',
+                            itemId: 'btn-com-task-hide-communication-details',
+                            text: Uni.I18n.translate('devicecommunicationtaskhistory.hideCommunicationDetails','MDC','Hide communication details'),
+                            action: 'hideComTaskCommunicationDetails',
+                            hidden: true
+                        }
+                    ]
                 }
             ]
         },
@@ -185,11 +217,23 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                     labelWidth: 250
                 },
                 {
-                    xtype: 'button',
-                    itemId: 'btn-com-task-show-connection-details',
-                    text: Uni.I18n.translate('devicecommunicationtaskhistory.showConnectionDetails','MDC','Show connection details'),
-                    action: 'showComTaskConnectionDetails',
-                    margin: '0 0 0 10'
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    width: 250,
+                    items: [
+                        {
+                            xtype: 'component',
+                            flex: 1
+                        },
+                        {
+                            xtype: 'button',
+                            itemId: 'btn-com-task-show-connection-details',
+                            text: Uni.I18n.translate('devicecommunicationtaskhistory.showConnectionDetails','MDC','Show connection details'),
+                            action: 'showComTaskConnectionDetails'
+                        }
+                    ]
                 },
                 {
                     xtype: 'form',
@@ -345,6 +389,26 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     usesSeconds: true
                                 }
                             ]
+                        }
+                    ]
+                },
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    width: 250,
+                    items: [
+                        {
+                            xtype: 'component',
+                            flex: 1
+                        },
+                        {
+                            xtype: 'button',
+                            itemId: 'btn-com-task-hide-connection-details',
+                            text: Uni.I18n.translate('devicecommunicationtaskhistory.hideConnectionDetails','MDC','Hide connection details'),
+                            action: 'hideComTaskConnectionDetails',
+                            hidden: true
                         }
                     ]
                 }

@@ -99,7 +99,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Ext.String.format(
                 Uni.I18n.translate('device.registerData.delete.message', 'MDC', 'The register reading with measurement time {0} will no longer be available'),
-                Uni.DateTime.formatDateTimeShort(new Date(timestamp))
+                Uni.DateTime.formatDateTimeShort(new Date(lastSelected.get('timeStamp')))
             ),
             title: Uni.I18n.translate('device.registerData.delete.title.question', 'MDC', 'Remove the reading?'),
             config: {
@@ -161,7 +161,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
 
         if (record) {
             me.setRecordValues(record, values);
-            record.getProxy().setParams(router.arguments.deviceId, router.arguments.registerId);
+            record.getProxy().setParams(decodeURIComponent(router.arguments.deviceId), router.arguments.registerId);
             record.save({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', cfg.successMessage);
@@ -260,7 +260,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                                 widget.setValues(register);
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 widget.down('#stepsMenu').setTitle(
-                                    Uni.DateTime.formatDateTimeShort(new Date(timestamp))
+                                    Uni.DateTime.formatDateTimeShort(new Date(Number(timestamp)))
                                 );
                                 widget.down('#stepsMenu #editReading').setText(Uni.I18n.translate('device.registerData.editReading', 'MDC', 'Edit reading'));
                             },
