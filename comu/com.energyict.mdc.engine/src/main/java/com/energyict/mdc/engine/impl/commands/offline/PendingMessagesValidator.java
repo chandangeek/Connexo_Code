@@ -60,9 +60,9 @@ class PendingMessagesValidator {
 
     private Set<DeviceMessageId> messagesWithCalendarAttributes() {
         return EnumSet.of(
-                DeviceMessageId.ACTIVITY_CALENDER_SEND,
-                DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME,
-                DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE,
+                DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_SEND,
+                DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATE,
+                DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE,
                 DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND,
                 DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE,
                 DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT);
