@@ -133,7 +133,10 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
             }
         ];
 
-        if (me.purposes.length) {
+        var activePurposes = me.purposes.filter(function (purpose) {
+            return !!purpose.get('active');
+        });
+        if (activePurposes.length) {
             me.content.push(
                 {
                     xtype: 'data-completion-widget',

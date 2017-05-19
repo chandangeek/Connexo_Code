@@ -71,8 +71,8 @@ Ext.define('Imt.usagepointsetup.view.ActivateMeters', {
                     xtype: 'uni-form-info-message',
                     width: '100%',
                     text: me.hasMetrologyConfiguration ?
-                        Uni.I18n.translate('general.meterActivations.info', 'IMT', 'Metrology configuration "{0}" is linked to this usage point starting from {1}, so you can link meters to the meter roles provided by this metrogy configuration.',
-                            [me.usagePoint.get('name'), Uni.DateTime.formatDateTimeLong(new Date(me.usagePoint.get('installationTime')))]) :
+                        Uni.I18n.translate('general.hasMeterActivations.info', 'IMT', 'Metrology configuration "{0}" is linked to this usage point starting from {1}, so you can link meters to the meter roles provided by this metrology configuration.',
+                            [me.usagePoint.get('metrologyConfiguration').name, Uni.DateTime.formatDateTimeLong(new Date(me.usagePoint.get('installationTime')))]) :
                         Uni.I18n.translate('general.noMetrologyConfiguration.info', 'IMT', 'Metrology configuration is not specified on this usage point yet, so you can link meters to any of the meter roles.')
                 }]
             },

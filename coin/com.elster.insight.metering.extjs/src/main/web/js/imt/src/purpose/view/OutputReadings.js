@@ -48,7 +48,7 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             emptyComponent.reasons = [
                 Uni.I18n.translate('readings.list.reason1x', 'IMT', 'No metrology configurations in the specified period of time'),
                 Uni.I18n.translate('readings.list.reason2x', 'IMT', 'No data has been collected or added yet'),
-                Uni.I18n.translate('readings.list.reason4', 'IMT', 'No data matching to the filters')
+                Uni.I18n.translate('readings.list.reason.3', 'IMT', 'No data complies with the filter.')
             ];
         }
         else {
@@ -271,7 +271,7 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             point.color = okColor;
             point.tooltipColor = tooltipOkColor;
             if (!Ext.isEmpty(readinqQualities)) {
-                point.showQualityIcon = readinqQualities.find(function (rq) {
+                point.showQualityIcon = _.find(readinqQualities, function (rq) {
                     return rq.cimCode.slice(0,2) != '3.';
                 });
             }

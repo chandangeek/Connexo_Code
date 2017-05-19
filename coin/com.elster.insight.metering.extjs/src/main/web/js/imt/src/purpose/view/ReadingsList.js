@@ -47,11 +47,6 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                 onSpecialKey: Ext.emptyFn // workaround to fix CXO-6274
             }
         ];
-        me.on('beforeedit',function(editor,e){
-            if(Ext.isEmpty(e.record.get('readinqQualities')) && Ext.isEmpty(e.record.get('value'))){
-                return false;
-            }
-        });
         me.columns = [
             {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'IMT', 'End of interval'),

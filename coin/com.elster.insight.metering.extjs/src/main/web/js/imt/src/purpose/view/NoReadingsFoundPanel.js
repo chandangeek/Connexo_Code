@@ -10,7 +10,6 @@ Ext.define('Imt.purpose.view.NoReadingsFoundPanel', {
         Uni.I18n.translate('readings.list.reason.1', 'IMT', 'No data has been provided for this output.'),
         Uni.I18n.translate('readings.list.reason.2', 'IMT', 'No devices have been linked to this usage point for the specified period.'),
         Uni.I18n.translate('readings.list.reason.3', 'IMT', 'No data complies with the filter.'),
-        Uni.I18n.translate('readings.list.reason1x', 'IMT', 'No metrology configurations in the specified period of time'),
-        Uni.I18n.translate('readings.list.reason4', 'IMT', 'No data matching to the filters')
+        Uni.I18n.translate('readings.list.reason1x', 'IMT', 'No metrology configurations in the specified period of time')
     ]
 });
