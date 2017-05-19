@@ -147,7 +147,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
 
     private boolean createAllReadingTypes;
     private String[] requiredReadingTypes;
-    private DestinationSpec calendarTimeSeriesCacheHandlerMessageDestination;
+    private volatile DestinationSpec calendarTimeSeriesCacheHandlerMessageDestination;
 
     @SuppressWarnings("unused")
     public MeteringDataModelServiceImpl() {
@@ -206,8 +206,8 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         registerDataModel(bundleContext);
         registerUsagePointSearchDomain();
         installDataModel();
-        registerServices(bundleContext);
         cacheCalendarTimeSeriesCacheHandlerDestinationSpec();
+        registerServices(bundleContext);
     }
 
     private void cacheCalendarTimeSeriesCacheHandlerDestinationSpec() {
@@ -217,7 +217,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
 
     private void registerDatabaseTables() {
         for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(this.dataModel);
+            spec.addTo(this.dataModel, usagePointLifeCycleConfigurationService);
         }
     }
 

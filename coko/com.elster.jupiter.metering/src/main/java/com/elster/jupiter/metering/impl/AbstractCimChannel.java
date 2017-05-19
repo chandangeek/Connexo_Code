@@ -151,6 +151,8 @@ public abstract class AbstractCimChannel implements CimChannel {
                 cleanObsoleteQualitiesWhenEditingOrEstimating(currentQualityRecords);
                 Optional<BaseReadingRecord> oldReading = getChannel().getReading(reading.getTimeStamp());
                 ProcessStatus processStatus = processStatusToSet.or(oldReading.map(BaseReadingRecord::getProcessStatus).orElse(ProcessStatus.of()));
+                readingQualitiesByTimestamp = findReadingQualitiesByTimestamp(readings, Collections.emptySet());
+                currentQualityRecords = Optional.ofNullable(readingQualitiesByTimestamp.get(reading.getTimeStamp())).orElseGet(Collections::emptyList);
                 processReadingQualities(reading, currentQualityRecords, oldReading, qualityForUpdate, qualityForCreate);
                 storer.addReading(this, reading, processStatus);
             }
@@ -240,9 +242,6 @@ public abstract class AbstractCimChannel implements CimChannel {
             reading.getReadingQualities().stream().distinct().forEach(readingQuality -> createReadingQuality(readingQuality.getType(), reading, readingQuality.getComment()));
         } else {
             reading.getReadingQualities().stream()
-                    .filter(readingQuality -> currentQualityRecords.stream()
-                            .anyMatch(record -> !record.getType()
-                                    .equals(readingQuality.getType()) || !matchComments(record, readingQuality)))
                     .forEach(readingQuality -> {
                         Optional<ReadingQualityRecord> record = currentQualityRecords.stream()
                                 .filter(rec -> rec.getType().equals(readingQuality.getType()))
