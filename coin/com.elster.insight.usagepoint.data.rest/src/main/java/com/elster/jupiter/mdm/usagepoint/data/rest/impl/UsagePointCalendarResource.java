@@ -9,6 +9,8 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.impl.PrivateMessageSeeds;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -108,7 +110,7 @@ public class UsagePointCalendarResource {
             @Context UriInfo uriInfo,
             CalendarOnUsagePointInfo calendarOnUsagePointInfo) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(usagePointName);
-        Calendar calendar = calendarService.findCalendar(calendarOnUsagePointInfo.calendar.id).orElse(null);
+        Calendar calendar = calendarService.findCalendar(calendarOnUsagePointInfo.calendar.id).orElseThrow(() -> new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "calendar"));
         Instant start = Instant.ofEpochMilli(calendarOnUsagePointInfo.fromTime);
         UsagePoint.CalendarUsage calendarUsage;
         if(calendarOnUsagePointInfo.immediately){
