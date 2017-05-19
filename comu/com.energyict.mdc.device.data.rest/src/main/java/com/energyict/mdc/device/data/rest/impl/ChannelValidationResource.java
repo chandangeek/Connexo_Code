@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
@@ -13,6 +14,8 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.ChannelValidationRuleOverriddenProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
@@ -49,6 +52,7 @@ public class ChannelValidationResource {
     private final ExceptionFactory exceptionFactory;
     private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
     private final ResourceHelper resourceHelper;
+    private final ValidationService validationService;
 
     private Function<Device, ReadingType> collectedReadingTypeProvider;
     private Function<Device, Optional<ReadingType>> calculatedReadingTypeProvider;
@@ -56,12 +60,13 @@ public class ChannelValidationResource {
     @Inject
     public ChannelValidationResource(PropertyValueInfoService propertyValueInfoService, ChannelValidationRuleInfoFactory channelValidationRuleInfoFactory,
                                      ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory,
-                                     ResourceHelper resourceHelper) {
+                                     ResourceHelper resourceHelper, ValidationService validationService) {
         this.propertyValueInfoService = propertyValueInfoService;
         this.channelValidationRuleInfoFactory = channelValidationRuleInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.concurrentModificationExceptionFactory = concurrentModificationExceptionFactory;
         this.resourceHelper = resourceHelper;
+        this.validationService = validationService;
     }
 
     ChannelValidationResource init(Function<Device, ReadingType> collectedReadingTypeProvider, Function<Device, Optional<ReadingType>> calculatedReadingTypeProvider) {
@@ -91,16 +96,20 @@ public class ChannelValidationResource {
         return device.getDeviceConfiguration()
                 .getValidationRules(Collections.singleton(readingType))
                 .stream()
-                .map(validationRule -> asInfo(validationRule, readingType, device.forValidation()))
+                .map(validationRule -> asInfo(validationRule, readingType, device))
                 .collect(Collectors.toMap(Function.identity(), Function.identity(), ChannelValidationRuleInfo::chooseEffectiveOne)).values().stream()
                 .sorted(ChannelValidationRuleInfo.defaultComparator())
                 .collect(Collectors.toList());
     }
 
-    private ChannelValidationRuleInfo asInfo(ValidationRule validationRule, ReadingType readingType, DeviceValidation deviceValidation) {
-        return deviceValidation.findOverriddenProperties(validationRule, readingType)
-                .map(overriddenProperties -> channelValidationRuleInfoFactory.createInfoForRule(validationRule, readingType, overriddenProperties))
-                .orElseGet(() -> channelValidationRuleInfoFactory.createInfoForRule(validationRule, readingType));
+    private ChannelValidationRuleInfo asInfo(ValidationRule validationRule, ReadingType readingType, Device device) {
+        List<ValidationRuleSet> activeRuleSets = device.getCurrentMeterActivation()
+                .map(MeterActivation::getChannelsContainer)
+                .map(validationService::activeRuleSets)
+                .orElse(Collections.emptyList());
+        return device.forValidation().findOverriddenProperties(validationRule, readingType)
+                .map(overriddenProperties -> channelValidationRuleInfoFactory.createInfoForRule(validationRule, readingType, overriddenProperties, activeRuleSets))
+                .orElseGet(() -> channelValidationRuleInfoFactory.createInfoForRule(validationRule, readingType, activeRuleSets));
     }
 
     @GET
@@ -116,7 +125,7 @@ public class ChannelValidationResource {
         ReadingType readingType = this.findReadingTypeOrThrowException(device, readingTypeMrid);
         ValidationRule validationRule = resourceHelper.findValidationRuleOrThrowException(ruleId);
         validateRuleApplicability(validationRule, readingType);
-        return asInfo(validationRule, readingType, device.forValidation());
+        return asInfo(validationRule, readingType, device);
     }
 
     private ReadingType findReadingTypeOrThrowException(Device device, String readingTypeMrid) {
