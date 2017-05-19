@@ -1715,6 +1715,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             commentId = commentCombo.getValue(),
             intervalsArray = [],
             validationInfo,
+            valueField,
             comment = {
                 commentId: commentId ? commentId : 0,
                 commentValue: commentValue
@@ -1760,14 +1761,17 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 Ext.suspendLayouts();
                 if (success && responseText[0]) {
                     validationInfo = responseText[0].isBulk ? 'bulkValidationInfo' : 'mainValidationInfo';
+                    valueField = responseText[0].isBulk ? 'collectedValue' : 'value';
                     Ext.Array.each(responseText, function (correctedInterval) {
                         Ext.Array.findBy(records, function (reading) {
                             if (correctedInterval.interval.start == reading.get('interval').start) {
                                 if (commentId !== -1) {
                                     reading.get(validationInfo).commentId = commentId;
                                     reading.get(validationInfo).commentValue = commentValue;
+                                    reading.set('estimatedCommentNotSaved', true);
+                                    reading.modified[valueField] = reading.get(valueField);
                                 }
-                                me.updateCorrectedValues(reading, correctedInterval);
+                                me.updateCorrectedValues(reading, correctedInterval, responseText[0].isBulk);
                                 return true;
                             }
                         });
@@ -1803,16 +1807,23 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
     },
 
-    updateCorrectedValues: function (reading, correctedInterval) {
+    updateCorrectedValues: function (reading, correctedInterval, isBulk) {
         var me = this,
-            grid = me.getPage().down('deviceLoadProfileChannelDataGrid');
+            grid = me.getPage().down('deviceLoadProfileChannelDataGrid'),
+            valueField = isBulk ? 'collectedValue' : 'value',
+            validationInfo = isBulk ? 'bulkValidationInfo' : 'mainValidationInfo',
+            modificationState = isBulk ? 'bulkModificationState' : 'mainModificationState';
 
         reading.beginEdit();
-        reading.set('value', correctedInterval.value);
-        reading.set('mainModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
-        reading.get('mainValidationInfo').estimatedByRule = false;
-        reading.get('mainValidationInfo').validationResult = 'validationStatus.ok';
-        reading.set('estimatedCommentNotSaved', true);
+        reading.set(valueField, correctedInterval[valueField]);
+        if (reading.isModified(valueField)) {
+            reading.get(validationInfo).estimatedByRule = false;
+            reading.get(validationInfo).validationResult = 'validationStatus.ok';
+            reading.set(modificationState, Uni.util.ReadingEditor.modificationState('EDITED'));
+            reading.set(modificationState, true);
+
+        }
+
         reading.endEdit(true);
 
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
