@@ -5,6 +5,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 
+import java.util.Arrays;
+
 public enum CalendarUpdateOption {
     FULL_CALENDAR("fullCalendar"),
     SPECIAL_DAYS("specialDays"),
@@ -17,11 +19,6 @@ public enum CalendarUpdateOption {
     }
 
     public static CalendarUpdateOption find(String key) {
-        for (CalendarUpdateOption calendarUpdateOption : values()) {
-            if (calendarUpdateOption.key.equals(key)) {
-                return calendarUpdateOption;
-            }
-        }
-        return null;
+        return Arrays.stream(values()).filter(o -> o.key.equals(key)).findFirst().orElse(null);
     }
 }
