@@ -521,7 +521,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                                                 withMissings)));
             return withMissings;
         } else {
-            return Collections.emptyList();
+            return readingTypeAndRecords.getValue();
         }
     }
 

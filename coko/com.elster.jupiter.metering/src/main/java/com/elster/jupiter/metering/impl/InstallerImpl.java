@@ -193,11 +193,6 @@ public class InstallerImpl implements FullInstaller {
                 () -> GasDayRelativePeriodCreator.createAll(this.meteringService, this.timeService),
                 logger
         );
-        doTry(
-                "Create default stages",
-                installerV10_3::installDefaultStageSets,
-                logger
-        );
         installerV10_3.install(dataModelUpgrader, logger);
         userService.addModulePrivileges(installerV10_2);
         userService.addModulePrivileges(privilegesProviderV10_3);
