@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.messages.enums.ActivityCalendarType;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
@@ -53,7 +54,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.weekP
 
 /**
  * Provides a summary of all <i>ActivityCalendar</i> related messages.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 7/02/13
  * Time: 12:01
@@ -304,6 +305,83 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
             return Optional.of(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR);
+        }
+    },
+    // Support for 'Full' Calendar = Combining Activity calendar with special days calendar
+    ACTIVITY_CALENDER_FULL_CALENDAR_SEND(19, "Send full calendar") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, activityCalendarNameAttributeName, activityCalendarNameAttributeDefaultTranslation),
+                    this.codeTableSpec(service, activityCalendarAttributeName, activityCalendarCodeTableAttributeDefaultTranslation)
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
+            return Optional.of(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR);
+        }
+
+    },
+    ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME(20, "Send full with activation date") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, activityCalendarNameAttributeName, activityCalendarNameAttributeDefaultTranslation),
+                    this.codeTableSpec(service, activityCalendarAttributeName, activityCalendarCodeTableAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation)
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
+            return Optional.of(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME);
+        }
+    },
+    ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE(21, "Send full calendar with activation date and type") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, activityCalendarTypeAttributeName, activityCalendarTypeAttributeDefaultTranslation, ActivityCalendarType.getAllDescriptions()),
+                    this.stringSpec(service, activityCalendarNameAttributeName, activityCalendarNameAttributeDefaultTranslation),
+                    this.codeTableSpec(service, activityCalendarAttributeName, activityCalendarCodeTableAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation)
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
+            return Optional.of(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE);
+        }
+    },
+    ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATE(22, "Send full calendar with activation date") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.codeTableSpec(service, activityCalendarAttributeName, activityCalendarCodeTableAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation)
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
+            return Optional.of(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE);
+        }
+    },
+    ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_CONTRACT(23, "Send full calendar with activation date and contract") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, contractAttributeName, contractAttributeDefaultTranslation),
+                    this.stringSpec(service, activityCalendarNameAttributeName, activityCalendarNameAttributeDefaultTranslation),
+                    this.codeTableSpec(service, activityCalendarAttributeName, activityCalendarCodeTableAttributeDefaultTranslation),
+                    this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation)
+            );
+        }
+
+        @Override
+        public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
+            return Optional.of(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT);
         }
     };
 
