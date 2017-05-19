@@ -46,11 +46,23 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                     labelWidth: 250
                 },
                 {
-                    xtype: 'button',
-                    itemId: 'btn-show-communication-details',
-                    text: Uni.I18n.translate('deviceconnectionhistory.showCommunicationDetails','MDC','Show communication details'),
-                    action: 'showCommunicationDetails',
-                    margin: '0 0 0 10'
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    width: 250,
+                    items: [
+                        {
+                            xtype: 'component',
+                            flex: 1
+                        },
+                        {
+                            xtype: 'button',
+                            itemId: 'btn-show-communication-details',
+                            text: Uni.I18n.translate('deviceconnectionhistory.showCommunicationDetails','MDC','Show communication details'),
+                            action: 'showCommunicationDetails'
+                        }
+                    ]
                 },
                 {
                     xtype: 'form',
@@ -77,26 +89,8 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
+                                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.comTask', 'MDC', 'Communication task'),
                                     itemId: 'name'
-                                },
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'comTasks',
-                                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.comTasks', 'MDC', 'Communication task(s)'),
-                                    itemId: 'comTasks',
-                                    htmlEncode: false,
-                                    renderer: function(value){
-                                        if(value!==''){
-                                            var result = '';
-                                            Ext.each(value, function(item){
-                                                result = result + '<li>'+ Ext.String.htmlEncode(item.name)+'</li>'
-                                            });
-                                            return Ext.isEmpty(result) ? '-' : result;
-                                        } else {
-                                            return '-';
-                                        }
-                                    }
                                 },
                                 {
                                     xtype: 'displayfield',
@@ -204,8 +198,27 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                             ]
                         }
                     ]
+                },
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    width: 250,
+                    items: [
+                        {
+                            xtype: 'component',
+                            flex: 1
+                        },
+                        {
+                            xtype: 'button',
+                            itemId: 'btn-hide-communication-details',
+                            text: Uni.I18n.translate('deviceconnectionhistory.hideCommunicationDetails','MDC','Hide communication details'),
+                            action: 'hideCommunicationDetails',
+                            hidden: true
+                        }
+                    ]
                 }
-
             ]
 
         }

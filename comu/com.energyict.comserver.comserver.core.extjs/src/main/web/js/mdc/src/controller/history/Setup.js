@@ -1128,7 +1128,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DeviceSecuritySettings',
                             privileges: Ext.Array.merge(Mdc.privileges.Device.deviceOperator, Mdc.privileges.DeviceSecurity.viewOrEditLevels),
                             action: 'showDeviceSecuritySettings',
-                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore
                         },
                         keys: {
                             title: Uni.I18n.translate('general.securityAccessors', 'MDC', 'Security accessors'),

@@ -6,11 +6,6 @@ Ext.define('Mdc.view.setup.commandrules.AddCommandsToRuleFilter', {
     extend: 'Uni.grid.FilterPanelTop',
     alias: 'widget.AddCommandsToRuleFilter',
 
-    requires: [
-        'Mdc.store.Commands',
-        'Mdc.store.CommandCategories'
-    ],
-
     store: 'Mdc.store.Commands',
 
     requires: [

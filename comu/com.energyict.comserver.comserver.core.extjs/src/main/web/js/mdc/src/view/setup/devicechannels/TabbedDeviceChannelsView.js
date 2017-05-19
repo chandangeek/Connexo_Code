@@ -156,28 +156,33 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                 },
                                 updateOnChange: function (isEmpty) {
                                     var me = this,
-                                        noItemFoundClass = Ext.getClass(me);
+                                        noItemsFoundClass = Ext.getClass(me),
+                                        noItemsSteps = me.down('#no-items-found-panel-steps-label'),
+                                        addReadingsButton = me.down('#add-device-load-profile-btn'),
+                                        graphView = me.up('#deviceLoadProfileChannelData') ? me.up('#deviceLoadProfileChannelData').down('deviceLoadProfileChannelGraphView') : undefined;
 
                                     if (isEmpty) {
-                                        noItemFoundClass.prototype.updateOnChange.apply(me, arguments);
-                                        me.down('#no-items-found-panel-steps-label') && me.down('#no-items-found-panel-steps-label').setVisible(false);
-                                        me.down('#add-device-load-profile-btn') && me.down('#add-device-load-profile-btn').setVisible(false);
-                                    }
-                                    else {
+                                        noItemsFoundClass.prototype.updateOnChange.apply(me, arguments);
+                                        noItemsSteps && noItemsSteps.setVisible(false);
+                                        addReadingsButton && addReadingsButton.setVisible(false);
+                                    } else {
                                         var store = me.grid.getStore(),
                                             count = store.getCount();
 
                                         for (var i = 0; i < count; i++) {
                                             if (store.getAt(i).get('value')) {
-                                                noItemFoundClass.prototype.updateOnChange.apply(me, arguments);
+                                                noItemsSteps && noItemsSteps.setVisible(false);
+                                                addReadingsButton && addReadingsButton.setVisible(false);
+                                                graphView && graphView.setVisible(true);
+                                                noItemsFoundClass.prototype.updateOnChange.apply(me, arguments);
                                                 return;
                                             }
                                         }
                                         arguments[0] = true;
-                                        noItemFoundClass.prototype.updateOnChange.apply(me, arguments);
-                                        me.down('#add-device-load-profile-btn') && me.down('#add-device-load-profile-btn').setVisible(true);
-                                        me.down('#no-items-found-panel-steps-label') && me.down('#no-items-found-panel-steps-label').setVisible(true);
-                                        me.up('#deviceLoadProfileChannelData') && me.up('#deviceLoadProfileChannelData').down('deviceLoadProfileChannelGraphView') && me.up('#deviceLoadProfileChannelData').down('deviceLoadProfileChannelGraphView').setVisible(false);
+                                        noItemsFoundClass.prototype.updateOnChange.apply(me, arguments);
+                                        noItemsSteps && noItemsSteps.setVisible(true);
+                                        addReadingsButton && addReadingsButton.setVisible(true);
+                                        graphView && graphView.setVisible(false);
                                     }
                                 }
                             }

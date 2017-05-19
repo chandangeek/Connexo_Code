@@ -10,7 +10,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
     views: [
         'setup.devicesecuritysettings.DeviceSecuritySettingSetup',
         'setup.devicesecuritysettings.DeviceSecuritySettingGrid',
-        'setup.devicesecuritysettings.DeviceSecuritySettingPreview',
+        'setup.devicesecuritysettings.DeviceSecuritySettingPreview'
     ],
 
     stores: [
@@ -58,20 +58,25 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
     },
 
     previewDeviceSecuritySetting: function () {
-        var me = this;
-        var deviceSecuritySetting = me.getDeviceSecuritySettingGrid().getSelectionModel().getSelection();
-        me.getDeviceSecuritySettingPreview().down('property-form').remove();
-        if (deviceSecuritySetting.length == 1) {
-            var deviceSecuritySettingName = deviceSecuritySetting[0].get('name');
-            me.getDeviceSecuritySettingPreview().getLayout().setActiveItem(1);
-            me.getDeviceSecuritySettingPreview().setTitle(Ext.String.htmlEncode(deviceSecuritySettingName));
-            me.getDeviceSecuritySettingPreviewForm().loadRecord(deviceSecuritySetting[0]);
-            me.getDeviceSecuritySettingPreview().down('property-form').readOnly = true;
-            me.getDeviceSecuritySettingPreview().down('property-form').loadRecord(deviceSecuritySetting[0]);
+        var me = this,
+            deviceSecuritySetting = me.getDeviceSecuritySettingGrid().getSelectionModel().getSelection(),
+            propertyForm = me.getDeviceSecuritySettingPreview().down('property-form');
+
+        me.getDeviceSecuritySettingPreview().on('afterlayout', function() {
+            propertyForm.showValues();
+        }, me, {single:true});
+        Ext.suspendLayouts();
+        propertyForm.remove();
+        if (deviceSecuritySetting.length === 1) {
+            propertyForm.readOnly = true;
+            propertyForm.loadRecord(deviceSecuritySetting[0]);
+            me.getDeviceSecuritySettingPreview().setTitle(Ext.String.htmlEncode(deviceSecuritySetting[0].get('name')));
             me.getDeviceSecuritySettingPreviewDetailsTitle().setVisible(deviceSecuritySetting[0].propertiesStore.data.items.length > 0);
+            me.getDeviceSecuritySettingPreview().getLayout().setActiveItem(1);
+            me.getDeviceSecuritySettingPreviewForm().loadRecord(deviceSecuritySetting[0]);
         } else {
             me.getDeviceSecuritySettingPreview().getLayout().setActiveItem(0);
         }
+        Ext.resumeLayouts(true);
     }
-})
-;
+});

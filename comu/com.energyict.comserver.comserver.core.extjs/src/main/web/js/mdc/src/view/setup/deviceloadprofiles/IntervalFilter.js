@@ -9,6 +9,10 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.IntervalFilter', {
     // TODO Integrate the filter on screens.
     store: 'Mdc.store.LoadProfilesOfDevice',
 
+    requires:[
+        'Mdc.store.LoadProfileDataDurations'
+    ],
+
     filters: [
         {
             type: 'interval',
