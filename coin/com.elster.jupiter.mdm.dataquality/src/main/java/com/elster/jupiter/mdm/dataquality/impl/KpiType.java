@@ -67,10 +67,16 @@ class KpiType {
 
     static class ValidatorKpiType extends KpiType {
         ValidatorKpiType(Validator validator) {
-            super(generateWithClauseAliasName(validator), name(validator) + "Kpi", name(validator).toUpperCase());
+            super(generateWithClauseAliasName(validator), kpiTableName(validator), kpiType(validator));
         }
 
-        private static String name(Validator validator) { return validator.getClass().getSimpleName(); }
+        private static String kpiTableName(Validator validator) {
+            return "Validator" + Math.abs(validator.getClass().getSimpleName().hashCode()) + "Kpi";
+        }
+
+        private static String kpiType(Validator validator) {
+            return validator.getClass().getSimpleName().toUpperCase();
+        }
 
         private static String generateWithClauseAliasName(Validator validator) {
             String className = validator.getClass().getName();
@@ -80,10 +86,16 @@ class KpiType {
 
     static class EstimatorKpiType extends KpiType {
         EstimatorKpiType(Estimator estimator) {
-            super(generateWithClauseAlias(estimator), name(estimator) + "Kpi", name(estimator).toUpperCase());
+            super(generateWithClauseAlias(estimator), kpiTableName(estimator) , kpiType(estimator));
         }
 
-        private static String name(Estimator estimator) { return estimator.getClass().getSimpleName(); }
+        private static String kpiTableName(Estimator estimator) {
+            return "Estimator" + Math.abs(estimator.getClass().getSimpleName().hashCode()) + "Kpi";
+        }
+
+        private static String kpiType(Estimator estimator) {
+            return estimator.getClass().getSimpleName().toUpperCase();
+        }
 
         private static String generateWithClauseAlias(Estimator estimator) {
             String className = estimator.getClass().getName();
@@ -98,6 +110,9 @@ class KpiType {
     KpiType(String withClauseAliasName, String kpiTableName, String kpiType) {
         if (withClauseAliasName.length() > 30) {
             throw new IllegalArgumentException("With clause name must be less then 30 characters");
+        }
+        if (kpiTableName.length() > 30) {
+            throw new IllegalArgumentException("Kpi table name must be less then 30 characters");
         }
         this.withClauseAliasName = withClauseAliasName;
         this.kpiTableName = kpiTableName;
