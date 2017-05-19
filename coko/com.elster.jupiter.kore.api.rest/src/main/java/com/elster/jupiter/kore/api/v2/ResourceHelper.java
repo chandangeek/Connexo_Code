@@ -111,10 +111,13 @@ public class ResourceHelper {
     }
 
     public void performUsagePointTransition(UsagePoint usagePoint, UsagePointTransitionInfo info) {
+        if(info.transitionNow==null && info.effectiveTimestamp==null){
+            return;
+        }
         UsagePointTransition transition = getTransitionByIdOrThrowException(info.id);
-
         UsagePointStateChangeRequest changeRequest;
-        if (info.transitionNow || info.effectiveTimestamp == null) {
+
+        if ((info.transitionNow!= null && info.transitionNow) || info.effectiveTimestamp == null) {
             changeRequest = this.usagePointLifeCycleService.performTransition(usagePoint, transition, "INS", Collections.emptyMap());
         } else {
             changeRequest = this.usagePointLifeCycleService.scheduleTransition(usagePoint, transition, info.effectiveTimestamp, "INS", Collections.emptyMap());
