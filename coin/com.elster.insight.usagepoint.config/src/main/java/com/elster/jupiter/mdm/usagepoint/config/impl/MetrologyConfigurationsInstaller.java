@@ -645,6 +645,11 @@ class MetrologyConfigurationsInstaller {
                         .newUsagePointMetrologyConfiguration(RESIDENTIAL_NON_SMART_INSTALLATION.getName(), serviceCategory)
                         .withDescription(RESIDENTIAL_NON_SMART_INSTALLATION.getDescription())
                         .withGapsAllowed(RESIDENTIAL_NON_SMART_INSTALLATION.areGapsAllowed())
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        SERVICEKIND,
+                                        SearchablePropertyOperator.EQUAL,
+                                        ServiceKind.ELECTRICITY.name()))
                         .create();
 
         MeterRole meterRole = findMeterRoleOrThrowException(DefaultMeterRole.DEFAULT);
@@ -673,13 +678,17 @@ class MetrologyConfigurationsInstaller {
         if (metrologyConfigurationService.findMetrologyConfiguration(RESIDENTIAL_GAS_NON_SMART_INSTALLATION.getName()).isPresent()) {
             return;
         }
-        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
-                .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
+        ServiceCategory serviceCategory = this.findGasServiceCategoryOrThrowException();
         UsagePointMetrologyConfiguration config =
                 metrologyConfigurationService
                         .newUsagePointMetrologyConfiguration(RESIDENTIAL_GAS_NON_SMART_INSTALLATION.getName(), serviceCategory)
                         .withDescription(RESIDENTIAL_GAS_NON_SMART_INSTALLATION.getDescription())
                         .withGapsAllowed(RESIDENTIAL_GAS_NON_SMART_INSTALLATION.areGapsAllowed())
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        SERVICEKIND,
+                                        SearchablePropertyOperator.EQUAL,
+                                        ServiceKind.GAS.name()))
                         .create();
 
         MeterRole meterRole = findMeterRoleOrThrowException(DefaultMeterRole.DEFAULT);
@@ -869,11 +878,16 @@ class MetrologyConfigurationsInstaller {
         }
         ServiceCategory serviceCategory = this.findGasServiceCategoryOrThrowException();
         UsagePointMetrologyConfiguration config =
-            metrologyConfigurationService
-                .newUsagePointMetrologyConfiguration(RESIDENTIAL_GAS.getName(), serviceCategory)
-                .withDescription(RESIDENTIAL_GAS.getDescription())
-                .withGapsAllowed(RESIDENTIAL_GAS.areGapsAllowed())
-                .create();
+                metrologyConfigurationService
+                        .newUsagePointMetrologyConfiguration(RESIDENTIAL_GAS.getName(), serviceCategory)
+                        .withDescription(RESIDENTIAL_GAS.getDescription())
+                        .withGapsAllowed(RESIDENTIAL_GAS.areGapsAllowed())
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        SERVICEKIND,
+                                        SearchablePropertyOperator.EQUAL,
+                                        ServiceKind.GAS.name()))
+                        .create();
 
         MeterRole meterRole = findMeterRoleOrThrowException(DefaultMeterRole.DEFAULT);
         config.addMeterRole(meterRole);
@@ -954,11 +968,16 @@ class MetrologyConfigurationsInstaller {
         }
         ServiceCategory serviceCategory = this.findWaterServiceCategoryOrThrowException();
         UsagePointMetrologyConfiguration config =
-            metrologyConfigurationService
-                .newUsagePointMetrologyConfiguration(CI_WATER_CONFIGURATION.getName(), serviceCategory)
-                .withDescription(CI_WATER_CONFIGURATION.getDescription())
-                .withGapsAllowed(CI_WATER_CONFIGURATION.areGapsAllowed())
-                .create();
+                metrologyConfigurationService
+                        .newUsagePointMetrologyConfiguration(CI_WATER_CONFIGURATION.getName(), serviceCategory)
+                        .withDescription(CI_WATER_CONFIGURATION.getDescription())
+                        .withGapsAllowed(CI_WATER_CONFIGURATION.areGapsAllowed())
+                        .withUsagePointRequirement(
+                                getUsagePointRequirement(
+                                        SERVICEKIND,
+                                        SearchablePropertyOperator.EQUAL,
+                                        ServiceKind.WATER.name()))
+                        .create();
 
         MeterRole meterRolePeakConsumption = findMeterRoleOrThrowException(DefaultMeterRole.PEAK_CONSUMPTION);
         config.addMeterRole(meterRolePeakConsumption);
