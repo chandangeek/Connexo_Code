@@ -64,14 +64,14 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
                 UPLPropertySpecFactory.specBuilder(PK_RETRIES, false, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_TIMEOUT, false, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(ROUND_TRIP_CORRECTION, false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(BULK_REQUEST, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(BULK_REQUEST, false, this.propertySpecService::booleanSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(CIPHERING_TYPE, false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(NTA_SIMULATION_TOOL, false, this.propertySpecService::integerSpec).finish(),
+                UPLPropertySpecFactory.specBuilder(NTA_SIMULATION_TOOL, false, this.propertySpecService::booleanSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(DATATRANSPORT_AUTHENTICATIONKEY, false, this.propertySpecService::hexStringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(DATATRANSPORT_ENCRYPTIONKEY, false, this.propertySpecService::hexStringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(OLD_MBUS_DISCOVERY, false, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(FIX_MBUS_HEX_SHORT_ID, false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(WAKE_UP, false, this.propertySpecService::integerSpec).finish()));
+                UPLPropertySpecFactory.specBuilder(WAKE_UP, false, this.propertySpecService::booleanSpec).finish()));
     }
 
     protected boolean securityLevelIsRequired() {
