@@ -121,15 +121,15 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                 header: Uni.I18n.translate('general.activationDate', 'IMT', 'Activation date'),
                 dataIndex: 'activationTime',
                 disableTooltip: true,
-                flex: 1,
+                width: 300,
                 editor: {
                     xtype: 'date-time',
                     itemId: 'installation-time-date',
                     valueInMilliseconds: true,
                     layout: 'hbox',
-                    width: 420,
+                    width: 300,
                     dateConfig: {
-                        width: 110
+                        width: 120
                     },
                     dateTimeSeparatorConfig: {
                         html: Uni.I18n.translate('general.at', 'IMT', 'At').toLowerCase(),

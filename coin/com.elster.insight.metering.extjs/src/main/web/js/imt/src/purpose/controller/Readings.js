@@ -653,7 +653,6 @@ Ext.define('Imt.purpose.controller.Readings', {
             readings = button.readings,
             record = {
                 estimatedCommentNotSaved: true,
-                modificationState: Uni.util.ReadingEditor.modificationState('EDITED'),
                 commentId: commentId ? commentId : 0,
                 commentValue: commentValue
             };
@@ -748,6 +747,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                             reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
                             reading.set('validationResult', 'validationStatus.ok');
                             if (commentId !== -1) {
+                                reading.modified['value'] = reading.get('value');
                                 reading.set('estimatedCommentNotSaved', true);
                                 reading.set('commentId', commentId ? commentId : 0);
                                 reading.set('commentValue', commentValue);
@@ -944,9 +944,9 @@ Ext.define('Imt.purpose.controller.Readings', {
                 if (success && responseText[0]) {
                     if (!Ext.isArray(readings)) {
                         if (comment) {
-                            readings.set('estimatedCommentNotSaved', true);
                             readings.set('commentId', comment.commentId);
                             readings.set('commentValue', comment.commentValue);
+                            readings.set('estimatedCommentNotSaved', true);
                         }
                         me.updateEstimatedValues(record, readings, responseText[0], ruleId, action);
                     } else {
@@ -954,9 +954,9 @@ Ext.define('Imt.purpose.controller.Readings', {
                             Ext.Array.findBy(readings, function (reading) {
                                 if (estimatedReading.interval.start == reading.get('interval').start) {
                                     if (comment) {
-                                        reading.set('estimatedCommentNotSaved', true);
                                         reading.set('commentId', comment.commentId);
                                         reading.set('commentValue', comment.commentValue);
+                                        reading.set('estimatedCommentNotSaved', true);
                                     }
                                     me.updateEstimatedValues(record, reading, estimatedReading, ruleId, action);
                                     return true;
@@ -1032,14 +1032,14 @@ Ext.define('Imt.purpose.controller.Readings', {
             grid = me.getReadingsList();
 
         reading.beginEdit();
-        if (correctedInterval.value != reading.get('value')) {
-            reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
-            reading.set('validationResult', 'validationStatus.ok');
-            // reading.set('estimatedByRule', false);
-            reading.set('estimatedCommentNotSaved', true);
-        }
         reading.set('value', correctedInterval.value);
         reading.set('isProjected', model.get('projected'));
+        if (reading.isModified('value')) {
+            reading.set('ruleId', null);
+            reading.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
+            reading.set('validationResult', 'validationStatus.ok');
+        }
+
 
         reading.endEdit(true);
 
@@ -1104,6 +1104,7 @@ Ext.define('Imt.purpose.controller.Readings', {
                                 if (commentId !== -1) {
                                     reading.set('commentId', commentId);
                                     reading.set('commentValue', commentValue);
+                                    reading.modified['value'] = reading.get('value');
                                 }
                                 me.updateCorrectedValues(reading, correctedInterval, model);
                                 return true;
