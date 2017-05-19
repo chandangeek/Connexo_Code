@@ -226,6 +226,10 @@
             <artifactId>export</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>export.processors</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.favorites</artifactId>
         </dependency>
@@ -308,11 +312,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.app</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>export.processors</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

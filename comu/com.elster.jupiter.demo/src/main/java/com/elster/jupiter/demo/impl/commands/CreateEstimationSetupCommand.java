@@ -8,9 +8,11 @@ import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.builders.EstimationRuleEstimateWithSamplesPostBuilder;
 import com.elster.jupiter.demo.impl.builders.EstimationRuleValueFillPostBuilder;
+import com.elster.jupiter.demo.impl.templates.DeviceEstimationTaskTpl;
 import com.elster.jupiter.demo.impl.templates.EstimationRuleSetTpl;
-import com.elster.jupiter.demo.impl.templates.EstimationTaskTpl;
+import com.elster.jupiter.demo.impl.templates.UsagePointEstimationTaskTpl;
 import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -28,6 +30,7 @@ public class CreateEstimationSetupCommand extends CommandWithTransaction {
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceService deviceService;
     private final TimeService timeService;
+    private final LicenseService licenseService;
 
     private EstimationRuleSet estimationRuleSet;
     private EstimationRuleSet gasEstimationRuleSet;
@@ -36,23 +39,36 @@ public class CreateEstimationSetupCommand extends CommandWithTransaction {
     @Inject
     public CreateEstimationSetupCommand(DeviceConfigurationService deviceConfigurationService,
                                         DeviceService deviceService,
-                                        TimeService timeService) {
+                                        TimeService timeService,
+                                        LicenseService licenseService) {
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceService = deviceService;
         this.timeService = timeService;
+        this.licenseService = licenseService;
     }
 
+    @Override
     public void run() {
-        createEstimationTask();
+        boolean withInsight = licenseService.getLicenseForApplication("INS").isPresent();
+        createMdcEstimationTasks();
+        if (withInsight) {
+            createMdmEstimationTasks();
+        }
         createEstimationRuleSets();
         addEstimationToDeviceConfigurations();
         addEstimationToDevices();
     }
 
-    private void createEstimationTask() {
-        Builders.from(EstimationTaskTpl.ALL_ELECTRICITY_DEVICES).get();
-        Builders.from(EstimationTaskTpl.GAS_DEVICES).get();
-        Builders.from(EstimationTaskTpl.WATER_DEVICES).get();
+    private void createMdcEstimationTasks() {
+        Builders.from(DeviceEstimationTaskTpl.ALL_ELECTRICITY_DEVICES).get();
+        Builders.from(DeviceEstimationTaskTpl.GAS_DEVICES).get();
+        Builders.from(DeviceEstimationTaskTpl.WATER_DEVICES).get();
+    }
+
+    private void createMdmEstimationTasks() {
+        Builders.from(UsagePointEstimationTaskTpl.RESIDENTIAL_ELECTRICITY).get();
+        Builders.from(UsagePointEstimationTaskTpl.RESIDENTIAL_GAS).get();
+        Builders.from(UsagePointEstimationTaskTpl.RESIDENTIAL_WATER).get();
     }
 
     private void createEstimationRuleSets() {
@@ -82,21 +98,18 @@ public class CreateEstimationSetupCommand extends CommandWithTransaction {
 
     private void addEstimationToDeviceConfigurations() {
         this.deviceConfigurationService.getLinkableDeviceConfigurations(this.estimationRuleSet)
-                .stream()
                 .forEach(configuration -> {
                     configuration.addEstimationRuleSet(this.estimationRuleSet);
                     configuration.save();
                 });
 
         this.deviceConfigurationService.getLinkableDeviceConfigurations(this.gasEstimationRuleSet)
-                .stream()
                 .forEach(configuration -> {
                     configuration.addEstimationRuleSet(this.gasEstimationRuleSet);
                     configuration.save();
                 });
 
         this.deviceConfigurationService.getLinkableDeviceConfigurations(this.waterEstimationRuleSet)
-                .stream()
                 .forEach(configuration -> {
                     configuration.addEstimationRuleSet(this.waterEstimationRuleSet);
                     configuration.save();

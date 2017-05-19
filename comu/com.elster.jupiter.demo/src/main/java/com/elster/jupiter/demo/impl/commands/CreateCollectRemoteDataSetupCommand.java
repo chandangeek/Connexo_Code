@@ -20,7 +20,7 @@ import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.CommandRuleTpl;
 import com.elster.jupiter.demo.impl.templates.CreationRuleTpl;
 import com.elster.jupiter.demo.impl.templates.DataCollectionKpiTpl;
-import com.elster.jupiter.demo.impl.templates.DataQualityKpiTpl;
+import com.elster.jupiter.demo.impl.templates.DeviceDataQualityKpiTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceGroupTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
@@ -32,6 +32,7 @@ import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
+import com.elster.jupiter.demo.impl.templates.UsagePointDataQualityKpiTpl;
 import com.elster.jupiter.demo.impl.templates.UsagePointGroupTpl;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
@@ -111,6 +112,7 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         this.devicesPerType = devicesPerType;
     }
 
+    @Override
     public void run() {
         parametersCheck();
         licenseCheck();
@@ -148,7 +150,10 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         });
         executeTransaction(() -> {
             createDataCollectionKpi();
-            createDataValidationKpi();
+            createDeviceDataQualityKpi();
+            if (withInsight) {
+                createUsagePointDataQualityKpi();
+            }
         });
         executeTransaction(this::addLocationAndUsagePoints);
         executeTransaction(this::corruptDeviceSettingsForIssueManagement);
@@ -372,9 +377,15 @@ public class CreateCollectRemoteDataSetupCommand extends CommandWithTransaction 
         Builders.from(DataCollectionKpiTpl.SOUTH_REGION).get();
     }
 
-    private void createDataValidationKpi() {
-        Builders.from(DataQualityKpiTpl.NORTH_REGION).get();
-        Builders.from(DataQualityKpiTpl.SOUTH_REGION).get();
+    private void createDeviceDataQualityKpi() {
+        Builders.from(DeviceDataQualityKpiTpl.NORTH_REGION).get();
+        Builders.from(DeviceDataQualityKpiTpl.SOUTH_REGION).get();
+    }
+
+    private void createUsagePointDataQualityKpi() {
+        Builders.from(UsagePointDataQualityKpiTpl.RESIDENTIAL_ELECTRICITY).get();
+        Builders.from(UsagePointDataQualityKpiTpl.RESIDENTIAL_GAS).get();
+        Builders.from(UsagePointDataQualityKpiTpl.RESIDENTIAL_WATER).get();
     }
 
     private void addLocationAndUsagePoints() {

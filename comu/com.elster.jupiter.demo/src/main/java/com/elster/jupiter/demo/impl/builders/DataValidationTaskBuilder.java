@@ -7,6 +7,7 @@ package com.elster.jupiter.demo.impl.builders;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
@@ -29,6 +30,7 @@ public class DataValidationTaskBuilder extends NamedBuilder<DataValidationTask, 
     private QualityCodeSystem qualityCodeSystem = QualityCodeSystem.MDC;
     private EndDeviceGroup endDeviceGroup;
     private UsagePointGroup usagePointGroup;
+    private MetrologyPurpose purpose;
     private Instant nextExecution;
     private ScheduleExpression scheduleExpression = PeriodicalScheduleExpression.every(1).days().at(6, 0, 0).build();
 
@@ -51,6 +53,11 @@ public class DataValidationTaskBuilder extends NamedBuilder<DataValidationTask, 
 
     public DataValidationTaskBuilder withUsagePointGroup(UsagePointGroup group) {
         this.usagePointGroup = group;
+        return this;
+    }
+
+    public DataValidationTaskBuilder withMetrologyPurpose(MetrologyPurpose purpose) {
+        this.purpose = purpose;
         return this;
     }
 
@@ -82,8 +89,9 @@ public class DataValidationTaskBuilder extends NamedBuilder<DataValidationTask, 
             taskBuilder.setEndDeviceGroup(endDeviceGroup);
         } else if (qualityCodeSystem == QualityCodeSystem.MDM) {
             taskBuilder.setUsagePointGroup(usagePointGroup);
+            taskBuilder.setMetrologyPurpose(purpose);
         } else {
-            throw new UnableToCreate("Unsupported quality code system in data validation task.");
+            throw new UnableToCreate("Unsupported quality code system in data validation task builder.");
         }
         taskBuilder.setScheduleExpression(scheduleExpression);
         taskBuilder.setNextExecution(nextExecution);

@@ -5,8 +5,6 @@
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.commands.tou.CreateBelgianMarketTimeOfUseDataCommand;
-import com.elster.jupiter.demo.impl.commands.upload.ValidateStartDateCommand;
-import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -19,7 +17,6 @@ public class CreateDemoDataCommand {
     private final Provider<CreateValidationSetupCommand> createValidationSetupCommandProvider;
     private final Provider<CreateEstimationSetupCommand> createEstimationSetupCommandProvider;
     private final Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider;
-    private final Provider<ValidateStartDateCommand> validateStartDateCommandProvider;
     private final Provider<CreateDemoUserCommand> createDemoUserCommandProvider;
     private final Provider<SetupFirmwareManagementCommand> setupFirmwareManagementCommandProvider;
     private final Provider<CreateImportersCommand> createImportersCommandProvider;
@@ -29,7 +26,6 @@ public class CreateDemoDataCommand {
     private String comServerName;
     private String host;
     private Integer devicesPerType = null;
-    private SpatialCoordinates geoCoordinates;
     private boolean skipFirmwareManagementData;
 
     @Inject
@@ -41,7 +37,6 @@ public class CreateDemoDataCommand {
             Provider<CreateValidationSetupCommand> createValidationSetupCommandProvider,
             Provider<CreateEstimationSetupCommand> createEstimationSetupCommandProvider,
             Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider,
-            Provider<ValidateStartDateCommand> validateStartDateCommandProvider,
             Provider<CreateDemoUserCommand> createDemoUserCommandProvider,
             Provider<SetupFirmwareManagementCommand> setupFirmwareManagementCommandProvider,
             Provider<CreateDataLoggerSetupCommand> createDataLoggerSetupCommandProvider,
@@ -54,7 +49,6 @@ public class CreateDemoDataCommand {
         this.createValidationSetupCommandProvider = createValidationSetupCommandProvider;
         this.createEstimationSetupCommandProvider = createEstimationSetupCommandProvider;
         this.createDeliverDataSetupCommandProvider = createDeliverDataSetupCommandProvider;
-        this.validateStartDateCommandProvider = validateStartDateCommandProvider;
         this.createDemoUserCommandProvider = createDemoUserCommandProvider;
         this.setupFirmwareManagementCommandProvider = setupFirmwareManagementCommandProvider;
         this.createImportersCommandProvider = createImportersCommandProvider;
@@ -68,10 +62,6 @@ public class CreateDemoDataCommand {
 
     public void setHost(String host) {
         this.host = host;
-    }
-
-    public void setGeoCoordinates(SpatialCoordinates geoCoordinates) {
-        this.geoCoordinates = geoCoordinates;
     }
 
     public void setSkipFirmwareManagementData(boolean skipFirmwareData) {

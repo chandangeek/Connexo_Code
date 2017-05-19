@@ -13,7 +13,7 @@ public enum DeviceDataValidationTaskTpl implements Template<DataValidationTask, 
 
     A1800_DEVICES(DeviceGroupTpl.A1800_DEVICES);
 
-    private DeviceGroupTpl deviceGroup;
+    private final DeviceGroupTpl deviceGroup;
 
     DeviceDataValidationTaskTpl(DeviceGroupTpl deviceGroup) {
         this.deviceGroup = deviceGroup;

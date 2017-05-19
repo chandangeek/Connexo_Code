@@ -17,8 +17,8 @@ public enum UsagePointDataValidationTaskTpl implements Template<DataValidationTa
     RESIDENTIAL_GAS(UsagePointGroupTpl.RESIDENTIAL_GAS, PeriodicalScheduleExpression.every(1).days().at(6, 20, 0).build()),
     RESIDENTIAL_WATER(UsagePointGroupTpl.RESIDENTIAL_WATER, PeriodicalScheduleExpression.every(1).days().at(6, 30, 0).build());
 
-    private UsagePointGroupTpl usagePointGroup;
-    private ScheduleExpression scheduleExpression;
+    private final UsagePointGroupTpl usagePointGroup;
+    private final ScheduleExpression scheduleExpression;
 
     UsagePointDataValidationTaskTpl(UsagePointGroupTpl usagePointGroup, ScheduleExpression scheduleExpression) {
         this.usagePointGroup = usagePointGroup;

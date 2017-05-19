@@ -11,7 +11,7 @@ import com.elster.jupiter.demo.impl.builders.DeviceDataQualityKpiBuilder;
 import java.time.Duration;
 import java.time.temporal.TemporalAmount;
 
-public enum DataQualityKpiTpl implements Template<DeviceDataQualityKpi, DeviceDataQualityKpiBuilder> {
+public enum DeviceDataQualityKpiTpl implements Template<DeviceDataQualityKpi, DeviceDataQualityKpiBuilder> {
 
     SOUTH_REGION(DeviceGroupTpl.SOUTH_REGION, Duration.ofHours(1L)),
     NORTH_REGION(DeviceGroupTpl.NORTH_REGION, Duration.ofHours(1L));
@@ -19,7 +19,7 @@ public enum DataQualityKpiTpl implements Template<DeviceDataQualityKpi, DeviceDa
     private final DeviceGroupTpl deviceGroupTpl;
     private final TemporalAmount frequency;
 
-    DataQualityKpiTpl(DeviceGroupTpl deviceGroupTpl, TemporalAmount frequency) {
+    DeviceDataQualityKpiTpl(DeviceGroupTpl deviceGroupTpl, TemporalAmount frequency) {
         this.deviceGroupTpl = deviceGroupTpl;
         this.frequency = frequency;
     }

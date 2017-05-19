@@ -35,7 +35,6 @@ import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateMultiElementDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateSPEDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.tou.CreateBelgianMarketTimeOfUseDataCommand;
@@ -69,7 +68,6 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigu
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.command.CommandRule;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -833,16 +831,16 @@ public class DemoServiceImpl {
 
     @SuppressWarnings("unused")
     public void createDemoData() {
-        System.err.println("Usage: createDemoData <comServerName> <host> <startDate, e.g. 2015-01-01> [<numberOfDevicesPerType>]");
+        System.err.println("Usage: createDemoData <comServerName> <host> <ignored_parameter> [<numberOfDevicesPerType>]");
     }
 
     @SuppressWarnings("unused")
-    public void createDemoData(String comServerName, String host, String startDate) {
+    public void createDemoData(String comServerName, String host, String ignored) {
         this.createDemoData(comServerName, host, null, null);
     }
 
     @SuppressWarnings("unused")
-    public void createDemoData(String comServerName, String host, String startDate, String numberOfDevicesPerType) {
+    public void createDemoData(String comServerName, String host, String ignored, String numberOfDevicesPerType) {
         this.createDemoData(comServerName, host, null, numberOfDevicesPerType, false);
     }
 

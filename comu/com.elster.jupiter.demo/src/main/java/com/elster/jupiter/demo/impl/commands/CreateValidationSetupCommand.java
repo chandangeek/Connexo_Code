@@ -22,7 +22,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
-import java.time.Clock;
 import java.util.List;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -31,7 +30,6 @@ public class CreateValidationSetupCommand extends CommandWithTransaction {
 
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceService deviceService;
-    private final Clock clock;
     private final MeteringService meteringService;
     private final ValidationService validationService;
     private final LicenseService licenseService;
@@ -44,18 +42,17 @@ public class CreateValidationSetupCommand extends CommandWithTransaction {
     public CreateValidationSetupCommand(
             DeviceConfigurationService deviceConfigurationService,
             DeviceService deviceService,
-            Clock clock,
             MeteringService meteringService,
             ValidationService validationService,
             LicenseService licenseService) {
         this.deviceConfigurationService = deviceConfigurationService;
-        this.clock = clock;
         this.deviceService = deviceService;
         this.meteringService = meteringService;
         this.validationService = validationService;
         this.licenseService = licenseService;
     }
 
+    @Override
     public void run() {
         boolean withInsight = licenseService.getLicenseForApplication("INS").isPresent();
         createMdcValidationTask();
