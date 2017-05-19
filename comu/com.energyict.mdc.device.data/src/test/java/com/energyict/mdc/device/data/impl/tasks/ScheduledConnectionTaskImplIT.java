@@ -46,7 +46,6 @@ import org.joda.time.DateTimeConstants;
 
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
@@ -1447,9 +1446,12 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations(name);
 
         ConnectionTaskProperty connectionTaskProperty = mock(ConnectionTaskProperty.class);
+        ConnectionTask otherConnectionTask = mock(ConnectionTaskImpl.class);
+        when(otherConnectionTask.getId()).thenReturn(-1L);
+        when(connectionTaskProperty.getConnectionTask()).thenReturn(otherConnectionTask);
 
         // business method
-        connectionTask.connect(mock(ComPort.class), Arrays.asList(connectionTaskProperty));
+        connectionTask.connect(mock(ComPort.class), Collections.singletonList(connectionTaskProperty));
 
         // Asserts: see expected exception rule
     }

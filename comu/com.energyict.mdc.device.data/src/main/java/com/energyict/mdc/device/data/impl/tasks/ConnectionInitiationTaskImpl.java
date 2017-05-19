@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.inject.Inject;
@@ -50,9 +51,10 @@ public class ConnectionInitiationTaskImpl extends OutboundConnectionTaskImpl<Par
     }
 
     private ComChannel connect(List<ConnectionTaskProperty> properties, ConnectionTaskPropertyValidator validator) throws ConnectionException {
-        validator.validate(properties);
+        List<ConnectionTaskProperty> adaptedProperties = adaptToUPLValues(properties);
+        validator.validate(adaptedProperties);
         ConnectionType connectionType = this.getConnectionType();
-        List<ConnectionProperty> connectionProperties = this.castToConnectionProperties(this.getProperties());
+        List<ConnectionProperty> connectionProperties = this.castToConnectionProperties(adaptedProperties);
         return connectionType.connect(connectionProperties);
     }
 

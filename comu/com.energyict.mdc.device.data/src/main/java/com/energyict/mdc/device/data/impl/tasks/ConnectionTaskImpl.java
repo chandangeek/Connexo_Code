@@ -22,6 +22,7 @@ import com.energyict.mdc.device.config.KeyAccessorPropertySpecWithPossibleValues
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteUsedDefaultConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCannotBecomeObsoleteException;
 import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
@@ -672,13 +673,13 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @Override
     public List<ConnectionTaskProperty> getProperties(Instant date) {
         TypedProperties partialProperties = this.getPartialConnectionTask().getTypedProperties();
-        List<ConnectionTaskProperty> allProperties =
+        List<ConnectionTaskProperty> allPartialProperties =
                 partialProperties
                         .propertyNames()
                         .stream()
                         .map(propertyName -> toConnectionTaskProperty(partialProperties, propertyName))
                         .collect(Collectors.toList());
-        return this.merge(allProperties, this.getAllProperties(date));
+        return this.merge(allPartialProperties, this.getAllProperties(date));
     }
 
     private ConnectionTaskPropertyImpl toConnectionTaskProperty(TypedProperties partialProperties, String propertyName) {
@@ -722,6 +723,16 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             }
         }
         return typedProperties;
+    }
+
+    protected List<ConnectionTaskProperty> adaptToUPLValues(List<ConnectionTaskProperty> connectionTaskProperties) {
+        return connectionTaskProperties.stream().map(property -> new ConnectionTaskPropertyImpl(
+                (ConnectionTaskImpl) property.getConnectionTask(),
+                property.getName(),
+                TypedPropertiesValueAdapter.adaptToUPLValue(getDevice(), property.getValue()),
+                property.getActivePeriod(),
+                property.getPluggableClass()))
+                .collect(Collectors.toList());
     }
 
     @Override
