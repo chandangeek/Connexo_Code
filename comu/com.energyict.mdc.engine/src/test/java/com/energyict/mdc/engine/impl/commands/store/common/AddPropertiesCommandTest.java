@@ -35,7 +35,7 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         CommandRoot commandRoot = createCommandRoot();
         GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, null);
-        TypedProperties typedProperties = mock(TypedProperties.class);
+        TypedProperties typedProperties = TypedProperties.empty();
         AddPropertiesCommand addPropertiesCommand = new AddPropertiesCommand(groupedDeviceCommand, typedProperties, typedProperties, null);
 
         assertEquals(ComCommandTypes.ADD_PROPERTIES_COMMAND, addPropertiesCommand.getCommandType());
@@ -48,7 +48,7 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
         ExecutionContext executionContext = newTestExecutionContext();
         CommandRoot commandRoot = createCommandRoot();
         GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, null);
-        TypedProperties typedProperties = mock(TypedProperties.class);
+        TypedProperties typedProperties = TypedProperties.empty();
         TypedProperties uplAdaptedProperties = (TypedProperties) TypedPropertiesValueAdapter.adaptToUPLValues(offlineDevice, typedProperties);
         CommandFactory.createAddProperties(groupedDeviceCommand, comTaskExecution, typedProperties, typedProperties, null);
 
@@ -66,9 +66,9 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
         ExecutionContext executionContext = newTestExecutionContext();
         CommandRoot commandRoot = createCommandRoot();
         GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, null);
-        TypedProperties typedProperties = mock(TypedProperties.class);
+        TypedProperties typedProperties = TypedProperties.empty();
         TypedProperties uplAdaptedProperties = (TypedProperties) TypedPropertiesValueAdapter.adaptToUPLValues(offlineDevice, typedProperties);
-        TypedProperties otherTypedProperties = mock(TypedProperties.class);
+        TypedProperties otherTypedProperties = TypedProperties.empty();
         TypedProperties uplAdaptedOtherProperties = (TypedProperties) TypedPropertiesValueAdapter.adaptToUPLValues(offlineDevice, otherTypedProperties);
         CommandFactory.createAddProperties(groupedDeviceCommand, comTaskExecution, typedProperties, otherTypedProperties, null);
 
@@ -86,9 +86,9 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
         ExecutionContext executionContext = newTestExecutionContext();
         CommandRoot commandRoot = createCommandRoot();
         GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, null);
-        TypedProperties typedProperties = mock(TypedProperties.class);
+        TypedProperties typedProperties = TypedProperties.empty();
         TypedProperties uplAdaptedProperties = (TypedProperties) TypedPropertiesValueAdapter.adaptToUPLValues(offlineDevice, typedProperties);
-        TypedProperties otherTypedProperties = mock(TypedProperties.class);
+        TypedProperties otherTypedProperties = TypedProperties.empty();
         TypedProperties uplAdaptedOtherTypedProperties = (TypedProperties) TypedPropertiesValueAdapter.adaptToUPLValues(offlineDevice, otherTypedProperties);
         CommandFactory.createAddProperties(groupedDeviceCommand, comTaskExecution, typedProperties, otherTypedProperties, null);
 
@@ -109,8 +109,8 @@ public class AddPropertiesCommandTest extends AbstractComCommandExecuteTest {
         ExecutionContext executionContext = newTestExecutionContext();
         CommandRoot commandRoot = createCommandRoot();
         GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, null);
-        TypedProperties typedProperties = mock(TypedProperties.class);
-        TypedProperties otherTypedProperties = mock(TypedProperties.class);
+        TypedProperties typedProperties = TypedProperties.empty();
+        TypedProperties otherTypedProperties = TypedProperties.empty();
         DeviceProtocolSecurityPropertySet securityPropertySet = mock(DeviceProtocolSecurityPropertySet.class);
         CommandFactory.createAddProperties(groupedDeviceCommand, comTaskExecution, typedProperties, otherTypedProperties, securityPropertySet);
 
