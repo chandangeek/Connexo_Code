@@ -23,7 +23,7 @@ import java.util.List;
         immediate = true)
 public class CsvMeterDataFormatterFactory extends StandardCsvDataFormatterFactory {
 
-    static final String NAME = "standardCsvDataProcessorFactory";
+    public static final String NAME = "standardCsvDataProcessorFactory";
 
     //OSGI
     public CsvMeterDataFormatterFactory() {
