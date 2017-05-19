@@ -1,15 +1,16 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.GeneralCipheringKeyType;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.KeyAccessorType;
+
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -140,8 +141,8 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      */
     private PropertySpec clientPrivateSigningKeyPropertySpec() {
         return this.getPropertySpecService().referenceSpec(KeyAccessorType.class.getName())
-                .named(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY, DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY)
-                .describedAs(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY)
+                .named(PropertyTranslationKeys.V2_EICT_CLIENT_PRIVATE_SIGNING_KEY.getKey(), PropertyTranslationKeys.V2_EICT_CLIENT_PRIVATE_SIGNING_KEY)
+                .describedAs(PropertyTranslationKeys.V2_EICT_CLIENT_PRIVATE_SIGNING_KEY)
                 .finish();
     }
 
@@ -150,8 +151,8 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      */
     private PropertySpec clientPrivateKeyAgreementKeyPropertySpec() {
         return this.getPropertySpecService().referenceSpec(KeyAccessorType.class.getName())
-                .named(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY, DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY)
-                .describedAs(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY)
+                .named(PropertyTranslationKeys.V2_EICT_CLIENT_PRIVATE_KEY_AGREEMENT_KEY.getKey(), PropertyTranslationKeys.V2_EICT_CLIENT_PRIVATE_KEY_AGREEMENT_KEY)
+                .describedAs(PropertyTranslationKeys.V2_EICT_CLIENT_PRIVATE_KEY_AGREEMENT_KEY)
                 .finish();
     }
 
@@ -184,7 +185,10 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      * The KEK of the Beacon. Use this to wrap the AK/EK of the Beacon device itself
      */
     private PropertySpec dlmsWANKEKPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(DLMS_WAN_KEK, false, PropertyTranslationKeys.V2_EICT_DLMS_WAN_KEK, this.getPropertySpecService()::encryptedStringSpec).finish();
+        return this.getPropertySpecService().referenceSpec(KeyAccessorType.class.getName())
+                .named(PropertyTranslationKeys.V2_EICT_DLMS_WAN_KEK.getKey(), PropertyTranslationKeys.V2_EICT_DLMS_WAN_KEK)
+                .describedAs(PropertyTranslationKeys.V2_EICT_DLMS_WAN_KEK)
+                .finish();
     }
 
     private PropertySpec readCachePropertySpec() {
@@ -197,14 +201,20 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
      * A key used to encrypt DLMS keys of slave meters (aka a key encryption key, KEK)
      */
     private PropertySpec dlmsKEKPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(DLMS_METER_KEK, false, PropertyTranslationKeys.V2_EICT_DLMS_METER_KEK, this.getPropertySpecService()::encryptedStringSpec).finish();
+        return this.getPropertySpecService().referenceSpec(KeyAccessorType.class.getName())
+                .named(PropertyTranslationKeys.V2_EICT_DLMS_METER_KEK.getKey(), PropertyTranslationKeys.V2_EICT_DLMS_METER_KEK)
+                .describedAs(PropertyTranslationKeys.V2_EICT_DLMS_METER_KEK)
+                .finish();
     }
 
     /**
      * Key used to wrap PSK keys before sending them to the Beacon device.
      */
     private PropertySpec pskEncryptionKeyPropertySpec() {
-        return UPLPropertySpecFactory.specBuilder(PSK_ENCRYPTION_KEY, false, PropertyTranslationKeys.V2_EICT_PSK_ENCRYPTION_KEY, this.getPropertySpecService()::encryptedStringSpec).finish();
+        return this.getPropertySpecService().referenceSpec(KeyAccessorType.class.getName())
+                .named(PropertyTranslationKeys.V2_EICT_PSK_ENCRYPTION_KEY.getKey(), PropertyTranslationKeys.V2_EICT_PSK_ENCRYPTION_KEY)
+                .describedAs(PropertyTranslationKeys.V2_EICT_PSK_ENCRYPTION_KEY)
+                .finish();
     }
 
     public PropertySpec deviceSystemTitlePropertySpec() {
