@@ -8,6 +8,7 @@ import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.EndDeviceEventTypeFilter;
 import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.MeterReadingSelectorConfig;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -69,6 +70,7 @@ public class StandardDataSelectorInfoFactory {
     public StandardDataSelectorInfo asInfo(EventSelectorConfig selector) {
         StandardDataSelectorInfo info = new StandardDataSelectorInfo();
         info.id = selector.getId();
+        info.exportComplete = MissingDataOption.NOT_APPLICABLE;
         info.deviceGroup = new IdWithNameInfo(selector.getEndDeviceGroup().getId(), selector.getEndDeviceGroup().getName());
         info.exportPeriod = RelativePeriodInfo.withCategories(selector.getExportPeriod());
         info.exportContinuousData = selector.getStrategy().isExportContinuousData();
