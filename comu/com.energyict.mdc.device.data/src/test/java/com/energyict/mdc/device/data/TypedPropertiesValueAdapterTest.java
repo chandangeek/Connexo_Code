@@ -6,13 +6,13 @@ package com.energyict.mdc.device.data;
 
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PlaintextPassphrase;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 
 import java.util.Collections;
 import java.util.Optional;
 
+import com.energyict.mdc.upl.TypedProperties;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
