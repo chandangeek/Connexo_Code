@@ -486,33 +486,33 @@ public class ChannelResource {
                 .map(channelRangePair -> {
                             Channel channelWithData = channelRangePair.getFirst();
 
-                    Optional<LoadProfileReading> loadProfileReading = channelWithData.getChannelData(range).stream().findAny();
-                    if (loadProfileReading.isPresent()) {
-                        DeviceValidation deviceValidation = channelWithData.getDevice().forValidation();
+                            Optional<LoadProfileReading> loadProfileReading = channelWithData.getChannelData(range).stream().findAny();
+                            if (loadProfileReading.isPresent()) {
+                                DeviceValidation deviceValidation = channelWithData.getDevice().forValidation();
 
-                        boolean isValidationActive = deviceValidation.isValidationActive();
+                                boolean isValidationActive = deviceValidation.isValidationActive();
 
-                        Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValidationStates()
-                                .entrySet()
-                                .stream()
-                                .map(Map.Entry::getValue)
-                                .findFirst());
+                                Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValidationStates()
+                                        .entrySet()
+                                        .stream()
+                                        .map(Map.Entry::getValue)
+                                        .findFirst());
 
-                        if (dataValidationStatus.isPresent()) {
-                            IntervalReadingRecord channelReading = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValues()
-                                    .entrySet()
-                                    .stream()
-                                    .map(Map.Entry::getValue)
-                                    .findFirst())
-                                    .orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
-                            return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, dataValidationStatus.get(), deviceValidation, channelReading, isValidationActive);
-                        } else {
-                            return new VeeReadingInfo();
+                                if (dataValidationStatus.isPresent()) {
+                                    IntervalReadingRecord channelReading = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValues()
+                                            .entrySet()
+                                            .stream()
+                                            .map(Map.Entry::getValue)
+                                            .findFirst())
+                                            .orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
+                                    return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, dataValidationStatus.get(), deviceValidation, channelReading, isValidationActive);
+                                } else {
+                                    return new VeeReadingInfo();
 
-                        }
-                    } else {
-                        return new VeeReadingInfo();
-                    }
+                                }
+                            } else {
+                                return new VeeReadingInfo();
+                            }
                         }
                 ).findAny();
         return Response.ok(veeReadingInfo.orElse(new VeeReadingInfo())).build();
@@ -539,40 +539,40 @@ public class ChannelResource {
         List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
         Optional<VeeReadingInfo> veeReadingInfo = channelTimeLine.stream()
                 .map(channelRangePair -> {
-                    Channel channelWithData = channelRangePair.getFirst();
-                    Optional<LoadProfileJournalReading> loadProfileJournalReading = channelWithData.getChannelWithHistoryData(range, changedDataOnly).stream()
-                            .filter(r -> r.getJournalTime().toEpochMilli() == historyEpochMillis).findFirst();
-                    if (loadProfileJournalReading.isPresent()) {
-                        DeviceValidation deviceValidation = channelWithData.getDevice().forValidation();
-                        boolean isValidationActive = deviceValidation.isValidationActive();
+                            Channel channelWithData = channelRangePair.getFirst();
+                            Optional<LoadProfileJournalReading> loadProfileJournalReading = channelWithData.getChannelWithHistoryData(range, changedDataOnly).stream()
+                                    .filter(r -> r.getJournalTime().toEpochMilli() == historyEpochMillis).findFirst();
+                            if (loadProfileJournalReading.isPresent()) {
+                                DeviceValidation deviceValidation = channelWithData.getDevice().forValidation();
+                                boolean isValidationActive = deviceValidation.isValidationActive();
 
-                        Optional<DataValidationStatus> dataValidationStatus = loadProfileJournalReading.flatMap(lpReading -> lpReading.getChannelValidationStates()
-                                .entrySet()
-                                .stream()
+                                Optional<DataValidationStatus> dataValidationStatus = loadProfileJournalReading.flatMap(lpReading -> lpReading.getChannelValidationStates()
+                                        .entrySet()
+                                        .stream()
 
-                                .map(Map.Entry::getValue)
-                                .findFirst());
+                                        .map(Map.Entry::getValue)
+                                        .findFirst());
 
-                        if (dataValidationStatus.isPresent()) {
-                            IntervalReadingRecord channelReading = loadProfileJournalReading
-                                    .flatMap(lpReading -> lpReading.getChannelValues()
-                                            .entrySet()
-                                            .stream()
+                                if (dataValidationStatus.isPresent()) {
+                                    IntervalReadingRecord channelReading = loadProfileJournalReading
+                                            .flatMap(lpReading -> lpReading.getChannelValues()
+                                                    .entrySet()
+                                                    .stream()
+                                                    .map(Map.Entry::getValue)
+                                                    .findFirst())
+                                            .orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
+                                    List<ReadingQualityRecord> readingQualities = loadProfileJournalReading.get().getReadingQualities().entrySet().stream()
                                             .map(Map.Entry::getValue)
-                                            .findFirst())
-                                    .orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
-                            List<ReadingQualityRecord> readingQualities = loadProfileJournalReading.get().getReadingQualities().entrySet().stream()
-                                            .map(Map.Entry::getValue)
-                                    .flatMap(List::stream).collect(Collectors.toList());
-                            return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, dataValidationStatus.get(), deviceValidation, channelReading, readingQualities, isValidationActive);
+                                            .flatMap(List::stream).collect(Collectors.toList());
+                                    return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, dataValidationStatus.get(), deviceValidation, channelReading, readingQualities, isValidationActive);
 
-                        } else {
-                            return new VeeReadingInfo();
+                                } else {
+                                    return new VeeReadingInfo();
 
-                        }
-                    } else {
-                        return new VeeReadingInfo();
-                    }
+                                }
+                            } else {
+                                return new VeeReadingInfo();
+                            }
                         }
                 ).findAny();
         return Response.ok(veeReadingInfo.orElse(new VeeReadingInfo())).build();
@@ -937,11 +937,10 @@ public class ChannelResource {
             channelDataInfo.interval = IntervalInfo.from(Range.openClosed(readingTimeStamp.minus(intervalLength), readingTimeStamp));
         });
 
-        channel.getCalculatedReadingType(record.getTimeStamp()).ifPresent(readingType -> {
-            Quantity quantity = record.getQuantity(readingType);
-            BigDecimal value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
-            channelDataInfo.value = info.type.apply(value, info.amount);
-        });
+        ReadingType readingType = channel.getCalculatedReadingType(record.getTimeStamp()).orElse(channel.getReadingType());
+        Quantity quantity = record.getQuantity(readingType);
+        BigDecimal value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
+        channelDataInfo.value = info.type.apply(value, info.amount);
         channelDataInfo.commentId = info.commentId;
         return channelDataInfo;
     }
