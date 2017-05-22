@@ -8,6 +8,7 @@ import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -74,6 +75,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
                 .selectingMeterReadings()
                 .fromExportPeriod(yesterday.get())
                 .fromUpdatePeriod(yesterday.get())
+                .exportComplete(MissingDataOption.EXCLUDE_INTERVAL)
                 .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
                 .fromEndDeviceGroup(endDeviceGroup.get())
                 .continuousData(false)
