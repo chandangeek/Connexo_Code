@@ -109,12 +109,17 @@ Ext.define('Mdc.view.setup.property.HistoryGrid', {
             date,
             tooltipText,
             formattedDate,
+            estimationComment = null,
             value = Ext.isEmpty(v)
                 ? '-'
                 : Uni.Number.formatNumber(
                 v.toString(),
                 me.channelRecord && !Ext.isEmpty(me.channelRecord.get('overruledNbrOfFractionDigits')) ? me.channelRecord.get('overruledNbrOfFractionDigits') : -1
             );
+
+        if (validationInfo && validationInfo.commentValue) {
+            estimationComment =  '. ' + Uni.I18n.translate('general.estimationCommentWithComment', 'MDC', 'Estimation comment: {0}', validationInfo.commentValue);
+        }
 
         if (validationInfo.confirmedNotSaved) {
             metaData.tdCls = 'x-grid-dirty-cell';
@@ -123,13 +128,14 @@ Ext.define('Mdc.view.setup.property.HistoryGrid', {
                 + Uni.I18n.translate('general.suspect', 'MDC', 'Suspect') + '"></span>';
         }
 
-        if (validationInfo.estimatedByRule && !record.isModified('value')) {
+        if (validationInfo.estimatedByRule && !record.isModified('value') && status !== 'suspect') {
             date = Ext.isDate(record.get('readingTime')) ? record.get('readingTime') : new Date(record.get('readingTime'));
             formattedDate = Uni.DateTime.formatDateTimeLong(date) ;
             app = validationInfo.editedInApp ? validationInfo.editedInApp.name : null;
             tooltipText = !Ext.isEmpty(app)
                 ? Uni.I18n.translate('general.estimatedOnXApp', 'MDC', 'Estimated in {0} on {1}', [app, formattedDate])
                 : Uni.I18n.translate('general.estimatedOnX', 'MDC', 'Estimated on {0}', formattedDate);
+            tooltipText += estimationComment;
             icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;" data-qtip="'
                 + tooltipText + '"></span>';
         } else if (validationInfo.isConfirmed && !record.isModified('value')) {
