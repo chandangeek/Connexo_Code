@@ -12,7 +12,6 @@ import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
 import com.elster.jupiter.calendar.Status;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.Answers;
 import com.elster.jupiter.domain.util.Finder;
@@ -100,7 +99,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
@@ -308,30 +306,11 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         return logBookType;
     }
 
-    //TODO: chekc if this override is needed?
     protected DeviceType mockDeviceType(String name, long id) {
-        DeviceType deviceType = mock(DeviceType.class);
-        RegisteredCustomPropertySet registeredCustomPropertySet = mockRegisteredCustomPropertySet();
-        when(deviceType.getRegisterTypeTypeCustomPropertySet(anyObject())).thenReturn(Optional.of(registeredCustomPropertySet));
-        when(deviceType.getCustomPropertySets()).thenReturn(Arrays.asList(registeredCustomPropertySet));
-        when(deviceType.getName()).thenReturn(name);
-        when(deviceType.getId()).thenReturn(id);
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
-        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        DeviceType deviceType = super.mockDeviceType(name, id);
+        DeviceLifeCycle deviceLifeCycle = deviceType.getDeviceLifeCycle();
         when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
         when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
-        List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
-        when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
-        when(deviceType.getVersion()).thenReturn(OK_VERSION);
-
-        doReturn(Optional.of(deviceType)).when(deviceConfigurationService).findDeviceType(id);
-        doReturn(Optional.of(deviceType)).when(deviceConfigurationService).findAndLockDeviceType(id, OK_VERSION);
-        doReturn(Optional.empty()).when(deviceConfigurationService).findAndLockDeviceType(id, BAD_VERSION);
-
         return deviceType;
     }
 
