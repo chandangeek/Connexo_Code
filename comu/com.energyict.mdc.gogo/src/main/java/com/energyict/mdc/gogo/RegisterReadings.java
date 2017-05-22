@@ -158,10 +158,11 @@ public class RegisterReadings {
         String reason = "Tampering";
         this.deviceService.findAllDevices(Condition.TRUE)
                 .stream()
-                .filter(device -> device.getState().getName().equals(DefaultState.ACTIVE.getKey()))
+                .filter(device -> device.getState().getName().equals(DefaultState.ACTIVE.getKey())
+                        && device.getLogBooks().size() > 0)
                 .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
                     Collections.shuffle(collected);
-                    return collected.stream().limit((long)Math.ceil(collected.size() * 0.03));
+                    return collected.stream().limit((long) Math.ceil(collected.size() * 0.03));
                 })).forEach(device ->
                 addDeviceEvent(
                         device.getName(),
