@@ -40,6 +40,10 @@
     cursor: pointer;
 }
 
+.#{$prefix}grid-cell-row-checker {
+    vertical-align: top;
+}
+
 .#{$prefix}td-content-middle {
     vertical-align: middle;
 }

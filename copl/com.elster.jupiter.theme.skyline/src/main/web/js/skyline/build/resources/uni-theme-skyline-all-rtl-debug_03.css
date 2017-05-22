@@ -1,3 +1,7 @@
+.x-btn-action-medium .x-btn-arrow-right {
+  padding-right: 30px;
+}
+/* line 287, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-action-medium .x-rtl.x-btn-arrow-right {
   padding-right: 0;
   padding-left: 30px;
@@ -14782,9 +14786,4 @@
 /* line 282, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
 .x-btn-plain-toolbar-medium .x-btn-arrow-right {
   padding-right: 30px;
-}
-/* line 287, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-plain-toolbar-medium .x-rtl.x-btn-arrow-right {
-  padding-right: 0;
-  padding-left: 30px;
 }

@@ -252,6 +252,9 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
 /**
  * @class Ext.panel.Table
  */
@@ -16483,7 +16486,7 @@ div.x-lbl-top-err-icon {
 /* line 10, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Base.scss */
 .x-form-item,
 .x-form-field {
-  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px Lato;
 }
 
 /* line 25, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Base.scss */
@@ -16572,7 +16575,7 @@ textarea.x-form-empty-field {
 
 /* line 15, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/Display.scss */
 .x-form-display-field {
-  font: normal 13px/17px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px/17px Lato;
   color: #686868;
   margin-top: 6px;
 }
@@ -17628,7 +17631,7 @@ a.x-color-picker-item:hover {
 
 /* line 104, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/form/field/HtmlEditor.scss */
 .x-html-editor-wrap textarea {
-  font: normal 13px "Lato", helvetica, arial, verdana, sans-serif;
+  font: normal 13px Lato;
   background-color: white;
   resize: none;
 }

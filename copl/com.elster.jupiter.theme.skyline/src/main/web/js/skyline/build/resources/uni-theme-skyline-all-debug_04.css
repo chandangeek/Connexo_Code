@@ -1,3 +1,8 @@
+/* line 253, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
+.x-panel-header-form-error-framed-collapsed-right-frameInfo {
+  font-family: dh-10-10-10-10-0-0-0-0-10-10-10-16;
+}
+
 /* line 319, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-base/sass/etc/mixins/frame.scss */
 .x-panel-header-form-error-framed-collapsed-right-tl {
   background-position: 0 -20px;
@@ -10369,6 +10374,24 @@ div.x-form-spinner-down {
 .x-boundlist-item .x-combo-list-item {
   padding-left: 18px;
   position: relative;
+}
+
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+/* line 5, ../../sass/src/form/field/Combobox.scss */
+.combo-limit-notification {
+  color: #828282;
+  font-size: 11px;
+}
+
+/* line 10, ../../sass/src/form/field/Combobox.scss */
+.stretchy-combo {
+  width: 100%;
+}
+/* line 12, ../../sass/src/form/field/Combobox.scss */
+.stretchy-combo .x-form-trigger-wrap {
+  width: 100% !important;
 }
 
 /*
