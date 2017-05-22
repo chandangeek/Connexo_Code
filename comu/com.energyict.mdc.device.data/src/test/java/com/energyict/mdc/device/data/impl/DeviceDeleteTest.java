@@ -67,6 +67,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
@@ -205,6 +206,9 @@ public class DeviceDeleteTest {
 
     @Before
     public void setup() {
+        when(clock.instant()).thenReturn(Instant.now());
+        ZoneId zoneId = ZoneId.systemDefault();
+        when(clock.getZone()).thenReturn(zoneId);
         when(dataModel.mapper(DeviceImpl.class)).thenReturn(dataMapper);
         when(this.dataModel.getInstance(DeviceEstimationImpl.class)).thenReturn(new DeviceEstimationImpl(this.dataModel, this.estimationService));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
@@ -240,7 +244,7 @@ public class DeviceDeleteTest {
         when(historicalIssueQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
         when(issueService.findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.empty());
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
-        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.MIN);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now().minus(30, ChronoUnit.DAYS));
         when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.MAX);
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
         when(finiteStateMachine.getId()).thenReturn(633L);

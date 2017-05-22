@@ -49,6 +49,8 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -158,6 +160,9 @@ public class DeviceLifeCycleChangeEventsTest {
 
     @Before
     public void initializeMocks() {
+        when(clock.instant()).thenReturn(Instant.now());
+        ZoneId zoneId = ZoneId.systemDefault();
+        when(clock.getZone()).thenReturn(zoneId);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
@@ -181,7 +186,7 @@ public class DeviceLifeCycleChangeEventsTest {
         when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
         when(meterBuilder.setReceivedDate(any(Instant.class))).thenReturn(meterBuilder);
         when(meterBuilder.create()).thenReturn(meter);
-        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.MIN);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now().minus(30, ChronoUnit.DAYS));
         when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.MAX);
         when(meter.getMeterActivations()).thenReturn(Collections.emptyList());
         when(meter.getMeterActivation(any(Instant.class))).thenReturn(Optional.empty());
