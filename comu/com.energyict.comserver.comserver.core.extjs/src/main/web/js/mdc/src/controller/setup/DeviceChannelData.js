@@ -1725,7 +1725,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
 
         Ext.Array.each(records, function (item) {
-            if (item.get('value')) {
+            if (!Ext.isEmpty(item.get('value'))) {
                 if (model.get('onlySuspectOrEstimated')) {
                     if (Uni.util.ReadingEditor.checkReadingInfoStatus(item.get('mainValidationInfo')).isSuspectOrEstimated()) {
                         intervalsArray.push({
