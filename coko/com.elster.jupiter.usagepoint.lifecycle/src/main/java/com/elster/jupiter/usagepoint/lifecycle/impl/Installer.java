@@ -18,6 +18,8 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Never;
@@ -37,11 +39,12 @@ public class Installer implements FullInstaller {
     private final Thesaurus thesaurus;
     private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private final ServerUsagePointLifeCycleService usagePointLifeCycleService;
+    private final UsagePointLifeCycleBuilder usagePointLifeCycleBuilder;
 
     @Inject
     public Installer(DataModel dataModel, MeteringService meteringService, MessageService messageService, TaskService taskService,
                      UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService, Thesaurus thesaurus,
-                     UsagePointLifeCycleService usagePointLifeCycleService) {
+                     UsagePointLifeCycleService usagePointLifeCycleService, UsagePointLifeCycleBuilder usagePointLifeCycleBuilder) {
         this.dataModel = dataModel;
         this.meteringService = meteringService;
         this.messageService = messageService;
@@ -49,6 +52,7 @@ public class Installer implements FullInstaller {
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
         this.thesaurus = thesaurus;
         this.usagePointLifeCycleService = (ServerUsagePointLifeCycleService) usagePointLifeCycleService;
+        this.usagePointLifeCycleBuilder = usagePointLifeCycleBuilder;
     }
 
     @Override
@@ -116,7 +120,8 @@ public class Installer implements FullInstaller {
 
 
     private void createLifeCycle() {
-        this.usagePointLifeCycleConfigurationService.newUsagePointLifeCycle(UsagePointLifeCycleConfigurationService.LIFE_CYCLE_KEY)
-                .markAsDefault();
+        UsagePointLifeCycle usagePointLifeCycle = this.usagePointLifeCycleConfigurationService.newUsagePointLifeCycle(UsagePointLifeCycleConfigurationService.LIFE_CYCLE_KEY);
+        usagePointLifeCycleBuilder.accept(usagePointLifeCycle);
+        usagePointLifeCycle.markAsDefault();
     }
 }

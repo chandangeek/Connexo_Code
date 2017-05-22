@@ -7,6 +7,7 @@ package com.elster.jupiter.usagepoint.lifecycle.impl.actions;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.usagepoint.lifecycle.config.DefaultTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.MicroCategory;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationService;
@@ -14,8 +15,10 @@ import com.elster.jupiter.validation.ValidationService;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ResetValidationResultsAction extends TranslatableAction {
     private final ValidationService validationService;
@@ -32,7 +35,12 @@ public class ResetValidationResultsAction extends TranslatableAction {
 
     @Override
     public boolean isMandatoryForTransition(State fromState, State toState) {
-        return true;
+        return false;
+    }
+
+    @Override
+    public boolean isCheckedByDefault(State fromState, State toState) {
+        return DefaultTransition.getDefaultTransition(fromState, toState).isPresent();
     }
 
     @Override
