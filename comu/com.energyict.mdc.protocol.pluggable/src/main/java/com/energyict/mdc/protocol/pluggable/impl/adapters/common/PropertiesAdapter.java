@@ -4,7 +4,7 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 
 public class PropertiesAdapter {
 
