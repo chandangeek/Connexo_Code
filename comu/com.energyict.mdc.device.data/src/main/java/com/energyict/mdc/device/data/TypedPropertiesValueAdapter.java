@@ -8,9 +8,9 @@ import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
+import com.energyict.mdc.upl.TypedProperties;
 
 import javax.xml.bind.DatatypeConverter;
 import java.util.Optional;
