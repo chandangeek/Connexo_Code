@@ -46,4 +46,13 @@ public interface MicroAction extends HasName {
     default boolean isMandatoryForTransition(State fromState, State toState) {
         return false;
     }
+
+    /**
+     * Marks optional micro action as checked
+     *
+     * @return true if micro action is mandatory
+     */
+    default boolean isCheckedByDefault(State fromState, State toState) {
+        return false;
+    }
 }
