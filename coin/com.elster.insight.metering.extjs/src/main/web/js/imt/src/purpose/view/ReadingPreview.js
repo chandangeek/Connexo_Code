@@ -131,13 +131,16 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
     },
 
     getEstimationFlagWithTooltip: function (estimatedByRule, record) {
-        var icon;
-
-        icon = '<span class="icon-flag5" style="margin-left:10px; color:#33CC33;" data-qtip="'
-            + Uni.I18n.translate('reading.estimatedWithTime', 'IMT', 'Estimated in {0} on {1}', [
+        var icon, tooltip;
+        if(Ext.isEmpty(estimatedByRule.application.name)) {
+            tooltip = Uni.I18n.translate('reading.estimatedWithTime', 'IMT', 'Estimated on {0}', Uni.DateTime.formatDateTimeLong(new Date(estimatedByRule.when)));
+        } else {
+            tooltip = Uni.I18n.translate('reading.estimatedWithApplicationAndTime', 'IMT', 'Estimated in {0} on {1}', [
                 estimatedByRule.application.name,
-                Uni.DateTime.formatDateTimeLong(new Date(estimatedByRule.when))
-            ], false) + '"></span>';
+                Uni.DateTime.formatDateTimeLong(new Date(estimatedByRule.when))], false);
+        }
+        icon = '<span class="icon-flag5" style="margin-left:10px; color:#33CC33;" data-qtip="'
+            + tooltip + '"></span>';
         if (record.get('isProjected') === true) {
             icon += '<span style="margin-left:3px; font-weight:bold; cursor: default" data-qtip="'
                 + Uni.I18n.translate('reading.estimated.projected', 'IMT', 'Projected') + '">P</span>';
