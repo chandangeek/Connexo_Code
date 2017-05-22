@@ -23,6 +23,13 @@ public class MicroActionAndCheckInfoFactory {
         return info;
     }
 
+    public MicroActionAndCheckInfo optionalAndChecked(MicroAction microAction){
+        MicroActionAndCheckInfo info = common(microAction);
+        info.isRequired = false;
+        info.checked = true;
+        return info;
+    }
+
     private MicroActionAndCheckInfo common(MicroAction microAction) {
         MicroActionAndCheckInfo info = new MicroActionAndCheckInfo();
         if (microAction != null) {
