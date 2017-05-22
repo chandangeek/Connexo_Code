@@ -5,5 +5,5 @@
 package com.elster.jupiter.export;
 
 public enum MissingDataOption {
-    EXCLUDE_INTERVAL, EXCLUDE_ITEM, EXCLUDE_OBJECT
+    EXCLUDE_INTERVAL, EXCLUDE_ITEM, EXCLUDE_OBJECT, NOT_APPLICABLE
 }
