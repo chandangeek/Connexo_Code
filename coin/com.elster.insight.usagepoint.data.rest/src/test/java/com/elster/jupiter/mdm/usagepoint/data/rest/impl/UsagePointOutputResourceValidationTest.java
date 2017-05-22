@@ -15,6 +15,7 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryType;
 import com.elster.jupiter.mdm.usagepoint.data.IChannelDataCompletionSummary;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
@@ -139,6 +140,7 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(usagePoint.getId()).thenReturn(1L);
         when(usagePoint.getName()).thenReturn("UP");
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(effectiveMetrologyConfiguration));
         when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
@@ -196,6 +198,8 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(dataAggregationService.introspect(any(),any(),any())).thenReturn(metrologyContractCalculationIntrospector);
         List<MetrologyContractCalculationIntrospector.CalendarUsage> calendarUsages = Collections.emptyList();
         when(metrologyContractCalculationIntrospector.getCalendarUsagesFor(any())).thenReturn(calendarUsages);
+        when(usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration, metrologyContract, readingType)).thenReturn(Optional.of(DAY_BEFORE));
+        when(usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration, metrologyContract)).thenReturn(Optional.of(DAY_BEFORE));
     }
 
     private ReadingQualityRecord mockReadingQuality(ReadingQualityType readingQualityType) {

@@ -233,8 +233,7 @@ public class UsagePointOutputResource {
                 if (!interval.isConnected(upToNow)) {
                     throw exceptionFactory.newException(MessageSeeds.RELATIVEPERIOD_IS_IN_THE_FUTURE, periodId);
                 } else if (!interval.intersection(upToNow).isEmpty()) {
-                    Range<Instant> adjustedInterval = getUsagePointAdjustedDataRange(usagePoint, interval.intersection(upToNow)).orElse(Range.openClosed(now, now));
-                    outputInfoList = outputInfoFactory.deliverablesAsOutputInfo(effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, adjustedInterval)
+                    outputInfoList = outputInfoFactory.deliverablesAsOutputInfo(effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, interval)
                             .stream()
                             .sorted(Comparator.comparing(info -> info.name))
                             .collect(Collectors.toList());
@@ -574,25 +573,6 @@ public class UsagePointOutputResource {
                 .stream()
                 .filter(contract -> contract.getMetrologyPurpose().equals(metrologyPurpose))
                 .findAny();
-    }
-
-    static Optional<Range<Instant>> getUsagePointAdjustedDataRange(UsagePoint usagePoint, Range<Instant> sourceRange) {
-        List<MeterActivation> meterActivations = usagePoint.getMeterActivations();
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
-        if (meterActivations.isEmpty()
-                && effectiveMetrologyConfiguration.getMetrologyConfiguration().getMeterRoles().isEmpty()
-                && sourceRange.isConnected(effectiveMetrologyConfiguration.getRange())) {
-            return Optional.of(effectiveMetrologyConfiguration.getRange().intersection(sourceRange));
-        } else if (!meterActivations.isEmpty()) {
-            RangeSet<Instant> meterActivationIntervals = meterActivations.stream()
-                    .map(MeterActivation::getRange)
-                    .collect(TreeRangeSet::<Instant>create, RangeSet::add, RangeSet::addAll);
-            Range<Instant> usagePointActivationsRange = !meterActivationIntervals.isEmpty() ? meterActivationIntervals.span() : Range.singleton(Instant.MIN);
-            if (usagePointActivationsRange.isConnected(sourceRange)) {
-                return Optional.of(usagePointActivationsRange.intersection(sourceRange));
-            }
-        }
-        return Optional.empty();
     }
 
     @PUT

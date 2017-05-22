@@ -901,7 +901,6 @@ public class UsagePointResource {
         if (interval.isConnected(upToNow)) {
             interval = interval.intersection(upToNow); // find out interval in past, or else throw an exception
             if (!interval.isEmpty()) {
-                interval = UsagePointOutputResource.getUsagePointAdjustedDataRange(usagePoint, interval).orElse(Range.openClosed(now, now));
                 List<ChannelDataValidationSummaryInfo> result = usagePointDataCompletionService
                         .getDataCompletionStatistics(effectiveMC, metrologyContract, interval).entrySet().stream()
                         .map(channelEntry -> validationSummaryInfoFactory.from(channelEntry.getKey(), channelEntry.getValue()))

@@ -8,10 +8,14 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -39,6 +43,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,13 +52,15 @@ public class ValidationStatusFactory {
     private final ValidationService validationService;
     private final EstimationService estimationService;
     private final UsagePointConfigurationService usagePointConfigurationService;
+    private final UsagePointDataCompletionService usagePointDataCompletionService;
 
     @Inject
-    public ValidationStatusFactory(Clock clock, ValidationService validationService, EstimationService estimationService, UsagePointConfigurationService usagePointConfigurationService) {
+    public ValidationStatusFactory(Clock clock, ValidationService validationService, EstimationService estimationService, UsagePointConfigurationService usagePointConfigurationService, UsagePointDataCompletionService usagePointDataCompletionService) {
         this.clock = clock;
         this.validationService = validationService;
         this.estimationService = estimationService;
         this.usagePointConfigurationService = usagePointConfigurationService;
+        this.usagePointDataCompletionService = usagePointDataCompletionService;
     }
 
     public UsagePointValidationStatusInfo getValidationStatusInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract,
@@ -62,7 +69,7 @@ public class ValidationStatusFactory {
         if (metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()) {
             ValidationEvaluator validationEvaluator = validationService.getEvaluator();
             info.validationActive = validationEvaluator.isValidationEnabled(channel);
-            info.lastChecked = validationEvaluator.getLastChecked(channel.getChannelsContainer(), channel.getMainReadingType()).orElse(null);
+            info.lastChecked = usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration, metrologyContract, channel.getMainReadingType()).orElse(null);
             if (interval != null) {
                 setReasonInfo(validationEvaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM), channel, Collections.emptyList(), interval != null ? interval : lastMonth()), info);
             }
@@ -84,11 +91,11 @@ public class ValidationStatusFactory {
                 UsagePointValidationStatusInfo info = new UsagePointValidationStatusInfo();
                 container.getChannel(readingTypeDeliverable.getReadingType()).ifPresent(channel -> {
                     info.validationActive = validationEvaluator.isValidationEnabled(channel);
-                    info.lastChecked = validationEvaluator.getLastChecked(container, readingTypeDeliverable.getReadingType()).orElse(null);
+                    info.lastChecked = usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration, metrologyContract, readingTypeDeliverable.getReadingType()).orElse(null);
                     info.allDataValidated = validationEvaluator.isAllDataValidated(Collections.singletonList(channel));
                     info.hasSuspects = validationEvaluator.areSuspectsPresent(EnumSet.of(QualityCodeSystem.MDM), channel, interval != null ? interval : lastMonth());
                     if (interval != null) {
-                        setReasonInfo(validationEvaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM), channel, Collections.emptyList(), interval != null ? interval : lastMonth()), info);
+                        setReasonInfo(getValidationStatus(channel.getMainReadingType(), interval, validationEvaluator, effectiveMetrologyConfiguration, metrologyContract), info);
                     }
                 });
                 result.put(readingTypeDeliverable, info);
@@ -99,6 +106,21 @@ public class ValidationStatusFactory {
         }
     }
 
+    private List<DataValidationStatus> getValidationStatus(ReadingType readingType, Range<Instant> interval, ValidationEvaluator validationEvaluator,
+                                                   EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
+        MetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.getMetrologyConfiguration();
+        UsagePoint usagePoint = effectiveMetrologyConfiguration.getUsagePoint();
+
+        return usagePoint.getEffectiveMetrologyConfigurations().stream().filter(emc -> emc.getMetrologyConfiguration().equals(metrologyConfiguration))
+                .map(emc -> emc.getChannelsContainer(metrologyContract))
+                .filter(Optional::isPresent)
+                .map(channelsContainer -> channelsContainer.get().getChannel(readingType))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .flatMap(channel -> validationEvaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM), channel, Collections.emptyList(), interval).stream())
+                .collect(Collectors.toList());
+    }
+
     public UsagePointValidationStatusInfo getValidationStatusInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract, ChannelsContainer channelsContainer) {
         UsagePointValidationStatusInfo info = new UsagePointValidationStatusInfo();
         if (metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()) {
@@ -107,7 +129,7 @@ public class ValidationStatusFactory {
             validationService.forceUpdateValidationStatus(channelsContainer);
             ValidationEvaluator validationEvaluator = validationService.getEvaluator();
             info.validationActive = validationService.isValidationActive(channelsContainer);
-            info.lastChecked = validationService.getLastChecked(channelsContainer).orElse(null);
+            info.lastChecked = usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration, metrologyContract).orElse(null);
             info.allDataValidated = validationEvaluator.isAllDataValidated(channelsContainer);
             info.hasSuspects = validationEvaluator.areSuspectsPresent(EnumSet.of(QualityCodeSystem.MDM), channelsContainer);
         }

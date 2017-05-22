@@ -246,7 +246,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         Response response = target("usagepoints/" + USAGE_POINT_NAME + "/validationSummary").queryParam("purposeId", 5).queryParam("periodId", 6).request().get();
 
         // Asserts
-        verify(usagePointDataCompletionService).getDataCompletionStatistics(effectiveMC, metrologyContract, Range.closed(meterActivated, NOW.withMinute(0).toInstant()));
+        verify(usagePointDataCompletionService).getDataCompletionStatistics(effectiveMC, metrologyContract, Range.openClosed(NOW.minusDays(1).withMinute(0).toInstant(), NOW.withMinute(0).toInstant()));
         verifyNoMoreInteractions(usagePointDataCompletionService);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
@@ -262,7 +262,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
     public void testGetValidationSummaryButMeterIsNotActivated() throws IOException {
         mockUsagePointMetrologyConfiguration();
         mockMetrologyContract(5);
-        Range<Instant> emptyInterval = Range.openClosed(NOW.toInstant(), NOW.toInstant());
+        Range<Instant> emptyInterval = Range.openClosed(NOW.minusDays(1).withMinute(0).toInstant(), NOW.withMinute(0).toInstant());
         when(usagePoint.getMeterActivations()).thenReturn(Collections.emptyList());
         when(usagePointDataCompletionService.getDataCompletionStatistics(eq(effectiveMC), eq(metrologyContract), eq(emptyInterval)))
                 .thenReturn(ImmutableMap.of(
