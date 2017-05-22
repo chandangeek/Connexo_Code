@@ -35,23 +35,23 @@ public class ChannelValidationRuleInfoFactory {
         this.readingTypeInfoFactory = readingTypeInfoFactory;
     }
 
-    public ChannelValidationRuleInfo createInfoForRule(ValidationRule validationRule, ReadingType readingType, List<ValidationRuleSet> activeRuleSets) {
-        ChannelValidationRuleInfo info = asInfo(validationRule, readingType, activeRuleSets);
+    public ChannelValidationRuleInfo createInfoForRule(ValidationRule validationRule, ReadingType readingType, List<ValidationRuleSet> activeRuleSets, boolean validationActive) {
+        ChannelValidationRuleInfo info = asInfo(validationRule, readingType, activeRuleSets, validationActive);
         setProperties(info, validationRule, Collections.emptyMap());
         return info;
     }
 
     public ChannelValidationRuleInfo createInfoForRule(ValidationRule validationRule, ReadingType readingType, ChannelValidationRuleOverriddenProperties overriddenProperties, List<ValidationRuleSet> activeRuleSets) {
-        ChannelValidationRuleInfo info = asInfo(validationRule, readingType, activeRuleSets);
+        ChannelValidationRuleInfo info = asInfo(validationRule, readingType, activeRuleSets, overriddenProperties.getDevice().forValidation().isValidationActive());
         info.id = overriddenProperties.getId();
         info.version = overriddenProperties.getVersion();
         setProperties(info, validationRule, overriddenProperties.getProperties());
         return info;
     }
 
-    private ChannelValidationRuleInfo asInfo(ValidationRule validationRule, ReadingType readingType, List<ValidationRuleSet> activeRuleSets) {
+    private ChannelValidationRuleInfo asInfo(ValidationRule validationRule, ReadingType readingType, List<ValidationRuleSet> activeRuleSets, boolean validationActive) {
         ChannelValidationRuleInfo info = new ChannelValidationRuleInfo();
-        boolean rulesetActive = activeRuleSets.stream()
+        boolean rulesetActive = validationActive && activeRuleSets.stream()
                 .filter(validationRuleSet -> validationRule.getRuleSet().getId() == validationRuleSet.getId())
                 .findAny()
                 .isPresent();

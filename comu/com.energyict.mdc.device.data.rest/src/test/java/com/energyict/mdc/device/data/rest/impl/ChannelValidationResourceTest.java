@@ -108,6 +108,7 @@ public class ChannelValidationResourceTest extends DeviceDataRestApplicationJers
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.forValidation()).thenReturn(deviceValidation);
         doReturn(Optional.of(meterActivation)).when(device).getCurrentMeterActivation();
+        when(deviceValidation.isValidationActive()).thenReturn(true);
 
         // mock channels
         when(device.getChannels()).thenReturn(Collections.singletonList(channel));
@@ -150,6 +151,7 @@ public class ChannelValidationResourceTest extends DeviceDataRestApplicationJers
         when(overriddenProperties.getId()).thenReturn(14L);
         when(overriddenProperties.getVersion()).thenReturn(15L);
         when(overriddenProperties.getProperties()).thenReturn(ImmutableMap.of(REQUIRED_PROPERTY, 11));
+        when(overriddenProperties.getDevice()).thenReturn(device);
         doReturn(Optional.of(overriddenProperties)).when(deviceValidation).findOverriddenProperties(validationRule, collectedReadingType);
         doReturn(Optional.empty()).when(deviceValidation).findOverriddenProperties(validationRule, calculatedReadingType);
 
@@ -206,7 +208,7 @@ public class ChannelValidationResourceTest extends DeviceDataRestApplicationJers
         when(overriddenProperties.getId()).thenReturn(14L);
         when(overriddenProperties.getVersion()).thenReturn(15L);
         when(overriddenProperties.getProperties()).thenReturn(ImmutableMap.of(REQUIRED_PROPERTY, 11));
-
+        when(overriddenProperties.getDevice()).thenReturn(device);
         doReturn(Optional.of(overriddenProperties)).when(deviceValidation).findOverriddenProperties(validationRule, collectedReadingType);
 
         // Business method

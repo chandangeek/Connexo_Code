@@ -109,7 +109,7 @@ public class ChannelValidationResource {
                 .orElse(Collections.emptyList());
         return device.forValidation().findOverriddenProperties(validationRule, readingType)
                 .map(overriddenProperties -> channelValidationRuleInfoFactory.createInfoForRule(validationRule, readingType, overriddenProperties, activeRuleSets))
-                .orElseGet(() -> channelValidationRuleInfoFactory.createInfoForRule(validationRule, readingType, activeRuleSets));
+                .orElseGet(() -> channelValidationRuleInfoFactory.createInfoForRule(validationRule, readingType, activeRuleSets, device.forValidation().isValidationActive()));
     }
 
     @GET
