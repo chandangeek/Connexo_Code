@@ -69,6 +69,11 @@ public class Installer implements FullInstaller {
                 logger
         );
         doTry(
+                "Create transitions, states, assign micro actions and checks",
+                this::createTransitionsStatesAssignMicroActionsAndChecks,
+                logger
+        );
+        doTry(
                 "Set default life cycle to all usage points",
                 this::setInitialStateForInstalledUsagePoints,
                 logger
@@ -110,5 +115,10 @@ public class Installer implements FullInstaller {
         meteringService.getUsagePointQuery()
                 .select(Condition.TRUE)
                 .forEach(UsagePoint::setInitialState);
+    }
+
+    private  void createTransitionsStatesAssignMicroActionsAndChecks(){
+        UsagePointLifeCycle usagePointLifeCycle = usagePointLifeCycleConfigurationService.getDefaultLifeCycle();
+        usagePointLifeCycleBuilder.accept(usagePointLifeCycle);
     }
 }
