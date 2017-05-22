@@ -54,8 +54,8 @@ import java.util.Objects;
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_NAME + "}")
 abstract class ComTaskImpl implements ComTask {
 
-    private static final String USER_DEFINED_COMTASK = "1";
-    private static final String SYSTEM_DEFINED_COMTASK = "2";
+    protected static final String USER_DEFINED_COMTASK = "1";
+    protected static final String SYSTEM_DEFINED_COMTASK = "2";
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
