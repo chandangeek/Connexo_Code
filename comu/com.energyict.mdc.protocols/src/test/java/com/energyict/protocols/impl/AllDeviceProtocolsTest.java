@@ -27,6 +27,7 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.io.SerialComponentService;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.protocols.mdc.services.impl.InboundDeviceProtocolRule;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
@@ -49,7 +50,6 @@ import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -72,7 +72,6 @@ import static org.mockito.Mockito.when;
  * @since 2015-12-03 (10:37)
  */
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
 public class AllDeviceProtocolsTest {
 
     private static final Set<String> NO_LONGER_SUPPORTED = new HashSet<>();
@@ -240,6 +239,7 @@ public class AllDeviceProtocolsTest {
             bind(com.energyict.mdc.upl.properties.PropertySpecService.class).toInstance(mock(com.energyict.mdc.upl.properties.PropertySpecService.class));
             bind(DeviceMessageFileService.class).toInstance(deviceMessageFileService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(CertificateWrapperExtractor.class).toInstance(mock(CertificateWrapperExtractor.class));
         }
     }
 

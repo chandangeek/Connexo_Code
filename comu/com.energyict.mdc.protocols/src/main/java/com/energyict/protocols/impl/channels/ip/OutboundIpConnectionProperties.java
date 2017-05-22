@@ -140,6 +140,11 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
 
         TLS_CLIENT_CERTIFICATE {
             @Override
+            public String javaName() {
+                return "tlsClientCertificate";
+            }
+
+            @Override
             public String propertySpecName() {
                 return TLSConnectionType.CLIENT_TLS_PRIVATE_KEY;
             }
@@ -151,6 +156,11 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         },
 
         TLS_SERVER_CERTIFICATE {
+            @Override
+            public String javaName() {
+                return "tlsServerCertificate";
+            }
+
             @Override
             public String propertySpecName() {
                 return TLSConnectionType.SERVER_TLS_CERTIFICATE;
@@ -164,6 +174,11 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
 
         TLS_PREFERRED_CIPHER_SUITES {
             @Override
+            public String javaName() {
+                return "preferredCipherSuites";
+            }
+
+            @Override
             public String propertySpecName() {
                 return TLSConnectionType.PREFERRED_CIPHER_SUITES_PROPERTY_NAME;
             }
@@ -175,6 +190,11 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
         },
 
         TLS_VERSION {
+            @Override
+            public String javaName() {
+                return "tlsVersion";
+            }
+
             @Override
             public String propertySpecName() {
                 return TLSConnectionType.TLS_VERSION_PROPERTY_NAME;
@@ -269,7 +289,7 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
     }
 
     protected void copyTlsServerCertificate(CustomPropertySetValues propertyValues) {
-        this.tlsClientCertificate.set((KeyAccessorType) propertyValues.getProperty(Fields.TLS_SERVER_CERTIFICATE.propertySpecName()));
+        this.tlsServerCertificate.set((KeyAccessorType) propertyValues.getProperty(Fields.TLS_SERVER_CERTIFICATE.propertySpecName()));
     }
 
     protected void copyPostDialProperties(CustomPropertySetValues propertyValues) {
