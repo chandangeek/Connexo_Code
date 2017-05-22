@@ -169,12 +169,12 @@ public enum MessageSeeds implements MessageSeed {
     GROUP_IS_USED_BY_ANOTHER_GROUP(2143, Keys.GROUP_IS_USED_BY_ANOTHER_GROUP, "The group is used by another group"),
     CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER(2144, Keys.CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER, "You cannot change the configuration of a multi-element submeter"),
     CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED(2145, Keys.CANNOT_CHANGE_CONFIG_FROM_MULTI_ELEMENT_ENABLED, "You cannot change the configuration of a multi-element enabled device"),
-    CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED(2146, Keys.CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED, "The device ‘{0}’ can’t be changed to device configuration ‘{1}’ because this device configuration doesn’t provide the necessary amount of channels needed for the linked channels on this device."),
-    NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED(2147, Keys.NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED, "The device configuration ‘{1}’ must be data logger enabled: The device ‘{0}’ has channels linked to data logger slaves."),
-    NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED(2148, Keys.NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED, "The device configuration ‘{1}’ must be multi-element enabled: The device ‘{0}’ has channels linked to multi-element slave devices."),
-    COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE(2149, Keys.COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE, "The device command '{0}' should have an 'Activation date' attribute"),
-    COMMAND_SHOULD_HAVE_A_NORMAL_THRESHOLD_ATTRIBUTE(2150, Keys.COMMAND_SHOULD_HAVE_A_NORMAL_THRESHOLD_ATTRIBUTE, "The device command '{0}' should have a 'Normal threshold' attribute"),
-    COMMAND_SHOULD_HAVE_A_UNIT_ATTRIBUTE(2151, Keys.COMMAND_SHOULD_HAVE_A_UNIT_ATTRIBUTE, "The device command '{0}' should have a 'Unit' attribute"),
+    CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED(2146, Keys.CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED, "The device ''{0}'' can’t be changed to device configuration ''{1}'' because this device configuration doesn’t provide the necessary amount of channels needed for the linked channels on this device."),
+    NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED(2147, Keys.NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED, "The device configuration ''{1}'' must be data logger enabled: The device ''{0}'' has channels linked to data logger slaves."),
+    NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED(2148, Keys.NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED, "The device configuration ''{1}'' must be multi-element enabled: The device ''{0}'' has channels linked to multi-element slave devices."),
+    COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE(2149, Keys.COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE, "The device command ''{0}'' should have an 'Activation date' attribute"),
+    COMMAND_SHOULD_HAVE_A_NORMAL_THRESHOLD_ATTRIBUTE(2150, Keys.COMMAND_SHOULD_HAVE_A_NORMAL_THRESHOLD_ATTRIBUTE, "The device command ''{0}'' should have a 'Normal threshold' attribute"),
+    COMMAND_SHOULD_HAVE_A_UNIT_ATTRIBUTE(2151, Keys.COMMAND_SHOULD_HAVE_A_UNIT_ATTRIBUTE, "The device command ''{0}'' should have a 'Unit' attribute"),
     TEMP_VALUE_NOT_SET(2152, "NoTempValue", "The security accessor does not contain a temporary value"),
     NO_ACTUAL_CERTIFICATE(2153, "NoActualCertificate", "Certificate renewal requires an actual value in order to create a distinguished name"),
     CERTIFICATE_ENCODING_EXCEPTION(2154, "CertificateEncodingError", "The certificate is an unrecognized format"),
@@ -183,7 +183,7 @@ public enum MessageSeeds implements MessageSeed {
     VALIDATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2157, "ValidationPropertyCannotBeOverridden", "Validation rule property with key ''{0}'' can''t be overridden"),
     ESTIMATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2158, "EstimationPropertyCannotBeOverridden", "Estimation rule property with key ''{0}'' can''t be overridden"),
     NO_BASIC_CHECK_COMTASK(2159, Keys.NO_BASIC_CHECK_COMTASK, "A basic check comtask could not be located"),
-    COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE(2160, Keys.COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE, "The device command '{0}' should have a 'key accessor reference' attribute");
+    COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE(2160, Keys.COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE, "The device command ''{0}'' should have a 'key accessor reference' attribute");
 
     private final int number;
     private final String key;
