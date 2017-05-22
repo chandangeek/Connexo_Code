@@ -10,7 +10,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.protocol.exception.CommunicationException;
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 /**

@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.edmi.mk10.properties;
 import com.energyict.mdc.upl.MeterProtocol;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.math.BigDecimal;

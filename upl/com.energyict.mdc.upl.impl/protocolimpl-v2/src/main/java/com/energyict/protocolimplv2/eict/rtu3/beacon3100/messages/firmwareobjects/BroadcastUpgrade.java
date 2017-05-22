@@ -25,7 +25,7 @@ import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
@@ -168,7 +168,7 @@ public class BroadcastUpgrade {
         blockTransferProperties.getProperties().setProperty(Beacon3100ConfigurationSupport.READCACHE_PROPERTY, false);
 
         //Note that all meters will have the same AK and broadcast EK. (this is defined in the IDIS P2 spec)
-        TypedProperties securityProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties securityProperties = com.energyict.mdc.upl.TypedProperties.empty();
         securityProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), broadcastClientMacAddress);
         securityProperties.setProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), broadcastAuthenticationHexKey);
         securityProperties.setProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), broadcastEncryptionHexKey);

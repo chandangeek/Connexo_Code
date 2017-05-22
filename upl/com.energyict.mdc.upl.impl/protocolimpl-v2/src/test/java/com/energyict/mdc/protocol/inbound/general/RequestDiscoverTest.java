@@ -21,7 +21,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

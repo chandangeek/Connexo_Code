@@ -167,7 +167,7 @@ public class GarnetProperties implements HasDynamicProperties {
      */
     public TypedProperties getProperties() {
         if (this.properties == null) {
-            this.properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+            this.properties = com.energyict.mdc.upl.TypedProperties.empty();
         }
         return this.properties;
     }
@@ -192,7 +192,7 @@ public class GarnetProperties implements HasDynamicProperties {
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
-        this.addProperties(com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties));
+        this.addProperties(com.energyict.mdc.upl.TypedProperties.copyOf(properties));
     }
 
 }

@@ -67,7 +67,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests {
     }
 
     private TypedProperties getProperProperties() {
-        com.energyict.protocolimpl.properties.TypedProperties result = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        com.energyict.mdc.upl.TypedProperties result = com.energyict.mdc.upl.TypedProperties.empty();
 
         result.setProperty(TypedAtModemProperties.DELAY_BEFORE_SEND, Duration.ofMillis(10));
         result.setProperty(TypedAtModemProperties.COMMAND_TIMEOUT, Duration.ofMillis(COMMAND_TIMEOUT_VALUE));
@@ -158,7 +158,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests {
     }
 
     private SioPEMPModemConnectionType createConnectionType(TestableSerialComChannel comChannel) throws ConnectionException, PropertyValidationException {
-        return createConnectionType(comChannel, com.energyict.protocolimpl.properties.TypedProperties.empty());
+        return createConnectionType(comChannel, com.energyict.mdc.upl.TypedProperties.empty());
     }
 
     private SioPEMPModemConnectionType createConnectionType(TestableSerialComChannel comChannel, TypedProperties overrides) throws ConnectionException, PropertyValidationException {

@@ -33,7 +33,7 @@ class EDPProperties {
     private final PropertySpecService propertySpecService;
 
     EDPProperties(PropertySpecService propertySpecService) {
-        this(com.energyict.protocolimpl.properties.TypedProperties.empty(), propertySpecService);
+        this(com.energyict.mdc.upl.TypedProperties.empty(), propertySpecService);
     }
 
     EDPProperties(TypedProperties properties, PropertySpecService propertySpecService) {

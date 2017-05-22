@@ -4,9 +4,8 @@
 
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
-import com.energyict.protocolimpl.properties.TypedProperties;
 
 import org.junit.Test;
 

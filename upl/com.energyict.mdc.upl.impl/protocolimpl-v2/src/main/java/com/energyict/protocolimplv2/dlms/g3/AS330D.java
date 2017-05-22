@@ -101,7 +101,7 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
     }
 
     private DlmsSession createPublicDlmsSession(ComChannel comChannel) {
-        TypedProperties clone = com.energyict.protocolimpl.properties.TypedProperties.copyOf(getDlmsSessionProperties().getProperties());
+        TypedProperties clone = com.energyict.mdc.upl.TypedProperties.copyOf(getDlmsSessionProperties().getProperties());
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, PUBLIC_CLIENT);
         AS330DProperties publicClientProperties = new AS330DProperties(false);  //Use gateway logical device ID
         publicClientProperties.addProperties(clone);

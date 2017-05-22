@@ -28,7 +28,7 @@ class ZMDProperties extends DlmsProtocolProperties {
     private static final int DEFAULT_CLIENT_MAC_ADDRESS = 32;
 
     private SecurityProvider securityProvider;
-    TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+    TypedProperties properties = com.energyict.mdc.upl.TypedProperties.empty();
 
     private final PropertySpecService propertySpecService;
 

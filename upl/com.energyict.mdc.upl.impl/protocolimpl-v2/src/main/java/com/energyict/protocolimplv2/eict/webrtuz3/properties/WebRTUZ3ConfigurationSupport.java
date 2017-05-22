@@ -9,7 +9,7 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.nls.PropertyTranslationKeys;
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.math.BigDecimal;

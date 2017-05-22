@@ -128,7 +128,7 @@ public class EventPushNotificationParserTest extends TestCase {
         when(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(5);
         when(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(dataTransportLevel);
 
-        TypedProperties securityProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties securityProperties = com.energyict.mdc.upl.TypedProperties.empty();
         securityProperties.setProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), aKey);
         securityProperties.setProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), eKey);
         when(deviceProtocolSecurityPropertySet.getSecurityProperties()).thenReturn(securityProperties);

@@ -57,7 +57,7 @@ import com.energyict.protocol.exception.DataEncryptionException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocol.exception.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;

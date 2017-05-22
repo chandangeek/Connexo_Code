@@ -53,7 +53,7 @@ public class Dsmr50ConfigurationSupport implements HasDynamicProperties {
     public static final String REQUEST_FRAMECOUNTER = "RequestFrameCounter";
 
     private final PropertySpecService propertySpecService;
-    private com.energyict.protocolimpl.properties.TypedProperties properties;
+    private com.energyict.mdc.upl.TypedProperties properties;
 
     public Dsmr50ConfigurationSupport(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -94,7 +94,7 @@ public class Dsmr50ConfigurationSupport implements HasDynamicProperties {
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
-        this.properties = com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties);
+        this.properties = com.energyict.mdc.upl.TypedProperties.copyOf(properties);
     }
 
     private PropertySpec pollingDelayPropertySpec() {

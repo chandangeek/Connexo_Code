@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.ProtocolRuntimeException;
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.EK155.EK155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;

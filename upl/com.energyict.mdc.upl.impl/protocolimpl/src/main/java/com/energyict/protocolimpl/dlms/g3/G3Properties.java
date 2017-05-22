@@ -43,7 +43,7 @@ public class G3Properties extends DlmsProtocolProperties {
     private final PropertySpecService propertySpecService;
 
     public G3Properties(PropertySpecService propertySpecService) {
-        this(com.energyict.protocolimpl.properties.TypedProperties.empty(), propertySpecService);
+        this(com.energyict.mdc.upl.TypedProperties.empty(), propertySpecService);
     }
 
     public G3Properties(TypedProperties properties, PropertySpecService propertySpecService) {

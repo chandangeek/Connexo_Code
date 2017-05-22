@@ -50,7 +50,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 	 * @param properties - contains the keys for the authentication/encryption
 	 */
 	public LocalSecurityProvider(TypedProperties properties){
-		this.properties = com.energyict.protocolimpl.properties.TypedProperties.copyOf(properties);
+		this.properties = com.energyict.mdc.upl.TypedProperties.copyOf(properties);
 		String sl = properties.getTypedProperty("SecurityLevel", "0");
 		if(sl.contains(":")){
 			this.securityLevel = Integer.parseInt(sl.substring(0, sl.indexOf(":")));

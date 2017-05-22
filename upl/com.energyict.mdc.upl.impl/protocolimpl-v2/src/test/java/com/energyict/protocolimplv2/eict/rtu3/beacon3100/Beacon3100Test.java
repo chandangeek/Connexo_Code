@@ -16,7 +16,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.protocol.exception.CommunicationException;
-import com.energyict.protocolimpl.properties.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;

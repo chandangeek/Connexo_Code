@@ -551,7 +551,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
         SerialCommunicationChannel commChannel = discoverInfo.getCommChannel();
         String nodeId = discoverInfo.getNodeId();
         int baudrate = discoverInfo.getBaudrate();
-        TypedProperties properties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties properties = com.energyict.mdc.upl.TypedProperties.empty();
         properties.setProperty("SecurityLevel", "0");
         properties.setProperty(com.energyict.mdc.upl.MeterProtocol.Property.NODEID.getName(), nodeId == null ? "" : nodeId);
         properties.setProperty("IEC1107Compatible", "1");

@@ -58,7 +58,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
     }
 
     private TypedProperties getProperProperties() {
-        com.energyict.protocolimpl.properties.TypedProperties result = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        com.energyict.mdc.upl.TypedProperties result = com.energyict.mdc.upl.TypedProperties.empty();
 
         result.setProperty(TypedAtModemProperties.DELAY_BEFORE_SEND, Duration.ofMillis(10));
         result.setProperty(TypedAtModemProperties.COMMAND_TIMEOUT, Duration.ofMillis(COMMAND_TIMEOUT_VALUE));
@@ -121,7 +121,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
     }
 
     private RxTxAtModemConnectionType createConnectionType(TestableSerialComChannel comChannel) throws ConnectionException, PropertyValidationException {
-        return createConnectionType(comChannel, com.energyict.protocolimpl.properties.TypedProperties.empty());
+        return createConnectionType(comChannel, com.energyict.mdc.upl.TypedProperties.empty());
     }
 
     private RxTxAtModemConnectionType createConnectionType(TestableSerialComChannel comChannel, TypedProperties overrides) throws ConnectionException, PropertyValidationException {
@@ -169,7 +169,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         AbstractModemTests.TimeoutSerialComChannel comChannel = getTimeoutSerialComChannel(COMMAND_TIMEOUT_VALUE + 10);
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "First_Not_CorrectAnswer", "Second_Not_CorrectAnswer", "Third_Not_CorrectAnswer"));
 
-        com.energyict.protocolimpl.properties.TypedProperties typedProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        com.energyict.mdc.upl.TypedProperties typedProperties = com.energyict.mdc.upl.TypedProperties.empty();
         typedProperties.setProperty(TypedAtModemProperties.DELAY_BEFORE_SEND, Duration.ofMillis(10));
         typedProperties.setProperty(TypedAtModemProperties.COMMAND_TIMEOUT, Duration.ofMillis(COMMAND_TIMEOUT_VALUE));
         typedProperties.setProperty(TypedAtModemProperties.COMMAND_TRIES, new BigDecimal(3));
@@ -221,7 +221,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         AbstractModemTests.TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "OK", "OK", "OK", "OK", "OK", "CONNECT 9600", "OK", "OK"));
 
-        com.energyict.protocolimpl.properties.TypedProperties typedProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        com.energyict.mdc.upl.TypedProperties typedProperties = com.energyict.mdc.upl.TypedProperties.empty();
         typedProperties.setProperty(TypedAtModemProperties.DELAY_BEFORE_SEND, Duration.ofMillis(10));
         typedProperties.setProperty(TypedAtModemProperties.COMMAND_TIMEOUT, Duration.ofMillis(COMMAND_TIMEOUT_VALUE));
         typedProperties.setProperty(TypedAtModemProperties.COMMAND_TRIES, new BigDecimal(1));
@@ -389,7 +389,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests {
         AbstractModemTests.TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(OK_LIST);
 
-        TypedProperties typedProperties = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties typedProperties = com.energyict.mdc.upl.TypedProperties.empty();
         typedProperties.setProperty(TypedAtModemProperties.MODEM_ADDRESS_SELECTOR, "AddressSelect_01");
         RxTxAtModemConnectionType atModemConnectionType = createConnectionType(comChannel, typedProperties);
         atModemConnectionType.connect();

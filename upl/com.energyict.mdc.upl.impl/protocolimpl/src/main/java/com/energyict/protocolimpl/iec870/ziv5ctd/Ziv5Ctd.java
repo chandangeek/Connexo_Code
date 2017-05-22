@@ -330,7 +330,7 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
         String nodeId = discoverInfo.getNodeId();
         int baudrate = discoverInfo.getBaudrate();
 
-        TypedProperties p = com.energyict.protocolimpl.properties.TypedProperties.empty();
+        TypedProperties p = com.energyict.mdc.upl.TypedProperties.empty();
         p.setProperty(NODEID.getName(), nodeId == null ? "" : nodeId);
         setUPLProperties(p);
 
