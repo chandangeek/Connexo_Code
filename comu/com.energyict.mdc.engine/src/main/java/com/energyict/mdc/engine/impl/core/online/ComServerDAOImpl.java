@@ -35,8 +35,6 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskPropertyImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -76,6 +74,7 @@ import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -302,18 +301,46 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public List<ConnectionTaskProperty> findProperties(final ConnectionTask connectionTask) {
         List<ConnectionTaskProperty> connectionTaskProperties = this.serviceProvider.transactionService().execute(connectionTask::getProperties);
-        return adaptToUPLValues(connectionTask, connectionTaskProperties);
+        return adaptToUPLValues(connectionTaskProperties);
     }
 
-    private List<ConnectionTaskProperty> adaptToUPLValues(ConnectionTask connectionTask, List<ConnectionTaskProperty> connectionTaskProperties) {
-           return connectionTaskProperties.stream().map(property -> new ConnectionTaskPropertyImpl(
-                   (ConnectionTaskImpl) connectionTask,
-                   property.getName(),
-                   TypedPropertiesValueAdapter.adaptToUPLValue(connectionTask.getDevice(), property.getValue()),
-                   property.getActivePeriod(),
-                   property.getPluggableClass()))
-           .collect(Collectors.toList());
-       }
+    private List<ConnectionTaskProperty> adaptToUPLValues(List<ConnectionTaskProperty> connectionTaskProperties) {
+        return connectionTaskProperties.stream().map(this::newConnectionTaskProperty).collect(Collectors.toList());
+    }
+
+    private ConnectionTaskProperty newConnectionTaskProperty(ConnectionTaskProperty property) {
+        return new ConnectionTaskProperty() {
+            @Override
+            public PluggableClass getPluggableClass() {
+                return property.getConnectionTask().getPluggableClass();
+            }
+
+            @Override
+            public String getName() {
+                return property.getName();
+            }
+
+            @Override
+            public Object getValue() {
+                return TypedPropertiesValueAdapter.adaptToUPLValue(property.getConnectionTask().getDevice(), property.getValue());
+            }
+
+            @Override
+            public boolean isInherited() {
+                return property.isInherited();
+            }
+
+            @Override
+            public Range<Instant> getActivePeriod() {
+                return property.getActivePeriod();
+            }
+
+            @Override
+            public ConnectionTask getConnectionTask() {
+                return property.getConnectionTask();
+            }
+        };
+    }
 
     @Override
     public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, final ComServer comServer) {
