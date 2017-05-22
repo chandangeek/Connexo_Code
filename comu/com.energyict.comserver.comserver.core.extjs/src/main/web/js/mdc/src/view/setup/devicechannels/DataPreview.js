@@ -298,7 +298,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             }
         );
 
-        if (me.linkPurpose !== Mdc.util.LinkPurpose.NOT_APPLICABLE) {
+        if (me.linkPurpose.value !== Mdc.util.LinkPurpose.NOT_APPLICABLE) {
             generalItems.push(
                 {
                     fieldLabel: me.linkPurpose.channelGridSlaveColumn,
