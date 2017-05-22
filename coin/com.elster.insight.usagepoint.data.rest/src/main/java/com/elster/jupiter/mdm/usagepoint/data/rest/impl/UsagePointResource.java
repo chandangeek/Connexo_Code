@@ -369,7 +369,7 @@ public class UsagePointResource {
                         .map(MeterActivation::getMeterRole)
                         .filter(Optional::isPresent)
                         .map(Optional::get)
-                        .noneMatch(role -> !mc.getMeterRoles().contains(role)))
+                        .allMatch(role -> mc.getMeterRoles().contains(role)))
                 .map(mc -> new MetrologyConfigurationInfo(mc, mc.getCustomPropertySets()
                         .stream()
                         .sorted(Comparator.comparing(rcps -> rcps.getCustomPropertySet().getName(), String.CASE_INSENSITIVE_ORDER))
@@ -519,7 +519,7 @@ public class UsagePointResource {
 
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
             if(!createNew){
-                updateCustomPropertySetValues(usagePoint,customPropertySetInfo);
+                resourceHelper.persistCustomProperties(usagePoint, customPropertySetInfo);
             }
             else if (customPropertySetInfo.isVersioned && createNew) {
                 UsagePointVersionedPropertySet propertySet = usagePoint.forCustomProperties().getVersionedPropertySet(customPropertySetInfo.id);
@@ -543,12 +543,12 @@ public class UsagePointResource {
                     }
                 }
                 else {
-                    updateCustomPropertySetValues(usagePoint,customPropertySetInfo);
+                    resourceHelper.persistCustomProperties(usagePoint, customPropertySetInfo);
                 }
             }
 
             else {
-                updateCustomPropertySetValues(usagePoint,customPropertySetInfo);
+                resourceHelper.persistCustomProperties(usagePoint, customPropertySetInfo);
             }
         }
         usagePoint.update();
@@ -1241,12 +1241,8 @@ public class UsagePointResource {
                         .findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
                 usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
             }
-            for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
-                UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
-                        .getPropertySet(customPropertySetInfo.id);
-                propertySet.setValues(customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
-                        propertySet.getCustomPropertySet().getPropertySpecs()));
-            }
+
+            info.customPropertySets.forEach(customPropertySetInfo -> resourceHelper.persistCustomProperties(usagePoint, customPropertySetInfo));
             usagePoint.update();
 
             performLifeCycleTransition(info.transitionToPerform, usagePoint, validationBuilder);
@@ -1268,12 +1264,5 @@ public class UsagePointResource {
             Object property =fromValues.getProperty(propertyName);
             to.setProperty(propertyName,property);
         }
-    }
-
-    private void updateCustomPropertySetValues(UsagePoint usagePoint,CustomPropertySetInfo customPropertySetInfo){
-        UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
-                .getPropertySet(customPropertySetInfo.id);
-        propertySet.setValues(customPropertySetInfoFactory.getCustomPropertySetValues(customPropertySetInfo,
-                propertySet.getCustomPropertySet().getPropertySpecs()));
     }
 }

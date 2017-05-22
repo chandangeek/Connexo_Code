@@ -50,13 +50,13 @@ public class FieldResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public List<MetrologyConfigurationInfo> getAvailableMetrologyConfigurations(@BeanParam JsonQueryParameters queryParameters, UsagePointInfo info) {
-        UsagePoint usagePoint;
         List<MetrologyConfigurationInfo> metrologyConfigurations;
 
-        TransactionContext transaction = transactionService.getContext();
-        usagePoint = getUsagePoint(info);
-        metrologyConfigurations = resourceHelper.getAvailableMetrologyConfigurations(usagePoint, customPropertySetInfoFactory);
-        transaction.close();
+        try (TransactionContext transaction = transactionService.getContext()) {
+            UsagePoint usagePoint = getUsagePoint(info);
+            info.customPropertySets.forEach(customPropertySetInfo -> resourceHelper.persistCustomProperties(usagePoint, customPropertySetInfo));
+            metrologyConfigurations = resourceHelper.getAvailableMetrologyConfigurations(usagePoint, customPropertySetInfoFactory);
+        }
 
         return metrologyConfigurations;
     }
@@ -66,23 +66,21 @@ public class FieldResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public List<UsagePointTransitionInfo> getAvailableTransitions(UsagePointInfo usagePointInfo) {
-        UsagePoint usagePoint;
         List<UsagePointTransitionInfo> availableTransitions;
 
-        TransactionContext transaction = transactionService.getContext();
-        usagePoint = getUsagePoint(usagePointInfo);
-        List<UsagePointTransition> transitions = resourceHelper.getAvailableTransitions(usagePoint);
-        availableTransitions = transitions.stream()
-                .map(usagePointTransitionInfoFactory::from)
-                .collect(Collectors.toList());
-        transaction.close();
+        try (TransactionContext transaction = transactionService.getContext()) {
+            UsagePoint usagePoint = getUsagePoint(usagePointInfo);
+            List<UsagePointTransition> transitions = resourceHelper.getAvailableTransitions(usagePoint);
+            availableTransitions = transitions.stream()
+                    .map(usagePointTransitionInfoFactory::from)
+                    .collect(Collectors.toList());
+        }
 
         return availableTransitions;
     }
 
     private UsagePoint getUsagePoint(UsagePointInfo info) {
-        UsagePoint usagePoint;
-        usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
+        UsagePoint usagePoint = usagePointInfoFactory.newUsagePointBuilder(info).create();
         info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
         return usagePoint;
     }

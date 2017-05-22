@@ -75,6 +75,7 @@ public class ChannelReadingWithValidationStatus {
                 List<ReadingQuality> persistedReadingQualities = this.validationStatus.getReadingQualities().stream()
                         .map(ReadingQuality.class::cast)
                         .filter(readingQuality -> !ReadingWithValidationStatus.hasValidatedOkReadingQualityType(readingQuality))
+                        .filter(readingQuality -> !readingQualities.contains(readingQuality))
                         .collect(Collectors.toList());
                 readingQualities.addAll(persistedReadingQualities);
             }
