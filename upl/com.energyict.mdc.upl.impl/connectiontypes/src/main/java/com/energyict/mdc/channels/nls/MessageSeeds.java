@@ -21,7 +21,7 @@ public enum MessageSeeds implements MessageSeed {
     ServerNotTrusted("upl.error.serverNotTrusted", "Based on provided certificate chain and authentication type, the server cannot be trusted"),
     NestedIOException("upl.error.nestedIOException", "Nested I/O Error"),
     NestedModemException("upl.error.nestedModemException", "Nested modem error"),
-    PreferredCipherSuiteIsNotSupportedByJavaVersion("upl.error.preferredCipherSuiteIsNotSupportedByJavaVersion", "The preferred cipher suite '{0}' is not supported by your current java version."),
+    PreferredCipherSuiteIsNotSupportedByJavaVersion("upl.error.preferredCipherSuiteIsNotSupportedByJavaVersion", "The preferred cipher suite ''{0}'' is not supported by your current java version."),
     WavenisStackSetupError("upl.error.wavenisStackSetupError", "Error while starting the Wavenis stack"),
 
     AT_MODEM_BUSY("upl.error.at.modem.busy", "Receiver was currently busy, modem on COM port {0} returned BUSY command, last command send [{1}]"),
