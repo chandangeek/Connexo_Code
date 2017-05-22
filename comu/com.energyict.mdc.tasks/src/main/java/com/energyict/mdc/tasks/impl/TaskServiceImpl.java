@@ -199,8 +199,7 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
 
     @Override
     public Optional<ComTask> findFirmwareComTask() {
-        List<ComTask> comTasks = dataModel.mapper(ComTask.class).select(where("name").isEqualTo(FIRMWARE_COMTASK_NAME).and(where("DISCRIMINATOR").isEqualTo(ComTaskImpl.SYSTEM_DEFINED_COMTASK)));
-        return comTasks.size() == 1 ? Optional.of(comTasks.get(0)) : Optional.empty();
+        return dataModel.mapper(ComTask.class).select(where("name").isEqualTo(FIRMWARE_COMTASK_NAME)).stream().filter(ComTask::isSystemComTask).findFirst();
     }
 
     @Override
