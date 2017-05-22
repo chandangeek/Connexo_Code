@@ -399,9 +399,9 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
                     Ext.iterate(record.get('channelData'), function (key, value) {
                         if (channelDataArrays[key]) {
                             if (value) {
-                                channelDataArrays[key].unshift([record.get('interval').start, parseFloat(value)]);
+                                channelDataArrays[key].push([record.get('interval').start, parseFloat(value)]);
                             } else {
-                                channelDataArrays[key].unshift([record.get('interval').start, null]);
+                                channelDataArrays[key].push([record.get('interval').start, null]);
                             }
                         }
                     });
