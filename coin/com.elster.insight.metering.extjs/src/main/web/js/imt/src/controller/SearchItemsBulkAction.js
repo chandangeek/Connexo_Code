@@ -260,7 +260,7 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
             router = me.getController('Uni.controller.history.Router'),
             queryParams;
 
-        if (grid && search.service.searchDomain) {
+        if (search.service.searchDomain) {
             queryParams = {
                 restore: true
             };
