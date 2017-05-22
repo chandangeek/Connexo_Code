@@ -175,11 +175,13 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
     showAddSecurityAccessor: function (deviceTypeId) {
         var me = this,
             view,
-            store = me.getStore('Mdc.store.TimeUnitsYearsSeconds'),
-            keyTypesStore = me.getStore('Mdc.securityaccessors.store.KeyTypes');
+            unitStore = me.getStore('Mdc.store.TimeUnitsYearsSeconds'),
+            keyTypesStore = me.getStore('Mdc.securityaccessors.store.KeyTypes'),
+            trustStoresStore = me.getStore('Mdc.securityaccessors.store.TrustStores');
 
         keyTypesStore.getProxy().setUrl(deviceTypeId);
         keyTypesStore.load();
+        trustStoresStore.load();
         me.deviceTypeId = deviceTypeId;
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
@@ -188,7 +190,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 view.down('form').loadRecord(Ext.create('Mdc.securityaccessors.model.SecurityAccessor'));
                 //the device type is needed for the versioning
                 me.deviceType = deviceType;
-                store.load({
+                unitStore.load({
                     callback: function (records, operation, success) {
                         if (success && records.length > 0) {
                             view.down('#cbo-security-accessor-validity-period-delay').select(records[0]);

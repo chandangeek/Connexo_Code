@@ -815,11 +815,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         deviceConfigModel.getProxy().setExtraParam('deviceType', deviceTypeId);
         store.load(
             {
-                callback: function () {
+                callback: function() {
                     me.getApplication().fireEvent('changecontentevent', widget);
-                    if (!this.getCount()) {
-                        widget.down('button[action=add]').disable();
-                    }
+                    widget.down('button[action=add]').setVisible(this.getCount()>0);
                     widget.setLoading(true);
                     model.load(deviceTypeId, {
                         success: function (deviceType) {
