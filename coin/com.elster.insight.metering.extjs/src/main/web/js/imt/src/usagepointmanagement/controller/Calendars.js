@@ -158,7 +158,7 @@ Ext.define('Imt.usagepointmanagement.controller.Calendars', {
                 })
                 break;
             case 'viewTimeline':
-                this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/history').forward({mRID: this.usagePoint.get('name')});
+                this.getController('Uni.controller.history.Router').getRoute('usagepoints/view/history').forward({mRID: this.usagePoint.get('name')}, {activeHistoryTab: 'calendar-tab'});
                 break;
         }
     },

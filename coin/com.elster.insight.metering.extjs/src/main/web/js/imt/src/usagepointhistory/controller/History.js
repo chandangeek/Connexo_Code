@@ -77,6 +77,7 @@ Ext.define('Imt.usagepointhistory.controller.History', {
                     app.fireEvent('changecontentevent', widget);
                     viewport.setLoading(false);
                     tabPanel = widget.down('#usage-point-history-tab-panel');
+                    tabPanel.setActiveTab(tabPanel.getComponent(router.queryParams.activeHistoryTab));
                     tabPanel.fireEvent('beforetabchange', tabPanel, tabPanel.getActiveTab(), undefined, undefined, true);
                 });
             },
