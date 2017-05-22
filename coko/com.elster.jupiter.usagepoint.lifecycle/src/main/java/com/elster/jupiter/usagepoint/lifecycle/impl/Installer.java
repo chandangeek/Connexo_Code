@@ -69,11 +69,6 @@ public class Installer implements FullInstaller {
                 logger
         );
         doTry(
-                "Create default usage point lifecycle",
-                this::createLifeCycle,
-                logger
-        );
-        doTry(
                 "Set default life cycle to all usage points",
                 this::setInitialStateForInstalledUsagePoints,
                 logger
@@ -115,13 +110,5 @@ public class Installer implements FullInstaller {
         meteringService.getUsagePointQuery()
                 .select(Condition.TRUE)
                 .forEach(UsagePoint::setInitialState);
-    }
-
-
-
-    private void createLifeCycle() {
-        UsagePointLifeCycle usagePointLifeCycle = this.usagePointLifeCycleConfigurationService.newUsagePointLifeCycle(UsagePointLifeCycleConfigurationService.LIFE_CYCLE_KEY);
-        usagePointLifeCycleBuilder.accept(usagePointLifeCycle);
-        usagePointLifeCycle.markAsDefault();
     }
 }
