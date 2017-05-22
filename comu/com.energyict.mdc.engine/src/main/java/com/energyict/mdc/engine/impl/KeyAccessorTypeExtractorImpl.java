@@ -6,7 +6,7 @@ package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;

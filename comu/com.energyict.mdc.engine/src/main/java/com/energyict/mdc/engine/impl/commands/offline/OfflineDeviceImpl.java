@@ -8,7 +8,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.MacException;
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
@@ -483,7 +483,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         if (properties.getInheritedProperties() != null) {
             this.allProperties.setAllProperties(properties.getInheritedProperties());
         }
-        this.allProperties.setAllProperties(properties);
+        this.allProperties.setAllLocalProperties(properties);
     }
 
     /**

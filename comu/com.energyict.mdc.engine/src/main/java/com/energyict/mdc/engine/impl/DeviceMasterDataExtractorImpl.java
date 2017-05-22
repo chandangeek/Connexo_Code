@@ -204,7 +204,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
     }
 
     private TypedProperties properties(Device device) {
-        return com.energyict.mdc.common.TypedProperties.empty();
+        return com.energyict.mdc.upl.TypedProperties.empty();
     }
 
     @Override

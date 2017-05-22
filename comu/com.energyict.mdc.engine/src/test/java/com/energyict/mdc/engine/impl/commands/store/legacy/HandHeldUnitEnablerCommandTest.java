@@ -10,7 +10,7 @@ import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdc.channel.serial.OpticalDriver;
 import com.energyict.mdc.channel.serial.ServerSerialPort;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.exceptions.ComCommandException;
