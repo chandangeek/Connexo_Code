@@ -134,10 +134,9 @@ Ext.define('Imt.purpose.view.ReadingPreview', {
         var icon;
 
         icon = '<span class="icon-flag5" style="margin-left:10px; color:#33CC33;" data-qtip="'
-            + Uni.I18n.translate('reading.estimatedWithTime', 'IMT', 'Estimated in {0} on {1} at {2}', [
+            + Uni.I18n.translate('reading.estimatedWithTime', 'IMT', 'Estimated in {0} on {1}', [
                 estimatedByRule.application.name,
-                Uni.DateTime.formatDateLong(new Date(estimatedByRule.when)),
-                Uni.DateTime.formatTimeLong(new Date(estimatedByRule.when))
+                Uni.DateTime.formatDateTimeLong(new Date(estimatedByRule.when))
             ], false) + '"></span>';
         if (record.get('isProjected') === true) {
             icon += '<span style="margin-left:3px; font-weight:bold; cursor: default" data-qtip="'
