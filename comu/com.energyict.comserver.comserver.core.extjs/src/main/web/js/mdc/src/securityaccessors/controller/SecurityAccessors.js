@@ -183,6 +183,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         me.deviceTypeId = deviceTypeId;
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 view = Ext.widget('security-accessor-add-form', {deviceTypeId: deviceTypeId});
                 view.down('form').loadRecord(Ext.create('Mdc.securityaccessors.model.SecurityAccessor'));
                 //the device type is needed for the versioning
@@ -292,6 +293,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
         model.getProxy().setUrl(deviceTypeId);
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
                 me.deviceType = deviceType;
             }
         });
