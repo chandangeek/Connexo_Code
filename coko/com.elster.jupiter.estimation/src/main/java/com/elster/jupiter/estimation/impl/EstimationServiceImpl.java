@@ -126,7 +126,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     private volatile AppService appService;
     private volatile Clock clock;
 
-    private Optional<DestinationSpec> destinationSpec = Optional.empty();
+    private DestinationSpec destinationSpec;
 
     public EstimationServiceImpl() {
     }
@@ -318,9 +318,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     private boolean getMatchingMetrologyPurposes(MetrologyContract metrologyContract, ReadingType readingType) {
         return metrologyContract.getDeliverables()
                 .stream()
-                .filter(readingTypeDeliverable -> readingTypeDeliverable.getReadingType().equals((readingType)))
-                .findAny()
-                .isPresent();
+                .anyMatch(readingTypeDeliverable -> readingTypeDeliverable.getReadingType().equals((readingType)));
     }
 
     private void logEstimationReport(ChannelsContainer channelsContainer, Range<Instant> period, Logger logger, EstimationReportImpl report) {
@@ -344,12 +342,11 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
         String name = channelsContainer.getMeter().map(HasName::getName)
                 .orElse(channelsContainer.getUsagePoint().map(HasName::getName).orElse(""));
         String purpose = channelsContainer.getUsagePoint()
-                .flatMap(usagePoint -> usagePoint.getCurrentEffectiveMetrologyConfiguration().map( emc ->
-                        emc.getMetrologyConfiguration().getContracts()
-                        .stream()
-                        .filter(metrologyContract -> report.getResults().keySet().stream().filter(rt -> getMatchingMetrologyPurposes(metrologyContract,rt)).findFirst().isPresent())
-                        .map(metrologyContract -> metrologyContract.getMetrologyPurpose().getName())
-                        .collect(Collectors.joining(" ,")))).map(p -> " of purpose " + p).orElse("");
+                .flatMap(usagePoint -> usagePoint.getCurrentEffectiveMetrologyConfiguration().map(emc ->
+                        emc.getMetrologyConfiguration().getContracts().stream()
+                                .filter(metrologyContract -> report.getResults().keySet().stream().anyMatch(rt -> getMatchingMetrologyPurposes(metrologyContract, rt)))
+                                .map(metrologyContract -> metrologyContract.getMetrologyPurpose().getName())
+                                .collect(Collectors.joining(" ,")))).map(p -> " of purpose " + p).orElse("");
 
         String message = "{0} blocks estimated on {5} of {6}.\nSuccessful estimations {1}, failed estimations {2}\nPeriod of estimation from {3} until {4} .";
         LoggingContext.get().info(logger, message, estimated + notEstimated, estimated, notEstimated, from, to, channelNames, name, purpose);
@@ -512,10 +509,10 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
 
     @Override
     public DestinationSpec getDestination() {
-        if (!destinationSpec.isPresent()) {
-            destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME);
+        if (destinationSpec == null) {
+            destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME).orElse(null);
         }
-        return destinationSpec.orElse(null);
+        return destinationSpec;
     }
 
     @Override
