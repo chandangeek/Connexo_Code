@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -157,9 +158,12 @@ public class DeviceFirmwareMessagesResource {
         if (activationDatePropertySpec.isPresent()) {
             deviceMessageBuilder.addProperty(activationDatePropertySpec.get().getName(), info.releaseDate != null ? Date.from(info.releaseDate) : new Date());
         }
-
-        deviceMessageBuilder.add();
-        rescheduleFirmwareUpgradeTask(device);
+        try {
+            deviceMessageBuilder.add();
+            rescheduleFirmwareUpgradeTask(device);
+        }catch(VerboseConstraintViolationException e){
+           throw exceptionFactory.newException(MessageSeeds.FIRMWARE_CANNOT_BE_ACTIVATED);
+        }
         return Response.ok().build();
     }
 
