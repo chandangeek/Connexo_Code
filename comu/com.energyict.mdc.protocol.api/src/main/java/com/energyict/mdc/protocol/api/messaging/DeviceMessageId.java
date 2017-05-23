@@ -6,6 +6,7 @@ package com.energyict.mdc.protocol.api.messaging;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -816,12 +817,7 @@ public enum DeviceMessageId {
     }
 
     public static DeviceMessageId from(long dbId) {
-        for (DeviceMessageId messageId : DeviceMessageId.values()) {
-            if (messageId.dbValue() == dbId) {
-                return messageId;
-            }
-        }
-        throw new IllegalArgumentException(String.format("No DeviceMessageId found having id %d", dbId));
+        return Arrays.stream(DeviceMessageId.values()).filter( dmi -> dmi.dbValue() == dbId ).findFirst().orElseThrow(()-> new IllegalArgumentException(String.format("No DeviceMessageId found having id %d", dbId)));
     }
 
     public static Set<DeviceMessageId> fileManagementRelated() {
