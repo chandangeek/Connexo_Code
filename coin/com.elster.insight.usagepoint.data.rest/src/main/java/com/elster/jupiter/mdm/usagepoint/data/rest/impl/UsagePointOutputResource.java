@@ -22,7 +22,6 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -69,8 +68,6 @@ import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
-import com.google.common.collect.RangeSet;
-import com.google.common.collect.TreeRangeSet;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -943,6 +940,8 @@ public class UsagePointOutputResource {
             throw new LocalizedFieldValidationException(MessageSeeds.INTERVAL_END_BEFORE_START, "interval.end");
         }
         if (registerDataInfo instanceof NumericalOutputRegisterDataInfo && ((NumericalOutputRegisterDataInfo) registerDataInfo).interval != null
+                && ((NumericalOutputRegisterDataInfo) registerDataInfo).interval.start != null
+                && ((NumericalOutputRegisterDataInfo) registerDataInfo).interval.end != null
                 && ((NumericalOutputRegisterDataInfo) registerDataInfo).interval.start > ((NumericalOutputRegisterDataInfo) registerDataInfo).interval.end) {
             throw new LocalizedFieldValidationException(MessageSeeds.INTERVAL_END_BEFORE_START, "interval.end");
         }

@@ -38,9 +38,6 @@ import java.util.stream.Collectors;
 
 public class UsagePointOutputsHistoryHelper {
 
-    private static final String INTERVAL_START = "intervalStart";
-    private static final String INTERVAL_END = "intervalEnd";
-
     private final ValidationService validationService;
     private final CalendarService calendarService;
 
@@ -167,8 +164,7 @@ public class UsagePointOutputsHistoryHelper {
             mergedReadingQualities.forEach(mergedReadingQuality -> {
                 Optional<? extends BaseReadingRecord> journaledReadingRecord;
                 if (mergedReadingQuality.getTypeCode().equals("3.5.258") || mergedReadingQuality.getTypeCode()
-                        .equals("3.5.259") || mergedReadingQuality.hasValidationCategory()
-                        || mergedReadingQuality.getComment() != null) {
+                        .equals("3.5.259") || mergedReadingQuality.hasValidationCategory()) {
                     journaledReadingRecord = records.stream()
                             .filter(record -> record.getReportedDateTime().compareTo(mergedReadingQuality.getTimestamp()) <= 0)
                             .max(Comparator.comparing(JournaledReadingRecord::getReportedDateTime));
@@ -180,7 +176,9 @@ public class UsagePointOutputsHistoryHelper {
                 journaledReadingRecord.ifPresent(record -> {
                     List<ReadingQualityRecord> qualityRecords = (List<ReadingQualityRecord>) ((JournaledReadingRecord) record).getReadingQualities();
                     qualityRecords.add(mergedReadingQuality);
-                    ((JournaledReadingRecord) record).setReadingQualityRecords(qualityRecords);
+                    ((JournaledReadingRecord) record).setReadingQualityRecords(qualityRecords.stream()
+                            .distinct()
+                            .collect(Collectors.toList()));
                 });
             });
         });
@@ -244,7 +242,9 @@ public class UsagePointOutputsHistoryHelper {
                 journalReadingOptional.ifPresent(reading -> {
                     List<ReadingQualityRecord> qualityRecords = (List<ReadingQualityRecord>) reading.getReadingQualities();
                     qualityRecords.add(mergedReadingQuality);
-                    reading.setReadingQualityRecords(qualityRecords);
+                    reading.setReadingQualityRecords(qualityRecords.stream()
+                            .distinct()
+                            .collect(Collectors.toList()));
                 });
             });
         });

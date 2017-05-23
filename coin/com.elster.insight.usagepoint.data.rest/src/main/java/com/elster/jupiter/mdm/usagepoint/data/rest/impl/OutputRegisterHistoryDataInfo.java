@@ -4,26 +4,24 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.validation.ValidationAction;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.List;
 
-public class OutputRegisterHistoryDataInfo {
+public class OutputRegisterHistoryDataInfo extends OutputRegisterDataInfo {
 
     public IntervalInfo interval;
     public String userName;
-    public List<ReadingQualityInfo> readingQualities;
-    public Instant reportedDateTime;
-    public Instant timeStamp;
     public BigDecimal value;
-
-    @XmlJavaTypeAdapter(ValidationStatusAdapter.class)
-    public ValidationStatus validationResult;
-
-    public boolean dataValidated;
+    public boolean isConfirmed;
     public ValidationAction validationAction;
+
+    @SuppressWarnings("unused")
+    @Override
+    public BaseReading createNew(ReadingType readingType) {
+        return null;
+    }
 }
