@@ -7240,6 +7240,11 @@ h6 {
 }
 
 /* line 43, ../../sass/src/grid/DefaultColumn.scss */
+.x-grid-cell-row-checker {
+  vertical-align: top;
+}
+
+/* line 47, ../../sass/src/grid/DefaultColumn.scss */
 .x-td-content-middle {
   vertical-align: top;
 }
@@ -16939,10 +16944,4 @@ a:hover, a.x-btn:hover {
 .x-btn-action-toolbar-large-noicon .x-btn-arrow-right .x-btn-inner,
 .x-btn-action-toolbar-large-icon-text-left .x-btn-arrow-right .x-btn-inner {
   padding-right: 0;
-}
-
-/* line 379, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/button/Button.scss */
-.x-btn-action-toolbar-large-icon .x-btn-inner {
-  width: 32px;
-  padding: 0;
 }
