@@ -109,7 +109,7 @@ Ext.define('Mdc.view.setup.property.HistoryGrid', {
             date,
             tooltipText,
             formattedDate,
-            estimationComment = null,
+            estimationComment = '',
             value = Ext.isEmpty(v)
                 ? '-'
                 : Uni.Number.formatNumber(
