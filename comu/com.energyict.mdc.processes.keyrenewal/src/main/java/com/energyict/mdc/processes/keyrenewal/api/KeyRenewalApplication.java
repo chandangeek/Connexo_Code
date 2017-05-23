@@ -5,10 +5,14 @@
 package com.energyict.mdc.processes.keyrenewal.api;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -25,6 +29,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.processes.keyrenewal.api.servicecall.KeyRenewalCustomPropertySet;
 import com.energyict.mdc.processes.keyrenewal.api.servicecall.ServiceCallCommands;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -35,7 +40,11 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component(name = "com.energyict.mdc.processes.keyrenewal.rest",
         service = {Application.class, TranslationKeyProvider.class},
@@ -60,6 +69,7 @@ public class KeyRenewalApplication extends Application implements TranslationKey
     private volatile UpgradeService upgradeService;
     private volatile JsonService jsonService;
     private volatile Clock clock;
+    private volatile KeyRenewalCustomPropertySet keyRenewalCustomPropertySet;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -133,10 +143,10 @@ public class KeyRenewalApplication extends Application implements TranslationKey
         this.serviceCallService = serviceCallService;
     }
 
-    /*@Reference(target = "(name=" + KeyRenewalCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
-       public void setCustomPropertySet(CustomPropertySet customPropertySet) {
-           // PATCH; required for proper startup; do not delete
-       }*/
+    @Reference(target = "(name=" + KeyRenewalCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setCustomPropertySet(KeyRenewalCustomPropertySet keyRenewalCustomPropertySet) {
+        this.keyRenewalCustomPropertySet = keyRenewalCustomPropertySet;
+    }
 
        @Reference
     public void setJsonService(JsonService jsonService) {
@@ -151,6 +161,7 @@ public class KeyRenewalApplication extends Application implements TranslationKey
                 bind(MessageService.class).toInstance(messageService);
                 bind(ServiceCallService.class).toInstance(serviceCallService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+                bind(KeyRenewalCustomPropertySet.class).toInstance(keyRenewalCustomPropertySet);
             }
         });
         upgradeService.register(InstallIdentifier.identifier(KeyRenewalChecklist.APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
@@ -198,6 +209,7 @@ public class KeyRenewalApplication extends Application implements TranslationKey
             bind(propertySpecService).to(PropertySpecService.class);
             bind(serviceCallService).to(ServiceCallService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
+            bind(keyRenewalCustomPropertySet).to(KeyRenewalCustomPropertySet.class);
             bind(messageService).to(MessageService.class);
             bind(jsonService).to(JsonService.class);
             bind(clock).to(Clock.class);
@@ -207,7 +219,6 @@ public class KeyRenewalApplication extends Application implements TranslationKey
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ServiceCallCommands.class).to(ServiceCallCommands.class);
             bind(HeadEndController.class).to(HeadEndController.class);
-            bind(KeyRenewalCustomPropertySet.class).to(KeyRenewalCustomPropertySet.class);
         }
     }
 }

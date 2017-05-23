@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.processes.keyrenewal.api;
 
 import com.elster.jupiter.cps.CustomPropertySet;
@@ -6,20 +10,19 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.processes.keyrenewal.api.servicecall.KeyRenewalCustomPropertySet;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
+
+import org.mockito.Mock;
 
 /**
  * Created by sla on 21/03/2017.
@@ -51,6 +54,8 @@ public class KeyRenewalApplicationTest extends FelixRestApplicationJerseyTest {
     UpgradeService upgradeService;
     @Mock
     CustomPropertySet customPropertySet;
+    @Mock
+    KeyRenewalCustomPropertySet keyRenewalCustomPropertySet;
 
     @Override
     protected Application getApplication() {
@@ -69,7 +74,7 @@ public class KeyRenewalApplicationTest extends FelixRestApplicationJerseyTest {
         application.setUpgradeService(upgradeService);
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
-   //     application.setCustomPropertySet(customPropertySet);
+        application.setCustomPropertySet(keyRenewalCustomPropertySet);
         return application;
     }
 }
