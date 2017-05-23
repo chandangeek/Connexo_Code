@@ -125,6 +125,11 @@ public class JbpmTaskResource {
                 predicatesProcessId.add(criteriaBuilder.equal(taskRoot.get("taskData").get("processId"), each));
             }
 
+            if (!predicatesProcessId.isEmpty()) {
+                Predicate p1 = criteriaBuilder.or(predicatesProcessId.toArray(new Predicate[predicatesProcessId.size()]));
+                predicateList.add(p1);
+            }
+
             if (!predicatesDeploymentId.isEmpty()) {
                 Predicate p1 = criteriaBuilder.or(predicatesDeploymentId.toArray(new Predicate[predicatesDeploymentId.size()]));
                 predicateList.add(p1);
