@@ -5,6 +5,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 
+import com.google.common.collect.Range;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,15 +14,14 @@ import java.util.List;
 
 public class EstimationErrorException extends RuntimeException {
 
-    private List<Instant> readings = new ArrayList<>();
+    private List<Range<Instant>> ranges = new ArrayList<>();
 
-    public EstimationErrorException(List<Instant> readings) {
+    public EstimationErrorException(List<Range<Instant>> ranges) {
         super();
-        this.readings = readings;
+        this.ranges = ranges;
     }
 
-    public List<Instant> getReadings() {
-        return Collections.unmodifiableList(this.readings);
+    public List<Range<Instant>> getRanges() {
+        return Collections.unmodifiableList(this.ranges);
     }
-
 }
