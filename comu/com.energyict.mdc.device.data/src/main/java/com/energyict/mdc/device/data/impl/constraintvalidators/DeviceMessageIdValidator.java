@@ -22,43 +22,49 @@ public class DeviceMessageIdValidator implements ConstraintValidator<ValidDevice
 
     @Override
     public boolean isValid(DeviceMessageImpl deviceMessage, ConstraintValidatorContext constraintValidatorContext) {
-
-        if (deviceMessage.getDevice()
-                .getDeviceType()
-                .getDeviceProtocolPluggableClass()
-                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
-                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
-                        .map(DeviceMessageId::from)
-                        .collect(Collectors.toList())).orElse(Collections.emptyList())
-                .stream()
-                .filter(deviceMessageId -> deviceMessageId.equals(deviceMessage.getDeviceMessageId()))
-                .count() != 1) {
-            constraintValidatorContext.disableDefaultConstraintViolation();
-            constraintValidatorContext.
-                    buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED + "}").
-                    addPropertyNode(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).
-                    addPropertyNode("device").
-                    addConstraintViolation();
+        if (!isMessageSupportedByProtocol(deviceMessage)){
+            addConstraintViolation(constraintValidatorContext, MessageSeeds.Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED) ;
             return false;
         }
-        if (!deviceMessage.getDevice()
-                .getDeviceConfiguration()
-                .getDeviceMessageEnablements()
-                .stream()
-                .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId()
-                        .equals(deviceMessage.getDeviceMessageId()))
-                .findAny()
-                .isPresent()) {
-            constraintValidatorContext.disableDefaultConstraintViolation();
-            constraintValidatorContext.
-                    buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG + "}").
-                    addPropertyNode(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).
-                    addPropertyNode("device").
-                    addConstraintViolation();
+        if (!isMessageAllowedByConfig(deviceMessage)){
+            addConstraintViolation(constraintValidatorContext, MessageSeeds.Keys.DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG) ;
             return false;
         }
-
         return true;
     }
+
+    private boolean isMessageSupportedByProtocol(DeviceMessageImpl deviceMessage){
+         return deviceMessage.getDevice()
+                         .getDeviceType()
+                         .getDeviceProtocolPluggableClass()
+                         .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
+                                 .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
+                                 .map(DeviceMessageId::from)
+                                 .collect(Collectors.toList())).orElse(Collections.emptyList())
+                         .stream()
+                         .filter(deviceMessageId -> deviceMessageId.equals(deviceMessage.getDeviceMessageId()))
+                         .count() == 1;
+    }
+
+    private boolean isMessageAllowedByConfig(DeviceMessageImpl deviceMessage){
+        return deviceMessage.getDevice()
+                        .getDeviceConfiguration()
+                        .getDeviceMessageEnablements()
+                        .stream()
+                        .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId()
+                                .equals(deviceMessage.getDeviceMessageId()))
+                        .findAny()
+                        .isPresent();
+    }
+
+    private void addConstraintViolation( ConstraintValidatorContext constraintValidatorContext, String messageSeedKey){
+        constraintValidatorContext.disableDefaultConstraintViolation();
+        constraintValidatorContext.
+                buildConstraintViolationWithTemplate("{" + messageSeedKey + "}").
+                addPropertyNode(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).
+                addPropertyNode("device").
+                addConstraintViolation();
+    }
+
 
 }
