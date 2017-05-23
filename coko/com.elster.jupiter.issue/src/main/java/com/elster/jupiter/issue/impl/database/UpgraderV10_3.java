@@ -5,10 +5,6 @@
 package com.elster.jupiter.issue.impl.database;
 
 
-import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
-import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -39,6 +35,7 @@ public class UpgraderV10_3 implements Upgrader {
     private void upgradeOpenIssue() {
         try (Connection connection = this.dataModel.getConnection(true)) {
             this.upgradeOpenIssue(connection);
+            this.changeUniqueIndex(connection);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
@@ -61,4 +58,16 @@ public class UpgraderV10_3 implements Upgrader {
         }
     }
 
+    private void changeUniqueIndex(Connection connection) {
+        String[] sqlStatements = {
+                "DROP INDEX ISU_UQ_RULE_NAME",
+                "CREATE UNIQUE INDEX ISU_UQ_RULE_NAME ON ISU_CREATIONRULE (NAME, TEMPLATE, OBSOLETE_TIME)"};
+        for (String sqlStatement : sqlStatements) {
+            try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
+            }
+        }
+    }
 }
