@@ -344,7 +344,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                     message.set('version', container.device.get('version'));
                     message.endEdit();
                     Ext.Ajax.request({
-                        url: message.getProxy().url + '/' + devicemessageId + '/activate',
+                        url: "/api/fwc/devices/" + router.arguments.deviceId + '/firmwaremessages/' + devicemessageId + '/activate',
                         isNotEdit: true,
                         method: 'PUT',
                         jsonData: Ext.encode(message.getData()),
