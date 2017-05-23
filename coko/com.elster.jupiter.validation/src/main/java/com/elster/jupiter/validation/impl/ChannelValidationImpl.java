@@ -143,7 +143,7 @@ final class ChannelValidationImpl implements ChannelValidation {
         if (instant.isAfter(lastChecked)) {
             return false;
         }
-        Instant lastCheckedCandidate = instant.minusMillis(1);
+        Instant lastCheckedCandidate = getChannel().getPreviousDateTime(instant);
         Instant minLastChecked = minLastChecked();
         return updateLastChecked(minLastChecked.isAfter(lastCheckedCandidate) ? minLastChecked : lastCheckedCandidate);
     }
@@ -172,7 +172,7 @@ final class ChannelValidationImpl implements ChannelValidation {
             return versions.stream()
                     .map(currentVersion -> Ranges.nonEmptyIntersection(dataRange, currentVersion.getRange())
                             .flatMap(rangeToValidate -> {
-                                ChannelValidator validator = new ChannelValidator(getChannel(), rangeToValidate);
+                                ChannelValidator validator = new ChannelValidator(channel, rangeToValidate);
                                 return activeRulesOfVersion(currentVersion).stream()
                                         .map(validator::validateRule)
                                         .min(Comparator.naturalOrder()); // minimum by rules
