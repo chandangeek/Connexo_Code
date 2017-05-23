@@ -19,8 +19,10 @@ import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.estimators.AbstractEstimator;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -47,14 +49,17 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.LongSummaryStatistics;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.Math.abs;
 import static java.math.RoundingMode.HALF_UP;
@@ -142,9 +147,9 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
     private static final Long MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE = 10L;
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
 
-    private final ValidationService validationService;
     private final MeteringService meteringService;
     private final TimeService timeService;
+    private final DataCacheService dataCacheService;
 
     private TimeDuration maxPeriodOfConsecutiveSuspects;
     private Long minNumberOfSamples;
@@ -153,22 +158,23 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
     private RelativePeriod relativePeriod;
     private AdvanceReadingsSettings advanceReadingsSettings;
 
+
     AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService,
                                 ValidationService validationService, MeteringService meteringService,
                                 TimeService timeService) {
         super(thesaurus, propertySpecService);
-        this.validationService = validationService;
         this.meteringService = meteringService;
         this.timeService = timeService;
+        this.dataCacheService = new DataCacheService(validationService);
     }
 
     AverageWithSamplesEstimator(Thesaurus thesaurus, PropertySpecService propertySpecService,
                                 ValidationService validationService, MeteringService meteringService,
                                 TimeService timeService, Map<String, Object> properties) {
         super(thesaurus, propertySpecService, properties);
-        this.validationService = validationService;
         this.meteringService = meteringService;
         this.timeService = timeService;
+        this.dataCacheService = new DataCacheService(validationService);
         checkRequiredProperties();
     }
 
@@ -177,6 +183,7 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
         List<EstimationBlock> remain = new ArrayList<>();
         List<EstimationBlock> estimated = new ArrayList<>();
         Set<QualityCodeSystem> systems = Estimator.qualityCodeSystemsToTakeIntoAccount(system);
+        initalizeDataCache(estimationBlocks);
         for (EstimationBlock block : estimationBlocks) {
             try (LoggingContext contexts = initLoggingContext(block)) {
                 if (!isEstimable(block)) {
@@ -253,53 +260,53 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
                 .finish());
 
         builder.add(
-            getPropertySpecService()
-                .booleanSpec()
-                .named(TranslationKeys.ALLOW_NEGATIVE_VALUES)
-                .describedAs(TranslationKeys.ALLOW_NEGATIVE_VALUES_DESCRIPTION)
-                .fromThesaurus(this.getThesaurus())
-                .markRequired()
-                .finish());
+                getPropertySpecService()
+                        .booleanSpec()
+                        .named(TranslationKeys.ALLOW_NEGATIVE_VALUES)
+                        .describedAs(TranslationKeys.ALLOW_NEGATIVE_VALUES_DESCRIPTION)
+                        .fromThesaurus(this.getThesaurus())
+                        .markRequired()
+                        .finish());
 
         builder.add(
-            getPropertySpecService()
-                .specForValuesOf(new AdvanceReadingsSettingsFactory(meteringService))
-                .named(TranslationKeys.ADVANCE_READINGS_SETTINGS)
-                .describedAs(TranslationKeys.ADVANCE_READINGS_SETTINGS_DESCRIPTION)
-                .fromThesaurus(this.getThesaurus())
-                .markRequired()
-                .setDefaultValue(NoneAdvanceReadingsSettings.INSTANCE)
-                .finish());
+                getPropertySpecService()
+                        .specForValuesOf(new AdvanceReadingsSettingsFactory(meteringService))
+                        .named(TranslationKeys.ADVANCE_READINGS_SETTINGS)
+                        .describedAs(TranslationKeys.ADVANCE_READINGS_SETTINGS_DESCRIPTION)
+                        .fromThesaurus(this.getThesaurus())
+                        .markRequired()
+                        .setDefaultValue(NoneAdvanceReadingsSettings.INSTANCE)
+                        .finish());
 
         builder.add(
-            getPropertySpecService()
-                    .longSpec()
-                    .named(TranslationKeys.MIN_NUMBER_OF_SAMPLES)
-                    .describedAs(TranslationKeys.MIN_NUMBER_OF_SAMPLES_DESCRIPTION)
-                    .fromThesaurus(this.getThesaurus())
-                    .markRequired()
-                    .setDefaultValue(MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE)
-                    .finish());
+                getPropertySpecService()
+                        .longSpec()
+                        .named(TranslationKeys.MIN_NUMBER_OF_SAMPLES)
+                        .describedAs(TranslationKeys.MIN_NUMBER_OF_SAMPLES_DESCRIPTION)
+                        .fromThesaurus(this.getThesaurus())
+                        .markRequired()
+                        .setDefaultValue(MIN_NUMBER_OF_SAMPLES_DEFAULT_VALUE)
+                        .finish());
 
         builder.add(
-            getPropertySpecService()
-                    .longSpec()
-                    .named(TranslationKeys.MAX_NUMBER_OF_SAMPLES)
-                    .describedAs(TranslationKeys.MAX_NUMBER_OF_SAMPLES_DESCRIPTION)
-                    .fromThesaurus(this.getThesaurus())
-                    .markRequired()
-                    .setDefaultValue(MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE)
-                    .finish());
+                getPropertySpecService()
+                        .longSpec()
+                        .named(TranslationKeys.MAX_NUMBER_OF_SAMPLES)
+                        .describedAs(TranslationKeys.MAX_NUMBER_OF_SAMPLES_DESCRIPTION)
+                        .fromThesaurus(this.getThesaurus())
+                        .markRequired()
+                        .setDefaultValue(MAX_NUMBER_OF_SAMPLES_DEFAULT_VALUE)
+                        .finish());
 
         builder.add(
-            getPropertySpecService()
-                .relativePeriodSpec()
-                .named(TranslationKeys.RELATIVE_PERIOD)
-                .describedAs(TranslationKeys.RELATIVE_PERIOD_DESCRIPTION)
-                .fromThesaurus(this.getThesaurus())
-                .markRequired()
-                .setDefaultValue(timeService.getAllRelativePeriod())
-                .finish());
+                getPropertySpecService()
+                        .relativePeriodSpec()
+                        .named(TranslationKeys.RELATIVE_PERIOD)
+                        .describedAs(TranslationKeys.RELATIVE_PERIOD_DESCRIPTION)
+                        .fromThesaurus(this.getThesaurus())
+                        .markRequired()
+                        .setDefaultValue(timeService.getAllRelativePeriod())
+                        .finish());
 
         return builder.build();
     }
@@ -398,8 +405,8 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     private Optional<BigDecimal> calculateConsumptionUsingBulk(Channel channel, ReadingType bulkReadingType, Instant startInterval, Instant endInterval) {
-        Optional<BaseReadingRecord> startBulkReading = channel.getReading(channel.getPreviousDateTime(startInterval));
-        Optional<BaseReadingRecord> endBulkReading = channel.getReading(endInterval);
+        Optional<BaseReadingRecord> startBulkReading = dataCacheService.getReading(channel, channel.getPreviousDateTime(startInterval));
+        Optional<BaseReadingRecord> endBulkReading = dataCacheService.getReading(channel, endInterval);
         if ((!startBulkReading.isPresent()) || (!endBulkReading.isPresent())) {
             String message = "Failed estimation with {rule}: Block {block} since the surrounding bulk readings are not available";
             LoggingContext.get().info(getLogger(), message);
@@ -436,8 +443,8 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private static BigDecimal getTotalConsumption(List<? extends BaseReadingRecord> readings, ReadingType readingType, Map<Instant, BigDecimal> percentages) {
-        return readings.stream()
+    private static BigDecimal getTotalConsumption(Stream<BaseReadingRecord> readingStream, ReadingType readingType, Map<Instant, BigDecimal> percentages) {
+        return readingStream
                 .map(reading -> {
                     BigDecimal percentage = percentages.get(reading.getTimeStamp()).setScale(10, HALF_UP);
                     return Optional.ofNullable(reading.getQuantity(readingType))
@@ -466,12 +473,15 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
         Instant startInterval = estimables.get(0).getTimestamp();
         Instant endInterval = estimables.get(estimables.size() - 1).getTimestamp();
 
-        ReadingType registerReadingType =
-                ((ReadingTypeAdvanceReadingsSettings) advanceReadingsSettings).getReadingType();
-        List<? extends BaseReadingRecord> readingsBefore =
-                estimationBlock.getChannel().getChannelsContainer().getReadingsBefore(startInterval, registerReadingType, 1);
-        List<? extends BaseReadingRecord> readingsAfter =
-                estimationBlock.getChannel().getChannelsContainer().getReadings(Range.atLeast(endInterval), registerReadingType);
+        ReadingType registerReadingType = ((ReadingTypeAdvanceReadingsSettings) advanceReadingsSettings).getReadingType();
+        ChannelsContainer channelsContainer = estimationBlock.getChannel().getChannelsContainer();
+        Optional<Channel> register = channelsContainer.getChannel(registerReadingType);
+        if (register.isPresent()) {
+            dataCacheService.fetchData(register.get(), Range.atLeast(endInterval));
+        }
+        List<? extends BaseReadingRecord> readingsBefore = register.isPresent() ? register.get().getReadingsBefore(startInterval, 1) : Collections.emptyList();
+        List<? extends BaseReadingRecord> readingsAfter = register.isPresent() ? dataCacheService.getReadings(register.get(), Range.atLeast(endInterval))
+                .collect(Collectors.toList()) : Collections.emptyList();
 
         if (readingsBefore.isEmpty()) {
             String message = "Failed estimation with {rule}: Block {block} since the prior advance reading has no value";
@@ -522,8 +532,7 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
         Map<Instant, BigDecimal> percentages = percentages(instants, readingBefore.getTimeStamp(),
                 estimationBlock.getChannel().getPreviousDateTime(startInterval), estimationBlock.getChannel().getZoneId(),
                 estimationBlock.getChannel().getIntervalLength().get());
-        BigDecimal consumptionBetweenPreviousRegisterReadingAndStartOfBlock = getTotalConsumption(
-                estimationBlock.getChannel().getReadings(preInterval), estimationBlock.getReadingType(), percentages);
+        BigDecimal consumptionBetweenPreviousRegisterReadingAndStartOfBlock = getTotalConsumption(dataCacheService.getReadings(estimationBlock.getChannel(), preInterval), estimationBlock.getReadingType(), percentages);
 
         Range<Instant> postInterval = Range.openClosed(endInterval, readingAfter.getTimeStamp());
         instants = new ArrayList<>(estimationBlock.getChannel().toList(postInterval));
@@ -539,8 +548,8 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
         }
         percentages = percentages(instants, endInterval, readingAfter.getTimeStamp(), estimationBlock.getChannel().getZoneId(),
                 estimationBlock.getChannel().getIntervalLength().get());
-        BigDecimal consumptionBetweenEndOfBlockAndNextRegisterReading = getTotalConsumption(
-                estimationBlock.getChannel().getReadings(Range.openClosed(endInterval, lastOf(instants))), estimationBlock.getReadingType(), percentages);
+        BigDecimal consumptionBetweenEndOfBlockAndNextRegisterReading = getTotalConsumption(dataCacheService.getReadings(estimationBlock.getChannel(), Range.openClosed(endInterval, lastOf(instants))),
+                estimationBlock.getReadingType(), percentages);
 
         BigDecimal totalConsumption = consumptionBetweenRegisterReadings.subtract(
                 consumptionBetweenPreviousRegisterReadingAndStartOfBlock).subtract(
@@ -597,6 +606,33 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
         return true;
     }
 
+    private void initalizeDataCache(List<EstimationBlock> estimationBlocks) {
+        LongSummaryStatistics collect = estimationBlocks.stream()
+                .flatMap(estimationBlock -> estimationBlock.estimatables().stream())
+                .map(Estimatable::getTimestamp)
+                .map(Instant::toEpochMilli)
+                .collect(Collectors.summarizingLong(Long::longValue));
+        if (!estimationBlocks.isEmpty()) {
+            Channel channel = estimationBlocks.get(0).getChannel();
+            Range<Instant> period = getPeriod(channel, Range.closed(Instant.ofEpochMilli(collect.getMin()), Instant.ofEpochMilli(collect.getMax())));
+            dataCacheService.fetchData(channel, period);
+        }
+    }
+
+
+    private Range<Instant> getPeriod(Channel channel, Range<Instant> dataRange) {
+        if (relativePeriod != null && timeService.getAllRelativePeriod().getId() != relativePeriod.getId()) {
+            Range<Instant> leftInterval = relativePeriod.getOpenClosedInterval(ZonedDateTime.ofInstant(dataRange.lowerEndpoint(), channel.getZoneId()));
+            Range<Instant> rightInterval = relativePeriod.getOpenClosedInterval(ZonedDateTime.ofInstant(dataRange.upperEndpoint(), channel.getZoneId()));
+            return leftInterval.span(rightInterval);
+        } else {
+            Instant start = channel.getChannelsContainer().getStart();
+            Optional<Instant> lastChecked = dataCacheService.getLastChecked(channel);
+            return lastChecked.map(end -> Range.openClosed(start, end)).orElseGet(() -> Range.greaterThan(start));
+        }
+    }
+
+
     private boolean estimateWithoutAdvances(EstimationBlock estimationBlock, Estimatable estimatable, Set<QualityCodeSystem> systems) {
         Instant timeToEstimate = estimatable.getTimestamp();
         Range<Instant> period = getPeriod(estimationBlock.getChannel(), timeToEstimate);
@@ -625,32 +661,52 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
         return true;
     }
 
-    private static List<BaseReadingRecord> getSamples(EstimationBlock estimationBlock, Instant estimableTime,
-                                                      Range<Instant> period, Set<QualityCodeSystem> systems) {
-        return estimationBlock.getChannel().getReadings(period).stream()
+    private List<BaseReadingRecord> getSamples(EstimationBlock estimationBlock, Instant estimableTime,
+                                               Range<Instant> period, Set<QualityCodeSystem> systems) {
+
+
+        return dataCacheService.getReadings(estimationBlock.getChannel(), period)
                 .filter(record -> isValidSample(estimationBlock, estimableTime, record, systems))
                 .sorted(new SamplesComparator(estimableTime, estimationBlock.getChannel().getZoneId()))
                 .collect(Collectors.toList());
+
     }
 
-    private static boolean isValidSample(EstimationBlock estimationBlock, Instant estimableTime,
-                                         BaseReadingRecord record, Set<QualityCodeSystem> systems) {
+    private boolean isValidSample(EstimationBlock estimationBlock, Instant estimableTime,
+                                  BaseReadingRecord record, Set<QualityCodeSystem> systems) {
         ZoneId zone = estimationBlock.getChannel().getZoneId();
-        return sameTimeOfWeek(ZonedDateTime.ofInstant(record.getTimeStamp(), zone), ZonedDateTime.ofInstant(estimableTime, zone))
+        boolean sameTimeOfWeek = sameTimeOfWeek(ZonedDateTime.ofInstant(record.getTimeStamp(), zone), ZonedDateTime.ofInstant(estimableTime, zone));
+        boolean ofRequiredQuality = ofRequiredQuality(estimationBlock, record, systems);
+        boolean valid = sameTimeOfWeek
                 && record.getQuantity(estimationBlock.getReadingType()) != null
-                && ofRequiredQuality(estimationBlock, record.getTimeStamp(), systems)
+                && ofRequiredQuality
                 && !estimableTime.equals(record.getTimeStamp());
+        return valid;
     }
 
-    private static boolean ofRequiredQuality(EstimationBlock estimationBlock, Instant timeStamp, Set<QualityCodeSystem> systems) {
-        return estimationBlock.getCimChannel().findReadingQualities()
+    private boolean ofRequiredQuality(EstimationBlock estimationBlock, BaseReadingRecord record, Set<QualityCodeSystem> systems) {
+        boolean anyMatch = dataCacheService.getReadingQualities(estimationBlock.getChannel())
+                .filter(rqr -> rqr.getReadingTimestamp().equals(record.getTimeStamp()))
+                .map(ReadingQualityRecord::getType)
+                .anyMatch(rqt -> systems.contains(rqt.system().get())
+                        && (ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.ACCEPTED).contains(rqt.qualityIndex().get())
+                        || ImmutableSet.of(QualityCodeCategory.ESTIMATED, QualityCodeCategory.EDITED).contains(rqt.qualityIndex().get().category())));
+        return !anyMatch;
+        /*return !record.getReadingQualities().stream()
+                .filter(ReadingQualityRecord::isActual)
+                .filter(rr -> systems.contains(rr.getType().system().get()))
+                .filter(rr -> ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.ACCEPTED).contains(rr.getType().qualityIndex().get()))
+                .findFirst().isPresent();*/
+        /*return estimationBlock.getCimChannel().findReadingQualities()
                 .atTimestamp(timeStamp)
                 .actual()
                 .ofQualitySystems(systems)
                 .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.ACCEPTED))
                 .orOfAnotherTypeInSameSystems()
                 .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.ESTIMATED, QualityCodeCategory.EDITED))
-                .noneMatch();
+                .noneMatch();*/
+
+
     }
 
     private static boolean sameTimeOfWeek(ZonedDateTime first, ZonedDateTime second) {
@@ -663,7 +719,7 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
             return relativePeriod.getOpenClosedInterval(ZonedDateTime.ofInstant(referenceTime, channel.getZoneId()));
         } else {
             Instant start = channel.getChannelsContainer().getStart();
-            Optional<Instant> lastChecked = validationService.getLastChecked(channel);
+            Optional<Instant> lastChecked = dataCacheService.getLastChecked(channel);
             return lastChecked.map(end -> Range.openClosed(start, end)).orElseGet(() -> Range.greaterThan(start));
         }
     }
@@ -679,4 +735,6 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
                 .ofAnyQualityIndexInCategory(QualityCodeCategory.ESTIMATED)
                 .noneMatch();
     }
+
+
 }
