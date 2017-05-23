@@ -433,6 +433,9 @@ public final class TimeSeriesImpl implements TimeSeries {
 
     @Override
     public Instant getPreviousDateTime(Instant instant) {
+        if (isRegular() && !isValid(instant)) {
+            return next(validInstantOnOrAfter(instant), -1);
+        }
         return next(instant, -1);
     }
 
