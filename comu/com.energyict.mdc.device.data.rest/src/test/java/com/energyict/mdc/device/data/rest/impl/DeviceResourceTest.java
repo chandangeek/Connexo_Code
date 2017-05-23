@@ -465,11 +465,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         DeviceMessageSpec deviceMessageSpecWithType = mock(DeviceMessageSpec.class);
         when(deviceMessageSpecWithType.getPropertySpecs()).thenReturn(Arrays.asList(activationDatePropertySpec, typePropertySpec, namePropertySpec, calendarPropertySpec));
-        when(deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE.dbValue())).thenReturn(Optional.of(deviceMessageSpecWithType));
+        when(deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE.dbValue())).thenReturn(Optional.of(deviceMessageSpecWithType));
 
         DeviceMessageSpec deviceMessageSpecWithContract = mock(DeviceMessageSpec.class);
         when(deviceMessageSpecWithContract.getPropertySpecs()).thenReturn(Arrays.asList(activationDatePropertySpec, contractPropertySpec, namePropertySpec, calendarPropertySpec));
-        when(deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT.dbValue())).thenReturn(Optional.of(deviceMessageSpecWithContract));
+        when(deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_CONTRACT.dbValue())).thenReturn(Optional.of(deviceMessageSpecWithContract));
 
         SendCalendarInfo infoWithDateAndType = new SendCalendarInfo();
         Instant activationDate = Instant.now();

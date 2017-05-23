@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.properties.PropertySpec;
@@ -101,10 +102,13 @@ public class ChannelValidationResourceTest extends DeviceDataRestApplicationJers
     @Before
     public void before() {
         // mock device
+        MeterActivation meterActivation = mock(MeterActivation.class);
         when(deviceService.findDeviceByName(DEVICE_NAME)).thenReturn(Optional.of(device));
         when(device.getName()).thenReturn(DEVICE_NAME);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.forValidation()).thenReturn(deviceValidation);
+        doReturn(Optional.of(meterActivation)).when(device).getCurrentMeterActivation();
+        when(deviceValidation.isValidationActive()).thenReturn(true);
 
         // mock channels
         when(device.getChannels()).thenReturn(Collections.singletonList(channel));
@@ -147,6 +151,7 @@ public class ChannelValidationResourceTest extends DeviceDataRestApplicationJers
         when(overriddenProperties.getId()).thenReturn(14L);
         when(overriddenProperties.getVersion()).thenReturn(15L);
         when(overriddenProperties.getProperties()).thenReturn(ImmutableMap.of(REQUIRED_PROPERTY, 11));
+        when(overriddenProperties.getDevice()).thenReturn(device);
         doReturn(Optional.of(overriddenProperties)).when(deviceValidation).findOverriddenProperties(validationRule, collectedReadingType);
         doReturn(Optional.empty()).when(deviceValidation).findOverriddenProperties(validationRule, calculatedReadingType);
 
@@ -203,7 +208,7 @@ public class ChannelValidationResourceTest extends DeviceDataRestApplicationJers
         when(overriddenProperties.getId()).thenReturn(14L);
         when(overriddenProperties.getVersion()).thenReturn(15L);
         when(overriddenProperties.getProperties()).thenReturn(ImmutableMap.of(REQUIRED_PROPERTY, 11));
-
+        when(overriddenProperties.getDevice()).thenReturn(device);
         doReturn(Optional.of(overriddenProperties)).when(deviceValidation).findOverriddenProperties(validationRule, collectedReadingType);
 
         // Business method
