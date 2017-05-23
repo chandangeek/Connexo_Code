@@ -15,15 +15,14 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.UsagePointManagementException;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionEnd;
 import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionStart;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDateInThePast;
-import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd;
 import com.elster.jupiter.metering.config.UnsatisfiedMetrologyConfigurationEndDate;
-import com.elster.jupiter.metering.config.UnsatisfiedMetrologyConfigurationStartDateRelativelyLatestStart;
 import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
@@ -359,13 +358,8 @@ public class UsagePointResource {
         try {
             usagePoint.apply(metrologyConfiguration, start, end);
             usagePoint.update();
-        } catch (UnsatisfiedReadingTypeRequirements ex) {
-            throw new FormValidationException().addException("metrologyConfiguration",
-                    com.elster.jupiter.metering.rest.impl.MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE.getDefaultFormat());
-        } catch (UnsatisfiedMetrologyConfigurationEndDate ex) {
-            throw new FormValidationException().addException("end", ex.getMessage());
-        } catch (UnsatisfiedMetrologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex) {
-            throw new FormValidationException().addException("start", ex.getMessage());
+        } catch (UsagePointManagementException ex) {
+            throw new FormValidationException().addException("metrologyConfiguration", ex.getMessage());
         }
         info.metrologyConfigurationVersion = usagePoint.getEffectiveMetrologyConfiguration(start)
                 .map(metrologyConfigurationInfoFactory::asInfo).orElse(null);
