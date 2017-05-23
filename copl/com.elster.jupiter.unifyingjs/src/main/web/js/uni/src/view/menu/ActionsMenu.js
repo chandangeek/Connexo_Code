@@ -182,13 +182,20 @@ Ext.define('Uni.view.menu.ActionsMenu', {
                     sectionResult = menuItem1.section - menuItem2.section;
                 }
                 return sectionResult === 0 ? menuItem1.text.localeCompare(menuItem2.text) : sectionResult;
+            },
+            removeSeparators = function(item) {
+                return item.xtype !== 'menuseparator';
             };
 
+
+
         if (Ext.isArray(me.items)) {
-            menuItems = Ext.Array.sort(me.items, sort);
+            menuItems = Ext.Array.filter(me.items, removeSeparators);
+            menuItems = Ext.Array.sort(menuItems, sort);
             menuItems = Ext.Array.clone(menuItems);
         } else if (Ext.isArray(me.items.items)) {
-            menuItems = Ext.Array.sort(me.items.items, sort);
+            menuItems = Ext.Array.filter(me.items.items, removeSeparators);
+            menuItems = Ext.Array.sort(menuItems, sort);
             menuItems = Ext.Array.clone(menuItems);
         }
 
@@ -226,11 +233,10 @@ Ext.define('Uni.view.menu.ActionsMenu', {
             menuItems.splice(separatorIndices[counter] + separatorsAdded, 0, {xtype: 'menuseparator', action: 'none'});
             separatorsAdded++;
         }
-        me.remove(true);
         for (var i = 0; i < menuItems.length; i++) {
             me.add(menuItems[i]);
         }
-
+        me.onBeforeShow();
     }
 
 });
