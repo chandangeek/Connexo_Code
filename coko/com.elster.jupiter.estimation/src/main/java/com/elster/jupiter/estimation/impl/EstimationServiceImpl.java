@@ -32,8 +32,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -79,6 +79,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -344,12 +345,12 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
         String name = channelsContainer.getMeter().map(HasName::getName)
                 .orElse(channelsContainer.getUsagePoint().map(HasName::getName).orElse(""));
         String purpose = channelsContainer.getUsagePoint()
-                .flatMap(usagePoint -> usagePoint.getCurrentEffectiveMetrologyConfiguration().map( emc ->
+                .flatMap(usagePoint -> usagePoint.getCurrentEffectiveMetrologyConfiguration().map(emc ->
                         emc.getMetrologyConfiguration().getContracts()
-                        .stream()
-                        .filter(metrologyContract -> report.getResults().keySet().stream().filter(rt -> getMatchingMetrologyPurposes(metrologyContract,rt)).findFirst().isPresent())
-                        .map(metrologyContract -> metrologyContract.getMetrologyPurpose().getName())
-                        .collect(Collectors.joining(" ,")))).map(p -> " of purpose " + p).orElse("");
+                                .stream()
+                                .filter(metrologyContract -> report.getResults().keySet().stream().filter(rt -> getMatchingMetrologyPurposes(metrologyContract, rt)).findFirst().isPresent())
+                                .map(metrologyContract -> metrologyContract.getMetrologyPurpose().getName())
+                                .collect(Collectors.joining(" ,")))).map(p -> " of purpose " + p).orElse("");
 
         String message = "{0} blocks estimated on {5} of {6}.\nSuccessful estimations {1}, failed estimations {2}\nPeriod of estimation from {3} until {4} .";
         LoggingContext.get().info(logger, message, estimated + notEstimated, estimated, notEstimated, from, to, channelNames, name, purpose);
@@ -413,26 +414,29 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
 
         EstimationReportImpl report = new EstimationReportImpl();
 
-        determineEstimationRules(system, channelsContainer)
-                .filter(EstimationRule::isActive)
-                .filter(rule -> rule.getReadingTypes().contains(readingType))
-                .forEach(rule -> {
-                    try (LoggingContext parentContext = LoggingContext.getCloseableContext();
-                         LoggingContext loggingContext = parentContext.with("rule", rule.getName())) {
-                        loggingContext.info(logger, "Attempting rule {rule}");
-                        Estimator estimator = rule.createNewEstimator(channelsContainer, readingType);
-                        estimator.init(logger);
-                        EstimationResult estimationResult = result.get();
-                        estimationResult.estimated().forEach(block -> report.reportEstimated(readingType, block));
-                        EstimationResult newResult = estimator.estimate(estimationResult.remainingToBeEstimated(), system);
-                        newResult.estimated().forEach(block ->
-                                loggingContext.info(logger, "Successful estimation with {rule} : block {0}",
-                                        EstimationBlockFormatter.getInstance().format(block)));
-                        result.update(newResult);
-                    }
-                });
-        result.get().estimated().forEach(block -> report.reportEstimated(readingType, block));
-        result.get().remainingToBeEstimated().forEach(block -> report.reportUnableToEstimate(readingType, block));
+        if (!result.get().remainingToBeEstimated().isEmpty()) {
+            Iterator<IEstimationRule> estimationRuleIterator = determineEstimationRules(system, channelsContainer)
+                    .filter(EstimationRule::isActive)
+                    .filter(rule -> rule.getReadingTypes().contains(readingType)).collect(Collectors.toList()).iterator();
+            while (estimationRuleIterator.hasNext() && !result.get().remainingToBeEstimated().isEmpty()) {
+                IEstimationRule rule = estimationRuleIterator.next();
+                try (LoggingContext parentContext = LoggingContext.getCloseableContext();
+                     LoggingContext loggingContext = parentContext.with("rule", rule.getName())) {
+                    loggingContext.info(logger, "Attempting rule {rule}");
+                    Estimator estimator = rule.createNewEstimator(channelsContainer, readingType);
+                    estimator.init(logger);
+                    EstimationResult estimationResult = result.get();
+                    estimationResult.estimated().forEach(block -> report.reportEstimated(readingType, block));
+                    EstimationResult newResult = estimator.estimate(estimationResult.remainingToBeEstimated(), system);
+                    newResult.estimated().forEach(block ->
+                            loggingContext.info(logger, "Successful estimation with {rule} : block {0}",
+                                    EstimationBlockFormatter.getInstance().format(block)));
+                    result.update(newResult);
+                }
+            }
+            result.get().estimated().forEach(block -> report.reportEstimated(readingType, block));
+            result.get().remainingToBeEstimated().forEach(block -> report.reportUnableToEstimate(readingType, block));
+        }
         return report;
     }
 
