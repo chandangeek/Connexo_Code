@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.pki.impl.Installer;
+import com.elster.jupiter.pki.impl.PkiServiceImpl;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -89,7 +90,7 @@ public class SoftwareSecurityDataModel {
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(PkiServiceImpl.COMPONENTNAME, Layer.DOMAIN);
     }
 
     @Reference
