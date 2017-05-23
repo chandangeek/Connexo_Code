@@ -223,9 +223,9 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                     'validation.ruleSetAdded',
                     selection.length,
                     'MDC',
-                    'Successfully added {0} validation rule sets.',
-                    'Successfully added {0} validation rule set.',
-                    'Successfully added {0} validation rule sets.'
+                    'Successfully added {0} validation rule sets',
+                    'Successfully added {0} validation rule set',
+                    'Successfully added {0} validation rule sets'
                 );
 
                 me.getApplication().fireEvent('acknowledge', message);
@@ -348,7 +348,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                 jsonData: Ext.merge(cfg.config.record.getRecordData(), {parent: scope.getValidationRuleSetsOverview().deviceConfiguration.getRecordData()}),
                 method: 'DELETE',
                 success: function () {
-                    scope.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.success', 'MDC', 'Successfully removed.'));
+                    scope.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.success', 'MDC', 'Successfully removed'));
                     store.load();
                 },
                 failure: function (response) {

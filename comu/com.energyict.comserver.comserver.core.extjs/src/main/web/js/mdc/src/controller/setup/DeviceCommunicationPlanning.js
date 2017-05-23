@@ -401,7 +401,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
                 timeout: me.REQUEST_TIMEOUT,
                 success: function (response) {
                     me.showDeviceCommunicationPlanning(deviceName);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationPlanning.addScheduleSucceeded', 'MDC', 'Schedule added.'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationPlanning.addScheduleSucceeded', 'MDC', 'Schedule added'));
                     me.navigateToCommunicationPlanning();
                 }
             });
@@ -420,7 +420,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
                 timeout: me.REQUEST_TIMEOUT,
                 success: function (response) {
                     me.showDeviceCommunicationPlanning(deviceName);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationPlanning.editScheduleSucceeded', 'MDC', 'Schedule saved.'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationPlanning.editScheduleSucceeded', 'MDC', 'Schedule saved'));
                 }
             });
         }
@@ -503,7 +503,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationPlanning', {
             jsonData: _.pick(record.getRecordData(), 'id', 'version', 'parent', 'name'),
             timeout: me.REQUEST_TIMEOUT,
             success: function (response) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationPlanning.removeScheduleSucceeded', 'MDC', 'Schedule removed.'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationPlanning.removeScheduleSucceeded', 'MDC', 'Schedule removed'));
                 me.navigateToCommunicationPlanning();
             }
         });

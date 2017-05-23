@@ -235,11 +235,11 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 jsonData: securitySettingToDelete.getRecordData(),
                 waitMsg: Uni.I18n.translate('general.removing', 'MDC', 'Removing...'),
                 success: function () {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.remove', 'MDC', 'Security setting removed'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.remove', 'MDC', 'Security set removed'));
                     me.store.load();
                 },
                 failure: function (response, request) {
-                    var errorInfo = Uni.I18n.translate('devicesecuritysetting.removeErrorMsg', 'MDC', 'Error during removal of security setting'),
+                    var errorInfo = Uni.I18n.translate('devicesecuritysetting.removeErrorMsg', 'MDC', 'Error during removal of security set'),
                         errorText = Uni.I18n.translate('general.error.unknown', 'MDC', "Unknown error occurred");
 
                     if (response.status == 400) {
@@ -371,10 +371,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                             container = Ext.widget('securitySettingForm', {
                                 deviceTypeId: deviceTypeId,
                                 deviceConfigurationId: deviceConfigurationId,
-                                securityHeader: Uni.I18n.translate('securitySetting.addSecuritySetting', 'MDC', 'Add security setting'),
+                                securityHeader: Uni.I18n.translate('securitySetting.addSecuritySet', 'MDC', 'Add security set'),
                                 actionButtonName: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                 securityAction: 'add'
-                            }),
+                            });
                             record = me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).create();
                         me.configureProxyOfAllSecurityStores(null);
                         me.loadAllSecurityStores(true, me.deviceProtocolSupportSecuritySuites);
@@ -411,7 +411,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                                 var container = Ext.widget('securitySettingForm', {
                                     deviceTypeId: deviceTypeId,
                                     deviceConfigurationId: deviceConfigurationId,
-                                    securityHeader: Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", securitySetting.get('name')),
+                                    securityHeader: Ext.String.htmlDecode(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", securitySetting.get('name'))),
                                     actionButtonName: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                                     securityAction: 'save'
                                 });
@@ -578,7 +578,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             record.save({
                 backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/deviceconfigurations/view/securitysettings').buildUrl(),
                 success: function (response) {
-                    me.handleSuccessRequest(response, Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.edit', 'MDC', 'Security setting saved'));
+                    me.handleSuccessRequest(response, Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.edit', 'MDC', 'Security set saved'));
                 },
                 failure: function (response, operation) {
                     if (operation) {

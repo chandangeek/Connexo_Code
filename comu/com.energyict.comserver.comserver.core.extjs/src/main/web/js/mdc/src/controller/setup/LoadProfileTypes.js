@@ -94,6 +94,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             model.destroy({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type removed'));
+                    me.getController('Uni.controller.history.Router').getRoute('administration/loadprofiletypes').forward();
                 },
                 callback: function () {
                     widget.setLoading(false);
@@ -352,7 +353,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         var me = this,
             assignedRegisterTypesIds = [],
             grid = me.getAddRegisterTypesGrid(),
-            store = Ext.getStore('Mdc.store.RegisterTypesToAdd');
+            store = Ext.getStore('Mdc.store.RegisterTypesToAdd'),
+            cardContainer = me.getEditPage().down('#load-profile-type-edit-registerTypes');
 
         store.data.clear();
         store.clearFilter(true);
@@ -361,10 +363,15 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             assignedRegisterTypesIds.push(item.getId());
         });
 
-        store.on('load', function () {
-            if (assignedRegisterTypes && assignedRegisterTypes.length && me.getEditPage()) {
-                me.getEditPage().down('radiogroup').items.items[1].setValue(true);
-                grid.setGridVisible(true);
+        store.on('load', function(loadedStore, records) {
+            if (records.length===0) {
+                cardContainer.getLayout().setActiveItem(1);
+            } else {
+                cardContainer.getLayout().setActiveItem(0);
+                if (assignedRegisterTypes && assignedRegisterTypes.length && me.getEditPage()) {
+                    me.getEditPage().down('radiogroup').items.items[1].setValue(true);
+                    grid.setGridVisible(true);
+                }
             }
         }, me, {single: true});
 
