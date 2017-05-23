@@ -5,6 +5,7 @@
 package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
@@ -221,16 +222,13 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
 
     @Override
     public boolean validateUniqueName(boolean caseSensitive) {
-        if (issueType.isPresent() && !issueType.get().getPrefix().equals("ALM")) {
-            return getDataModel().mapper(CreationRule.class).find().stream()
-                    .filter(creationRule -> caseSensitive ? creationRule.getName().compareTo(this.getName()) == 0 : creationRule.getName().compareToIgnoreCase(this.getName()) == 0)
-                    .filter(creationRule -> creationRule.getId() != this.getId())
-                    .noneMatch(creationRule -> !creationRule.getReason().getIssueType().getPrefix().equals("ALM"));
-        }
-        return getDataModel().mapper(CreationRule.class).find().stream()
-                .filter(creationRule -> caseSensitive ? creationRule.getName().compareTo(this.getName()) == 0 : creationRule.getName().compareToIgnoreCase(this.getName()) == 0)
-                .filter(creationRule -> creationRule.getId() != this.getId())
-                .noneMatch(creationRule -> creationRule.getReason().getIssueType().getPrefix().equals("ALM"));
+        Query<CreationRule> query = this.issueService.getIssueCreationService().getCreationRuleQuery();
+        return query.select(getUniqueNameWhereCondition(caseSensitive).and(where("id").isNotEqual(getId()))).isEmpty();
+    }
+
+    private Condition getUniqueNameWhereCondition(boolean caseSensitive) {
+        Condition duplicate = caseSensitive ? where("name").isEqualTo(this.getName()) : where("name").isEqualToIgnoreCase(this.getName());
+        return (this.getTemplate() != null) ? duplicate.and(where("template").isEqualToIgnoreCase(this.getTemplate().getName())) : Condition.FALSE;
     }
 
     @Override

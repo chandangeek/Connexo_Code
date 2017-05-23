@@ -243,7 +243,7 @@ public enum TableSpecs {
             Column reasonRefIdColumn = table.column(CREATION_RULE_REASON_ID).varChar(NAME_LENGTH).notNull().add();
             table.column(CREATION_RULE_DUE_IN_VALUE).map("dueInValue").number().conversion(NUMBER2LONG).add();
             table.column(CREATION_RULE_DUE_IN_TYPE).map("dueInType").number().conversion(NUMBER2ENUM).add();
-            table.column(CREATION_RULE_TEMPLATE_NAME).map("template").varChar(1024).notNull().add();
+            Column template = table.column(CREATION_RULE_TEMPLATE_NAME).map("template").varChar(1024).notNull().add();
             Column obsoleteColumn = table.column(CREATION_RULE_OBSOLETE_TIME).map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.column(ISSUE_COLUMN_URGENCY).map("priority.urgency").number().conversion(NUMBER2INT).installValue("25").notNull().add().since(Version.version(10, 3));
             table.column(ISSUE_COLUMN_IMPACT).map("priority.impact").number().conversion(NUMBER2INT).installValue("25").notNull().add().since(Version.version(10, 3));
@@ -251,7 +251,7 @@ public enum TableSpecs {
 
             table.primaryKey(CREATION_RULE_PK_NAME).on(idColumn).add();
             table.foreignKey(CREATION_RULE_FK_TO_REASON).map("reason").on(reasonRefIdColumn).references(ISU_REASON.name()).add();
-            table.unique(CREATION_RULE_UQ_NAME).on(nameColumn, obsoleteColumn).add();
+            table.unique(CREATION_RULE_UQ_NAME).on(nameColumn, template, obsoleteColumn).add();
         }
     },
 
