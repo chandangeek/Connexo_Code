@@ -91,7 +91,6 @@ class UsagePointGeneralCustomPropertySet implements CustomPropertySet<UsagePoint
                 .named(UsagePointGeneralDomainExtension.Fields.PREPAY.javaName(), TranslationKeys.CPS_GENERAL_PROPERTIES_PREPAY)
                 .describedAs(TranslationKeys.CPS_GENERAL_PROPERTIES_PREPAY_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
-                .markRequired()
                 .finish();
         PropertySpec marketCodeSectorSpec = propertySpecService
                 .stringSpec()
