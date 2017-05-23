@@ -183,7 +183,7 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     static void updateAll(DataModel model, List<ReadingQualityRecord> records) {
         List<ReadingQualityRecord> myRecords = new ArrayList<>(records);
-        model.mapper(ReadingQualityRecord.class).persist(myRecords);
+        model.mapper(ReadingQualityRecord.class).update(myRecords);
         decorate(records.stream()).filterSubType(ReadingQualityRecordImpl.class).forEach(ReadingQualityRecordImpl::notifyUpdated);
     }
 
