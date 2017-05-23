@@ -32,15 +32,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomPropertySetExtension {
     private final Clock clock;
     private final CustomPropertySetService customPropertySetService;
     private final Thesaurus thesaurus;
     private final UsagePointImpl usagePoint;
-
-    private List<UsagePointPropertySet> allProperties;
 
     @Inject
     UsagePointCustomPropertySetExtensionImpl(
@@ -89,13 +86,10 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
     public List<UsagePointPropertySet> getAllPropertySets() {
         List<UsagePointPropertySet> mcCPS = getPropertySetsOnMetrologyConfiguration();
         List<UsagePointPropertySet> scCPS = getPropertySetsOnServiceCategory();
-        if (this.allProperties == null) {
-            this.allProperties = new ArrayList<>(mcCPS.size() + scCPS.size());
-            this.allProperties.addAll(mcCPS);
-            this.allProperties.addAll(scCPS);
-        }
-        Stream.concat(mcCPS.stream(), scCPS.stream()).filter(cps -> !this.allProperties.contains(cps)).forEach(cps -> allProperties.add(cps));
-        return this.allProperties;
+        List<UsagePointPropertySet> allProperties = new ArrayList<>(mcCPS.size() + scCPS.size());
+        allProperties.addAll(mcCPS);
+        allProperties.addAll(scCPS);
+        return allProperties;
     }
 
     @Override
