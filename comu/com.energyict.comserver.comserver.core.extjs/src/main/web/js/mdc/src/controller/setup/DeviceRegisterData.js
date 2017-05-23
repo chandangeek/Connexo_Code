@@ -114,15 +114,20 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                     widget.down('#registerTabPanel').down('#register-data').add(dataReport);
                     tabController.showTab(1);
                     me.getFilterPanel().bindStore(dataStore);
+
                     Ext.resumeLayouts(true);
 
                     contentPanel.setLoading(false);
                     dataStore.on('load', me.onDataStoreLoad, me, {single: true});
                     dataStore.load();
                     var applyBtn = contentPanel.down('#filter-apply-all'),
-                        clearAllBtn = contentPanel.down('#filter-clear-all');
+                        clearAllBtn = contentPanel.down('#filter-clear-all'),
+                        applyDateFilter = me.getFilterPanel().down('#deviceregister-topfilter-interval');
                     if (applyBtn) {
                         applyBtn.on('click', me.onApplyFilter, me);
+                    }
+                    if(applyDateFilter) {
+                        applyDateFilter.on('filterupdate', me.onApplyFilter, me);
                     }
                     if (clearAllBtn) {
                         clearAllBtn.on('click', me.onApplyFilter, me);
