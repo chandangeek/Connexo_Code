@@ -70,7 +70,7 @@ Ext.define('Dsh.view.widget.Overview', {
                         '<tbody class="item item-{#}">' +
                         '<tr>' +
                         '<td width="50%">' +
-                        '<div style="overflow: hidden; text-overflow: ellipsis; padding-right: 20px">' +
+                        '<div style="overflow: hidden; text-overflow: ellipsis; padding-right: 20px; position: relative; z-index: 1">' +
                         '<tpl if="href">' +
                         '<a href="{href}">{displayName}</a>' +
                         '<tpl else>' +
