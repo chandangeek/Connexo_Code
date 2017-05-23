@@ -35,7 +35,7 @@ abstract public class AbstractCommand {
     abstract protected void parse(String strData) throws IOException;
 
     protected void parse(String strData, byte[] xmodemData) throws IOException {
-        throw new IOException(ProtocolTools.format("Command parsing using xmodem data is not supported for command '{0}'", new Object[]{getCommandName()}));
+        throw new IOException(ProtocolTools.format("Command parsing using xmodem data is not supported for command ''{0}''", new Object[]{getCommandName()}));
     }
 
     /**

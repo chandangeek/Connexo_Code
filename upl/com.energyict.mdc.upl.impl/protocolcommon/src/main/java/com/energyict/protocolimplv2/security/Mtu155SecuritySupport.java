@@ -5,9 +5,11 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
 
+import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.mdc.upl.TypedProperties;
 
 import java.util.Arrays;
@@ -146,22 +148,22 @@ public class Mtu155SecuritySupport extends AbstractSecuritySupport implements Le
     }
 
     private PropertySpec getEncryptionKeyTPropertySpec() {
-        return this.encryptionkeyPropertySpec(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_1);
+        return this.keyAccessorTypeReferencePropertySpec(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_1);
     }
 
     private PropertySpec getEncryptionKeyCPropertySpec() {
-        return this.encryptionkeyPropertySpec(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_2);
+        return this.keyAccessorTypeReferencePropertySpec(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_2);
     }
 
     private PropertySpec getEncryptionKeyFPropertySpec() {
-        return this.encryptionkeyPropertySpec(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_3);
+        return this.keyAccessorTypeReferencePropertySpec(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY_3);
     }
 
-    private PropertySpec encryptionkeyPropertySpec(SecurityPropertySpecTranslationKeys name) {
+    private PropertySpec keyAccessorTypeReferencePropertySpec(SecurityPropertySpecTranslationKeys translationKey) {
         return propertySpecService
-                .encryptedStringSpec()
-                .named(name.toString(), name.toString())
-                .describedAs("Description for " + name.toString())
+                .referenceSpec(KeyAccessorType.class.getName())
+                .named(translationKey.getKey(), translationKey)
+                .describedAs(new DescriptionTranslationKey(translationKey))
                 .setDefaultValue("")
                 .finish();
     }

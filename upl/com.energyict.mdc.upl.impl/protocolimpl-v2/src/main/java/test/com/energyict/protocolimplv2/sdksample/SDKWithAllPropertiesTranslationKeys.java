@@ -37,7 +37,6 @@ public enum SDKWithAllPropertiesTranslationKeys implements TranslationKey {
     SDKOBISCODEPROPERTY(Keys.SDKOBISCODEPROPERTY, "An obiscode property"),
     SDKEAN13PROPERTY(Keys.SDKEAN13PROPERTY, "An EAN13 property"),
     SDKEAN18PROPERTY(Keys.SDKEAN18PROPERTY, "An EAN18 property"),
-    SDKENCRYPTEDSTRINGPROPERTY(Keys.SDKENCRYPTEDSTRINGPROPERTY, "An encrypted string property"),
     SDKDEVICEMSSAGEFILEPROPERTY(Keys.SDKDEVICEMSSAGEFILEPROPERTY, "A device message file property"),
     SDKDEVICEGROUPPROPERTY(Keys.SDKDEVICEGROUPPROPERTY, "A device group property"),
     SDKLOADPROFILEROPERTY(Keys.SDKLOADPROFILEROPERTY, "A load profile property"),
@@ -46,7 +45,6 @@ public enum SDKWithAllPropertiesTranslationKeys implements TranslationKey {
     SDKNUMBER_LOOKUPROPERTY(Keys.SDKNUMBER_LOOKUPROPERTY, "A number lookup property"),
     SDKSTRING_LOOKUPROPERTY(Keys.SDKSTRING_LOOKUPROPERTY, "A string lookup property"),
     SDKPRIVATE_KEY_ALIASROPERTY(Keys.SDKPRIVATE_KEY_ALIASROPERTY, "A KeyAccessorType property"),
-    SDKENCRYPTEDHEXSTRINGPROPERTY(Keys.SDKENCRYPTEDHEXSTRINGPROPERTY, "An encrypted hex string property"),
     DEFAULT_OPTIONAL_PROPERTY("SDK.defaultOptionalProperty", "Default optional property"),
     DELAY_AFTER_REQUEST("SDK.delay.after.request", "Delay after request"),
     ACTIVE_CALENDAR_NAME("SDK.activeCalendarName", "Active calendar"),
@@ -108,9 +106,7 @@ public enum SDKWithAllPropertiesTranslationKeys implements TranslationKey {
         public static final String SDKOBISCODEPROPERTY = "SDKObisCodeProperty";
         public static final String SDKEAN13PROPERTY = "SDKEan13Property";
         public static final String SDKEAN18PROPERTY = "SDKEan18Property";
-        public static final String SDKENCRYPTEDSTRINGPROPERTY = "SDKEncryptedStringProperty";
         public static final String SDKDEVICEMSSAGEFILEPROPERTY = "SDKDEVICEMSSAGEFILEPROPERTY";
-        public static final String SDKENCRYPTEDHEXSTRINGPROPERTY = "SDKEncryptedHexStringProperty";
         public static final String SDKDEVICEGROUPPROPERTY = "SDKDEVICEGROUPPROPERTY";
         public static final String SDKLOADPROFILEROPERTY = "SDKLOADPROFILEROPERTY";
         public static final String SDKTARIFFCALENDARROPERTY = "SDKTARIFFCALENDARROPERTY";

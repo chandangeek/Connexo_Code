@@ -194,12 +194,6 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
                         .finish());
         optionalProperties.add(
                 this.propertySpecService
-                        .encryptedStringSpec()
-                        .named(SDKWithAllPropertiesTranslationKeys.SDKENCRYPTEDSTRINGPROPERTY)
-                        .describedAs(SDKWithAllPropertiesTranslationKeys.SDKENCRYPTEDSTRINGPROPERTY)
-                        .finish());
-        optionalProperties.add(
-                this.propertySpecService
                         .referenceSpec(com.energyict.mdc.upl.properties.DeviceMessageFile.class.getName())
                         .named(SDKWithAllPropertiesTranslationKeys.SDKDEVICEMSSAGEFILEPROPERTY)
                         .describedAs(SDKWithAllPropertiesTranslationKeys.SDKDEVICEMSSAGEFILEPROPERTY)
