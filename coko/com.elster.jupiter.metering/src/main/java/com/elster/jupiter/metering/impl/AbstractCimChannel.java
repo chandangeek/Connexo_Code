@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Pair;
 
 import com.google.common.collect.Range;
 
@@ -146,9 +147,13 @@ public abstract class AbstractCimChannel implements CimChannel {
             ProcessStatus processStatusToSet = ProcessStatus.of(ProcessStatus.Flag.EDITED);
             Map<Instant, List<ReadingQualityRecord>> readingQualitiesByTimestamp = findReadingQualitiesByTimestamp(readings, Collections.emptySet());
             ReadingStorer storer = meteringService.createUpdatingStorer(StorerProcess.EDIT);
+            List<ReadingQualityRecord> toUpdate = new ArrayList<>();
+            List<ReadingQualityRecord> toDelete = new ArrayList<>();
             for (BaseReading reading : readings) {
                 List<ReadingQualityRecord> currentQualityRecords = Optional.ofNullable(readingQualitiesByTimestamp.get(reading.getTimeStamp())).orElseGet(Collections::emptyList);
-                cleanObsoleteQualitiesWhenEditingOrEstimating(currentQualityRecords);
+                Pair<List<ReadingQualityRecord>, List<ReadingQualityRecord>> qualitiesWhenEditingOrEstimating = cleanObsoleteQualitiesWhenEditingOrEstimating(currentQualityRecords);
+                toUpdate.addAll(qualitiesWhenEditingOrEstimating.getFirst());
+                toDelete.addAll(qualitiesWhenEditingOrEstimating.getLast());
                 Optional<BaseReadingRecord> oldReading = getChannel().getReading(reading.getTimeStamp());
                 ProcessStatus processStatus = processStatusToSet.or(oldReading.map(BaseReadingRecord::getProcessStatus).orElse(ProcessStatus.of()));
                 readingQualitiesByTimestamp = findReadingQualitiesByTimestamp(readings, Collections.emptySet());
@@ -156,6 +161,8 @@ public abstract class AbstractCimChannel implements CimChannel {
                 processReadingQualities(reading, currentQualityRecords, oldReading, qualityForUpdate, qualityForCreate);
                 storer.addReading(this, reading, processStatus);
             }
+            ReadingQualityRecordImpl.updateAll(dataModel, toUpdate);
+            ReadingQualityRecordImpl.deleteAll(dataModel, toDelete);
             storer.execute(system);
         }
     }
@@ -174,21 +181,27 @@ public abstract class AbstractCimChannel implements CimChannel {
             ReadingStorer storer = meteringService.createUpdatingStorer(StorerProcess.CONFIRM);
             Set<QualityCodeSystem> controlledSystems = system == QualityCodeSystem.MDM ? Collections.emptySet() : Collections.singleton(system);
             Map<Instant, List<ReadingQualityRecord>> readingQualitiesByTimestamp = findReadingQualitiesByTimestamp(readings, controlledSystems);
+            List<ReadingQualityRecord> toUpdate = new ArrayList<>();
+            List<ReadingQualityRecord> toDelete = new ArrayList<>();
             for (BaseReading reading : readings) {
                 List<ReadingQualityRecord> currentQualityRecords = Optional.ofNullable(readingQualitiesByTimestamp.get(reading.getTimeStamp()))
                         .orElseGet(Collections::emptyList);
                 if (currentQualityRecords.stream()
                         .filter(readingQualityRecord -> readingQualityRecord.getType().getSystemCode() == system.ordinal())
                         .anyMatch(ReadingQualityRecord::isSuspect)) {
-                    cleanObsoleteQualities(currentQualityRecords,
+                    Pair<List<ReadingQualityRecord>, List<ReadingQualityRecord>> qualitiesToUpdate = cleanObsoleteQualities(currentQualityRecords,
                             ReadingQualityType::isSuspect,
                             either(ReadingQualityType::hasValidationCategory).or(ReadingQualityType::isMissing));
+                    toUpdate.addAll(qualitiesToUpdate.getFirst());
+                    toDelete.addAll(qualitiesToUpdate.getLast());
                     makeConfirmed(system, reading, currentQualityRecords);
                     Optional<BaseReadingRecord> oldReading = getReading(reading.getTimeStamp());
                     ProcessStatus processStatus = ProcessStatus.of(ProcessStatus.Flag.CONFIRMED).or(oldReading.map(BaseReadingRecord::getProcessStatus).orElse(ProcessStatus.of()));
                     storer.addReading(this, reading, processStatus);
                 }
             }
+            ReadingQualityRecordImpl.updateAll(dataModel, toUpdate);
+            ReadingQualityRecordImpl.deleteAll(dataModel, toDelete);
             storer.execute(system);
         }
     }
@@ -212,12 +225,16 @@ public abstract class AbstractCimChannel implements CimChannel {
             Optional<AbstractCimChannel> derivedCimChannel = derivedCimChannel().map(AbstractCimChannel.class::cast);
             Map<Instant, List<ReadingQualityRecord>> readingQualitiesByTimestamp = findReadingQualitiesByTimestamp(readings, Collections.emptySet());
             ReadingStorer storer = meteringService.createUpdatingStorer(StorerProcess.ESTIMATION);
+            List<ReadingQualityRecord> toUpdate = new ArrayList<>();
+            List<ReadingQualityRecord> toDelete = new ArrayList<>();
             for (BaseReading reading : readings) {
                 List<ReadingQualityRecord> currentQualityRecords = Optional.ofNullable(readingQualitiesByTimestamp.get(reading.getTimeStamp())).orElse(new ArrayList<>());
                 Optional<BaseReadingRecord> oldReading = getReading(reading.getTimeStamp());
                 ProcessStatus processStatus = ProcessStatus.of(ProcessStatus.Flag.ESTIMATED).or(oldReading.map(BaseReadingRecord::getProcessStatus).orElse(ProcessStatus.of()));
                 List<? extends ReadingQuality> readingQualitiesFromReading = reading.getReadingQualities();
-                cleanObsoleteQualitiesWhenEditingOrEstimating(currentQualityRecords);
+                Pair<List<ReadingQualityRecord>, List<ReadingQualityRecord>> cleanObsoleteQualitiesWhenEditingOrEstimating = cleanObsoleteQualitiesWhenEditingOrEstimating(currentQualityRecords);
+                toUpdate.addAll(cleanObsoleteQualitiesWhenEditingOrEstimating.getFirst());
+                toDelete.addAll(cleanObsoleteQualitiesWhenEditingOrEstimating.getLast());
 
                 processReadingQualities(reading, currentQualityRecords);
 
@@ -225,6 +242,8 @@ public abstract class AbstractCimChannel implements CimChannel {
                 derivedCimChannel
                         .ifPresent(derived -> markEstimated(derived, reading.getTimeStamp(), readingQualitiesFromReading));
             }
+            ReadingQualityRecordImpl.updateAll(dataModel, toUpdate);
+            ReadingQualityRecordImpl.deleteAll(dataModel, toDelete);
             storer.execute(system);
         }
     }
@@ -261,8 +280,8 @@ public abstract class AbstractCimChannel implements CimChannel {
         }
     }
 
-    private static void cleanObsoleteQualitiesWhenEditingOrEstimating(Collection<ReadingQualityRecord> currentQualityRecords) {
-        cleanObsoleteQualities(currentQualityRecords,
+    private Pair<List<ReadingQualityRecord>, List<ReadingQualityRecord>> cleanObsoleteQualitiesWhenEditingOrEstimating(Collection<ReadingQualityRecord> currentQualityRecords) {
+        return cleanObsoleteQualities(currentQualityRecords,
                 either(ReadingQualityType::isSuspect)
                         .or(qualityType -> qualityType.hasEditCategory()
                                 && qualityType.getIndexCode() != QualityCodeIndex.ADDED.index()
@@ -276,14 +295,16 @@ public abstract class AbstractCimChannel implements CimChannel {
                         .or(ReadingQualityType::hasProjectedCategory));
     }
 
-    private static void markEstimated(AbstractCimChannel derived, Instant timeStamp, List<? extends ReadingQuality> readingQualities) {
+    private void markEstimated(AbstractCimChannel derived, Instant timeStamp, List<? extends ReadingQuality> readingQualities) {
         markDeltaReadingEstimated(derived, timeStamp, readingQualities);
         markNextDeltaReadingEstimated(derived, timeStamp, readingQualities);//added to resolve COMU-3023
     }
 
-    private static void markDeltaReadingEstimated(AbstractCimChannel derived, Instant timeStamp, List<? extends ReadingQuality> readingQualities) {
+    private void markDeltaReadingEstimated(AbstractCimChannel derived, Instant timeStamp, List<? extends ReadingQuality> readingQualities) {
         List<ReadingQualityRecord> readingQualityRecords = derived.findReadingQualities().atTimestamp(timeStamp).collect();
-        cleanObsoleteQualitiesWhenEditingOrEstimating(readingQualityRecords);
+        Pair<List<ReadingQualityRecord>, List<ReadingQualityRecord>> listListPair = cleanObsoleteQualitiesWhenEditingOrEstimating(readingQualityRecords);
+        ReadingQualityRecordImpl.updateAll(dataModel, listListPair.getFirst());
+        ReadingQualityRecordImpl.deleteAll(dataModel, listListPair.getLast());
         Set<ReadingQualityType> presentQualityTypes = readingQualityRecords.stream().map(ReadingQualityRecord::getType).collect(Collectors.toSet());
         readingQualities.stream()
                 .map(ReadingQuality::getType)
@@ -291,7 +312,7 @@ public abstract class AbstractCimChannel implements CimChannel {
                 .forEach(type -> derived.createReadingQuality(type, timeStamp));
     }
 
-    private static void markNextDeltaReadingEstimated(AbstractCimChannel derived, Instant timeStamp, List<? extends ReadingQuality> readingQualities) {
+    private void markNextDeltaReadingEstimated(AbstractCimChannel derived, Instant timeStamp, List<? extends ReadingQuality> readingQualities) {
         Optional<TemporalAmount> interval = derived.getIntervalLength();
         if (interval.isPresent() && derived.getReading(timeStamp.plus(interval.get())).isPresent()) {
             markDeltaReadingEstimated(derived, timeStamp.plus(interval.get()), readingQualities);
@@ -310,17 +331,26 @@ public abstract class AbstractCimChannel implements CimChannel {
                 .collect(Collectors.groupingBy(ReadingQualityRecord::getReadingTimestamp));
     }
 
-    private static void cleanObsoleteQualities(Collection<ReadingQualityRecord> currentQualityRecords,
-                                               Predicate<ReadingQualityType> toRemove,
-                                               Predicate<ReadingQualityType> toMakePast) {
+    private Pair<List<ReadingQualityRecord>, List<ReadingQualityRecord>> cleanObsoleteQualities(Collection<ReadingQualityRecord> currentQualityRecords,
+                                                                                                Predicate<ReadingQualityType> toRemove,
+                                                                                                Predicate<ReadingQualityType> toMakePast) {
+        List<ReadingQualityRecord> toUpdate = new ArrayList<>();
+        List<ReadingQualityRecord> toDelete = new ArrayList<>();
         currentQualityRecords.forEach(readingQualityRecord -> {
             ReadingQualityType type = readingQualityRecord.getType();
             if (toRemove.test(type)) {
-                readingQualityRecord.delete();
+                toDelete.add(readingQualityRecord);
             } else if (readingQualityRecord.isActual() && toMakePast.test(type)) {
-                readingQualityRecord.makePast();
+                if (readingQualityRecord instanceof ReadingQualityRecordImpl) {
+                    ReadingQualityRecordImpl qualityRecord = (ReadingQualityRecordImpl) readingQualityRecord;
+                    qualityRecord.doMakePast();
+                    toUpdate.add(readingQualityRecord);
+                } else {
+                    readingQualityRecord.makePast();
+                }
+
             }
         });
-
+        return Pair.of(toUpdate, toDelete);
     }
 }
