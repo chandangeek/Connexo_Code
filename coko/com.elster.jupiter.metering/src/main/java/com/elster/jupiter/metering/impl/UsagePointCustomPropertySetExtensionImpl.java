@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.RangeComparatorFactory;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomPropertySetExtension {
     private final Clock clock;
@@ -85,13 +87,14 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
 
     @Override
     public List<UsagePointPropertySet> getAllPropertySets() {
+        List<UsagePointPropertySet> mcCPS = getPropertySetsOnMetrologyConfiguration();
+        List<UsagePointPropertySet> scCPS = getPropertySetsOnServiceCategory();
         if (this.allProperties == null) {
-            List<UsagePointPropertySet> mcCPS = getPropertySetsOnMetrologyConfiguration();
-            List<UsagePointPropertySet> scCPS = getPropertySetsOnServiceCategory();
             this.allProperties = new ArrayList<>(mcCPS.size() + scCPS.size());
             this.allProperties.addAll(mcCPS);
             this.allProperties.addAll(scCPS);
         }
+        Stream.concat(mcCPS.stream(), scCPS.stream()).filter(cps -> !this.allProperties.contains(cps)).forEach(cps -> allProperties.add(cps));
         return this.allProperties;
     }
 
