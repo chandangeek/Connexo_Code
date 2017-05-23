@@ -1820,12 +1820,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             reading.get(validationInfo).estimatedByRule = false;
             reading.get(validationInfo).validationResult = 'validationStatus.ok';
             reading.set(modificationState, Uni.util.ReadingEditor.modificationState('EDITED'));
-            reading.set(modificationState, true);
-
         }
 
         reading.endEdit(true);
-
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
 
         me.resumeEditorFieldValidation(grid.editingPlugin, {
