@@ -69,7 +69,7 @@ public enum ProtocolKeyTypes {
             return pkiService
                     .newClientCertificateType(getName(), "SHA256withECDSA")
                     .description("Client certificates to be used for DLMS/TLS Suite 1, using EC key on curve SECP256R1. This certificate will be linked to a private key.")
-                    .setKeyUsages(EnumSet.of(KeyUsage.keyAgreement, KeyUsage.keyCertSign))
+                    .setKeyUsages(EnumSet.of(KeyUsage.keyAgreement, KeyUsage.digitalSignature))
                     .setExtendedKeyUsages(EnumSet.of(ExtendedKeyUsage.tlsWebClientAuthentication, ExtendedKeyUsage.tlsWebServerAuthentication))
                     .ECDSA()
                     .curve("secp256r1")
@@ -87,7 +87,7 @@ public enum ProtocolKeyTypes {
             return pkiService
                     .newClientCertificateType(getName(), "SHA256withECDSA")
                     .description("Certificates to be used for DLMS/TLS Suite 2, using EC key on curve SECP384R1. This certificate will be linked to a private key.")
-                    .setKeyUsages(EnumSet.of(KeyUsage.keyAgreement, KeyUsage.keyCertSign))
+                    .setKeyUsages(EnumSet.of(KeyUsage.keyAgreement, KeyUsage.digitalSignature))
                     .setExtendedKeyUsages(EnumSet.of(ExtendedKeyUsage.tlsWebClientAuthentication, ExtendedKeyUsage.tlsWebServerAuthentication))
                     .ECDSA()
                     .curve("secp384r1")
