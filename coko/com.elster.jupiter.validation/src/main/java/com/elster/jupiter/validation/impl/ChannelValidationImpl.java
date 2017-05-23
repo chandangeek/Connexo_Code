@@ -143,7 +143,7 @@ final class ChannelValidationImpl implements ChannelValidation {
         if (instant.isAfter(lastChecked)) {
             return false;
         }
-        Instant lastCheckedCandidate = getChannel().getPreviousDateTime(instant);
+        Instant lastCheckedCandidate = getChannel().isRegular() ? getChannel().getPreviousDateTime(instant) : instant.minusMillis(1);
         Instant minLastChecked = minLastChecked();
         return updateLastChecked(minLastChecked.isAfter(lastCheckedCandidate) ? minLastChecked : lastCheckedCandidate);
     }
