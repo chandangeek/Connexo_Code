@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.common.DlmsProtocolProperties;
@@ -158,11 +159,7 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
     }
 
     protected PropertySpec masterKeyPropertySpec() {
-//        return this.propertySpecService.referenceSpec(KeyAccessorType.class.getName())    //TODO: temporary using hexSpec, but should use a reference spec
-//                .named(MASTER_KEY, PropertyTranslationKeys.V2_NTA_MASTERKEY)
-//                .describedAs(PropertyTranslationKeys.V2_NTA_MASTERKEY_DESCRIPTION)
-//                .finish();
-        return this.propertySpecService.hexStringSpec()
+        return this.propertySpecService.referenceSpec(KeyAccessorType.class.getName())
                 .named(MASTER_KEY, PropertyTranslationKeys.V2_NTA_MASTERKEY)
                 .describedAs(PropertyTranslationKeys.V2_NTA_MASTERKEY_DESCRIPTION)
                 .finish();

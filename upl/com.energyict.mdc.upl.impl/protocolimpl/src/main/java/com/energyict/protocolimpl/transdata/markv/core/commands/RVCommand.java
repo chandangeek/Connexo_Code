@@ -51,7 +51,7 @@ public class RVCommand extends AbstractCommand {
 
     @Override
     protected void parse(String strData) throws IOException {
-        throw new IOException(ProtocolTools.format("Command parsing without xmodem data is not supported for command '{0}'", new Object[]{getCommandName()}));
+        throw new IOException(ProtocolTools.format("Command parsing without xmodem data is not supported for command ''{0}''", new Object[]{getCommandName()}));
     }
 
     protected void parse(String strData, byte[] xmodemData) throws IOException {
