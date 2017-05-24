@@ -164,7 +164,11 @@ final class ChannelValidationImpl implements ChannelValidation {
         return lastValidationComplete;
     }
 
-    private Instant validate(Range<Instant> range) {
+    private Instant validate(Range<Instant> validationRange) {
+        if (!validationRange.hasUpperBound()) {
+            return lastChecked;
+        }
+        Range<Instant> range = Ranges.copy(validationRange).withClosedUpperBound(channel.truncateToIntervalLength(validationRange.upperEndpoint()));
         if (range.hasUpperBound() && lastChecked.isBefore(range.upperEndpoint())) {
             Range<Instant> dataRange = Ranges.copy(Range.openClosed(lastChecked, range.upperEndpoint()).intersection(range)).asOpenClosed();
             List<? extends ValidationRuleSetVersion> versions = getChannelsContainerValidation().getRuleSet().getRuleSetVersions();
@@ -187,4 +191,6 @@ final class ChannelValidationImpl implements ChannelValidation {
         }
         return lastChecked;
     }
+
+
 }

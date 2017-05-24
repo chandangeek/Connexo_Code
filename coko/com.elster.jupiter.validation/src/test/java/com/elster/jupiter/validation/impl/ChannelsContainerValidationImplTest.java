@@ -33,7 +33,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -90,6 +92,18 @@ public class ChannelsContainerValidationImplTest {
         when(channelsContainer.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(channel1.getId()).thenReturn(FIRST_CHANNEL_ID);
         doReturn(Collections.singletonList(readingType1)).when(channel1).getReadingTypes();
+        when(channel1.truncateToIntervalLength(any(Instant.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return invocationOnMock.getArguments()[0];
+            }
+        });
+        when(channel2.truncateToIntervalLength(any(Instant.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return invocationOnMock.getArguments()[0];
+            }
+        });
         when(channel2.getId()).thenReturn(SECOND_CHANNEL_ID);
         doReturn(Collections.singletonList(readingType2)).when(channel2).getReadingTypes();
         when(channel1.getChannelsContainer()).thenReturn(channelsContainer);
