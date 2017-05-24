@@ -275,14 +275,13 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
         if (!isRegular()) {
             return Collections.emptyList();
         }
-        List<BaseReadingRecord> aggregatedDataToMerge = getCalculatedIntervalReadings(interval).entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
         List<BaseReadingRecord> journaledData = getTimeSeries().getJournalEntries(interval).stream()
                 .map(entry -> new JournaledChannelReadingRecordImpl(this, entry))
                 .map(reading -> reading.filter(readingType))
                 .collect(Collectors.toList());
-        aggregatedDataToMerge.addAll(journaledData);
+        journaledData.addAll(getCalculatedIntervalReadings(interval).values());
 
-        return aggregatedDataToMerge;
+        return journaledData;
     }
 
     @Override
