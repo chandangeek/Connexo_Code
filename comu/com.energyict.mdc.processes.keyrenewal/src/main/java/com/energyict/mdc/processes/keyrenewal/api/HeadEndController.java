@@ -146,11 +146,11 @@ public class HeadEndController {
             priority = 6;
         } else if (basicCheckFound && statusInformationFound && !otherFound) {
             priority = 5;
-        } else if (basicCheckFound && !statusInformationFound && otherFound) {
+        } else if (basicCheckFound && !statusInformationFound) {
             priority = 4;
-        } else if (basicCheckFound && statusInformationFound && otherFound) {
+        } else if (basicCheckFound) {
             priority = 3;
-        } else if (!basicCheckFound && statusInformationFound && otherFound) {
+        } else if (statusInformationFound) {
             priority = 2;
         } else {
             priority = 1;
