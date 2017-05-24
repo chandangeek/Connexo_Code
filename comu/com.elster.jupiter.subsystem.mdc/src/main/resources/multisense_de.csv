@@ -6866,3 +6866,4 @@ PAC;DOMAIN;issue.protocol.readingOfFirmwareFailed;Die Firmware-Version konnte ni
 PR1;DOMAIN;protocol.retries.message;Neuversuche;
 PR1;DOMAIN;SDKBreakerDialect;SDK-Dialekt für Trennschalterprüfung;
 PR1;DOMAIN;SDKCalendarDialect;SDK-Dialekt für Kalenderprüfung;
+DAL;REST;general.workspace;Arbeitsbereich;
