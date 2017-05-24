@@ -14,7 +14,6 @@ import javax.inject.Inject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -37,7 +36,6 @@ class UpgraderV10_3 implements Upgrader {
         initiateSimultaneousConnectionsForPartialConnectionTasks();
         moveProtocolDialectProperties();
         migrateDialectNames();
-        moveClientMacAddressSecurityProperty();
     }
 
     // Initiate Partial Connection Tasks: set simultaneousconnections to 1
@@ -92,39 +90,5 @@ class UpgraderV10_3 implements Upgrader {
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
-    }
-
-    // Move 'ClientMacAddress' security property to the SecurityPropertySet
-    private void moveClientMacAddressSecurityProperty() {
-        logger.fine("Moving Client mac address security attribute to DTC_SECURITYPROPERTYSET");
-
-        List<String> sql = new ArrayList<>();
-        sql.add(generateMoveClientMacAddressSecurityPropertySqlFor("PR1_DLMS_SECURITY"));
-        sql.add(generateMoveClientMacAddressSecurityPropertySqlFor("PKI_DLMS_SECURITY"));
-        dataModel.useConnectionRequiringTransaction(connection -> {
-            try (Statement statement = connection.createStatement()) {
-                sql.forEach(sqlCommand -> execute(statement, sqlCommand));
-            }
-        });
-    }
-
-    private String generateMoveClientMacAddressSecurityPropertySqlFor(String oldTableName) {
-        String sql = "UPDATE DTC_SECURITYPROPERTYSET" +
-                " SET DTC_SECURITYPROPERTYSET.CLIENT =" +
-                "   (SELECT {0}.CLIENTMACADDRESS" +
-                "   FROM {0}" +
-                "   WHERE DTC_SECURITYPROPERTYSET.ID = {0}.PROPERTYSPECPROVIDER" +
-                "   AND {0}.ENDTIME = {1}" +
-                ")" +
-                " WHERE EXISTS" +
-                "   (SELECT 1" +
-                "   FROM {0}" +
-                "   WHERE DTC_SECURITYPROPERTYSET.ID = {0}.PROPERTYSPECPROVIDER" +
-                ")";
-        return MessageFormat.format(
-                sql,
-                oldTableName,
-                "1000000000000000000"   // Which stands for 'eternity'
-        );
     }
 }
