@@ -145,7 +145,9 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesPreview
         if (propertyValue && propertyValue.displayValue) {
             value = propertyValue.id.replace(valueRegExp, '$1') + ' ' + propertyValue.displayValue;
         } else if (possibleValues.length) {
-            value =  _.find(possibleValues, function(v){ return v.id == propertyValue; }).name;
+            value =  _.find(possibleValues, function(v){ return v.id == propertyValue.id; }).name;
+        } else if (propertyValue.name) {
+            value = propertyValue.name;
         } else if (!Ext.isEmpty(propertyValue)) {
             value = propertyValue;
         }
