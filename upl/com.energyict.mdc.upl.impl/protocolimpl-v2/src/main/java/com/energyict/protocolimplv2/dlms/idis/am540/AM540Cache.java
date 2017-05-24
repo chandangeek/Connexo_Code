@@ -4,7 +4,7 @@ import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.cache.DeviceProtocolCacheXmlMarshallAdapter;
-import com.energyict.protocol.support.FrameCounterCache;
+import com.energyict.protocol.FrameCounterCache;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
