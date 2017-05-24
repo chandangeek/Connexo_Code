@@ -7,7 +7,7 @@ Ext.define('Dxp.model.StandardDataSelector', {
 
 
     fields: [
-        'exportComplete',
+        {name: 'exportComplete', defaultValue: null},
         'exportUpdate',
         'exportContinuousData',
         {name: 'updateWindow', defaultValue: null},
