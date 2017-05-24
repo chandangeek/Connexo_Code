@@ -8,9 +8,6 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationGrid',
     store: 'Mdc.store.RuleDeviceConfigurations',
     overflowY: 'auto',
     ruleSetId: null,
-    requires: [
-        'Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationActionMenu'
-    ],
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -24,14 +21,6 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationGrid',
                 header: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
                 dataIndex: 'deviceType_name',
                 flex: 1
-            },
-            {
-                xtype: 'uni-actioncolumn',
-                width: 120,
-                privileges: Cfg.privileges.Validation.deviceConfiguration,
-                menu: {
-                    xtype: 'rule-device-configuration-action-menu'
-                }
             }
         ];
         me.dockedItems = [
