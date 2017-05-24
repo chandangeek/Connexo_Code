@@ -3,6 +3,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -43,7 +44,7 @@ public class ChannelReadingWithValidationStatus {
         return Range.openClosed(intervalStart.toInstant(), this.readingTimeStamp.toInstant());
     }
 
-    public Optional<Calendar> getCalendar(){
+    public Optional<Calendar> getCalendar() {
         return this.calendar;
     }
 
@@ -70,7 +71,10 @@ public class ChannelReadingWithValidationStatus {
 
     public List<? extends ReadingQuality> getReadingQualities() {
         if (this.readingRecord != null) {
-            List<ReadingQuality> readingQualities = new ArrayList<>(this.readingRecord.getReadingQualities());
+            List<ReadingQuality> readingQualities = new ArrayList<>(this.readingRecord.getReadingQualities().stream()
+                    .filter(ReadingQualityRecord::isActual)
+                    .map(q -> (ReadingQuality) q)
+                    .collect(Collectors.toList()));
             if (this.validationStatus != null) {
                 List<ReadingQuality> persistedReadingQualities = this.validationStatus.getReadingQualities().stream()
                         .map(ReadingQuality.class::cast)

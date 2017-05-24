@@ -633,10 +633,11 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(channel2.toList(interval)).thenReturn(Collections.singletonList(INTERVAL_1.upperEndpoint()));
         AggregatedChannel.AggregatedIntervalReadingRecord aggregatedReading = mockAggregatedIntervalReadingRecord(INTERVAL_1, BigDecimal.ONE);
         when(channel2.getAggregatedIntervalReadings(interval)).thenReturn(Collections.singletonList(aggregatedReading));
-        doReturn(Arrays.asList(
-                mockReadingQualityRecord(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC)),
-                mockReadingQualityRecord(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT))
-        )).when(aggregatedReading).getReadingQualities();
+        ReadingQualityRecord readingQualityRecord1 = mockReadingQualityRecord(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC));
+        ReadingQualityRecord readingQualityRecord2 = mockReadingQualityRecord(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT));
+        when(readingQualityRecord1.isActual()).thenReturn(true);
+        when(readingQualityRecord2.isActual()).thenReturn(true);
+        doReturn(Arrays.asList(readingQualityRecord1, readingQualityRecord2)).when(aggregatedReading).getReadingQualities();
         when(this.evaluator.isValidationEnabled(this.channel2)).thenReturn(true);
         when(this.evaluator.getLastChecked(eq(this.channelsContainer2), any(ReadingType.class))).thenReturn(Optional.of(TIMESTAMP));
 
