@@ -219,6 +219,7 @@ IMT;REST;general.validationRuleSets[many];{0} Validierungsregelsätze;
 IMT;REST;general.value;Wert;
 IMT;REST;general.valueToEstimate;Zu schätzender Wert;
 IMT;REST;general.valueWh;Wert (Wh);
+IMT;REST;general.workspace;Arbeitsbereich;
 IMT;REST;general.xsuspects;{0} fehlerverdächtige Werte;
 IMT;REST;general.yes;Ja;
 IMT;REST;metrologyconfiguration.acknowledge.add.success;Metrologie-Konfiguration hinzugefügt;
