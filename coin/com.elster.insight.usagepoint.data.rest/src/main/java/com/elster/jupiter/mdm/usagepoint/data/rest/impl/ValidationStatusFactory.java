@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -108,17 +109,20 @@ public class ValidationStatusFactory {
 
     private List<DataValidationStatus> getValidationStatus(ReadingType readingType, Range<Instant> interval, ValidationEvaluator validationEvaluator,
                                                    EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
-        MetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.getMetrologyConfiguration();
         UsagePoint usagePoint = effectiveMetrologyConfiguration.getUsagePoint();
 
-        return usagePoint.getEffectiveMetrologyConfigurations().stream().filter(emc -> emc.getMetrologyConfiguration().equals(metrologyConfiguration))
-                .map(emc -> emc.getChannelsContainer(metrologyContract))
+        return usagePoint.getEffectiveMetrologyConfigurations().stream()
+                .map(emc -> getMetrologyContract(emc.getMetrologyConfiguration(), metrologyContract.getMetrologyPurpose()).flatMap(emc::getChannelsContainer))
                 .filter(Optional::isPresent)
                 .map(channelsContainer -> channelsContainer.get().getChannel(readingType))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .flatMap(channel -> validationEvaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM), channel, Collections.emptyList(), interval).stream())
                 .collect(Collectors.toList());
+    }
+
+    private Optional<MetrologyContract> getMetrologyContract(MetrologyConfiguration metrologyConfiguration, MetrologyPurpose purpose){
+        return metrologyConfiguration.getContracts().stream().filter(metrologyContract -> metrologyContract.getMetrologyPurpose().equals(purpose)).findFirst();
     }
 
     public UsagePointValidationStatusInfo getValidationStatusInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract, ChannelsContainer channelsContainer) {

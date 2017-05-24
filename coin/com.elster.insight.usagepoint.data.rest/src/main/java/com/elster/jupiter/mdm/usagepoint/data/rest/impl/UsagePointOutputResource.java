@@ -230,7 +230,7 @@ public class UsagePointOutputResource {
                 if (!interval.isConnected(upToNow)) {
                     throw exceptionFactory.newException(MessageSeeds.RELATIVEPERIOD_IS_IN_THE_FUTURE, periodId);
                 } else if (!interval.intersection(upToNow).isEmpty()) {
-                    outputInfoList = outputInfoFactory.deliverablesAsOutputInfo(effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, interval)
+                    outputInfoList = outputInfoFactory.deliverablesAsOutputInfo(effectiveMetrologyConfigurationOnUsagePoint, metrologyContract, interval.intersection(upToNow))
                             .stream()
                             .sorted(Comparator.comparing(info -> info.name))
                             .collect(Collectors.toList());
