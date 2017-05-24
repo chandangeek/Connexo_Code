@@ -109,19 +109,21 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
                             change: function (fld, newValue, oldValue, eOpts) {
                                 if (!newValue) {
                                     fld.setValue(fld.defaultValue);
+                                } else {
+                                    me.interval = zoomLevelsStore.getIntervalRecord(Ext.getStore('Imt.purpose.store.IntervalFilter').getById(newValue).getData());
+
+                                    duration = {
+                                        defaultFromDate: me.interval.getIntervalStart(new Date()),
+                                        defaultDuration: all.count + all.timeUnit,
+                                        durationStore: durations
+                                    };
+                                    durations.loadData(me.interval.get('duration'));
+
+                                    var durationFld = me.down('#output-readings-topfilter-duration');
+                                    durationFld.setDurationValue(duration);
+                                    durationFld.getDurationCombo().setValue(durationFld.getDurationCombo().getStore().getAt(0));
+
                                 }
-                                me.interval = zoomLevelsStore.getIntervalRecord(Ext.getStore('Imt.purpose.store.IntervalFilter').getById(newValue).getData());
-
-                                duration = {
-                                    defaultFromDate: me.interval.getIntervalStart(new Date()),
-                                    defaultDuration: all.count + all.timeUnit,
-                                    durationStore: durations
-                                };
-                                durations.loadData(me.interval.get('duration'));
-
-                                var durationFld = me.down('#output-readings-topfilter-duration');
-                                durationFld.setDurationValue(duration);
-                                durationFld.getDurationCombo().setValue(durationFld.getDurationCombo().getStore().getAt(0));
                             }
                         }
                     },
@@ -240,7 +242,22 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
         me.remove(grid);
         me.add({
             xtype: 'purpose-data-grid',
-            outputs: me.outputs
+            outputs: me.outputs,
+            dockedItems: [
+                {
+                    xtype: 'toolbar',
+                    items: [
+                        '->',
+                        {
+                            xtype: 'exporterbutton',
+                            ui: 'icon',
+                            iconCls: 'icon-file-download',
+                            text: '',
+                            component: this.up('grid'),
+                        }
+                    ]
+                }
+            ]
         });
         Ext.resumeLayouts(true);
     },

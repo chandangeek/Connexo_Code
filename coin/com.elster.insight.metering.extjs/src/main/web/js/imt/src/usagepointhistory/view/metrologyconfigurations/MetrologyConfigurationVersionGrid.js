@@ -48,6 +48,7 @@ Ext.define('Imt.usagepointhistory.view.metrologyconfigurations.MetrologyConfigur
                 header: Uni.I18n.translate('general.ongoingProcesses', 'IMT', 'Ongoing processes'),
                 dataIndex: 'ongoingProcessesNumber',
                 flex: 2,
+                align: 'right',
                 renderer: function(value){
                     return value ? value : '-' ;
                 }

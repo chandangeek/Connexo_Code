@@ -60,7 +60,7 @@ Ext.define('Imt.metrologyconfiguration.view.validation.ValidationRuleSets', {
                             metrologyContractIsMandatory: purpose.get('mandatory'),
                             metrologyContractId: purpose.getId(),
                             uniqueId: validationRuleSet.get('id') + ' ' + purpose.getId()
-                        }));                        
+                        }));
                         ruleSetsCount++;
                     });
                 }
@@ -81,7 +81,7 @@ Ext.define('Imt.metrologyconfiguration.view.validation.ValidationRuleSets', {
         });
         if (ruleSetsCount !== 0) {
             store.loadRawData(data);
-        }                
+        }
         store.totalCount = ruleSetsCount;
 
         me.grid = {
@@ -92,11 +92,11 @@ Ext.define('Imt.metrologyconfiguration.view.validation.ValidationRuleSets', {
             purposes: me.purposes,
             metrologyConfig: me.metrologyConfig
         };
-        
+
         me.previewComponent = {
             xtype: 'preview-container',
             grid: {
-                xtype: 'purpose-rules-grid',                
+                xtype: 'purpose-rules-grid',
                 router: me.router,
                 itemId: 'purpose-rules-grid',
                 store: me.rulesStore
@@ -108,26 +108,51 @@ Ext.define('Imt.metrologyconfiguration.view.validation.ValidationRuleSets', {
                 title: ''
             },
             emptyComponent: {
-                xtype: 'no-items-found-panel',
-                itemId: 'purpose-no-validation-rules',
-                title: Uni.I18n.translate('validation.rules.empty.title', 'IMT', 'No validation rules found'),
-                reasons: [
-                    Uni.I18n.translate('validation.rules.empty.list.item1', 'IMT', 'No validation rules have been defined yet.')
-                ],
-                stepItems: [
+                xtype: 'container',
+                items: [
+
                     {
-                        text: Uni.I18n.translate('validation.addValidationRule', 'IMT', 'Add validation rule'),
-                        itemId: 'purpose-rule-sets-add-rule-button',
-                        privileges: Cfg.privileges.Validation.admin,
-                        preventDefault: false                        
+                        xtype: 'no-items-found-panel',
+                        itemId: 'purpose-no-validation-rules',
+                        title: Uni.I18n.translate('validation.rules.empty.title', 'IMT', 'No validation rules found'),
+                        reasons: [
+                            Uni.I18n.translate('validation.rules.empty.list.item1', 'IMT', 'No validation rules have been defined yet.')
+                        ],
+                        hidden: true,
+                        stepItems: [
+                            {
+                                text: Uni.I18n.translate('validation.addValidationRule', 'IMT', 'Add validation rule'),
+                                itemId: 'purpose-rule-sets-add-rule-button',
+                                privileges: Cfg.privileges.Validation.admin,
+                                preventDefault: false
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'no-items-found-panel',
+                        itemId: 'purpose-no-validation-rule-set',
+                        title: Uni.I18n.translate('validation.rules.empty.title1', 'IMT', 'No validation rule set versions found'),
+                        reasons: [
+                            Uni.I18n.translate('validation.rules.empty.list.item2', 'IMT', 'No validation rule set versions have been added yet.')
+                        ],
+                        hidden: true,
+                        stepItems: [
+                            {
+                                text: Uni.I18n.translate('validation.addValidationRuleSet', 'IMT', 'Add validation rule set version'),
+                                itemId: 'purpose-add-rule-set-button',
+                                privileges: Cfg.privileges.Validation.admin,
+                                preventDefault: false
+                            }
+                        ]
                     }
                 ]
             }
+
         };
-        
+
         me.on('afterrender', function () {
             store.fireEvent('load');
-            var index = store.findBy(function (record) {                
+            var index = store.findBy(function (record) {
                 return record.get('id');
             });
             me.down('#purpose-with-rule-sets-grid').getSelectionModel().select(index);

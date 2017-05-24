@@ -139,6 +139,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
                         xtype: 'button',
                         itemId: 'readings-bulk-action-button',
                         text: Uni.I18n.translate('general.bulkAction', 'IMT', 'Bulk action'),
+                        disabled: true,
                         menu: {
                             xtype: 'purpose-bulk-action-menu',
                             itemId: 'purpose-bulk-action-menu'
