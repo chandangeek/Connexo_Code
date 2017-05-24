@@ -103,7 +103,7 @@ public class EstimationHelper {
     }
 
     List<ChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, List<Range<Instant>> ranges, List<EstimationResult> results, Optional<ReadingQualityComment> readingQualityComment) {
-        List<Range<Instant>> failedRanges = new ArrayList<>();
+        RangeSet<Instant> failedRanges = TreeRangeSet.create();
         List<ChannelDataInfo> channelDataInfos = new ArrayList<>();
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
@@ -118,13 +118,13 @@ public class EstimationHelper {
                 }
             }
             for (EstimationBlock block : result.remainingToBeEstimated()) {
-                RangeSet<Instant> rangesWithFailedTimeSpent = TreeRangeSet.create();
+                RangeSet<Instant> rangesWithFailedTimeStamp = TreeRangeSet.create();
                 for (Estimatable estimatable : block.estimatables()) {
                     ranges.stream().filter(instantRange -> instantRange.contains(estimatable.getTimestamp()))
                             .findAny()
-                            .ifPresent(rangesWithFailedTimeSpent::add);
+                            .ifPresent(rangesWithFailedTimeStamp::add);
                 }
-                failedRanges.add(rangesWithFailedTimeSpent.span());
+                failedRanges.add(rangesWithFailedTimeStamp.span());
             }
         }
         if (!failedRanges.isEmpty()) {

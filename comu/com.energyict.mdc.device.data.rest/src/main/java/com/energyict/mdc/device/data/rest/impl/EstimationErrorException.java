@@ -5,23 +5,21 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 
-import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class EstimationErrorException extends RuntimeException {
 
-    private List<Range<Instant>> ranges = new ArrayList<>();
+    private RangeSet<Instant> ranges = TreeRangeSet.create();
 
-    public EstimationErrorException(List<Range<Instant>> ranges) {
+    public EstimationErrorException(RangeSet<Instant> ranges) {
         super();
         this.ranges = ranges;
     }
 
-    public List<Range<Instant>> getRanges() {
-        return Collections.unmodifiableList(this.ranges);
+    public RangeSet<Instant> getRanges() {
+        return this.ranges;
     }
 }

@@ -42,6 +42,6 @@ public class EstimationErrorInfo {
     }
 
     public static EstimationErrorInfo from(EstimationErrorException exception) {
-        return new EstimationErrorInfo(exception.getRanges().stream().map(IntervalInfo::from).collect(Collectors.toList()));
+        return new EstimationErrorInfo(exception.getRanges().asRanges().stream().map(IntervalInfo::from).collect(Collectors.toList()));
     }
 }
