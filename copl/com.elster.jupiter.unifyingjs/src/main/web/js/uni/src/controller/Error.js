@@ -243,7 +243,7 @@ Ext.define('Uni.controller.Error', {
                     'UNI',
                     'Connexo has encountered an error, please contact your system administrator.'
                 );
-                options.method !== 'HEAD' && me.showError(title, message, decoded.errorCode ? decoded.errorCode : code);
+                options.method !== 'HEAD' && me.showError(title, message, (decoded && decoded.errorCode) ? decoded.errorCode : code);
                 break;
             case 401: // Unauthorized.
                 me.getApplication().fireEvent('sessionexpired');
