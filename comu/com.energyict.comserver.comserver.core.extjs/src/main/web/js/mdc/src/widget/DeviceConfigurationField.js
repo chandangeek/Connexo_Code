@@ -55,7 +55,7 @@ Ext.define('Mdc.widget.DeviceConfigurationField', {
                         configCombo.getStore().on('load', function(store) {
                             if (store.getTotalCount()===1) {
                                 configCombo.select(store.getAt(0));
-                                field.up('form').getRecord().set('deviceConfigurationId', store.getAt(0).get('id'));
+                                configCombo.fireEvent('select', configCombo, [store.getAt(0)]);
                             }
                         }, me, {single:true});
                         if (configCombo.isDisabled()) {
