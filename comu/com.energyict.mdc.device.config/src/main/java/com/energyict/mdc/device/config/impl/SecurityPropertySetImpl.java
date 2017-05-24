@@ -513,6 +513,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         public boolean equals(Object o) {
             return this == o || !(o == null || getClass() != o.getClass()) && ((NoAuthentication) o).getId() == NOT_USED_DEVICE_ACCESS_LEVEL_ID;
         }
+
+        @Override
+        public int hashCode() {
+            return getId();
+        }
     }
 
     private static class NoEncryption implements EncryptionDeviceAccessLevel {
@@ -538,6 +543,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         @Override
         public boolean equals(Object o) {
             return this == o || !(o == null || getClass() != o.getClass()) && ((NoEncryption) o).getId() == NOT_USED_DEVICE_ACCESS_LEVEL_ID;
+        }
+
+        @Override
+        public int hashCode() {
+            return getId();
         }
     }
 
@@ -585,6 +595,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         public boolean equals(Object o) {
             return this == o || !(o == null || getClass() != o.getClass()) && ((NoSecuritySuite) o).getId() == NOT_USED_DEVICE_ACCESS_LEVEL_ID;
         }
+
+        @Override
+        public int hashCode() {
+            return getId();
+        }
     }
 
     private static class NoRequestSecurity implements RequestSecurityLevel {
@@ -611,6 +626,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         public boolean equals(Object o) {
             return this == o || !(o == null || getClass() != o.getClass()) && ((NoRequestSecurity) o).getId() == NOT_USED_DEVICE_ACCESS_LEVEL_ID;
         }
+
+        @Override
+        public int hashCode() {
+            return getId();
+        }
     }
 
     private static class NoResponseSecurity implements ResponseSecurityLevel {
@@ -636,6 +656,11 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         @Override
         public boolean equals(Object o) {
             return this == o || !(o == null || getClass() != o.getClass()) && ((NoResponseSecurity) o).getId() == NOT_USED_DEVICE_ACCESS_LEVEL_ID;
+        }
+
+        @Override
+        public int hashCode() {
+            return getId();
         }
     }
 
