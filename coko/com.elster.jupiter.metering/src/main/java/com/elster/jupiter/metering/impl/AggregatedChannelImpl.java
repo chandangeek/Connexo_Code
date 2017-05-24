@@ -413,6 +413,11 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     }
 
     @Override
+    public Instant truncateToIntervalLength(Instant instant) {
+        return persistedChannel.truncateToIntervalLength(instant);
+    }
+
+    @Override
     public MeterReading deleteReadings(Range<Instant> period) {
         return MeterReadingImpl.newInstance();
     }
