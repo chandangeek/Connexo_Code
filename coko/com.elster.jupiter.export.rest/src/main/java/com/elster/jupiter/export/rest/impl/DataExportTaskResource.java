@@ -217,10 +217,10 @@ public class DataExportTaskResource {
                     if (info.destinations.isEmpty()) {
                         throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
                     }
-                    if (info.standardDataSelector.exportComplete.equals(MissingDataOption.EXCLUDE_OBJECT)) {
+                    if (info.standardDataSelector.exportComplete != null && info.standardDataSelector.exportComplete.equals(MissingDataOption.EXCLUDE_OBJECT)) {
                         throw new LocalizedFieldValidationException(MessageSeeds.NOT_SUPPORTED_PROPERTY_VALUE, "");
                     }
-                    if (info.standardDataSelector.validatedDataOption.equals(ValidatedDataOption.EXCLUDE_OBJECT)) {
+                    if (info.standardDataSelector.validatedDataOption != null && info.standardDataSelector.validatedDataOption.equals(ValidatedDataOption.EXCLUDE_OBJECT)) {
                         throw new LocalizedFieldValidationException(MessageSeeds.NOT_SUPPORTED_PROPERTY_VALUE, "");
                     }
                     DataExportTaskBuilder.MeterReadingSelectorBuilder selectorBuilder = builder.selectingMeterReadings()
