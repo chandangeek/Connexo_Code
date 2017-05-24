@@ -30,6 +30,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -389,7 +390,7 @@ abstract class AbstractItemDataSelector implements ItemDataSelector {
                 .map(channelsContainer -> channelsContainer.getChannel(item.getReadingType()))
                 .flatMap(Functions.asStream())
                 .flatMap(channel -> {
-                    Range<Instant> intervalOfInterest = channel.getChannelsContainer().getRange().intersection(exportInterval);
+                    Range<Instant> intervalOfInterest =  Ranges.copy(channel.getChannelsContainer().getRange().intersection(exportInterval)).asOpenClosed();
                     List<BaseReadingRecord> readingsOfInterest = readings.stream()
                             .filter(reading -> intervalOfInterest.contains(reading.getTimeStamp()))
                             .collect(Collectors.toList());
