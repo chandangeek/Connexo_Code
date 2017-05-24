@@ -34,7 +34,6 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocols.impl.channels.ip.IpMessageSeeds;
 
-import com.energyict.protocolimplv2.securitysupport.CustomPropertySetTranslationKeys;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -188,7 +187,6 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
     public List<TranslationKey> getKeys() {
         List<TranslationKey> allKeys = new ArrayList<>(getProtocolPropertyKeys());
         allKeys.addAll(Arrays.asList(com.energyict.protocols.mdc.services.impl.TranslationKeys.values()));
-        allKeys.addAll(Arrays.asList(CustomPropertySetTranslationKeys.values()));
         return allKeys;
     }
 
