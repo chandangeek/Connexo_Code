@@ -5,7 +5,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
-import com.elster.jupiter.metering.readings.beans.BaseReadingImpl;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
@@ -38,6 +38,7 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,6 +65,11 @@ public class PrevalidateChannelDataTest extends DeviceDataRestApplicationJerseyT
     private DeviceValidation deviceValidation;
     @Mock
     private Channel channel;
+
+    @Captor
+    private ArgumentCaptor<List<BaseReading>> readingsArgumentCaptor;
+    @Captor
+    private ArgumentCaptor<Range<Instant>> rangeArgumentCaptor;
 
     private ChannelDataUpdater channelDataUpdater = FakeBuilder.initBuilderStub(null, ChannelDataUpdater.class);
 
@@ -117,18 +123,15 @@ public class PrevalidateChannelDataTest extends DeviceDataRestApplicationJerseyT
         verify(transactionContext, never()).commit();
 
         // verify that readings are saved
-        ArgumentCaptor<List> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
-        verify(channelDataUpdater).editChannelData(listArgumentCaptor.capture());
-        assertThat(listArgumentCaptor.getValue()).hasSize(1);
-        assertThat(((BaseReadingImpl) listArgumentCaptor.getValue().get(0)).getValue()).isEqualTo(BigDecimal.ONE);
-        listArgumentCaptor = ArgumentCaptor.forClass(List.class);
-        verify(channelDataUpdater).estimateChannelData(listArgumentCaptor.capture());
-        assertThat(listArgumentCaptor.getValue()).hasSize(1);
-        assertThat(((BaseReadingImpl) listArgumentCaptor.getValue().get(0)).getValue()).isEqualTo(BigDecimal.TEN);
+        verify(channelDataUpdater).editChannelData(readingsArgumentCaptor.capture());
+        assertThat(readingsArgumentCaptor.getValue()).hasSize(1);
+        assertThat(readingsArgumentCaptor.getValue().get(0).getValue()).isEqualTo(BigDecimal.ONE);
+        verify(channelDataUpdater).estimateChannelData(readingsArgumentCaptor.capture());
+        assertThat(readingsArgumentCaptor.getValue()).hasSize(1);
+        assertThat(readingsArgumentCaptor.getValue().get(0).getValue()).isEqualTo(BigDecimal.TEN);
         verify(channelDataUpdater).complete();
 
         // verify that validation has been performed on a correct range
-        ArgumentCaptor<Range> rangeArgumentCaptor = ArgumentCaptor.forClass(Range.class);
         verify(deviceValidation).validateChannel(eq(channel), rangeArgumentCaptor.capture());
         assertThat(rangeArgumentCaptor.getValue()).isEqualTo(expectedValidationRange);
 
