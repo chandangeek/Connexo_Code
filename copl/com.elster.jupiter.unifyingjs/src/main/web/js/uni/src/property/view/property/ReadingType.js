@@ -61,7 +61,14 @@ Ext.define('Uni.property.view.property.ReadingType', {
             minWidth: 130,
             maxWidth: 200,
             name: this.getName(),
-            itemId: this.key + 'displayfield'
+            itemId: this.key + 'displayfield',
+            renderer: function (value) {
+                if (value === '-') {
+                    this.flex = undefined;
+                    this.minWidth = undefined;
+                }
+                return value;
+            }
         }
     },
 
