@@ -281,7 +281,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         var me = this,
             generalItems = [],
             valuesItems = [],
-            qualityItems = [];
+            qualityItems = [],
+            linkPurposeValue;
 
         generalItems.push(
             {
@@ -298,7 +299,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             }
         );
 
-        if (me.linkPurpose.value !== Mdc.util.LinkPurpose.NOT_APPLICABLE) {
+        linkPurposeValue = Ext.isDefined(me.linkPurpose.value) ? me.linkPurpose.value : me.linkPurpose;
+        if (linkPurposeValue !== Mdc.util.LinkPurpose.NOT_APPLICABLE) {
             generalItems.push(
                 {
                     fieldLabel: me.linkPurpose.channelGridSlaveColumn,

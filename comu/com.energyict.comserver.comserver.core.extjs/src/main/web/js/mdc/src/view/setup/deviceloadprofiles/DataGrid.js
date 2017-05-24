@@ -84,20 +84,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                 renderer: function (data, metaData, record) {
                     var icon = '<span class="icon-flag5" style="margin-left:10px; display:inline-block; color:rgba(0,0,0,0.0);"></span>', // invisible,
                         validationData = record.get('channelValidationData'),
-                        readingQualities = record.get('readingQualities'),
-                        deviceQualityTooltipContent = '',
-                        deviceQualityIcon = '<span class="icon-price-tags" style="margin-left:3px; display:inline-block; color:rgba(0,0,0,0.0);"></span>'; // invisible
-
-                    if (readingQualities && !Ext.isEmpty(readingQualities[channel.id])) {
-                        Ext.Array.forEach(readingQualities[channel.id], function (readingQualityName) {
-                            deviceQualityTooltipContent += (readingQualityName + '<br>');
-                        });
-                        deviceQualityTooltipContent += '<br>';
-                        deviceQualityTooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'MDC', 'View reading quality details for more information.');
-
-                        deviceQualityIcon = '<span class="icon-price-tags" style="margin-left:3px; display:inline-block;" data-qtitle="'
-                            + Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality') + '" data-qtip="' + deviceQualityTooltipContent + '"></span>';
-                    }
+                        readingQualities = record.get('readingQualities');
 
                     if (validationData && validationData[channel.id]) {
                         var status = validationData[channel.id].mainValidationInfo && validationData[channel.id].mainValidationInfo.validationResult
@@ -113,7 +100,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                             icon = '<span class="icon-flag5" style="display:inline-block; color:#33CC33;"></span>';
                         }
                     }
-                    return !Ext.isEmpty(data[channel.id]) ? icon + deviceQualityIcon : '';
+                    return !Ext.isEmpty(data[channel.id]) ? icon : '';
                 }
             });
         });
