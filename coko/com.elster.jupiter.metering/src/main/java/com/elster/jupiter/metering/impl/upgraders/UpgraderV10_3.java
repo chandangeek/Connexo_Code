@@ -7,6 +7,7 @@ package com.elster.jupiter.metering.impl.upgraders;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.impl.EndDeviceControlTypeInstallerUtil;
 import com.elster.jupiter.metering.impl.InstallerV10_3Impl;
 import com.elster.jupiter.metering.impl.PrivilegesProviderV10_3;
 import com.elster.jupiter.metering.impl.RecordSpecs;
@@ -44,6 +45,7 @@ public class UpgraderV10_3 implements Upgrader {
     private final IdsService idsService;
     private final InstallerV10_3Impl installerV10_3;
     private final PrivilegesProviderV10_3 privilegesProviderV10_3;
+    private Logger logger;
 
     @Inject
     public UpgraderV10_3(BundleContext bundleContext,
@@ -70,7 +72,7 @@ public class UpgraderV10_3 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-
+        logger = Logger.getLogger(UpgraderV10_3.class.getName());
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()){
                 statement.execute("ALTER TABLE MTR_RT_DELIVERABLE ADD METROLOGY_CONTRACT NUMBER");
@@ -97,8 +99,9 @@ public class UpgraderV10_3 implements Upgrader {
         installTemplates();
         installNewEventTypes();
         installNewRecordSpec();
+        new EndDeviceControlTypeInstallerUtil(meteringService).createEndDeviceControlTypes(logger);
         GasDayRelativePeriodCreator.createAll(this.meteringService, this.timeService);
-        installerV10_3.install(dataModelUpgrader, Logger.getLogger(UpgraderV10_3.class.getName()));
+        installerV10_3.install(dataModelUpgrader, logger);
         userService.addModulePrivileges(privilegesProviderV10_3);
     }
 
