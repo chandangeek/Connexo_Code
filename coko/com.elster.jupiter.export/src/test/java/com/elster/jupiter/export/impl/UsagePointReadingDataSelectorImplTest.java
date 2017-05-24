@@ -13,8 +13,10 @@ import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.MissingDataOption;
 import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -27,6 +29,8 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
+import com.elster.jupiter.metering.readings.IntervalBlock;
+import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
@@ -46,8 +50,11 @@ import jersey.repackaged.com.google.common.collect.ImmutableSet;
 
 import java.text.MessageFormat;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -86,6 +93,8 @@ public class UsagePointReadingDataSelectorImplTest {
     private static final ZonedDateTime END_FIRST_CHANNELCONTAINER = ZonedDateTime.of(2014, 7, 10, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final Range<Instant> CHANNEL_CONTAINER_INTERVAL1 = Range.openClosed(START.toInstant(), END_FIRST_CHANNELCONTAINER.toInstant());
     private static final Range<Instant> CHANNEL_CONTAINER_INTERVAL2 = Range.openClosed(START_SECOND_CHANNELCONTAINER.toInstant(), END.toInstant());
+    private static final TemporalAmount INTERVAL_LENGTH = Duration.ofMinutes(15);
+
 
     public static final String USAGE_POINT_GROUP_NAME = "Group";
 
@@ -190,7 +199,7 @@ public class UsagePointReadingDataSelectorImplTest {
         return membership;
     }
 
-    private void mockUsagePointChannel(UsagePoint usagePoint, ChannelsContainer channelContainer, Channel channel, ReadingRecord... readings) {
+    private void mockUsagePointChannel(UsagePoint usagePoint, ChannelsContainer channelContainer, Channel channel, BaseReadingRecord... readings) {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint1 = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         when(effectiveMetrologyConfigurationOnUsagePoint1.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMetrologyConfigurationOnUsagePoint1.getChannelsContainer(metrologyContract1)).thenReturn(Optional.of(channelContainer));
@@ -199,9 +208,10 @@ public class UsagePointReadingDataSelectorImplTest {
         when(channelContainer.getChannelsContainers()).thenReturn(Collections.singletonList(channelContainer));
         when(channelContainer.overlaps(EXPORT_INTERVAL)).thenReturn(true);
         when(channelContainer.getRange()).thenReturn(EXPORT_INTERVAL);
-        when(channelContainer.toList(readingType1, EXPORT_INTERVAL)).thenReturn(Arrays.asList(START.toInstant(), END.toInstant()));
+        when(channelContainer.toList(readingType1, EXPORT_INTERVAL)).thenReturn(Arrays.asList(START.toInstant(), END_FIRST_CHANNELCONTAINER.toInstant(), END.toInstant()));
         when(channelContainer.getChannel(readingType1)).thenReturn(Optional.of(channel));
         when(channelContainer.getReadingTypes(EXPORT_INTERVAL)).thenReturn(ImmutableSet.of(readingType1));
+        when(channelContainer.getZoneId()).thenReturn(ZoneId.systemDefault());
         when(channel.getChannelsContainer()).thenReturn(channelContainer);
         doReturn(Arrays.asList(readings)).when(channelContainer).getReadings(EXPORT_INTERVAL, readingType1);
         when(validationEvaluator.isValidationEnabled(channelContainer, readingType1)).thenReturn(true);
@@ -228,7 +238,7 @@ public class UsagePointReadingDataSelectorImplTest {
         assertThat(exportDataItem.getItem().getReadingType()).isEqualTo(readingType1);
         assertThat(exportDataItem.getValidationData().getValidationStatus(START.toInstant())).isNull();
         assertThat(exportDataItem.getValidationData().getValidationStatus(END.toInstant())).isNull();
-        assertThat(exportDataItem.getMeterReading().getReadings()).hasSize(2);
+        assertThat(exportDataItem.getMeterReading().getReadings()).hasSize(3);
     }
 
     @Test
@@ -254,7 +264,7 @@ public class UsagePointReadingDataSelectorImplTest {
         assertThat(exportDataItem.getItem().getReadingType()).isEqualTo(readingType1);
         assertThat(exportDataItem.getValidationData().getValidationStatus(START.toInstant())).isNull();
         assertThat(exportDataItem.getValidationData().getValidationStatus(END.toInstant())).isNull();
-        assertThat(exportDataItem.getMeterReading().getReadings()).hasSize(2);
+        assertThat(exportDataItem.getMeterReading().getReadings()).hasSize(3);
 
         exportDataItem = (MeterReadingData) exportData.get(1);
         assertThat(exportDataItem.getItem().getDomainObject()).isEqualTo(usagePoint2);
@@ -538,9 +548,15 @@ public class UsagePointReadingDataSelectorImplTest {
         List<Membership<UsagePoint>> memberships = Collections.singletonList(mockUsagePointMember(usagePoint1));
         when(usagePointGroup.getMembers(EXPORT_INTERVAL)).thenReturn(memberships);
         ZonedDateTime MIDDLE = ZonedDateTime.of(2014, 6, 19, 12, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
-        ReadingRecord middleRecord = mock(ReadingRecord.class);
+        IntervalReadingRecord middleRecord = mock(IntervalReadingRecord.class);
         when(middleRecord.getTimeStamp()).thenReturn(MIDDLE.toInstant());
-        doReturn(Arrays.asList(readingRecord1, middleRecord, readingRecord2)).when(channelContainer1).getReadings(EXPORT_INTERVAL, readingType1);
+        IntervalReadingRecord newReadingRecord1 = mock(IntervalReadingRecord.class);
+        when(newReadingRecord1.getTimeStamp()).thenReturn(START.toInstant());
+        IntervalReadingRecord newReadingRecord2 = mock(IntervalReadingRecord.class);
+        when(newReadingRecord2.getTimeStamp()).thenReturn(END.toInstant());
+        doReturn(Arrays.asList(newReadingRecord1, middleRecord, newReadingRecord2)).when(channelContainer1).getReadings(EXPORT_INTERVAL, readingType1);
+        when(readingType1.isRegular()).thenReturn(true);
+        when(readingType1.getIntervalLength()).thenReturn(Optional.of(INTERVAL_LENGTH));
 
         UsagePointReadingSelectorConfigImpl selectorConfig = UsagePointReadingSelectorConfigImpl.from(dataModel, task, exportPeriod);
         selectorConfig.startUpdate()
@@ -557,7 +573,9 @@ public class UsagePointReadingDataSelectorImplTest {
         // Asserts
         assertThat(exportData).hasSize(1);
         MeterReadingData data = (MeterReadingData) exportData.get(0);
-        List<Reading> exportedReadings = data.getMeterReading().getReadings();
+        List<IntervalBlock> intervalBlocks = data.getMeterReading().getIntervalBlocks();
+        assertThat(intervalBlocks).hasSize(1);
+        List<IntervalReading> exportedReadings = intervalBlocks.get(0).getIntervals();
         assertThat(exportedReadings).hasSize(2);
         assertThat(exportedReadings.get(0).getTimeStamp()).isEqualTo(START.toInstant());
         assertThat(exportedReadings.get(1).getTimeStamp()).isEqualTo(END.toInstant());
