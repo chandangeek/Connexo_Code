@@ -9,7 +9,9 @@ Ext.define('Dxp.view.tasks.HistoryFilter', {
 
     store: 'Dxp.store.DataExportTasksHistory',
     requires: [
-        'Uni.form.filter.FilterCombobox'
+        'Uni.form.filter.FilterCombobox',
+        'Dxp.store.DataExportTaskFilter',
+        'Dxp.store.Status'
     ],
 
 

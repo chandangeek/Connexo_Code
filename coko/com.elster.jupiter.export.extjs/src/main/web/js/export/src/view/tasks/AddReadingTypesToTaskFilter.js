@@ -9,6 +9,13 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskFilter', {
     store: 'Dxp.store.LoadedReadingTypes',
     defaultFilters: null,
 
+    requires:[
+        'Dxp.store.UnitsOfMeasure',
+        'Dxp.store.Intervals',
+        'Dxp.store.MetrologyConfigurations',
+        'Dxp.store.MetrologyPurposes'
+    ],
+
     initComponent: function () {
         var me = this,
             selectedReadingTypesFilter,
