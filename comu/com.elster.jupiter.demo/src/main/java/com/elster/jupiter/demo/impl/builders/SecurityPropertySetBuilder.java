@@ -95,10 +95,9 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
 
     private KeyType createOrGetKeyType(String keyAccessorTypeName) {
         if (keyAccessorTypeName.equals("Password")) {
-            return pkiService.getKeyType("Passphrase").orElseGet(() -> pkiService.newPassphraseType("Passphrase").withSpecialCharacters().length(30).add());
+            return pkiService.getKeyType("Password").orElseGet(() -> pkiService.newPassphraseType("Password").withSpecialCharacters().length(30).add());
         } else {
             return pkiService.getKeyType("AES 128").orElseGet(() -> pkiService.newSymmetricKeyType("AES 128", "AES", 128).add());
         }
-
     }
 }
