@@ -636,9 +636,7 @@ public class UsagePointImpl implements ServerUsagePoint {
 
     private boolean metersActivationsMatched(List<ReadingTypeRequirement> metrologyConfigRequirements, ChannelsContainer channelsContainer) {
         return metrologyConfigRequirements.stream()
-                .filter(readingTypeRequirement -> !readingTypeRequirement.getMatchesFor(channelsContainer).isEmpty())
-                .findAny()
-                .isPresent();
+                .anyMatch(readingTypeRequirement -> !readingTypeRequirement.getMatchesFor(channelsContainer).isEmpty());
     }
 
     private void activateMetersOnMetrologyConfiguration(List<MeterActivation> meterActivations) {
