@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.LocalizedException;
@@ -111,6 +112,8 @@ public class UsagePointDataCompletionServiceImplTest {
     private ReadingQualityWithTypeFetcher fetcher;
     @Mock
     private ReadingQualityRecord error, suspect, added, edited, removed, estimated, informative, confirmed;
+    @Mock
+    private MetrologyPurpose metrologyPurpose;
 
     @Captor
     ArgumentCaptor<Range<Instant>> captor;
@@ -125,11 +128,13 @@ public class UsagePointDataCompletionServiceImplTest {
         when(usagePoint.getName()).thenReturn("Mrmrmrrr");
         when(metrologyContract.getId()).thenReturn(777L);
         when(metrologyContract.getDeliverables()).thenReturn(Arrays.asList(deliverable1, deliverable2));
+        when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
         when(deliverable1.getReadingType()).thenReturn(readingType);
         when(deliverable2.getReadingType()).thenReturn(readingType);
         when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
         when(channelsContainer.getChannel(readingType)).thenReturn(Optional.of(channel));
         when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.all()));
         when(channelsContainer.getRange()).thenReturn(Range.all());

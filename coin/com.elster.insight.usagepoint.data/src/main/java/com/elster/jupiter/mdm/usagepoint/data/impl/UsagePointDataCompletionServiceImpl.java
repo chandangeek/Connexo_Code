@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.LocalizedException;
@@ -243,10 +244,9 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
     }
 
     private Stream<Channel> getChannels(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract, Range<Instant> interval, ReadingType readingType) {
-        MetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.getMetrologyConfiguration();
         UsagePoint usagePoint = effectiveMetrologyConfiguration.getUsagePoint();
-        return usagePoint.getEffectiveMetrologyConfigurations().stream().filter(emc -> emc.getMetrologyConfiguration().equals(metrologyConfiguration))
-                .map(emc -> emc.getChannelsContainer(metrologyContract))
+        return usagePoint.getEffectiveMetrologyConfigurations().stream()
+                .map(emc -> getMetrologyContract(emc.getMetrologyConfiguration(), metrologyContract.getMetrologyPurpose()).flatMap(emc::getChannelsContainer))
                 .filter(Optional::isPresent)
                 .filter(channelsContainer -> channelsContainer.get().getRange().isConnected(interval))
                 .map(channelsContainer -> channelsContainer.get().getChannel(readingType))
@@ -256,11 +256,10 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
 
     @Override
     public Optional<Instant> getLastChecked(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
-        MetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.getMetrologyConfiguration();
         UsagePoint usagePoint = effectiveMetrologyConfiguration.getUsagePoint();
 
-        Map<ChannelsContainer, Instant> lastCheskedMap =  usagePoint.getEffectiveMetrologyConfigurations().stream().filter(emc -> emc.getMetrologyConfiguration().equals(metrologyConfiguration))
-                .map(emc -> emc.getChannelsContainer(metrologyContract))
+        Map<ChannelsContainer, Instant> lastCheskedMap =  usagePoint.getEffectiveMetrologyConfigurations().stream()
+                .map(emc -> getMetrologyContract(emc.getMetrologyConfiguration(), metrologyContract.getMetrologyPurpose()).flatMap(emc::getChannelsContainer))
                 .filter(Optional::isPresent)
                 .map(channelsContainer -> Pair.of(channelsContainer.get(), validationService.getLastChecked(channelsContainer.get())))
                 .filter(pair -> pair.getLast().isPresent())
@@ -269,13 +268,16 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
         return Optional.ofNullable(getMinLastCheckedFromIncompleteRanges(lastCheskedMap).orElse(getMaxLastChecked(lastCheskedMap).orElse(null)));
     }
 
+    private Optional<MetrologyContract> getMetrologyContract(MetrologyConfiguration metrologyConfiguration, MetrologyPurpose purpose){
+        return metrologyConfiguration.getContracts().stream().filter(metrologyContract -> metrologyContract.getMetrologyPurpose().equals(purpose)).findFirst();
+    }
+
     @Override
     public Optional<Instant> getLastChecked(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract, ReadingType readingType) {
-        MetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.getMetrologyConfiguration();
         UsagePoint usagePoint = effectiveMetrologyConfiguration.getUsagePoint();
         ValidationEvaluator validationEvaluator = validationService.getEvaluator();
-        Map<ChannelsContainer, Instant> lastCheskedMap =  usagePoint.getEffectiveMetrologyConfigurations().stream().filter(emc -> emc.getMetrologyConfiguration().equals(metrologyConfiguration))
-                .map(emc -> emc.getChannelsContainer(metrologyContract))
+        Map<ChannelsContainer, Instant> lastCheskedMap =  usagePoint.getEffectiveMetrologyConfigurations().stream()
+                .map(emc -> getMetrologyContract(emc.getMetrologyConfiguration(), metrologyContract.getMetrologyPurpose()).flatMap(emc::getChannelsContainer))
                 .filter(Optional::isPresent)
                 .map(channelsContainer -> Pair.of(channelsContainer.get(), validationEvaluator.getLastChecked(channelsContainer.get(), readingType)))
                 .filter(pair -> pair.getLast().isPresent())
