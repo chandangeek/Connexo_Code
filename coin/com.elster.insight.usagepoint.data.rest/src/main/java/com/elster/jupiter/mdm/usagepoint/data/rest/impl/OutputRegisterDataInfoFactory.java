@@ -11,16 +11,20 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DeliverableType;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.rest.util.IntervalInfo;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -59,10 +63,10 @@ public class OutputRegisterDataInfoFactory {
                 billingOutputRegisterDataInfo.value = readingWithValidationStatus.getValue();
                 billingOutputRegisterDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue().orElse(null);
                 billingOutputRegisterDataInfo.interval = readingWithValidationStatus.getBillingPeriod().map(IntervalInfo::from).orElse(null);
-                if(aggregatesWithEventDate.contains(readingType.getAggregate())){
+                if (aggregatesWithEventDate.contains(readingType.getAggregate())) {
                     billingOutputRegisterDataInfo.eventDate = readingWithValidationStatus.getEventDate().orElse(null);
                 }
-                if(readingType.isCumulative()){
+                if (readingType.isCumulative()) {
                     billingOutputRegisterDataInfo.deltaValue = readingWithValidationStatus.getDeltaValue();
                 }
                 return billingOutputRegisterDataInfo;
@@ -83,10 +87,10 @@ public class OutputRegisterDataInfoFactory {
                 numericalOutputRegisterDataInfo.interval = readingWithValidationStatus.getTimePeriod()
                         .map(IntervalInfo::from)
                         .orElse(null);
-                if(aggregatesWithEventDate.contains(readingType.getAggregate())){
+                if (aggregatesWithEventDate.contains(readingType.getAggregate())) {
                     numericalOutputRegisterDataInfo.eventDate = readingWithValidationStatus.getEventDate().orElse(null);
                 }
-                if(readingType.isCumulative()){
+                if (readingType.isCumulative()) {
                     numericalOutputRegisterDataInfo.deltaValue = readingWithValidationStatus.getDeltaValue();
                 }
                 return numericalOutputRegisterDataInfo;
@@ -122,8 +126,8 @@ public class OutputRegisterDataInfoFactory {
                     .system()
                     .map(ReadingModificationFlag::getApplicationInfo)
                     .orElse(null);
-            if(modificationFlag.getLast() instanceof ReadingQualityRecord){
-                info.modificationDate = ((ReadingQualityRecord)modificationFlag.getLast()).getTimestamp();
+            if (modificationFlag.getLast() instanceof ReadingQualityRecord) {
+                info.modificationDate = ((ReadingQualityRecord) modificationFlag.getLast()).getTimestamp();
             }
         });
     }
@@ -134,14 +138,15 @@ public class OutputRegisterDataInfoFactory {
                 .collect(Collectors.toList());
     }
 
-    public List<OutputRegisterHistoryDataInfo> createHistoricalRegisterInfo(Set<JournaledReadingRecord>readingRecords) {
+    public List<OutputRegisterHistoryDataInfo> createHistoricalRegisterInfo(Set<JournaledReadingRecord> readingRecords) {
         List<OutputRegisterHistoryDataInfo> data = new ArrayList<>();
         readingRecords.forEach(journaledReadingRecord -> {
             OutputRegisterHistoryDataInfo outputRegisterHistoryDataInfo = new OutputRegisterHistoryDataInfo();
             BaseReadingRecord record = journaledReadingRecord.getStoredReadingRecord();
             DataValidationStatus status = journaledReadingRecord.getValidationStatus();
             outputRegisterHistoryDataInfo.interval = IntervalInfo.from(journaledReadingRecord.getInterval());
-            outputRegisterHistoryDataInfo.userName = ((JournaledRegisterReadingRecord)record).getUserName();
+            outputRegisterHistoryDataInfo.userName = record instanceof JournaledRegisterReadingRecord ?
+                    ((JournaledRegisterReadingRecord) record).getUserName() : "";
             outputRegisterHistoryDataInfo.timeStamp = record.getReportedDateTime();
             outputRegisterHistoryDataInfo.value = record.getValue();
             outputRegisterHistoryDataInfo.reportedDateTime = record.getReportedDateTime();
@@ -158,8 +163,30 @@ public class OutputRegisterDataInfoFactory {
                     .findFirst()
                     .orElse(null);
 
+            outputRegisterHistoryDataInfo.isConfirmed = status.getReadingQualities().stream()
+                    .anyMatch(quality -> quality.getType().isConfirmed());
+
+            extractModificationFlag(journaledReadingRecord, journaledReadingRecord.getValidationStatus()).ifPresent(modificationFlag -> {
+                outputRegisterHistoryDataInfo.modificationFlag = modificationFlag.getFirst();
+                outputRegisterHistoryDataInfo.editedInApp = modificationFlag.getLast().getType().system().map(ReadingModificationFlag::getApplicationInfo).orElse(null);
+                if (modificationFlag.getLast() instanceof ReadingQualityRecord) {
+                    Instant timestamp = ((ReadingQualityRecord) modificationFlag.getLast()).getTimestamp();
+                    outputRegisterHistoryDataInfo.modificationDate = timestamp;
+                    if (timestamp != null) {
+                        outputRegisterHistoryDataInfo.reportedDateTime = timestamp;
+                    }
+                }
+            });
+
             data.add(outputRegisterHistoryDataInfo);
         });
         return data;
+    }
+
+    private Optional<Pair<ReadingModificationFlag, ReadingQuality>> extractModificationFlag(JournaledReadingRecord readingRecord, DataValidationStatus validationStatus) {
+        return Optional.ofNullable(
+                ReadingModificationFlag.getModificationFlagWithQualityRecord(
+                        validationStatus.getReadingQualities(),
+                        Optional.ofNullable(readingRecord)));
     }
 }
