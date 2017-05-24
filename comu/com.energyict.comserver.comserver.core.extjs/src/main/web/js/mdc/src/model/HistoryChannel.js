@@ -80,6 +80,32 @@ Ext.define('Mdc.model.HistoryChannel', {
             }
         },
         {
+            name: 'mainCommentValue',
+            type: 'string',
+            mapping: function (data) {
+                var result = null,
+                    mainValidationInfo = data.mainValidationInfo;
+
+                if (mainValidationInfo && mainValidationInfo.commentValue) {
+                    result = mainValidationInfo.commentValue;
+                }
+                return result;
+            }
+        },
+        {
+            name: 'bulkCommentValue',
+            type: 'string',
+            mapping: function (data) {
+                var result = null,
+                    bulkValidationInfo = data.bulkValidationInfo;
+
+                if (bulkValidationInfo && bulkValidationInfo.commentValue) {
+                    result = bulkValidationInfo.commentValue;
+                }
+                return result;
+            }
+        },
+        {
             name: 'readingProperties',
             persist: false,
             mapping: function (data) {

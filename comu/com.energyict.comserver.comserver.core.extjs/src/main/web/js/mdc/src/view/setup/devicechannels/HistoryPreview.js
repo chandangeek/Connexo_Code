@@ -98,6 +98,8 @@ Ext.define('Mdc.view.setup.devicechannels.HistoryPreview', {
             detailRecord.set('value', record.get('value'));
             detailRecord.set('collectedValue', record.get('collectedValue'));
             detailRecord.set('multiplier', record.get('multiplier'));
+            detailRecord.set('mainCommentValue', record.get('mainCommentValue'));
+            detailRecord.set('bulkCommentValue', record.get('bulkCommentValue'));
             me.down('#values-panel').loadRecord(detailRecord);
             me.setLoading(false);
         });
@@ -483,6 +485,22 @@ Ext.define('Mdc.view.setup.devicechannels.HistoryPreview', {
                     itemId: 'mainValidationInfo',
                     name: 'mainValidationInfo',
                     htmlEncode: false
+                },
+                {
+                    xtype: 'displayfield',
+                    labelWidth: 200,
+                    fieldLabel: Uni.I18n.translate('general.estimationComment', 'MDC', 'Estimation comment'),
+                    itemId: 'main-estimation-comment-field',
+                    layout: 'hbox',
+                    name: 'mainCommentValue',
+                    renderer: function (value) {
+                        if (!value) {
+                            this.hide();
+                        } else {
+                            this.show();
+                            return value;
+                        }
+                    }
                 }
             );
             var calculatedReadingType = me.channelRecord.get('calculatedReadingType');
@@ -515,6 +533,22 @@ Ext.define('Mdc.view.setup.devicechannels.HistoryPreview', {
                         itemId: 'bulkValidationInfo',
                         name: 'bulkValidationInfo',
                         htmlEncode: false
+                    },
+                    {
+                        xtype: 'displayfield',
+                        labelWidth: 200,
+                        fieldLabel: Uni.I18n.translate('general.estimationComment', 'MDC', 'Estimation comment'),
+                        itemId: 'bulk-estimation-comment-field',
+                        layout: 'hbox',
+                        name: 'bulkCommentValue',
+                        renderer: function (value) {
+                            if (!value) {
+                                this.hide();
+                            } else {
+                                this.show();
+                                return value;
+                            }
+                        }
                     }
                 );
             }

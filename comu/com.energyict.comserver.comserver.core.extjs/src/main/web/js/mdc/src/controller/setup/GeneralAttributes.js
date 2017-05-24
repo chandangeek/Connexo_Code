@@ -72,7 +72,7 @@ Ext.define('Mdc.controller.setup.GeneralAttributes', {
                 callback: function (model, operation, success) {
 
                     if (success) {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('generalAttributes.saved', 'MDC', 'General attributes saved.'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('generalAttributes.saved', 'MDC', 'General attributes saved'));
                         me.moveToPreviousPage();
                     }
                     else {
