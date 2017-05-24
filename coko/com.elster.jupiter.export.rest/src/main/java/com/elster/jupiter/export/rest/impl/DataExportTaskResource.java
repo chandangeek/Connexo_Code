@@ -217,6 +217,12 @@ public class DataExportTaskResource {
                     if (info.destinations.isEmpty()) {
                         throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
                     }
+                    if (info.standardDataSelector.exportComplete == null) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "data-selector-export-complete");
+                    }
+                    if (info.standardDataSelector.validatedDataOption == null) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "data-selector-validated-data");
+                    }
                     if (info.standardDataSelector.exportComplete != null && info.standardDataSelector.exportComplete.equals(MissingDataOption.EXCLUDE_OBJECT)) {
                         throw new LocalizedFieldValidationException(MessageSeeds.NOT_SUPPORTED_PROPERTY_VALUE, "");
                     }
