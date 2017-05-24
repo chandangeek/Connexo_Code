@@ -13,7 +13,6 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.units.Quantity;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.ws.rs.core.Link;
@@ -47,7 +46,7 @@ public class PropertyInfo {
     public SearchableProperty.Visibility visibility; // Indicates if the property should always be displayed as filter property (sticky) or is removable
     public List<String> constraints; // List of other properties who's value will be used to narrow down possible values for this property
     public List<IdWithDisplayValueInfo> values; // List of all available variants for this property
-    public long total; //FE needs this
+    public Integer total; // the number of items in the values-list, if any.
 
     @JsonIgnore
     private SearchableProperty property;
@@ -93,6 +92,7 @@ public class PropertyInfo {
         PropertySpecPossibleValues possible = spec.getPossibleValues();
         if (possible != null) {
             this.values = possibleValuesAsStream(possible.getAllValues()).sorted((v1, v2) -> v1.displayValue.compareToIgnoreCase(v2.displayValue)).collect(Collectors.toList());
+            this.total = this.values.size();
         }
         return this;
     }
@@ -112,6 +112,7 @@ public class PropertyInfo {
             }
 
             this.values.addAll(valueInfoStream.collect(Collectors.toList()));
+            this.total = this.values.size();
         }
         return this;
     }
@@ -119,15 +120,8 @@ public class PropertyInfo {
     protected PropertyInfo withPossibleValues(Map<?, String> possibleValueMap, boolean exhaustive) {
         this.values = possibleValueMap.entrySet().stream().map(v -> new IdWithDisplayValueInfo<>(v.getKey(), v.getValue())).collect(Collectors.toList());
         this.exhaustive = exhaustive;
+        this.total = this.values.size();
         return this;
-    }
-
-    @JsonGetter
-    public Integer getTotal() {
-        if (this.values != null) {
-            return values.size();
-        }
-        return null;
     }
 
     private Optional<PropertySpec> getPropertySpec() {
