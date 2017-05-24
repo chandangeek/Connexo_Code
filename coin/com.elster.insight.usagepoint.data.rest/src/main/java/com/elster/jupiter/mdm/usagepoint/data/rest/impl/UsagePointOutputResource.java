@@ -917,7 +917,7 @@ public class UsagePointOutputResource {
         Optional<ReadingRecord> calculatedReading = channel.getCalculatedRegisterReadings(dataAggregationInterval).stream().findFirst();
         Optional<ReadingRecord> persistedReading = channel.getPersistedRegisterReadings(dataAggregationInterval).stream().findFirst();
 
-        if (persistedReading.isPresent() && persistedReading.get().getValue() != null) {
+        if (persistedReading.isPresent() && (persistedReading.get().getValue() != null || persistedReading.get().getText() != null)) {
             readingWithValidationStatus.setPersistedReadingRecord(persistedReading.get());
             calculatedReading.ifPresent(readingWithValidationStatus::setCalculatedReadingRecord);
         } else if (calculatedReading.isPresent()) {
