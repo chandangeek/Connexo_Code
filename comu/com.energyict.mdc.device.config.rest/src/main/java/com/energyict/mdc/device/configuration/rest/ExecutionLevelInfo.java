@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.device.configuration.rest.impl;
+package com.energyict.mdc.device.configuration.rest;
 
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
@@ -19,7 +19,6 @@ public class ExecutionLevelInfo {
     public String id;
     public String name;
     public List<IdWithNameInfo> userRoles;
-    public long version;
     public VersionInfo<Long> parent;
 
     public ExecutionLevelInfo() {

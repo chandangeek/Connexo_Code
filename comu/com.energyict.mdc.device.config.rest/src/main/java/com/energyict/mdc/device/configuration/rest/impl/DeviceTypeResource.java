@@ -102,6 +102,7 @@ public class DeviceTypeResource {
     private final Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider;
     private final Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider;
     private final Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider;
+    private final Provider<SecurityAccessorResource> keyFunctionTypeResourceProvider;
     private final ProtocolPluggableService protocolPluggableService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final CalendarInfoFactory calendarInfoFactory;
@@ -124,7 +125,7 @@ public class DeviceTypeResource {
             CalendarService calendarService,
             ExceptionFactory exceptionFactory,
             Thesaurus thesaurus,
-            RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory, RegisterTypeInfoFactory registerTypeInfoFactory) {
+            RegisterTypeOnDeviceTypeInfoFactory registerTypeOnDeviceTypeInfoFactory, RegisterTypeInfoFactory registerTypeInfoFactory, Provider<SecurityAccessorResource> keyFunctionTypeResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -140,6 +141,7 @@ public class DeviceTypeResource {
         this.thesaurus = thesaurus;
         this.registerTypeOnDeviceTypeInfoFactory = registerTypeOnDeviceTypeInfoFactory;
         this.registerTypeInfoFactory = registerTypeInfoFactory;
+        this.keyFunctionTypeResourceProvider = keyFunctionTypeResourceProvider;
     }
 
     @GET
@@ -162,7 +164,6 @@ public class DeviceTypeResource {
         info.id = id;
         resourceHelper.lockDeviceTypeOrThrowException(info).delete();
         return Response.ok().build();
-
     }
 
     @POST
@@ -174,14 +175,22 @@ public class DeviceTypeResource {
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceTypeInfo.deviceProtocolPluggableClassName);
         Optional<DeviceLifeCycle> deviceLifeCycleRef = deviceTypeInfo.deviceLifeCycleId != null ? resourceHelper.findDeviceLifeCycleById(deviceTypeInfo.deviceLifeCycleId) : Optional
                 .empty();
-        DeviceType deviceType;
-        if (deviceTypeInfo.deviceTypePurpose.equals(DeviceTypePurposeTranslationKeys.DATALOGGER_SLAVE.getKey())) {
-            deviceType = deviceConfigurationService.newDataloggerSlaveDeviceTypeBuilder(deviceTypeInfo.name, deviceLifeCycleRef
-                    .isPresent() ? deviceLifeCycleRef.get() : null).create();
-        } else {
-            deviceType = deviceConfigurationService.newDeviceTypeBuilder(deviceTypeInfo.name,
-                    deviceProtocolPluggableClass.isPresent() ? deviceProtocolPluggableClass.get() : null,
-                    deviceLifeCycleRef.isPresent() ? deviceLifeCycleRef.get() : null).create();
+        DeviceType deviceType = null;
+        switch (deviceTypeInfo.deviceTypePurpose){
+            case "REGULAR":
+                deviceType = deviceConfigurationService.newDeviceTypeBuilder(deviceTypeInfo.name,
+                        deviceProtocolPluggableClass.isPresent() ? deviceProtocolPluggableClass.get() : null,
+                        deviceLifeCycleRef.isPresent() ? deviceLifeCycleRef.get() : null).create();
+                break;
+            case "DATALOGGER_SLAVE":
+                deviceType = deviceConfigurationService.newDataloggerSlaveDeviceTypeBuilder(deviceTypeInfo.name, deviceLifeCycleRef
+                        .isPresent() ? deviceLifeCycleRef.get() : null).create();
+                break;
+            case "MULTI_ELEMENT_SLAVE":
+                deviceType = deviceConfigurationService.newMultiElementSlaveDeviceTypeBuilder(deviceTypeInfo.name, deviceLifeCycleRef
+                        .isPresent() ? deviceLifeCycleRef.get() : null).create();
+                break;
+
         }
         return DeviceTypeInfo.from(deviceType);
     }
@@ -197,7 +206,7 @@ public class DeviceTypeResource {
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(deviceTypeInfo);
         deviceType.setName(deviceTypeInfo.name);
         deviceType.setDeviceTypePurpose(getDeviceTypePurpose(deviceTypeInfo));
-        if (!deviceType.isDataloggerSlave()) {
+        if (!deviceType.isDataloggerSlave() && !deviceType.isMultiElementSlave()) {
             deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.deviceProtocolPluggableClassName);
         }
         if (deviceTypeInfo.registerTypes != null) {
@@ -434,6 +443,11 @@ public class DeviceTypeResource {
     @Path("/{deviceTypeId}/conflictmappings")
     public DeviceConfigConflictMappingResource getDeviceConflictMappingResource() {
         return deviceConflictMappingResourceProvider.get();
+    }
+
+    @Path("/{deviceTypeId}/securityaccessors")
+    public SecurityAccessorResource getKeyFunctionTypeResource() {
+        return keyFunctionTypeResourceProvider.get();
     }
 
     @GET

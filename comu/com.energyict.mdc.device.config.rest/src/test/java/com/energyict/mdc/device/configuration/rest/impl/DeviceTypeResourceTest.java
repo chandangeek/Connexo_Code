@@ -12,7 +12,6 @@ import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransition;
 import com.elster.jupiter.calendar.Status;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.Answers;
 import com.elster.jupiter.domain.util.Finder;
@@ -36,9 +35,8 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -67,12 +65,10 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.upl.DeviceFunction;
+
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
@@ -93,12 +89,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.LongStream;
 
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
@@ -182,6 +182,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         DeviceType.DeviceTypeBuilder deviceTypeBuilder = mock(DeviceType.DeviceTypeBuilder.class);
         when(deviceTypeBuilder.create()).thenReturn(deviceType);
         when(deviceConfigurationService.newDeviceTypeBuilder("newName", protocol, deviceLifeCycle)).thenReturn(deviceTypeBuilder);
@@ -204,8 +206,33 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         when(deviceTypeBuilder.create()).thenReturn(deviceType);
         when(deviceConfigurationService.newDataloggerSlaveDeviceTypeBuilder("newName", deviceLifeCycle)).thenReturn(deviceTypeBuilder);
+
+        Response response = target("/devicetypes/").request().post(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void createMultiElementSubmeterTest() {
+        DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
+        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
+        deviceTypeInfo.name = "newName";
+        deviceTypeInfo.deviceLifeCycleId = deviceLifeCycle.getId();
+        deviceTypeInfo.deviceTypePurpose = DeviceTypePurpose.MULTI_ELEMENT_SLAVE.name();
+        Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
+
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(deviceLifeCycle));
+        DeviceType.DeviceTypeBuilder deviceTypeBuilder = mock(DeviceType.DeviceTypeBuilder.class);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
+        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceTypeBuilder.create()).thenReturn(deviceType);
+        when(deviceConfigurationService.newMultiElementSlaveDeviceTypeBuilder("newName", deviceLifeCycle)).thenReturn(deviceTypeBuilder);
 
         Response response = target("/devicetypes/").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -279,31 +306,15 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         return logBookType;
     }
 
-    private DeviceType mockDeviceType(String name, long id) {
-        DeviceType deviceType = mock(DeviceType.class);
-        RegisteredCustomPropertySet registeredCustomPropertySet = mockRegisteredCustomPropertySet();
-        when(deviceType.getRegisterTypeTypeCustomPropertySet(anyObject())).thenReturn(Optional.of(registeredCustomPropertySet));
-        when(deviceType.getCustomPropertySets()).thenReturn(Arrays.asList(registeredCustomPropertySet));
-        when(deviceType.getName()).thenReturn(name);
-        when(deviceType.getId()).thenReturn(id);
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
-        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
-        List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
-        when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
-        when(deviceType.getVersion()).thenReturn(OK_VERSION);
-
-        doReturn(Optional.of(deviceType)).when(deviceConfigurationService).findDeviceType(id);
-        doReturn(Optional.of(deviceType)).when(deviceConfigurationService).findAndLockDeviceType(id, OK_VERSION);
-        doReturn(Optional.empty()).when(deviceConfigurationService).findAndLockDeviceType(id, BAD_VERSION);
-
+    protected DeviceType mockDeviceType(String name, long id) {
+        DeviceType deviceType = super.mockDeviceType(name, id);
+        DeviceLifeCycle deviceLifeCycle = deviceType.getDeviceLifeCycle();
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         return deviceType;
     }
 
-    private DeviceLifeCycle mockStandardDeviceLifeCycle() {
+    protected DeviceLifeCycle mockStandardDeviceLifeCycle() {
         DeviceLifeCycle deviceLifeCycle = mock(DeviceLifeCycle.class);
         when(deviceLifeCycle.getId()).thenReturn(1L);
         when(deviceLifeCycle.getName()).thenReturn("Default");
@@ -358,17 +369,27 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         int NUMBER_OF_REGISTERS = 8;
         int NUMBER_OF_LOGBOOKS = 10;
 
+        DeviceConfiguration deviceConfig1 = mock(DeviceConfiguration.class);
+        when(deviceConfig1.isActive()).thenReturn(true);
+        DeviceConfiguration deviceConfig2 = mock(DeviceConfiguration.class);
+        when(deviceConfig2.isActive()).thenReturn(true);
+        DeviceConfiguration deviceConfig3 = mock(DeviceConfiguration.class);
+        when(deviceConfig3.isActive()).thenReturn(false);
+        DeviceConfiguration deviceConfig4 = mock(DeviceConfiguration.class);
+        when(deviceConfig4.isActive()).thenReturn(false);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getName()).thenReturn("unique name");
         when(deviceType.getId()).thenReturn(13L);
-        List configsList = mock(List.class);
-        when(configsList.size()).thenReturn(NUMBER_OF_CONFIGS);
+        List configsList = Arrays.asList(deviceConfig1, deviceConfig2, deviceConfig3, deviceConfig4);
+
         List loadProfileList = mock(List.class);
         when(loadProfileList.size()).thenReturn(NUMBER_OF_LOADPROFILES);
         List registerList = Arrays.asList(new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo(), new RegisterTypeInfo());
         List logBooksList = mock(List.class);
         when(logBooksList.size()).thenReturn(NUMBER_OF_LOGBOOKS);
         DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
 
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
@@ -397,6 +418,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(jsonDeviceType.get("registerCount")).isEqualTo(NUMBER_OF_REGISTERS)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("deviceConfigurationCount")).isEqualTo(NUMBER_OF_CONFIGS)
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceType.get("activeDeviceConfigurationCount")).isEqualTo(2)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceType.get("loadProfileCount")).isEqualTo(NUMBER_OF_LOADPROFILES)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -437,6 +460,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getDeviceFunction()).thenReturn(DeviceFunction.METER);
+        when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.of(mock(com.energyict.mdc.upl.properties.PropertySpec.class)));
         when(deviceConfiguration.canActAsGateway()).thenReturn(true);
         when(deviceConfiguration.getGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
         when(deviceConfiguration.isDirectlyAddressable()).thenReturn(true);
@@ -455,7 +479,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat((List) map.get("deviceConfigurations")).hasSize(1)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("deviceConfigurations")).get(0);
-        assertThat(jsonDeviceConfiguration).hasSize(16);
+        assertThat(jsonDeviceConfiguration).hasSize(19);
         assertThat(jsonDeviceConfiguration.get("id")).isEqualTo(113)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon")
@@ -467,6 +491,10 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(jsonDeviceConfiguration.get("deviceProtocolPluggableClass")).isEqualTo("device protocol name")
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("deviceFunction")).isEqualTo("Meter")
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("deviceProtocolSupportsClient")).isEqualTo(true)
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("deviceProtocolSupportSecuritySuites")).isEqualTo(false)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("registerCount")).isEqualTo(2)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -480,7 +508,13 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("isDirectlyAddressable")).isEqualTo(true)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("dataloggerEnabled")).isEqualTo(false)
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("multiElementEnabled")).isEqualTo(false)
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("version")).isEqualTo(((Number) OK_VERSION).intValue())
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("validateOnStore")).isEqualTo(false)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 
@@ -541,6 +575,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getDeviceFunction()).thenReturn(DeviceFunction.METER);
+        when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.empty());
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol name");
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
@@ -1336,7 +1371,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         typedProperties.setProperty("macAddress", "aa:bb:cc:dd:ee:ff");
 
         ConnectionType connectionType = mock(ConnectionType.class);
-        when(connectionType.getPropertySpecs()).thenReturn(Arrays.<PropertySpec>asList(propertySpec1));
+        List<PropertySpec> propertySpecs = Arrays.<PropertySpec>asList(propertySpec1);
+        when(connectionType.getPropertySpecs()).thenReturn(propertySpecs);
 
         NextExecutionSpecs nextExecSpecs = mock(NextExecutionSpecs.class);
         when(nextExecSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.minutes(60)));
@@ -1494,6 +1530,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Thesaurus thesaurus = mock(Thesaurus.class);
         NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
         when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
+        when(thesaurus.getSimpleFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
         MessageSeed messageSeed = mock(MessageSeed.class);
         doThrow(new SomeLocalizedException(thesaurus, messageSeed)).when(deviceType).update();
 
@@ -1549,6 +1586,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceLifeCycle targetDeviceLifeCycle = mock(DeviceLifeCycle.class);
         when(targetDeviceLifeCycle.getId()).thenReturn(2L);
         when(targetDeviceLifeCycle.getName()).thenReturn("Device life cycle 2");
+        when(targetDeviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now());
+        when(targetDeviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.now());
         when(deviceConfigurationService.findAndLockDeviceType(1L, 1)).thenReturn(Optional.of(deviceType));
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(2L)).thenReturn(Optional.of(targetDeviceLifeCycle));
         when(deviceType.getDeviceLifeCycle()).thenReturn(targetDeviceLifeCycle);

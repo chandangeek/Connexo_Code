@@ -14,7 +14,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.impl.MessageSeeds;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;

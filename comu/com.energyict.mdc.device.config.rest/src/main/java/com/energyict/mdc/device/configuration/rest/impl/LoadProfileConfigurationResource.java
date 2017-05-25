@@ -302,7 +302,8 @@ public class LoadProfileConfigurationResource {
                         channelType,
                         channelType.getReadingType(),
                         getPossibleMultiplyReadingTypesFor(getReadingTypeForMultiplyCalculation(channelType.getReadingType()))
-                )).collect(Collectors.toList());
+                )).sorted((o1, o2) -> o1.readingType.fullAliasName.compareTo(o2.readingType.fullAliasName)
+                ).collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromPagedList("data", channelSpecShortInfos, queryParameters)).build();
     }
 
