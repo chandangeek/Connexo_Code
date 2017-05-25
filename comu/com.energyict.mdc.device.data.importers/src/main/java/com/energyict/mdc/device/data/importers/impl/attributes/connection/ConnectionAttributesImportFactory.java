@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.importers.impl.attributes.connection;
 
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
+import com.elster.jupiter.pki.PkiService;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataCsvImporter;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
@@ -37,6 +38,7 @@ public class ConnectionAttributesImportFactory extends AbstractDeviceDataFileImp
     public static final String NAME = "ConnectionAttributesImportFactory";
 
     private volatile DeviceDataImporterContext context;
+    private volatile PkiService pkiService;
 
     public ConnectionAttributesImportFactory() {
     }
@@ -63,7 +65,7 @@ public class ConnectionAttributesImportFactory extends AbstractDeviceDataFileImp
         SupportedNumberFormat numberFormat = ((SupportedNumberFormat.SupportedNumberFormatInfo) properties.get(NUMBER_FORMAT.getPropertyKey())).getFormat();
 
         FileImportParser<ConnectionAttributesImportRecord> parser = new FileImportDescriptionBasedParser(new ConnectionAttributesImportDescription());
-        FileImportProcessor<ConnectionAttributesImportRecord> processor = new ConnectionAttributesImportProcessor(getContext(), numberFormat);
+        FileImportProcessor<ConnectionAttributesImportRecord> processor = new ConnectionAttributesImportProcessor(getContext(), numberFormat, pkiService);
         FileImportLogger<FileImportRecord> logger = new DevicePerLineFileImportLogger(getContext());
         return DeviceDataCsvImporter.withParser(parser).withProcessor(processor).withLogger(logger).withDelimiter(delimiter.charAt(0)).build();
     }
@@ -82,5 +84,10 @@ public class ConnectionAttributesImportFactory extends AbstractDeviceDataFileImp
     @Reference
     public void setDeviceDataImporterContext(DeviceDataImporterContext context) {
         this.context = context;
+    }
+
+    @Reference
+    public void setPkiService(PkiService pkiService) {
+        this.pkiService = pkiService;
     }
 }

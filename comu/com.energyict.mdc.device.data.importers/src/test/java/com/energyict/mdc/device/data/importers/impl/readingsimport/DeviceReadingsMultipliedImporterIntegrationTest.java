@@ -13,7 +13,6 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -29,11 +28,9 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -41,10 +38,24 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.NUMBER_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
 import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT3;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -86,17 +97,20 @@ public class DeviceReadingsMultipliedImporterIntegrationTest extends Persistence
         device = reloadDevice(device);
 
         List<LoadProfileReading> channelData = device.getChannels().get(0).getChannelData(Range.openClosed(Instant.EPOCH, ZonedDateTime.of(2016, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC).toInstant()));
-        assertThat(channelData).hasSize(3);
+        assertThat(channelData).describedAs("all").hasSize(153);
+        assertThat(channelData.stream()
+                .map(LoadProfileReading::getReadingTime).filter(Objects::nonNull).count())
+                .isEqualTo(3);
 
         ReadingType calculatedReadingType = inMemoryPersistence.getService(MeteringService.class)
                 .getReadingType("11.0.0.9.1.2.12.0.0.0.0.1.0.0.0.0.72.0")
                 .get();
-        List<IntervalReadingRecord> channelReadings = new ArrayList<>(channelData.get(0).getChannelValues().values());
+        List<IntervalReadingRecord> channelReadings = new ArrayList<>(channelData.stream().filter(r -> r.getReadingTime() != null).findFirst().get().getChannelValues().values());
         assertThat(channelReadings).hasSize(1);
         assertThat(channelReadings.get(0).getTimeStamp()).isEqualTo(ZonedDateTime.of(2015, 8, 4, 0, 0, 0, 0, ZoneOffset.UTC).toInstant());
         assertThat(channelReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(900.90));
         assertThat(channelReadings.get(0).filter(calculatedReadingType).getValue()).isEqualTo(BigDecimal.valueOf(9009.00));
-        channelReadings = new ArrayList<>(channelData.get(1).getChannelValues().values());
+        channelReadings = new ArrayList<>(channelData.stream().filter(r -> r.getReadingTime() != null).skip(1).findFirst().get().getChannelValues().values());
         assertThat(channelReadings).hasSize(1);
         assertThat(channelReadings.get(0).getTimeStamp()).isEqualTo(ZonedDateTime.of(2015, 8, 3, 0, 0, 0, 0, ZoneOffset.UTC).toInstant());
         assertThat(channelReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(810.81));

@@ -103,13 +103,16 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
         assertThat(readings.get(1).getValue()).isEqualTo(BigDecimal.valueOf(101));
 
         List<LoadProfileReading> channelData = device.getChannels().get(0).getChannelData(Range.openClosed(Instant.EPOCH, ZonedDateTime.of(2016, 1, 1, 1, 0, 0, 0, ZoneOffset.UTC).toInstant()));
-        assertThat(channelData).hasSize(2);
+        assertThat(channelData).describedAs("all including the padding").hasSize(153);
+        assertThat(channelData.stream()
+                .map(LoadProfileReading::getReadingTime).filter(Objects::nonNull).count())
+                .isEqualTo(2);
 
-        List<IntervalReadingRecord> channelReadings = new ArrayList<>(channelData.get(0).getChannelValues().values());
+        List<IntervalReadingRecord> channelReadings = new ArrayList<>(channelData.stream().filter(r -> r.getReadingTime() != null).findFirst().get().getChannelValues().values());
         assertThat(channelReadings).hasSize(1);
         assertThat(channelReadings.get(0).getTimeStamp()).isEqualTo(ZonedDateTime.of(2015, 8, 3, 0, 0, 0, 0, ZoneOffset.UTC).toInstant());
         assertThat(channelReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(810));
-        channelReadings = new ArrayList<>(channelData.get(1).getChannelValues().values());
+        channelReadings = new ArrayList<>(channelData.stream().filter(r -> r.getReadingTime() != null).skip(1).findFirst().get().getChannelValues().values());
         assertThat(channelReadings).hasSize(1);
         assertThat(channelReadings.get(0).getTimeStamp()).isEqualTo(ZonedDateTime.of(2015, 8, 2, 0, 0, 0, 0, ZoneOffset.UTC).toInstant());
         assertThat(channelReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(800.45));
