@@ -99,6 +99,7 @@ abstract class  DataQualityKpiSqlBuilder {
                 ReadingQualityType.of(getQualityCodeSystem(), QualityCodeIndex.ADDED),
                 ReadingQualityType.of(getQualityCodeSystem(), QualityCodeIndex.REJECTED),
                 ReadingQualityType.of(getQualityCodeSystem(), QualityCodeIndex.ESTIMATEGENERIC),
+                ReadingQualityType.of(getQualityCodeSystem(), QualityCodeIndex.PROJECTEDGENERIC),
                 ReadingQualityType.of(getQualityCodeSystem(), QualityCodeIndex.ACCEPTED))
                 .map(this::toSql)
                 .collect(Collectors.joining(", "));
