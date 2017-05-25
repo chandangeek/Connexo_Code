@@ -67,6 +67,24 @@ Ext.define('Mdc.usagepointmanagement.view.history.AddMetrologyConfigurationVersi
                                 queryMode: 'local',
                                 required: true,
                                 width: 600,
+                                markInvalid: function(errors){
+                                    var fld = this,
+                                        oldMsg = fld.getActiveError(),
+                                        active;
+
+                                    //Used when the error message is too long
+                                    if(errors.length >= 100){
+                                        errors = errors.split(" ").reduce(function(previousValue, currentValue, index, arr){
+                                            return index === ~~(arr.length /2) ? previousValue += "<br>" + currentValue : previousValue += " " + currentValue;
+                                        });
+                                    }
+
+                                    fld.setActiveErrors(Ext.Array.from(errors));
+                                    active = fld.getActiveError();
+                                    if (oldMsg !== active) {
+                                        fld.setError(active);
+                                    }
+                                },
                                 fieldLabel: Uni.I18n.translate('usagePointManagement.metrologyConfiguration', 'MDC', 'Metrology configuration')
                             },
                             {
