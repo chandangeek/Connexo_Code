@@ -76,7 +76,7 @@ Ext.define('Uni.property.view.property.Date', {
     },
 
     getValue: function () {
-        if (this.getField().getValue() != null) {
+        if (!Ext.isEmpty(this.getField().getValue())) {
             return this.getField().getValue().getTime()
         } else {
             return null;
