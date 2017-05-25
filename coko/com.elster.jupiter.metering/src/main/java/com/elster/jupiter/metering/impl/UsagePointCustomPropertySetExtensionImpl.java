@@ -77,6 +77,7 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
         return getUsagePoint().getServiceCategory().getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                // in case of null pointer exception: rcps.getCustomPropertySet() returns null - refer to CXO-7100
                 .map(rcps -> rcps.getCustomPropertySet()
                         .isVersioned() ? new UsagePointVersionedPropertySetImpl(rcps) : new UsagePointPropertySetImpl(rcps))
                 .collect(Collectors.toList());
