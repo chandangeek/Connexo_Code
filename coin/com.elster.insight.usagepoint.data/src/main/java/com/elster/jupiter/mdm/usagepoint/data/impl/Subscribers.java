@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum Subscribers implements TranslationKey {

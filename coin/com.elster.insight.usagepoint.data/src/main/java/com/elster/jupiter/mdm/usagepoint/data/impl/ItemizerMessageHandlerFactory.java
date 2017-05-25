@@ -5,7 +5,6 @@
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
 import com.elster.jupiter.mdm.usagepoint.data.ItemizeAddCalendarMessage;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointFilter;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;

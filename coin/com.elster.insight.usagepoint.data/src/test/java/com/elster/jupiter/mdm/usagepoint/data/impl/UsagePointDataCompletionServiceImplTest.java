@@ -12,7 +12,6 @@ import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryType;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataModificationSummaryFlags;
 import com.elster.jupiter.mdm.usagepoint.data.IChannelDataCompletionSummary;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.mdm.usagepoint.data.ValidChannelDataSummaryFlags;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -126,8 +125,7 @@ public class UsagePointDataCompletionServiceImplTest {
         when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.all()));
 
         UsagePointDataModelService usagePointDataModelService = mock(UsagePointDataModelService.class);
-        when(usagePointDataModelService.thesaurus()).thenReturn(thesaurus);
-        usagePointDataCompletionService = new UsagePointDataCompletionServiceImpl(usagePointDataModelService, validationService);
+        usagePointDataCompletionService = new UsagePointDataCompletionServiceImpl(thesaurus, validationService);
 
         when(validationService.getLastChecked(channel)).thenReturn(Optional.of(LAST_CHECKED));
         when(channel.isRegular()).thenReturn(true);

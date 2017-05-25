@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataModelService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
@@ -25,14 +24,14 @@ public class Installer implements FullInstaller {
     private final MessageService messageService;
     private final Thesaurus thesaurus;
     private final UserService userService;
-    private final UsagePointGroupPrivilegesProvider usagePointGroupPrivilegesProvider;
+    private final PrivilegesProviderV10_3 privilegesProviderV103;
 
     @Inject
     public Installer(DataModel dataModel, UserService userService, MessageService messageService,
-                     Thesaurus thesaurus, UsagePointGroupPrivilegesProvider usagePointGroupPrivilegesProvider) {
+                     Thesaurus thesaurus, PrivilegesProviderV10_3 privilegesProviderV103) {
         this.dataModel = dataModel;
         this.userService = userService;
-        this.usagePointGroupPrivilegesProvider = usagePointGroupPrivilegesProvider;
+        this.privilegesProviderV103 = privilegesProviderV103;
         this.messageService = messageService;
         this.thesaurus = thesaurus;
     }
@@ -42,7 +41,7 @@ public class Installer implements FullInstaller {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         doTry(
                 "Add module privileges",
-                () -> userService.addModulePrivileges(usagePointGroupPrivilegesProvider),
+                () -> userService.addModulePrivileges(privilegesProviderV103),
                 logger
         );
         doTry(
