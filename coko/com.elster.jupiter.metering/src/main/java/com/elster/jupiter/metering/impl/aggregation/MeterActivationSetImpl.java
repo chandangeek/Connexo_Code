@@ -74,7 +74,7 @@ class MeterActivationSetImpl implements MeterActivationSet {
 
     @Override
     public void avoidOverlapWith(MeterActivationSet other) {
-        boolean overlaps = !ImmutableRangeSet.of(this.getRange()).subRangeSet(other.getRange()).isEmpty();
+        boolean overlaps = !ImmutableRangeSet.of(this.period).subRangeSet(other.getRange()).isEmpty();
         if (overlaps) {
             this.period = Range.closedOpen(this.period.lowerEndpoint(), other.getRange().lowerEndpoint());
         }
@@ -106,7 +106,6 @@ class MeterActivationSetImpl implements MeterActivationSet {
     public void addSyntheticLoadProfile(SyntheticLoadProfileUsage syntheticLoadProfileUsage) {
         syntheticLoadProfileUsage
                 .getSyntheticLoadProfilePropertyNames()
-                .stream()
                 .forEach(propertySpecName -> this.syntheticLoadProfiles.put(propertySpecName, syntheticLoadProfileUsage.getSyntheticLoadProfile(propertySpecName)));
         this.period = this.period.intersection(syntheticLoadProfileUsage.getRange());
     }
@@ -153,17 +152,11 @@ class MeterActivationSetImpl implements MeterActivationSet {
     }
 
     private Stream<MeterActivation> getMeterActivationsFor(ReadingTypeRequirement requirement) {
-        Optional<MeterRole> meterRole = this.configuration.getMeterRoleFor(requirement);
-        Stream<MeterActivation> meterActivations;
-        if (meterRole.isPresent()) {
-            meterActivations = this.meterActivations
-                    .stream()
-                    .filter(meterActivation -> meterActivation.getMeterRole().isPresent())
-                    .filter(meterActivation -> meterActivation.getMeterRole().get().equals(meterRole.get()));
-        } else {
-            meterActivations = this.meterActivations.stream();
-        }
-        return meterActivations;
+        return this.configuration.getMeterRoleFor(requirement)
+                .map(meterRole -> this.meterActivations.stream()
+                        .filter(meterActivation -> meterActivation.getMeterRole().isPresent())
+                        .filter(meterActivation -> meterActivation.getMeterRole().get().equals(meterRole)))
+                .orElseGet(this.meterActivations::stream);
     }
 
     @Override

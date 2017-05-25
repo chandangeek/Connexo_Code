@@ -344,22 +344,22 @@ public class UsagePointMeterActivatorImplManageActivationsIT {
         assertThat(meterActivations.get(0).getRange()).isEqualTo(Range.closedOpen(TWO_DAYS_BEFORE, INSTALLATION_TIME));
         Channel channel = meterActivations.get(0).getChannelsContainer().getChannel(deltaReadingType).get();
         List<BaseReadingRecord> readings = channel.getReadings(Range.all());
-        assertThat(readings).hasSize(3);
+        assertThat(readings).hasSize(4);
         assertThat(readings.stream().map(reading -> reading.getQuantity(bulkReadingType).getValue()).collect(Collectors.toList()))
-                .containsExactly(BigDecimal.valueOf(155), BigDecimal.valueOf(175), BigDecimal.valueOf(185));
+                .containsExactly(BigDecimal.valueOf(155), BigDecimal.valueOf(175), BigDecimal.valueOf(185), BigDecimal.valueOf(195));
         assertThat(readings.stream().map(reading -> reading.getQuantity(deltaReadingType) != null ? reading.getQuantity(deltaReadingType).getValue() : null).collect(Collectors.toList()))
-                .containsExactly(null, BigDecimal.valueOf(20), BigDecimal.valueOf(10));
-        assertThat(channel.findReadingQualities().collect()).hasSize(3);
+                .containsExactly(null, BigDecimal.valueOf(20), BigDecimal.valueOf(10), BigDecimal.valueOf(10));
+        assertThat(channel.findReadingQualities().collect()).hasSize(4);
 
         channel = meterActivations.get(1).getChannelsContainer().getChannel(deltaReadingType).get();
         readings = meterActivations.get(1).getChannelsContainer().getChannel(deltaReadingType).get().getReadings(Range.all());
-        assertThat(readings).hasSize(4);
+        assertThat(readings).hasSize(3);
         assertThat(meterActivations.get(1).getRange()).isEqualTo(Range.closedOpen(INSTALLATION_TIME, TWO_DAYS_AFTER));
         assertThat(readings.stream().map(reading -> reading.getQuantity(bulkReadingType).getValue()).collect(Collectors.toList()))
-                .containsExactly(BigDecimal.valueOf(195), BigDecimal.valueOf(215), BigDecimal.valueOf(220), BigDecimal.valueOf(245));
+                .containsExactly(BigDecimal.valueOf(215), BigDecimal.valueOf(220), BigDecimal.valueOf(245));
         assertThat(readings.stream().map(reading -> reading.getQuantity(deltaReadingType) != null ? reading.getQuantity(deltaReadingType).getValue() : null).collect(Collectors.toList()))
-                .containsExactly(BigDecimal.valueOf(10), BigDecimal.valueOf(20), BigDecimal.valueOf(5), BigDecimal.valueOf(25));
-        assertThat(channel.findReadingQualities().collect()).hasSize(4);
+                .containsExactly(BigDecimal.valueOf(20), BigDecimal.valueOf(5), BigDecimal.valueOf(25));
+        assertThat(channel.findReadingQualities().collect()).hasSize(3);
 
         assertThat(meterActivations.get(2).getRange()).isEqualTo(Range.atLeast(TWO_DAYS_AFTER));
     }
