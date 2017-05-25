@@ -28,6 +28,7 @@ public class PropertyTypeInfo {
     public PredefinedPropertyValuesInfo predefinedPropertyValuesInfo;
     public PropertyValueInfo propertyValueInfo;
     private TaskContentInfo taskContentInfo;
+    public Map<String, Object> params;
 
 
     public PropertyTypeInfo(){
@@ -123,6 +124,10 @@ public class PropertyTypeInfo {
             simplePropertyType = "METROLOGYPURPOSES";
         } else if ("usagePointTransition".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
             simplePropertyType = "UP_TRANSITION";
+            if(getComboBoxValues(field, "param2")!=null) {
+                params = new HashMap<>();
+                params.put("toStage", getComboBoxValues(field, "param2"));
+            }
         } else if ("meterInstallationDate".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
             simplePropertyType = "METER_INSTALLATION_DATE";
         } else if ("meterRole".equalsIgnoreCase(getComboBoxValues(field, "param1"))) {
