@@ -460,6 +460,24 @@ public class UsagePointResource {
                 .build();
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @Transactional
+    @Path("/{name}/transitions/{toStage}")
+    public Response getAvailableTransitions(@PathParam("name") String name, @PathParam("toStage") String toStage, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+
+        List<UsagePointTransition> transitions = resourceHelper.getAvailableTransitions(usagePoint).stream()
+                .filter(usagePointTransition -> usagePointTransition.getTo().getStage().filter(stage -> stage.getName().equals(toStage)).isPresent())
+                .collect(Collectors.toList());
+
+        return Response.ok()
+                .entity(PagedInfoList.fromCompleteList("transitions", transitions.stream()
+                        .map(usagePointTransitionInfoFactory::from).collect(Collectors.toList()), queryParameters))
+                .build();
+    }
+
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
