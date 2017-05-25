@@ -636,6 +636,7 @@ DES;REST;addDataExportTask.formatter.tooltip.col5;Validierungsergebnis (Text);
 DES;REST;general.skipMissingData;Überspringen von Intervallen mit fehlenden Daten (Daten mit Lücken).;
 DES;REST;general.nrOfReadingTypes[0];Keine Ablesetypen;
 DES;REST;general.logLevel;Protokollierebene;
+DES;REST;general.workspace;Arbeitsbereich;
 DES;REST;addDataExportTask.formatter.tooltip.col4;Wert (Zahl);
 DES;REST;addDataExportTask.formatter.tooltip.col3;Ablesetyp (Text);
 DES;REST;addDataExportTask.formatter.tooltip.col2;Geräte-MRID (Text);
@@ -3650,6 +3651,7 @@ CPS;REST;customattributesets.noItems;Keine benutzerdefinierten Attributsätze ge
 CPS;REST;general.order;Reihenfolge;
 FIM;REST;importService.history.fileName;Dateiname;
 FIM;REST;general.status;Status;
+FIM;REST;general.workspace;Arbeitsbereich;
 FIM;REST;importService.filePatternInfo.example;Im Folgenden sind einige Beispiele zur Mustersyntax aufgeführt:;
 FIM;REST;importService.history.empty.list.item2;Die Filterkriterien sind zu stark eingegrenzt.;
 FIM;REST;importService.history.empty.list.item1;Für diesen Import-Service steht keine Historie zur Verfügung.;
