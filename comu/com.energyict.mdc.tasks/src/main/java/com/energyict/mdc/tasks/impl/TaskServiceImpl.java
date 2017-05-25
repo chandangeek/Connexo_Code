@@ -13,8 +13,10 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -34,6 +36,7 @@ import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.TopologyTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -48,6 +51,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.energyict.mdc.tasks", service = {TaskService.class, ServerTaskService.class, MessageSeedProvider.class}, property = "name=" + TaskService.COMPONENT_NAME, immediate = true)
 public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
@@ -147,8 +152,7 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
     @Activate
     public void activate() {
         dataModel.register(getModule());
-
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", TaskService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", TaskService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(Version.version(10, 3), V10_3SimpleUpgrader.class));
     }
 
     @Override
@@ -195,8 +199,7 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider {
 
     @Override
     public Optional<ComTask> findFirmwareComTask() {
-        List<ComTask> comTasks = dataModel.mapper(ComTask.class).find("name", FIRMWARE_COMTASK_NAME);
-        return comTasks.size() == 1 ? Optional.of(comTasks.get(0)) : Optional.empty();
+        return dataModel.mapper(ComTask.class).select(where("name").isEqualTo(FIRMWARE_COMTASK_NAME)).stream().filter(ComTask::isSystemComTask).findFirst();
     }
 
     @Override

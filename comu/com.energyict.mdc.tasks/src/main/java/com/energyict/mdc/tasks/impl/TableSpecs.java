@@ -8,6 +8,8 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.UniqueConstraint;
+import com.elster.jupiter.orm.Version;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
@@ -41,12 +43,13 @@ public enum TableSpecs {
             table.cache();
             Column idColumn = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
+            Column discriminator = table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column nameColumn = table.column("NAME").varChar().map(ComTaskImpl.Fields.NAME.fieldName()).add();
             table.column("STOREDATA").number().conversion(NUMBER2BOOLEAN).map(ComTaskImpl.Fields.STORE_DATE.fieldName()).add();
             table.column("MAXNROFTRIES").number().conversion(NUMBER2INT).map(ComTaskImpl.Fields.MAX_NR_OF_TRIES.fieldName()).add();
             table.primaryKey("PK_CTS_COMTASK").on(idColumn).add();
-            table.unique("UQ_CTS_COMTASK_NAME").on(nameColumn).add();
+            UniqueConstraint uniqueOnName = table.unique("UQ_CTS_COMTASK_NAME").on(nameColumn).upTo(Version.version(10, 3)).add();
+            table.unique("UQ_CTS_COMTASK_NAME").on(nameColumn, discriminator).previously(uniqueOnName).since(Version.version(10, 3)).add();
         }
     },
     CTS_PROTOCOLTASK {

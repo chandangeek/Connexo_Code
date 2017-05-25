@@ -1,12 +1,10 @@
 package com.energyict.mdc.tasks;
 
-import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.TemporalAmountValueFactory;
 import com.elster.jupiter.properties.ValueFactory;
-import com.energyict.mdc.dynamic.impl.PasswordFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -31,7 +29,6 @@ public enum DeviceMessageTestSpec implements DeviceMessageSpec {
             mockPropertySpec("testMessageSpec.simpleBigDecimal", new BigDecimalFactory()),
             mockPropertySpec("testMessageSpec.simpleString", new StringFactory())),
     TEST_SPEC_WITH_EXTENDED_SPECS(
-            mockPropertySpec("testMessageSpec.codetable", new PasswordFactory(mock(DataVaultService.class))),
             mockPropertySpec("testMessageSpec.activationdate", new TemporalAmountValueFactory())),
     TEST_SPEC_WITHOUT_SPECS;
 
@@ -65,7 +62,7 @@ public enum DeviceMessageTestSpec implements DeviceMessageSpec {
 
     @Override
     public DeviceMessageId getId() {
-        return DeviceMessageId.havingId(this.ordinal() + 1);
+        return DeviceMessageId.from(this.ordinal() + 1);
     }
 
     @Override

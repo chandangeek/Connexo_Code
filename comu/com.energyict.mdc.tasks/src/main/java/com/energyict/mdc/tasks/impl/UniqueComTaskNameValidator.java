@@ -31,6 +31,7 @@ public class UniqueComTaskNameValidator implements ConstraintValidator<UniqueNam
         final boolean[] valid = {true};
         taskService.findAllComTasks()
                 .stream()
+                .filter(ComTask::isUserComTask)
                 .filter(comTask -> comTask.getId() != comTaskUnderEvaluation.getId() && comTask.getName().equals(comTaskUnderEvaluation.getName()))
                 .findAny()
                 .ifPresent(comTask -> {
