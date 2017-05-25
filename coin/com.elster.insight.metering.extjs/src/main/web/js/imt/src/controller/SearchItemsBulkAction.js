@@ -190,7 +190,6 @@ Ext.define('Imt.controller.SearchItemsBulkAction', {
             errorPanel && errorPanel.show();
             var errors = new Ext.data.Errors();
             Ext.isEmpty(me.addCalendarFormValues.calendar) && errors.add({field: 'calendar', message: Uni.I18n.translate('general.fld.is.required', 'IMT', 'This field is required')});
-            Ext.isEmpty(me.addCalendarFormValues.category) && errors.add({field: 'category', message: Uni.I18n.translate('general.fld.is.required', 'IMT', 'This field is required')});
 
             currentCmp.down('form').getForm().markInvalid(errors);
             return false;
