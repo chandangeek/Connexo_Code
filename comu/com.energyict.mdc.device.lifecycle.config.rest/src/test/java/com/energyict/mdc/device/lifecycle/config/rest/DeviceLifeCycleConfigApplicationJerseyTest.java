@@ -35,6 +35,7 @@ import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.impl.DefaultLifeCycleTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
+import com.energyict.mdc.pluggable.rest.MdcPropertyValueConverterFactory;
 
 import javax.ws.rs.core.Application;
 import java.util.ArrayList;
@@ -86,6 +87,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         application.setBpmService(bpmService);
         application.setDeviceConfigurationService(deviceConfigurationService);
         application.setDeviceLifeCycleService(deviceLifeCycleService);
+        application.setPropertyValueConverterFactory(mock(MdcPropertyValueConverterFactory.class));
         when(nlsService.getThesaurus(DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST)).thenReturn(thesaurus);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getId()).thenReturn(1L);
