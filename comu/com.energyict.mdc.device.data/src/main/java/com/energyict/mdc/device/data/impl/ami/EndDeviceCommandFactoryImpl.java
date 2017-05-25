@@ -12,25 +12,27 @@ import com.elster.jupiter.metering.ami.UnsupportedCommandException;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.units.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import com.energyict.cbo.Unit;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.sql.Date;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -107,7 +109,7 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
         List<DeviceMessageId> supportedMessages = findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
-                        .map(DeviceMessageId::havingId)
+                        .map(DeviceMessageId::from)
                         .collect(Collectors.toList())).orElse(Collections.emptyList());
 
         return endDeviceControlTypeMapping.getPossibleDeviceMessageIdGroups().stream().anyMatch(supportedMessages::containsAll);
@@ -120,16 +122,26 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
                 : findEndDeviceControlType(EndDeviceControlTypeMapping.ARM_REMOTE_SWITCH_FOR_CLOSURE);
         EndDeviceCommand command = this.createCommand(endDevice, endDeviceControlType);
         if (activationDate != null) {
-            command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.contactorActivationDateAttributeName), Date.from(activationDate));
+            PropertySpec activationDatePropertySpec = getActivationDatePropertySpec(command);
+            command.setPropertyValue(activationDatePropertySpec, Date.from(activationDate));
         }
         return command;
+    }
+
+    private PropertySpec getActivationDatePropertySpec(EndDeviceCommand command) {
+        return command.getCommandArgumentSpecs()
+                .stream()
+                .filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(Date.class))
+                .findAny()
+                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COMMAND_SHOULD_HAVE_AN_ACTIVATION_DATE_ATTRIBUTE).format(command.getEndDeviceControlType().getName())));
     }
 
     @Override
     public EndDeviceCommand createConnectCommand(EndDevice endDevice, Instant activationDate) {
         EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH));
         if (activationDate != null) {
-            command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.contactorActivationDateAttributeName), Date.from(activationDate));
+            PropertySpec activationDatePropertySpec = getActivationDatePropertySpec(command);
+            command.setPropertyValue(activationDatePropertySpec, Date.from(activationDate));
         }
         return command;
     }
@@ -138,7 +150,8 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
     public EndDeviceCommand createDisconnectCommand(EndDevice endDevice, Instant activationDate) {
         EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH));
         if (activationDate != null) {
-            command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.contactorActivationDateAttributeName), Date.from(activationDate));
+            PropertySpec activationDatePropertySpec = getActivationDatePropertySpec(command);
+            command.setPropertyValue(activationDatePropertySpec, Date.from(activationDate));
         }
         return command;
     }
@@ -146,19 +159,50 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
     @Override
     public EndDeviceCommand createEnableLoadLimitCommand(EndDevice endDevice, Quantity quantity) {
         EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.LOAD_CONTROL_INITIATE));
-        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.normalThresholdAttributeName), quantity.getValue());
+        command.setPropertyValue(getNormalThresholdPropertySpec(command), quantity.getValue());
         Unit unit = Unit.get(quantity.getUnit().getSymbol(), quantity.getMultiplier());
         command.setPropertyValue(
-                getCommandArgumentSpec(command, DeviceMessageConstants.unitAttributeName),
+                getUnitPropertySpec(command),
                 unit.isUndefined() ? UNDEFINED_UNIT : unit.toString()
         );
         return command;
+    }
+
+    private PropertySpec getNormalThresholdPropertySpec(EndDeviceCommand command) {
+        return command.getCommandArgumentSpecs()
+                .stream()
+                .filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(BigDecimal.class))
+                .findAny()
+                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COMMAND_SHOULD_HAVE_A_NORMAL_THRESHOLD_ATTRIBUTE).format(command.getEndDeviceControlType().getName())));
+    }
+
+    private PropertySpec getUnitPropertySpec(EndDeviceCommand command) {
+        return command.getCommandArgumentSpecs()
+                .stream()
+                .filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(String.class))
+                .findAny()
+                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COMMAND_SHOULD_HAVE_A_UNIT_ATTRIBUTE).format(command.getEndDeviceControlType().getName())));
     }
 
     @Override
     public EndDeviceCommand createDisableLoadLimitCommand(EndDevice endDevice) {
         return this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.LOAD_CONTROL_TERMINATE));
     }
+
+    @Override
+    public EndDeviceCommand createKeyRenewalCommand(EndDevice endDevice, KeyAccessorType keyAccessorType) {
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.KEY_RENEWAL));
+        command.setPropertyValue(getKeyAccessorTypePropertySpec(command), keyAccessorType);
+        return command;
+    }
+
+    private PropertySpec getKeyAccessorTypePropertySpec(EndDeviceCommand command) {
+        return command.getCommandArgumentSpecs()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COMMAND_SHOULD_HAVE_A_KEY_ACCESSOR_TYPE_REFERENCE_ATTRIBUTE).format(command.getEndDeviceControlType().getName())));
+    }
+
 
     private EndDeviceControlType findEndDeviceControlType(EndDeviceControlTypeMapping controlTypeMapping) {
         String mrid = controlTypeMapping.getEndDeviceControlTypeMRID();
@@ -168,13 +212,5 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
     private Device findDeviceForEndDevice(EndDevice endDevice) {
         long deviceId = Long.parseLong(endDevice.getAmrId());
         return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
-    }
-
-    private PropertySpec getCommandArgumentSpec(EndDeviceCommand endDeviceCommand, String commandArgumentName) {
-        return endDeviceCommand.getCommandArgumentSpecs().stream()
-                .filter(propertySpec -> propertySpec.getName().equals(commandArgumentName))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COMMAND_ARGUMENT_SPEC_NOT_FOUND)
-                        .format(commandArgumentName, endDeviceCommand.getEndDeviceControlType().getName())));
     }
 }

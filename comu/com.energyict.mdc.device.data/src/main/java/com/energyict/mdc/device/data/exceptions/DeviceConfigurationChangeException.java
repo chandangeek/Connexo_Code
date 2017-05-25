@@ -104,6 +104,22 @@ public class DeviceConfigurationChangeException extends LocalizedException imple
         return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED);
     }
 
+    public static DeviceConfigurationChangeException cannotChangeConfigOfMultiElementSubmeterDevice(Thesaurus thesaurus) {
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_CONFIG_MULTI_ELEMENT_SUBMETER);
+    }
+
+    public static DeviceConfigurationChangeException toLessChannelsProvided(Thesaurus thesaurus, Device device, DeviceConfiguration newConfiguration) {
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_CONFIG_TO_LESS_CHANNELS_PROVIDED, device.getName(), newConfiguration.getName());
+    }
+
+    public static DeviceConfigurationChangeException deviceConfigMustBeDataLoggerEnabled(Thesaurus thesaurus, Device device, DeviceConfiguration newConfiguration) {
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.NEW_DEVICE_CONFIG_NOT_DATA_LOGGER_ENABLED, device.getName(), newConfiguration.getName());
+    }
+
+    public static DeviceConfigurationChangeException deviceConfigMustBeMultiElementEnabled(Thesaurus thesaurus, Device device, DeviceConfiguration newConfiguration) {
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.NEW_DEVICE_CONFIG_NOT_MULTI_ELEMENT_ENABLED, device.getName(), newConfiguration.getName());
+    }
+
     @Override
     public DeviceConfigurationChangeException get() {
         return this;

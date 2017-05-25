@@ -33,6 +33,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -41,7 +42,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LockService;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.properties.ChannelEstimationRuleOverriddenPropertiesImpl;
+import com.energyict.mdc.device.data.impl.properties.ChannelValidationRuleOverriddenPropertiesImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -65,6 +67,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
@@ -104,8 +107,6 @@ public class DeviceDeleteTest {
     private ServerConnectionTaskService connectionTaskService;
     @Mock
     private ServerCommunicationTaskService communicationTaskService;
-    @Mock
-    private SecurityPropertyService securityPropertyService;
     @Mock
     private Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
     @Mock
@@ -196,11 +197,20 @@ public class DeviceDeleteTest {
     private MeterRole meterRole;
     @Mock
     private LockService lockService;
+    @Mock
+    private PkiService pkiService;
+    @Mock
+    private DataMapper<ChannelValidationRuleOverriddenPropertiesImpl> validationOverriddenPropertiesDataMapper;
+    @Mock
+    private DataMapper<ChannelEstimationRuleOverriddenPropertiesImpl> estimationOverriddenPropertiesDataMapper;
 
     @Before
     public void setup() {
+        when(clock.instant()).thenReturn(Instant.now());
+        ZoneId zoneId = ZoneId.systemDefault();
+        when(clock.getZone()).thenReturn(zoneId);
         when(dataModel.mapper(DeviceImpl.class)).thenReturn(dataMapper);
-        when(this.dataModel.getInstance(DeviceImpl.DeviceEstimationImpl.class)).thenReturn(new DeviceImpl.DeviceEstimationImpl(this.dataModel, this.estimationService));
+        when(this.dataModel.getInstance(DeviceEstimationImpl.class)).thenReturn(new DeviceEstimationImpl(this.dataModel, this.estimationService));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
@@ -234,11 +244,14 @@ public class DeviceDeleteTest {
         when(historicalIssueQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
         when(issueService.findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.empty());
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
-        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.MIN);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now().minus(30, ChronoUnit.DAYS));
         when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.MAX);
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
         when(finiteStateMachine.getId()).thenReturn(633L);
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
+
+        when(dataModel.mapper(ChannelValidationRuleOverriddenPropertiesImpl.class)).thenReturn(validationOverriddenPropertiesDataMapper);
+        when(dataModel.mapper(ChannelEstimationRuleOverriddenPropertiesImpl.class)).thenReturn(estimationOverriddenPropertiesDataMapper);
     }
 
     @Test
@@ -247,7 +260,6 @@ public class DeviceDeleteTest {
         device.delete();
 
         verify(eventService).postEvent(EventType.DEVICE_BEFORE_DELETE.topic(), device);
-        verify(securityPropertyService).deleteSecurityPropertiesFor(device);
         verify(meter).makeObsolete();
         verify(dataMapper).remove(device);
     }
@@ -344,7 +356,7 @@ public class DeviceDeleteTest {
     }
 
     private DeviceImpl getNewDeviceWithMockedServices() {
-        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService);
+        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService, pkiService);
         device.initialize(this.deviceConfiguration, "For testing purposes", Instant.now());
         device.save();
         return device;

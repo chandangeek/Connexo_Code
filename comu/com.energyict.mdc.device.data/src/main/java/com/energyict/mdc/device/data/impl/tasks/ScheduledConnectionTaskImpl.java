@@ -40,6 +40,7 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import javax.inject.Inject;
@@ -570,9 +571,10 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties, ConnectionTaskPropertyValidator validator) throws ConnectionException {
-        validator.validate(properties);
+        List<ConnectionTaskProperty> adaptedProperties = adaptToUPLValues(properties);
+        validator.validate(adaptedProperties);
         ConnectionType connectionType = this.getConnectionType();
-        List<ConnectionProperty> connectionProperties = this.castToConnectionProperties(this.getProperties());
+        List<ConnectionProperty> connectionProperties = this.castToConnectionProperties(adaptedProperties);
         connectionProperties.add(new ComPortNameProperty(comPort));
         return connectionType.connect(connectionProperties);
     }

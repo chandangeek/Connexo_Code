@@ -24,6 +24,7 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -34,7 +35,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
@@ -54,7 +54,10 @@ import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
@@ -66,6 +69,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.internal.matchers.Any;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -110,8 +114,6 @@ public class DeviceMultiplierTest {
     private ServerConnectionTaskService connectionTaskService;
     @Mock
     private ServerCommunicationTaskService communicationTaskService;
-    @Mock
-    private SecurityPropertyService securityPropertyService;
     @Mock
     private ValidatorFactory validatorFactory;
     @Mock
@@ -164,6 +166,8 @@ public class DeviceMultiplierTest {
     private DeviceType deviceType;
     @Mock
     private LockService lockService;
+    @Mock
+    private PkiService pkiService;
 
     private Instant now = Instant.ofEpochSecond(1448460000L); //25-11-2015
     private Instant startOfMeterActivation = Instant.ofEpochSecond(1447977600L); // 20-11-2015
@@ -199,6 +203,8 @@ public class DeviceMultiplierTest {
             };
         });
         when(clock.instant()).thenReturn(now);
+        ZoneId zoneId = ZoneId.systemDefault();
+        when(clock.getZone()).thenReturn(zoneId);
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
         when(amrSystem.findMeter(String.valueOf(ID))).thenReturn(Optional.of(meter));
         when(amrSystem.newMeter(anyString(), anyString())).thenReturn(meterBuilder);
@@ -230,15 +236,15 @@ public class DeviceMultiplierTest {
         when(meter.getUsagePoint(any())).thenReturn(Optional.empty());
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
-        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.MIN);
-        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.MAX);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(now.minus(3000, ChronoUnit.DAYS));
+        when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(now.MAX);
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
     }
 
     private Device createMockedDevice(Instant startOfMeterActivation) {
-        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService,
+        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider,
-                meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService);
+                meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService, deviceService, lockService, pkiService);
 //        setId(device, ID);
         device.initialize(deviceConfiguration, "Name", startOfMeterActivation);
         device.save();

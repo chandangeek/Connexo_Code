@@ -22,6 +22,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreferencesService;
@@ -31,7 +32,6 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
@@ -49,6 +49,8 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -107,8 +109,6 @@ public class DeviceLifeCycleChangeEventsTest {
     @Mock
     private ServerCommunicationTaskService communicationTaskService;
     @Mock
-    private SecurityPropertyService securityPropertyService;
-    @Mock
     private DeviceLifeCycle deviceLifeCycle;
     @Mock
     private FiniteStateMachine finiteStateMachine;
@@ -155,9 +155,14 @@ public class DeviceLifeCycleChangeEventsTest {
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private LockService lockService;
+    @Mock
+    private PkiService pkiService;
 
     @Before
     public void initializeMocks() {
+        when(clock.instant()).thenReturn(Instant.now());
+        ZoneId zoneId = ZoneId.systemDefault();
+        when(clock.getZone()).thenReturn(zoneId);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
@@ -181,7 +186,7 @@ public class DeviceLifeCycleChangeEventsTest {
         when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
         when(meterBuilder.setReceivedDate(any(Instant.class))).thenReturn(meterBuilder);
         when(meterBuilder.create()).thenReturn(meter);
-        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.MIN);
+        when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.now().minus(30, ChronoUnit.DAYS));
         when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.MAX);
         when(meter.getMeterActivations()).thenReturn(Collections.emptyList());
         when(meter.getMeterActivation(any(Instant.class))).thenReturn(Optional.empty());
@@ -350,7 +355,6 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.clock,
                 this.meteringService,
                 this.validationService,
-                this.securityPropertyService,
                 this.scheduledConnectionTaskProvider,
                 this.inboundConnectionTaskProvider,
                 this.connectionInitiationTaskProvider,
@@ -360,7 +364,7 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.readingTypeUtilService,
                 this.threadPrincipalService,
                 this.userPreferencesService,
-                this.deviceConfigurationService, deviceService, lockService)
+                this.deviceConfigurationService, deviceService, lockService, pkiService)
                 .initialize(this.deviceConfiguration, "Hello world", Instant.now());
         device.save();
         return device;

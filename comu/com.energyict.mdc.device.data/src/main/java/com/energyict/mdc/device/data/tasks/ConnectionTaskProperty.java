@@ -28,4 +28,6 @@ import aQute.bnd.annotation.ProviderType;
  */
 @ProviderType
 public interface ConnectionTaskProperty extends ConnectionProperty, PluggableClassUsageProperty<ConnectionType> {
+
+    ConnectionTask getConnectionTask();
 }

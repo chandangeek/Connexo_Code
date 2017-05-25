@@ -63,7 +63,7 @@ public class InvalidLastCheckedException extends RuntimeException {
 
     @Override
     public String getLocalizedMessage() {
-        return this.thesaurus.getFormat(this.messageSeed).format(this.device.getName(), this.oldLastChecked, this.newLastChecked);
+        return this.thesaurus.getSimpleFormat(this.messageSeed).format(this.device.getName(), this.oldLastChecked, this.newLastChecked);
     }
 
 }

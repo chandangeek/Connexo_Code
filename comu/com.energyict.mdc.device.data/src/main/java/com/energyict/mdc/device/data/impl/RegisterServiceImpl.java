@@ -32,11 +32,7 @@ public class RegisterServiceImpl implements RegisterService {
     public Optional<Register> find(RegisterIdentifier identifier) {
         try {
             Optional<Device> device = deviceDataModelService.deviceService().findDeviceByIdentifier(identifier.getDeviceIdentifier());
-            if (device.isPresent()) {
-                return this.find(identifier.forIntrospection(), device.get());
-            } else {
-                return Optional.empty();
-            }
+            return device.flatMap(device1 -> this.find(identifier.forIntrospection(), device1));
         } catch (UnsupportedRegisterIdentifierTypeName | IllegalArgumentException e) {
             return Optional.empty();
         }

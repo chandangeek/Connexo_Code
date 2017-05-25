@@ -4,12 +4,10 @@
 
 package com.energyict.mdc.device.data.impl.events;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -34,6 +32,7 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -93,8 +92,8 @@ public class TestProtocolWithRequiredStringAndOptionalNumericDialectProperties i
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-        return Collections.emptyList();
+    public Optional<com.energyict.mdc.upl.properties.PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty();
     }
 
     @Override
@@ -220,11 +219,6 @@ public class TestProtocolWithRequiredStringAndOptionalNumericDialectProperties i
     @Override
     public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
 
-    }
-
-    @Override
-    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        return Optional.empty();
     }
 
     @Override

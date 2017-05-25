@@ -172,12 +172,22 @@ public abstract class AbstractTaskFilterSqlBuilder {
         }
     }
 
-    protected void appendDeviceNameSql(String deviceName) {
-        if (deviceName != null) {
+    protected void appendDeviceNameSql(String deviceName, boolean getSlaveTasks) {
+        if (deviceName != null && !getSlaveTasks) {
             this.appendWhereOrAnd();
-            this.append(" (dev.name = '");
-            this.append(deviceName);
-            this.append("')");
+            this.append(" (dev.name = ");
+            this.addString(deviceName);
+            this.append(")");
+        } else if (deviceName != null) {
+            this.appendWhereOrAnd();
+            this.append(" (dev.name in (");
+            this.append("select childDevice.name from ddc_device childDevice join DTL_PHYSICALGATEWAYREFERENCE top on top.originid=childdevice.id join ddc_device parent " +
+                    "on top.gatewayid=parent.id where parent.name=");
+            this.addString(deviceName);
+            this.append(") ");
+            this.append("or dev.name =");
+            this.addString(deviceName);
+            this.append(") ");
         }
     }
 

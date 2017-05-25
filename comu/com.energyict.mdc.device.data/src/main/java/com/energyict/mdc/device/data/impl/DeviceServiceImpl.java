@@ -22,6 +22,9 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.Pair;
@@ -46,6 +49,7 @@ import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.energyict.mdc.device.data.ItemizeConfigChangeQueueMessage;
+import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.Register;
@@ -56,6 +60,7 @@ import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActio
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
+import com.energyict.mdc.device.data.impl.pki.AbstractKeyAccessorImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -288,6 +293,11 @@ class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
+    public Optional<KeyAccessor<SecurityValueWrapper>> findAndLockKeyAccessorByIdAndVersion(Device device, KeyAccessorType keyAccessorType, long version) {
+        return Optional.ofNullable((KeyAccessor<SecurityValueWrapper>)this.deviceDataModelService.dataModel().mapper(KeyAccessor.class).lockObjectIfVersion(version, device.getId(), keyAccessorType.getId()).orElse(null));
+    }
+
+    @Override
     public Optional<Device> findDeviceByMrid(String mrId) {
         return getDeviceMapper().getUnique(DeviceFields.MRID.fieldName(), mrId);
     }
@@ -443,7 +453,7 @@ class DeviceServiceImpl implements ServerDeviceService {
         Device modifiedDevice = null;
         try {
             modifiedDevice = deviceDataModelService.getTransactionService()
-                    .execute(() -> new DeviceConfigChangeExecutor(this, deviceDataModelService.clock(), deviceDataModelService.eventService()).execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService.deviceConfigurationService()
+                    .execute(() -> new DeviceConfigChangeExecutor(this, deviceDataModelService.clock(), ((DeviceImpl) lockResult.getFirst()).getEventService()).execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService.deviceConfigurationService()
                             .findDeviceConfiguration(destinationDeviceConfigId)
                             .get()));
         } finally {
@@ -570,6 +580,15 @@ class DeviceServiceImpl implements ServerDeviceService {
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
+    }
+
+    @Override
+    public boolean usedByKeyAccessor(CertificateWrapper certificate) {
+        return !deviceDataModelService.dataModel()
+                .query(KeyAccessor.class)
+                .select(where(AbstractKeyAccessorImpl.Fields.CERTIFICATE_WRAPPER_ACTUAL.fieldName()).isEqualTo(certificate)
+                        .or(where(AbstractKeyAccessorImpl.Fields.CERTIFICATE_WRAPPER_TEMP.fieldName()).isEqualTo(certificate)))
+                .isEmpty();
     }
 
     private SqlBuilder deleteOutdatedComTaskExecutionTriggersSqlBuilder() {

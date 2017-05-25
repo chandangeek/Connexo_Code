@@ -33,6 +33,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -52,10 +53,11 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
@@ -80,6 +82,9 @@ import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
+import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
+import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
@@ -95,6 +100,9 @@ import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpec
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLRequestSecurityLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLResponseSecurityLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLSecuritySuiteLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageCategoryAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.ConnexoDeviceMessageSpecAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
@@ -102,6 +110,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -195,6 +204,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new InMemoryMessagingModule(),
                 new OrmModule(),
                 new DataVaultModule(),
+                new PkiModule(),
                 new IssuesModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
@@ -221,8 +231,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
-            injector.getInstance(CustomPropertySetService.class)
-                    .addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommunicationTestServiceCallCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.ormService = injector.getInstance(OrmService.class);
@@ -373,6 +383,20 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         @Override
         public OfflineDevice adapt(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice) {
             return new UPLOfflineDeviceAdapter(offlineDevice);
+        }
+
+        public SecuritySuite adapt(com.energyict.mdc.upl.security.SecuritySuite uplLevel) {
+            return new UPLSecuritySuiteLevelAdapter(uplLevel);
+        }
+
+        @Override
+        public RequestSecurityLevel adapt(com.energyict.mdc.upl.security.RequestSecurityLevel uplLevel) {
+            return new UPLRequestSecurityLevelAdapter(uplLevel);
+        }
+
+        @Override
+        public ResponseSecurityLevel adapt(com.energyict.mdc.upl.security.ResponseSecurityLevel uplLevel) {
+            return new UPLResponseSecurityLevelAdapter(uplLevel);
         }
 
         @Override

@@ -12,8 +12,6 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.Stage;
@@ -31,6 +29,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.JournaledChannelReadingRecord;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.Location;
@@ -64,12 +63,16 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.pki.CertificateWrapper;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.PlaintextPassphrase;
+import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.streams.Predicates;
@@ -78,8 +81,9 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.DateTimeFormatGenerator;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -101,12 +105,15 @@ import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.ChannelEstimationRuleOverriddenProperties;
+import com.energyict.mdc.device.data.ChannelValidationRuleOverriddenProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileJournalReading;
 import com.energyict.mdc.device.data.LoadProfileReading;
@@ -128,15 +135,14 @@ import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationProp
 import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
 import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
-import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueName;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAttributes;
-import com.energyict.mdc.device.data.impl.constraintvalidators.ValidSecurityProperties;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.security.ServerDeviceForValidation;
+import com.energyict.mdc.device.data.impl.pki.CertificateAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.PassphraseAccessorImpl;
+import com.energyict.mdc.device.data.impl.pki.SymmetricKeyAccessorImpl;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForActivation;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForInfo;
 import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForMultiplierChange;
@@ -165,7 +171,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
@@ -193,6 +198,7 @@ import javax.validation.ConstraintValidatorContext;
 import javax.validation.Payload;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import javax.xml.bind.DatatypeConverter;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -239,9 +245,8 @@ import static java.util.stream.Collectors.toList;
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_NAME + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}")
 @DeviceImpl.HasValidShipmentDate(groups = {Save.Create.class})
-@ValidSecurityProperties(groups = {Save.Update.class})
 @ValidOverruledAttributes(groups = {Save.Update.class})
-public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDeviceForValidation, ServerDevice {
+public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDevice {
 
     private static final BigDecimal maxMultiplier = BigDecimal.valueOf(Integer.MAX_VALUE);
 
@@ -252,11 +257,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final Clock clock;
     private final MeteringService meteringService;
     private final ValidationService validationService;
-    private final SecurityPropertyService securityPropertyService;
     private final MeteringGroupsService meteringGroupsService;
     private final CustomPropertySetService customPropertySetService;
     private final ServerDeviceService deviceService;
     private final LockService lockService;
+    private final PkiService pkiService;
 
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final ThreadPrincipalService threadPrincipalService;
@@ -264,6 +269,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final DeviceConfigurationService deviceConfigurationService;
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
+    private final List<KeyAccessor> keyAccessors = new ArrayList<>();
 
     @SuppressWarnings("unused")
     private long id;
@@ -313,8 +319,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private Reference<PassiveCalendar> plannedPassiveCalendar = ValueReference.absent();
     private TemporalReference<ServerActiveEffectiveCalendar> activeCalendar = Temporals.absent();
 
-    private Map<SecurityPropertySet, TypedProperties> dirtySecurityProperties = new HashMap<>();
-
     private final Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
     private final Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider;
     private final Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider;
@@ -341,7 +345,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Clock clock,
             MeteringService meteringService,
             ValidationService validationService,
-            SecurityPropertyService securityPropertyService,
             Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
             Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
             Provider<ConnectionInitiationTaskImpl> connectionInitiationTaskProvider,
@@ -353,7 +356,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             UserPreferencesService userPreferencesService,
             DeviceConfigurationService deviceConfigurationService,
             ServerDeviceService deviceService,
-            LockService lockService) {
+            LockService lockService,
+            PkiService pkiService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -361,7 +365,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.clock = clock;
         this.meteringService = meteringService;
         this.validationService = validationService;
-        this.securityPropertyService = securityPropertyService;
         this.scheduledConnectionTaskProvider = scheduledConnectionTaskProvider;
         this.inboundConnectionTaskProvider = inboundConnectionTaskProvider;
         this.connectionInitiationTaskProvider = connectionInitiationTaskProvider;
@@ -376,6 +379,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.lockService = lockService;
         // Helper to get activation info... from 'Kore'
         this.koreHelper = new SyncDeviceWithKoreForInfo(this, this.deviceService, this.readingTypeUtilService, clock, this.eventService);
+        this.pkiService = pkiService;
         this.koreHelper.syncWithKore(this);
     }
 
@@ -415,6 +419,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return lockService;
     }
 
+    EventService getEventService() {
+        return eventService;
+    }
+
     private void setDeviceTypeFromDeviceConfiguration() {
         if (this.deviceConfiguration.isPresent()) {
             this.deviceType.set(this.deviceConfiguration.get().getDeviceType());
@@ -450,7 +458,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             this.meter.get().setName(getName());
             this.meter.get().update();
         }
-        this.saveDirtySecurityProperties();
         this.saveDirtyConnectionProperties();
         this.saveNewAndDirtyDialectProperties();
         this.notifyUpdated();
@@ -582,18 +589,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.dirtyDialectProperties = new ArrayList<>();
     }
 
-    private void saveDirtySecurityProperties() {
-        for (SecurityPropertySet securityPropertySet : dirtySecurityProperties.keySet()) {
-            //Persist the dirty values
-            this.securityPropertyService.setSecurityProperties(this, securityPropertySet, dirtySecurityProperties.get(securityPropertySet));
-        }
-        this.dirtySecurityProperties.clear();
-    }
-
-    public Map<SecurityPropertySet, TypedProperties> getDirtySecurityProperties() {
-        return dirtySecurityProperties;
-    }
-
     private void saveDialectProperties(List<ProtocolDialectPropertiesImpl> dialectProperties) {
         dialectProperties.forEach(ProtocolDialectPropertiesImpl::save);
     }
@@ -634,7 +629,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         deleteComTaskExecutions();
         deleteConnectionTasks();
         deleteDeviceMessages();
-        deleteSecuritySettings();
+        deleteValidationProperties();
+        deleteEstimationProperties();
         removeDeviceFromStaticGroups();
         new SyncDeviceWithKoreForRemoval(this, deviceService, readingTypeUtilService, clock, eventService).syncWithKore(this);
         koreHelper.deactivateMeter(clock.instant());
@@ -686,11 +682,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private void removeDeviceFromGroup(EnumeratedEndDeviceGroup group, EndDevice endDevice) {
         group
-            .getEntries()
-            .stream()
-            .filter(each -> each.getMember().getId() == endDevice.getId())
-            .findFirst()
-            .ifPresent(group::remove);
+                .getEntries()
+                .stream()
+                .filter(each -> each.getMember().getId() == endDevice.getId())
+                .findFirst()
+                .ifPresent(group::remove);
     }
 
     private void deleteAllIssues() {
@@ -702,10 +698,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private void wontFixOpenIssues(IssueStatus issueStatus) {
         this.getOpenIssues().forEach(openIssue -> openIssue.close(issueStatus));
-    }
-
-    private void deleteSecuritySettings() {
-        this.securityPropertyService.deleteSecurityPropertiesFor(this);
     }
 
     private void deleteComTaskExecutions() {
@@ -735,6 +727,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             final ProtocolDialectPropertiesImpl protocolDialectProperties = (ProtocolDialectPropertiesImpl) aDialectPropertiesList;
             protocolDialectProperties.delete();
         }
+    }
+
+    private void deleteValidationProperties() {
+        forValidation().findAllOverriddenProperties().forEach(ChannelValidationRuleOverriddenProperties::delete);
+    }
+
+    private void deleteEstimationProperties() {
+        forEstimation().findAllOverriddenProperties().forEach(ChannelEstimationRuleOverriddenProperties::delete);
     }
 
     @Override
@@ -818,7 +818,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     //  All 'EndDevice' fields
-    private SyncDeviceWithKoreForSimpleUpdate findOrCreateKoreUpdater(){
+    private SyncDeviceWithKoreForSimpleUpdate findOrCreateKoreUpdater() {
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate(this, deviceService, readingTypeUtilService, eventService);
         if (!currentKoreUpdater.isPresent()) {
@@ -835,7 +835,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         if (currentKoreUpdater.isPresent()) {
             return currentKoreUpdater.get().getManufacturer();
-        }else if (meter.isPresent()) {
+        } else if (meter.isPresent()) {
             return meter.get().getManufacturer();
         }
         return null;
@@ -850,8 +850,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public String getModelNumber() {
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         if (currentKoreUpdater.isPresent()) {
-            currentKoreUpdater.get().getModelNumber();
-        }else if (meter.isPresent()) {
+            return currentKoreUpdater.get().getModelNumber();
+        } else if (meter.isPresent()) {
             return meter.get().getModelNumber();
         }
         return null;
@@ -867,7 +867,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         if (currentKoreUpdater.isPresent()) {
             return currentKoreUpdater.get().getModelVersion();
-        }else if (meter.isPresent()) {
+        } else if (meter.isPresent()) {
             return meter.get().getModelVersion();
         }
         return null;
@@ -1065,11 +1065,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (getDeviceType().isDataloggerSlave()) {
             throw DeviceConfigurationChangeException.cannotChangeConfigOfDataLoggerSlave(thesaurus);
         }
-        if (getDeviceConfiguration().isDataloggerEnabled()) {
-            throw DeviceConfigurationChangeException.cannotChangeConfigOfDataLoggerEnabledDevice(thesaurus);
-        }
         if (destinationDeviceConfiguration.isDataloggerEnabled()) {
             throw DeviceConfigurationChangeException.cannotchangeConfigToDataLoggerEnabled(thesaurus);
+        }
+        if (getDeviceType().isMultiElementSlave()) {
+            throw DeviceConfigurationChangeException.cannotChangeConfigOfMultiElementSubmeterDevice(thesaurus);
         }
         checkIfAllConflictsAreSolved(this.getDeviceConfiguration(), destinationDeviceConfiguration);
         validateMetrologyConfigRequirements(destinationDeviceConfiguration);
@@ -1132,16 +1132,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 logBookSpecs.stream()
                         .map(logBookSpec -> this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this))
                         .collect(Collectors.toList()));
-    }
-
-    @Override
-    public void updateSecurityProperties(SecurityPropertySet origin, SecurityPropertySet destination) {
-        ((ServerSecurityPropertyServiceForConfigChange) securityPropertyService).updateSecurityPropertiesWithNewSecurityPropertySet(this, origin, destination);
-    }
-
-    @Override
-    public void deleteSecurityPropertiesFor(SecurityPropertySet securityPropertySet) {
-        ((ServerSecurityPropertyServiceForConfigChange) securityPropertyService).deleteSecurityPropertiesFor(this, securityPropertySet);
     }
 
     Optional<ReadingType> getCalculatedReadingTypeFromMeterConfiguration(ReadingType readingType, Instant timeStamp) {
@@ -1251,31 +1241,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public void
-    setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties typedProperties) {
-        dirtySecurityProperties.put(securityPropertySet, typedProperties);
-        //Don't persist yet, need to be validated (done in the save step of this device)
-    }
-
-    @Override
-    public void setSecurityProperty(String propertyName, Object propertyValue) {
-        this.getDeviceConfiguration()
-                .getSecurityPropertySets()
-                .stream()
-                .filter(securityPropertySet -> securityPropertySet.getPropertySpecs().stream().anyMatch(propertySpec -> propertyName.equals(propertySpec.getName())))
-                .forEach(securityPropertySet -> this.updateSecurityProperty(securityPropertySet, propertyName, propertyValue));
-    }
-
-    private void updateSecurityProperty(SecurityPropertySet securityPropertySet, String propertyName, Object propertyValue) {
-        TypedProperties typedProperties = TypedProperties.empty();
-        for (SecurityProperty securityProperty : this.getSecurityProperties(securityPropertySet)) {
-            typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
-        }
-        typedProperties.setProperty(propertyName, propertyValue);
-        this.setSecurityProperties(securityPropertySet, typedProperties);
-    }
-
-    @Override
     public List<ProtocolDialectProperties> getProtocolDialectPropertiesList() {
         List<ProtocolDialectProperties> all = new ArrayList<>(this.dialectPropertiesList.size() + this.newDialectProperties
                 .size());
@@ -1323,6 +1288,37 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 break;
             }
         }
+    }
+
+    @Override
+    public TypedProperties getSecurityProperties(SecurityPropertySet securityPropertySet) {
+        TypedProperties securityProperties = TypedProperties.empty();
+        for (ConfigurationSecurityProperty configurationSecurityProperty : securityPropertySet.getConfigurationSecurityProperties()) {
+            Optional<KeyAccessor> optionalKeyAccessor = getKeyAccessors()
+                    .stream()
+                    .filter(keyAccessor -> keyAccessor.getKeyAccessorType().getName().equals(configurationSecurityProperty.getKeyAccessorType().getName()))
+                    .findFirst();
+
+            if (optionalKeyAccessor.isPresent() && optionalKeyAccessor.get().getActualValue().isPresent()) {
+                Object actualValue = optionalKeyAccessor.get().getActualValue().get();
+                if (actualValue instanceof PlaintextSymmetricKey) {
+                    PlaintextSymmetricKey plaintextSymmetricKey = (PlaintextSymmetricKey) actualValue;
+                    if (plaintextSymmetricKey.getKey().isPresent()) {
+                        securityProperties.setProperty(configurationSecurityProperty.getName(), DatatypeConverter.printHexBinary(plaintextSymmetricKey.getKey().get().getEncoded()));
+                    }
+                } else if (actualValue instanceof PlaintextPassphrase) {
+                    PlaintextPassphrase plaintextPassphrase = (PlaintextPassphrase) actualValue;
+                    if (plaintextPassphrase.getPassphrase().isPresent()) {
+                        securityProperties.setProperty(configurationSecurityProperty.getName(), plaintextPassphrase.getPassphrase().get());
+                    }
+                } else if (actualValue instanceof CertificateWrapper) {
+                    CertificateWrapper certificateWrapper = (CertificateWrapper) actualValue;
+                    securityProperties.setProperty(configurationSecurityProperty.getName(), certificateWrapper);
+                }
+            }
+            // TODO: in case optional is not present, should we silently ignore/or throw an error instead?
+        }
+        return securityProperties;
     }
 
     @Override
@@ -1379,7 +1375,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private Meter createKoreMeter(AmrSystem amrSystem) {
         FiniteStateMachine stateMachine = this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine();
-        Instant maximumPastEffectiveTimestamp = this.getDeviceType().getDeviceLifeCycle().getMaximumPastEffectiveTimestamp();
+        Instant maximumPastEffectiveTimestamp = this.getDeviceType().getDeviceLifeCycle().getMaximumPastEffectiveTimestamp().atZone(this.clock.getZone())
+                .truncatedTo(ChronoUnit.DAYS).toInstant();
         Instant maximumFutureEffectiveTimestamp = this.getDeviceType().getDeviceLifeCycle().getMaximumFutureEffectiveTimestamp();
         if (koreHelper.getInitialMeterActivationStartDate().get().isBefore(maximumPastEffectiveTimestamp) ||
                 koreHelper.getInitialMeterActivationStartDate().get().isAfter(maximumFutureEffectiveTimestamp)) {
@@ -1412,7 +1409,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.getListMeterAspect(meter -> this.getReadingsFor(register, interval, meter));
     }
 
-    List<ReadingRecord> getHistoryReadingsFor(Register<?, ?> register, Range<Instant> interval) {
+    List<? extends ReadingRecord> getHistoryReadingsFor(Register<?, ?> register, Range<Instant> interval) {
         return this.getListMeterAspect(meter -> this.getHistoryReadingsFor(register, interval, meter));
     }
 
@@ -1424,9 +1421,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .collect(Collectors.toList());
     }
 
-    private List<ReadingRecord> getHistoryReadingsFor(Register<?, ?> register, Range<Instant> interval, Meter meter) {
-        List<? extends BaseReadingRecord> readings = meter.getJournalReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType());
-        return readings
+    private List<? extends ReadingRecord> getHistoryReadingsFor(Register<?, ?> register, Range<Instant> interval, Meter meter) {
+        return meter.getJournaledReadings(interval, register.getRegisterSpec().getRegisterType().getReadingType())
                 .stream()
                 .map(ReadingRecord.class::cast)
                 .collect(Collectors.toList());
@@ -1483,7 +1479,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Range<Instant> clipped = Ranges.openClosed(interval.lowerEndpoint(), lastReadingClipped(channel.getLoadProfile(), interval));
 
             Map<Instant, List<LoadProfileJournalReadingImpl>> sortedHistoryLoadProfileReadingMap = sortedLoadProfileReadingMap.entrySet().stream().collect(Collectors.toMap(
-                    instantLoadProfileReadingEntry -> instantLoadProfileReadingEntry.getKey(),
+                    Map.Entry::getKey,
                     instantLoadProfileReadingEntry -> {
                         List<LoadProfileJournalReadingImpl> listOfReadings = new ArrayList<LoadProfileJournalReadingImpl>();
                         LoadProfileJournalReadingImpl loadProfileJournalReadingImpl = new LoadProfileJournalReadingImpl();
@@ -1533,9 +1529,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     /**
      * Adds meter readings for a single channel to the timeslot-map.
      *
-     * @param interval The interval over which meter readings are requested
-     * @param meter The meter for which readings are requested
-     * @param mdcChannel The meter's channel for which readings are requested
+     * @param interval                    The interval over which meter readings are requested
+     * @param meter                       The meter for which readings are requested
+     * @param mdcChannel                  The meter's channel for which readings are requested
      * @param sortedLoadProfileReadingMap The map to add the readings to in the correct timeslot
      * @return true if any readings were added to the map, false otherwise
      */
@@ -1590,107 +1586,114 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Range<Instant> meterActivationInterval = meterActivation.getInterval().toOpenClosedRange().intersection(interval);
             meterHasData |= meterActivationInterval.lowerEndpoint() != meterActivationInterval.upperEndpoint();
             ReadingType readingType = mdcChannel.getReadingType();
-            List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getJournalReadings(meterActivationInterval, readingType);
+            List<JournaledChannelReadingRecord> meterReadings = (List<JournaledChannelReadingRecord>) meter.getJournaledReadings(meterActivationInterval, readingType);
             // To avoid to have to collect the readingqualities meter reading by meter reading (meterreading.getReadingQualities()
             // does a lazy load (database access) we collect all readingqualities here;
             List<? extends ReadingQualityRecord> readingQualities = meter.getReadingQualities(meterActivationInterval);
             List<JournalEntry<? extends ReadingQualityRecord>> readingQualitiesJournal = new ArrayList<>();
             if (readingQualities.size() > 0) {
                 readingQualitiesJournal = meter.getReadingQualitiesJournal(meterActivationInterval, Collections.EMPTY_LIST,
-                        meterReadings.stream().map(r -> r.getChannel().getId()).distinct().collect(Collectors.toList()));
+                        meterReadings.stream().map(JournaledChannelReadingRecord::getChannel).distinct().collect(Collectors.toList()));
             }
 
-            for (IntervalReadingRecord meterReading : meterReadings) {
-                List<ReadingType> channelReadingTypes = getChannelReadingTypes(mdcChannel, meterReading.getTimeStamp());
+            for (JournaledChannelReadingRecord meterReading : meterReadings) {
                 List<LoadProfileJournalReadingImpl> loadProfileReadingList = sortedHistoryLoadProfileReadingMap.get(meterReading.getTimeStamp());
-                LoadProfileJournalReadingImpl loadProfileHistoryReading = null;
-                if (loadProfileReadingList.size() == 1 && loadProfileReadingList.get(0).getReadingTime() == null) {
-                    loadProfileHistoryReading = loadProfileReadingList.get(0);
-                } else {
-                    loadProfileHistoryReading = new LoadProfileJournalReadingImpl();
-                    loadProfileReadingList.add(loadProfileHistoryReading);
-                }
-
-                loadProfileHistoryReading.setRange(loadProfileReadingList.get(0).getRange());
-                loadProfileHistoryReading.setUserName(meterReading.getUserName());
-                loadProfileHistoryReading.setJournalTime(meterReading.getJournalTime());
-                loadProfileHistoryReading.setChannelData(mdcChannel, meterReading);
-                loadProfileHistoryReading.setReadingTime(meterReading.getReportedDateTime());
-                loadProfileHistoryReading.setReadingQualities(mdcChannel, new ArrayList<>());
+                setLoadProfileHistoryReading(loadProfileReadingList, meterReading, mdcChannel);
             }
 
             sortedHistoryLoadProfileReadingMap = sortedHistoryLoadProfileReadingMap.entrySet()
                     .stream()
                     .filter(r -> r.getValue().get(0).getReadingTime() != null)
-                    .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
-            final List<JournalEntry<? extends ReadingQualityRecord>> finalReadingQualitiesJournal = readingQualitiesJournal;
-            sortedHistoryLoadProfileReadingMap.entrySet().stream()
-                    .forEach(instantListEntry -> {
-                        List<ReadingType> channelReadingTypes = getChannelReadingTypes(mdcChannel, instantListEntry.getKey());
-
-                        List<? extends ReadingQualityRecord> readingQualityList = readingQualities.stream()
-                                .filter(o -> instantListEntry.getKey().equals(o.getReadingTimestamp()))
-                                .filter(o -> channelReadingTypes.contains(o.getReadingType()))
-                                .collect(Collectors.toList());
-                        List<? extends ReadingQualityRecord> readingQualityJournalList = finalReadingQualitiesJournal.stream()
-                                .filter(o -> instantListEntry.getKey().equals(o.get().getReadingTimestamp()))
-                                .filter(o -> channelReadingTypes.contains(o.get().getReadingType()))
-                                .map(o -> o.get()).collect(Collectors.toList());
-
-                        List<ReadingQualityRecord> allReadingQuality = readingQualityList.stream().collect(Collectors.toList());
-                        allReadingQuality.addAll(readingQualityJournalList.stream().collect(Collectors.toList()));
-                        allReadingQuality.stream().forEach(rqj -> {
-
-                            Optional<LoadProfileJournalReadingImpl> journalReadingOptional = Optional.empty();
-                            if ((rqj.getTypeCode().compareTo("2.5.258") == 0) || (rqj.getTypeCode().compareTo("2.5.259") == 0)) {
-                                journalReadingOptional = instantListEntry.getValue()
-                                        .stream()
-                                        .sorted((a, b) -> b.getReadingTime().compareTo(a.getReadingTime()))
-                                        .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) <= 0)
-                                        .findFirst();
-                            } else {
-                                journalReadingOptional = instantListEntry.getValue()
-                                        .stream()
-                                        .sorted((a, b) -> a.getReadingTime().compareTo(b.getReadingTime()))
-                                        .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) >= 0)
-                                        .findFirst();
-                            }
-                            journalReadingOptional.ifPresent(journalReading -> {
-                                Map<Channel, List<? extends ReadingQualityRecord>> readingQualitiesList = journalReading.getReadingQualities();
-                                List<ReadingQualityRecord> original = readingQualitiesList.get(mdcChannel).stream().collect(Collectors.toList());
-                                original.add(rqj);
-                                journalReading.setReadingQualities(mdcChannel, original);
-                            });
-
-                        });
-                    });
-
-            //
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            setJournalReadingQualities(sortedHistoryLoadProfileReadingMap, readingQualitiesJournal, mdcChannel, readingQualities);
             Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation.getChannelsContainer(), readingType);
             if (koreChannel.isPresent()) {
-
-                sortedHistoryLoadProfileReadingMap.forEach((instant, journalReadingList) -> {
-                    journalReadingList.forEach(journalReading -> {
-                        List<ReadingQualityRecord> readingQualitiesList = journalReading.getReadingQualities()
-                                .entrySet().stream()
-                                .map(channelListEntry -> channelListEntry.getValue())
-                                .flatMap(List::stream)
-                                .collect(Collectors.toList());
-                        DataValidationStatus validationStatus = forValidation().getValidationStatus(mdcChannel, instant, readingQualitiesList, meterActivationInterval);
-
-                        journalReading.setDataValidationStatus(mdcChannel, validationStatus);
-                        //code below is the processing of removed readings
-                        validationStatus.getReadingQualities()
-                                .stream()
-                                .filter(rq -> rq.getType().qualityIndex().orElse(null) == QualityCodeIndex.REJECTED)
-                                .findAny()
-                                .map(ReadingQualityRecord.class::cast)
-                                .ifPresent(readingQuality -> journalReading.setReadingTime(readingQuality.getTimestamp()));
-                    });
-                });
+                setJournalReadingValidationStatusAndJournalTime(sortedHistoryLoadProfileReadingMap, mdcChannel, meterActivationInterval);
             }
         }
         return meterHasData;
+    }
+
+
+    private void setLoadProfileHistoryReading(List<LoadProfileJournalReadingImpl> loadProfileReadingList, JournaledChannelReadingRecord meterReading, Channel mdcChannel) {
+        LoadProfileJournalReadingImpl loadProfileHistoryReading;
+        if (loadProfileReadingList.size() == 1 && loadProfileReadingList.get(0).getReadingTime() == null) {
+            loadProfileHistoryReading = loadProfileReadingList.get(0);
+        } else {
+            loadProfileHistoryReading = new LoadProfileJournalReadingImpl();
+            loadProfileReadingList.add(loadProfileHistoryReading);
+        }
+
+        loadProfileHistoryReading.setRange(loadProfileReadingList.get(0).getRange());
+        loadProfileHistoryReading.setUserName(meterReading.getUserName());
+        loadProfileHistoryReading.setJournalTime(meterReading.getJournalTime());
+        loadProfileHistoryReading.setChannelData(mdcChannel, meterReading);
+        loadProfileHistoryReading.setReadingTime(meterReading.getReportedDateTime());
+        loadProfileHistoryReading.setReadingQualities(mdcChannel, new ArrayList<>());
+    }
+
+    private void setJournalReadingQualities(Map<Instant, List<LoadProfileJournalReadingImpl>> sortedHistoryLoadProfileReadingMap, List<JournalEntry<? extends ReadingQualityRecord>> readingQualitiesJournal, Channel mdcChannel, List<? extends ReadingQualityRecord> readingQualities) {
+        final List<JournalEntry<? extends ReadingQualityRecord>> finalReadingQualitiesJournal = readingQualitiesJournal;
+        sortedHistoryLoadProfileReadingMap.entrySet().stream()
+                .forEach(instantListEntry -> {
+                    List<ReadingType> channelReadingTypes = getChannelReadingTypes(mdcChannel, instantListEntry.getKey());
+
+                    List<? extends ReadingQualityRecord> readingQualityList = readingQualities.stream()
+                            .filter(o -> instantListEntry.getKey().equals(o.getReadingTimestamp()))
+                            .filter(o -> channelReadingTypes.contains(o.getReadingType()))
+                            .collect(Collectors.toList());
+                    List<? extends ReadingQualityRecord> readingQualityJournalList = finalReadingQualitiesJournal.stream()
+                            .filter(o -> instantListEntry.getKey().equals(o.get().getReadingTimestamp()))
+                            .filter(o -> channelReadingTypes.contains(o.get().getReadingType()))
+                            .map(JournalEntry::get).collect(Collectors.toList());
+
+                    List<ReadingQualityRecord> allReadingQuality = readingQualityList.stream().collect(Collectors.toList());
+                    allReadingQuality.addAll(readingQualityJournalList.stream().collect(Collectors.toList()));
+                    allReadingQuality.stream().forEach(rqj -> {
+
+                        Optional<LoadProfileJournalReadingImpl> journalReadingOptional = Optional.empty();
+                        if ((rqj.getTypeCode().compareTo("2.5.258") == 0) || (rqj.getTypeCode().compareTo("2.5.259") == 0)) {
+                            journalReadingOptional = instantListEntry.getValue()
+                                    .stream()
+                                    .sorted((a, b) -> b.getReadingTime().compareTo(a.getReadingTime()))
+                                    .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) <= 0)
+                                    .findFirst();
+                        } else {
+                            journalReadingOptional = instantListEntry.getValue()
+                                    .stream()
+                                    .sorted((a, b) -> a.getReadingTime().compareTo(b.getReadingTime()))
+                                    .filter(x -> x.getReadingTime().compareTo(rqj.getTimestamp()) >= 0)
+                                    .findFirst();
+                        }
+                        journalReadingOptional.ifPresent(journalReading -> {
+                            Map<Channel, List<? extends ReadingQualityRecord>> readingQualitiesList = journalReading.getReadingQualities();
+                            List<ReadingQualityRecord> original = readingQualitiesList.get(mdcChannel).stream().collect(Collectors.toList());
+                            original.add(rqj);
+                            journalReading.setReadingQualities(mdcChannel, original);
+                        });
+
+                    });
+                });
+    }
+
+    private void setJournalReadingValidationStatusAndJournalTime(Map<Instant, List<LoadProfileJournalReadingImpl>> sortedHistoryLoadProfileReadingMap, Channel mdcChannel, Range<Instant> meterActivationInterval) {
+        sortedHistoryLoadProfileReadingMap.forEach((instant, journalReadingList) -> journalReadingList.forEach(journalReading -> {
+            List<ReadingQualityRecord> readingQualitiesList = journalReading.getReadingQualities()
+                    .entrySet().stream()
+                    .map(Map.Entry::getValue)
+                    .flatMap(List::stream)
+                    .collect(Collectors.toList());
+            DataValidationStatus validationStatus = forValidation().getValidationStatus(mdcChannel, instant, readingQualitiesList, meterActivationInterval);
+
+            journalReading.setDataValidationStatus(mdcChannel, validationStatus);
+            //code below is the processing of removed readings
+            validationStatus.getReadingQualities()
+                    .stream()
+                    .filter(rq -> rq.getType().qualityIndex().orElse(null) == QualityCodeIndex.REJECTED)
+                    .findAny()
+                    .map(ReadingQualityRecord.class::cast)
+                    .ifPresent(readingQuality -> journalReading.setReadingTime(readingQuality.getTimestamp()));
+        }));
     }
 
     private List<ReadingType> getChannelReadingTypes(Channel channel, Instant instant) {
@@ -1705,9 +1708,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * just a list of placeholders for each reading interval within the requestedInterval for all timestamps
      * that occur with the bounds of a meter activation and load profile's last reading.
      *
-     * @param loadProfile The LoadProfile
+     * @param loadProfile       The LoadProfile
      * @param requestedInterval interval over which user wants to see readings
-     * @param meter The Meter
+     * @param meter             The Meter
      * @return The map
      */
     private Map<Instant, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Range<Instant> requestedInterval, Meter meter) {
@@ -1722,7 +1725,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                     ZonedDateTime requestStart = this.prefilledIntervalStart(loadProfile, affectedChannelContainer.getZoneId(), requestedIntervalClippedToMeterActivation);
                     ZonedDateTime requestEnd =
                             ZonedDateTime.ofInstant(
-                                    this.lastReadingClipped(loadProfile, requestedInterval),
+                                    requestedInterval.upperEndpoint(),
                                     affectedChannelContainer.getZoneId());
                     if (!requestEnd.isBefore(requestStart)) {
                         Range<Instant> channelContainerInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
@@ -2139,7 +2142,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * Sorts the {@link MeterActivation}s of the specified {@link Meter}
      * that overlap with the {@link Interval}, where the most recent activations are returned first.
      *
-     * @param meter The Meter
+     * @param meter    The Meter
      * @param interval The Interval
      * @return The List of MeterActivation
      */
@@ -2317,42 +2320,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet) {
-        return this.getSecurityProperties(clock.instant(), securityPropertySet);
-    }
-
-    @Override
     public List<ProtocolDialectConfigurationProperties> getProtocolDialects() {
         return this.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
-    }
-
-    private List<SecurityProperty> getSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
-        return this.securityPropertyService.getSecurityProperties(this, when, securityPropertySet);
-    }
-
-    @Override
-    public boolean hasSecurityProperties(SecurityPropertySet securityPropertySet) {
-        return this.hasSecurityProperties(clock.instant(), securityPropertySet);
-    }
-
-    private boolean hasSecurityProperties(Instant when, SecurityPropertySet securityPropertySet) {
-        return this.securityPropertyService.hasSecurityProperties(this, when, securityPropertySet);
-    }
-
-    @Override
-    public boolean securityPropertiesAreValid() {
-        return this.securityPropertyService.securityPropertiesAreValid(this);
-    }
-
-    @Override
-    public boolean securityPropertiesAreValid(SecurityPropertySet securityPropertySet) {
-        return this.securityPropertyService.securityPropertiesAreValid(this, securityPropertySet);
     }
 
     @Override
     public DeviceValidation forValidation() {
         if (deviceValidation == null) {
-            deviceValidation = new DeviceValidationImpl(this.validationService, this.thesaurus, this, clock);
+            deviceValidation = new DeviceValidationImpl(this.dataModel, this.validationService, this.thesaurus, this, clock);
         }
         return deviceValidation;
     }
@@ -2928,7 +2903,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                                 .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId())
                                 .findAny();
                         if (existingComTaskExecution.isPresent()) { //update
-                            if(existingComTaskExecution.get().usesSharedSchedule() && existingComTaskExecution.get().getComSchedule().get().getId() != comSchedule.getId()){
+                            if (existingComTaskExecution.get().usesSharedSchedule() && existingComTaskExecution.get().getComSchedule().get().getId() != comSchedule.getId()) {
                                 throw new CannotSetMultipleComSchedulesWithSameComTask(comSchedule, DeviceImpl.this, thesaurus);
                             }
                             comTaskExecutionsUpdaters.add(existingComTaskExecution.get().getUpdater().addSchedule(comSchedule));
@@ -3329,109 +3304,45 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.estimationActive = false;
     }
 
-    static class DeviceEstimationImpl implements DeviceEstimation {
-        private ServerDevice device;
-        private List<DeviceEstimationRuleSetActivation> estimationRuleSetActivations;
-        private boolean active = false;
-
-        private final DataModel dataModel;
-        private final EstimationService estimationService;
-
-        @Inject
-        DeviceEstimationImpl(DataModel dataModel, EstimationService estimationService) {
-            this.dataModel = dataModel;
-            this.estimationService = estimationService;
-        }
-
-        DeviceEstimation init(ServerDevice device, boolean active, List<DeviceEstimationRuleSetActivation> estimationRuleSetActivations) {
-            this.device = device;
-            this.active = active;
-            this.estimationRuleSetActivations = estimationRuleSetActivations; // do not create a copy of that list, we want the persistent list!
-            return this;
-        }
-
-        @Override
-        public boolean isEstimationActive() {
-            return active;
-        }
-
-        @Override
-        public Device getDevice() {
-            return this.device;
-        }
-
-        @Override
-        public void activateEstimation() {
-            if (!active) {
-                active = true;
-                this.device.activateEstimation();
-                saveDevice();
-            }
-        }
-
-        @Override
-        public void deactivateEstimation() {
-            if (active) {
-                active = false;
-                this.device.deactivateEstimation();
-                saveDevice();
-            }
-        }
-
-        @Override
-        public List<DeviceEstimationRuleSetActivation> getEstimationRuleSetActivations() {
-            List<EstimationRuleSet> ruleSetsOnDeviceConfig = device.getDeviceConfiguration().getEstimationRuleSets();
-
-            List<DeviceEstimationRuleSetActivation> returnList = ruleSetsOnDeviceConfig.stream()
-                    .map(r -> Pair.of(r, findEstimationRuleSetActivation(r)))
-                    .map(p -> p.getLast().orElseGet(
-                            () -> dataModel.getInstance(DeviceEstimationRuleSetActivationImpl.class).init(this.device, p.getFirst(), true))) //not saved intentionally
-                    .collect(toList());
-
-            List<DeviceEstimationRuleSetActivation> removedFromDeviceConfiguration = estimationRuleSetActivations.stream()
-                    .filter(ruleSetActivation -> !ruleSetsOnDeviceConfig.contains(ruleSetActivation.getEstimationRuleSet()))
-                    .collect(toList());
-            estimationRuleSetActivations.removeAll(removedFromDeviceConfiguration);
-            return returnList;
-        }
-
-        @Override
-        public void activateEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
-            applyEstimationRuleSet(estimationRuleSet, true);
-        }
-
-        @Override
-        public void deactivateEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
-            applyEstimationRuleSet(estimationRuleSet, false);
-        }
-
-        public EstimationService getEstimationService() {
-            return estimationService;
-        }
-
-        private void applyEstimationRuleSet(EstimationRuleSet estimationRuleSet, boolean active) {
-            Optional<DeviceEstimationRuleSetActivation> ruleSetActivation = findEstimationRuleSetActivation(estimationRuleSet);
-            if (ruleSetActivation.isPresent()) {
-                if (ruleSetActivation.get().isActive() != active) {
-                    ruleSetActivation.get().setActive(active);
-                    touchDevice();
-                }
-            } else {
-                estimationRuleSetActivations.add(dataModel.getInstance(DeviceEstimationRuleSetActivationImpl.class).init(this.device, estimationRuleSet, active));
-                touchDevice();
-            }
-        }
-
-        private Optional<DeviceEstimationRuleSetActivation> findEstimationRuleSetActivation(EstimationRuleSet estimationRuleSet) {
-            return estimationRuleSetActivations.stream().filter(er -> er.getEstimationRuleSet().getId() == estimationRuleSet.getId()).findAny();
-        }
-
-        private void touchDevice() {
-            this.device.touch();
-        }
-
-        private void saveDevice() {
-            this.device.save();
-        }
+    @Override
+    public List<KeyAccessor> getKeyAccessors() {
+        return Collections.unmodifiableList(this.keyAccessors);
     }
+
+    @Override
+    public Optional<KeyAccessor> getKeyAccessor(KeyAccessorType keyAccessorType) {
+        return this.keyAccessors.stream().filter(keyAccessor -> keyAccessor.getKeyAccessorType().getId() == keyAccessorType.getId()).findAny();
+    }
+
+    @Override
+    public KeyAccessor newKeyAccessor(KeyAccessorType keyAccessorType) {
+        switch (keyAccessorType.getKeyType().getCryptographicType()) {
+            case Certificate:
+            case ClientCertificate:
+            case TrustedCertificate:
+                CertificateAccessorImpl certificateAccessor = dataModel.getInstance(CertificateAccessorImpl.class);
+                certificateAccessor.init(keyAccessorType, this);
+                this.keyAccessors.add(certificateAccessor);
+                return certificateAccessor;
+            case SymmetricKey:
+                SymmetricKeyAccessorImpl symmetricKeyAccessor = dataModel.getInstance(SymmetricKeyAccessorImpl.class);
+                symmetricKeyAccessor.init(keyAccessorType, this);
+                this.keyAccessors.add(symmetricKeyAccessor);
+                return symmetricKeyAccessor;
+            case Passphrase:
+                PassphraseAccessorImpl passphraseAccessor = dataModel.getInstance(PassphraseAccessorImpl.class);
+                passphraseAccessor.init(keyAccessorType, this);
+                this.keyAccessors.add(passphraseAccessor);
+                return passphraseAccessor;
+            case AsymmetricKey:
+                break; // TODO implement? will this occur?
+        }
+        return null; // TODO throw exception
+    }
+
+    @Override
+    public void removeKeyAccessor(KeyAccessor keyAccessor) {
+        this.getKeyAccessor(keyAccessor.getKeyAccessorType()).ifPresent(keyAccessors::remove);
+    }
+
 }

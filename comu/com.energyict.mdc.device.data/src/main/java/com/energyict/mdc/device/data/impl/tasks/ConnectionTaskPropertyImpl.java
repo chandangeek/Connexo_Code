@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.data.impl.PluggableClassUsagePropertyImpl;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -37,4 +38,7 @@ public class ConnectionTaskPropertyImpl extends PluggableClassUsagePropertyImpl<
         return this.connectionTask.getId() == connectionTask.getId();
     }
 
+    public ConnectionTask getConnectionTask() {
+        return connectionTask;
+    }
 }

@@ -45,6 +45,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
@@ -89,6 +90,7 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterfaceImpl;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
@@ -134,6 +136,7 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -279,6 +282,7 @@ public class InMemoryIntegrationPersistence {
                 new InMemoryMessagingModule(),
                 new OrmModule(),
                 new DataVaultModule(),
+                new PkiModule(),
                 new IssuesModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new BasicPropertiesModule(),
@@ -364,6 +368,7 @@ public class InMemoryIntegrationPersistence {
         customPropertySetService.addCustomPropertySet(new CommandCustomPropertySet());
         customPropertySetService.addCustomPropertySet(new CompletionOptionsCustomPropertySet());
         customPropertySetService.addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommunicationTestServiceCallCustomPropertySet());
     }
 
     private void initializePrivileges() {
@@ -633,7 +638,7 @@ public class InMemoryIntegrationPersistence {
 
                         @Override
                         public DeviceMessageId getId() {
-                            return DeviceMessageId.havingId(id);
+                            return DeviceMessageId.from(id);
                         }
 
                         @Override

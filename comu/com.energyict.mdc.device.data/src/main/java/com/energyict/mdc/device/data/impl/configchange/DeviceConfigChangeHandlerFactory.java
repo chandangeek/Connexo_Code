@@ -37,7 +37,7 @@ public class DeviceConfigChangeHandlerFactory implements MessageHandlerFactory {
     private volatile DeviceDataModelService deviceDataModelService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
-    private EventService eventService;
+    private volatile EventService eventService;
 
     /*OSGI*/
     @SuppressWarnings("unused")

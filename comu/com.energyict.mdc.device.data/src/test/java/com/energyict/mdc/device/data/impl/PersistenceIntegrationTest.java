@@ -10,7 +10,6 @@ import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
@@ -20,15 +19,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -39,6 +29,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -59,6 +60,9 @@ public abstract class PersistenceIntegrationTest {
     public TestRule expectedErrorRule = new ExpectedExceptionRule();
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     protected DeviceType deviceType;
     protected DeviceConfiguration deviceConfiguration;
     protected SecurityPropertySet securityPropertySet;
@@ -75,7 +79,7 @@ public abstract class PersistenceIntegrationTest {
         deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(deviceProtocol.getCustomPropertySet()).thenReturn(Optional.empty());
+        when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.empty());
     }
 
     @AfterClass
@@ -128,17 +132,9 @@ public abstract class PersistenceIntegrationTest {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfigurationBuilder.isDirectlyAddressable(true);
         deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(deviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::from).forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
         SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet("No Security");
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4);
         securityPropertySetBuilder.authenticationLevel(anySecurityLevel);
         securityPropertySetBuilder.encryptionLevel(anySecurityLevel);
         this.securityPropertySet = securityPropertySetBuilder.build();

@@ -19,6 +19,7 @@ public class ComTaskExecutionFilterSpecificationMessage {
     public Set<Long> comSchedules = new HashSet<>();
     public Set<Long> comTasks = new HashSet<>();
     public Set<Long> deviceTypes = new HashSet<>();
+    public String device;
     public Instant startIntervalFrom;
     public Instant startIntervalTo;
     public Instant finishIntervalFrom;

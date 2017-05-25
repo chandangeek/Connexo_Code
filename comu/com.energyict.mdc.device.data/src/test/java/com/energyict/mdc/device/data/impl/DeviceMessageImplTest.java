@@ -4,15 +4,13 @@
 
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.users.GrantPrivilege;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
@@ -27,7 +25,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -49,12 +46,9 @@ import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -66,6 +60,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertEquals;
@@ -118,7 +117,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("MyTestDeviceType", deviceProtocolPluggableClass);
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("ConfigForMessaging");
         deviceConfiguration = deviceConfigurationBuilder.add();
-        deviceMessageIds.stream().map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(deviceConfiguration::createDeviceMessageEnablement);
+        deviceMessageIds.stream().map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId).map(DeviceMessageId::from).forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
         resetClock();
     }
@@ -528,7 +527,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         device.newDeviceMessage(contactorOpenWithOutput)
                 .setReleaseDate(myReleaseInstant)
-                .addProperty(DeviceMessageConstants.digitalOutputAttributeName, value)
+                .addProperty("ContactorDeviceMessage.digitalOutput", value)
                 .add();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -541,7 +540,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.WAITING);
         assertThat(deviceMessage1.getAttributes()).hasSize(1);
         List<? extends com.energyict.mdc.upl.messages.DeviceMessageAttribute> attributes = deviceMessage1.getAttributes();
-        assertThat(attributes.get(0).getName()).isEqualTo(DeviceMessageConstants.digitalOutputAttributeName);
+        assertThat(attributes.get(0).getName()).isEqualTo("ContactorDeviceMessage.digitalOutput");
         assertThat(attributes.get(0).getValue()).isEqualTo(value);
     }
 
@@ -623,13 +622,13 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         device.newDeviceMessage(contactorOpenWithOutput)
                 .setReleaseDate(myReleaseInstant)
                 .addProperty("NameOfAttributeWhichIsNotDefinedInSpec", "Blablabla")
-                .addProperty(DeviceMessageConstants.digitalOutputAttributeName, value)
+                .addProperty("ContactorDeviceMessage.digitalOutput", value)
                 .add();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "The value \"This should have been a BigDecimal\" is not compatible with the attribute specification ContactorDeviceMessage.digitalOutput.", property = "deviceMessageAttributes." + DeviceMessageConstants.digitalOutputAttributeName)
+    @ExpectedConstraintViolation(messageId = "The value \"This should have been a BigDecimal\" is not compatible with the attribute specification ContactorDeviceMessage.digitalOutput.", property = "deviceMessageAttributes.ContactorDeviceMessage.digitalOutput")
     public void invalidDeviceMessageAttributeTest() {
         Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
 
@@ -639,7 +638,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         device.newDeviceMessage(contactorOpenWithOutput)
                 .setReleaseDate(myReleaseInstant)
-                .addProperty(DeviceMessageConstants.digitalOutputAttributeName, value)
+                .addProperty("ContactorDeviceMessage.digitalOutput", value)
                 .add();
     }
 
@@ -777,18 +776,13 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         }
 
         @Override
-        public Optional<CustomPropertySet<com.energyict.mdc.upl.meterdata.Device, ? extends PersistentDomainExtension<com.energyict.mdc.upl.meterdata.Device>>> getCustomPropertySet() {
-            return Optional.empty();
-        }
-
-        @Override
         public List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
             return Collections.emptyList();
         }
 
         @Override
-        public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-            return Collections.emptyList();
+        public Optional<com.energyict.mdc.upl.properties.PropertySpec> getClientSecurityPropertySpec() {
+            return Optional.empty();
         }
 
         @Override

@@ -28,6 +28,7 @@ import com.energyict.mdc.tasks.TaskService;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -141,6 +142,9 @@ public class CommunicationFilterItimizerMessageHandler implements MessageHandler
 
         if (primitiveFilter.finishIntervalFrom!= null || primitiveFilter.finishIntervalTo!=null) {
             filter.lastSessionEnd = Interval.of(primitiveFilter.finishIntervalFrom, primitiveFilter.finishIntervalTo);
+        }
+        if(primitiveFilter.device != null && !primitiveFilter.device.equals("")) {
+            filter.deviceName = primitiveFilter.device;
         }
 
         return filter;
