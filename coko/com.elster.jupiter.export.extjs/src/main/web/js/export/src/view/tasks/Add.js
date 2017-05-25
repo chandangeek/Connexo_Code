@@ -564,7 +564,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                         items: [
                                             {
                                                 itemId: 'noExportForUpdated',
-                                                boxLabel: Uni.I18n.translate('general.noExportForUpdated', 'DES', 'Do not export'),
+                                                boxLabel: Uni.I18n.translate('general.noExportForUpdated', 'DES', "Don't export"),
                                                 inputValue: false,
                                                 checked: true
                                             },
