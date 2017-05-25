@@ -83,7 +83,6 @@ public class Ranges {
 
         public boolean equal(Range<C> range) {
             return decorated.equals(range);
-
         }
 
     }
@@ -143,6 +142,17 @@ public class Ranges {
             return Ranges.copy(withClosedLowerBound()).withClosedUpperBound();
         }
 
+        public Range<C> withLowerBound(C c, BoundType boundType) {
+            switch (boundType) {
+                case OPEN:
+                    return withOpenLowerBound(c);
+                case CLOSED:
+                    return withClosedLowerBound(c);
+                default:
+                    throw new IllegalArgumentException();
+            }
+        }
+
         public Range<C> withOpenLowerBound(C c) {
             if (c == null) {
                 return decorated.hasUpperBound() ? Range.upTo(decorated.upperEndpoint(), decorated.upperBoundType()) : Range.<C>all();
@@ -159,6 +169,17 @@ public class Ranges {
 
         public Range<C> withoutLowerBound() {
             return decorated.hasUpperBound() ? Range.upTo(decorated.upperEndpoint(), decorated.upperBoundType()) : Range.all();
+        }
+
+        public Range<C> withUpperBound(C c, BoundType boundType) {
+            switch (boundType) {
+                case OPEN:
+                    return withOpenUpperBound(c);
+                case CLOSED:
+                    return withClosedUpperBound(c);
+                default:
+                    throw new IllegalArgumentException();
+            }
         }
 
         public Range<C> withOpenUpperBound(C c) {
@@ -261,5 +282,16 @@ public class Ranges {
 
     public static <C extends Comparable<? super C>> Optional<C> upperBound(Range<C> range) {
         return range.hasUpperBound() ? Optional.of(range.upperEndpoint()) : Optional.empty();
+    }
+
+    public static BoundType flip(BoundType boundType) {
+        switch (boundType) {
+            case OPEN:
+                return BoundType.CLOSED;
+            case CLOSED:
+                return BoundType.OPEN;
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 }

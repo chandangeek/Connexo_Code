@@ -429,4 +429,40 @@ public class RangesTest {
         assertThat(Ranges.nonEmptyIntersection(Range.open(1, 3), Range.greaterThan(3))).isEmpty();
         assertThat(Ranges.nonEmptyIntersection(Range.lessThan(1), Range.greaterThan(1))).isEmpty();
     }
+
+    @Test
+    public void testFlip() {
+        assertThat(Ranges.flip(BoundType.CLOSED)).isSameAs(BoundType.OPEN);
+        assertThat(Ranges.flip(BoundType.OPEN)).isSameAs(BoundType.CLOSED);
+    }
+
+    @Test
+    public void testWithUpperBound() {
+        Range<Integer> source = Range.openClosed(1, 3);
+        assertThat(Ranges.copy(source).withUpperBound(5, BoundType.CLOSED)).isEqualTo(Range.openClosed(1, 5));
+        assertThat(Ranges.copy(source).withUpperBound(5, BoundType.OPEN)).isEqualTo(Range.open(1, 5));
+
+        source = Range.atLeast(1);
+        assertThat(Ranges.copy(source).withUpperBound(5, BoundType.CLOSED)).isEqualTo(Range.closed(1, 5));
+        assertThat(Ranges.copy(source).withUpperBound(5, BoundType.OPEN)).isEqualTo(Range.closedOpen(1, 5));
+
+        source = Range.lessThan(1);
+        assertThat(Ranges.copy(source).withUpperBound(5, BoundType.CLOSED)).isEqualTo(Range.atMost(5));
+        assertThat(Ranges.copy(source).withUpperBound(5, BoundType.OPEN)).isEqualTo(Range.lessThan(5));
+    }
+
+    @Test
+    public void testWithLowerBound() {
+        Range<Integer> source = Range.openClosed(1, 3);
+        assertThat(Ranges.copy(source).withLowerBound(-1, BoundType.CLOSED)).isEqualTo(Range.closed(-1, 3));
+        assertThat(Ranges.copy(source).withLowerBound(-1, BoundType.OPEN)).isEqualTo(Range.openClosed(-1, 3));
+
+        source = Range.atLeast(1);
+        assertThat(Ranges.copy(source).withLowerBound(-1, BoundType.CLOSED)).isEqualTo(Range.atLeast(-1));
+        assertThat(Ranges.copy(source).withLowerBound(-1, BoundType.OPEN)).isEqualTo(Range.greaterThan(-1));
+
+        source = Range.lessThan(1);
+        assertThat(Ranges.copy(source).withLowerBound(-1, BoundType.CLOSED)).isEqualTo(Range.closedOpen(-1, 1));
+        assertThat(Ranges.copy(source).withLowerBound(-1, BoundType.OPEN)).isEqualTo(Range.open(-1, 1));
+    }
 }
