@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
  * This is straight forward for all fields except for the PropertySpecs, they need adaptation.
  * <p>
  *
- *
  * @author khe
  * @since 14/12/2016 - 11:40
  */
@@ -23,6 +22,10 @@ public class UPLDeviceMessageSpecAdapter implements DeviceMessageSpec {
 
     public UPLDeviceMessageSpecAdapter(com.energyict.mdc.upl.messages.DeviceMessageSpec uplDeviceMessageSpec) {
         this.uplDeviceMessageSpec = uplDeviceMessageSpec;
+    }
+
+    public com.energyict.mdc.upl.messages.DeviceMessageSpec getUplDeviceMessageSpec() {
+        return uplDeviceMessageSpec;
     }
 
     @Override
@@ -37,7 +40,7 @@ public class UPLDeviceMessageSpecAdapter implements DeviceMessageSpec {
 
     @Override
     public DeviceMessageId getId() {
-        return DeviceMessageId.havingId(uplDeviceMessageSpec.getId());
+        return DeviceMessageId.from(uplDeviceMessageSpec.getId());
     }
 
     @Override

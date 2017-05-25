@@ -73,7 +73,7 @@ public class UPLConnectionTypeAdapter implements com.energyict.mdc.protocol.api.
 
     @Override
     public ComChannel connect(List<ConnectionProperty> properties) throws ConnectionException {
-        com.energyict.mdc.common.TypedProperties typedProperties = com.energyict.mdc.common.TypedProperties.empty();
+        com.energyict.mdc.upl.TypedProperties typedProperties = com.energyict.mdc.upl.TypedProperties.empty();
         properties.stream().forEach(property -> typedProperties.setProperty(property.getName(), property.getValue()));
         copyProperties(typedProperties);
 
@@ -121,7 +121,7 @@ public class UPLConnectionTypeAdapter implements com.energyict.mdc.protocol.api.
     }
 
     @Override
-    public void copyProperties(com.energyict.mdc.common.TypedProperties properties) {
+    public void copyProperties(com.energyict.mdc.upl.TypedProperties properties) {
         try {
             TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(properties);
             uplConnectionType.setUPLProperties(adaptedProperties);

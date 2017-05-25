@@ -14,7 +14,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableClass;
@@ -31,6 +31,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolNotAllowedByLicenseException;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
@@ -38,7 +39,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterPro
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLDeviceProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLMeterProtocolAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLSmartMeterProtocolAdapter;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.Device;
@@ -177,16 +177,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     }
 
     public void registerCustomPropertySets() {
-        this.registerSecurityCustomPropertySet();
         this.registerDialectCustomPropertySets();
-    }
-
-    private void registerSecurityCustomPropertySet() {
-        this.newInstance().getCustomPropertySet().ifPresent(this::registerSecuritySet);
-    }
-
-    private void registerSecuritySet(CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>> customPropertySet) {
-        this.customPropertySetService.addSystemCustomPropertySet(customPropertySet);
     }
 
     private void registerDialectCustomPropertySets() {
@@ -208,12 +199,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     @Override
     public void delete() {
         super.delete();
-        this.unregisterSecurityCustomPropertySet();
         this.unregisterDialectCustomPropertySet();
-    }
-
-    private void unregisterSecurityCustomPropertySet() {
-        this.newInstance().getCustomPropertySet().ifPresent(this::unregisterSecuritySet);
     }
 
     private void unregisterDialectCustomPropertySet() {

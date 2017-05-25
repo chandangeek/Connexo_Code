@@ -4,8 +4,7 @@
 
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
@@ -17,20 +16,20 @@ import com.energyict.mdc.protocol.pluggable.PropertySpecMockSupport;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecurityProperties;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
@@ -68,9 +67,9 @@ public class MeterProtocolSecuritySupportAdapterTest {
         when(securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol
                 (ThirdSimpleTestMeterProtocol.class.getName())).thenReturn(ThirdSimpleTestMeterProtocol.class.getName());
         PropertySpecMockSupport propertySpecMockSupport = new PropertySpecMockSupport();
-        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName(), propertySpecService);
-        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.javaName(), propertySpecService);
-        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.javaName(), propertySpecService);
+        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecuritySupport.FIRST, propertySpecService);
+        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecuritySupport.SECOND, propertySpecService);
+        propertySpecMockSupport.mockStringPropertySpec(SimpleTestDeviceSecuritySupport.THIRD, propertySpecService);
         SimpleTestDeviceSecuritySupport securitySupport = new SimpleTestDeviceSecuritySupport(propertySpecService);
         when(this.protocolPluggableService.createDeviceProtocolSecurityFor(SimpleTestDeviceSecuritySupport.class.getName())).thenReturn(securitySupport);
         doThrow(ProtocolCreationException.class).when(this.protocolPluggableService).
@@ -144,7 +143,7 @@ public class MeterProtocolSecuritySupportAdapterTest {
                 this.securitySupportAdapterMappingFactory);
 
         // business method
-        List<PropertySpec> securityProperties = meterProtocolSecuritySupportAdapter.getSecurityPropertySpecs();
+        List<com.energyict.mdc.upl.properties.PropertySpec> securityProperties = meterProtocolSecuritySupportAdapter.getSecurityProperties();
 
         // asserts
         assertThat(securityProperties).hasSize(3);
@@ -161,9 +160,9 @@ public class MeterProtocolSecuritySupportAdapterTest {
                 this.securitySupportAdapterMappingFactory);
 
         // asserts
-        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName())).isPresent();
-        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.javaName())).isPresent();
-        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.javaName())).isPresent();
+        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.FIRST)).isPresent();
+        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.SECOND)).isPresent();
+        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.THIRD)).isPresent();
     }
 
     @Test

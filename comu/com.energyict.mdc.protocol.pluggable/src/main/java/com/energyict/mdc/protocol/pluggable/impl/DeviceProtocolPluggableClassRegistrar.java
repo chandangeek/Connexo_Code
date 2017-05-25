@@ -7,12 +7,11 @@ package com.energyict.mdc.protocol.pluggable.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.LicensedProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.upl.DeviceDescriptionSupport;
 
 import java.time.Instant;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,38 +35,34 @@ public class DeviceProtocolPluggableClassRegistrar extends PluggableClassRegistr
     }
 
     public void registerAll(List<LicensedProtocol> licensedProtocols) {
-        Iterator<LicensedProtocol> licensedProtocolIterator = licensedProtocols.iterator();
-        boolean registerNext = true;
-        while (registerNext && licensedProtocolIterator.hasNext()) {
-            LicensedProtocol licensedProtocol = licensedProtocolIterator.next();
+        int registered = 0;
+        for (LicensedProtocol licensedProtocol: licensedProtocols){
             try {
-                if (this.deviceProtocolDoesNotExist(licensedProtocol)) {
+                List<DeviceProtocolPluggableClass> deviceProtocolPluggableClasses = this.protocolPluggableService.findDeviceProtocolPluggableClassesByClassName(licensedProtocol.getClassName());
+                if (deviceProtocolPluggableClasses.isEmpty()) {
                     this.createDeviceProtocol(licensedProtocol);
                     this.created(licensedProtocol);
-                }
-                else {
+                } else {
                     this.alreadyExists(licensedProtocol);
                 }
-            }
-            catch (NoServiceFoundThatCanLoadTheJavaClass e) {
+                registered++;
+            }catch (NoServiceFoundThatCanLoadTheJavaClass e) {
                 this.logWarning(() -> e.getMessage() + "; will retry later");
-                registerNext = false;
             }
             catch (RuntimeException e) {
                 this.creationFailed(licensedProtocol);
                 if (e.getCause() != null) {
                     handleCreationException(licensedProtocol.getClassName(), e.getCause());
-                }
-                else {
+                } else {
                     handleCreationException(licensedProtocol.getClassName(), e);
                 }
-            }
-            catch (Exception e) {
-                this.logError(() -> "Failure to register device protocol " + toLogMessage(licensedProtocol) + "see error message below:");
+            } catch (Exception e) {
+                this.logError(() -> "Failure to register device protocol " + toLogMessage(licensedProtocol) + " see error message below:");
                 handleCreationException(licensedProtocol.getClassName(), e);
             }
+
         }
-        this.completed(licensedProtocols.size(), "device protocol");
+        this.completed(registered, "device protocol");
     }
 
     private boolean deviceProtocolDoesNotExist(LicensedProtocol licensedProtocolRule) {
@@ -75,7 +70,8 @@ public class DeviceProtocolPluggableClassRegistrar extends PluggableClassRegistr
     }
 
     private DeviceProtocolPluggableClass createDeviceProtocol(LicensedProtocol licensedProtocol) {
-        return this.transactionService.execute(() -> doCreateDeviceProtocol(licensedProtocol));
+        return this.transactionService.isInTransaction() ?
+                doCreateDeviceProtocol(licensedProtocol) : this.transactionService.execute(() -> doCreateDeviceProtocol(licensedProtocol));
     }
 
     private DeviceProtocolPluggableClass doCreateDeviceProtocol(LicensedProtocol licensedProtocol) {
@@ -107,7 +103,7 @@ public class DeviceProtocolPluggableClassRegistrar extends PluggableClassRegistr
         long stop = Instant.now().toEpochMilli();
         long registrationTime = stop - start;
         if (registrationTime > 1000) {
-            this.logWarning(() -> "Registration of custom property set for device protocol " + licensedProtocol.getClassName() + " took excessively long: " +  registrationTime + " (ms)");
+            this.logWarning(() -> "Registration of custom property set for device protocol " + licensedProtocol.getClassName() + " took excessively long: " + registrationTime + " (ms)");
         }
     }
 

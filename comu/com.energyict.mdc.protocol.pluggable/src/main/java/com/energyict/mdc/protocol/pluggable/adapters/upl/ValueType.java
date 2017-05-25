@@ -2,15 +2,18 @@ package com.energyict.mdc.protocol.pluggable.adapters.upl;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.Password;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
 import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.LinePoint;
 import com.energyict.mdc.upl.properties.Lis200Address;
+import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.ProtocolChannelMap;
+import com.energyict.mdc.upl.properties.StringLookup;
+
 import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
@@ -36,7 +39,6 @@ public enum ValueType {
     LIS200_ADDRESS("com.energyict.mdc.upl.properties.Lis200Address", Lis200Address.class, Types.VARCHAR),
     LINE_POINT("com.energyict.mdc.upl.properties.LinePoint", LinePoint.class, Types.VARCHAR),
     HEX_STRING("com.energyict.mdc.upl.properties.HexString", HexString.class, Types.VARCHAR),
-    PASSWORD("com.energyict.mdc.upl.properties.Password", Password.class, Types.VARCHAR),
     INTEGER("java.lang.int", int.class, Types.NUMERIC),
     LONG("java.lang.long", long.class, Types.NUMERIC),
     BOXED_INTEGER("java.lang.Integer", Integer.class, Types.NUMERIC),
@@ -77,7 +79,15 @@ public enum ValueType {
             return true;
         }
     },
-    OBIS_CODE("com.energyict.obis.ObisCode", ObisCode.class, Types.VARCHAR);
+    KEY_ACCESSOR_TYPE("com.energyict.mdc.upl.security.KeyAccessorType", KeyAccessorType.class, Types.NUMERIC) {
+        @Override
+        boolean isReference() {
+            return true;
+        }
+    },
+    OBIS_CODE("com.energyict.obis.ObisCode", ObisCode.class, Types.VARCHAR),
+    NUMBER_LOOKUP("com.energyict.mdc.upl.properties.NumberLookup", NumberLookup.class, Types.VARCHAR), //TODO: dirty trick to get things rolling, but this is of course not very useful mapping...
+    STRING_LOOKUP("com.energyict.mdc.upl.properties.StringLookup", StringLookup.class, Types.VARCHAR); //TODO: dirty trick to get things rolling, but this is of course not very useful mapping...
 
     private final String uplClassName;
     private final Class connexoClass;

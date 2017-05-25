@@ -7,8 +7,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol;
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
@@ -34,6 +32,8 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
 import org.fest.assertions.core.Condition;
 
 import java.io.IOException;
@@ -100,7 +100,7 @@ public class SmartMeterProtocolMessageAdapterTest {
 
     private void initializeMocks() {
         DeviceProtocolMessageService deviceProtocolMessageService = this.inMemoryPersistence.getDeviceProtocolMessageService();
-        when(deviceProtocolMessageService.createDeviceProtocolMessagesFor(SimpleLegacyMessageConverter.class.getCanonicalName())).thenReturn(new SimpleLegacyMessageConverter(propertySpecService));
+        when(deviceProtocolMessageService.createDeviceProtocolMessagesFor(SimpleLegacyMessageConverter.class.getCanonicalName())).thenReturn(new SimpleLegacyMessageConverter());
         doThrow(DeviceProtocolAdapterCodingExceptions.class).when(deviceProtocolMessageService).createDeviceProtocolMessagesFor("com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.Certainly1NotKnown2ToThisClass3PathLegacyConverter");
         when(deviceProtocolMessageService.createDeviceProtocolMessagesFor(ThirdSimpleTestSmartMeterProtocol.class.getCanonicalName())).thenReturn(new ThirdSimpleTestSmartMeterProtocol());
 

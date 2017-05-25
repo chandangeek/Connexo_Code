@@ -1,10 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -12,9 +9,8 @@ import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationExcepti
 import com.energyict.mdc.protocol.api.services.CustomPropertySetInstantiatorService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLConnectionTypeAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.SecurityCustomPropertySetNameDetective;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.cps.UnableToLoadCustomPropertySetClass;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
@@ -37,6 +33,7 @@ import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -50,13 +47,10 @@ import java.util.stream.Collectors;
  * Adapter between a {@link com.energyict.mdc.upl.DeviceProtocol} and a {@link DeviceProtocol}.
  * <p>
  *
- *
  * @author khe
  * @since 23/11/2016 - 16:56
  */
-public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdapter {
-
-    private static SecurityCustomPropertySetNameDetective securityCustomPropertySetNameDetective;
+public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdapter<com.energyict.mdc.upl.DeviceProtocol> {
 
     /**
      * The UPL deviceProtocol instance {@link com.energyict.mdc.upl.DeviceProtocol} that needs to be wrapped (adapted)
@@ -77,6 +71,11 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
     @Override
     public Class getActualClass() {
         return deviceProtocol.getClass();
+    }
+
+    @Override
+    public com.energyict.mdc.upl.DeviceProtocol getActual() {
+        return deviceProtocol;
     }
 
     @Override
@@ -224,42 +223,17 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
 
     @Override
     public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
-        com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(dialectProperties);
-        deviceProtocol.addDeviceProtocolDialectProperties(adaptedProperties);
+        deviceProtocol.addDeviceProtocolDialectProperties(dialectProperties);
     }
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        com.energyict.mdc.upl.properties.TypedProperties adaptedProperties = TypedPropertiesValueAdapter.adaptToUPLValues(deviceProtocolSecurityPropertySet.getSecurityProperties());
-        DeviceProtocolSecurityPropertySetImpl adaptedSecurityPropertySet = new DeviceProtocolSecurityPropertySetImpl(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel(), deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel(), adaptedProperties);
-        deviceProtocol.setSecurityPropertySet(adaptedSecurityPropertySet);
+        deviceProtocol.setSecurityPropertySet(deviceProtocolSecurityPropertySet);
     }
 
     @Override
-    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        this.ensureSecurityCustomPropertySetNameMappingLoaded();
-        String cpsJavaClassName = securityCustomPropertySetNameDetective.securityCustomPropertySetClassNameFor(this.deviceProtocol.getClass());
-
-        if (Checks.is(cpsJavaClassName).emptyOrOnlyWhiteSpace()) {
-            return Optional.empty();
-        } else {
-            try {
-                return Optional.of(customPropertySetInstantiatorService.createCustomPropertySet(cpsJavaClassName));
-            } catch (ClassNotFoundException e) {
-                throw new UnableToLoadCustomPropertySetClass(e, cpsJavaClassName, SecurityCustomPropertySetNameDetective.MAPPING_PROPERTIES_FILE_NAME);
-            }
-        }
-    }
-
-    private void ensureSecurityCustomPropertySetNameMappingLoaded() {
-        if (securityCustomPropertySetNameDetective == null) {
-            securityCustomPropertySetNameDetective = new SecurityCustomPropertySetNameDetective(customPropertySetInstantiatorService);
-        }
-    }
-
-    @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-        return deviceProtocol.getSecurityProperties();
+    public Optional<com.energyict.mdc.upl.properties.PropertySpec> getClientSecurityPropertySpec() {
+        return deviceProtocol.getClientSecurityPropertySpec();
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 import com.elster.jupiter.orm.MacException;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.LoadProfileType;
@@ -15,6 +16,7 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
 
@@ -39,6 +41,18 @@ public class UPLOfflineDeviceAdapter implements OfflineDevice {
 
     @Override
     public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
+        // Todo: let's wait and see, I think we can get away with this
+        return null;
+    }
+
+    @Override
+    public List<OfflineKeyAccessor> getAllOfflineKeyAccessors() {
+        // Todo: let's wait and see, I think we can get away with this
+        return null;
+    }
+
+    @Override
+    public Map<String, com.energyict.mdc.upl.TypedProperties> getSecurityPropertySetAttributeToKeyAccessorTypeMapping() {
         // Todo: let's wait and see, I think we can get away with this
         return null;
     }

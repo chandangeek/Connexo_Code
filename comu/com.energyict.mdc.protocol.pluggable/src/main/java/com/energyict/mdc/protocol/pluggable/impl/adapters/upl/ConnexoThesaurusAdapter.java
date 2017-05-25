@@ -43,6 +43,11 @@ class ConnexoThesaurusAdapter implements com.elster.jupiter.nls.Thesaurus {
     }
 
     @Override
+    public NlsMessageFormat getSimpleFormat(MessageSeed seed) {
+        throw new UnsupportedOperationException("Adapter between universal protocol thesaurus and Connexo thesaurus does not support getSimpleFormat(MessageSeed) because protocols are not aware of this method and should therefore not be capable of calling it.");
+    }
+
+    @Override
     public Map<String, String> getTranslationsForCurrentLocale() {
         throw new UnsupportedOperationException("Adapter between universal protocol thesaurus and Connexo thesaurus does not support getTranslationsForCurrentLocale() because protocols are not aware of this method and should therefore not be capable of calling it.");
     }

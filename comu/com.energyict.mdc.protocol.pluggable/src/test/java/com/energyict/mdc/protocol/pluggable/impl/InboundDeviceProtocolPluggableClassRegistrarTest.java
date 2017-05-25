@@ -6,7 +6,7 @@ package com.energyict.mdc.protocol.pluggable.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
@@ -16,6 +16,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -26,10 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link InboundDeviceProtocolPluggableClassRegistrar} component.
@@ -45,8 +43,14 @@ public class InboundDeviceProtocolPluggableClassRegistrarTest {
     @Mock
     private InboundDeviceProtocolService inboundDeviceProtocolService;
 
-    private TransactionService transactionService = new FakeTransactionService(null);
+    private TransactionService actualTransactionService = mock(TransactionService.class);
 
+    private TransactionService transactionService = new FakeTransactionService(actualTransactionService);
+
+    @Before
+    public void before() {
+        when(actualTransactionService.isInTransaction()).thenReturn(false);
+    }
     @Test
     public void testRegistration() {
         InboundDeviceProtocolPluggableClassRegistrar registrar = this.testRegistrar();
