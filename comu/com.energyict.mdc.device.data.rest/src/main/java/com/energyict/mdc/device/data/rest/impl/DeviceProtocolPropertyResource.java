@@ -5,29 +5,25 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.EndDeviceStage;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.pluggable.rest.PropertyDefaultValuesProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -61,7 +57,14 @@ public class DeviceProtocolPropertyResource {
         TypedProperties deviceProperties = device.getDeviceProtocolProperties();
         DeviceProtocolInfo info = new DeviceProtocolInfo();
         device.getDeviceType().getDeviceProtocolPluggableClass().ifPresent(deviceProtocolPluggableClass -> {
-            List<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs(), deviceProperties);
+            PropertyDefaultValuesProvider possibleValue = (propertySpec,propertyType)-> {
+                if ((propertySpec.isReference() && (KeyAccessorType.class.isAssignableFrom(propertySpec.getValueFactory().getValueType())))) {
+                    return device.getDeviceType().getKeyAccessorTypes();
+                }
+                return Collections.emptyList();
+            };
+
+            List<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs(), deviceProperties, possibleValue);
             info.id = deviceProtocolPluggableClass.getId();
             info.name = deviceProtocolPluggableClass.getName();
             info.properties = propertyInfos;

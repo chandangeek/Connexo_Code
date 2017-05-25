@@ -12,6 +12,7 @@ import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -23,6 +24,7 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.rest.ChannelPeriodType;
 
 import com.google.common.collect.Range;
 
@@ -33,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -61,7 +64,8 @@ public class EstimationHelper {
             throw exceptionFactory.newException(MessageSeeds.ESTIMATOR_REQUIRED);
         }
 
-        Estimator estimator = estimationService.getEstimator(estimateChannelDataInfo.estimatorImpl).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.ESTIMATOR_NOT_FOUND));
+        Estimator estimator = estimationService.getEstimator(estimateChannelDataInfo.estimatorImpl)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.ESTIMATOR_NOT_FOUND));
         Map<String, String> invalidProperties = new HashMap<>();
         for (PropertySpec propertySpec : estimator.getPropertySpecs()) {
             try {
@@ -69,7 +73,7 @@ public class EstimationHelper {
                 propertySpec.validateValue(value);
                 propertyMap.put(propertySpec.getName(), value);
             } catch (Exception ex) {
-                invalidProperties.put(propertySpec.getName(), thesaurus.getFormat(MessageSeeds.INVALID_ESTIMATOR_PROPERTY_VALUE).format());
+                invalidProperties.put("properties." + propertySpec.getName(), thesaurus.getFormat(MessageSeeds.INVALID_ESTIMATOR_PROPERTY_VALUE).format());
             }
         }
         try {
@@ -77,11 +81,12 @@ public class EstimationHelper {
         } catch (LocalizedFieldValidationException ex) {
             invalidProperties.put(ex.getViolatingProperty(), thesaurus.getFormat(MessageSeeds.INVALID_ESTIMATOR_PROPERTY_VALUE).format());
         }
-        if(!invalidProperties.isEmpty()) {
+        if (!invalidProperties.isEmpty()) {
             throw new EstimatorPropertiesException(invalidProperties);
         }
 
-        Estimator baseEstimator = estimationService.getEstimator(estimateChannelDataInfo.estimatorImpl, propertyMap).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.ESTIMATOR_NOT_FOUND));
+        Estimator baseEstimator = estimationService.getEstimator(estimateChannelDataInfo.estimatorImpl, propertyMap)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.ESTIMATOR_NOT_FOUND));
         baseEstimator.init(LOGGER);
         return baseEstimator;
     }
@@ -94,7 +99,7 @@ public class EstimationHelper {
         return estimationService.previewEstimate(system, meterActivation.getChannelsContainer(), range, readingType, estimator);
     }
 
-    List<ChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, List<Range<Instant>> ranges, List<EstimationResult> results) {
+    List<ChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, List<Range<Instant>> ranges, List<EstimationResult> results, Optional<ReadingQualityComment> readingQualityComment) {
         List<Instant> failedTimestamps = new ArrayList<>();
         List<ChannelDataInfo> channelDataInfos = new ArrayList<>();
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
@@ -106,7 +111,7 @@ public class EstimationHelper {
         for (EstimationResult result : results) {
             for (EstimationBlock block : result.estimated()) {
                 for (Estimatable estimatable : block.estimatables()) {
-                    channelDataInfos.addAll(fillChannelDataInfoList(channel, block, estimatable, channelData, isValidationActive, deviceValidation));
+                    channelDataInfos.addAll(fillChannelDataInfoList(channel, block, estimatable, channelData, isValidationActive, deviceValidation, readingQualityComment));
                 }
             }
             for (EstimationBlock block : result.remainingToBeEstimated()) {
@@ -130,20 +135,25 @@ public class EstimationHelper {
                 .collect(Collectors.toList());
     }
 
-    private List<ChannelDataInfo> fillChannelDataInfoList(Channel channel, EstimationBlock block, Estimatable estimatable, List<LoadProfileReading> channelData, boolean isValidationActive, DeviceValidation deviceValidation) {
+    private List<ChannelDataInfo> fillChannelDataInfoList(Channel channel, EstimationBlock block, Estimatable estimatable, List<LoadProfileReading> channelData, boolean isValidationActive, DeviceValidation deviceValidation, Optional<ReadingQualityComment> readingQualityComment) {
+        ChannelPeriodType channelPeriodType = ChannelPeriodType.of(channel);
         List<ChannelDataInfo> channelDataInfos = new ArrayList<>();
         for (LoadProfileReading reading : channelData) {
             if (reading.getRange().upperEndpoint().equals(estimatable.getTimestamp())) {
-                channelDataInfos.add(getChannelDataInfo(channel, block, reading, isValidationActive, deviceValidation, estimatable));
+                channelDataInfos.add(getChannelDataInfo(channel, block, reading, isValidationActive, deviceValidation, estimatable, channelPeriodType, readingQualityComment));
                 break;
             }
         }
         return channelDataInfos;
     }
 
-    private ChannelDataInfo getChannelDataInfo(Channel channel, EstimationBlock block, LoadProfileReading reading, boolean isValidationActive, DeviceValidation deviceValidation, Estimatable estimatable) {
+    private ChannelDataInfo getChannelDataInfo(Channel channel, EstimationBlock block, LoadProfileReading reading, boolean isValidationActive, DeviceValidation deviceValidation, Estimatable estimatable, ChannelPeriodType channelPeriodType, Optional<ReadingQualityComment> readingQualityComment) {
         //todo do we need to add the datalogger here?
-        ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, reading, isValidationActive, deviceValidation, null);
+        ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, reading, isValidationActive, deviceValidation, null, channelPeriodType);
+        readingQualityComment.ifPresent(comment -> {
+            channelDataInfo.commentId = readingQualityComment.get().getId();
+            channelDataInfo.commentValue = readingQualityComment.get().getComment();
+        });
         if (!channel.getReadingType().isCumulative()) {
             channelDataInfo.value = estimatable.getEstimation();
             channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;

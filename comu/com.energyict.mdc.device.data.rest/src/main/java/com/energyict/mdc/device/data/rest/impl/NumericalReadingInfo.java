@@ -56,11 +56,12 @@ public class NumericalReadingInfo extends ReadingInfo {
     public Set<IdWithNameInfo> confirmedInApps;
     @JsonProperty("multiplier")
     public BigDecimal multiplier;
-    public NumericalReadingInfo() {}
     @JsonProperty("interval")
     public IntervalInfo interval;
     @JsonProperty("eventDate")
     public Instant eventDate;
+
+    public NumericalReadingInfo() {}
 
     @Override
     protected BaseReading createNew(Register<?, ?> register) {

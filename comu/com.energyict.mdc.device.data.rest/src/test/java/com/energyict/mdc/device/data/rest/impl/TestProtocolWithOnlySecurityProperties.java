@@ -4,10 +4,8 @@
 
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -33,6 +31,7 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 
@@ -58,10 +57,6 @@ public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
         this.propertySpecService = propertySpecService;
     }
 
-    public static CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>> getCustomPropertySet(PropertySpecService propertySpecService) {
-        return new BasicAuthenticationCustomPropertySet(propertySpecService);
-    }
-
     @Override
     public void init(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, ComChannel comChannel) {
 
@@ -78,8 +73,8 @@ public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
     }
 
     @Override
-    public List<com.energyict.mdc.upl.properties.PropertySpec> getSecurityProperties() {
-        return Collections.emptyList();
+    public Optional<com.energyict.mdc.upl.properties.PropertySpec> getClientSecurityPropertySpec() {
+        return Optional.empty();
     }
 
     @Override
@@ -205,11 +200,6 @@ public class TestProtocolWithOnlySecurityProperties implements DeviceProtocol {
     @Override
     public void addDeviceProtocolDialectProperties(com.energyict.mdc.upl.properties.TypedProperties dialectProperties) {
 
-    }
-
-    @Override
-    public Optional<CustomPropertySet<Device, ? extends PersistentDomainExtension<Device>>> getCustomPropertySet() {
-        return Optional.of(getCustomPropertySet(this.propertySpecService));
     }
 
     @Override

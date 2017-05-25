@@ -60,6 +60,12 @@ class VeeReadingValueInfo {
     @JsonProperty("confirmedInApps")
     public Set<IdWithNameInfo> confirmedInApps;
 
+    @JsonProperty("commentId")
+    public long commentId;
+
+    @JsonProperty("commentValue")
+    public String commentValue;
+
     public VeeReadingValueInfo() {
     }
 }

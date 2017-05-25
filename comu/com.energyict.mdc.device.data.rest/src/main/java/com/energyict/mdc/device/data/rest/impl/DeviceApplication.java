@@ -31,6 +31,7 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -51,9 +52,11 @@ import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.services.ObisCodeDescriptor;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfoFactory;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.KeyAccessorStatus;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
@@ -61,6 +64,7 @@ import com.energyict.mdc.device.data.kpi.rest.KpiResource;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.data.rest.ReadingQualitiesTranslationKeys;
+import com.energyict.mdc.device.data.rest.SecurityAccessorInfoFactory;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -69,6 +73,7 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -80,7 +85,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -107,6 +111,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile ConnectionTaskService connectionTaskService;
     private volatile DeviceService deviceService;
     private volatile TopologyService topologyService;
+    private volatile MultiElementDeviceService multiElementDeviceService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile BatchService batchService;
@@ -153,6 +158,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile UserService userService;
+    private volatile PkiService pkiService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -175,6 +181,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 ChannelResource.class,
                 DeviceGroupResource.class,
                 SecurityPropertySetResource.class,
+                SecurityAccessorResource.class,
                 ConnectionMethodResource.class,
                 ComSessionResource.class,
                 DeviceMessageResource.class,
@@ -188,7 +195,9 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 DeviceLifeCycleActionResource.class,
                 DeviceStateAccessFeature.class,
                 EstimationErrorExceptionMapper.class,
-                EstimatorPropertiesExceptionMapper.class
+                EstimatorPropertiesExceptionMapper.class,
+                ChannelValidationResource.class,
+                ChannelEstimationResource.class
         );
     }
 
@@ -208,6 +217,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setUserService(UserService userService){
         this.userService = userService;
+    }
+
+    @Reference
+    public void setPkiService(PkiService pkiService){
+        this.pkiService = pkiService;
     }
 
     @Reference
@@ -251,6 +265,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
+    public void setMultiElementDeviceService(MultiElementDeviceService multiElementDeviceService) {
+        this.multiElementDeviceService = multiElementDeviceService;
+    }
+
+    @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
     }
@@ -287,7 +306,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
                 .join(nlsService.getThesaurus(I18N.COMPONENT_NAME, Layer.DOMAIN))
                 .join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN))
-                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
+                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
+                .join(nlsService.getThesaurus(PkiService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -384,6 +404,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         keys.addAll(Arrays.asList(ConnectionStrategyTranslationKeys.values()));
         keys.addAll(Arrays.asList(DeviceSearchModelTranslationKeys.values()));
         keys.addAll(Arrays.asList(LocationTranslationKeys.values()));
+        keys.addAll(Arrays.asList(KeyAccessorStatus.values()));
         return keys;
     }
 
@@ -544,6 +565,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(clock).to(Clock.class);
             bind(DeviceComTaskInfoFactory.class).to(DeviceComTaskInfoFactory.class);
             bind(SecurityPropertySetInfoFactory.class).to(SecurityPropertySetInfoFactory.class);
+            bind(SecurityAccessorInfoFactory.class).to(SecurityAccessorInfoFactory.class);
             bind(ChannelResource.class).to(ChannelResource.class);
             bind(ValidationInfoHelper.class).to(ValidationInfoHelper.class);
             bind(ComSessionInfoFactory.class).to(ComSessionInfoFactory.class);
@@ -557,6 +579,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(communicationTaskService).to(CommunicationTaskService.class);
             bind(favoritesService).to(FavoritesService.class);
             bind(topologyService).to(TopologyService.class);
+            bind(multiElementDeviceService).to(MultiElementDeviceService.class);
             bind(DeviceConnectionTaskInfoFactory.class).to(DeviceConnectionTaskInfoFactory.class);
             bind(DeviceComTaskExecutionInfoFactory.class).to(DeviceComTaskExecutionInfoFactory.class);
             bind(DataCollectionKpiInfoFactory.class).to(DataCollectionKpiInfoFactory.class);
@@ -593,12 +616,19 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(calendarService).to(CalendarService.class);
             bind(deviceAlarmService).to(DeviceAlarmService.class);
             bind(userService).to(UserService.class);
+            bind(pkiService).to(PkiService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(TimeOfUseInfoFactory.class).to(TimeOfUseInfoFactory.class);
             bind(MeterActivationInfoFactory.class).to(MeterActivationInfoFactory.class);
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(ChannelInfoFactory.class).to(ChannelInfoFactory.class);
+            bind(ReadingQualityInfoFactory.class).to(ReadingQualityInfoFactory.class);
+            bind(ChannelValidationRuleInfoFactory.class).to(ChannelValidationRuleInfoFactory.class);
+            bind(ChannelEstimationRuleInfoFactory.class).to(ChannelEstimationRuleInfoFactory.class);
+            bind(KeyAccessorPlaceHolder.class).to(KeyAccessorPlaceHolder.class);
+            bind(ExecutionLevelInfoFactory.class).to(ExecutionLevelInfoFactory.class);
+            bind(ChannelReferenceDataCopier.class).to(ChannelReferenceDataCopier.class);
         }
     }
 }

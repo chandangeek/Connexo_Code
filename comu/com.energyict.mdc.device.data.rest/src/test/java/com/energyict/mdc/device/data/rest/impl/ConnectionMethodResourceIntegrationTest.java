@@ -11,6 +11,7 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.rest.ObjectMapperProvider;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.pki.PkiService;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -53,7 +54,8 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask.ConnectionTaskLifecycleStatus;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.device.topology.impl.ServerTopologyService;
+import com.energyict.mdc.device.topology.multielement.MultiElementDeviceService;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -153,10 +155,12 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
     private static RestQueryService restQueryService;
     private static FavoritesService favoritesService;
     private static DeviceLifeCycleService deviceLifecycleService;
-    private static TopologyService topologyService;
+    private static ServerTopologyService topologyService;
+    private static MultiElementDeviceService multiElementDeviceService;
     private static ServiceCallService serviceCallService;
     private static BpmService bpmService;
     private static ThreadPrincipalService threadPrincipalService;
+    private static PkiService pkiService;
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
@@ -177,11 +181,13 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         restQueryService = mock(RestQueryService.class);
         favoritesService = mock(FavoritesService.class);
         deviceLifecycleService = mock(DeviceLifeCycleService.class);
-        topologyService = mock(TopologyService.class);
+        topologyService = mock(ServerTopologyService.class);
+        multiElementDeviceService = mock(MultiElementDeviceService.class);
         serviceCallService = mock(ServiceCallService.class);
         bpmService = mock(BpmService.class);
         threadPrincipalService = mock(ThreadPrincipalService.class);
         userService = mock(UserService.class);
+        pkiService = mock(PkiService.class);
         obisCodeDescriptor = mock(ObisCodeDescriptor.class);
         when(obisCodeDescriptor.describe(any(ObisCode.class))).thenReturn("obisCodeDescription");
 
@@ -192,7 +198,6 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(deviceProtocol.getCustomPropertySet()).thenReturn(Optional.empty());
         registerConnectionTypePluggableClasses();
         initializeMocks();
     }
@@ -264,7 +269,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
                     addProperty("ipAddress", IP_ADDRESS_FROM_PARTIAL).
                     addProperty("port", PORT_FROM_PARTIAL).
                     build();
-            deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::havingId).forEach(deviceConfiguration::createDeviceMessageEnablement);
+            deviceMessageIds.stream().map(DeviceMessageSpec::getId).map(DeviceMessageId::from).forEach(deviceConfiguration::createDeviceMessageEnablement);
             deviceConfiguration.activate();
             whirlpool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool("Whirlpool", ComPortType.TCP, TimeDuration.minutes(1));
             resetClock();
@@ -365,6 +370,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setConnectionTaskService(inMemoryPersistence.getConnectionTaskService());
         application.setDeviceService(inMemoryPersistence.getDeviceService());
         application.setTopologyService(topologyService);
+        application.setMultiElementDeviceService(multiElementDeviceService);
         application.setBatchService(inMemoryPersistence.getBatchService());
         application.setEngineConfigurationService(inMemoryPersistence.getEngineConfigurationService());
         application.setIssueService(inMemoryPersistence.getIssueService());
@@ -402,6 +408,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setMeteringTranslationService(inMemoryPersistence.getMeteringTranslationService());
         application.setDeviceLifeCycleConfigurationService(inMemoryPersistence.getDeviceLifeCycleConfigurationService());
         application.setObisCodeDescriptor(obisCodeDescriptor);
+        application.setPkiService(pkiService);
         return application;
     }
 

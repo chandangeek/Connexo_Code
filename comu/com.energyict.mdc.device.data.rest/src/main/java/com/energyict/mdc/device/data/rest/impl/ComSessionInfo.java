@@ -9,6 +9,7 @@ import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.rest.SuccessIndicatorInfo;
 
 import java.time.Instant;
+import java.util.List;
 
 /**
  * Created by bvn on 10/3/14.
@@ -30,4 +31,6 @@ class ComSessionInfo {
     public IdWithNameInfo device;
     public IdWithNameInfo deviceType;
     public DeviceConfigurationIdInfo deviceConfiguration;
+    public List<JournalEntryInfo> errors;
+    public List<JournalEntryInfo> warnings;
 }

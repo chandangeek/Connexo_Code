@@ -6,8 +6,6 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.obis.ObisCode;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -19,6 +17,9 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
+
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -87,7 +88,7 @@ public class DataLoggerSlaveDeviceInfoFactoryTest extends DeviceDataRestApplicat
         when(topologyService.getSlaveRegister(eq(dataLoggerRegister4), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.availabilityDate(eq(dataLoggerRegister4))).thenReturn(Optional.of(Instant.EPOCH));
 
-        List<DataLoggerSlaveDeviceInfo> infos = new DataLoggerSlaveDeviceInfoFactory(clock, topologyService, deviceDataInfoFactory, batchService, channelInfoFactory).from(dataLogger);
+        List<DataLoggerSlaveDeviceInfo> infos = new DataLoggerSlaveDeviceInfoFactory(clock, topologyService, multiElementDeviceService, deviceDataInfoFactory, batchService, channelInfoFactory).from(dataLogger);
 
         assertThat(infos).hasSize(1);
         assertThat(infos.get(0).dataLoggerSlaveChannelInfos).hasSize(3);

@@ -13,10 +13,13 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.engine.config.ComServer;
 
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.temporal.ChronoField;
+import java.util.EnumSet;
+import java.util.stream.Collectors;
 
 /**
  * Created by bvn on 10/3/14.
@@ -29,7 +32,7 @@ public class ComSessionInfoFactory {
         this.thesaurus = thesaurus;
     }
 
-    public ComSessionInfo from(ComSession comSession) {
+    public ComSessionInfo from(ComSession comSession, JournalEntryInfoFactory journalEntryInfoFactory) {
         ComSessionInfo info = new ComSessionInfo();
         ConnectionTask<?,?> connectionTask = comSession.getConnectionTask();
         PartialConnectionTask partialConnectionTask = connectionTask.getPartialConnectionTask();
@@ -63,6 +66,10 @@ public class ComSessionInfoFactory {
         info.comTaskCount.numberOfSuccessfulTasks = comSession.getNumberOfSuccessFulTasks();
         info.comTaskCount.numberOfFailedTasks = comSession.getNumberOfFailedTasks();
         info.comTaskCount.numberOfIncompleteTasks = comSession.getNumberOfPlannedButNotExecutedTasks();
+        info.errors = comSession.getAllLogs(EnumSet.of(ComServer.LogLevel.ERROR), 0, Integer.MAX_VALUE).stream().map(journalEntryInfoFactory::asInfo).collect(Collectors
+                .toList());
+        info.warnings = comSession.getAllLogs(EnumSet.of(ComServer.LogLevel.WARN), 0, Integer.MAX_VALUE).stream().map(journalEntryInfoFactory::asInfo).collect(Collectors
+                .toList());
         return info;
     }
 

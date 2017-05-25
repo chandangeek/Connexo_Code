@@ -8,17 +8,21 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MeteringTranslationService;
+import com.elster.jupiter.metering.ReadingQualityComment;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.aggregation.ReadingQualityCommentCategory;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
@@ -30,7 +34,6 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
-
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
@@ -56,21 +59,25 @@ public class ValidationInfoFactory {
     private final PropertyValueInfoService propertyValueInfoService;
     private final ResourceHelper resourceHelper;
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
+    private final ReadingQualityInfoFactory readingQualityInfoFactory;
+    private final MeteringService meteringService;
 
     @Inject
     public ValidationInfoFactory(MeteringTranslationService meteringTranslationService,
                                  ValidationRuleInfoFactory validationRuleInfoFactory,
                                  EstimationRuleInfoFactory estimationRuleInfoFactory,
                                  PropertyValueInfoService propertyValueInfoService,
-                                 Thesaurus thesaurus,
                                  ResourceHelper resourceHelper,
-                                 ReadingTypeInfoFactory readingTypeInfoFactory) {
+                                 ReadingTypeInfoFactory readingTypeInfoFactory,
+                                 ReadingQualityInfoFactory readingQualityInfoFactory, MeteringService meteringService) {
         this.meteringTranslationService = meteringTranslationService;
         this.validationRuleInfoFactory = validationRuleInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.propertyValueInfoService = propertyValueInfoService;
         this.resourceHelper = resourceHelper;
         this.readingTypeInfoFactory = readingTypeInfoFactory;
+        this.readingQualityInfoFactory = readingQualityInfoFactory;
+        this.meteringService = meteringService;
     }
 
     DetailedValidationRuleInfo createDetailedValidationRuleInfo(ValidationRule validationRule, Long total) {
@@ -83,7 +90,7 @@ public class ValidationInfoFactory {
         validationRuleInfo.name = validationRule.getName();
         validationRuleInfo.deleted = validationRule.isObsolete();
         validationRuleInfo.ruleSetVersion = new ValidationRuleSetVersionInfo(validationRule.getRuleSetVersion());
-        validationRuleInfo.properties = propertyValueInfoService.getPropertyInfos(validationRule.getPropertySpecs(), validationRule.getProps());
+        validationRuleInfo.properties = propertyValueInfoService.getPropertyInfos(validationRule.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE), validationRule.getProps());
         validationRuleInfo.readingTypes.addAll(validationRule.getReadingTypes().stream().map(readingTypeInfoFactory::from).collect(Collectors.toList()));
         validationRuleInfo.total = total;
         return validationRuleInfo;
@@ -265,6 +272,12 @@ public class ValidationInfoFactory {
                 .flatMap(Functions.asStream())
                 .map(resourceHelper::getApplicationInfo)
                 .collect(Collectors.collectingAndThen(Collectors.toSet(), s -> s.isEmpty() ? null : s));
+        readingQualities.stream().filter(readingQuality -> !Checks.is(readingQuality.getComment()).emptyOrOnlyWhiteSpace())
+                .findFirst()
+                .ifPresent(readingQuality -> {
+                    info.commentId = getEstimationCommentIdByValue(readingQuality.getComment());
+                    info.commentValue = readingQuality.getComment();
+                });
     }
 
     /**
@@ -278,7 +291,7 @@ public class ValidationInfoFactory {
                 .filter(type -> type.category().isPresent())
                 .filter(type -> type.qualityIndex().isPresent())
                 .filter(type -> type.system().get() != QualityCodeSystem.MDM || !type.hasValidationCategory())
-                .map(type -> ReadingQualityInfo.fromReadingQualityType(meteringTranslationService, type))
+                .map(readingQualityInfoFactory::fromReadingQualityType)
                 .collect(Collectors.toList());
     }
 
@@ -288,13 +301,12 @@ public class ValidationInfoFactory {
         }
         return intervalReadingRecord.getReadingQualities().stream()
                 .filter(ReadingQualityRecord::isActual)
-                .map(ReadingQuality::getType)
                 .distinct()
-                .filter(type -> type.system().isPresent())
-                .filter(type -> type.category().isPresent())
-                .filter(type -> type.qualityIndex().isPresent())
-                .filter(type -> type.system().get() != QualityCodeSystem.MDM || !type.hasValidationCategory())
-                .map(type -> ReadingQualityInfo.fromReadingQualityType(meteringTranslationService, type))
+                .filter(readingQuality -> readingQuality.getType().system().isPresent())
+                .filter(readingQuality -> readingQuality.getType().category().isPresent())
+                .filter(readingQuality -> readingQuality.getType().qualityIndex().isPresent())
+                .filter(readingQuality -> readingQuality.getType().system().get() != QualityCodeSystem.MDM || !readingQuality.getType().hasValidationCategory())
+                .map(readingQualityInfoFactory::fromReadingQuality)
                 .collect(Collectors.toList());
     }
 
@@ -337,6 +349,12 @@ public class ValidationInfoFactory {
             veeReadingInfo.editedInApp = resourceHelper.getApplicationInfo(modificationFlag.getLast());
         }
         veeReadingInfo.isConfirmed = isConfirmedData(reading, readingQualities);
+        readingQualities.stream().filter(readingQuality -> !Checks.is(readingQuality.getComment()).emptyOrOnlyWhiteSpace())
+                .findFirst()
+                .ifPresent(readingQuality -> {
+                    veeReadingInfo.commentId = getEstimationCommentIdByValue(readingQuality.getComment());
+                    veeReadingInfo.commentValue = readingQuality.getComment();
+        });
         return veeReadingInfo;
     }
 
@@ -443,4 +461,13 @@ public class ValidationInfoFactory {
         }
         return null;
     }
+
+    private long getEstimationCommentIdByValue(String commentValue) {
+        return meteringService.getAllReadingQualityComments(ReadingQualityCommentCategory.ESTIMATION)
+                .stream()
+                .filter(readingQualityComment -> readingQualityComment.getComment().equals(commentValue))
+                .map(ReadingQualityComment::getId)
+                .findFirst().orElse(0L);
+    }
+
 }

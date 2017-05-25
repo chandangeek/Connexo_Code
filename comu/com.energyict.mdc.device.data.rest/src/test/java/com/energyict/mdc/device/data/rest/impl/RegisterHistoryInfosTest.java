@@ -140,7 +140,7 @@ public class RegisterHistoryInfosTest {
         DataLoggerReference dataLoggerReference = getDataLoggerReference(originRegister, channel1ReadingType);
         DataLoggerChannelUsage dataLoggerChannelUsage = mock(DataLoggerChannelUsage.class);
         when(dataLoggerChannelUsage.getSlaveChannel()).thenReturn(slaveChannel);
-        when(dataLoggerChannelUsage.getDataLoggerReference()).thenReturn(dataLoggerReference);
+        when(dataLoggerChannelUsage.getPhysicalGatewayReference()).thenReturn(dataLoggerReference);
         if (endDate != null) {
             when(dataLoggerChannelUsage.getRange()).thenReturn(Range.open(Instant.ofEpochMilli(startDate), Instant.ofEpochMilli(endDate)));
         } else {

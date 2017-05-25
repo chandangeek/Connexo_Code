@@ -33,4 +33,6 @@ class ComTaskExecutionSessionInfo {
     public Long durationInSeconds;
     public boolean alwaysExecuteOnInbound;
     public ComSessionInfo comSession;
+    public List<JournalEntryInfo> errors;
+    public List<JournalEntryInfo> warnings;
 }
