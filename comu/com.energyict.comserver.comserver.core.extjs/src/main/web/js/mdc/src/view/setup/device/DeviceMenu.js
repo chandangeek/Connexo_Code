@@ -167,7 +167,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                             href: '#/devices/' + encodeURIComponent(deviceId) + '/connectionmethods'
                         },
                         {
-                            text: Uni.I18n.translate('general.securitySettings', 'MDC', 'Security settings'),
+                            text: Uni.I18n.translate('general.securitySets', 'MDC', 'Security sets'),
                             itemId: 'securitySettingLink',
                             href: '#/devices/' + encodeURIComponent(deviceId) + '/securitysettings'
                         },

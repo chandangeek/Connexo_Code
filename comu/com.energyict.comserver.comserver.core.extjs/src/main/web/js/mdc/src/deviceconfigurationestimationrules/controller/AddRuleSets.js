@@ -106,9 +106,8 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.AddRuleSets', {
                 all: !isSelected
             },
             success: function () {
-                var message = Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.add.success', 'MDC', 'Estimation rule sets added.');
                 router.getRoute('administration/devicetypes/view/deviceconfigurations/view/estimationrulesets').forward();
-                me.getApplication().fireEvent('acknowledge', message);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.add.success', 'MDC', 'Estimation rule sets added'));
             },
             callback: function () {
                 view.setLoading(false);

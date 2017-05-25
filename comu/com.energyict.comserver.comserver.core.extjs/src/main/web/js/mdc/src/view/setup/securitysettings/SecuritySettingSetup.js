@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('general.securitySettings','MDC','Security settings'),
+                title: Uni.I18n.translate('general.securitySets','MDC','Security sets'),
                 items: [
                     {
                         xtype: 'preview-container',
@@ -61,7 +61,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                             ],
                             stepItems: [
                                 {
-                                    text:  Uni.I18n.translate('securitySetting.addSecuritySetting','MDC','Add security setting'),
+                                    text:  Uni.I18n.translate('securitySetting.addSecuritySet', 'MDC', 'Add security set'),
                                     privileges: Mdc.privileges.DeviceType.admin,
                                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/add'
                                 }
