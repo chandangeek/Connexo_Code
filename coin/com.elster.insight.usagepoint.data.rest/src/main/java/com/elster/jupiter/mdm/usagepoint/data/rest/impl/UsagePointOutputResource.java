@@ -412,7 +412,6 @@ public class UsagePointOutputResource {
                                         .collect(Collectors.toMap(
                                                 Function.identity(),
                                                 readingWithValidationStatusFactory::createChannelReading, (r1, r2) -> r1, TreeMap::new));
-                        channel.getJournaledChannelReadings(readingType, requestedInterval);
 
                         // add readings to pre filled channel data map
                         List<AggregatedChannel.AggregatedIntervalReadingRecord> calculatedReadings = channel.getAggregatedIntervalReadings(effectiveInterval);
