@@ -10,6 +10,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
@@ -22,12 +23,14 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -113,18 +116,18 @@ public class ComServerDAOImplInboundTest {
     }
 
     @Test(expected = CanNotFindForIdentifier.class)
-    public void testGetDeviceProtocolSecurityPropertiesWhenDeviceDoesNotExist() {
+    public void testGetDeviceProtocolSecurityPropertySetWhenDeviceDoesNotExist() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(this.deviceService.findDeviceByIdentifier(deviceIdentifier)).thenReturn(Optional.empty());
 
         // Business method
-        this.comServerDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, mock(InboundComPort.class));
+        this.comServerDAO.getDeviceProtocolSecurityPropertySet(deviceIdentifier, mock(InboundComPort.class));
 
         // Asserts: expect a NotFoundException do be thrown
     }
 
     @Test
-    public void testGetDeviceProtocolSecurityPropertiesWithoutConnectionTasks() {
+    public void testGetDeviceProtocolSecurityPropertySetWithoutConnectionTasks() {
         Device device = mock(Device.class);
         when(device.getInboundConnectionTasks()).thenReturn(new ArrayList<>(0));
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
@@ -133,14 +136,14 @@ public class ComServerDAOImplInboundTest {
         when(comPort.getComPortPool()).thenReturn(mock(InboundComPortPool.class));
 
         // Business method
-        List<SecurityProperty> securityProperties = this.comServerDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort);
+        DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = this.comServerDAO.getDeviceProtocolSecurityPropertySet(deviceIdentifier, comPort);
 
         // Asserts
-        assertThat(securityProperties).isNull();
+        assertThat(deviceProtocolSecurityPropertySet).isNull();
     }
 
     @Test
-    public void testGetDeviceProtocolSecurityPropertiesWithoutMatchingConnectionTask() {
+    public void testGetDeviceProtocolSecurityPropertySetWithoutMatchingConnectionTask() {
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
@@ -153,10 +156,10 @@ public class ComServerDAOImplInboundTest {
         when(comPort.getComPortPool()).thenReturn(otherComPortPool);
 
         // Business method
-        List<SecurityProperty> securityProperties = this.comServerDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort);
+        DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = this.comServerDAO.getDeviceProtocolSecurityPropertySet(deviceIdentifier, comPort);
 
         // Asserts
-        assertThat(securityProperties).isNull();
+        assertThat(deviceProtocolSecurityPropertySet).isNull();
     }
 
     @Test
@@ -174,28 +177,41 @@ public class ComServerDAOImplInboundTest {
         when(communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutionFinder);
 
         // Business method
-        List<SecurityProperty> securityProperties = this.comServerDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort);
+        DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = this.comServerDAO.getDeviceProtocolSecurityPropertySet(deviceIdentifier, comPort);
 
         // Asserts
-        assertThat(securityProperties).isNull();
+        assertThat(deviceProtocolSecurityPropertySet).isNull();
     }
 
     @Test
-    public void testGetDeviceProtocolSecurityProperties() {
+    public void testGetDeviceProtocolSecurityPropertySet() {
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getComTask()).thenReturn(comTask);
+
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = mock(EncryptionDeviceAccessLevel.class);
+        when(authenticationDeviceAccessLevel.getId()).thenReturn(1);
+        when(encryptionDeviceAccessLevel.getId()).thenReturn(2);
+        ConfigurationSecurityProperty expectedSecurityProperty = mock(ConfigurationSecurityProperty.class);
+        when(expectedSecurityProperty.getName()).thenReturn("Password");
+        com.energyict.mdc.upl.TypedProperties expectedSecurityProperties = com.energyict.mdc.upl.TypedProperties.empty();
+        expectedSecurityProperties.setProperty("Password", "MyPassword");
+
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
+        when(securityPropertySet.getClient()).thenReturn("client");
+        when(securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
+        when(securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
+        when(securityPropertySet.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(expectedSecurityProperty));
+
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
         when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
-        SecurityProperty expectedSecurityProperty = mock(SecurityProperty.class);
-        List<SecurityProperty> expectedSecurityProperties = Collections.singletonList(expectedSecurityProperty);
         Device device = mock(Device.class);
         when(device.getInboundConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -208,9 +224,14 @@ public class ComServerDAOImplInboundTest {
         when(this.communicationTaskService.findComTaskExecutionsByConnectionTask(connectionTask)).thenReturn(comTaskExecutionFinder);
 
         // Business method
-        this.comServerDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, comPort);
+        DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = this.comServerDAO.getDeviceProtocolSecurityPropertySet(deviceIdentifier, comPort);
 
         // Asserts
+        assertThat(deviceProtocolSecurityPropertySet.getClient()).isEqualTo("client");
+        assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(1);
+        assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(2);
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().size()).isEqualTo(1);
+        assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty("Password")).isEqualTo("MyPassword");
         verify(device).getSecurityProperties(securityPropertySet);
     }
 
@@ -264,7 +285,7 @@ public class ComServerDAOImplInboundTest {
     @Test
     public void testGetDeviceConnectionTypeProperties() {
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        when(connectionTask.getTypedProperties()).thenReturn(com.energyict.mdc.common.TypedProperties.empty());
+        when(connectionTask.getTypedProperties()).thenReturn(com.energyict.mdc.upl.TypedProperties.empty());
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         Device device = mock(Device.class);

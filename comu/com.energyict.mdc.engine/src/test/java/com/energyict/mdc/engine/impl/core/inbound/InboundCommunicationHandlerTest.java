@@ -6,10 +6,9 @@ package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;

@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.datavault.KeyStoreService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -62,7 +61,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.io.SerialComponentService;
 import com.energyict.mdc.upl.io.SocketService;
-
 import org.joda.time.DateTimeConstants;
 
 import java.time.Clock;
@@ -1078,8 +1076,6 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
         MeteringService meteringService();
 
         FirmwareService firmwareService();
-
-        KeyStoreService keyStoreService();
 
     }
 

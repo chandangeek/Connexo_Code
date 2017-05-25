@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.upl.security.CertificateAlias;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 
 import java.math.BigDecimal;
@@ -50,18 +49,6 @@ public enum PropertyValueType {
                 }
             }
             return result;
-        }
-    },
-
-    CERTIFICATE_ALIAS {
-        @Override
-        public Class getValueTypeClass() {
-            return CertificateAlias.class;
-        }
-
-        @Override
-        public Object doConvertValue(Object value) throws ClassCastException {
-            throw new ClassCastException("Not possible to convert [" + value + "] from class " + value.getClass() + " into a CertificateAlias.");
         }
     },
 

@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -26,7 +25,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.GenericDeviceProtocol;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -53,9 +51,11 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.time.Clock;
@@ -241,7 +241,7 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     protected CommandRoot prepareAll(final List<ComTaskExecution> comTaskExecutions) {
-        this.getExecutionContext().getComSessionBuilder().setNotExecutedTasks(comTaskExecutions.size());
+        getExecutionContext().getComSessionBuilder().setNotExecutedTasks(comTaskExecutions.size());
         return this.serviceProvider.transactionService().execute(new PrepareAllTransaction(this, comTaskExecutions));
     }
 
@@ -347,6 +347,10 @@ public abstract class JobExecution implements ScheduledJob {
 
     protected ExecutionContext newExecutionContext(ConnectionTask connectionTask, ComPort comPort, boolean logConnectionProperties) {
         return new ExecutionContext(this, connectionTask, comPort, logConnectionProperties, getServiceProvider());
+    }
+
+    protected CommandRoot initCommandRoot(){
+        return new CommandRootImpl(getExecutionContext(), getComCommandServiceProvider());
     }
 
     @Override
@@ -482,8 +486,7 @@ public abstract class JobExecution implements ScheduledJob {
 
         @Override
         public CommandRoot perform() {
-            CommandRoot result = commandRoot != null ? commandRoot : new CommandRootImpl(getExecutionContext(), getComCommandServiceProvider());
-
+            CommandRoot result = commandRoot != null ? commandRoot : initCommandRoot();
             try {
                 ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.topologyService());
 
@@ -515,10 +518,6 @@ public abstract class JobExecution implements ScheduledJob {
                                 groupedDeviceCommand,
                                 commandCreator);
 
-                        //GenericDeviceProtocols can reorganize the commands
-                        if (GenericDeviceProtocol.class.isAssignableFrom(deviceProtocol.getClass())) {
-                            groupedDeviceCommand.setCommandRoot(((GenericDeviceProtocol) deviceProtocol).organizeComCommands(groupedDeviceCommand.getCommandRoot()));
-                        }
                     }
                 }
             } catch (Throwable e) {
@@ -534,7 +533,7 @@ public abstract class JobExecution implements ScheduledJob {
         }
     }
 
-    private class ComCommandServiceProvider implements CommandRoot.ServiceProvider {
+    protected class ComCommandServiceProvider implements CommandRoot.ServiceProvider {
 
         @Override
         public Clock clock() {

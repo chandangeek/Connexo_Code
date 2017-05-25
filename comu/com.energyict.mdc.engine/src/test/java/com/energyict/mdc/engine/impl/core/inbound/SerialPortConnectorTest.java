@@ -550,7 +550,7 @@ public class SerialPortConnectorTest {
 
         @Override
         public TypedProperties getProperties() {
-            return com.energyict.mdc.common.TypedProperties.empty();
+            return com.energyict.mdc.upl.TypedProperties.empty();
         }
 
         @Override

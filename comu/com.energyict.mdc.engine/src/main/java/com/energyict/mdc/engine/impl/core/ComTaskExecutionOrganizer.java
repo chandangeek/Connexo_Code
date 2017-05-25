@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
@@ -12,14 +11,12 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -27,6 +24,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public final class ComTaskExecutionOrganizer {
 
@@ -92,16 +90,39 @@ public final class ComTaskExecutionOrganizer {
     }
 
     private DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(SecurityPropertySet securityPropertySet, Device masterDevice) {
-            /* The actual retrieving of the properties must be done on the given masterDevice */
-        List<SecurityProperty> protocolSecurityProperties = masterDevice.getSecurityProperties(securityPropertySet);
-        TypedProperties securityProperties = TypedProperties.empty();
-        for (SecurityProperty protocolSecurityProperty : protocolSecurityProperties) {
-            securityProperties.setProperty(protocolSecurityProperty.getName(), protocolSecurityProperty.getValue());
-        }
+        Device device  = findMatchingDevice(securityPropertySet, masterDevice);
         return new DeviceProtocolSecurityPropertySetImpl(
+                securityPropertySet.getName(),
+                securityPropertySet.getClient(),
                 securityPropertySet.getAuthenticationDeviceAccessLevel().getId(),
                 securityPropertySet.getEncryptionDeviceAccessLevel().getId(),
-                securityProperties);
+                securityPropertySet.getSecuritySuite() != null ? securityPropertySet.getSecuritySuite().getId() : -1,
+                securityPropertySet.getRequestSecurityLevel() != null ? securityPropertySet.getRequestSecurityLevel().getId() : -1,
+                securityPropertySet.getResponseSecurityLevel() != null ? securityPropertySet.getResponseSecurityLevel().getId() : -1,
+                device.getSecurityProperties(securityPropertySet));
+    }
+
+    private Device findMatchingDevice(SecurityPropertySet securityPropertySet, Device masterDevice) {
+        if (securityPropertySetBelongsToDevice(securityPropertySet, masterDevice)) {
+            return masterDevice;
+        }
+
+        List<Device> logicalSlaveDevices = topologyService.findPhysicalConnectedDevices(masterDevice)
+                .stream()
+                .filter(downstreamDevice -> downstreamDevice.getDeviceType().isLogicalSlave())
+                .collect(Collectors.toList());
+        return logicalSlaveDevices.stream()
+                .filter(device -> securityPropertySetBelongsToDevice(securityPropertySet, device))
+                .findAny()
+                .orElseThrow(() -> new DeviceConfigurationException(
+                        MessageSeeds.FAILED_TO_FETCH_DEVICE_OWNING_SECURITY_PROPERTY_SET,
+                        securityPropertySet.getName()));
+    }
+
+    private boolean securityPropertySetBelongsToDevice(SecurityPropertySet securityPropertySet, Device device) {
+        return device.getDeviceConfiguration().getSecurityPropertySets()
+                .stream()
+                .anyMatch(set -> set.getId() == securityPropertySet.getId());
     }
 
     private Device getMasterDeviceIfAvailable(Device device) {
@@ -174,12 +195,13 @@ public final class ComTaskExecutionOrganizer {
 
     private void makeSureBasicCheckIsInBeginningOfExecutions(Map<DeviceKey, List<ComTaskExecution>> comTaskExecutionGroupsPerDevice) {
         for (List<ComTaskExecution> comTaskExecutions : comTaskExecutionGroupsPerDevice.values()) {
-            Collections.sort(comTaskExecutions, BasicCheckTasks.FIRST);
+            comTaskExecutions.sort(BasicCheckTasks.FIRST);
         }
     }
 
     private Key toKey(Device device, ComTaskExecution comTaskExecution, ComTask comTask) {
-        Optional<ComTaskEnablement> foundComTaskEnablement = device.getDeviceConfiguration().getComTaskEnablementFor(comTask);
+        Optional<ComTaskEnablement> foundComTaskEnablement =
+                comTaskExecution.getDevice().getDeviceConfiguration().getComTaskEnablementFor(comTask);
         SecurityPropertySet securityPropertySet =
                 foundComTaskEnablement
                         .flatMap(cte -> this.getProperSecurityPropertySet(cte, device, comTaskExecution))

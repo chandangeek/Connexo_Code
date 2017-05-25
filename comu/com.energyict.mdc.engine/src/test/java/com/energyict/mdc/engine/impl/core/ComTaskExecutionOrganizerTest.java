@@ -4,20 +4,24 @@
 
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.LoadProfilesTask;
@@ -26,16 +30,19 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.TopologyTask;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -79,28 +86,28 @@ public class ComTaskExecutionOrganizerTest {
     private ComTask createMockedTopologyComTask() {
         ComTask comTask = mock(ComTask.class);
         ProtocolTask basicCheck = mock(TopologyTask.class);
-        when(comTask.getProtocolTasks()).thenReturn(Arrays.asList(basicCheck));
+        when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(basicCheck));
         return comTask;
     }
 
     private ComTask createMockedLoadProfilesComTask() {
         ComTask comTask = mock(ComTask.class);
         ProtocolTask basicCheck = mock(LoadProfilesTask.class);
-        when(comTask.getProtocolTasks()).thenReturn(Arrays.asList(basicCheck));
+        when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(basicCheck));
         return comTask;
     }
 
     private ComTask createMockedLogBooksComTask() {
         ComTask comTask = mock(ComTask.class);
         ProtocolTask basicCheck = mock(LogBooksTask.class);
-        when(comTask.getProtocolTasks()).thenReturn(Arrays.asList(basicCheck));
+        when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(basicCheck));
         return comTask;
     }
 
     private ComTask createMockedRegistersComTask() {
         ComTask comTask = mock(ComTask.class);
         ProtocolTask basicCheck = mock(RegistersTask.class);
-        when(comTask.getProtocolTasks()).thenReturn(Arrays.asList(basicCheck));
+        when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(basicCheck));
         return comTask;
     }
 
@@ -131,10 +138,11 @@ public class ComTaskExecutionOrganizerTest {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(this.comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(this.securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(this.securityPropertySet));
         when(deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(this.comTaskEnablement));
 
         // business exception
-        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(topologyService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
+        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(topologyService).defineComTaskExecutionOrders(Collections.singletonList(comTaskExecution));
 
         // asserts
         assertThat(deviceOrganizedComTaskExecutions).isNotNull();
@@ -162,6 +170,7 @@ public class ComTaskExecutionOrganizerTest {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(this.comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(this.securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(this.securityPropertySet));
         when(deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(this.comTaskEnablement));
 
         // business exception
@@ -199,6 +208,7 @@ public class ComTaskExecutionOrganizerTest {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(this.comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(this.securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(this.securityPropertySet));
         when(deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(this.comTaskEnablement));
         ComTaskExecution comTaskExecution1 = createMockedComTaskExecution(device, createMockedTopologyComTask());
         ComTaskExecution comTaskExecution2 = createMockedComTaskExecution(device, createMockedTopologyComTask());
@@ -264,6 +274,7 @@ public class ComTaskExecutionOrganizerTest {
         when(securityPropertySet1.getAuthenticationDeviceAccessLevel()).thenReturn(this.authenticationDeviceAccessLevel);
         when(securityPropertySet1.getEncryptionDeviceAccessLevel()).thenReturn(this.encryptionDeviceAccessLevel);
         when(comTaskEnablement1.getSecurityPropertySet()).thenReturn(securityPropertySet1);
+        when(device1Configuration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet1));
         when(device1Configuration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(comTaskEnablement1));
         Device device2 = getMockedDevice(false);
         ComTaskEnablement comTaskEnablement2 = mock(ComTaskEnablement.class);
@@ -274,6 +285,7 @@ public class ComTaskExecutionOrganizerTest {
         when(securityPropertySet2.getAuthenticationDeviceAccessLevel()).thenReturn(this.authenticationDeviceAccessLevel);
         when(securityPropertySet2.getEncryptionDeviceAccessLevel()).thenReturn(this.encryptionDeviceAccessLevel);
         when(comTaskEnablement2.getSecurityPropertySet()).thenReturn(securityPropertySet2);
+        when(device2Configuration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet2));
         when(device2Configuration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(comTaskEnablement2));
         ComTaskExecution comTaskExecution1 = createMockedComTaskExecution(device1, createMockedTopologyComTask());
         ComTaskExecution comTaskExecution2 = createMockedComTaskExecution(device2, createMockedTopologyComTask());
@@ -298,8 +310,7 @@ public class ComTaskExecutionOrganizerTest {
                 assertThat(comTaskExecutionConnectionSteps1.isDaisyChainedLogOnRequired()).isFalse();
                 assertThat(comTaskExecutionConnectionSteps1.isDaisyChainedLogOffRequired()).isTrue();
                 assertThat(comTaskExecutionConnectionSteps1.isLogOffRequired()).isFalse();
-            }
-            else {
+            } else {
                 final List<DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps> orderedExecutionDevice2 = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity();
                 assertThat(orderedExecutionDevice2).hasSize(1);
 
@@ -337,6 +348,8 @@ public class ComTaskExecutionOrganizerTest {
         ComTaskExecution comTaskExecution2 = createMockedComTaskExecution(device1, createMockedTopologyComTask());
         ComTaskExecution comTaskExecution3 = createMockedComTaskExecution(device2, createMockedTopologyComTask());
         ComTaskExecution comTaskExecution4 = createMockedComTaskExecution(device2, createMockedTopologyComTask());
+        when(device1Configuration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet1));
+        when(device2Configuration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet2));
         when(device1Configuration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(comTaskEnablement1));
         when(device2Configuration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(comTaskEnablement2));
 
@@ -369,8 +382,7 @@ public class ComTaskExecutionOrganizerTest {
                 assertThat(comTaskExecutionConnectionSteps2.isDaisyChainedLogOnRequired()).isFalse();
                 assertThat(comTaskExecutionConnectionSteps2.isDaisyChainedLogOffRequired()).isTrue();
                 assertThat(comTaskExecutionConnectionSteps2.isLogOffRequired()).isFalse();
-            }
-            else {
+            } else {
                 final List<DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps> orderedExecutionDevice2 = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity();
                 assertThat(orderedExecutionDevice2).hasSize(2);
 
@@ -407,6 +419,7 @@ public class ComTaskExecutionOrganizerTest {
         when(securityPropertySet1.getDeviceConfiguration()).thenReturn(device1Configuration);
         when(securityPropertySet1.getAuthenticationDeviceAccessLevel()).thenReturn(this.authenticationDeviceAccessLevel);
         when(securityPropertySet1.getEncryptionDeviceAccessLevel()).thenReturn(this.encryptionDeviceAccessLevel);
+        when(device1Configuration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet1));
         when(device1Configuration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(comTaskEnablement1));
         Device device2 = getMockedDevice(false);
         ComTaskEnablement comTaskEnablement2 = mock(ComTaskEnablement.class);
@@ -418,6 +431,7 @@ public class ComTaskExecutionOrganizerTest {
         when(securityPropertySet2.getDeviceConfiguration()).thenReturn(device2Configuration);
         when(securityPropertySet2.getAuthenticationDeviceAccessLevel()).thenReturn(this.authenticationDeviceAccessLevel);
         when(securityPropertySet2.getEncryptionDeviceAccessLevel()).thenReturn(this.encryptionDeviceAccessLevel);
+        when(device2Configuration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet2));
         when(device2Configuration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(comTaskEnablement2));
 
         ComTaskExecution comTaskExecution1_d1 = createMockedComTaskExecution(device1, createMockedTopologyComTask());
@@ -479,8 +493,7 @@ public class ComTaskExecutionOrganizerTest {
                 assertThat(comTaskExecutionConnectionSteps4_d1.isDaisyChainedLogOnRequired()).isFalse();
                 assertThat(comTaskExecutionConnectionSteps4_d1.isDaisyChainedLogOffRequired()).isTrue();
                 assertThat(comTaskExecutionConnectionSteps4_d1.isLogOffRequired()).isFalse();
-            }
-            else {
+            } else {
                 final List<DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps> orderedExecutionDevice2 = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity();
                 assertThat(orderedExecutionDevice2).hasSize(4);
 
@@ -561,6 +574,9 @@ public class ComTaskExecutionOrganizerTest {
         ComTaskExecution comTaskExecution1_d3 = createMockedComTaskExecution(device3, createMockedTopologyComTask());
         ComTaskExecution comTaskExecution2_d3 = createMockedComTaskExecution(device3, createMockedTopologyComTask());
         ComTaskExecution comTaskExecution3_d3 = createMockedComTaskExecution(device3, createMockedTopologyComTask());
+        when(device1Configuration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet1));
+        when(device2Configuration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet2));
+        when(device3Configuration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet3));
         when(device1Configuration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(comTaskEnablement1));
         when(device2Configuration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(comTaskEnablement2));
         when(device3Configuration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(comTaskEnablement3));
@@ -606,8 +622,7 @@ public class ComTaskExecutionOrganizerTest {
                 assertThat(comTaskExecutionConnectionSteps3_d1.isDaisyChainedLogOnRequired()).isFalse();
                 assertThat(comTaskExecutionConnectionSteps3_d1.isDaisyChainedLogOffRequired()).isTrue();
                 assertThat(comTaskExecutionConnectionSteps3_d1.isLogOffRequired()).isFalse();
-            }
-            else if (deviceOrganizedComTaskExecution.getDevice().getId() == device2.getId()) {
+            } else if (deviceOrganizedComTaskExecution.getDevice().getId() == device2.getId()) {
                 final List<DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps> orderedExecutionDevice2 = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity();
                 assertThat(orderedExecutionDevice2).hasSize(3);
 
@@ -637,8 +652,7 @@ public class ComTaskExecutionOrganizerTest {
                 assertThat(comTaskExecutionConnectionSteps3_d2.isDaisyChainedLogOnRequired()).isFalse();
                 assertThat(comTaskExecutionConnectionSteps3_d2.isDaisyChainedLogOffRequired()).isTrue();
                 assertThat(comTaskExecutionConnectionSteps3_d2.isLogOffRequired()).isFalse();
-            }
-            else {
+            } else {
                 final List<DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps> orderedExecutionDevice3 = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity();
                 assertThat(orderedExecutionDevice3).hasSize(3);
 
@@ -683,6 +697,7 @@ public class ComTaskExecutionOrganizerTest {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(this.comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(this.securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(this.securityPropertySet));
         when(deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(this.comTaskEnablement));
 
         // business method
@@ -711,6 +726,7 @@ public class ComTaskExecutionOrganizerTest {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(this.comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(this.securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(this.securityPropertySet));
         when(deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(this.comTaskEnablement));
 
         // business method
@@ -739,9 +755,9 @@ public class ComTaskExecutionOrganizerTest {
         ComTaskExecution comTaskExecution2 = createMockedComTaskExecution(device, createMockedRegistersComTask());
         ComTaskExecution comTaskExecution3 = createMockedComTaskExecution(device, createMockedLoadProfilesComTask());
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
-        when(deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.empty());
+        when(deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(masterComTaskEnablement));
         when(masterDeviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(masterComTaskEnablement));
-        when(masterDeviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(this.securityPropertySet));
+        when(masterDeviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(this.securityPropertySet));
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
@@ -768,6 +784,7 @@ public class ComTaskExecutionOrganizerTest {
         when(slaveSecurityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(this.authenticationDeviceAccessLevel);
         when(slaveSecurityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(this.encryptionDeviceAccessLevel);
         when(slaveComTaskEnablement.getSecurityPropertySet()).thenReturn(slaveSecurityPropertySet);
+        when(slaveDeviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(slaveSecurityPropertySet));
         when(slaveDeviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(slaveComTaskEnablement));
         Device master = getMockedDevice(false);
         DeviceConfiguration masterDeviceConfiguration = master.getDeviceConfiguration();
@@ -778,6 +795,7 @@ public class ComTaskExecutionOrganizerTest {
         when(masterSecurityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(this.authenticationDeviceAccessLevel);
         when(masterSecurityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(this.encryptionDeviceAccessLevel);
         when(masterComTaskEnablement.getSecurityPropertySet()).thenReturn(masterSecurityPropertySet);
+        when(masterDeviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(masterSecurityPropertySet));
         when(masterDeviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(masterComTaskEnablement));
         when(this.topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(master));
 
@@ -810,7 +828,7 @@ public class ComTaskExecutionOrganizerTest {
         DeviceConfiguration masterOfMaster1DeviceConfiguration = masterOfMaster1.getDeviceConfiguration();
         when(this.securityPropertySet.getDeviceConfiguration()).thenReturn(masterOfMaster1DeviceConfiguration);
         when(masterOfMaster1DeviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(this.comTaskEnablement));
-        when(masterOfMaster1DeviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(this.securityPropertySet));
+        when(masterOfMaster1DeviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(this.securityPropertySet));
 
         ComTaskExecution comTaskExecution1 = createMockedComTaskExecution(device, createMockedTopologyComTask());
         ComTaskExecution comTaskExecution2 = createMockedComTaskExecution(device, createMockedRegistersComTask());
@@ -836,6 +854,7 @@ public class ComTaskExecutionOrganizerTest {
         when(this.topologyService.getPhysicalGateway(master1)).thenReturn(Optional.of(masterOfMaster1));
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(deviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.of(this.comTaskEnablement));
+        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(this.securityPropertySet));
         DeviceConfiguration master1DeviceConfiguration = master1.getDeviceConfiguration();
         when(master1DeviceConfiguration.getComTaskEnablementFor(any(ComTask.class))).thenReturn(Optional.empty());
         DeviceConfiguration masterOfMaster1DeviceConfiguration = masterOfMaster1.getDeviceConfiguration();
@@ -869,7 +888,7 @@ public class ComTaskExecutionOrganizerTest {
         ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(topologyService);
 
         // business method
-        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = organizer.defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
+        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = organizer.defineComTaskExecutionOrders(Collections.singletonList(comTaskExecution));
 
         // asserts: see expected exception rule
     }
@@ -879,6 +898,7 @@ public class ComTaskExecutionOrganizerTest {
         Device device = getMockedDevice(false);
         ComTaskExecution comTaskExecution = createMockedComTaskExecution(device, createMockedTopologyComTask());
 
+        final String client = "1";
         final int authenticationAccessLevelId = 12;
         final int encryptionAccessLevelId = 65;
 
@@ -889,19 +909,26 @@ public class ComTaskExecutionOrganizerTest {
         final String securityPropValue2 = "securityPropValue2";
         final String securityPropValue3 = "securityPropValue3";
         List<Pair<String, String>> securityPropertyNameValues = createSecurityPropertyNameValueList(securityPropName1, securityPropValue1, securityPropName2, securityPropValue2, securityPropName3, securityPropValue3);
-        final SecurityPropertySet securityPropertySet = createMockedSecurityPropertySet(device, authenticationAccessLevelId, encryptionAccessLevelId, securityPropertyNameValues);
+        final SecurityPropertySet securityPropertySet = createMockedSecurityPropertySet(device, client, authenticationAccessLevelId, encryptionAccessLevelId, securityPropertyNameValues);
+        when(device.getDeviceConfiguration().getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
         when(device.getDeviceConfiguration().getComTaskEnablementFor(comTaskExecution.getComTask())).thenReturn(Optional.of(comTaskEnablement));
+        List<KeyAccessor> keyAccessors = securityPropertySet.getConfigurationSecurityProperties()
+                .stream()
+                .map(property -> ((MyConfigurationSecurityProperty) property).getKeyAccessor())
+                .collect(Collectors.toList());
+        when(device.getKeyAccessors()).thenReturn(keyAccessors);
 
         // business method
-        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(topologyService).defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
+        final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(topologyService).defineComTaskExecutionOrders(Collections.singletonList(comTaskExecution));
 
         // asserts
         final List<DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps> comTasksWithStepsAndSecurity = deviceOrganizedComTaskExecutions.get(0).getComTasksWithStepsAndSecurity();
         final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps comTaskWithSecurityAndConnectionSteps = comTasksWithStepsAndSecurity.get(0);
         final DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = comTaskWithSecurityAndConnectionSteps.getDeviceProtocolSecurityPropertySet();
         assertThat(deviceProtocolSecurityPropertySet).isNotNull();
+        assertThat(deviceProtocolSecurityPropertySet.getClient()).isEqualTo(client);
         assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(encryptionAccessLevelId);
         assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(authenticationAccessLevelId);
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(securityPropName1)).isEqualTo(securityPropValue1);
@@ -915,9 +942,11 @@ public class ComTaskExecutionOrganizerTest {
         ComTaskExecution firstComTaskExecution = createMockedComTaskExecution(device, createMockedTopologyComTask());
         ComTaskExecution secondComTaskExecution = createMockedComTaskExecution(device, createMockedRegistersComTask());
 
+        final String client_1 = "1";
         final int authenticationAccessLevelId_1 = 12;
         final int encryptionAccessLevelId_1 = 65;
 
+        final String client_2 = "2";
         final int authenticationAccessLevelId_2 = 17;
         final int encryptionAccessLevelId_2 = 23;
 
@@ -931,7 +960,7 @@ public class ComTaskExecutionOrganizerTest {
 
         // create first mock of securitySet
         List<Pair<String, String>> firstSecurityPropertyNameValues = createSecurityPropertyNameValueList(securityPropName1, securityPropValue1, securityPropName2, securityPropValue2);
-        final SecurityPropertySet firstSecurityPropertySet = createMockedSecurityPropertySet(device, authenticationAccessLevelId_1, encryptionAccessLevelId_1, firstSecurityPropertyNameValues);
+        final SecurityPropertySet firstSecurityPropertySet = createMockedSecurityPropertySet(device, client_1, authenticationAccessLevelId_1, encryptionAccessLevelId_1, firstSecurityPropertyNameValues);
         ComTaskEnablement firstComTaskEnablement = mock(ComTaskEnablement.class);
         when(firstComTaskEnablement.getSecurityPropertySet()).thenReturn(firstSecurityPropertySet);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
@@ -940,11 +969,23 @@ public class ComTaskExecutionOrganizerTest {
 
         // create second mock of securitySet
         List<Pair<String, String>> secondSecurityPropertyNameValues = createSecurityPropertyNameValueList(securityPropName3, securityPropValue3);
-        final SecurityPropertySet secondSecurityPropertySet = createMockedSecurityPropertySet(device, authenticationAccessLevelId_2, encryptionAccessLevelId_2, secondSecurityPropertyNameValues);
+        final SecurityPropertySet secondSecurityPropertySet = createMockedSecurityPropertySet(device, client_2, authenticationAccessLevelId_2, encryptionAccessLevelId_2, secondSecurityPropertyNameValues);
         ComTaskEnablement secondComTaskEnablement = mock(ComTaskEnablement.class);
         when(secondComTaskEnablement.getSecurityPropertySet()).thenReturn(secondSecurityPropertySet);
         when(secondComTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getComTaskEnablementFor(secondComTaskExecution.getComTask())).thenReturn(Optional.of(secondComTaskEnablement));
+        when(device.getDeviceConfiguration().getSecurityPropertySets()).thenReturn(Arrays.asList(firstSecurityPropertySet, secondSecurityPropertySet));
+
+        List<KeyAccessor> keyAccessors = new ArrayList<>();
+        keyAccessors.addAll(firstSecurityPropertySet.getConfigurationSecurityProperties()
+                .stream()
+                .map(property -> ((MyConfigurationSecurityProperty) property).getKeyAccessor())
+                .collect(Collectors.toList()));
+        keyAccessors.addAll(secondSecurityPropertySet.getConfigurationSecurityProperties()
+                .stream()
+                .map(property -> ((MyConfigurationSecurityProperty) property).getKeyAccessor())
+                .collect(Collectors.toList()));
+        when(device.getKeyAccessors()).thenReturn(keyAccessors);
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = new ComTaskExecutionOrganizer(topologyService).defineComTaskExecutionOrders(Arrays.asList(firstComTaskExecution, secondComTaskExecution));
@@ -955,6 +996,7 @@ public class ComTaskExecutionOrganizerTest {
         assertThat(deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity()).hasSize(2);
         final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps first = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().get(0);
         assertThat(first.getComTaskExecution()).isEqualTo(firstComTaskExecution);
+        assertThat(first.getDeviceProtocolSecurityPropertySet().getClient()).isEqualTo(client_1);
         assertThat(first.getDeviceProtocolSecurityPropertySet().getAuthenticationDeviceAccessLevel()).isEqualTo(authenticationAccessLevelId_1);
         assertThat(first.getDeviceProtocolSecurityPropertySet().getEncryptionDeviceAccessLevel()).isEqualTo(encryptionAccessLevelId_1);
         assertThat(first.getDeviceProtocolSecurityPropertySet().getSecurityProperties().getProperty(securityPropName1)).isEqualTo(securityPropValue1);
@@ -962,6 +1004,7 @@ public class ComTaskExecutionOrganizerTest {
 
         final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps second = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().get(1);
         assertThat(second.getComTaskExecution()).isEqualTo(secondComTaskExecution);
+        assertThat(second.getDeviceProtocolSecurityPropertySet().getClient()).isEqualTo(client_2);
         assertThat(second.getDeviceProtocolSecurityPropertySet().getAuthenticationDeviceAccessLevel()).isEqualTo(authenticationAccessLevelId_2);
         assertThat(second.getDeviceProtocolSecurityPropertySet().getEncryptionDeviceAccessLevel()).isEqualTo(encryptionAccessLevelId_2);
         assertThat(second.getDeviceProtocolSecurityPropertySet().getSecurityProperties().getProperty(securityPropName3)).isEqualTo(securityPropValue3);
@@ -970,6 +1013,8 @@ public class ComTaskExecutionOrganizerTest {
     @Test
     public void twoDevicesEachTwoSecuritySetsEachSetTwoComTasksTest() {
         /* we will use the same id's for both devices */
+        final String client_1 = "1";
+        final String client_2 = "2";
         final int authenticationId_1 = 12;
         final int encryptionId_1 = 65;
         final int authenticationId_2 = 17;
@@ -985,7 +1030,7 @@ public class ComTaskExecutionOrganizerTest {
         ComTaskExecution fourthCTD_1 = createMockedComTaskExecution(firstDevice, createMockedLogBooksComTask());
 
         // create mock of first securitySet of first device
-        final SecurityPropertySet firstSecurityPropertySet_D1 = createMockedSecurityPropertySet(firstDevice, authenticationId_1, encryptionId_1, securityPropertyNameValueList);
+        final SecurityPropertySet firstSecurityPropertySet_D1 = createMockedSecurityPropertySet(firstDevice, client_1, authenticationId_1, encryptionId_1, securityPropertyNameValueList);
         ComTaskEnablement firstComTaskEnablement_D1 = mock(ComTaskEnablement.class);
         when(firstComTaskEnablement_D1.getSecurityPropertySet()).thenReturn(firstSecurityPropertySet_D1);
 
@@ -993,12 +1038,13 @@ public class ComTaskExecutionOrganizerTest {
         when(firstDevice.getDeviceConfiguration().getComTaskEnablementFor(secondCTD_1.getComTask())).thenReturn(Optional.of(firstComTaskEnablement_D1));
 
         // create mock of second securitySet of first device
-        final SecurityPropertySet secondSecurityPropertySet_D1 = createMockedSecurityPropertySet(firstDevice, authenticationId_2, encryptionId_2, securityPropertyNameValueList);
+        final SecurityPropertySet secondSecurityPropertySet_D1 = createMockedSecurityPropertySet(firstDevice, client_2, authenticationId_2, encryptionId_2, securityPropertyNameValueList);
         ComTaskEnablement secondComTaskEnablement_D1 = mock(ComTaskEnablement.class);
         when(secondComTaskEnablement_D1.getSecurityPropertySet()).thenReturn(secondSecurityPropertySet_D1);
 
         when(firstDevice.getDeviceConfiguration().getComTaskEnablementFor(thirdCTD_1.getComTask())).thenReturn(Optional.of(secondComTaskEnablement_D1));
         when(firstDevice.getDeviceConfiguration().getComTaskEnablementFor(fourthCTD_1.getComTask())).thenReturn(Optional.of(secondComTaskEnablement_D1));
+        when(firstDevice.getDeviceConfiguration().getSecurityPropertySets()).thenReturn(Arrays.asList(firstSecurityPropertySet_D1, secondSecurityPropertySet_D1));
 
         Device secondDevice = getMockedDevice(false);
         final ComTaskExecution firstCTD_2 = createMockedComTaskExecution(secondDevice, createMockedLoadProfilesComTask());
@@ -1007,7 +1053,7 @@ public class ComTaskExecutionOrganizerTest {
         final ComTaskExecution fourthCTD_2 = createMockedComTaskExecution(secondDevice, createMockedRegistersComTask());
 
         // create mock of first securitySet of second device
-        final SecurityPropertySet firstSecurityPropertySet_D2 = createMockedSecurityPropertySet(secondDevice, authenticationId_1, encryptionId_1, securityPropertyNameValueList);
+        final SecurityPropertySet firstSecurityPropertySet_D2 = createMockedSecurityPropertySet(secondDevice, client_1, authenticationId_1, encryptionId_1, securityPropertyNameValueList);
         ComTaskEnablement firstComTaskEnablement_D2 = mock(ComTaskEnablement.class);
         when(firstComTaskEnablement_D2.getSecurityPropertySet()).thenReturn(firstSecurityPropertySet_D2);
 
@@ -1015,12 +1061,13 @@ public class ComTaskExecutionOrganizerTest {
         when(secondDevice.getDeviceConfiguration().getComTaskEnablementFor(secondCTD_2.getComTask())).thenReturn(Optional.of(firstComTaskEnablement_D2));
 
         // create mock of second securitySet of first device
-        final SecurityPropertySet secondSecurityPropertySet_D2 = createMockedSecurityPropertySet(secondDevice, authenticationId_2, encryptionId_2, securityPropertyNameValueList);
+        final SecurityPropertySet secondSecurityPropertySet_D2 = createMockedSecurityPropertySet(secondDevice, client_2, authenticationId_2, encryptionId_2, securityPropertyNameValueList);
         ComTaskEnablement secondComTaskEnablement_D2 = mock(ComTaskEnablement.class);
         when(secondComTaskEnablement_D2.getSecurityPropertySet()).thenReturn(secondSecurityPropertySet_D2);
 
         when(secondDevice.getDeviceConfiguration().getComTaskEnablementFor(thirdCTD_2.getComTask())).thenReturn(Optional.of(secondComTaskEnablement_D2));
         when(secondDevice.getDeviceConfiguration().getComTaskEnablementFor(fourthCTD_2.getComTask())).thenReturn(Optional.of(secondComTaskEnablement_D2));
+        when(secondDevice.getDeviceConfiguration().getSecurityPropertySets()).thenReturn(Arrays.asList(firstSecurityPropertySet_D2, secondSecurityPropertySet_D2));
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
@@ -1035,39 +1082,46 @@ public class ComTaskExecutionOrganizerTest {
                 assertThat(comTasksWithStepsAndSecurity1).isNotEmpty();
                 final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps firstCTWSAS_d1 = comTasksWithStepsAndSecurity1.get(0);
                 assertThat(firstCTWSAS_d1.getComTaskExecution()).isEqualTo(firstCTD_1);
+                assertThat(firstCTWSAS_d1.getDeviceProtocolSecurityPropertySet().getClient()).isEqualTo(client_1);
                 assertThat(firstCTWSAS_d1.getDeviceProtocolSecurityPropertySet().getAuthenticationDeviceAccessLevel()).isEqualTo(authenticationId_1);
                 assertThat(firstCTWSAS_d1.getDeviceProtocolSecurityPropertySet().getEncryptionDeviceAccessLevel()).isEqualTo(encryptionId_1);
                 final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps secondCTWSAS_d1 = comTasksWithStepsAndSecurity1.get(1);
                 assertThat(secondCTWSAS_d1.getComTaskExecution()).isEqualTo(secondCTD_1);
+                assertThat(secondCTWSAS_d1.getDeviceProtocolSecurityPropertySet().getClient()).isEqualTo(client_1);
                 assertThat(secondCTWSAS_d1.getDeviceProtocolSecurityPropertySet().getAuthenticationDeviceAccessLevel()).isEqualTo(authenticationId_1);
                 assertThat(secondCTWSAS_d1.getDeviceProtocolSecurityPropertySet().getEncryptionDeviceAccessLevel()).isEqualTo(encryptionId_1);
                 final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps thirdCTWSAS_d1 = comTasksWithStepsAndSecurity1.get(2);
                 assertThat(thirdCTWSAS_d1.getComTaskExecution()).isEqualTo(thirdCTD_1);
+                assertThat(thirdCTWSAS_d1.getDeviceProtocolSecurityPropertySet().getClient()).isEqualTo(client_2);
                 assertThat(thirdCTWSAS_d1.getDeviceProtocolSecurityPropertySet().getAuthenticationDeviceAccessLevel()).isEqualTo(authenticationId_2);
                 assertThat(thirdCTWSAS_d1.getDeviceProtocolSecurityPropertySet().getEncryptionDeviceAccessLevel()).isEqualTo(encryptionId_2);
                 final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps fourthCTWSAS_d1 = comTasksWithStepsAndSecurity1.get(3);
                 assertThat(fourthCTWSAS_d1.getComTaskExecution()).isEqualTo(fourthCTD_1);
+                assertThat(fourthCTWSAS_d1.getDeviceProtocolSecurityPropertySet().getClient()).isEqualTo(client_2);
                 assertThat(fourthCTWSAS_d1.getDeviceProtocolSecurityPropertySet().getAuthenticationDeviceAccessLevel()).isEqualTo(authenticationId_2);
                 assertThat(fourthCTWSAS_d1.getDeviceProtocolSecurityPropertySet().getEncryptionDeviceAccessLevel()).isEqualTo(encryptionId_2);
-            }
-            else {
+            } else {
                 assertThat(deviceOrganizedComTaskExecution.getComTaskExecutions()).containsOnly(firstCTD_2, secondCTD_2, thirdCTD_2, fourthCTD_2);
                 final List<DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps> comTasksWithStepsAndSecurity2 = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity();
                 assertThat(comTasksWithStepsAndSecurity2).isNotEmpty();
                 final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps firstCTWSAS_d2 = comTasksWithStepsAndSecurity2.get(0);
                 assertThat(firstCTWSAS_d2.getComTaskExecution()).isEqualTo(firstCTD_2);
+                assertThat(firstCTWSAS_d2.getDeviceProtocolSecurityPropertySet().getClient()).isEqualTo(client_1);
                 assertThat(firstCTWSAS_d2.getDeviceProtocolSecurityPropertySet().getAuthenticationDeviceAccessLevel()).isEqualTo(authenticationId_1);
                 assertThat(firstCTWSAS_d2.getDeviceProtocolSecurityPropertySet().getEncryptionDeviceAccessLevel()).isEqualTo(encryptionId_1);
                 final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps secondCTWSAS_d2 = comTasksWithStepsAndSecurity2.get(1);
                 assertThat(secondCTWSAS_d2.getComTaskExecution()).isEqualTo(secondCTD_2);
+                assertThat(secondCTWSAS_d2.getDeviceProtocolSecurityPropertySet().getClient()).isEqualTo(client_1);
                 assertThat(secondCTWSAS_d2.getDeviceProtocolSecurityPropertySet().getAuthenticationDeviceAccessLevel()).isEqualTo(authenticationId_1);
                 assertThat(secondCTWSAS_d2.getDeviceProtocolSecurityPropertySet().getEncryptionDeviceAccessLevel()).isEqualTo(encryptionId_1);
                 final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps thirdCTWSAS_d2 = comTasksWithStepsAndSecurity2.get(2);
                 assertThat(thirdCTWSAS_d2.getComTaskExecution()).isEqualTo(thirdCTD_2);
+                assertThat(thirdCTWSAS_d2.getDeviceProtocolSecurityPropertySet().getClient()).isEqualTo(client_2);
                 assertThat(thirdCTWSAS_d2.getDeviceProtocolSecurityPropertySet().getAuthenticationDeviceAccessLevel()).isEqualTo(authenticationId_2);
                 assertThat(thirdCTWSAS_d2.getDeviceProtocolSecurityPropertySet().getEncryptionDeviceAccessLevel()).isEqualTo(encryptionId_2);
                 final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps fourthCTWSAS_d2 = comTasksWithStepsAndSecurity2.get(3);
                 assertThat(fourthCTWSAS_d2.getComTaskExecution()).isEqualTo(fourthCTD_2);
+                assertThat(fourthCTWSAS_d2.getDeviceProtocolSecurityPropertySet().getClient()).isEqualTo(client_2);
                 assertThat(fourthCTWSAS_d2.getDeviceProtocolSecurityPropertySet().getAuthenticationDeviceAccessLevel()).isEqualTo(authenticationId_2);
                 assertThat(fourthCTWSAS_d2.getDeviceProtocolSecurityPropertySet().getEncryptionDeviceAccessLevel()).isEqualTo(encryptionId_2);
             }
@@ -1077,6 +1131,8 @@ public class ComTaskExecutionOrganizerTest {
     @Test
     public void twoDevicesMultipleSecuritySetsMultipleComTasksConnectionStepsTest() {
         /* we will use the same id's for both devices */
+        final String client_1 = "1";
+        final String client_2 = "2";
         final int authenticationId_1 = 12;
         final int encryptionId_1 = 65;
         final int authenticationId_2 = 17;
@@ -1093,7 +1149,7 @@ public class ComTaskExecutionOrganizerTest {
         ComTaskExecution fifthCTD_1 = createMockedComTaskExecution(firstDevice, createMockedLogBooksComTask());
 
         // create mock of first securitySet of first device
-        final SecurityPropertySet firstSecurityPropertySet_D1 = createMockedSecurityPropertySet(firstDevice, authenticationId_1, encryptionId_1, securityPropertyNameValueList);
+        final SecurityPropertySet firstSecurityPropertySet_D1 = createMockedSecurityPropertySet(firstDevice, client_1, authenticationId_1, encryptionId_1, securityPropertyNameValueList);
         ComTaskEnablement firstComTaskEnablement_D1 = mock(ComTaskEnablement.class);
         when(firstComTaskEnablement_D1.getSecurityPropertySet()).thenReturn(firstSecurityPropertySet_D1);
 
@@ -1102,12 +1158,13 @@ public class ComTaskExecutionOrganizerTest {
         when(firstDevice.getDeviceConfiguration().getComTaskEnablementFor(fifthCTD_1.getComTask())).thenReturn(Optional.of(firstComTaskEnablement_D1));
 
         // create mock of second securitySet of first device
-        final SecurityPropertySet secondSecurityPropertySet_D1 = createMockedSecurityPropertySet(firstDevice, authenticationId_2, encryptionId_2, securityPropertyNameValueList);
+        final SecurityPropertySet secondSecurityPropertySet_D1 = createMockedSecurityPropertySet(firstDevice, client_2, authenticationId_2, encryptionId_2, securityPropertyNameValueList);
         ComTaskEnablement secondComTaskEnablement_D1 = mock(ComTaskEnablement.class);
         when(secondComTaskEnablement_D1.getSecurityPropertySet()).thenReturn(secondSecurityPropertySet_D1);
 
         when(firstDevice.getDeviceConfiguration().getComTaskEnablementFor(thirdCTD_1.getComTask())).thenReturn(Optional.of(secondComTaskEnablement_D1));
         when(firstDevice.getDeviceConfiguration().getComTaskEnablementFor(fourthCTD_1.getComTask())).thenReturn(Optional.of(secondComTaskEnablement_D1));
+        when(firstDevice.getDeviceConfiguration().getSecurityPropertySets()).thenReturn(Arrays.asList(firstSecurityPropertySet_D1, secondSecurityPropertySet_D1));
 
         Device secondDevice = getMockedDevice(false);
         final ComTaskExecution firstCTD_2 = createMockedComTaskExecution(secondDevice, createMockedLoadProfilesComTask());
@@ -1116,7 +1173,7 @@ public class ComTaskExecutionOrganizerTest {
         final ComTaskExecution fourthCTD_2 = createMockedComTaskExecution(secondDevice, createMockedRegistersComTask());
 
         // create mock of first securitySet of second device
-        final SecurityPropertySet firstSecurityPropertySet_D2 = createMockedSecurityPropertySet(secondDevice, authenticationId_1, encryptionId_1, securityPropertyNameValueList);
+        final SecurityPropertySet firstSecurityPropertySet_D2 = createMockedSecurityPropertySet(secondDevice, client_1, authenticationId_1, encryptionId_1, securityPropertyNameValueList);
         ComTaskEnablement firstComTaskEnablement_D2 = mock(ComTaskEnablement.class);
         when(firstComTaskEnablement_D2.getSecurityPropertySet()).thenReturn(firstSecurityPropertySet_D2);
 
@@ -1124,12 +1181,13 @@ public class ComTaskExecutionOrganizerTest {
         when(secondDevice.getDeviceConfiguration().getComTaskEnablementFor(secondCTD_2.getComTask())).thenReturn(Optional.of(firstComTaskEnablement_D2));
 
         // create mock of second securitySet of first device
-        final SecurityPropertySet secondSecurityPropertySet_D2 = createMockedSecurityPropertySet(secondDevice, authenticationId_2, encryptionId_2, securityPropertyNameValueList);
+        final SecurityPropertySet secondSecurityPropertySet_D2 = createMockedSecurityPropertySet(secondDevice, client_2, authenticationId_2, encryptionId_2, securityPropertyNameValueList);
         ComTaskEnablement secondComTaskEnablement_D2 = mock(ComTaskEnablement.class);
         when(secondComTaskEnablement_D2.getSecurityPropertySet()).thenReturn(secondSecurityPropertySet_D2);
 
         when(secondDevice.getDeviceConfiguration().getComTaskEnablementFor(thirdCTD_2.getComTask())).thenReturn(Optional.of(secondComTaskEnablement_D2));
         when(secondDevice.getDeviceConfiguration().getComTaskEnablementFor(fourthCTD_2.getComTask())).thenReturn(Optional.of(secondComTaskEnablement_D2));
+        when(secondDevice.getDeviceConfiguration().getSecurityPropertySets()).thenReturn(Arrays.asList(firstSecurityPropertySet_D2, secondSecurityPropertySet_D2));
 
         // business method
         final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions =
@@ -1177,8 +1235,7 @@ public class ComTaskExecutionOrganizerTest {
                 assertThat(connectionSteps_D1_5.isDaisyChainedLogOnRequired()).isFalse();
                 assertThat(connectionSteps_D1_5.isDaisyChainedLogOffRequired()).isTrue();
                 assertThat(connectionSteps_D1_5.isLogOffRequired()).isFalse();
-            }
-            else {
+            } else {
                 final List<DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps> orderedExecutionDevice2 = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity();
                 assertThat(orderedExecutionDevice2).hasSize(4);
 
@@ -1221,6 +1278,9 @@ public class ComTaskExecutionOrganizerTest {
         ComTaskExecution thirdComTaskExecution = createMockedComTaskExecution(device, createMockedLoadProfilesComTask());
         ComTaskExecution fourthComTaskExecution = createMockedComTaskExecution(device, createMockedTaskWithBasicCheckInMiddleOfProtocolTasks());
 
+        final String client_1 = "1";
+        final String client_2 = "2";
+
         final int authenticationAccessLevelId_1 = 12;
         final int encryptionAccessLevelId_1 = 65;
 
@@ -1230,16 +1290,17 @@ public class ComTaskExecutionOrganizerTest {
         /* We will reuse the nameValue pairs */
         List<Pair<String, String>> securityPropertyNameValueList = createSecurityPropertyNameValueList();
         // create first mock of securitySet
-        final SecurityPropertySet firstSecurityPropertySet = createMockedSecurityPropertySet(device, authenticationAccessLevelId_1, encryptionAccessLevelId_1, securityPropertyNameValueList);
+        final SecurityPropertySet firstSecurityPropertySet = createMockedSecurityPropertySet(device, client_1, authenticationAccessLevelId_1, encryptionAccessLevelId_1, securityPropertyNameValueList);
         ComTaskEnablement firstComTaskEnablement = mock(ComTaskEnablement.class);
         when(firstComTaskEnablement.getSecurityPropertySet()).thenReturn(firstSecurityPropertySet);
         when(device.getDeviceConfiguration().getComTaskEnablementFor(firstComTaskExecution.getComTask())).thenReturn(Optional.of(firstComTaskEnablement));
 
         // create second mock of securitySet
-        final SecurityPropertySet secondSecurityPropertySet = createMockedSecurityPropertySet(device, authenticationAccessLevelId_2, encryptionAccessLevelId_2, securityPropertyNameValueList);
+        final SecurityPropertySet secondSecurityPropertySet = createMockedSecurityPropertySet(device, client_2, authenticationAccessLevelId_2, encryptionAccessLevelId_2, securityPropertyNameValueList);
         ComTaskEnablement secondComTaskEnablement = mock(ComTaskEnablement.class);
         when(secondComTaskEnablement.getSecurityPropertySet()).thenReturn(secondSecurityPropertySet);
         when(device.getDeviceConfiguration().getComTaskEnablementFor(secondComTaskExecution.getComTask())).thenReturn(Optional.of(secondComTaskEnablement));
+        when(device.getDeviceConfiguration().getSecurityPropertySets()).thenReturn(Arrays.asList(firstSecurityPropertySet, secondSecurityPropertySet));
 
         // create third mock of securitySet -> reusing the firstSecurityPropertySet as it should be the same
         ComTaskEnablement thirdComTaskEnablement = mock(ComTaskEnablement.class);
@@ -1262,21 +1323,25 @@ public class ComTaskExecutionOrganizerTest {
         final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps first = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().get(0);
         // the basicCheck comTask should be the first
         assertThat(first.getComTaskExecution()).isEqualTo(fourthComTaskExecution);
+        assertThat(first.getDeviceProtocolSecurityPropertySet().getClient()).isEqualTo(client_2);
         assertThat(first.getDeviceProtocolSecurityPropertySet().getAuthenticationDeviceAccessLevel()).isEqualTo(authenticationAccessLevelId_2);
         assertThat(first.getDeviceProtocolSecurityPropertySet().getEncryptionDeviceAccessLevel()).isEqualTo(encryptionAccessLevelId_2);
 
         final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps second = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().get(1);
         assertThat(second.getComTaskExecution()).isEqualTo(secondComTaskExecution);
+        assertThat(second.getDeviceProtocolSecurityPropertySet().getClient()).isEqualTo(client_2);
         assertThat(second.getDeviceProtocolSecurityPropertySet().getAuthenticationDeviceAccessLevel()).isEqualTo(authenticationAccessLevelId_2);
         assertThat(second.getDeviceProtocolSecurityPropertySet().getEncryptionDeviceAccessLevel()).isEqualTo(encryptionAccessLevelId_2);
 
         final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps third = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().get(2);
         assertThat(third.getComTaskExecution()).isEqualTo(firstComTaskExecution);
+        assertThat(third.getDeviceProtocolSecurityPropertySet().getClient()).isEqualTo(client_1);
         assertThat(third.getDeviceProtocolSecurityPropertySet().getAuthenticationDeviceAccessLevel()).isEqualTo(authenticationAccessLevelId_1);
         assertThat(third.getDeviceProtocolSecurityPropertySet().getEncryptionDeviceAccessLevel()).isEqualTo(encryptionAccessLevelId_1);
 
         final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps fourth = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().get(3);
         assertThat(fourth.getComTaskExecution()).isEqualTo(thirdComTaskExecution);
+        assertThat(fourth.getDeviceProtocolSecurityPropertySet().getClient()).isEqualTo(client_1);
         assertThat(fourth.getDeviceProtocolSecurityPropertySet().getAuthenticationDeviceAccessLevel()).isEqualTo(authenticationAccessLevelId_1);
         assertThat(fourth.getDeviceProtocolSecurityPropertySet().getEncryptionDeviceAccessLevel()).isEqualTo(encryptionAccessLevelId_1);
     }
@@ -1294,13 +1359,16 @@ public class ComTaskExecutionOrganizerTest {
         return pairList;
     }
 
-    private SecurityPropertySet createMockedSecurityPropertySet(final Device device, final int authenticationAccessLevelId, final int encryptionAccessLevelId,
+    private SecurityPropertySet createMockedSecurityPropertySet(final Device device, final String client, final int authenticationAccessLevelId, final int encryptionAccessLevelId,
                                                                 List<Pair<String, String>> securityPropertiesNameValues) {
         SecurityPropertySet securityPropertySet = this.mockSecurityPropertySet();
-        List<SecurityProperty> securityProperties = new ArrayList<>();
+        TypedProperties securityPropertiesAsTypedProperties = TypedProperties.empty();
+        List<ConfigurationSecurityProperty> configurationSecurityProperties = new ArrayList<>();
         for (Pair<String, String> securityPropertiesNameValue : securityPropertiesNameValues) {
-            securityProperties.add(createMockedSecurityProperty(securityPropertiesNameValue.getFirst(), securityPropertiesNameValue.getLast()));
+            configurationSecurityProperties.add(createMockedConfigurationSecurityProperty(securityPropertiesNameValue.getFirst(), securityPropertiesNameValue.getLast()));
+            securityPropertiesAsTypedProperties.setProperty(securityPropertiesNameValue.getFirst(), securityPropertiesNameValue.getLast());
         }
+        when(securityPropertySet.getClient()).thenReturn(client);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         when(authenticationDeviceAccessLevel.getId()).thenReturn(authenticationAccessLevelId);
         when(securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
@@ -1309,7 +1377,8 @@ public class ComTaskExecutionOrganizerTest {
         when(securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(device.getSecurityProperties(securityPropertySet)).thenReturn(securityProperties);
+        when(securityPropertySet.getConfigurationSecurityProperties()).thenReturn(configurationSecurityProperties);
+        when(device.getSecurityProperties(securityPropertySet)).thenReturn(securityPropertiesAsTypedProperties);
         return securityPropertySet;
     }
 
@@ -1327,11 +1396,27 @@ public class ComTaskExecutionOrganizerTest {
         return securityPropertySet;
     }
 
-    private SecurityProperty createMockedSecurityProperty(String name, Object value) {
-        SecurityProperty securityProperty = mock(SecurityProperty.class);
-        when(securityProperty.getName()).thenReturn(name);
-        when(securityProperty.getValue()).thenReturn(value);
-        return securityProperty;
+    private MyConfigurationSecurityProperty createMockedConfigurationSecurityProperty(String name, String passPhrase) {
+        MyConfigurationSecurityProperty configurationSecurityProperty = mock(MyConfigurationSecurityProperty.class);
+        when(configurationSecurityProperty.getName()).thenReturn(name);
+        KeyAccessor keyAccessor = getPassPhraseKeyAccessor(name, passPhrase);
+        when(configurationSecurityProperty.getKeyAccessor()).thenReturn(keyAccessor);
+        KeyAccessorType keyAccessorType = keyAccessor.getKeyAccessorType();
+        when(configurationSecurityProperty.getKeyAccessorType()).thenReturn(keyAccessorType);
+        return configurationSecurityProperty;
+    }
+
+    private KeyAccessor getPassPhraseKeyAccessor(String keyAccessorTypeName, String passPhrase) {
+        PlaintextPassphrase plaintextPassphrase = mock(PlaintextPassphrase.class);
+        when(plaintextPassphrase.getPassphrase()).thenReturn(Optional.of(passPhrase));
+
+        KeyAccessor keyAccessor = mock(KeyAccessor.class);
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getName()).thenReturn(keyAccessorTypeName);
+        when(keyAccessor.getKeyAccessorType()).thenReturn(keyAccessorType);
+        when(keyAccessor.getDevice()).thenReturn(mock(Device.class));
+        when(keyAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
+        return keyAccessor;
     }
 
     private ComTask createMockedTaskWithBasicCheckInMiddleOfProtocolTasks() {
@@ -1344,4 +1429,9 @@ public class ComTaskExecutionOrganizerTest {
         return comTask;
     }
 
+    private interface MyConfigurationSecurityProperty extends ConfigurationSecurityProperty {
+
+        KeyAccessor getKeyAccessor();
+
+    }
 }

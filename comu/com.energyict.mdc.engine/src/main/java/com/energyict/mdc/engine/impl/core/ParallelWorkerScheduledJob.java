@@ -7,9 +7,11 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
 public class ParallelWorkerScheduledJob extends ScheduledComTaskExecutionGroup implements Runnable {
@@ -18,6 +20,7 @@ public class ParallelWorkerScheduledJob extends ScheduledComTaskExecutionGroup i
     private final CountDownLatch start;
     private final ThreadPrincipalService threadPrincipalService;
     private final User comServerUser;
+    private Optional<Long> threadId = Optional.empty();
 
     private Boolean connectionEstablished = null;
 
@@ -34,9 +37,14 @@ public class ParallelWorkerScheduledJob extends ScheduledComTaskExecutionGroup i
         this.execute();
     }
 
+    public long getThreadId(){
+        return threadId.get();
+    }
+
     @Override
     public void execute() {
-        Thread.currentThread().setName("ComPort schedule worker for " + getComPort().getName());
+        threadId = Optional.of(Thread.currentThread().getId());
+        Thread.currentThread().setName("ComPort schedule worker for " + getComPort().getName() + "/"+threadId.get());
         this.setThreadPrinciple();
 
         /*
@@ -44,11 +52,9 @@ public class ParallelWorkerScheduledJob extends ScheduledComTaskExecutionGroup i
         2/ loop and execute until you don't get anything anymore
         3/ store stuff if required
         * */
-
         try {
             this.start.await(); // wait until the parallelRoot has finished populating the queue
-
-            GroupedDeviceCommand groupedDeviceCommand = parallelRootScheduledJob.next();
+            GroupedDeviceCommand groupedDeviceCommand = parallelRootScheduledJob.next(this.parallelRootScheduledJob.workerStarted(threadId.get()));
             while (groupedDeviceCommand != null) {
                 boolean success = false;
                 try {
@@ -58,7 +64,7 @@ public class ParallelWorkerScheduledJob extends ScheduledComTaskExecutionGroup i
                     success = true;
                 } finally {
                     if (success) {
-                        groupedDeviceCommand = parallelRootScheduledJob.next();
+                        groupedDeviceCommand = parallelRootScheduledJob.next(threadId.get());
                         if (groupedDeviceCommand != null) {
                             parallelRootScheduledJob.completedASingleJob(); // do a countdown
                         } // else the countdown will happen the executionContext is delivered

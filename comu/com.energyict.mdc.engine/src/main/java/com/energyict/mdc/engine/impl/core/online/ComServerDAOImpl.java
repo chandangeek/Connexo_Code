@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.engine.impl.core.online;
 
-import com.elster.jupiter.datavault.KeyStoreService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
@@ -17,7 +16,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.Fetcher;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -34,6 +33,7 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.RegisterService;
+import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -57,7 +57,6 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.impl.DLMSKeyStoreUserFile;
 import com.energyict.mdc.engine.impl.PropertyValueType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
@@ -70,19 +69,19 @@ import com.energyict.mdc.engine.impl.commands.offline.OfflineRegisterImpl;
 import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComJobFactory;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.engine.impl.core.MultiThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
@@ -102,12 +101,13 @@ import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.offline.OfflineLogBook;
 import com.energyict.mdc.upl.offline.OfflineRegister;
-import com.energyict.mdc.upl.security.CertificateAlias;
+import com.energyict.mdc.upl.security.CertificateWrapper;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
-import java.security.cert.CertificateException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -151,10 +151,6 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private DeviceService getDeviceService() {
         return this.serviceProvider.deviceService();
-    }
-
-    private KeyStoreService getKeyStoreService() {
-        return this.serviceProvider.keyStoreService();
     }
 
     private CommunicationTaskService getCommunicationTaskService() {
@@ -304,7 +300,46 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<ConnectionTaskProperty> findProperties(final ConnectionTask connectionTask) {
-        return this.serviceProvider.transactionService().execute(connectionTask::getProperties);
+        List<ConnectionTaskProperty> connectionTaskProperties = this.serviceProvider.transactionService().execute(connectionTask::getProperties);
+        return adaptToUPLValues(connectionTaskProperties);
+    }
+
+    private List<ConnectionTaskProperty> adaptToUPLValues(List<ConnectionTaskProperty> connectionTaskProperties) {
+        return connectionTaskProperties.stream().map(this::newConnectionTaskProperty).collect(Collectors.toList());
+    }
+
+    private ConnectionTaskProperty newConnectionTaskProperty(ConnectionTaskProperty property) {
+        return new ConnectionTaskProperty() {
+            @Override
+            public PluggableClass getPluggableClass() {
+                return property.getConnectionTask().getPluggableClass();
+            }
+
+            @Override
+            public String getName() {
+                return property.getName();
+            }
+
+            @Override
+            public Object getValue() {
+                return TypedPropertiesValueAdapter.adaptToUPLValue(property.getConnectionTask().getDevice(), property.getValue());
+            }
+
+            @Override
+            public boolean isInherited() {
+                return property.isInherited();
+            }
+
+            @Override
+            public Range<Instant> getActivePeriod() {
+                return property.getActivePeriod();
+            }
+
+            @Override
+            public ConnectionTask getConnectionTask() {
+                return property.getConnectionTask();
+            }
+        };
     }
 
     @Override
@@ -328,76 +363,85 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier, OfflineDeviceContext offlineDeviceContext) {
         Optional<Device> device = getDeviceFor(identifier);
-        if (device.isPresent()) {
-            return Optional.of(new OfflineDeviceImpl(device.get(), offlineDeviceContext, new OfflineDeviceServiceProvider()));
-        } else {
-            return Optional.empty();
-        }
+        return device.map(device1 -> new OfflineDeviceImpl(device1, offlineDeviceContext, new OfflineDeviceServiceProvider()));
     }
 
     @Override
     public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier, Instant when) {
-        Register register = this.findRegister(identifier);
-        return Optional.of(new OfflineRegisterImpl(this.getStorageRegister(register, when), this.serviceProvider.identificationService()));
+        Optional<Register> register = this.findRegister(identifier);
+        return register.map(register1 -> new OfflineRegisterImpl(this.getStorageRegister(register1, when), this.serviceProvider.identificationService()));
     }
 
-    private Register findRegister(RegisterIdentifier identifier) {
+    private Optional<Register> findRegister(RegisterIdentifier identifier) {
         return this.serviceProvider
                 .registerService()
-                .find(identifier)
-                .orElseThrow(() -> new IllegalArgumentException("Register with identifier " + identifier.toString() + " does not exist"));
+                .find(identifier);
     }
 
     @Override
     public Optional<OfflineLoadProfile> findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
-        LoadProfile loadProfile = this.findLoadProfile(loadProfileIdentifier);
-        return Optional.of(new OfflineLoadProfileImpl(loadProfile, this.serviceProvider.topologyService(), this.serviceProvider.identificationService()));
+        Optional<LoadProfile> loadProfile = this.findLoadProfile(loadProfileIdentifier);
+        return loadProfile.map(loadProfile1 -> new OfflineLoadProfileImpl(loadProfile1, this.serviceProvider.topologyService(), this.serviceProvider.identificationService()));
     }
 
-    private LoadProfile findLoadProfile(LoadProfileIdentifier identifier) {
+    private Optional<LoadProfile> findLoadProfile(LoadProfileIdentifier identifier) {
         return this.serviceProvider
                 .loadProfileService()
-                .findByIdentifier(identifier)
+                .findByIdentifier(identifier);
+    }
+
+    private LoadProfile findLoadProfileOrThrowException(LoadProfileIdentifier identifier) {
+        return this.findLoadProfile(identifier)
                 .orElseThrow(() -> new IllegalArgumentException("LoadProfile with identifier " + identifier.toString() + " does not exist"));
     }
 
     @Override
     public Optional<OfflineLogBook> findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
-        LogBook logBook = this.findLogBook(logBookIdentifier);
-        return Optional.of(new OfflineLogBookImpl(logBook, this.serviceProvider.identificationService()));
+        Optional<LogBook> logBook = this.findLogBook(logBookIdentifier);
+        return logBook.map(logBook1 -> new OfflineLogBookImpl(logBook1, this.serviceProvider.identificationService()));
     }
 
-    private LogBook findLogBook(LogBookIdentifier identifier) {
+    private Optional<LogBook> findLogBook(LogBookIdentifier identifier) {
         return this.serviceProvider
                 .logBookService()
-                .findByIdentifier(identifier)
+                .findByIdentifier(identifier);
+    }
+
+    private LogBook findLogBookOrThrowException(LogBookIdentifier identifier) {
+        return findLogBook(identifier)
                 .orElseThrow(() -> new IllegalArgumentException("LogBook with identifier " + identifier.toString() + " does not exist"));
     }
 
     @Override
     public Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier) {
-        DeviceMessage deviceMessage = this.findDeviceMessage(identifier);
-        Device device = (Device) deviceMessage.getDevice(); //Downcast to the Connexo Device
-        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = device.getDeviceType().getDeviceProtocolPluggableClass();
-        if (deviceProtocolPluggableClass.isPresent()) {
-            return Optional.of(
-                    new OfflineDeviceMessageImpl(
-                            deviceMessage,
-                            deviceProtocolPluggableClass.get().getDeviceProtocol(),
-                            this.serviceProvider.identificationService(),
-                            this.serviceProvider.protocolPluggableService(),
-                            new OfflineDeviceImpl(device, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider())
-                    )
-            );
-        } else {
-            return Optional.empty();
+        Optional<DeviceMessage> optionalDeviceMessage = this.findDeviceMessage(identifier);
+        if (optionalDeviceMessage.isPresent()) {
+            DeviceMessage deviceMessage = optionalDeviceMessage.get();
+            Device device = (Device) deviceMessage.getDevice(); //Downcast to the Connexo Device
+            Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = device.getDeviceType().getDeviceProtocolPluggableClass();
+            if (deviceProtocolPluggableClass.isPresent()) {
+                return Optional.of(
+                        new OfflineDeviceMessageImpl(
+                                deviceMessage,
+                                deviceProtocolPluggableClass.get().getDeviceProtocol(),
+                                this.serviceProvider.identificationService(),
+                                this.serviceProvider.protocolPluggableService(),
+                                new OfflineDeviceImpl(device, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider())
+                        )
+                );
+            }
         }
+        return Optional.empty();
     }
 
-    private DeviceMessage findDeviceMessage(MessageIdentifier identifier) {
+    private Optional<DeviceMessage> findDeviceMessage(MessageIdentifier identifier) {
         return this.serviceProvider
                 .deviceMessageService()
-                .findDeviceMessageByIdentifier(identifier)
+                .findDeviceMessageByIdentifier(identifier);
+    }
+
+    private DeviceMessage findDeviceMessageOrThrowException(MessageIdentifier identifier) {
+        return findDeviceMessage(identifier)
                 .orElseThrow(() -> new IllegalArgumentException("DeviceMessage with identifier " + identifier.toString() + " does not exist"));
     }
 
@@ -405,19 +449,19 @@ public class ComServerDAOImpl implements ComServerDAO {
     public void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
         try {
             connectionTask.setProperty(connectionTaskPropertyName, ipAddress);
-            connectionTask.save();
+            connectionTask.saveAllProperties();
         } catch (OptimisticLockException e) {
             Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
             if (reloaded.isPresent()) {
                 reloaded.get().setProperty(connectionTaskPropertyName, ipAddress);
-                reloaded.get().save();
+                reloaded.get().saveAllProperties();
             }
         }
     }
 
     @Override
     public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
-        handleCertificatePropertyValue(propertyValue);
+        handleCertificatePropertyValue(propertyValue); //TODO: is this step still required?
 
         Device device = this.findDevice(deviceIdentifier);
         device.setProtocolProperty(propertyName, propertyValue);
@@ -434,32 +478,26 @@ public class ComServerDAOImpl implements ComServerDAO {
      * If the provided property value holds a certificate, make sure to store it in the proper place.
      */
     private void handleCertificatePropertyValue(Object propertyValue) {
-        if (propertyValue instanceof CertificateAlias) {
+        //TODO insert the new certificate in the CertificateWrapper table or in a trust store (do we want this?)
+ /*       if (propertyValue instanceof CertificateWrapper) {
             // If the property value is of type CertificateAlias, add the given certificate in the DLMS key store, under the given alias.
-            this.doAddCACertificate((CertificateAlias) propertyValue);
+            this.doAddCACertificate((CertificateWrapper) propertyValue);
         } else if (propertyValue instanceof CollectedCertificateWrapper) {
             // If the property value is a CollectedCertificateWrapper then add the certificate in the trust store.
             this.doAddEndDeviceCertificate((CollectedCertificateWrapper) propertyValue);
-        }
+        }*/
     }
 
     @Override
-    public void addCACertificate(final CertificateAlias certificateAlias) {
+    public void addCACertificate(final CertificateWrapper certificateWrapper) {
         this.executeTransaction(() -> {
-            this.doAddCACertificate(certificateAlias);
+            this.doAddCACertificate(certificateWrapper);
             return null;
         });
     }
 
-    private void doAddCACertificate(CertificateAlias certificateAlias) {
-        try {
-            new DLMSKeyStoreUserFile(this.getKeyStoreService())
-                    .importCertificate(
-                            certificateAlias.getCertificate(),
-                            certificateAlias.getAlias());
-        } catch (CertificateException e) {
-            throw new RuntimeException(e);
-        }
+    private void doAddCACertificate(CertificateWrapper certificateWrapper) {
+        //TODO create CertificateWrapper entry
     }
 
     @Override
@@ -474,7 +512,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
-        handleCertificatePropertyValue(propertyValue);
+        handleCertificatePropertyValue(propertyValue); //TODO: is this step still required?
 
         //Now update the given security property.
         Device device = this.findDevice(deviceIdentifier);
@@ -513,6 +551,10 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     public void unlock(final OutboundConnectionTask connectionTask) {
+        unlock((com.energyict.mdc.device.data.tasks.ConnectionTask) connectionTask);
+    }
+
+    public void unlock(final ConnectionTask connectionTask) {
         try {
             getConnectionTaskService().unlockConnectionTask(connectionTask);
         } catch (OptimisticLockException e) {
@@ -669,9 +711,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
             // unlock the connection tasks (after all affected ComTaskExecs are unlocked)
             for (ConnectionTask lockedConnectionTask : lockedConnectionTasks) {
-                if (lockedConnectionTask instanceof OutboundConnectionTask) {
-                    unlock((OutboundConnectionTask) lockedConnectionTask);
-                }
+                unlock(lockedConnectionTask);
             }
             return null;
         });
@@ -716,7 +756,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateDeviceMessageInformation(final MessageIdentifier messageIdentifier, final DeviceMessageStatus newDeviceMessageStatus, final Instant sentDate, final String protocolInformation) {
-        DeviceMessage deviceMessage = this.findDeviceMessage(messageIdentifier);
+        DeviceMessage deviceMessage = this.findDeviceMessageOrThrowException(messageIdentifier);
         try {
             updateDeviceMessage(newDeviceMessageStatus, sentDate, protocolInformation, deviceMessage);
         } catch (OptimisticLockException e) { // if someone tried to update the message while the ComServer was executing it ...
@@ -783,7 +823,10 @@ public class ComServerDAOImpl implements ComServerDAO {
     private void updateSentMessageStates(Device device, int confirmationCount) {
         List<DeviceMessage> sentMessages = device.getMessagesByState(DeviceMessageStatus.SENT);
         FutureMessageState newState = this.getFutureMessageState(sentMessages, confirmationCount);
-        sentMessages.forEach(newState::applyTo);
+        this.executeTransaction(() -> {
+            sentMessages.forEach(newState::applyTo);
+            return null;
+        });
     }
 
     private FutureMessageState getFutureMessageState(List<DeviceMessage> sentMessages, int confirmationCount) {
@@ -799,10 +842,13 @@ public class ComServerDAOImpl implements ComServerDAO {
     private List<DeviceMessage> findPendingMessageAndMarkAsSent(Device device) {
         List<DeviceMessage> pendingMessages = device.getMessagesByState(DeviceMessageStatus.PENDING);
         List<DeviceMessage> sentMessages = new ArrayList<>(pendingMessages.size());
-        for (DeviceMessage pendingMessage : pendingMessages) {
-            pendingMessage.updateDeviceMessageStatus(DeviceMessageStatus.SENT);
-            sentMessages.add(pendingMessage);
-        }
+        this.executeTransaction(() -> {
+            for (DeviceMessage pendingMessage : pendingMessages) {
+                pendingMessage.updateDeviceMessageStatus(DeviceMessageStatus.SENT);
+                sentMessages.add(pendingMessage);
+            }
+            return null;
+        });
         return sentMessages;
     }
 
@@ -812,8 +858,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier identifier, InboundComPort comPort) {
-        Device device = this.findDevice(identifier);
+    public DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier, InboundComPort comPort) {
+        Device device = this.findDevice(deviceIdentifier);
         InboundConnectionTask connectionTask = this.getInboundConnectionTask(comPort, device);
         if (connectionTask == null) {
             return null;
@@ -822,7 +868,16 @@ public class ComServerDAOImpl implements ComServerDAO {
             if (securityPropertySet == null) {
                 return null;
             } else {
-                return device.getSecurityProperties(securityPropertySet);
+                return new DeviceProtocolSecurityPropertySetImpl(
+                        securityPropertySet.getName(),
+                        securityPropertySet.getClient(),
+                        securityPropertySet.getAuthenticationDeviceAccessLevel().getId(),
+                        securityPropertySet.getEncryptionDeviceAccessLevel().getId(),
+                        securityPropertySet.getSecuritySuite() != null ? securityPropertySet.getSecuritySuite().getId() : -1,
+                        securityPropertySet.getRequestSecurityLevel() != null ? securityPropertySet.getRequestSecurityLevel().getId() : -1,
+                        securityPropertySet.getResponseSecurityLevel() != null ? securityPropertySet.getResponseSecurityLevel().getId() : -1,
+                        device.getSecurityProperties(securityPropertySet)
+                );
             }
         }
     }
@@ -844,7 +899,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                     DeviceProtocolDialect deviceProtocolDialect = protocolDialectConfigurationProperties.getDeviceProtocolDialect();
                     addDefaultValuesIfNecessary(deviceProtocolDialect, result);
 
-                    return TypedPropertiesValueAdapter.adaptToUPLValues(result);
+                    return TypedPropertiesValueAdapter.adaptToUPLValues(device, result);
                 }
             }
         }
@@ -863,11 +918,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     /**
-     * Gets the {@link SecurityProperty} that needs to be used when
+     * Gets the {@link SecurityPropertySet} that needs to be used when
      * the Device is communicating to the ComServer
      * via the specified {@link InboundConnectionTask}.
      *
-     * @param device         The Device
+     * @param device The Device
      * @param connectionTask The ConnectionTask
      * @return The SecurityPropertySet or <code>null</code> if the Device is not ready for inbound communication
      */
@@ -930,7 +985,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             return null;
         } else {
             TypedProperties typedProperties = connectionTask.getTypedProperties();
-            return TypedPropertiesValueAdapter.adaptToUPLValues(typedProperties);
+            return TypedPropertiesValueAdapter.adaptToUPLValues(device, typedProperties);
         }
     }
 
@@ -950,7 +1005,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         } else if (!outboundConnectionTasks.isEmpty()) {
             result = outboundConnectionTasks.get(0).getTypedProperties();
         }
-        return TypedPropertiesValueAdapter.adaptToUPLValues(result);
+        return TypedPropertiesValueAdapter.adaptToUPLValues(device, result);
     }
 
     @Override
@@ -959,7 +1014,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             Optional<Device> device = this.getDeviceFor(identifier);
             TypedProperties typedProperties = device.map(Device::getDeviceProtocolProperties).orElse(null);
             if (typedProperties != null) {
-                return TypedPropertiesValueAdapter.adaptToUPLValues(typedProperties);
+                return TypedPropertiesValueAdapter.adaptToUPLValues(device.get(), typedProperties);
             } else {
                 return null;
             }
@@ -972,7 +1027,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     public com.energyict.mdc.upl.properties.TypedProperties getDeviceLocalProtocolProperties(DeviceIdentifier deviceIdentifier) {
         Optional<Device> device = getDeviceFor(deviceIdentifier);
         if (device.isPresent()) {
-            com.energyict.mdc.upl.properties.TypedProperties localProperties = TypedProperties.empty();
+            TypedProperties localProperties = TypedProperties.empty();
 
             TypedProperties deviceProtocolProperties = device.get().getDeviceProtocolProperties();
             deviceProtocolProperties
@@ -980,7 +1035,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                     .stream()
                     .forEach(localName -> localProperties.setProperty(localName, deviceProtocolProperties.getProperty(localName)));
 
-            return TypedPropertiesValueAdapter.adaptToUPLValues(localProperties);
+            return TypedPropertiesValueAdapter.adaptToUPLValues(device.get(), localProperties);
         }
         return null;
     }
@@ -1003,14 +1058,14 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     @SuppressWarnings("unchecked")
     public DeviceIdentifier getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
-        LoadProfile loadProfile = this.findLoadProfile(loadProfileIdentifier);
+        LoadProfile loadProfile = this.findLoadProfileOrThrowException(loadProfileIdentifier);
         return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice((loadProfile).getDevice());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public DeviceIdentifier getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
-        LogBook logBook = this.findLogBook(logBookIdentifier);
+        LogBook logBook = this.findLogBookOrThrowException(logBookIdentifier);
         return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(logBook.getDevice());
     }
 
@@ -1026,7 +1081,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateLastLogBook(LogBookIdentifier logBookIdentifier, Instant lastLogBook) {
-        LogBook logBook = this.findLogBook(logBookIdentifier);
+        LogBook logBook = this.findLogBookOrThrowException(logBookIdentifier);
         // Refresh device and LogBook to avoid OptimisticLockException
         Device device = this.serviceProvider.deviceService().findDeviceById(logBook.getDevice().getId()).get();
         LogBook refreshedLogBook = device.getLogBooks().stream().filter(each -> each.getId() == logBook.getId()).findAny().get();
@@ -1117,7 +1172,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateLastReadingFor(LoadProfileIdentifier loadProfileIdentifier, Instant lastReading) {
-        LoadProfile loadProfile = this.findLoadProfile(loadProfileIdentifier);
+        LoadProfile loadProfile = this.findLoadProfileOrThrowException(loadProfileIdentifier);
         // Refresh the device and the LoadProfile to avoid OptimisticLockException
         Device device = this.serviceProvider.deviceService().findDeviceById(loadProfile.getDevice().getId()).get();
         LoadProfile refreshedLoadProfile = device.getLoadProfiles().stream().filter(each -> each.getId() == loadProfile.getId()).findAny().get();
@@ -1138,7 +1193,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                 updateMap.put(deviceIdentifier, functionList);
             }
 
-            functionList.add(updateLoadProfile(findLoadProfile(entrySet.getKey()), entrySet.getValue()));
+            functionList.add(updateLoadProfile(findLoadProfileOrThrowException(entrySet.getKey()), entrySet.getValue()));
         });
         // then do the logbooks
         logBookUpdate.entrySet().stream().forEach(entrySet -> {
@@ -1148,7 +1203,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                 functionList = new ArrayList<>();
                 updateMap.put(deviceIdentifier, functionList);
             }
-            functionList.add(updateLogBook(findLogBook(entrySet.getKey()), entrySet.getValue()));
+            functionList.add(updateLogBook(findLogBookOrThrowException(entrySet.getKey()), entrySet.getValue()));
         });
 
         // then do your thing
@@ -1215,57 +1270,54 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public List<Pair<OfflineLoadProfile, Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile offlineLoadProfile, String readingTypeMRID, Range<Instant> dataPeriod) {
-        Optional<Device> dataLoggerOptional = this.getDeviceFor(offlineLoadProfile.getDeviceIdentifier());
-        if (dataLoggerOptional.isPresent()) {
-            Device dataLogger = dataLoggerOptional.get();
-            if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()) {
-                Optional<Channel> dataLoggerChannel = dataLogger.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
-                if (dataLoggerChannel.isPresent()) {
-                    List<DataLoggerChannelUsage> dataLoggerChannelUsages = this.serviceProvider.topologyService().findDataLoggerChannelUsagesForChannels(dataLoggerChannel.get(), dataPeriod);
-                    List<Pair<OfflineLoadProfile, Range<Instant>>> linkedOffLineLoadProfiles = new ArrayList<>();
-                    // 'linked' periods
-                    if (!dataLoggerChannelUsages.isEmpty()) {
-                        dataLoggerChannelUsages.forEach(usage -> {
-                            Device slave = usage.getDataLoggerReference().getOrigin();
-                            List<? extends ReadingType> slaveChannelReadingTypes = usage.getSlaveChannel().getReadingTypes();
-                            Optional<Channel> slaveChannel = slave.getChannels().stream().filter((c) -> slaveChannelReadingTypes.contains(c.getReadingType())).findFirst();
-                            if (slaveChannel.isPresent()) {
-                                OfflineLoadProfile dataLoggerSlaveOfflineLoadProfile = new OfflineLoadProfileImpl(slaveChannel.get()
-                                        .getLoadProfile(), this.serviceProvider.topologyService(), this.serviceProvider.identificationService()) {
-                                    protected void goOffline() {
-                                        super.goOffline();
-                                        // To avoid to have to retrieve the involved slave channels again
-                                        setAllLoadProfileChannels(convertToOfflineChannels(Collections.singletonList(slaveChannel.get())));
-                                    }
+        final Device masterDevice = this.getDeviceFor(offlineLoadProfile.getDeviceIdentifier()).get();
+        if (masterDevice != null && storageOnSlaveDevice(masterDevice)) {
+            Optional<Channel> masterDeviceChannel = masterDevice.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
+            if (masterDeviceChannel.isPresent()) {
+                List<DataLoggerChannelUsage> dataLoggerChannelUsages = this.serviceProvider.topologyService().findDataLoggerChannelUsagesForChannels(masterDeviceChannel.get(), dataPeriod);
+                List<Pair<OfflineLoadProfile, Range<Instant>>> linkedOffLineLoadProfiles = new ArrayList<>();
+                // 'linked' periods
+                if (!dataLoggerChannelUsages.isEmpty()) {
+                    dataLoggerChannelUsages.forEach(usage -> {
+                        Device slave = usage.getPhysicalGatewayReference().getOrigin();
+                        List<? extends ReadingType> slaveChannelReadingTypes = usage.getSlaveChannel().getReadingTypes();
+                        Optional<Channel> slaveChannel = slave.getChannels().stream().filter((c) -> slaveChannelReadingTypes.contains(c.getReadingType())).findFirst();
+                        if (slaveChannel.isPresent()) {
+                            OfflineLoadProfile dataLoggerSlaveOfflineLoadProfile = new OfflineLoadProfileImpl(slaveChannel.get()
+                                    .getLoadProfile(), this.serviceProvider.topologyService(), this.serviceProvider.identificationService()) {
+                                protected void goOffline() {
+                                    super.goOffline();
+                                    // To avoid to have to retrieve the involved slave channels again
+                                    setAllLoadProfileChannels(convertToOfflineChannels(Collections.singletonList(slaveChannel.get())));
+                                }
 
-                                    @Override
-                                    public boolean isDataLoggerSlaveLoadProfile() {
-                                        return true;
-                                    }
-                                };
+                                @Override
+                                public boolean isDataLoggerSlaveLoadProfile() {
+                                    return true;
+                                }
+                            };
 
-                                linkedOffLineLoadProfiles.add(Pair.of(dataLoggerSlaveOfflineLoadProfile, usage.getRange().intersection(dataPeriod)));
-                            }
-                        });
-                    }
-                    //'unlinked periods'
-                    if (linkedOffLineLoadProfiles.isEmpty()) {
-                        linkedOffLineLoadProfiles.add(Pair.of(offlineLoadProfile, dataPeriod));   //All data is stored on the data logger channel
-                    } else {
-                        RangeSet<Instant> unlinkedPeriods = TreeRangeSet.create();
-                        unlinkedPeriods.add(dataPeriod);
-                        linkedOffLineLoadProfiles
-                                .stream()
-                                .map(Pair::getLast)
-                                .forEach(unlinkedPeriods::remove);
-                        unlinkedPeriods
-                                .asRanges()
-                                .stream()
-                                .map(unlinkedRange -> Pair.of(offlineLoadProfile, unlinkedRange))
-                                .forEach(linkedOffLineLoadProfiles::add);
-                    }
-                    return linkedOffLineLoadProfiles;
+                            linkedOffLineLoadProfiles.add(Pair.of(dataLoggerSlaveOfflineLoadProfile, usage.getRange().intersection(dataPeriod)));
+                        }
+                    });
                 }
+                //'unlinked periods'
+                if (linkedOffLineLoadProfiles.isEmpty()) {
+                    linkedOffLineLoadProfiles.add(Pair.of(offlineLoadProfile, dataPeriod));   //All data is stored on the data logger channel
+                } else {
+                    RangeSet<Instant> unlinkedPeriods = TreeRangeSet.create();
+                    unlinkedPeriods.add(dataPeriod);
+                    linkedOffLineLoadProfiles
+                            .stream()
+                            .map(Pair::getLast)
+                            .forEach(unlinkedPeriods::remove);
+                    unlinkedPeriods
+                            .asRanges()
+                            .stream()
+                            .map(unlinkedRange -> Pair.of(offlineLoadProfile, unlinkedRange))
+                            .forEach(linkedOffLineLoadProfiles::add);
+                }
+                return linkedOffLineLoadProfiles;
             }
         }
         return Collections.singletonList(Pair.of(offlineLoadProfile, dataPeriod));
@@ -1277,16 +1329,18 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private Register getStorageRegister(Register register, Instant readingDate) {
-        final Device dataLogger = register.getDevice();
-        if (dataLogger != null) {
-            if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()) {
-                Optional<Register> slaveRegister = this.serviceProvider.topologyService().getSlaveRegister(register, readingDate);
-                if (slaveRegister.isPresent()) {
-                    return slaveRegister.get();
-                }
+        final Device masterDevice = register.getDevice();
+        if (masterDevice != null && storageOnSlaveDevice(masterDevice)) {
+            Optional<Register> slaveRegister = this.serviceProvider.topologyService().getSlaveRegister(register, readingDate);
+            if (slaveRegister.isPresent()) {
+                return slaveRegister.get();
             }
         }
         return register;
+    }
+
+    private boolean storageOnSlaveDevice(Device masterDevice) {
+        return (masterDevice.getDeviceConfiguration().isDataloggerEnabled() || masterDevice.getDeviceConfiguration().isMultiElementEnabled());
     }
 
     private Instant now() {
@@ -1352,8 +1406,6 @@ public class ComServerDAOImpl implements ComServerDAO {
         EventService eventService();
 
         IdentificationService identificationService();
-
-        KeyStoreService keyStoreService();
 
         FirmwareService firmwareService();
 

@@ -87,7 +87,7 @@ public class CommandRootImpl implements CommandRoot {
     public GroupedDeviceCommand getOrCreateGroupedDeviceCommand(OfflineDevice offlineDevice, DeviceProtocol deviceProtocol, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         for (GroupedDeviceCommand groupedDeviceCommand : this.groupedDeviceCommands) {
             if (groupedDeviceCommand.getOfflineDevice().getId() == offlineDevice.getId() &&
-                    isSameDeviceProtocolSecurityPropertySet(deviceProtocolSecurityPropertySet, groupedDeviceCommand)) {
+                    groupedDeviceCommand.hasSecurityPropertySet(deviceProtocolSecurityPropertySet)) {
                 return groupedDeviceCommand;
             }
         }
@@ -127,13 +127,6 @@ public class CommandRootImpl implements CommandRoot {
     @Override
     public boolean isExposeStoringException() {
         return exposeStoringException;
-    }
-
-    private boolean isSameDeviceProtocolSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet, GroupedDeviceCommand groupedDeviceCommand) {
-        return (groupedDeviceCommand.getDeviceProtocolSecurityPropertySet() == null && deviceProtocolSecurityPropertySet == null) ||
-                ((groupedDeviceCommand.getDeviceProtocolSecurityPropertySet() != null && deviceProtocolSecurityPropertySet != null) &&
-                        (groupedDeviceCommand.getDeviceProtocolSecurityPropertySet().getAuthenticationDeviceAccessLevel() == deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel() &&
-                                groupedDeviceCommand.getDeviceProtocolSecurityPropertySet().getEncryptionDeviceAccessLevel() == deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()));
     }
 
     @Override

@@ -18,10 +18,7 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ObjectMapperService;
-import com.energyict.mdc.upl.crypto.KeyStoreService;
-import com.energyict.mdc.upl.crypto.X509Service;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.legacy.CertificateAliasFinder;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -31,6 +28,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -70,11 +68,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     private DeviceMasterDataExtractor deviceMasterDataExtractor;
     private DeviceExtractor deviceExtractor;
     private DeviceMessageFileExtractor messageFileExtractor;
-    private KeyStoreService keyStoreService;
-    private X509Service x509Service;
     private CertificateWrapperExtractor certificateWrapperExtractor;
-    private CertificateAliasFinder certificateAliasFinder;
-
 
     public InboundDiscoveryContextImpl(InboundComPort comPort, ComPortRelatedComChannel comChannel, ConnectionTaskService connectionTaskService) {
         super();
@@ -249,15 +243,6 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     }
 
     @Override
-    public KeyStoreService getKeyStoreService() {
-        return keyStoreService;
-    }
-
-    public void setKeyStoreService(KeyStoreService keyStoreService) {
-        this.keyStoreService = keyStoreService;
-    }
-
-    @Override
     public CertificateWrapperExtractor getCertificateWrapperExtractor() {
         return certificateWrapperExtractor;
     }
@@ -267,26 +252,8 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     }
 
     @Override
-    public CertificateAliasFinder getCertificateAliasFinder() {
-        return certificateAliasFinder;
-    }
-
-    public void setCertificateAliasFinder(CertificateAliasFinder certificateAliasFinder) {
-        this.certificateAliasFinder = certificateAliasFinder;
-    }
-
-    @Override
-    public X509Service getX509Service() {
-        return x509Service;
-    }
-
-    public void setX509Service(X509Service x509Service) {
-        this.x509Service = x509Service;
-    }
-
-    @Override
-    public Optional<List<? extends com.energyict.mdc.upl.security.SecurityProperty>> getProtocolSecurityProperties(DeviceIdentifier deviceIdentifier) {
-        return Optional.ofNullable(comServerDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, getComPort()));
+    public Optional<DeviceProtocolSecurityPropertySet> getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier) {
+        return Optional.ofNullable(comServerDAO.getDeviceProtocolSecurityPropertySet(deviceIdentifier, getComPort()));
     }
 
     @Override
