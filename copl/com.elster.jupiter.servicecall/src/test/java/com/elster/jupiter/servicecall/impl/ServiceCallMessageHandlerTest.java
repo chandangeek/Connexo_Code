@@ -78,7 +78,7 @@ public class ServiceCallMessageHandlerTest {
         when(nlsMessageFormat.format(any())).thenAnswer(iom -> "The service call type was created with a handler '" + iom
                 .getArguments()[0] + "' that can no longer be found in the system");
         when(thesaurus.getFormat(MessageSeeds.HANDLER_DISAPPEARED)).thenReturn(nlsMessageFormat);
-
+        when(thesaurus.getSimpleFormat(MessageSeeds.HANDLER_DISAPPEARED)).thenReturn(nlsMessageFormat);
         serviceCallMessageHandler.process(message);
 
         verify(serviceCall).setState(DefaultState.FAILED);
