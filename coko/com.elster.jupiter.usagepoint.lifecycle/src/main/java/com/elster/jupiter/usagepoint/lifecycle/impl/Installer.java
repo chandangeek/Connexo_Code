@@ -21,6 +21,8 @@ import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Never;
 
@@ -40,11 +42,14 @@ public class Installer implements FullInstaller {
     private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private final ServerUsagePointLifeCycleService usagePointLifeCycleService;
     private final UsagePointLifeCycleBuilder usagePointLifeCycleBuilder;
+    private final UsagePointMicroActionFactory usagePointMicroActionFactory;
+    private final UsagePointMicroCheckFactory usagePointMicroCheckFactory;
 
     @Inject
     public Installer(DataModel dataModel, MeteringService meteringService, MessageService messageService, TaskService taskService,
                      UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService, Thesaurus thesaurus,
-                     UsagePointLifeCycleService usagePointLifeCycleService, UsagePointLifeCycleBuilder usagePointLifeCycleBuilder) {
+                     UsagePointLifeCycleService usagePointLifeCycleService, UsagePointLifeCycleBuilder usagePointLifeCycleBuilder,
+                     UsagePointMicroActionFactory usagePointMicroActionFactory, UsagePointMicroCheckFactory usagePointMicroCheckFactory) {
         this.dataModel = dataModel;
         this.meteringService = meteringService;
         this.messageService = messageService;
@@ -53,6 +58,8 @@ public class Installer implements FullInstaller {
         this.thesaurus = thesaurus;
         this.usagePointLifeCycleService = (ServerUsagePointLifeCycleService) usagePointLifeCycleService;
         this.usagePointLifeCycleBuilder = usagePointLifeCycleBuilder;
+        this.usagePointMicroActionFactory = usagePointMicroActionFactory;
+        this.usagePointMicroCheckFactory = usagePointMicroCheckFactory;
     }
 
     @Override
@@ -119,6 +126,8 @@ public class Installer implements FullInstaller {
 
     private  void createTransitionsStatesAssignMicroActionsAndChecks(){
         UsagePointLifeCycle usagePointLifeCycle = usagePointLifeCycleConfigurationService.getDefaultLifeCycle();
+        usagePointLifeCycleConfigurationService.addMicroActionFactory(usagePointMicroActionFactory);
+        usagePointLifeCycleConfigurationService.addMicroCheckFactory(usagePointMicroCheckFactory);
         usagePointLifeCycleBuilder.accept(usagePointLifeCycle);
     }
 }

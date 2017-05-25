@@ -33,6 +33,8 @@ import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.ResetValidationResultsAction;
@@ -87,6 +89,8 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     private MessageService messageService;
     private TaskService taskService;
     private UserService userService;
+    private UsagePointMicroActionFactory usagePointMicroActionFactory;
+    private UsagePointMicroCheckFactory usagePointMicroCheckFactory;
 
     @SuppressWarnings("unused") // OSGI
     public UsagePointLifeCycleServiceImpl() {
@@ -102,7 +106,9 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                                           Clock clock,
                                           MessageService messageService,
                                           TaskService taskService,
-                                          UserService userService) {
+                                          UserService userService,
+                                          UsagePointMicroActionFactory usagePointMicroActionFactory,
+                                          UsagePointMicroCheckFactory usagePointMicroCheckFactory) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
@@ -113,6 +119,8 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
         setMessageService(messageService);
         setTaskService(taskService);
         setUserService(userService);
+        setUsagePointMicroActionFactory(usagePointMicroActionFactory);
+        setUsagePointMicroCheckFactory(usagePointMicroCheckFactory);
         activate();
     }
 
@@ -168,6 +176,16 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
         this.userService = userService;
     }
 
+    @Reference
+    public void setUsagePointMicroActionFactory(UsagePointMicroActionFactory usagePointMicroActionFactory) {
+        this.usagePointMicroActionFactory = usagePointMicroActionFactory;
+    }
+
+    @Reference
+    public void setUsagePointMicroCheckFactory(UsagePointMicroCheckFactory usagePointMicroCheckFactory) {
+        this.usagePointMicroCheckFactory = usagePointMicroCheckFactory;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(getModule());
@@ -194,6 +212,8 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                 bind(UserService.class).toInstance(userService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(UsagePointLifeCycleBuilder.class).toInstance(UsagePointLifeCycleServiceImpl.this);
+                bind(UsagePointMicroActionFactory.class).toInstance(usagePointMicroActionFactory);
+                bind(UsagePointMicroCheckFactory.class).toInstance(usagePointMicroCheckFactory);
             }
         };
     }
