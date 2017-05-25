@@ -273,6 +273,16 @@ public final class ChannelImpl implements SimpleChannelContract {
     }
 
     @Override
+    public Instant truncateToIntervalLength(Instant instant) {
+        if (isRegular()) {
+            TimeSeries timeSeries = getTimeSeries();
+            return timeSeries.isValidInstant(instant) ? instant : timeSeries.getPreviousDateTime(instant);
+        } else {
+            return instant;
+        }
+    }
+
+    @Override
     public Optional<TemporalAmount> getIntervalLength() {
         Iterator<IReadingType> it = getReadingTypes().iterator();
         Optional<TemporalAmount> result = it.next().getIntervalLength();

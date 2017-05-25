@@ -116,6 +116,8 @@ public interface Channel {
 
     Instant getPreviousDateTime(Instant instant);
 
+    Instant truncateToIntervalLength(Instant instant);
+
     /**
      * Deletes the readings for this channel that fall into the passed Range.
      * The method returns all the readings that are deleted for all configured reading types on the channel.
@@ -137,6 +139,7 @@ public interface Channel {
     ZoneId getZoneId();
 
     Optional<CimChannel> getCimChannel(ReadingType readingType);
+
 
     interface ReadingsDeletedEvent {
         Channel getChannel();
