@@ -103,16 +103,19 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>search</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fsm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>usagepoint.lifecycle.config</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>parties</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>fsm</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -199,11 +202,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bpm</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>usagepoint.lifecycle.config</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

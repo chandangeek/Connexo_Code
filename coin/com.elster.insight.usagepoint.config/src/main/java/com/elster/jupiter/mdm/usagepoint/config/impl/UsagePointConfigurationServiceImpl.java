@@ -8,6 +8,7 @@ import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
@@ -71,10 +72,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "UsagePointConfigurationServiceImpl",
-        service = {UsagePointConfigurationService.class, TranslationKeyProvider.class},
+        service = {UsagePointConfigurationService.class, ServerUsagePointConfigurationService.class, TranslationKeyProvider.class},
         property = {"name=" + UsagePointConfigurationService.COMPONENTNAME},
         immediate = true)
-public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, MessageSeedProvider, TranslationKeyProvider {
+public class UsagePointConfigurationServiceImpl implements ServerUsagePointConfigurationService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile Clock clock;
@@ -235,9 +236,14 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public void addValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet) {
+        addValidationRuleSet(metrologyContract, validationRuleSet, Collections.emptyList());
+    }
+
+    @Override
+    public void addValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet, List<State> states) {
         this.dataModel
                 .getInstance(MetrologyContractValidationRuleSetUsageImpl.class)
-                .initAndSave(metrologyContract, validationRuleSet);
+                .initAndSave(metrologyContract, validationRuleSet, states);
         metrologyContract.update();
     }
 
@@ -247,7 +253,12 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 .mapper(MetrologyContractValidationRuleSetUsage.class)
                 .getUnique(MetrologyContractValidationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName(), metrologyContract,
                         MetrologyContractValidationRuleSetUsageImpl.Fields.VALIDATION_RULE_SET.fieldName(), validationRuleSet)
-                .ifPresent(metrologyContractValidationRuleSetUsage -> dataModel.remove(metrologyContractValidationRuleSetUsage));
+                .ifPresent(metrologyContractValidationRuleSetUsage -> {
+                    dataModel
+                            .query(MetrologyContractValidationRuleSetStateUsage.class, MetrologyContractValidationRuleSetUsage.class)
+                            .select(where("metrologyContractValidationRuleSetUsage").isEqualTo(metrologyContractValidationRuleSetUsage))
+                            .forEach(stateUsage -> dataModel.remove(stateUsage));
+                    dataModel.remove(metrologyContractValidationRuleSetUsage);});
         metrologyContract.update();
     }
 
@@ -257,6 +268,30 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 .query(MetrologyContractValidationRuleSetUsage.class, ValidationRuleSet.class, ValidationRuleSetVersion.class, ValidationRule.class, ReadingTypeInValidationRule.class)
                 .select(where(MetrologyContractValidationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName())
                         .isEqualTo(metrologyContract))
+                .stream()
+                .map(MetrologyContractValidationRuleSetUsage::getValidationRuleSet)
+                .sorted(Comparator.comparing(ValidationRuleSet::getName, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ValidationRuleSet> getValidationRuleSets(MetrologyContract metrologyContract, State state) {
+        return this.dataModel
+                .query(MetrologyContractValidationRuleSetUsage.class)
+                .select(where(MetrologyContractValidationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                        .isEqualTo(metrologyContract))
+                .stream()
+                .filter(usage -> usage.getStates().isEmpty() || usage.getStates().contains(state))
+                .map(MetrologyContractValidationRuleSetUsage::getValidationRuleSet)
+                .sorted(Comparator.comparing(ValidationRuleSet::getName, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ValidationRuleSet> getValidationRuleSets(State state) {
+        return this.dataModel
+                .query(MetrologyContractValidationRuleSetUsage.class, MetrologyContractValidationRuleSetStateUsage.class)
+                .select(where("states.state").isEqualTo(state))
                 .stream()
                 .map(MetrologyContractValidationRuleSetUsage::getValidationRuleSet)
                 .sorted(Comparator.comparing(ValidationRuleSet::getName, String.CASE_INSENSITIVE_ORDER))
@@ -361,6 +396,18 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 .select(where("validationRuleSet").isEqualTo(validationRuleSet))
                 .stream()
                 .map(MetrologyContractValidationRuleSetUsage::getMetrologyContract)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<State> getStatesLinkedToValidationRuleSetAndMetrologyContract(ValidationRuleSet validationRuleSet, MetrologyContract metrologyContract) {
+        return this.dataModel
+                .query(MetrologyContractValidationRuleSetStateUsage.class, MetrologyContractValidationRuleSetUsage.class)
+                .select(where("metrologyContractValidationRuleSetUsage").in(this.dataModel
+                        .query(MetrologyContractValidationRuleSetUsage.class, MetrologyContract.class)
+                        .select(where("validationRuleSet").isEqualTo(validationRuleSet).and(where("metrologyContract").isEqualTo(metrologyContract)))))
+                .stream()
+                .map(MetrologyContractValidationRuleSetStateUsage::getState)
                 .collect(Collectors.toList());
     }
 

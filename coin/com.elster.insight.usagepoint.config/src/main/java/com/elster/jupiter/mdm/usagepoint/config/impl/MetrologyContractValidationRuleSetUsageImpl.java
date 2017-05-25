@@ -5,6 +5,7 @@
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -14,6 +15,10 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link MetrologyContractValidationRuleSetUsage} interface.
@@ -22,7 +27,8 @@ class MetrologyContractValidationRuleSetUsageImpl implements MetrologyContractVa
 
     enum Fields {
         METROLOGY_CONTRACT("metrologyContract"),
-        VALIDATION_RULE_SET("validationRuleSet");
+        VALIDATION_RULE_SET("validationRuleSet"),
+        STATES("states");
 
         private final String javaFieldName;
 
@@ -41,6 +47,7 @@ class MetrologyContractValidationRuleSetUsageImpl implements MetrologyContractVa
     @NotEmpty(message = MessageSeeds.Keys.REQUIRED)
     @IsPresent
     private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
+    private List<MetrologyContractValidationRuleSetStateUsage> states = new ArrayList<>();
     @SuppressWarnings("unused") // Managed by ORM
     private long version;
     @SuppressWarnings("unused") // Managed by ORM
@@ -57,10 +64,13 @@ class MetrologyContractValidationRuleSetUsageImpl implements MetrologyContractVa
         this.dataModel = dataModel;
     }
 
-    MetrologyContractValidationRuleSetUsageImpl initAndSave(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet) {
+    MetrologyContractValidationRuleSetUsageImpl initAndSave(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet, List<State> states) {
         this.validationRuleSet.set(validationRuleSet);
         this.metrologyContract.set(metrologyContract);
         this.dataModel.persist(this);
+        states.stream().forEach(state -> this.states.add(this.dataModel
+                .getInstance(MetrologyContractValidationRuleSetStateUsageImpl.class)
+                .initAndSave(this, state)));
         return this;
     }
 
@@ -72,6 +82,11 @@ class MetrologyContractValidationRuleSetUsageImpl implements MetrologyContractVa
     @Override
     public MetrologyContract getMetrologyContract() {
         return metrologyContract.get();
+    }
+
+    @Override
+    public List<State> getStates(){
+        return states.stream().map(MetrologyContractValidationRuleSetStateUsage::getState).collect(Collectors.toList());
     }
 
 }

@@ -37,6 +37,8 @@ import java.util.NoSuchElementException;
 
 import static com.elster.jupiter.mdm.usagepoint.config.impl.MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration.CI_3_PHASED_CONSUMER_WITH_SMART_METER_WITH_2_TOU;
 import static com.elster.jupiter.mdm.usagepoint.config.impl.MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration.CI_WATER_CONFIGURATION;
+import static com.elster.jupiter.mdm.usagepoint.config.impl.MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration.MAIN_CHECK_CONSUMPTION;
+import static com.elster.jupiter.mdm.usagepoint.config.impl.MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration.RESIDENTAL_WATER;
 import static com.elster.jupiter.mdm.usagepoint.config.impl.MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration.RESIDENTIAL_CONSUMER_WITH_4_TOU;
 import static com.elster.jupiter.mdm.usagepoint.config.impl.MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration.RESIDENTIAL_GAS;
 import static com.elster.jupiter.mdm.usagepoint.config.impl.MetrologyConfigurationsInstaller.OOTBMetrologyConfiguration.RESIDENTIAL_GAS_NON_SMART_INSTALLATION;
@@ -92,41 +94,38 @@ class MetrologyConfigurationsInstaller {
     }
 
     private void install() {
-        residentialProsumerWith1Meter();
-        residentialProsumerWith2Meters();
-        residentialNetMeteringProduction();
-        residentialNetMeteringConsumption();
+        Arrays.stream(OOTBMetrologyConfiguration.values()).forEach(c -> c.install(this));
         EventSet eventSet = this.createTimeOfUseEventSet();
         residentialNetMeteringConsumptionThickTimeOfUse(eventSet);
         residentialNetMeteringConsumptionThinTimeOfUse(eventSet);
-        threePhasedConsumerWith2ToU();
-        residentialConsumerWith4ToU();
-        waterConfigurationCI();
-        residentialGas();
-        residentialWater();
-        residentialNonSmartInstallation();
-        residentialGasNonSmartInstallation();
     }
 
     /**
      * {@link OOTBMetrologyConfiguration} describes OOTB metrology configurations
      */
     public enum OOTBMetrologyConfiguration {
-        RESIDENTIAL_PROSUMER_WITH_1_METER("Residential prosumer with 1 meter", "Typical installation for residential prosumers with smart meter", false),
-        RESIDENTIAL_PROSUMER_WITH_2_METERS("Residential prosumer with 2 meters", "Typical installation for residential prosumers with dumb meters", false),
-        RESIDENTIAL_NET_METERING_PRODUCTION("Residential net metering (production)", "Residential producer", true),
-        RESIDENTIAL_NET_METERING_CONSUMPTION("Residential net metering (consumption)", "Residential consumer", true),
-        RESIDENTIAL_NON_SMART_INSTALLATION("Residential non-smart installation", "Registers of different types (textual, numeric)", true),
-        RESIDENTIAL_GAS_NON_SMART_INSTALLATION("Residential gas non-smart installation", "Billing register", true),
-        CI_3_PHASED_CONSUMER_WITH_SMART_METER_WITH_2_TOU("C&I 3-phased consumer with smart meter with 2 ToU", "C&I 3-phased consumer with smart meter 2 ToU", true),
-        RESIDENTIAL_CONSUMER_WITH_4_TOU("Residential consumer with 4 ToU", "Residential consumer with 4 ToU", true),
-        RESIDENTIAL_GAS("Residential gas", "Residential gas installation", true),
-        CI_WATER_CONFIGURATION("C&I water configuration", "C&I water configuration with 2 meters", true);
+        RESIDENTIAL_PROSUMER_WITH_1_METER("Residential prosumer with 1 meter", "Typical installation for residential " +
+                "prosumers with smart meter", false, MetrologyConfigurationsInstaller::residentialProsumerWith1Meter),
+        RESIDENTIAL_PROSUMER_WITH_2_METERS("Residential prosumer with 2 meters", "Typical installation for " +
+                "residential prosumers with dumb meters", false, MetrologyConfigurationsInstaller::residentialProsumerWith2Meters),
+        RESIDENTIAL_NET_METERING_PRODUCTION("Residential net metering (production)", "Residential producer", true, MetrologyConfigurationsInstaller::residentialNetMeteringProduction),
+        RESIDENTIAL_NET_METERING_CONSUMPTION("Residential net metering (consumption)", "Residential consumer", true, MetrologyConfigurationsInstaller::residentialNetMeteringConsumption),
+        RESIDENTIAL_NON_SMART_INSTALLATION("Residential non-smart installation", "Registers of different types " +
+                "(textual, numeric)", true, MetrologyConfigurationsInstaller::residentialNonSmartInstallation),
+        RESIDENTIAL_GAS_NON_SMART_INSTALLATION("Residential gas non-smart installation", "Billing register", true, MetrologyConfigurationsInstaller::residentialGasNonSmartInstallation),
+        CI_3_PHASED_CONSUMER_WITH_SMART_METER_WITH_2_TOU("C&I 3-phased consumer with smart meter with 2 ToU", "C&I " +
+                "3-phased consumer with smart meter 2 ToU", true, MetrologyConfigurationsInstaller::threePhasedConsumerWith2ToU),
+        RESIDENTIAL_CONSUMER_WITH_4_TOU("Residential consumer with 4 ToU", "Residential consumer with 4 ToU", true, MetrologyConfigurationsInstaller::residentialConsumerWith4ToU),
+        RESIDENTIAL_GAS("Residential gas", "Residential gas installation", true, MetrologyConfigurationsInstaller::residentialGas),
+        RESIDENTAL_WATER("Residential water", "Residential water", true, MetrologyConfigurationsInstaller::residentialWater),
+        CI_WATER_CONFIGURATION("C&I water configuration", "C&I water configuration with 2 meters", true, MetrologyConfigurationsInstaller::waterConfigurationCI),
+        MAIN_CHECK_CONSUMPTION("Main/check (consumption)", "Metrology configuration with check meter", true, MetrologyConfigurationsInstaller::mainCheckConsumption);
 
-        OOTBMetrologyConfiguration(String name, String description, boolean gapsAllowed) {
+        OOTBMetrologyConfiguration(String name, String description, boolean gapsAllowed, InstallationFunction installationFunction) {
             this.name = name;
             this.description = description;
             this.gapsAllowed = gapsAllowed;
+            this.installationFunction = installationFunction;
         }
 
         public String getName() {
@@ -141,9 +140,18 @@ class MetrologyConfigurationsInstaller {
             return gapsAllowed;
         }
 
+        public void install(MetrologyConfigurationsInstaller metrologyConfigurationsInstaller) {
+            installationFunction.install(metrologyConfigurationsInstaller);
+        }
+
         private String name;
         private String description;
         private boolean gapsAllowed;
+        private InstallationFunction installationFunction;
+
+        public interface InstallationFunction {
+            void install(MetrologyConfigurationsInstaller metrologyConfigurationsInstaller);
+        }
 
     }
 
@@ -359,6 +367,71 @@ class MetrologyConfigurationsInstaller {
         buildFormulaSingleRequirement(billingContract, readingTypeMonthlyAMinusWh, requirementAMinus, "Monthly A- kWh");
         ReadingTypeDeliverable min15 = buildFormulaSingleRequirement(informationContract, readingType15minAMinusWh, requirementAMinus, "15-min A- kWh");
         buildFormulaSingleDeliverable(informationContract, readingTypeHourlyAMinusWh, min15, "Hourly A- kWh");
+    }
+
+    private void mainCheckConsumption() {
+        if (metrologyConfigurationService.findMetrologyConfiguration(MAIN_CHECK_CONSUMPTION.getName())
+                .isPresent()) {
+            return;
+        }
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
+                .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
+        UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration(MAIN_CHECK_CONSUMPTION
+                .getName(), serviceCategory)
+                .withDescription(MAIN_CHECK_CONSUMPTION.getDescription())
+                .withGapsAllowed(MAIN_CHECK_CONSUMPTION.areGapsAllowed())
+                .create();
+        config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
+                .name()));
+        config.addUsagePointRequirement(getUsagePointRequirement(DETAIL_PHASE_CODE, SearchablePropertyOperator.EQUAL,
+                PhaseCode.S1N.name(),
+                PhaseCode.S2N.name(),
+                PhaseCode.S12N.name(),
+                PhaseCode.S1.name(),
+                PhaseCode.S2.name(),
+                PhaseCode.S12.name()));
+        config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP
+                .name()));
+
+        MeterRole meterRoleMain = metrologyConfigurationService.findMeterRole(DefaultMeterRole.MAIN.getKey())
+                .orElseThrow(() -> new NoSuchElementException("Main meter role not found"));
+        config.addMeterRole(meterRoleMain);
+        MeterRole meterRoleCheck = metrologyConfigurationService.findMeterRole(DefaultMeterRole.CHECK.getKey())
+                .orElseThrow(() -> new NoSuchElementException("Check meter role not found"));
+        config.addMeterRole(meterRoleCheck);
+
+        ReadingType readingTypeDailyAplusWhMain = meteringService.findReadingTypes(Collections.singletonList(DAILY_A_PLUS_KWH))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType(DAILY_A_PLUS_KWH, "A+"));
+
+        ReadingType readingTypeDailyAplusWhCheck = meteringService.findReadingTypes(Collections.singletonList(DAILY_A_PLUS_KWH))
+                .stream()
+                .findFirst()
+                .orElseGet(() -> meteringService.createReadingType(DAILY_A_PLUS_KWH, "A+"));
+
+        MetrologyPurpose purposeBilling = findPurposeOrThrowException(DefaultMetrologyPurpose.BILLING);
+        MetrologyPurpose purposeCheck = findPurposeOrThrowException(DefaultMetrologyPurpose.CHECK);
+
+        MetrologyContract contractMain = config.addMandatoryMetrologyContract(purposeBilling);
+        MetrologyContract contractCheck = config.addMandatoryMetrologyContract(purposeCheck);
+
+        // examples: 'A+ from Main channel' or 'A+ from Check channel'
+        String readingTypeRequirementNameFormat = "%s from %s channel";
+
+        ReadingTypeRequirement requirementAplusMain = config.newReadingTypeRequirement(String.format(readingTypeRequirementNameFormat, DefaultReadingTypeTemplate.A_PLUS
+                .getNameTranslation()
+                .getDefaultFormat(), DefaultMeterRole.MAIN.getDefaultFormat()), meterRoleMain)
+                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
+
+        ReadingTypeRequirement requirementAplusCheck = config.newReadingTypeRequirement(String.format(readingTypeRequirementNameFormat, DefaultReadingTypeTemplate.A_PLUS
+                .getNameTranslation()
+                .getDefaultFormat(), DefaultMeterRole.CHECK.getDefaultFormat()), meterRoleCheck)
+                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
+
+
+        buildFormulaSingleRequirement(contractMain, readingTypeDailyAplusWhMain, requirementAplusMain, "Daily A+ kWh");
+        buildFormulaSingleRequirement(contractCheck, readingTypeDailyAplusWhCheck, requirementAplusCheck, "Daily A+ kWh");
     }
 
     private void residentialNetMeteringConsumption() {
@@ -824,14 +897,15 @@ class MetrologyConfigurationsInstaller {
     }
 
     void residentialWater() {
-        if (metrologyConfigurationService.findMetrologyConfiguration("Residential water").isPresent()) {
+        if (metrologyConfigurationService.findMetrologyConfiguration(RESIDENTAL_WATER.getName()).isPresent()) {
             return;
         }
         ServiceCategory serviceCategory = this.findWaterServiceCategoryOrThrowException();
         UsagePointMetrologyConfiguration config =
             metrologyConfigurationService
                 .newUsagePointMetrologyConfiguration("Residential water", serviceCategory)
-                .withDescription("Residential water")
+                .withDescription(RESIDENTAL_WATER.getDescription())
+                .withGapsAllowed(RESIDENTAL_WATER.areGapsAllowed())
                 .withUsagePointRequirement(
                         getUsagePointRequirement(
                                 SERVICEKIND,
@@ -842,6 +916,7 @@ class MetrologyConfigurationsInstaller {
                                 "type",
                                 SearchablePropertyOperator.EQUAL,
                                 UsagePointTypeInfo.UsagePointType.MEASURED_SDP.name()))
+                                
                 .create();
 
 
@@ -990,7 +1065,8 @@ class MetrologyConfigurationsInstaller {
 
     private MetrologyPurpose findPurposeOrThrowException(DefaultMetrologyPurpose purpose) {
         return metrologyConfigurationService.findMetrologyPurpose(purpose)
-                .orElseThrow(() -> new NoSuchElementException(purpose.getName().getDefaultMessage() + " metrology purpose not found"));
+                .orElseThrow(() -> new NoSuchElementException(purpose.getName()
+                        .getDefaultMessage() + " metrology purpose not found"));
     }
 
     private ReadingType findOrCreateReadingType(String mRID, String aliasName) {
