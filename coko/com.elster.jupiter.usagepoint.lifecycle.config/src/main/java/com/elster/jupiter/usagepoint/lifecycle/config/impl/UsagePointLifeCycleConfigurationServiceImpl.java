@@ -39,6 +39,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -139,7 +140,9 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
     @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addMicroActionFactory(UsagePointMicroActionFactory microActionFactory) {
-        this.microActionFactories.add(microActionFactory);
+        if (microActionFactories.stream().noneMatch(factory -> factory.getClass().getName().equals(microActionFactory.getClass().getName()))) {
+            this.microActionFactories.add(microActionFactory);
+        }
     }
 
     @Override
@@ -150,7 +153,9 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
     @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addMicroCheckFactory(UsagePointMicroCheckFactory microCheckFactory) {
-        this.microCheckFactories.add(microCheckFactory);
+        if (microCheckFactories.stream().noneMatch(factory -> factory.getClass().getName().equals(microCheckFactory.getClass().getName()))) {
+            this.microCheckFactories.add(microCheckFactory);
+        }
     }
 
     @Override
@@ -384,7 +389,7 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
         return () -> new IllegalStateException("Default usagepoint stage set not installed correctly");
     }
 
-    public Map<Locale, String> getAllTranslationsForKey(String translationKey){
+    public Map<Locale, String> getAllTranslationsForKey(String translationKey) {
         return userService.getUserPreferencesService().getSupportedLocales()
                 .stream()
                 .collect(Collectors.toMap(Function.identity(), locale -> thesaurus.getString(locale, translationKey, translationKey)));
