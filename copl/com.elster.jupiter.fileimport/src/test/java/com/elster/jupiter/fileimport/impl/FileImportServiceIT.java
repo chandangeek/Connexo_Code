@@ -15,6 +15,7 @@ import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
@@ -105,6 +106,8 @@ public class FileImportServiceIT {
     private UserService userService;
     @Mock
     private EventAdmin eventAdmin;
+    @Mock
+    private LicenseService licenseService;
 
     @Mock
     private DataMapper<FileImportOccurrence> fileImportFactory;
@@ -182,6 +185,7 @@ public class FileImportServiceIT {
         @Override
         protected void configure() {
             bind(TimeService.class).toInstance(timeService);
+            bind(LicenseService.class).toInstance(licenseService);
             bind(FileImportService.class).to(FileImportServiceImpl.class).in(Scopes.SINGLETON);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());

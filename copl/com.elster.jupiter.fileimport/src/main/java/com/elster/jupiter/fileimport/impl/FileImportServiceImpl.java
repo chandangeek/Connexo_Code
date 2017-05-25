@@ -18,6 +18,7 @@ import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.fileimport.Status;
 import com.elster.jupiter.fileimport.security.Privileges;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.nls.Layer;
@@ -99,6 +100,7 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     private volatile QueryService queryService;
     private volatile FileSystem fileSystem;
     private volatile UpgradeService upgradeService;
+    private volatile LicenseService licenseService;
 
     private List<FileImporterFactory> importerFactories = new CopyOnWriteArrayList<>();
 
@@ -113,7 +115,7 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     }
 
     @Inject
-    public FileImportServiceImpl(OrmService ormService, MessageService messageService, EventService eventService, NlsService nlsService, QueryService queryService, Clock clock, UserService userService, JsonService jsonService, TransactionService transactionService, CronExpressionParser cronExpressionParser, FileSystem fileSystem, UpgradeService upgradeService) {
+    public FileImportServiceImpl(OrmService ormService, MessageService messageService, EventService eventService, NlsService nlsService, QueryService queryService, Clock clock, UserService userService, JsonService jsonService, TransactionService transactionService, CronExpressionParser cronExpressionParser, FileSystem fileSystem, UpgradeService upgradeService, LicenseService licenseService) {
         this();
         setOrmService(ormService);
         setMessageService(messageService);
@@ -127,6 +129,7 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
         setScheduleExpressionParser(cronExpressionParser);
         setFileSystem(fileSystem);
         setUpgradeService(upgradeService);
+        setLicenseService(licenseService);
         activate();
     }
 
@@ -223,6 +226,11 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
         this.upgradeService = upgradeService;
     }
 
+    @Reference
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
+    }
+
     public void removeFileImporter(FileImporterFactory fileImporterFactory) {
         importerFactories.remove(fileImporterFactory);
     }
@@ -248,6 +256,7 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
                 bind(FileImportService.class).toInstance(FileImportServiceImpl.this);
                 bind(UserService.class).toInstance(userService);
                 bind(Clock.class).toInstance(clock);
+                bind(LicenseService.class).toInstance(licenseService);
             }
         });
 
@@ -330,6 +339,8 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
         return importerFactories
                 .stream()
                 .filter(i -> "SYS".equals(applicationName) || i.getApplicationName().equals(applicationName))
+                .filter(importer -> importer.getApplicationName().equals("SYS") ||
+                        licenseService.getLicenseForApplication(importer.getApplicationName()).isPresent())
                 .collect(Collectors.toList());
     }
 

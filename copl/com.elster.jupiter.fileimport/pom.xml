@@ -88,6 +88,11 @@
             <artifactId>commons-csv</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>systemadmin</artifactId>
+        </dependency>
+
 
         <!-- test dependencies -->
         <dependency>
