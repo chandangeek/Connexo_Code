@@ -147,6 +147,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
                 itemId: 'action-menu-custom-attribute' + me.record.get('id'),
                 menuItemClass: 'inlineEditableAttributeSet',
                 editAvailable: true,
+                section: 2,
                 text: Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [Ext.String.htmlEncode(me.record.get('name'))]),
                 handler: function () {
                     if(this.editAvailable){
@@ -161,6 +162,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.InlineEditableSetPropertyFo
             if (!(me.record.get('isVersioned') && !me.record.get('isActive'))) {
                 Ext.each(actionMenusArray, function (menu) {
                     menu.add(me.action);
+                    menu.reorderItems();
                 });
             }
             Ext.resumeLayouts(true);
