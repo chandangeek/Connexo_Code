@@ -17,7 +17,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventServiceImpl;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.FsmUsagePointProvider;
+import com.elster.jupiter.fsm.StateTransitionPropertiesProvider;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.fsm.impl.StateTransitionTriggerEventTopicHandler;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
@@ -34,7 +34,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -58,6 +60,7 @@ import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.events.DeviceLifeCycleChangeEventHandler;
@@ -98,11 +101,7 @@ import org.osgi.service.log.LogService;
 import javax.validation.MessageInterpolator;
 import java.sql.SQLException;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -154,12 +153,12 @@ public class InMemoryIntegrationPersistence {
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommunicationTestServiceCallCustomPropertySet());
             if(deviceConfigurationService == null) {
                 StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler(
                         this.injector.getInstance(EventService.class),
                         this.injector.getInstance(BpmService.class),
-                        this.injector.getInstance(FsmUsagePointProvider.class),
-                        this.injector.getInstance(HttpAuthenticationService.class));
+                        this.injector.getInstance(StateTransitionPropertiesProvider.class));
                 ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionTriggerEventTopicHandler);
                 com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler meteringTopicHandler =
                         new com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler(Clock.systemDefaultZone(),
@@ -205,6 +204,7 @@ public class InMemoryIntegrationPersistence {
                 new DataVaultModule(),
                 new InMemoryMessagingModule(),
                 new IdsModule(),
+                new PkiModule(),
                 new TopologyModule(),
                 new DeviceLifeCycleModule(),
                 new UsagePointLifeCycleConfigurationModule(),
@@ -294,7 +294,7 @@ public class InMemoryIntegrationPersistence {
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(MessageInterpolator.class).toInstance(thesaurus);
 
-            bind(FsmUsagePointProvider.class).toInstance(mock(FsmUsagePointProvider.class));
+            bind(StateTransitionPropertiesProvider.class).toInstance(mock(StateTransitionPropertiesProvider.class));
             bind(HttpAuthenticationService.class).toInstance(mock(HttpAuthenticationService.class));
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(LicenseService.class).toInstance(licenseService);
@@ -306,6 +306,7 @@ public class InMemoryIntegrationPersistence {
 
             bind(CustomPropertySetInstantiatorService.class).toInstance(mock(CustomPropertySetInstantiatorService.class));
             bind(DeviceMessageSpecificationService.class).toInstance(mock(DeviceMessageSpecificationService.class));
+            bind(PropertyValueInfoService.class).toInstance(mock(PropertyValueInfoService.class));
         }
     }
 

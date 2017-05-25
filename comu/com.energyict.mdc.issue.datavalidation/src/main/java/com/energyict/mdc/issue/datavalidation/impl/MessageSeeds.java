@@ -12,6 +12,7 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
 
     UNABLE_TO_CREATE_EVENT(2001, "DataValidationIssueUnableToMapEvent", "Unable to create event from event payload: {0}", Level.INFO),
+    DEVICE_TYPE_IN_USE(3001, "deviceTypeInUseByIssueCreationRule", "Device type ''{0}'' has one or more configurations that are still in use by an issue creation rule", Level.SEVERE),
     ;
 
     private final int number;

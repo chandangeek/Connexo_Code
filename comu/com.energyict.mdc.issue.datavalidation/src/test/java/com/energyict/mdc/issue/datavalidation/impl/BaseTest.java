@@ -37,6 +37,7 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
@@ -94,9 +95,7 @@ import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
 
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public abstract class BaseTest {
 
@@ -148,6 +147,7 @@ public abstract class BaseTest {
                 new EventsModule(),
                 new DomainUtilModule(),
                 new OrmModule(),
+                new PkiModule(),
                 new DataVaultModule(),
                 new com.elster.jupiter.tasks.impl.TaskModule(),
                 new KpiModule(),
