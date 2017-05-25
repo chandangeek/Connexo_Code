@@ -62,7 +62,8 @@ Ext.define('Uni.view.form.ComboBoxWithEmptyComponent', {
                         required: me.config.required,
                         forceSelection: me.config.forceSelection,
                         editable: me.config.editable,
-                        msgTarget: me.config.msgTarget
+                        msgTarget: me.config.msgTarget,
+                        listeners: me.config.listeners
                     });
                     Ext.Array.each(me.myEvents, function(event) {
                         combo.on(event.event, event.func, event.scope);
