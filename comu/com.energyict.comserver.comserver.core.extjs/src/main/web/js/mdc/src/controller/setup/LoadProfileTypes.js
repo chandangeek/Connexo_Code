@@ -305,11 +305,11 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             clipBoardRecord = me.getStore('Mdc.store.Clipboard').get('model');
 
         if(clipBoardRecord && (!clipBoardRecord.get('id') || clipBoardRecord.get('id') === record.get('id'))) {
-                record = me.getStore('Mdc.store.Clipboard').get('model');
+            record = me.getStore('Mdc.store.Clipboard').get('model');
         } else {
             me.getRegisterTypesGrid().getStore().loadData(record.get('registerTypes'), false);
-            me.getStore('Mdc.store.Clipboard').removeAll(true);
         }
+        me.getStore('Mdc.store.Clipboard').removeAll(true);
         me.getEditForm().loadRecord(record);
     },
 
@@ -325,17 +325,11 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             editPage = me.getEditPage();
 
         if (!editPage) {
-            me.showEdit(id);
-            editPage = me.getEditPage();
+            me.getController('Uni.controller.history.Router').getRoute('administration/loadprofiletypes/edit').forward({id:id});
+            return;
         }
-        if (editPage && id != null) {
-            var loadProfileModel = me.getModel('Mdc.model.LoadProfileType');
-            store.getProxy().url = loadProfileModel.getProxy().url + '/' + id + '/measurementtypes';
-        } else {
-            store.getProxy().url = store.getProxy().baseUrl;
-        }
-        me.storeCurrentValues();
 
+        me.storeCurrentValues();
         Ext.suspendLayouts();
         editPage.getLayout().setActiveItem(1);
         editPage.setTitle(Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddRegisterTypesView.title', 'MDC', 'Add register types'));
