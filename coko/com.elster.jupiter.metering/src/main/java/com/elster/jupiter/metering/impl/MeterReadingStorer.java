@@ -103,10 +103,7 @@ public class MeterReadingStorer {
                     .filter(this::isRelevant)
                     .collect(Collectors.<ReadingQualityRecord>toList());
             mapper.remove(readingQualitiesForRemoval);
-            readingQualitiesForRemoval
-                    .stream()
-                    .map(ReadingQualityRecordImpl.class::cast)
-                    .forEach(ReadingQualityRecordImpl::notifyDeleted);
+            ReadingQualityRecordImpl.deleteAll(dataModel, readingQualitiesForRemoval);
         }
     }
 

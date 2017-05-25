@@ -489,40 +489,38 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
 
 
     private List<CalculatedReadingRecordImpl> addMissings(Map.Entry<ReadingType, List<CalculatedReadingRecordImpl>> readingTypeAndRecords, MetrologyContractCalculationIntrospector introspector, Range<Instant> period) {
+        List<CalculatedReadingRecordImpl> withMissings = new ArrayList<>(readingTypeAndRecords.getValue());
         if (!IntervalLength.NOT_SUPPORTED.equals(IntervalLength.from(readingTypeAndRecords.getKey()))) {
-            List<CalculatedReadingRecordImpl> withMissings = new ArrayList<>(readingTypeAndRecords.getValue());
             ZoneId zoneId = introspector.getUsagePoint().getZoneId();
             Year startYear = this.getStartYear(period, zoneId);
             Year endYear = this.getEndYear(period, zoneId);
             Range<Instant> extendedPeriod = this.extendToEndOfInterval(period, readingTypeAndRecords.getKey(), zoneId);
             List<ZonedCalendarUsage> calendarUsages =
                     introspector
-                        .getMetrologyContract()
-                        .getDeliverables()
-                        .stream()
-                        .filter(deliverable -> deliverable.getReadingType().equals(readingTypeAndRecords.getKey()))
-                        .findAny()
-                        .map(introspector::getCalendarUsagesFor)
-                        .orElseGet(Collections::emptyList)
-                        .stream()
-                        .map(calendarUsage -> new ZonedCalendarUsage(introspector.getUsagePoint(), zoneId, startYear, endYear, calendarUsage))
-                        .collect(Collectors.toList());
+                            .getMetrologyContract()
+                            .getDeliverables()
+                            .stream()
+                            .filter(deliverable -> deliverable.getReadingType().equals(readingTypeAndRecords.getKey()))
+                            .findAny()
+                            .map(introspector::getCalendarUsagesFor)
+                            .orElseGet(Collections::emptyList)
+                            .stream()
+                            .map(calendarUsage -> new ZonedCalendarUsage(introspector.getUsagePoint(), zoneId, startYear, endYear, calendarUsage))
+                            .collect(Collectors.toList());
             IntervalLength
                     .from(readingTypeAndRecords.getKey())
                     .toTimeSeries(extendedPeriod, zoneId)
                     .forEach(timestamp ->
                             this.findCalendarUsage(calendarUsages, timestamp)
-                                .ifPresent(calendarUsage ->
-                                        this.addMissingIfDifferentTimeOfUse(
-                                                calendarUsage,
-                                                readingTypeAndRecords.getKey(),
-                                                timestamp,
-                                                zoneId,
-                                                withMissings)));
-            return withMissings;
-        } else {
-            return readingTypeAndRecords.getValue();
+                                    .ifPresent(calendarUsage ->
+                                            this.addMissingIfDifferentTimeOfUse(
+                                                    calendarUsage,
+                                                    readingTypeAndRecords.getKey(),
+                                                    timestamp,
+                                                    zoneId,
+                                                    withMissings)));
         }
+        return withMissings;
     }
 
     private Year getStartYear(Range<Instant> period, ZoneId zoneId) {

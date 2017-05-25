@@ -273,6 +273,16 @@ public final class ChannelImpl implements SimpleChannelContract {
     }
 
     @Override
+    public Instant truncateToIntervalLength(Instant instant) {
+        if (isRegular()) {
+            TimeSeries timeSeries = getTimeSeries();
+            return timeSeries.isValidInstant(instant) ? instant : timeSeries.getPreviousDateTime(instant);
+        } else {
+            return instant;
+        }
+    }
+
+    @Override
     public Optional<TemporalAmount> getIntervalLength() {
         Iterator<IReadingType> it = getReadingTypes().iterator();
         Optional<TemporalAmount> result = it.next().getIntervalLength();
@@ -768,13 +778,7 @@ public final class ChannelImpl implements SimpleChannelContract {
             }
 
             timeSeries.get().removeEntries(Ranges.copy(instantRange).withOpenLowerBound());
-            dataModel.mapper(ReadingQualityRecord.class)
-                    .remove(qualities.values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
-            qualities.values()
-                    .stream()
-                    .flatMap(Collection::stream)
-                    .map(ReadingQualityRecordImpl.class::cast)
-                    .forEach(ReadingQualityRecordImpl::notifyDeleted);
+            ReadingQualityRecordImpl.deleteAll(dataModel, qualities.values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
             eventService.postEvent(EventType.READINGS_DELETED.topic(), new ReadingsDeletedEventImpl(this, readingTimes));
         }
         return meterReading;
