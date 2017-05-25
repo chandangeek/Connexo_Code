@@ -128,11 +128,24 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     }
 
     private void startPreActivationValidation(Instant start, Meter meter) {
+        validateMeterStages(meter, start);
         if (this.usagePoint.getEffectiveMetrologyConfiguration(start).isPresent()) {
             validateLinkWithMetrologyConfiguration(start, meter);
-        } else {
-            validateStageWithoutMetrologyConfig(meter, start);
         }
+    }
+
+    private void validateMeterStages(Meter meter, Instant meterStartDate) {
+        if (!meter.getState(meterStartDate).isPresent()) {
+            throw new UsagePointMeterActivationException.IncorrectLifeCycleStage(metrologyConfigurationService.getThesaurus(),
+                    meter.getName(), this.usagePoint.getName(), formatDate(meterStartDate));
+        }
+        meter.getStateTimeline().ifPresent(stateTimeline -> stateTimeline.getSlices().forEach(stateTimeSlice -> {
+            Optional<Stage> stage = stateTimeSlice.getState().getStage();
+            if (stage.isPresent() && EndDeviceStage.fromKey(stage.get().getName()).equals(EndDeviceStage.POST_OPERATIONAL)) {
+                throw new UsagePointMeterActivationException.IncorrectLifeCycleStage(metrologyConfigurationService.getThesaurus(),
+                        meter.getName(), this.usagePoint.getName(), formatDate(meterStartDate));
+            }
+        }));
     }
 
     private void validateLinkWithMetrologyConfiguration(Instant start, Meter meter) {
@@ -142,29 +155,12 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         }
     }
 
-    private void validateStageWithoutMetrologyConfig(Meter meter, Instant meterStartDate) {
-        checkState(meter, meterStartDate);
-        meter.getState(meterStartDate).get().getStage().ifPresent(stage -> {
-            EndDeviceStage deviceStage = EndDeviceStage.fromKey(stage.getName());
-            if (!deviceStage.equals(EndDeviceStage.OPERATIONAL) && !deviceStage.equals(EndDeviceStage.PRE_OPERATIONAL)) {
-                throw new UsagePointMeterActivationException.IncorrectLifeCycleStage(metrologyConfigurationService.getThesaurus(), meter.getName(), this.usagePoint.getName(), formatDate(meterStartDate));
-            }
-        });
-    }
-
     private void validateOperationalStageWithGaps(Meter meter, Instant meterStartDate) {
-        checkState(meter, meterStartDate);
         meter.getState(meterStartDate).get().getStage().ifPresent(deviceStage -> {
             if(!EndDeviceStage.fromKey(deviceStage.getName()).equals(EndDeviceStage.OPERATIONAL)) {
                 throw new UsagePointMeterActivationException.IncorrectMeterActivationDateWhenGapsAreAllowed(metrologyConfigurationService.getThesaurus(), meter.getName(), this.usagePoint.getName());
             }
         });
-    }
-
-    private void checkState(Meter meter, Instant start) {
-        if (!meter.getState(start).isPresent()) {
-            throw new UsagePointMeterActivationException.IncorrectLifeCycleStage(metrologyConfigurationService.getThesaurus(), meter.getName(), this.usagePoint.getName(), formatDate(start));
-        }
     }
 
     private String formatDate(Instant date) {
