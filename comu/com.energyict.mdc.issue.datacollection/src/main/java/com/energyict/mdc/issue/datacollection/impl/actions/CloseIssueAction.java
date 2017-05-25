@@ -8,6 +8,7 @@ import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueActionResult.DefaultActionResult;
+import com.elster.jupiter.issue.share.entity.ActionType;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -113,6 +114,11 @@ public class CloseIssueAction extends AbstractIssueAction {
     @Override
     public boolean isApplicableForUser(User user) {
         return super.isApplicableForUser(user) && user.getPrivileges().stream().filter(p -> Privileges.Constants.CLOSE_ISSUE.equals(p.getName())).findAny().isPresent();
+    }
+
+    @Override
+    public long getActionType() {
+        return ActionType.REMOVE.getValue();
     }
 
     private Optional<IssueStatus> getStatusFromParameters(Map<String, Object> properties){

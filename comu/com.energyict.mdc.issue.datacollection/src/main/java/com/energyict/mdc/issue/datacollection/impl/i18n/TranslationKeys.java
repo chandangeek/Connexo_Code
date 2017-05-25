@@ -22,7 +22,7 @@ public enum TranslationKeys implements TranslationKey {
     PARAMETER_NAME_THRESHOLD(EventAggregationRuleTemplate.THRESHOLD, "Threshold (%)"),
     PARAMETER_NAME_EVENT_TYPE_FOR_AGGREGATION(EventAggregationRuleTemplate.EVENTTYPE, "Event"),
 
-    ISSUE_TYPE_DATA_COLLECTION("IssueTypeDataCollection", "Data Collection"),
+    ISSUE_TYPE_DATA_COLLECTION("IssueTypeDataCollection", "Data collection"),
     ISSUE_REASON_UNKNOWN_INBOUND_DEVICE("IssueReasonUnknownInboundDevice", "Unknown inbound device"),
     ISSUE_REASON_UNKNOWN_OUTBOUND_DEVICE("IssueReasonUnknownOutboundDevice", "Unknown outbound device"),
     ISSUE_REASON_FAILED_TO_COMMUNICATE("IssueReasonFailedToCommunicate", "Failed to communicate"),
