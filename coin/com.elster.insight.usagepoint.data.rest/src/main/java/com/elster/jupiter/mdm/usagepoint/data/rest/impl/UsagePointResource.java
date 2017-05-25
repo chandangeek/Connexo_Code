@@ -121,6 +121,7 @@ import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
@@ -1148,7 +1149,8 @@ public class UsagePointResource {
                 if (usagePointMetrologyConfiguration.requiresCalendarOnUsagePoint()) {
                     this.addFakeCalendar(usagePoint, usagePointMetrologyConfiguration.getEventSets());
                 }
-                usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
+                usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime,
+                        getActiveContractsFromConfiguration(usagePointMetrologyConfiguration, info.metrologyConfiguration));
                 resourceHelper.activateMeters(info, usagePoint);
             }
         } catch (UsagePointManagementException ex) {
@@ -1184,6 +1186,21 @@ public class UsagePointResource {
                 usagePoint.getUsedCalendars().addCalendar(calendar, start);
             }
         });
+    }
+
+    private Set<MetrologyContract> getActiveContractsFromConfiguration(UsagePointMetrologyConfiguration usagePointMetrologyConfiguration, MetrologyConfigurationInfo info) {
+        if (info.purposes != null) {
+            return usagePointMetrologyConfiguration.getContracts()
+                    .stream()
+                    .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
+                    .filter(metrologyContract -> info.purposes.stream()
+                            .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
+                    .filter(metrologyContract -> !metrologyContract.isMandatory())
+                    .distinct()
+                    .collect(Collectors.toSet());
+        }
+
+        return Collections.emptySet();
     }
 
     private void addFakeCalendar(UsagePoint usagePoint, List<EventSet> eventSets) {
@@ -1239,7 +1256,8 @@ public class UsagePointResource {
             if (info.metrologyConfiguration != null) {
                 UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper
                         .findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
-                usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
+                usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime,
+                        getActiveContractsFromConfiguration(usagePointMetrologyConfiguration, info.metrologyConfiguration));
             }
 
             info.customPropertySets.forEach(customPropertySetInfo -> resourceHelper.persistCustomProperties(usagePoint, customPropertySetInfo));
