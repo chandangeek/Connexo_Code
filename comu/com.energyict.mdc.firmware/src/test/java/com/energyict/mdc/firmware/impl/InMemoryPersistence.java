@@ -32,6 +32,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pki.impl.PkiModule;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
@@ -61,6 +62,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -83,6 +85,7 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -164,7 +167,8 @@ public class InMemoryPersistence {
                 new MasterDataModule(),
                 new DeviceDataModule(),
                 new FirmwareModule(),
-                new CalendarModule());
+                new CalendarModule(),
+                new PkiModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(OrmService.class);
@@ -194,6 +198,7 @@ public class InMemoryPersistence {
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommunicationTestServiceCallCustomPropertySet());
     }
 
     private void initializeMocks(String testName) {
@@ -262,7 +267,7 @@ public class InMemoryPersistence {
 
                     @Override
                     public DeviceMessageId getId() {
-                        return DeviceMessageId.havingId(id);
+                        return DeviceMessageId.from(id);
                     }
 
                     @Override
