@@ -4,11 +4,16 @@
 
 package com.elster.jupiter.validation;
 
-import java.util.List;
+import aQute.bnd.annotation.ConsumerType;
+import com.google.common.collect.RangeSet;
 
+import java.time.Instant;
+import java.util.Map;
+
+@ConsumerType
 public interface ValidationRuleSetResolver {
 
-    List<ValidationRuleSet> resolve(ValidationContext validationContext);
+    Map<ValidationRuleSet, RangeSet<Instant>> resolve(ValidationContext validationContext);
 
     boolean isValidationRuleSetInUse(ValidationRuleSet ruleset);
 }

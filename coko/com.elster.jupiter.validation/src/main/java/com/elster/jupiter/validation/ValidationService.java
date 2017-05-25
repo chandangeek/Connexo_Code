@@ -85,6 +85,16 @@ public interface ValidationService {
 
     boolean isValidationActive(ChannelsContainer channelsContainer);
 
+    /**
+     * Method to update validation statuses of channels in provided channels container.
+     * NOTE: use only if necessary. validation status update already included into some
+     * operations related to getting these status, so avoid double updating
+     * since it is time/resource consuming.
+     *
+     * @param channelsContainer Container with channels to update validation status
+     */
+    void forceUpdateValidationStatus(ChannelsContainer channelsContainer);
+
     List<Meter> validationEnabledMetersIn(List<String> meterMrids);
 
     boolean validationOnStorageEnabled(Meter meter);
@@ -95,7 +105,13 @@ public interface ValidationService {
 
     Optional<Instant> getLastValidationRun(ChannelsContainer channelsContainer);
 
+    /**
+     * Please consider {@link #moveLastCheckedBefore(ChannelsContainer, Instant)} instead.
+     */
+    @Deprecated
     void updateLastChecked(ChannelsContainer channelsContainer, Instant date);
+
+    void moveLastCheckedBefore(ChannelsContainer channelsContainer, Instant date);
 
     /**
      * Please consider {@link #moveLastCheckedBefore(Channel, Instant)} instead.
@@ -124,7 +140,27 @@ public interface ValidationService {
      */
     void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType);
 
-    void validate(ValidationContext validationContext, Instant date);
+    /**
+     * Validates the scope of data corresponding to a given {@link ValidationContext} at most starting from a given date.
+     *
+     * @param validationContext Target {@link ValidationContext}.
+     * @param validateAtMostFrom A minimum timestamp that requires (re)validation, i.e.
+     * (re)validation will be performed starting from this timestamp inclusively.
+     * However if current last checked timestamp for a part of given {@code validationContext} is before this timestamp,
+     * validation will be performed starting from last checked timestamp exclusively.
+     */
+    void validate(ValidationContext validationContext, Instant validateAtMostFrom);
+
+    /**
+     * Validates the scope of data corresponding to a given {@link ValidationContext} on a given interval.
+     *
+     * @param validationContext Target {@link ValidationContext}.
+     * @param interval An interval of data that requires (re)validation, i.e.
+     * (re)validation will be performed starting from the start of a given interval inclusively until the end of interval.
+     * However if current last checked timestamp for a part of given {@code validationContext} is before the start of interval,
+     * validation will be performed starting from last checked timestamp exclusively.
+     */
+    void validate(ValidationContext validationContext, Range<Instant> interval);
 
     /**
      * Resets last checked date on {@link Channel Channels} specified in the given map before the beginning of corresponding {@link Range Ranges},

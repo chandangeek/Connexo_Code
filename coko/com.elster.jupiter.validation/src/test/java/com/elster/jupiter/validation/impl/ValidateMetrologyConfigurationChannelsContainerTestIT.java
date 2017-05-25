@@ -48,12 +48,16 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 
+import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -184,8 +188,10 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
 
         validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
             @Override
-            public List<ValidationRuleSet> resolve(ValidationContext validationContext) {
-                return Collections.singletonList(validationRuleSet);
+            public Map<ValidationRuleSet, RangeSet<Instant>> resolve(ValidationContext validationContext) {
+                RangeSet<Instant> rangeSet = TreeRangeSet.create();
+                rangeSet.add(Range.atLeast(Instant.EPOCH));
+                return Collections.singletonMap(validationRuleSet, rangeSet);
             }
 
             @Override
@@ -239,5 +245,11 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
     private static void setupDefaultUsagePointLifeCycle() {
         UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService = inMemoryBootstrapModule.get(UsagePointLifeCycleConfigurationService.class);
         usagePointLifeCycleConfigurationService.newUsagePointLifeCycle("Default life cycle").markAsDefault();
+    }
+
+    private RangeSet<Instant> of(Range<Instant> ... ranges) {
+        ImmutableRangeSet.Builder<Instant> builder = ImmutableRangeSet.builder();
+        Arrays.stream(ranges).forEach(range -> builder.add(range));
+        return builder.build();
     }
 }

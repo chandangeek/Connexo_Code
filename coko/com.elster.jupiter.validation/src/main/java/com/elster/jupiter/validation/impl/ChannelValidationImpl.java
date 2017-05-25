@@ -9,10 +9,13 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -27,6 +30,7 @@ final class ChannelValidationImpl implements ChannelValidation {
     private long channelId;
     private Reference<ChannelsContainerValidation> channelsContainerValidation = ValueReference.absent();
     private Instant lastChecked;
+    private boolean lastValidationComplete;
     @SuppressWarnings("unused")
     private boolean activeRules;
     private Channel channel;
@@ -84,7 +88,7 @@ final class ChannelValidationImpl implements ChannelValidation {
                 .collect(Collectors.toList());
     }
 
-    private List<IValidationRule> activeRulesOfVersion(IValidationRuleSetVersion version) {
+    private List<IValidationRule> activeRulesOfVersion(ValidationRuleSetVersion version) {
         return version.getRules().stream()
                 .map(IValidationRule.class::cast)
                 .filter(rule -> rule.appliesTo(getChannel()))
@@ -139,31 +143,54 @@ final class ChannelValidationImpl implements ChannelValidation {
         if (instant.isAfter(lastChecked)) {
             return false;
         }
-        Instant lastCheckedCandidate = instant.minusMillis(1);
+        Instant lastCheckedCandidate = getChannel().isRegular() ? getChannel().getPreviousDateTime(instant) : instant.minusMillis(1);
         Instant minLastChecked = minLastChecked();
         return updateLastChecked(minLastChecked.isAfter(lastCheckedCandidate) ? minLastChecked : lastCheckedCandidate);
     }
 
     @Override
-    public void validate() {
-        Instant end = getChannel().getLastDateTime();
-        if (end != null && lastChecked.isBefore(end)) {
-            Range<Instant> dataRange = Range.openClosed(lastChecked, end);
+    public void validate(RangeSet<Instant> ranges) {
+        ranges.asRanges().stream()
+                .map(this::validate)
+                .max(Comparator.naturalOrder())
+                .ifPresent(this::updateLastChecked);
+        RangeSet<Instant> notValidatedRanges = ranges.subRangeSet(Range.greaterThan(getLastChecked()));
+        lastValidationComplete = notValidatedRanges.asRanges().isEmpty()
+                || !notValidatedRanges.asRanges().stream().filter(range -> !channel.getReadings(range).isEmpty()).findAny().isPresent();
+    }
+
+    @Override
+    public boolean isLastValidationComplete() {
+        return lastValidationComplete;
+    }
+
+    private Instant validate(Range<Instant> validationRange) {
+        if (!validationRange.hasUpperBound()) {
+            return lastChecked;
+        }
+        Range<Instant> range = Ranges.copy(validationRange).withClosedUpperBound(channel.truncateToIntervalLength(validationRange.upperEndpoint()));
+        if (range.hasUpperBound() && lastChecked.isBefore(range.upperEndpoint())) {
+            Range<Instant> dataRange = Ranges.copy(Range.openClosed(lastChecked, range.upperEndpoint()).intersection(range)).asOpenClosed();
             List<? extends ValidationRuleSetVersion> versions = getChannelsContainerValidation().getRuleSet().getRuleSetVersions();
 
-            Instant newLastChecked = versions.stream()
-                    .map(IValidationRuleSetVersion.class::cast)
-                    .filter(cv -> dataRange.isConnected(Range.openClosed(cv.getNotNullStartDate(), cv.getNotNullEndDate())))
-                    .flatMap(currentVersion -> {
-                        Range<Instant> versionRange = Range.openClosed(currentVersion.getNotNullStartDate(), currentVersion.getNotNullEndDate());
-                        Range<Instant> rangeToValidate = dataRange.intersection(versionRange);
-                        ChannelValidator validator = new ChannelValidator(getChannel(), rangeToValidate);
-                        return activeRulesOfVersion(currentVersion).stream()
-                                .map(validator::validateRule);
-                    })
-                    .min(Comparator.naturalOrder()).orElse(end);
-
-            updateLastChecked(newLastChecked);
+            return versions.stream()
+                    .map(currentVersion -> Ranges.nonEmptyIntersection(dataRange, currentVersion.getRange())
+                            .flatMap(rangeToValidate -> {
+                                ChannelValidator validator = new ChannelValidator(channel, rangeToValidate);
+                                return activeRulesOfVersion(currentVersion).stream()
+                                        .map(validator::validateRule)
+                                        .min(Comparator.naturalOrder()); // minimum by rules
+                            }))
+                    .flatMap(Functions.asStream())
+                    .min(Comparator.naturalOrder()) // minimum by versions TODO CXO-6665: wat?
+                    // it prevents from validation with several versions at one shot.
+                    // as per agreement with Igor Nesterov, a proper behavior might be
+                    // not to validate with later version until all data are validated within the range of the previous one,
+                    // and to keep the latest resulting lastChecked as master lastChecked.
+                    .orElse(range.upperEndpoint());
         }
+        return lastChecked;
     }
+
+
 }

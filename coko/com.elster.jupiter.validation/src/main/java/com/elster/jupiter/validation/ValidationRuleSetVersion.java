@@ -4,8 +4,10 @@
 
 package com.elster.jupiter.validation;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
+
+import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -24,6 +26,8 @@ public interface ValidationRuleSetVersion {
     Instant getStartDate();
 
     Instant getEndDate();
+
+    Range<Instant> getRange();
 
     void setStartDate(Instant startDate);
     void setEndDate(Instant endDate);

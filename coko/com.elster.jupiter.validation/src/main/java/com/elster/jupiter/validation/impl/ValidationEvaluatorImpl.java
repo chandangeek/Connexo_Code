@@ -57,7 +57,9 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
             if (validations == null || validations.isEmpty()) {
                 validations = validationService.getPersistedChannelsContainerValidations(channelsContainer);
                 if (validations == null || validations.isEmpty()) { // For case when validation never start before
-                    validations = validationService.getUpdatedChannelsContainerValidations(new ValidationContextImpl(channelsContainer));
+                    validations = validationService.getUpdatedChannelsContainerValidations(new ValidationContextImpl(channelsContainer)).stream()
+                            .map(EffectiveChannelsContainerValidation::getChannelsContainerValidation)
+                            .collect(Collectors.toList());
                 }
                 channelsContainerValidations.put(channelsContainer.getId(), validations);
             }

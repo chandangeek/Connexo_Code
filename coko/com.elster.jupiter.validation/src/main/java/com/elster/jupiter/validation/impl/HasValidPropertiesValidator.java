@@ -4,15 +4,15 @@
 
 package com.elster.jupiter.validation.impl;
 
-import java.util.List;
-import java.util.Map;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
+import com.elster.jupiter.validation.ValidatorNotFoundException;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.validation.ValidatorNotFoundException;
+import java.util.List;
+import java.util.Map;
 
 public class HasValidPropertiesValidator implements ConstraintValidator<HasValidProperties, ValidationRuleImpl> {
 
@@ -28,7 +28,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
     public boolean isValid(ValidationRuleImpl validationRule, ConstraintValidatorContext context) {
         try {
             Map<String, Object> properties = validationRule.getProps();
-            List<PropertySpec> propertySpecs = validationRule.getPropertySpecs();
+            List<PropertySpec> propertySpecs = validationRule.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE);
             this.validatePropertiesAreLinkedToAttributeSpecs(properties, propertySpecs, context);
             this.validateRequiredPropertiesArePresent(properties, propertySpecs, context);
             this.validatePropertyValues(properties, propertySpecs, context);

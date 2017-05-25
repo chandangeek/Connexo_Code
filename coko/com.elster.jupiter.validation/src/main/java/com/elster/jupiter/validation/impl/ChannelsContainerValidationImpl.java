@@ -18,6 +18,8 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -48,7 +50,6 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
     private Instant lastRun;
     private List<ChannelValidation> channelValidations = new ArrayList<>();
     private Instant obsoleteTime;
-
     private final DataModel dataModel;
     private final Clock clock;
     private boolean active = true;
@@ -131,28 +132,42 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
         return Collections.unmodifiableSet(new HashSet<>(channelValidations));
     }
 
-    @Override
-    public void validate() {
+    public void validate(Collection<Channel> channels) {
         if (isActive()) {
-            getChannelsContainer().getChannels().forEach(this::validateChannel);
+            channels.forEach(channel -> validateChannel(channel, getDefaultRangeSet(channel.getLastDateTime())));
             lastRun = Instant.now(clock);
             save();
         }
     }
 
     @Override
-    public void validate(Collection<Channel> channels) {
+    public void validate(Collection<Channel> channels, Instant until) {
         if (isActive()) {
-            channels.forEach(this::validateChannel);
+            channels.forEach(channel -> validateChannel(channel, getDefaultRangeSet(until)));
+            lastRun = Instant.now(clock);
             save();
         }
     }
 
-    private void validateChannel(Channel channel) {
+    @Override
+    public void validate(RangeSet<Instant> ranges) {
+        this.validate(getChannelsContainer().getChannels(), ranges);
+    }
+
+    @Override
+    public void validate(Collection<Channel> channels, RangeSet<Instant> ranges) {
+        if (isActive()) {
+            channels.stream().filter(channel -> channel.getLastDateTime() != null).forEach(channel -> validateChannel(channel, ranges));
+            lastRun = Instant.now(clock);
+            save();
+        }
+    }
+
+    private void validateChannel(Channel channel, RangeSet<Instant> ranges) {
         List<IValidationRule> activeRules = getActiveRules();
         if (hasApplicableRules(channel, activeRules)) {
             ChannelValidationImpl channelValidation = findOrAddValidationFor(channel);
-            channelValidation.validate();
+            channelValidation.validate(ranges.subRangeSet(Range.atMost(channel.getLastDateTime())));
             channelValidation.setActiveRules(true);
         } else {
             ChannelValidationImpl channelValidation = findValidationFor(channel);
@@ -160,6 +175,12 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
                 channelValidation.setActiveRules(false);
             }
         }
+    }
+
+    private RangeSet<Instant> getDefaultRangeSet(Instant until) {
+        RangeSet<Instant> ranges = TreeRangeSet.create();
+        ranges.add(Range.openClosed(getChannelsContainer().getStart(), until));
+        return ranges;
     }
 
     private boolean hasApplicableRules(Channel channel, List<IValidationRule> activeRules) {
@@ -298,7 +319,7 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
         }
     }
 
-    private void updateLastRun(){
+    private void updateLastRun() {
         Instant minLastChecked = getMinLastChecked();
         if (minLastChecked != null) {
             Instant firstMeterActivation = getChannelsContainer().getMeter().flatMap(meter -> {

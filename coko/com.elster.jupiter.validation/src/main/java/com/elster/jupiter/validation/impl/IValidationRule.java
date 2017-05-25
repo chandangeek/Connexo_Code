@@ -5,6 +5,9 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
@@ -32,7 +35,9 @@ public interface IValidationRule extends ValidationRule {
 
     void setProperties(Map<String, Object> map);
 
-    Validator createNewValidator();
+    ReadingQualityType getReadingQualityType();
+
+    Validator createNewValidator(ChannelsContainer channelsContainer, ReadingType readingType);
 
     boolean appliesTo(Channel channel);
 }

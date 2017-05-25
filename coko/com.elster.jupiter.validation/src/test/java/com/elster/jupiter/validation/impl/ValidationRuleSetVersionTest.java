@@ -16,6 +16,7 @@ import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
+import com.elster.jupiter.validation.Validator;
 
 import com.google.common.collect.ImmutableList;
 
@@ -26,7 +27,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +35,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -61,6 +62,8 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
     @Mock
     private MeteringService meteringService;
     @Mock
+    private ServerValidationService validationService;
+    @Mock
     private ValidatorCreator validatorCreator;
     @Mock
     private DataMapper<ValidationRuleProperties> rulePropertiesSet;
@@ -78,7 +81,8 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
     private Clock clock;
 
     private Provider<ReadingTypeInValidationRuleImpl> readingTypeInRuleProvider = () -> new ReadingTypeInValidationRuleImpl(meteringService);
-    private Provider<ValidationRuleImpl> ruleProvider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, readingTypeInRuleProvider,clock);
+    private Provider<ValidationRuleImpl> ruleProvider =
+            () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, validationService, readingTypeInRuleProvider, clock);
     private Provider<ValidationRuleSetVersionImpl> versionProvider = () -> new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider, clock);
 
     @Before
@@ -94,9 +98,6 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         when(clock.instant()).thenReturn(Instant.now());
         validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider, clock).init(NAME, DEFAULT_QUALITY_SYSTEM, null);
         validationRuleSetVersion = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider, clock).init(validationRuleSet, null, null);
-    }
-    @After
-    public void tearDown() {
     }
 
     @Override
@@ -141,7 +142,6 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         assertThat(validationRuleSetVersion.getDescription()).isNullOrEmpty();
     }
 
-
     @Test
     public void testUpdate() {
         setId(validationRuleSetVersion, ID);
@@ -149,7 +149,6 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         validationRuleSetVersion.save();
 
         verify(dataModel).update(validationRuleSetVersion);
-
     }
 
     @Test
@@ -169,6 +168,8 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
 
     @Test
     public void testUpdateWithRulesPerformsNecessaryDBOperations() {
+        mockValidator("A");
+        mockValidator("B");
         IValidationRule rule1 = validationRuleSetVersion.newRule(ValidationAction.FAIL, "A", "rulename");
         IValidationRule rule2 = validationRuleSetVersion.newRule(ValidationAction.FAIL, "B", "rulename");
         validationRuleSetVersion.save();
@@ -178,6 +179,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         when(ruleFactory.find()).thenReturn(Arrays.asList(rule1, rule2));
 
         validationRuleSetVersion.deleteRule(rule1);
+        mockValidator("C");
         IValidationRule rule3 = validationRuleSetVersion.newRule(ValidationAction.FAIL, "C", "rulename");
 
         validationRuleSetVersion.save();
@@ -188,11 +190,12 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
 
     @Test
     public void testUpdateRuleAction() {
+        mockValidator("A");
         IValidationRule rule1 = validationRuleSetVersion.newRule(ValidationAction.FAIL, "A", "rulename");
         validationRuleSetVersion.save();
         setId(validationRuleSetVersion, ID);
         setId(rule1, 1001L);
-        when(ruleFactory.find()).thenReturn(Arrays.asList(rule1));
+        when(ruleFactory.find()).thenReturn(Collections.singletonList(rule1));
         validationRuleSetVersion.save();
         assertThat(rule1.getAction()).isEqualTo(ValidationAction.FAIL);
 
@@ -202,7 +205,11 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         assertThat(validationRuleSetVersion.getRules()).hasSize(1).contains(rule1);
         assertThat(rule1.getName()).isEqualTo("rulename2");
         assertThat(rule1.getAction()).isEqualTo(ValidationAction.WARN_ONLY);
-
     }
 
+    private Validator mockValidator(String implementation) {
+        Validator validator = mock(Validator.class);
+        when(validatorCreator.getTemplateValidator(implementation)).thenReturn(validator);
+        return validator;
+    }
 }

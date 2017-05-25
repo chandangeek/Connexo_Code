@@ -54,6 +54,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationContext;
+import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -64,6 +65,8 @@ import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -77,6 +80,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -189,6 +193,7 @@ public class ValidationOnStoreIT {
         when(validatorFactory.create(eq(MIN_MAX), anyMapOf(String.class, Object.class))).thenReturn(minMax);
         when(minMax.getReadingQualityCodeIndex()).thenReturn(Optional.empty());
         when(minMax.getPropertySpecs()).thenReturn(Arrays.asList(min, max));
+        when(minMax.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)).thenReturn(Arrays.asList(min, max));
         when(minMax.validate(any(IntervalReadingRecord.class))).thenReturn(ValidationResult.SUSPECT);
         when(min.getName()).thenReturn(MIN);
         when(min.getValueFactory()).thenReturn(valueFactory);
@@ -196,6 +201,7 @@ public class ValidationOnStoreIT {
         when(max.getValueFactory()).thenReturn(valueFactory);
         when(conseqZero.getReadingQualityCodeIndex()).thenReturn(Optional.empty());
         when(conseqZero.getPropertySpecs()).thenReturn(Collections.singletonList(conZero));
+        when(conseqZero.getPropertySpecs(ValidationPropertyDefinitionLevel.VALIDATION_RULE)).thenReturn(Collections.singletonList(conZero));
         when(conZero.getName()).thenReturn(MAX_NUMBER_IN_SEQUENCE);
         when(conZero.getValueFactory()).thenReturn(valueFactory);
 
@@ -232,8 +238,10 @@ public class ValidationOnStoreIT {
 
                 validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                     @Override
-                    public List<ValidationRuleSet> resolve(ValidationContext validationContext) {
-                        return Collections.singletonList(validationRuleSet);
+                    public Map<ValidationRuleSet, RangeSet<Instant>> resolve(ValidationContext validationContext) {
+                        RangeSet<Instant> rangeSet = TreeRangeSet.create();
+                        rangeSet.add(Range.atLeast(date1));
+                        return Collections.singletonMap(validationRuleSet, rangeSet);
                     }
 
                     @Override

@@ -28,13 +28,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -50,7 +51,7 @@ public class ChannelsContainerValidationImplTest {
     private static final long FIRST_CHANNEL_ID = 1001L;
     private static final long SECOND_CHANNEL_ID = 1002L;
 
-    ChannelsContainerValidationImpl channelsContainerValidation;
+    private ChannelsContainerValidationImpl channelsContainerValidation;
 
     @Mock
     private ChannelsContainer channelsContainer;
@@ -79,7 +80,6 @@ public class ChannelsContainerValidationImplTest {
     @Mock
     private IValidationRuleSetVersion ruleSetVersion1, ruleSetVersion2;
 
-
     @Before
     public void setUp() {
         when(dataModel.mapper(ChannelValidation.class)).thenReturn(channelValidationFactory);
@@ -91,22 +91,32 @@ public class ChannelsContainerValidationImplTest {
         when(meteringService.findChannel(SECOND_CHANNEL_ID)).thenReturn(Optional.of(channel2));
         when(channelsContainer.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(channel1.getId()).thenReturn(FIRST_CHANNEL_ID);
-        doReturn(Arrays.asList(readingType1)).when(channel1).getReadingTypes();
+        doReturn(Collections.singletonList(readingType1)).when(channel1).getReadingTypes();
+        when(channel1.truncateToIntervalLength(any(Instant.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return invocationOnMock.getArguments()[0];
+            }
+        });
+        when(channel2.truncateToIntervalLength(any(Instant.class))).thenAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return invocationOnMock.getArguments()[0];
+            }
+        });
         when(channel2.getId()).thenReturn(SECOND_CHANNEL_ID);
-        doReturn(Arrays.asList(readingType2)).when(channel2).getReadingTypes();
+        doReturn(Collections.singletonList(readingType2)).when(channel2).getReadingTypes();
         when(channel1.getChannelsContainer()).thenReturn(channelsContainer);
         when(channel2.getChannelsContainer()).thenReturn(channelsContainer);
         when(validationRuleSet.getRules()).thenReturn(Arrays.asList(rule1, rule2));
         when(validationRuleSet.getRuleSetVersions()).thenReturn(Arrays.asList(ruleSetVersion1, ruleSetVersion2));
-        when(ruleSetVersion1.getNotNullStartDate()).thenReturn(Instant.EPOCH);
-        when(ruleSetVersion1.getNotNullEndDate()).thenReturn(DATE1);
-        when(ruleSetVersion2.getNotNullStartDate()).thenReturn(DATE4.plusSeconds(1));
-        when(ruleSetVersion2.getNotNullEndDate()).thenReturn(Instant.MAX);
+        when(ruleSetVersion1.getRange()).thenReturn(Range.atMost(DATE1));
+        when(ruleSetVersion2.getRange()).thenReturn(Range.greaterThan(DATE4.plusSeconds(1)));
         when(ruleSetVersion2.getRules()).thenReturn(Arrays.asList(rule1, rule2));
         when(rule1.isActive()).thenReturn(true);
         when(rule2.isActive()).thenReturn(true);
-        when(rule1.createNewValidator()).thenReturn(validator);
-        when(rule2.createNewValidator()).thenReturn(validator);
+        when(rule1.createNewValidator(any(), any())).thenReturn(validator);
+        when(rule2.createNewValidator(any(), any())).thenReturn(validator);
 
         when(channel1.getMainReadingType()).thenReturn(readingType1);
         when(channel2.getMainReadingType()).thenReturn(readingType2);
@@ -121,22 +131,18 @@ public class ChannelsContainerValidationImplTest {
         channelsContainerValidation.save();
     }
 
-    @After
-    public void tearDown() {
-    }
-
     @Test
     public void testValidateWithoutChannels() throws Exception {
-        when(channelsContainer.getChannels()).thenReturn(Collections.<Channel>emptyList());
+        when(channelsContainer.getChannels()).thenReturn(Collections.emptyList());
 
-        channelsContainerValidation.validate();
+        channelsContainerValidation.validate(Collections.emptyList());
 
         assertThat(channelsContainerValidation.getLastRun()).isEqualTo(DATE3);
     }
 
     @Test
     public void testValidateNoRulesApply() throws Exception {
-        channelsContainerValidation.validate();
+        channelsContainerValidation.validate(Collections.emptyList());
 
         assertThat(channelsContainerValidation.getChannelValidations()).isEmpty();
     }
@@ -146,18 +152,17 @@ public class ChannelsContainerValidationImplTest {
         doReturn(Collections.singleton(readingType1)).when(rule1).getReadingTypes();
         when(channel1.getLastDateTime()).thenReturn(DATE4);
         when(channel1.isRegular()).thenReturn(true);
-        when(channel1.getIntervalReadings(Range.openClosed(DATE1, DATE4))).thenReturn(Arrays.asList(intervalReadingRecord));
+        when(channel1.getIntervalReadings(Range.openClosed(DATE1, DATE4))).thenReturn(Collections.singletonList(intervalReadingRecord));
         when(intervalReadingRecord.filter(any())).thenReturn(intervalReadingRecord);
         when(intervalReadingRecord.getTimeStamp()).thenReturn(DATE4);
         when(validator.validate(any(IntervalReadingRecord.class))).thenReturn(ValidationResult.VALID);
 
-        channelsContainerValidation.validate();
+        channelsContainerValidation.validate(Collections.singletonList(channel1));
 
         assertThat(channelsContainerValidation.getChannelValidations()).hasSize(1);
         ChannelValidation channelValidation = channelsContainerValidation.getChannelValidations().iterator().next();
         assertThat(channelValidation.getChannel()).isEqualTo(channel1);
         assertThat(channelValidation.getLastChecked()).isEqualTo(DATE4);
-
     }
 
     @Test
@@ -167,7 +172,7 @@ public class ChannelsContainerValidationImplTest {
         when(channel1.getLastDateTime()).thenReturn(DATE4);
         when(channel2.getLastDateTime()).thenReturn(DATE4);
 
-        channelsContainerValidation.validate();
+        channelsContainerValidation.validate(Arrays.asList(channel1, channel2));
 
         assertThat(channelsContainerValidation.getChannelValidations()).hasSize(2);
         Iterator<ChannelValidation> iterator = channelsContainerValidation.getChannelValidations().iterator();
@@ -185,5 +190,4 @@ public class ChannelsContainerValidationImplTest {
         channelsContainerValidation.activate();
         assertThat(channelsContainerValidation.isActive()).isEqualTo(true);
     }
-
 }
