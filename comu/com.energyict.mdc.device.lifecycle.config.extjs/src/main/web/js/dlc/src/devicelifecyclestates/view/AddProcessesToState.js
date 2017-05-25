@@ -51,7 +51,8 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
                             name: 'add',
                             itemId: 'btn-add-process',
                             action: 'addTransitionBusinessProcess',
-                            ui: 'action'
+                            ui: 'action',
+                            disabled: true
                         },
                         {
                             name: 'cancel',
@@ -83,14 +84,12 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
                        // filtering can result to empty grid: gridContainer acts on this by showing 'empty component'
                        me.down('#gridContainer').onChange(availableProcesses);
                        me.down('#btn-add-process').setVisible(availableProcesses.count() !== 0);
-                       me.down('#lnk-cancel-process').setVisible(availableProcesses.count() !== 0);
                    }
-               }else{
+               } else {
                    console.warn("Available business processes could not be loaded");
                    // show gridContainer's 'empty component'
                    me.down('#gridContainer').onLoad(availableProcesses, records);
                    me.down('#btn-add-process').setVisible(false);
-                   me.down('#lnk-cancel-process').setVisible(false);
                }
             })
         }

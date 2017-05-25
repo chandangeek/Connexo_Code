@@ -60,14 +60,7 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                     privileges: Dlc.privileges.DeviceLifeCycle.configure,
                                     dynamicPrivilegeStores: Dlc.dynamicprivileges.Stores.deviceLifeCycleStore,
                                     dynamicPrivilege: Dlc.dynamicprivileges.DeviceLifeCycle.viable,
-                                    action: 'showEditDeviceLifeCycle',
-                                    callback: function (route) {
-                                        this.getApplication().on('deviceLifeCycleEdit', function (record) {
-                                            route.setTitle(Uni.I18n.translate('deviceLifeCycles.edit.title', 'DLC', "Edit '{0}'", record.get('name'), false));
-                                            return true;
-                                        }, {single: true});
-                                        return this;
-                                    }
+                                    action: 'showEditDeviceLifeCycle'
                                 },
                                 states: {
                                     title: Uni.I18n.translate('general.states', 'DLC', 'States'),

@@ -30,6 +30,7 @@ Ext.define('Dlc.main.controller.Main', {
     },
 
     initHistorians: function () {
+        //forces route registration
         var historian = this.getController('Dlc.main.controller.history.DeviceLifeCycle');
     },
 
