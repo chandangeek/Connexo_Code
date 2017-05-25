@@ -31,6 +31,13 @@ public interface FiniteStateMachineService {
 
     void addStandardEventPredicate(StandardEventPredicate predicate);
 
+    /**
+     * Creates a new {@link CustomStateTransitionEventType} with the specified symbol.
+     *
+     * @param symbol The symbolic representation of the event
+     * @param context Name in which this custom event type can be used, e.g. devicelifecycle, servicecalllifecycle.
+     * @return The CustomStateTransitionEventType
+     */
     CustomStateTransitionEventType newCustomStateTransitionEventType(String symbol, String context);
 
     /**

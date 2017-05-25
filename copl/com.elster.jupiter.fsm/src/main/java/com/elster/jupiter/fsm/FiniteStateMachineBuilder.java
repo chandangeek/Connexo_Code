@@ -78,8 +78,24 @@ public interface FiniteStateMachineBuilder {
      */
     interface StateBuilder {
 
+        /**
+         * Adds the {@link BpmProcessDefinition} to the list of
+         * processes that need to execute when the {@link State}
+         * that is currently being built is entered.
+         *
+         * @param process The BpmProcessDefinition
+         * @return The StateBuilder
+         */
         StateBuilder onEntry(BpmProcessDefinition process);
 
+        /**
+         * Adds the {@link BpmProcessDefinition} to the list of
+         * processes that need to execute when the {@link State}
+         * that is currently being built is entered.
+         *
+         * @param process The BpmProcessDefinition
+         * @return The StateBuilder
+         */
         StateBuilder onExit(BpmProcessDefinition process);
 
         /**
