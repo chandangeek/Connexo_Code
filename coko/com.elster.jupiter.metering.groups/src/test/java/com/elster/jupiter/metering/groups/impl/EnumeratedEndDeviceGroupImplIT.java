@@ -54,6 +54,7 @@ import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -80,6 +81,7 @@ public class EnumeratedEndDeviceGroupImplIT {
     private static final String ED_NAME = " ( ";
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+    private static Clock clock;
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -124,6 +126,7 @@ public class EnumeratedEndDeviceGroupImplIT {
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringGroupsService.class);
+            clock = injector.getInstance(Clock.class);
             return null;
         });
     }
@@ -322,42 +325,43 @@ public class EnumeratedEndDeviceGroupImplIT {
         EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(list)
                 .setName("Mine")
                 .setMRID("STATIC DEVICE GROUP")
-                .at(Instant.now())
+                .at(clock.instant())
                 .create();
-        enumeratedEndDeviceGroup.endMembership(endDevices.get(23), Instant.now());
+        enumeratedEndDeviceGroup.endMembership(endDevices.get(23), clock.instant());
         enumeratedEndDeviceGroup.update();
 
         Optional<EndDeviceGroup> optDeviceGroup = meteringGroupsService.findEndDeviceGroup("STATIC DEVICE GROUP");
         assertThat(optDeviceGroup.isPresent()).isTrue();
 
         EndDeviceGroup group = optDeviceGroup.get();
-        assertThat(group.isMember(endDevices.get(1), Instant.now())).isTrue();
-        assertThat(group.isMember(endDevices.get(23), Instant.now())).isFalse();
+        assertThat(group.isMember(endDevices.get(1), clock.instant())).isTrue();
+        assertThat(group.isMember(endDevices.get(23), clock.instant())).isFalse();
         //page 1
-        List<EndDevice> devicesPage_1 = group.getMembers(Instant.now(), 0, 10);
+        List<EndDevice> devicesPage_1 = group.getMembers(clock.instant(), 0, 10);
         assertThat(devicesPage_1).hasSize(11);
         assertThat(devicesPage_1).isSortedAccordingTo(Comparator.comparing(EndDevice::getName, String.CASE_INSENSITIVE_ORDER));
         assertThat(devicesPage_1.get(0).getName()).isEqualTo("Name10");
         //page 2
-        List<EndDevice> devicesPage_2 = group.getMembers(Instant.now(), 10, 10);
+        List<EndDevice> devicesPage_2 = group.getMembers(clock.instant(), 10, 10);
         assertThat(devicesPage_2).hasSize(11);
         assertThat(devicesPage_2).isSortedAccordingTo(Comparator.comparing(EndDevice::getName, String.CASE_INSENSITIVE_ORDER));
         assertThat(devicesPage_2.get(0).getName()).isEqualTo("Name2");
         //page 3
-        List<EndDevice> devicesPage_3 = group.getMembers(Instant.now(), 20, 100);
+        List<EndDevice> devicesPage_3 = group.getMembers(clock.instant(), 20, 100);
         assertThat(devicesPage_3).hasSize(3);
     }
 
     @Test
     @Transactional
-    public void testEndDeviceDeletion() {
+    public void testEndDeviceDeletion() throws InterruptedException {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalStateException::new);
         EndDevice endDevice = amrSystem.createEndDevice("amrId", "name");
         EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(endDevice).setName("test").create();
-        Instant activeMemberTime = Instant.now();
+        Instant activeMemberTime = clock.instant();
         assertThat(enumeratedEndDeviceGroup.getMemberCount(activeMemberTime)).isEqualTo(1);
+        Thread.sleep(1); // so that the device is removed at least next millisecond after group creation
         endDevice.makeObsolete();
 
         EndDeviceDeletionEventHandler endDeviceDeletionEventHandler = injector.getInstance(EndDeviceDeletionEventHandler.class);
@@ -369,8 +373,9 @@ public class EnumeratedEndDeviceGroupImplIT {
 
         // Assert
         enumeratedEndDeviceGroup = meteringGroupsService.findEnumeratedEndDeviceGroup(enumeratedEndDeviceGroup.getId()).get();
-        assertThat(enumeratedEndDeviceGroup.getMemberCount(Instant.now())).isEqualTo(0);
-        assertThat(enumeratedEndDeviceGroup.getMembers(Instant.now())).isEmpty();
+        Instant removedMemberTime = clock.instant();
+        assertThat(enumeratedEndDeviceGroup.getMemberCount(removedMemberTime)).isEqualTo(0);
+        assertThat(enumeratedEndDeviceGroup.getMembers(removedMemberTime)).isEmpty();
         assertThat(enumeratedEndDeviceGroup.getMemberCount(activeMemberTime)).isEqualTo(1);
         assertThat(enumeratedEndDeviceGroup.getMembers(activeMemberTime)).contains(endDevice);
     }
