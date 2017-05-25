@@ -159,7 +159,7 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
             this.originator.set(user);
             return;
         }
-        throw new UsagePointStateChangeException(this.thesaurus.getFormat(MessageSeeds.USER_CAN_NOT_PERFORM_TRANSITION).format());
+        throw new UsagePointStateChangeException(this.thesaurus.getSimpleFormat(MessageSeeds.USER_CAN_NOT_PERFORM_TRANSITION).format());
     }
 
     private boolean userHasPrivilegeToPerformTransition(User user, UsagePointTransition transition, String application) {
@@ -274,11 +274,11 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
                     this.lifeCycleService.performTransition(this.usagePoint.get(), this.transition, this.transitionTime);
                     this.status = Status.COMPLETED;
                 } catch (ExecutableMicroCheckException cex) {
-                    this.generalFailReason = this.thesaurus.getFormat(MessageSeeds.MICRO_CHECKS_FAILED_NO_PARAM).format();
+                    this.generalFailReason = this.thesaurus.getSimpleFormat(MessageSeeds.MICRO_CHECKS_FAILED_NO_PARAM).format();
                     cex.getViolations().forEach(violation -> this.fails.add(this.dataModel.getInstance(UsagePointStateChangeFailImpl.class)
                             .checkFail(this, violation.getMicroCheck().getKey(), violation.getMicroCheck().getName(), violation.getLocalizedMessage())));
                 } catch (ExecutableMicroActionException aex) {
-                    this.generalFailReason = this.thesaurus.getFormat(MessageSeeds.MICRO_ACTION_FAILED_NO_PARAM).format();
+                    this.generalFailReason = this.thesaurus.getSimpleFormat(MessageSeeds.MICRO_ACTION_FAILED_NO_PARAM).format();
                     this.fails.add(this.dataModel.getInstance(UsagePointStateChangeFailImpl.class)
                             .actionFail(this, aex.getMicroAction().getKey(), aex.getMicroAction().getName(), aex.getLocalizedMessage()));
                 } catch (Exception ex) {
