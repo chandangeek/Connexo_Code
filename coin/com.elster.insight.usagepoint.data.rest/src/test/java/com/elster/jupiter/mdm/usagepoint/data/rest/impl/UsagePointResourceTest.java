@@ -93,6 +93,7 @@ import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -836,7 +837,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(usagePointBuilder).create();
         verify(transactionService).getContext();
-        verify(usagePoint).apply(any(), any(Instant.class));
+        verify(usagePoint).apply(any(), any(Instant.class), any(Set.class));
     }
 
     @Test
@@ -860,7 +861,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         verify(usagePointLifeCycleService).scheduleTransition(usagePoint, transition, transitionToPerform.effectiveTimestamp, "INS", Collections.emptyMap());
         verify(usagePointBuilder).create();
         verify(transactionService).getContext();
-        verify(usagePoint).apply(any(), any(Instant.class));
+        verify(usagePoint).apply(any(), any(Instant.class), any(Set.class));
         verify(usagePointLifeCycleService).scheduleTransition(any(), any(), any(), any(),any());
     }
 

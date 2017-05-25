@@ -121,6 +121,7 @@ import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
@@ -452,6 +453,24 @@ public class UsagePointResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
 
         List<UsagePointTransition> transitions = resourceHelper.getAvailableTransitions(usagePoint);
+
+        return Response.ok()
+                .entity(PagedInfoList.fromCompleteList("transitions", transitions.stream()
+                        .map(usagePointTransitionInfoFactory::from).collect(Collectors.toList()), queryParameters))
+                .build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @Transactional
+    @Path("/{name}/transitions/{toStage}")
+    public Response getAvailableTransitions(@PathParam("name") String name, @PathParam("toStage") String toStage, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+
+        List<UsagePointTransition> transitions = resourceHelper.getAvailableTransitions(usagePoint).stream()
+                .filter(usagePointTransition -> usagePointTransition.getTo().getStage().filter(stage -> stage.getName().equals(toStage)).isPresent())
+                .collect(Collectors.toList());
 
         return Response.ok()
                 .entity(PagedInfoList.fromCompleteList("transitions", transitions.stream()
@@ -1148,7 +1167,8 @@ public class UsagePointResource {
                 if (usagePointMetrologyConfiguration.requiresCalendarOnUsagePoint()) {
                     this.addFakeCalendar(usagePoint, usagePointMetrologyConfiguration.getEventSets());
                 }
-                usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
+                usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime,
+                        getActiveContractsFromConfiguration(usagePointMetrologyConfiguration, info.metrologyConfiguration));
                 resourceHelper.activateMeters(info, usagePoint);
             }
         } catch (UsagePointManagementException ex) {
@@ -1184,6 +1204,21 @@ public class UsagePointResource {
                 usagePoint.getUsedCalendars().addCalendar(calendar, start);
             }
         });
+    }
+
+    private Set<MetrologyContract> getActiveContractsFromConfiguration(UsagePointMetrologyConfiguration usagePointMetrologyConfiguration, MetrologyConfigurationInfo info) {
+        if (info.purposes != null) {
+            return usagePointMetrologyConfiguration.getContracts()
+                    .stream()
+                    .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
+                    .filter(metrologyContract -> info.purposes.stream()
+                            .anyMatch(purpose -> metrologyContract.getId() == purpose.id))
+                    .filter(metrologyContract -> !metrologyContract.isMandatory())
+                    .distinct()
+                    .collect(Collectors.toSet());
+        }
+
+        return Collections.emptySet();
     }
 
     private void addFakeCalendar(UsagePoint usagePoint, List<EventSet> eventSets) {
@@ -1239,7 +1274,8 @@ public class UsagePointResource {
             if (info.metrologyConfiguration != null) {
                 UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) resourceHelper
                         .findMetrologyConfigurationOrThrowException(info.metrologyConfiguration.id);
-                usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime);
+                usagePoint.apply(usagePointMetrologyConfiguration, info.metrologyConfiguration.activationTime,
+                        getActiveContractsFromConfiguration(usagePointMetrologyConfiguration, info.metrologyConfiguration));
             }
 
             info.customPropertySets.forEach(customPropertySetInfo -> resourceHelper.persistCustomProperties(usagePoint, customPropertySetInfo));
