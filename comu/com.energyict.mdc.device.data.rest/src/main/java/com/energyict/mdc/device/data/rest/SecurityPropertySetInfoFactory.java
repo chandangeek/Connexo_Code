@@ -6,7 +6,7 @@ package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
-import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
@@ -17,6 +17,7 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITH_PRIVILEGES;
@@ -62,7 +63,7 @@ public class SecurityPropertySetInfoFactory {
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs(), typedProperties, info.properties, SHOW_VALUES, WITH_PRIVILEGES);
 
         // Sort the properties by their (translated) name
-        info.properties.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+        info.properties.sort(Comparator.comparing(propertyInfo -> propertyInfo.name));
 
         info.version = securityPropertySet.getVersion();
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());

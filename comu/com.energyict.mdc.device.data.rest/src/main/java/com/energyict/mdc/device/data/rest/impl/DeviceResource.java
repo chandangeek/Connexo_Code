@@ -108,11 +108,16 @@ import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND;
 import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE;
+import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_SEND;
+import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATE;
+import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME;
+import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_CONTRACT;
+import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE;
 import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_SEND;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATE;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT;
-import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE;
+//import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATE;
+//import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME;
+//import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT;
+//import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE;
 import static com.energyict.mdc.protocol.api.messaging.DeviceMessageId.ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME;
 
 @Path("/devices")
@@ -1036,6 +1041,7 @@ public class DeviceResource {
                 .findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.UNABLE_TO_FIND_CALENDAR));
         DeviceMessageId deviceMessageId = getDeviceMessageId(sendCalendarInfo, allowedOptions)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_ALLOWED_CALENDAR_DEVICE_MESSAGE));
+
         DeviceMessage deviceMessage = sendNewMessage(device, deviceMessageId, sendCalendarInfo, calendar);
         device.calendars().setPassive(calendar, sendCalendarInfo.activationDate, deviceMessage);
         return Response.ok().build();
@@ -1165,6 +1171,7 @@ public class DeviceResource {
         boolean hasActivationDate = !CalendarUpdateOption.SPECIAL_DAYS.equals(calendarUpdateOption) && sendCalendarInfo.activationDate != null;
         boolean hasType = sendCalendarInfo.type != null;
         boolean hasContract = sendCalendarInfo.contract != null;
+        // The UI only lets choose between CalendarUpdateOption.FULL_CALENDAR &&  CalendarUpdateOption.SPECIAL_DAYS
         boolean hasActivityCalendarOption = CalendarUpdateOption.FULL_CALENDAR.equals(calendarUpdateOption);
         boolean hasSpecialDaysCalendarOption = CalendarUpdateOption.SPECIAL_DAYS.equals(calendarUpdateOption);
         boolean sendCalendarWithDateAllowed = allowedOptions.contains(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE);
@@ -1178,14 +1185,14 @@ public class DeviceResource {
         }
 
         Supplier<DeviceMessageId>[] options = new Supplier[8];
-        options[0b000] = () -> hasActivityCalendarOption ? ACTIVITY_CALENDER_SEND : (hasSpecialDaysCalendarOption ? ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND : null);
-        options[0b001] = () -> hasActivityCalendarOption ? ACTIVITY_CALENDER_SEND : (hasSpecialDaysCalendarOption ? ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND : null);
+        options[0b000] = () -> hasActivityCalendarOption ? ACTIVITY_CALENDER_FULL_CALENDAR_SEND : (hasSpecialDaysCalendarOption ? ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND : null);
+        options[0b001] = () -> hasActivityCalendarOption ? ACTIVITY_CALENDER_FULL_CALENDAR_SEND : (hasSpecialDaysCalendarOption ? ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND : null);
         options[0b010] = () -> ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE;
         options[0b011] = () -> ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE;
-        options[0b100] = () -> sendCalendarWithDateAllowed ? ACTIVITY_CALENDER_SEND_WITH_DATE : (sendCalendarWithDateTimeAllowed ? ACTIVITY_CALENDER_SEND_WITH_DATETIME : null);
-        options[0b101] = () -> hasActivityCalendarOption ? ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT : (hasSpecialDaysCalendarOption ? ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME : null);
-        options[0b110] = () -> ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE;
-        options[0b111] = () -> ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE;
+        options[0b100] = () -> sendCalendarWithDateAllowed ? ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATE : (sendCalendarWithDateTimeAllowed ? ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME : null);
+        options[0b101] = () -> hasActivityCalendarOption ? ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_CONTRACT : (hasSpecialDaysCalendarOption ? ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME : null);
+        options[0b110] = () -> ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE;
+        options[0b111] = () -> ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE;
 
         deviceMessageId = options[index].get();
 
@@ -1194,11 +1201,11 @@ public class DeviceResource {
 
     private boolean checkIfDeviceMessageIsAllowed(DeviceMessageId deviceMessageId, Set<ProtocolSupportedCalendarOptions> allowedOptions) {
         Map<DeviceMessageId, ProtocolSupportedCalendarOptions> messageId2Option = new HashMap<>();
-        messageId2Option.put(ACTIVITY_CALENDER_SEND, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR);
-        messageId2Option.put(ACTIVITY_CALENDER_SEND_WITH_DATE, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE);
-        messageId2Option.put(ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE);
-        messageId2Option.put(ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT);
-        messageId2Option.put(ACTIVITY_CALENDER_SEND_WITH_DATETIME, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME);
+        messageId2Option.put(ACTIVITY_CALENDER_FULL_CALENDAR_SEND, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR);
+        messageId2Option.put(ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATE, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE);
+        messageId2Option.put(ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE);
+        messageId2Option.put(ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_CONTRACT, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT);
+        messageId2Option.put(ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME, ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME);
         messageId2Option.put(ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND, ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR);
         messageId2Option.put(ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE, ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR_WITH_TYPE);
         messageId2Option.put(ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME, ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE);
@@ -1356,20 +1363,20 @@ public class DeviceResource {
 
 
     private boolean needsActivationDate(DeviceMessageId deviceMessageId) {
-        return deviceMessageId.equals(ACTIVITY_CALENDER_SEND_WITH_DATE)
-                || deviceMessageId.equals(ACTIVITY_CALENDER_SEND_WITH_DATETIME)
-                || deviceMessageId.equals(ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT)
-                || deviceMessageId.equals(ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE)
+        return deviceMessageId.equals(ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATE)
+                || deviceMessageId.equals(ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME)
+                || deviceMessageId.equals(ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_CONTRACT)
+                || deviceMessageId.equals(ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE)
                 || deviceMessageId.equals(ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME);
     }
 
     private boolean needsType(DeviceMessageId deviceMessageId) {
         return deviceMessageId.equals(ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND_WITH_TYPE)
-                || deviceMessageId.equals(ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE);
+                || deviceMessageId.equals(ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE);
     }
 
     private boolean needsContract(DeviceMessageId deviceMessageId) {
-        return deviceMessageId.equals(ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT)
+        return deviceMessageId.equals(ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_CONTRACT)
                 || deviceMessageId.equals(ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME);
     }
 
