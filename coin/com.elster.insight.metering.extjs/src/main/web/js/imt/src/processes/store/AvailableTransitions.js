@@ -8,7 +8,7 @@ Ext.define('Imt.processes.store.AvailableTransitions', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/udr/usagepoints/{usagePointId}/transitions',
+        url: '/api/udr/usagepoints/{usagePointId}/transitions/{toStage}',
         timeout: 240000,
         reader: {
             type: 'json',
