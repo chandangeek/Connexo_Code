@@ -4,27 +4,14 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.impl.actions;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroAction;
-import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
 import com.elster.jupiter.validation.ValidationService;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -32,9 +19,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Component(name = "UsagePointMicroActionFactoryImpl",
-        service = {UsagePointMicroActionFactory.class},
-        immediate = true)
 public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFactory {
 
     private DataModel dataModel;
@@ -48,56 +32,20 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
     public UsagePointMicroActionFactoryImpl() {
     }
 
-    @Inject
-    public UsagePointMicroActionFactoryImpl(UpgradeService upgradeService,
-                                            NlsService nlsService,
+    public UsagePointMicroActionFactoryImpl(DataModel dataModel,
+                                            Thesaurus thesaurus,
                                             PropertySpecService propertySpecService,
                                             ValidationService validationService) {
-        setUpgradeService(upgradeService);
-        setNlsService(nlsService);
-        setPropertySpecService(propertySpecService);
-        setValidationService(validationService);
+        this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
+        this.propertySpecService = propertySpecService;
+        this.validationService = validationService;
         activate();
     }
 
-    @Reference
-    public void setUpgradeService(UpgradeService upgradeService) {
-        this.dataModel = upgradeService.newNonOrmDataModel();
-    }
-
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(UsagePointLifeCycleService.COMPONENT_NAME, Layer.DOMAIN)
-                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN));
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    @Reference
-    public void setValidationService(ValidationService validationService) {
-        this.validationService = validationService;
-    }
-
-    @Activate
     public void activate() {
-        this.dataModel.register(getModule());
         streamMicroActionClasses()
                 .forEach(this::addMicroActionMapping);
-    }
-
-    private Module getModule() {
-        return new AbstractModule() {
-            @Override
-            protected void configure() {
-                bind(Thesaurus.class).toInstance(thesaurus);
-                bind(MessageInterpolator.class).toInstance(thesaurus);
-                bind(PropertySpecService.class).toInstance(propertySpecService);
-                bind(ValidationService.class).toInstance(validationService);
-            }
-        };
     }
 
     private Stream<Class<? extends ExecutableMicroAction>> streamMicroActionClasses() {

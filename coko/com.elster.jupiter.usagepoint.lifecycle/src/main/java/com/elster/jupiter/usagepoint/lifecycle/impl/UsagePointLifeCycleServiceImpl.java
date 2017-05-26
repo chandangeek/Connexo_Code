@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.impl;
 
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -16,6 +15,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -33,8 +33,6 @@ import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.ResetValidationResultsAction;
@@ -48,6 +46,8 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -89,8 +89,8 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     private MessageService messageService;
     private TaskService taskService;
     private UserService userService;
-    private UsagePointMicroActionFactory usagePointMicroActionFactory;
-    private UsagePointMicroCheckFactory usagePointMicroCheckFactory;
+    private ValidationService validationService;
+    private PropertySpecService propertySpecService;
 
     @SuppressWarnings("unused") // OSGI
     public UsagePointLifeCycleServiceImpl() {
@@ -107,8 +107,8 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                                           MessageService messageService,
                                           TaskService taskService,
                                           UserService userService,
-                                          UsagePointMicroActionFactory usagePointMicroActionFactory,
-                                          UsagePointMicroCheckFactory usagePointMicroCheckFactory) {
+                                          ValidationService validationService,
+                                          PropertySpecService propertySpecService) {
         setOrmService(ormService);
         setNlsService(nlsService);
         setUpgradeService(upgradeService);
@@ -119,8 +119,8 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
         setMessageService(messageService);
         setTaskService(taskService);
         setUserService(userService);
-        setUsagePointMicroActionFactory(usagePointMicroActionFactory);
-        setUsagePointMicroCheckFactory(usagePointMicroCheckFactory);
+        setValidationService(validationService);
+        setPropertySpecService(propertySpecService);
         activate();
     }
 
@@ -177,13 +177,13 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     }
 
     @Reference
-    public void setUsagePointMicroActionFactory(UsagePointMicroActionFactory usagePointMicroActionFactory) {
-        this.usagePointMicroActionFactory = usagePointMicroActionFactory;
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
     }
 
     @Reference
-    public void setUsagePointMicroCheckFactory(UsagePointMicroCheckFactory usagePointMicroCheckFactory) {
-        this.usagePointMicroCheckFactory = usagePointMicroCheckFactory;
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     @Activate
@@ -212,8 +212,8 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                 bind(UserService.class).toInstance(userService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(UsagePointLifeCycleBuilder.class).toInstance(UsagePointLifeCycleServiceImpl.this);
-                bind(UsagePointMicroActionFactory.class).toInstance(usagePointMicroActionFactory);
-                bind(UsagePointMicroCheckFactory.class).toInstance(usagePointMicroCheckFactory);
+                bind(ValidationService.class).toInstance(validationService);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
             }
         };
     }

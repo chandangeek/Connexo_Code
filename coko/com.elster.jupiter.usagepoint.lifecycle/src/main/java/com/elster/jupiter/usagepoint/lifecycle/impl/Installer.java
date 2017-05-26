@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
@@ -23,8 +24,11 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
+import com.elster.jupiter.usagepoint.lifecycle.impl.actions.UsagePointMicroActionFactoryImpl;
+import com.elster.jupiter.usagepoint.lifecycle.impl.checks.UsagePointMicroCheckFactoryImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
 import java.util.Optional;
@@ -42,14 +46,14 @@ public class Installer implements FullInstaller {
     private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private final ServerUsagePointLifeCycleService usagePointLifeCycleService;
     private final UsagePointLifeCycleBuilder usagePointLifeCycleBuilder;
-    private final UsagePointMicroActionFactory usagePointMicroActionFactory;
-    private final UsagePointMicroCheckFactory usagePointMicroCheckFactory;
+    private final ValidationService validationService;
+    private final PropertySpecService propertySpecService;
 
     @Inject
     public Installer(DataModel dataModel, MeteringService meteringService, MessageService messageService, TaskService taskService,
                      UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService, Thesaurus thesaurus,
                      UsagePointLifeCycleService usagePointLifeCycleService, UsagePointLifeCycleBuilder usagePointLifeCycleBuilder,
-                     UsagePointMicroActionFactory usagePointMicroActionFactory, UsagePointMicroCheckFactory usagePointMicroCheckFactory) {
+                     ValidationService validationService, PropertySpecService propertySpecService) {
         this.dataModel = dataModel;
         this.meteringService = meteringService;
         this.messageService = messageService;
@@ -58,8 +62,8 @@ public class Installer implements FullInstaller {
         this.thesaurus = thesaurus;
         this.usagePointLifeCycleService = (ServerUsagePointLifeCycleService) usagePointLifeCycleService;
         this.usagePointLifeCycleBuilder = usagePointLifeCycleBuilder;
-        this.usagePointMicroActionFactory = usagePointMicroActionFactory;
-        this.usagePointMicroCheckFactory = usagePointMicroCheckFactory;
+        this.validationService = validationService;
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -126,8 +130,8 @@ public class Installer implements FullInstaller {
 
     private  void createTransitionsStatesAssignMicroActionsAndChecks(){
         UsagePointLifeCycle usagePointLifeCycle = usagePointLifeCycleConfigurationService.getDefaultLifeCycle();
-        usagePointLifeCycleConfigurationService.addMicroActionFactory(usagePointMicroActionFactory);
-        usagePointLifeCycleConfigurationService.addMicroCheckFactory(usagePointMicroCheckFactory);
+        usagePointLifeCycleConfigurationService.addMicroActionFactory(new UsagePointMicroActionFactoryImpl(dataModel, thesaurus, propertySpecService, validationService));
+        usagePointLifeCycleConfigurationService.addMicroCheckFactory(new UsagePointMicroCheckFactoryImpl(dataModel, thesaurus));
         usagePointLifeCycleBuilder.accept(usagePointLifeCycle);
     }
 }
