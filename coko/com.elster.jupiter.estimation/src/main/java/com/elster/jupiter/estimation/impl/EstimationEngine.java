@@ -22,12 +22,17 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -54,43 +59,30 @@ class EstimationEngine {
     }
 
     private static Stream<EstimationBlock> findBlocksToEstimate(QualityCodeSystem system, Channel channel, Range<Instant> period, ReadingType readingType, Set<QualityCodeIndex> qualityCodes) {
-        if (qualityCodes.size() > 1 && !channel.getIntervalReadings(readingType, period)
-                .isEmpty()) { // not only suspects
-            return decorate(channel.getIntervalReadings(readingType, period).stream())
-                    .map(BaseReadingRecordEstimatable::new)
-                    .map(Estimatable.class::cast)
-                    .partitionWhen((est1, est2) -> !channel.getNextDateTime(est1.getTimestamp())
-                            .equals(est2.getTimestamp()))
-                    .map(estimableList -> SimpleEstimationBlock.of(channel, readingType, estimableList));
+        if(period.hasUpperBound() && period.hasLowerBound() && channel.getIntervalLength().isPresent()){
+            if(channel.getIntervalLength().get().getUnits().contains(ChronoUnit.SECONDS)){
+                int index = (int) (period.upperEndpoint()
+                                        .minusMillis(period.lowerEndpoint().toEpochMilli())
+                                        .toEpochMilli() / channel.getIntervalLength().get().get(ChronoUnit.SECONDS) / 1000);
+                return findBlocks(index, period, channel.getIntervalLength().get(), channel, readingType, ChronoUnit.SECONDS);
+            }else {
+                return channel.getIntervalLength().get().getUnits()
+                        .stream()
+                        .filter(t -> channel.getIntervalLength().get().get(t) > 0)
+                        .findFirst()
+                        .map(s -> findBlocks((int)s.between(period.lowerEndpoint(), period.upperEndpoint()), period, channel.getIntervalLength().get(), channel, readingType, s))
+                        .orElse(Stream.of(SimpleEstimationBlock.of(channel, readingType, new ArrayList<>())));
+            }
         }
-
-        return findBlocksBasedOnReadingQualities(system, channel, period, readingType, qualityCodes);
+        return Stream.of(SimpleEstimationBlock.of(channel, readingType, new ArrayList<>()));
     }
 
-    private static Stream<EstimationBlock> findBlocksBasedOnReadingQualities(QualityCodeSystem system, Channel channel, Range<Instant> period, ReadingType readingType, Set<QualityCodeIndex> qualityCodes) {
-        return decorate(findReadingQualities(Collections.singleton(system), channel, period, readingType, qualityCodes).stream())
-                .sorted(Comparator.comparing(ReadingQualityRecord::getReadingTimestamp))
-                .map(EstimationEngine::toEstimatable)
-                .partitionWhen((est1, est2) -> !channel.getNextDateTime(est1.getTimestamp())
-                        .equals(est2.getTimestamp()))
-                .map(estimableList -> SimpleEstimationBlock.of(channel, readingType, estimableList));
-    }
-
-    private static List<ReadingQualityRecord> findReadingQualities(Set<QualityCodeSystem> systems, Channel channel, Range<Instant> period, ReadingType readingType, Set<QualityCodeIndex> qualityCodes) {
-        return channel.getCimChannel(readingType)
-                .map(cimChannel -> cimChannel.findReadingQualities()
-                        .ofQualitySystems(systems)
-                        .ofQualityIndices(qualityCodes)
-                        .inTimeInterval(period)
-                        .collect())
-                .orElse(Collections.emptyList());
-    }
-
-    private static Estimatable toEstimatable(ReadingQualityRecord readingQualityRecord) {
-        return readingQualityRecord.getBaseReadingRecord()
-                .map(BaseReadingRecordEstimatable::new)
-                .map(Estimatable.class::cast)
-                .orElse(new MissingReadingRecordEstimatable(readingQualityRecord.getReadingTimestamp()));
+    private  static Stream<EstimationBlock> findBlocks(int index,Range<Instant> period,TemporalAmount temporalAmount, Channel channel,ReadingType readingType, TemporalUnit chronoUnit){
+        List<Estimatable> estimatables = new ArrayList<>();
+        for(int i = 1; i <= index; i++){
+            estimatables.add(new MissingReadingRecordEstimatable(period.lowerEndpoint().plus(temporalAmount.get(chronoUnit) * i, chronoUnit)));
+        }
+        return Stream.of(SimpleEstimationBlock.of(channel, readingType, estimatables));
     }
 
     void applyEstimations(QualityCodeSystem system, EstimationReportImpl report) {
