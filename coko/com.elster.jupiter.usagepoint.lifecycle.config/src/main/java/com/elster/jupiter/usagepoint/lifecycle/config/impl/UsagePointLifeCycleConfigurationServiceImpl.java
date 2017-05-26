@@ -138,7 +138,6 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
     }
 
     @Override
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addMicroActionFactory(UsagePointMicroActionFactory microActionFactory) {
         if (microActionFactories.stream().noneMatch(factory -> factory.getClass().getName().equals(microActionFactory.getClass().getName()))) {
             this.microActionFactories.add(microActionFactory);
@@ -151,7 +150,6 @@ public class UsagePointLifeCycleConfigurationServiceImpl implements UsagePointLi
     }
 
     @Override
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addMicroCheckFactory(UsagePointMicroCheckFactory microCheckFactory) {
         if (microCheckFactories.stream().noneMatch(factory -> factory.getClass().getName().equals(microCheckFactory.getClass().getName()))) {
             this.microCheckFactories.add(microCheckFactory);
