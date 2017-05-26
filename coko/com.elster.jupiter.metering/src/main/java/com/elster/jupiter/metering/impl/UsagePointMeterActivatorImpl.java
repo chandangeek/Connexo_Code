@@ -227,9 +227,10 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                         .filter(ma -> ma.getEnd() == null)
                         .findFirst().get();
 
-                meterActivation.doSetUsagePoint(usagePoint);
-                meterActivation.doSetMeterRole(meterRole);
-                meterActivation.save();
+                MeterActivation newActivation = meterActivation.split(activation.getStart());
+                ((MeterActivationImpl)newActivation).doSetUsagePoint(usagePoint);
+                ((MeterActivationImpl)newActivation).doSetMeterRole(meterRole);
+                ((MeterActivationImpl)newActivation).save();
 
                 this.meterTimeLines = new HashMap<>();
                 convertMeterActivationsToStreamOfMeters(this.usagePoint.getMeterActivations())
