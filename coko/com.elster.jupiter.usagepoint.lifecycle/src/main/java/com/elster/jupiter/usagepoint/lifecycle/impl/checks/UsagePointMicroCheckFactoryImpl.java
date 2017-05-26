@@ -27,17 +27,9 @@ public class UsagePointMicroCheckFactoryImpl implements UsagePointMicroCheckFact
 
     private final Map<String, Class<? extends MicroCheck>> microCheckMapping = new HashMap<>();
 
-    @SuppressWarnings("unused") // OSGI
-    public UsagePointMicroCheckFactoryImpl() {
-    }
-
     public UsagePointMicroCheckFactoryImpl(DataModel dataModel, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
-        activate();
-    }
-
-    public void activate() {
         addMicroCheckMappings();
     }
 

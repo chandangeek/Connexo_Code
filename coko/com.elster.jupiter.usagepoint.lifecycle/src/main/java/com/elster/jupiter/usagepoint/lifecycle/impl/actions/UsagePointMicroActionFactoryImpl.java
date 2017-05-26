@@ -28,10 +28,6 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
 
     private final Map<String, Class<? extends MicroAction>> microActionMapping = new HashMap<>();
 
-    @SuppressWarnings("unused") // OSGI
-    public UsagePointMicroActionFactoryImpl() {
-    }
-
     public UsagePointMicroActionFactoryImpl(DataModel dataModel,
                                             Thesaurus thesaurus,
                                             PropertySpecService propertySpecService,
@@ -40,10 +36,6 @@ public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFa
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.validationService = validationService;
-        activate();
-    }
-
-    public void activate() {
         streamMicroActionClasses()
                 .forEach(this::addMicroActionMapping);
     }
