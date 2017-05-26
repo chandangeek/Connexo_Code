@@ -187,8 +187,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                     }
                     confirmationWindow.insert(1, me.getValidationContent());
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('deviceloadprofiles.validateNowTitle', 'MDC', 'Couldn\'t perform your action'),
-                        msg: Uni.I18n.translate('deviceloadprofiles.validateNow', 'MDC', 'Validate data of load profile {0}?', [record.get('name')])
+                        title: Uni.I18n.translate('deviceloadprofiles.validateNow', 'MDC', 'Validate data of load profile {0}?', [record.get('name')]),
+                        msg: ''
                     });
                 } else {
                     var title = Uni.I18n.translate('deviceloadprofiles.validateNow.errorTitle', 'MDC', 'Couldn\'t perform your action'),
