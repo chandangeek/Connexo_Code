@@ -5,6 +5,7 @@
 package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.domain.util.FormValidationException;
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Location;
@@ -22,7 +23,9 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionEnd;
 import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionStart;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDateInThePast;
+import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd;
 import com.elster.jupiter.metering.config.UnsatisfiedMetrologyConfigurationEndDate;
+import com.elster.jupiter.metering.config.UnsatisfiedMetrologyConfigurationStartDateRelativelyLatestStart;
 import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
@@ -47,6 +50,7 @@ import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -359,7 +363,15 @@ public class UsagePointResource {
             usagePoint.apply(metrologyConfiguration, start, end);
             usagePoint.update();
         } catch (UsagePointManagementException ex) {
-            throw new FormValidationException().addException("metrologyConfiguration", ex.getMessage());
+            throw new FormValidationException().addException("metrologyConfiguration", ex.getLocalizedMessage());
+        } catch (VerboseConstraintViolationException ex) {
+            throw new FormValidationException().addException("metrologyConfiguration", ex.getConstraintViolations().stream()
+                    .map(ConstraintViolation::getMessage)
+                    .collect(Collectors.joining("\n")));
+        } catch (UnsatisfiedMetrologyConfigurationEndDate ex) {
+            throw new FormValidationException().addException("end", ex.getMessage());
+        } catch (UnsatisfiedMetrologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex) {
+            throw new FormValidationException().addException("start", ex.getMessage());
         }
         info.metrologyConfigurationVersion = usagePoint.getEffectiveMetrologyConfiguration(start)
                 .map(metrologyConfigurationInfoFactory::asInfo).orElse(null);
