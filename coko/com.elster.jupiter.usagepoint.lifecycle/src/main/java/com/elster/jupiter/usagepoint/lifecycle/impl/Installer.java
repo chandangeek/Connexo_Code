@@ -19,13 +19,8 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
-import com.elster.jupiter.usagepoint.lifecycle.impl.actions.UsagePointMicroActionFactoryImpl;
-import com.elster.jupiter.usagepoint.lifecycle.impl.checks.UsagePointMicroCheckFactoryImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.validation.ValidationService;
@@ -129,9 +124,6 @@ public class Installer implements FullInstaller {
     }
 
     private  void createTransitionsStatesAssignMicroActionsAndChecks(){
-        UsagePointLifeCycle usagePointLifeCycle = usagePointLifeCycleConfigurationService.getDefaultLifeCycle();
-        usagePointLifeCycleConfigurationService.addMicroActionFactory(new UsagePointMicroActionFactoryImpl(dataModel, thesaurus, propertySpecService, validationService));
-        usagePointLifeCycleConfigurationService.addMicroCheckFactory(new UsagePointMicroCheckFactoryImpl(dataModel, thesaurus));
-        usagePointLifeCycleBuilder.accept(usagePointLifeCycle);
+        usagePointLifeCycleBuilder.accept(usagePointLifeCycleConfigurationService.getDefaultLifeCycle());
     }
 }

@@ -4,16 +4,11 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.impl.checks;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Module;
-
-import javax.validation.MessageInterpolator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -23,13 +18,11 @@ import java.util.stream.Collectors;
 public class UsagePointMicroCheckFactoryImpl implements UsagePointMicroCheckFactory {
 
     private DataModel dataModel;
-    private Thesaurus thesaurus;
 
     private final Map<String, Class<? extends MicroCheck>> microCheckMapping = new HashMap<>();
 
-    public UsagePointMicroCheckFactoryImpl(DataModel dataModel, Thesaurus thesaurus) {
+    public UsagePointMicroCheckFactoryImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.thesaurus = thesaurus;
         addMicroCheckMappings();
     }
 

@@ -4,13 +4,10 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.impl.actions;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
-import com.elster.jupiter.validation.ValidationService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,20 +19,11 @@ import java.util.stream.Stream;
 public class UsagePointMicroActionFactoryImpl implements UsagePointMicroActionFactory {
 
     private DataModel dataModel;
-    private Thesaurus thesaurus;
-    private PropertySpecService propertySpecService;
-    private volatile ValidationService validationService;
 
     private final Map<String, Class<? extends MicroAction>> microActionMapping = new HashMap<>();
 
-    public UsagePointMicroActionFactoryImpl(DataModel dataModel,
-                                            Thesaurus thesaurus,
-                                            PropertySpecService propertySpecService,
-                                            ValidationService validationService) {
+    public UsagePointMicroActionFactoryImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.thesaurus = thesaurus;
-        this.propertySpecService = propertySpecService;
-        this.validationService = validationService;
         streamMicroActionClasses()
                 .forEach(this::addMicroActionMapping);
     }

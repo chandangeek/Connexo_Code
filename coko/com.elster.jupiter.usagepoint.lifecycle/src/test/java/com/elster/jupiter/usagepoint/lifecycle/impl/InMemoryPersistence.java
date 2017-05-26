@@ -33,8 +33,6 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointLifeCycleConfigurationModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
@@ -89,9 +87,10 @@ public class InMemoryPersistence {
                 new ValidationModule());
         TransactionService transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
-            this.injector.getInstance(UsagePointLifeCycleServiceImpl.class);
-            this.injector.getInstance(UsagePointLifeCycleConfigurationService.class).addMicroActionFactory(this.injector.getInstance(UsagePointMicroActionFactory.class));
-            this.injector.getInstance(UsagePointLifeCycleConfigurationService.class).addMicroCheckFactory(this.injector.getInstance(UsagePointMicroCheckFactory.class));
+            UsagePointLifeCycleServiceImpl usagePointLifeCycleService = this.injector.getInstance(UsagePointLifeCycleServiceImpl.class);
+            UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService = this.injector.getInstance(UsagePointLifeCycleConfigurationService.class);
+            usagePointLifeCycleConfigurationService.addMicroActionFactory(usagePointLifeCycleService.getUsagePointMicroActionFactory());
+            usagePointLifeCycleConfigurationService.addMicroCheckFactory(usagePointLifeCycleService.getUsagePointMicroCheckFactory());
             ctx.commit();
         }
     }

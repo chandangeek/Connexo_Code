@@ -33,13 +33,17 @@ import com.elster.jupiter.usagepoint.lifecycle.config.MicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.MicroActionTranslationKeys;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.ResetValidationResultsAction;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.SetConnectionStateAction;
+import com.elster.jupiter.usagepoint.lifecycle.impl.actions.UsagePointMicroActionFactoryImpl;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MeterRolesAreSpecifiedCheck;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MetrologyConfigurationIsDefinedCheck;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MicroCheckTranslationKeys;
+import com.elster.jupiter.usagepoint.lifecycle.impl.checks.UsagePointMicroCheckFactoryImpl;
 import com.elster.jupiter.users.PreferenceType;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -47,7 +51,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -91,6 +94,9 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     private UserService userService;
     private ValidationService validationService;
     private PropertySpecService propertySpecService;
+
+    private UsagePointMicroCheckFactory usagePointMicroCheckFactory;
+    private UsagePointMicroActionFactory usagePointMicroActionFactory;
 
     @SuppressWarnings("unused") // OSGI
     public UsagePointLifeCycleServiceImpl() {
@@ -188,11 +194,15 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
 
     @Activate
     public void activate() {
-        this.dataModel.register(getModule());
-        this.usagePointLifeCycleConfigurationService.addUsagePointLifeCycleBuilder(this);
-        this.upgradeService.register(
+        usagePointMicroCheckFactory = new UsagePointMicroCheckFactoryImpl(dataModel);
+        usagePointMicroActionFactory = new UsagePointMicroActionFactoryImpl(dataModel);
+        dataModel.register(getModule());
+        usagePointLifeCycleConfigurationService.addUsagePointLifeCycleBuilder(this);
+        usagePointLifeCycleConfigurationService.addMicroCheckFactory(usagePointMicroCheckFactory);
+        usagePointLifeCycleConfigurationService.addMicroActionFactory(usagePointMicroActionFactory);
+        upgradeService.register(
                 InstallIdentifier.identifier("Pulse", UsagePointLifeCycleService.COMPONENT_NAME),
-                this.dataModel,
+                dataModel,
                 Installer.class,
                 Collections.emptyMap());
     }
@@ -418,5 +428,13 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
                             .withActions(actions)
                             .complete();
                 }));
+    }
+
+    UsagePointMicroCheckFactory getUsagePointMicroCheckFactory() {
+        return usagePointMicroCheckFactory;
+    }
+
+    UsagePointMicroActionFactory getUsagePointMicroActionFactory() {
+        return usagePointMicroActionFactory;
     }
 }

@@ -34,10 +34,8 @@ import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.ResetValidationResultsAction;
 import com.elster.jupiter.usagepoint.lifecycle.impl.actions.SetConnectionStateAction;
-import com.elster.jupiter.usagepoint.lifecycle.impl.actions.UsagePointMicroActionFactoryImpl;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MeterRolesAreSpecifiedCheck;
 import com.elster.jupiter.usagepoint.lifecycle.impl.checks.MetrologyConfigurationIsDefinedCheck;
-import com.elster.jupiter.usagepoint.lifecycle.impl.checks.UsagePointMicroCheckFactoryImpl;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -127,7 +125,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
     @Test
     public void testMicroActionFactoryCanFindByCorrectKey() {
-        assertThat(get(UsagePointMicroActionFactoryImpl.class)
+        assertThat(getUsagePointMicroActionFactory()
                 .from(SetConnectionStateAction.class.getSimpleName())
                 .map(MicroAction::getKey))
                 .contains(SetConnectionStateAction.class.getSimpleName());
@@ -135,12 +133,12 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
     @Test
     public void testMicroActionFactoryCanFindByWrongKey() {
-        assertThat(get(UsagePointMicroActionFactoryImpl.class).from("bla-bla")).isEmpty();
+        assertThat(getUsagePointMicroActionFactory().from("bla-bla")).isEmpty();
     }
 
     @Test
     public void testMicroActionFactoryGetAll() {
-        assertThat(get(UsagePointMicroActionFactoryImpl.class).getAllActions()
+        assertThat(getUsagePointMicroActionFactory().getAllActions()
                 .stream()
                 .map(MicroAction::getKey)
                 .collect(Collectors.toList()))
@@ -151,7 +149,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
     @Test
     public void testMicroCheckFactoryCanFindByCorrectKey() {
-        assertThat(get(UsagePointMicroCheckFactoryImpl.class)
+        assertThat(getUsagePointMicroCheckFactory()
                 .from(MetrologyConfigurationIsDefinedCheck.class.getSimpleName())
                 .map(MicroCheck::getKey))
                 .contains(MetrologyConfigurationIsDefinedCheck.class.getSimpleName());
@@ -159,12 +157,12 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
 
     @Test
     public void testMicroCheckFactoryCanFindByWrongKey() {
-        assertThat(get(UsagePointMicroCheckFactoryImpl.class).from("bla-bla")).isEmpty();
+        assertThat(getUsagePointMicroCheckFactory().from("bla-bla")).isEmpty();
     }
 
     @Test
     public void testMicroCheckFactoryGetAll() {
-        assertThat(get(UsagePointMicroCheckFactoryImpl.class).getAllChecks()
+        assertThat(getUsagePointMicroCheckFactory().getAllChecks()
                 .stream()
                 .map(MicroCheck::getKey)
                 .collect(Collectors.toList()))
@@ -178,7 +176,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
     public void testCanNotExecuteTransitionIfHasUnSufficientPrivileges() {
         initializeCommonUsagePointStateChangeFields();
         user.leave(group);
-        UsagePointLifeCycleService lifeCycleService = get(UsagePointLifeCycleService.class);
+        UsagePointLifeCycleService lifeCycleService = getUsagePointLifeCycleService();
         UsagePointTransition spyTransition = spy(transition);
 
         lifeCycleService.performTransition(usagePoint, spyTransition, APPLICATION, Collections.emptyMap());
@@ -192,7 +190,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
                 .withChecks(Collections.singleton(TestMicroCheck.class.getSimpleName()))
                 .withActions(Collections.singleton(TestMicroAction.class.getSimpleName()))
                 .complete();
-        UsagePointLifeCycleService lifeCycleService = get(UsagePointLifeCycleService.class);
+        UsagePointLifeCycleService lifeCycleService = getUsagePointLifeCycleService();
         UsagePointTransition spyTransition = spy(transition);
 
         lifeCycleService.performTransition(usagePoint, spyTransition, APPLICATION, Collections.emptyMap());
@@ -208,7 +206,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
     public void testExecuteRemovedTransition() {
         initializeCommonUsagePointStateChangeFields();
         transition.remove();
-        UsagePointLifeCycleService lifeCycleService = get(UsagePointLifeCycleService.class);
+        UsagePointLifeCycleService lifeCycleService = getUsagePointLifeCycleService();
 
         lifeCycleService.scheduleTransition(usagePoint, transition, now().plus(1, ChronoUnit.HOURS), APPLICATION, Collections.emptyMap());
 
@@ -223,7 +221,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
     public void testExecuteTransitionForWrongState() {
         initializeCommonUsagePointStateChangeFields();
         ((UsagePointImpl) usagePoint).setState(state2, now().minus(1, ChronoUnit.HOURS));
-        UsagePointLifeCycleService lifeCycleService = get(UsagePointLifeCycleService.class);
+        UsagePointLifeCycleService lifeCycleService = getUsagePointLifeCycleService();
 
         lifeCycleService.performTransition(usagePoint, transition, APPLICATION, Collections.emptyMap());
 
@@ -240,7 +238,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         ExecutableMicroCheck microCheck = (ExecutableMicroCheck) checkFactory.from(TestMicroCheck.class.getSimpleName()).get();
         checkFactory.setOnExecute((u, t) -> Optional.of(new ExecutableMicroCheckViolation(microCheck, "MicroCheck fail")));
         transition.startUpdate().withChecks(Collections.singleton(microCheck.getKey())).complete();
-        UsagePointLifeCycleService lifeCycleService = get(UsagePointLifeCycleService.class);
+        UsagePointLifeCycleService lifeCycleService = getUsagePointLifeCycleService();
 
         lifeCycleService.performTransition(usagePoint, transition, APPLICATION, Collections.emptyMap());
 
@@ -259,7 +257,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
             throw new ExecutableMicroActionException(microAction, "MicroAction fail");
         });
         transition.startUpdate().withActions(Collections.singleton(microAction.getKey())).complete();
-        UsagePointLifeCycleService lifeCycleService = get(UsagePointLifeCycleService.class);
+        UsagePointLifeCycleService lifeCycleService = getUsagePointLifeCycleService();
 
         lifeCycleService.performTransition(usagePoint, transition, APPLICATION, Collections.emptyMap());
 
@@ -277,7 +275,7 @@ public class UsagePointLifeCycleServiceImplIT extends BaseTestIT {
         initializeCommonUsagePointStateChangeFields();
         ((EventServiceImpl) get(EventService.class)).removeTopicHandler(changeRequestHandler);
 
-        UsagePointStateChangeRequestImpl request = (UsagePointStateChangeRequestImpl) get(UsagePointLifeCycleService.class).getHistory(usagePoint).get(0);
+        UsagePointStateChangeRequestImpl request = (UsagePointStateChangeRequestImpl) getUsagePointLifeCycleService().getHistory(usagePoint).get(0);
         assertThat(request.getStatus()).isEqualTo(UsagePointStateChangeRequest.Status.COMPLETED);
         assertThat(request.getFromStateName()).isEqualTo("-");
         assertThat(request.getToStateName()).isEqualTo(state1.getName());
