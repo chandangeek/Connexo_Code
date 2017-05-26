@@ -20,6 +20,7 @@ import com.elster.jupiter.usagepoint.lifecycle.RequiredMicroActionPropertiesExce
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.MicroAction;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointTransitionInfo;
@@ -51,7 +52,7 @@ public class UsagePointStateChangeRequestResource {
     private final UsagePointTransitionInfoFactory usagePointTransitionInfoFactory;
     private final PropertyValueInfoService propertyValueInfoService;
     private final UsagePointStateChangeRequestInfoFactory changeRequestInfoFactory;
-    private final UsagePointMicroActionFactory usagePointMicroActionFactory;
+    private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private final Thesaurus thesaurus;
 
     @Inject
@@ -60,14 +61,14 @@ public class UsagePointStateChangeRequestResource {
                                                 UsagePointTransitionInfoFactory usagePointTransitionInfoFactory,
                                                 PropertyValueInfoService propertyValueInfoService,
                                                 UsagePointStateChangeRequestInfoFactory changeRequestInfoFactory,
-                                                UsagePointMicroActionFactory usagePointMicroActionFactory,
+                                                UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService,
                                                 Thesaurus thesaurus) {
         this.usagePointLifeCycleService = usagePointLifeCycleService;
         this.resourceHelper = resourceHelper;
         this.usagePointTransitionInfoFactory = usagePointTransitionInfoFactory;
         this.propertyValueInfoService = propertyValueInfoService;
         this.changeRequestInfoFactory = changeRequestInfoFactory;
-        this.usagePointMicroActionFactory = usagePointMicroActionFactory;
+        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
         this.thesaurus = thesaurus;
     }
 
@@ -146,7 +147,7 @@ public class UsagePointStateChangeRequestResource {
     }
 
     private List<PropertySpec> getPropertySpecsFor(MicroAction action) {
-        return this.usagePointMicroActionFactory.from(action.getKey()).get().getPropertySpecs();
+        return this.usagePointLifeCycleConfigurationService.getMicroActionByKey(action.getKey()).get().getPropertySpecs();
     }
 
     private void wrapWithFormValidationErrorAndRethrow(RequiredMicroActionPropertiesException violationEx) {

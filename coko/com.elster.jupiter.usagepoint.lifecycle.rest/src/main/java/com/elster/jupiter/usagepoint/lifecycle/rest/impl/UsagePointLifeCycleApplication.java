@@ -56,7 +56,6 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
     private FiniteStateMachineService finiteStateMachineService;
     private BpmService bpmService;
     private MeteringService meteringService;
-    private UsagePointMicroActionFactory usagePointMicroActionFactory;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -111,11 +110,6 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
         this.meteringService = meteringService;
     }
 
-    @Reference
-    public void setUsagePointMicroActionFactory(UsagePointMicroActionFactory usagePointMicroActionFactory) {
-        this.usagePointMicroActionFactory = usagePointMicroActionFactory;
-    }
-
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
@@ -138,7 +132,6 @@ public class UsagePointLifeCycleApplication extends Application implements Trans
             bind(finiteStateMachineService).to(FiniteStateMachineService.class);
             bind(bpmService).to(BpmService.class);
             bind(meteringService).to(MeteringService.class);
-            bind(usagePointMicroActionFactory).to(UsagePointMicroActionFactory.class);
         }
     }
 

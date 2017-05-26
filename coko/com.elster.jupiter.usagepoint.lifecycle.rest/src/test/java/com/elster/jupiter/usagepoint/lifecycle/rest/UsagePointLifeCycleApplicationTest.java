@@ -55,7 +55,6 @@ public class UsagePointLifeCycleApplicationTest extends FelixRestApplicationJers
         app.setFiniteStateMachineService(this.finiteStateMachineService);
         app.setMeteringService(this.meteringService);
         app.setBpmService(bpmService);
-        app.setUsagePointMicroActionFactory(this.usagePointMicroActionFactory);
         return app;
     }
 
