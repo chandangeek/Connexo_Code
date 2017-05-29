@@ -1,14 +1,14 @@
-Interrupt service;com.elster:UsagePointProcesses:2.0
-Limit load (non smart);com.elster:UsagePointProcesses:2.0
-Limit load service;com.elster:UsagePointProcesses:2.0
-On demand read;com.elster:UsagePointProcesses:2.0
-Open;com.elster:UsagePointProcesses:2.0
-Restore service;com.elster:UsagePointProcesses:2.0
-Seal;com.elster:UsagePointProcesses:2.0
-Replace meter;com.elster:UsagePointProcesses:2.0
-Activate device;com.elster:UsagePointProcesses:2.0
-Decommission device;com.elster:UsagePointProcesses:2.0
-Install meter;com.elster:UsagePointProcesses:2.0
-Remove meter;com.elster:UsagePointProcesses:2.0
-Link metrology configuration;com.elster:UsagePointProcesses:2.0
-Unlink metrology configuration;com.elster:UsagePointProcesses:2.0
+Interrupt service;com.elster:UsagePointProcesses:2.1
+Limit load (non smart);com.elster:UsagePointProcesses:2.1
+Limit load service;com.elster:UsagePointProcesses:2.1
+On demand read;com.elster:UsagePointProcesses:2.1
+Open;com.elster:UsagePointProcesses:2.1
+Restore service;com.elster:UsagePointProcesses:2.1
+Seal;com.elster:UsagePointProcesses:2.1
+Replace meter;com.elster:UsagePointProcesses:2.1
+Activate device;com.elster:UsagePointProcesses:2.1
+Decommission device;com.elster:UsagePointProcesses:2.1
+Install meter;com.elster:UsagePointProcesses:2.1
+Remove meter;com.elster:UsagePointProcesses:2.1
+Link metrology configuration;com.elster:UsagePointProcesses:2.1
+Unlink metrology configuration;com.elster:UsagePointProcesses:2.1
