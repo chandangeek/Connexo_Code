@@ -89,12 +89,12 @@ public class DeviceResource {
 
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
-    @Path("/{name}/")
+    @Path("/{name}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public MeterInfos getDevice(@PathParam("name") String name, @Context SecurityContext securityContext) {
+    public MeterInfo getDevice(@PathParam("name") String name, @Context SecurityContext securityContext) {
         if (maySeeAny(securityContext)) {
             return meteringService.findMeterByName(name)
-                    .map(MeterInfos::new)
+                    .map(MeterInfo::new)
                     .orElse(null);
         }
         return null;
