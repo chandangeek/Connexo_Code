@@ -25,18 +25,18 @@ Ext.define('Imt.devicemanagement.controller.Device', {
     init: function () {
     },
 
-    showDevice: function (usagepoint, metername) {
+    showDevice: function (usagepointOrMeterName, metername) {
 
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             deviceModel = me.getModel('Imt.devicemanagement.model.Device'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             actualModel,
-            actualForm;
+            actualForm,
+            nameOfMeter = Ext.isEmpty(metername) ? usagepointOrMeterName : metername;
        
         pageMainContent.setLoading(true);
-
-        deviceModel.load(metername, {
+        deviceModel.load(nameOfMeter, {
             success: function (record) {
                 me.getApplication().fireEvent('deviceLoaded', record);
                 var widget = Ext.widget('device-management-setup', {router: router});
