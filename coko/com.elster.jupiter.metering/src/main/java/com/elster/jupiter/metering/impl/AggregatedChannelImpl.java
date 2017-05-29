@@ -46,6 +46,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -338,12 +339,18 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<BaseReadingRecord> getReadingsBefore(Instant when, int readingCount) {
-        return persistedChannel.getReadingsBefore(when, readingCount);
+        return getReadings(Range.lessThan(when)).stream()
+                .sorted(Comparator.comparing(BaseReadingRecord::getTimeStamp).reversed())
+                .limit(readingCount)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<BaseReadingRecord> getReadingsOnOrBefore(Instant when, int readingCount) {
-        return persistedChannel.getReadingsOnOrBefore(when, readingCount);
+        return getReadings(Range.atMost(when)).stream()
+                .sorted(Comparator.comparing(BaseReadingRecord::getTimeStamp).reversed())
+                .limit(readingCount)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -393,23 +400,28 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                 .stream()
                 .map(MetrologyContractCalculationIntrospector.ChannelUsage::getChannel)
                 .map(Channel::getLastDateTime)
-                .filter(lastDateTime -> lastDateTime != null)
+                .filter(Objects::nonNull)
                 .max(Comparator.naturalOrder());
-        if (max.isPresent()) {
-            return persistedChannelLastDateTime == null || max.get().compareTo(persistedChannelLastDateTime) >= 0 ? max.get() : persistedChannelLastDateTime;
-        } else {
-            return persistedChannelLastDateTime;
-        }
+        return max.filter(instant -> persistedChannelLastDateTime == null || instant.isAfter(persistedChannelLastDateTime))
+                .orElse(persistedChannelLastDateTime);
     }
 
     @Override
     public Instant getNextDateTime(Instant instant) {
-        return persistedChannel.getNextDateTime(instant);
+        return instant;
     }
 
     @Override
     public Instant getPreviousDateTime(Instant instant) {
-        return persistedChannel.getPreviousDateTime(instant);
+        return instant;
+    }
+
+    @Override
+    public Instant truncateToIntervalLength(Instant instant) {
+        // TODO: cannot rely on persisted channel since its timeline may not have readings at all
+        // but on the other hand can we afford recalculating data for contract only in order to know this?
+        // same for some other methods in this class
+        return instant;
     }
 
     @Override

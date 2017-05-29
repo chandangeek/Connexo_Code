@@ -194,10 +194,9 @@ class MeterActivationSetBuilder {
         if (this.period.hasUpperBound() && switchTimestamp.equals(this.period.upperEndpoint())) {
             return Optional.empty();
         } else {
-            List<MeterActivation> meterActivations =
-                    this.getOverlappingMeterActivations()
-                            .filter(meterActivation -> meterActivation.getRange().contains(switchTimestamp))
-                            .collect(Collectors.toList());
+            List<MeterActivation> meterActivations = this.getOverlappingMeterActivations()
+                    .filter(meterActivation -> meterActivation.getRange().contains(switchTimestamp))
+                    .collect(Collectors.toList());
             Optional<ServerCalendarUsage> calendarUsage = this.getOverlappingCalendarUsages().filter(each -> each.getRange().contains(switchTimestamp)).findAny();
             Optional<SyntheticLoadProfileUsage> syntheticLoadProfileUsage = this.getSyntheticLoadProfileUsage(switchTimestamp);
             List<CustomPropertySetValues> allCustomPropertyValues = this.getCustomPropertyValues(switchTimestamp);

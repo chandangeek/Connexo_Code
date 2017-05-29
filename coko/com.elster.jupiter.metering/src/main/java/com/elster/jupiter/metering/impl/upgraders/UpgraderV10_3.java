@@ -75,6 +75,8 @@ public class UpgraderV10_3 implements Upgrader {
         logger = Logger.getLogger(UpgraderV10_3.class.getName());
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()){
+                statement.execute("ALTER TABLE MTR_USAGEPOINTMTRCONFIG DROP COLUMN ACTIVE");
+                statement.execute("ALTER TABLE MTR_USAGEPOINTMTRCONFIG_JRNL DROP COLUMN ACTIVE");
                 statement.execute("ALTER TABLE MTR_RT_DELIVERABLE ADD METROLOGY_CONTRACT NUMBER");
                 statement.execute("ALTER TABLE MTR_RT_DELIVERABLE_JNRL ADD METROLOGY_CONTRACT NUMBER");
                 statement.execute(

@@ -685,7 +685,7 @@ public class MeterActivationImplIT {
     @Test
     @Transactional
     public void testIncorrectDeviceStageWithoutMetrologyConfig() {
-        expectedException.expect(UsagePointMeterActivationException.IncorrectDeviceStageWithoutMetrologyConfig.class);
+        expectedException.expect(UsagePointMeterActivationException.IncorrectLifeCycleStage.class);
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         AmrSystem system = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Instant now = inMemoryBootstrapModule.getClock().instant();
