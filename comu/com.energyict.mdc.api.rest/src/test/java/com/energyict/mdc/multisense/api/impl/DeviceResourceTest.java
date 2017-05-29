@@ -32,6 +32,7 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ExecutableActionPropertyImpl;
 import com.energyict.mdc.dynamic.DateFactory;
 
+import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
@@ -351,6 +352,8 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
 
     @Test
     public void testCreatedeviceWithFindingApplicableDeviceConfiguration() {
+        Instant now = Instant.now();
+        when(clock.instant()).thenReturn(now);
         DeviceInfo info = new DeviceInfo();
         info.yearOfCertification = 2017;
         info.deviceConfiguration = new DeviceConfigurationInfo();
@@ -360,6 +363,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         info.serialNumber = "12345";
         info.usagePoint = "5ba4bd20-3173-43ac-a45b-032f00771b85";
         info.meterRole = "meter.role.Default";
+        info.shipmentDate = now;
 
         DeviceType deviceType = mockDeviceType(123, "testDeviceType", 12345L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1234, "Default", deviceType, 3333L);
@@ -376,6 +380,8 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         when(metrologyConfiguration.getContracts()).thenReturn(Collections.emptyList());
+        when(effectiveMetrologyConfigurationOnUsagePoint.getRange()).thenReturn(Range.all());
+        when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
         Device newDevice = mockDevice("4dac4bd90-2673-488c-342b-032628771b85", info.serialNumber, deviceConfiguration, 123L);
         when(deviceService.newDevice(eq(deviceConfiguration), any(String.class), any(Instant.class))).thenReturn(newDevice);
         when(newDevice.getCurrentMeterActivation()).thenReturn(Optional.empty());
