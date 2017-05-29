@@ -56,15 +56,30 @@ public class InstallerImpl implements FullInstaller {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        moveSecurityAttributesToKeyAccessors();
+        if(checkTableExists()) {
+            moveSecurityAttributesToKeyAccessors();
+        }
+    }
+
+    private boolean checkTableExists() {
+        final boolean[] tableExists = {false};
+        String sql = "SELECT * FROM user_tables where table_name = 'PR1_DLMS_SECURITY'";
+        dataModel.useConnectionNotRequiringTransaction(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                ResultSet rs = statement.executeQuery(sql);
+                tableExists[0] = rs.next();
+            }
+        });
+
+        return tableExists[0];
     }
 
     private void moveSecurityAttributesToKeyAccessors() {
         // 1. Handle for DlmsSecuritySupport
-        String sql = "SELECT DEVICE, PROPERTYSPECPROVIDER, CLIENTMACADDRESS, PASSWORD, AUTHKEY, ENCRYPTIONKEY FROM PR1_DLMS_SECURITY";
-        List<String> propertyNames = Arrays.asList("Password", "AuthenticationKey", "EncryptionKey");
+            String sql = "SELECT DEVICE, PROPERTYSPECPROVIDER, CLIENTMACADDRESS, PASSWORD, AUTHKEY, ENCRYPTIONKEY FROM PR1_DLMS_SECURITY";
+            List<String> propertyNames = Arrays.asList("Password", "AuthenticationKey", "EncryptionKey");
 
-        doMoveSecurityAttributesToKeyAccessors(sql, propertyNames);
+            doMoveSecurityAttributesToKeyAccessors(sql, propertyNames);
 
     }
 
