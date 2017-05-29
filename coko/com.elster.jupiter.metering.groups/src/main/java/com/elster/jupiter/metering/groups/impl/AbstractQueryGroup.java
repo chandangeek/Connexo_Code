@@ -218,6 +218,7 @@ abstract class AbstractQueryGroup<T extends HasId & IdentifiedObject> extends Ab
     @Override
     public void setConditions(List<SearchablePropertyValue> conditions) {
         this.conditions.forEach(QueryGroupCondition::delete);
+        this.conditions.clear();
         conditions.forEach(this::addQueryGroupCondition);
     }
 
