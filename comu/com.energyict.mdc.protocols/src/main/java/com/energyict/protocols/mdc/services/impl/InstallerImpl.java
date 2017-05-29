@@ -1,0 +1,168 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.protocols.mdc.services.impl;
+
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.KeyType;
+import com.elster.jupiter.pki.PkiService;
+import com.elster.jupiter.pki.impl.wrappers.symmetric.DataVaultSymmetricKeyFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.upgrade.FullInstaller;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolUpgradeService;
+import com.energyict.mdc.upl.TypedProperties;
+
+import javax.inject.Inject;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Logger;
+
+/**
+ * Installer for the {@link DeviceProtocolUpgradeService}, which acts merely as a place holder,
+ * as the data model doesn't contain any tables (and thus installation shouldn't do a thing)
+ *
+ * @author stijn
+ * @since 23.05.17 - 09:00
+ */
+public class InstallerImpl implements FullInstaller {
+
+    private final DataModel dataModel;
+    private KeyAccessorValuePersister keyAccessorValuePersister;
+    private final DeviceService deviceService;
+    private final PkiService pkiService;
+
+    @Inject
+    public InstallerImpl(DataModel dataModel, DeviceService deviceService, PkiService pkiService) {
+        super();
+        this.dataModel = dataModel;
+        this.deviceService = deviceService;
+        this.pkiService = pkiService;
+    }
+
+    @Override
+    public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
+        dataModelUpgrader.upgrade(dataModel, Version.latest());
+        moveSecurityAttributesToKeyAccessors();
+    }
+
+    private void moveSecurityAttributesToKeyAccessors() {
+        // 1. Handle for DlmsSecuritySupport
+        String sql = "SELECT DEVICE, PROPERTYSPECPROVIDER, CLIENTMACADDRESS, PASSWORD, AUTHKEY, ENCRYPTIONKEY FROM PR1_DLMS_SECURITY";
+        List<String> propertyNames = Arrays.asList("Password", "AuthenticationKey", "EncryptionKey");
+
+        doMoveSecurityAttributesToKeyAccessors(sql, propertyNames);
+
+    }
+
+    private void doMoveSecurityAttributesToKeyAccessors(String sql, List<String> propertyNames) {
+        dataModel.useConnectionRequiringTransaction(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                String sqlQuery = sql.concat(" WHERE ENDTIME = 1000000000000000000"); // As we only want to migrate active entries (~ the ones having end time set as eternity)
+                ResultSet rs = statement.executeQuery(sqlQuery);
+                List<Long> securityPropertySetsAlreadyDone = new ArrayList<>();
+                while (rs.next()) {
+                    handleSecurityAttributeChangesFor(rs, propertyNames, securityPropertySetsAlreadyDone);
+                }
+            }
+        });
+    }
+
+    private void handleSecurityAttributeChangesFor(ResultSet rs, List<String> propertyNames, List<Long> securityPropertySetsAlreadyDone) throws SQLException {
+        long deviceId = rs.getLong(1);
+        long securityPropertySetId = rs.getLong(2);
+        String clientMacAddress = rs.getString(3);
+        TypedProperties oldProperties = TypedProperties.empty();
+        addPropertyIfNotNull(oldProperties, "Password", rs.getString(4));
+        addPropertyIfNotNull(oldProperties, "AuthenticationKey", rs.getString(5));
+        addPropertyIfNotNull(oldProperties, "EncryptionKey", rs.getString(6));
+
+        Optional<Device> deviceOptional = deviceService.findDeviceById(deviceId);
+        if (deviceOptional.isPresent()) {
+            Optional<SecurityPropertySet> securityPropertySetOptional = deviceOptional.get().getDeviceConfiguration().getSecurityPropertySets()
+                    .stream()
+                    .filter(securityPropertySet -> securityPropertySet.getId() == securityPropertySetId)
+                    .findFirst();
+            if (securityPropertySetOptional.isPresent()) {
+                SecurityPropertySet securityPropertySet = securityPropertySetOptional.get();
+
+                // 1. Configuration level - update the SecurityPropertySet on DeviceConfig and add corresponding KeyAccessorTypes to the DeviceType
+                if (!securityPropertySetsAlreadyDone.contains(securityPropertySetId)) {
+                    updateExistingSecurityPropertySet(securityPropertySet, deviceOptional.get(), clientMacAddress);
+                    securityPropertySetsAlreadyDone.add(securityPropertySetId);
+                }
+
+                // 2. Configuration on device level - create the corresponding KeyAccessors and fill in the actual value of the keys/passwords
+                createKeyAccessorsOnDeviceAndFillInActualValue(deviceOptional.get(), securityPropertySet, oldProperties);
+            }
+        }
+    }
+
+    private void addPropertyIfNotNull(TypedProperties oldProperties, String name, String value) throws SQLException {
+        if (value != null) {
+            oldProperties.setProperty(name, value); // dataVaultService.decrypt(rs.getString(4)));    //TODO: decrypt using datavault
+        }
+    }
+
+    private void updateExistingSecurityPropertySet(SecurityPropertySet securityPropertySet, Device device, String clientMacAddress) {
+        securityPropertySet.setClient(clientMacAddress);
+        securityPropertySet.getPropertySpecs().forEach(
+                propertySpec ->
+                        securityPropertySet.addConfigurationSecurityProperty(
+                                propertySpec.getName(),
+                                createNewKeyAccessorType(device.getDeviceType(), securityPropertySet, propertySpec)
+                        )
+        );
+        securityPropertySet.update();
+    }
+
+    private KeyAccessorType createNewKeyAccessorType(DeviceType deviceType, SecurityPropertySet securityPropertySet, PropertySpec propertySpec) {
+        String keyAccessorTypeName = securityPropertySet.getName().concat(" - ").concat(propertySpec.getName());
+        return deviceType.getKeyAccessorTypes()
+                .stream()
+                .filter(keyAccessorType -> keyAccessorType.getName().equals(keyAccessorTypeName))
+                .findFirst()
+                .orElseGet(() -> deviceType.addKeyAccessorType(keyAccessorTypeName, createOrGetKeyType(propertySpec))
+                        .keyEncryptionMethod(DataVaultSymmetricKeyFactory.KEY_ENCRYPTION_METHOD)
+                        .duration(TimeDuration.years(1))
+                        .add());
+    }
+
+    private KeyType createOrGetKeyType(PropertySpec propertySpec) {
+        if (propertySpec.getName().equals("Password")) {
+            return pkiService.getKeyType("Password").orElseGet(() -> pkiService.newPassphraseType("Password").withSpecialCharacters().length(30).add());
+        } else {
+            return pkiService.getKeyType("AES 128").orElseGet(() -> pkiService.newSymmetricKeyType("AES 128", "AES", 128).add());
+        }
+    }
+
+    private void createKeyAccessorsOnDeviceAndFillInActualValue(Device device, SecurityPropertySet securityPropertySet, TypedProperties oldProperties) {
+        securityPropertySet.getConfigurationSecurityProperties().forEach(
+                property -> {
+                    if (oldProperties.hasValueFor(property.getName())) {
+                        getKeyAccessorValuePersister().persistKeyAccessorValue(device, property.getKeyAccessorType(), (String) oldProperties.getProperty(property.getName()));
+                    }
+                }
+        );
+    }
+
+    private KeyAccessorValuePersister getKeyAccessorValuePersister() {
+        if (keyAccessorValuePersister == null) {
+            keyAccessorValuePersister = new KeyAccessorValuePersister(pkiService);
+        }
+        return keyAccessorValuePersister;
+    }
+}
