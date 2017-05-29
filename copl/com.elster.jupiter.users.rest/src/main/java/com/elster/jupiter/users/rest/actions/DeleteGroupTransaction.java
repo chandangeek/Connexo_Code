@@ -39,13 +39,12 @@ public class DeleteGroupTransaction extends VoidTransaction {
     }
 
     private boolean canDeleteGroup(Group group) {
-        return !group.getPrivileges().entrySet()
+        return !group.getName().equals(UserService.DEFAULT_ADMIN_ROLE) && group.getPrivileges()
+                .entrySet()
                 .stream()
                 .map(Map.Entry::getValue)
                 .flatMap(Collection::stream)
-                .filter(privilege -> !privilege.getCategory().getName().equals(UserService.DEFAULT_CATEGORY_NAME))
-                .findAny()
-                .isPresent();
+                .allMatch(privilege -> privilege.getCategory().getName().equals(UserService.DEFAULT_CATEGORY_NAME));
     }
 
     private void doDelete(Group group) {

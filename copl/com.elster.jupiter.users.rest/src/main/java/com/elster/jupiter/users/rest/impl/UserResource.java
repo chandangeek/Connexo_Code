@@ -5,6 +5,7 @@
 package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;

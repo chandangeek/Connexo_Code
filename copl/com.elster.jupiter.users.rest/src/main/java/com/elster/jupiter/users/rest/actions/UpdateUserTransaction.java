@@ -4,19 +4,17 @@
 
 package com.elster.jupiter.users.rest.actions;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.ConcurrentModificationException;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.users.FailToDeactivateUser;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
 import com.elster.jupiter.users.rest.UserInfo;
-import java.util.Optional;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -39,12 +37,20 @@ public class UpdateUserTransaction implements Transaction<User> {
     }
 
     private User doUpdate(User user) {
+        boolean userStatus = user.getStatus();
         boolean updated = updateMemberships(user);
         updated |= info.update(user);
+        if(userStatus != user.getStatus() && !canUserBeDeactivated(user)){
+            throw new FailToDeactivateUser(userService.getThesaurus(), MessageSeeds.CANNOT_REMOVE_ALL_USER_ADMINISTRATORS);
+        }
         if(updated){
             user.update();
         }
         return user;
+    }
+
+    private boolean canUserBeDeactivated(User user){
+        return user.getGroups().stream().noneMatch(g -> g.getName().equals(UserService.DEFAULT_ADMIN_ROLE)) && isAnotherUserWithUserAdministratorRole(user);
     }
 
     private boolean updateMemberships(User user) {
@@ -67,7 +73,24 @@ public class UpdateUserTransaction implements Transaction<User> {
         }
     }
 
+    private boolean isAnotherUserWithUserAdministratorRole(User user){
+        return userService.getUsers().stream()
+                .filter(u -> u.getId() != user.getId())
+                .map(User::getGroups)
+                .anyMatch(groupList -> groupList.stream().anyMatch(g -> g.getName().equals(UserService.DEFAULT_ADMIN_ROLE)));
+    }
+
+    private boolean isGroupNotRemovable(User user, Set<Group> current, Set<Group> targetMemberships){
+        return current.stream().anyMatch(g -> g.getName().equals(UserService.DEFAULT_ADMIN_ROLE))
+                && targetMemberships.stream().noneMatch(g -> g.getName().equals(UserService.DEFAULT_ADMIN_ROLE))
+                && !isAnotherUserWithUserAdministratorRole(user);
+
+    }
+
     private void removeMemberships(User user, Set<Group> current, Set<Group> targetMemberships) {
+        if(isGroupNotRemovable(user, current, targetMemberships)){
+            throw new LocalizedFieldValidationException(MessageSeeds.CANNOT_REMOVE_ALL_USER_ADMINISTRATORS, "roles");
+        }
         Set<Group> toRemove = new LinkedHashSet<>(current);
         toRemove.removeAll(targetMemberships);
         for (Group group : toRemove) {

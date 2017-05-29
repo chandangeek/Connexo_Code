@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
 import com.elster.jupiter.users.rest.PrivilegeInfo;
 
@@ -45,14 +46,11 @@ public class GroupInfoFactory {
                 .flatMap(x->x.getValue().stream().map(p->PrivilegeInfo.asApplicationPrivilege(nlsService, x.getKey(), p)))
                 .collect(Collectors.toList()));
 
-        Collections.sort(groupInfo.privileges, (p1, p2) -> {
+        (groupInfo.privileges).sort((p1, p2) -> {
             int result = p1.applicationName.compareTo(p2.applicationName);
             return result != 0 ? result : p1.name.compareTo(p2.name);
-            });
-        groupInfo.canEdit = !groupInfo.privileges.stream()
-                .filter(privilegeInfo -> !privilegeInfo.canGrant)
-                .findAny()
-                .isPresent();
+        });
+        groupInfo.canEdit = groupInfo.name.equals(UserService.DEFAULT_ADMIN_ROLE) ? groupInfo.canEdit = false : groupInfo.privileges.stream().allMatch(privilegeInfo -> privilegeInfo.canGrant);
 
         groupInfo.currentUserCanGrant = canCurrentUserGrantRole(group);
 
