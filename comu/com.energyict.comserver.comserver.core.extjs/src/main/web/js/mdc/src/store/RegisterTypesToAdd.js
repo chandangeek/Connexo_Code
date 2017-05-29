@@ -16,7 +16,6 @@ Ext.define('Mdc.store.RegisterTypesToAdd', {
 
     proxy: {
         type: 'rest',
-        baseUrl: '/api/mds/loadprofiles/measurementtypes',
         url: '/api/mds/loadprofiles/measurementtypes',
         reader: {
             type: 'json',
