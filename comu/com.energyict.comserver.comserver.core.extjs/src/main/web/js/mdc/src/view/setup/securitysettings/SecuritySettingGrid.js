@@ -79,15 +79,15 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 usesExactCount: true,
-                displayMsg: Uni.I18n.translate('securitySettings.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} security settings'),
-                displayMoreMsg: Uni.I18n.translate('securitySetting.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} security settings'),
-                emptyMsg: Uni.I18n.translate('securitySettings.pagingtoolbartop.emptyMsg', 'MDC', 'There are no security settings to display'),
+                displayMsg: Uni.I18n.translate('securitySets.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} security sets'),
+                displayMoreMsg: Uni.I18n.translate('securitySets.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} security sets'),
+                emptyMsg: Uni.I18n.translate('securitySets.pagingtoolbartop.emptyMsg', 'MDC', 'There are no security sets to display'),
                 dock: 'top',
                 items: [
                     {
                         xtype: 'button',
                         itemId: 'add-security-setting-to-device-configuration-btn',
-                        text: Uni.I18n.translate('securitySetting.addSecuritySetting', 'MDC', 'Add security setting'),
+                        text: Uni.I18n.translate('securitySetting.addSecuritySet', 'MDC', 'Add security set'),
                         privileges: Mdc.privileges.DeviceType.admin,
                         action: 'addsecurityaction',
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/securitysettings/add'

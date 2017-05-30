@@ -102,9 +102,8 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
             jsonData: {parent: view.deviceConfiguration.getRecordData(), ruleSets: ruleSets},
             backUrl: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/estimationrulesets').buildUrl(),
             success: function () {
-                var message = Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.orderSaved.success', 'MDC', 'Estimation rule sets order saved.');
                 router.getRoute('administration/devicetypes/view/deviceconfigurations/view/estimationrulesets').forward();
-                me.getApplication().fireEvent('acknowledge', message);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.orderSaved.success', 'MDC', 'Estimation rule sets order saved'));
             },
             callback: function () {
                 view.setLoading(false);
@@ -145,7 +144,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
 
             cfg.config.record.destroy({
                 success: function () {
-                    scope.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.success', 'MDC', 'Successfully removed.'));
+                    scope.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.success', 'MDC', 'Successfully removed'));
                     router.getRoute('administration/devicetypes/view/deviceconfigurations/view/estimationrulesets').forward();
                 },
                 failure: function (response) {

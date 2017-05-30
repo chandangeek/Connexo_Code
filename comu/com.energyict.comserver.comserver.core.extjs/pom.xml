@@ -75,10 +75,6 @@
             <artifactId>bpm.extjs</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.bpm.extjs</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
             <scope>test</scope>

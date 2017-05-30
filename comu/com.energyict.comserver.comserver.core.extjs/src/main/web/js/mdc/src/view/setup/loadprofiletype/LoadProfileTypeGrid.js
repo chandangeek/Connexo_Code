@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeGrid', {
             emptyMsg: Uni.I18n.translate('loadProfileTypes.pagingtoolbartop.emptyMsg', 'MDC', 'There are no load profile types to display'),
             items: [
                 {
-                    text: Uni.I18n.translate('loadProfileTypes.add.loadprofileTypes', 'MDC', 'Add load profile types'),
+                    text: Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'),
                     itemId: 'addLoadProfileType',
                     xtype: 'button',
                     action: 'addloadprofiletypeaction',

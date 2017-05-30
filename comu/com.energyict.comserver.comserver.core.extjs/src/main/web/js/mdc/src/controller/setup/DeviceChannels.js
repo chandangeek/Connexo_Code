@@ -220,15 +220,15 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                     }
                     confirmationWindow.insert(1, me.getValidationContent());
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('deviceloadprofiles.channels.validateNowTitle', 'MDC', 'Couldn\'t perform your action'),
-                        msg: Uni.I18n.translate('deviceloadprofiles.channels.validateNow', 'MDC', 'Validate data of channel {0}?', [record.get('name')])
+                        title: Uni.I18n.translate('deviceloadprofiles.channels.validateNow', 'MDC', 'Validate data of channel {0}?', [record.get('readingType').fullAliasName]),
+                        msg: ''
                     });
                 } else {
                     if (res && res.errorCode) {
                         code = res.errorCode;
                     }
                     var title = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.errorTitle', 'MDC', 'Couldn\'t perform your action'),
-                        message = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.errorMsg', 'MDC', 'Failed to validate data of channel {0}', [record.get('name')]) + "." + Uni.I18n.translate('deviceloadprofiles.channels.noData', 'MDC', 'There is currently no data for this channel'),
+                        message = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.errorMsg', 'MDC', 'Failed to validate data of channel {0}', [record.get('readingType').fullAliasName]) + "." + Uni.I18n.translate('deviceloadprofiles.channels.noData', 'MDC', 'There is currently no data for this channel'),
                         config = {
                             icon: Ext.MessageBox.WARNING
                         };
@@ -271,7 +271,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                 },
                 {
                     xtype: 'displayfield',
-                    value: '',
+                    value: ' ',
                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.validateNow.item2', 'MDC', 'Note: The date displayed by default is the last checked (the moment when the last interval was checked in the validation process).'),
                     labelWidth: 500
                 }
