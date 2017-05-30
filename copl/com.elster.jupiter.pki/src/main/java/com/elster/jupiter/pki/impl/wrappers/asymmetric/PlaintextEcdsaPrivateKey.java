@@ -8,13 +8,9 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpecService;
-
-import org.bouncycastle.asn1.sec.SECNamedCurves;
-import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
-import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.jce.spec.ECPublicKeySpec;
 import org.bouncycastle.math.ec.ECPoint;
 
@@ -69,9 +65,7 @@ public final class PlaintextEcdsaPrivateKey extends AbstractPlaintextPrivateKeyW
     protected PublicKey doGetPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
         BCECPrivateKey privateKey = (BCECPrivateKey) getPrivateKey();
         BigInteger d = privateKey.getD();
-//        BigInteger d = new BigInteger(getPrivateKey().getEncoded());
-        X9ECParameters curve = SECNamedCurves.getByName(getKeyType().getCurve());
-        ECParameterSpec ecParameterSpec = new ECParameterSpec(curve.getCurve(), curve.getG(), curve.getN(), curve.getH(), curve.getSeed());
+        ECNamedCurveParameterSpec ecParameterSpec = ECNamedCurveTable.getParameterSpec(getKeyType().getCurve());
         ECPoint q = ecParameterSpec.getG().multiply(d);
         KeyFactory keyFactory = KeyFactory.getInstance("ECDSA", "BC");
         return keyFactory.generatePublic(new ECPublicKeySpec(q, ecParameterSpec));

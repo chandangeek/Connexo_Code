@@ -35,10 +35,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>security.thread</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.upl</artifactId>
-        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
