@@ -80,7 +80,7 @@ public interface DeviceMasterDataExtractor {
     interface SecurityPropertySet {
         long id();
         String name();
-        String client();
+        Object client();
         int authenticationDeviceAccessLevelId();
         int encryptionDeviceAccessLevelId();
         int securitySuite();
