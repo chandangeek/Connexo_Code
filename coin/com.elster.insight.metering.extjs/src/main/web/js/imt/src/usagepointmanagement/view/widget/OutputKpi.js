@@ -55,7 +55,17 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
             statisticsSuspect,
             statisticsNotValidated,
             statisticsEdited,
-            statisticsEstimated;
+            statisticsEstimated,
+            formatPercentage = function (count, total) {
+                var percentage = Math.round(count / total * 100);
+                if (percentage === 0 && count !== 0) {
+                    return '< 1%';
+                } else if (percentage === 100 && count !== total) {
+                    return '> 99%';
+                } else {
+                    return percentage + '%'
+                }
+        };
 
         if (!me.titleIsPartOfDataView) {
             me.title = title;
@@ -105,7 +115,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                     name: item.displayName,
                     key: item.key,
                     data: item.count,
-                    percentage: Math.round(item.count / total * 100) + '%',
+                    percentage: formatPercentage(item.count, total),
                     detail: item.detail,
                     tooltip: me.prepareTooltip(item, 'VIEW')
                 };

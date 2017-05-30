@@ -175,7 +175,7 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                                     hasValues = false;
 
                                 for (var i = 0; i < count; i++) {
-                                    if (store.getAt(i).get('value')) {
+                                    if (store.getAt(i).get('value') || store.getAt(i).get('validationResult') === 'validationStatus.suspect') {
                                         hasValues = true;
                                         return;
                                     }
