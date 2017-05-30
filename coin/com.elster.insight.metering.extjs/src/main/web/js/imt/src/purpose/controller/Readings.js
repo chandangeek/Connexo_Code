@@ -699,6 +699,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             intervals = [],
             window = me.getCopyFromReferenceWindow(),
             form = window.down('#reading-copy-window-form'),
+            changedData = me.getChangedData(me.getStore('Imt.purpose.store.Readings')),
             model = Ext.create('Imt.purpose.model.CopyFromReference'),
             router = me.getController('Uni.controller.history.Router'),
             commentCombo = window.down('#estimation-comment-box'),
@@ -721,6 +722,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
 
         model.set('intervals', intervals);
+        model.set('editedReadings', changedData);
         model.save({
             failure: function (record, operation) {
                 var response = JSON.parse(operation.response.responseText);
