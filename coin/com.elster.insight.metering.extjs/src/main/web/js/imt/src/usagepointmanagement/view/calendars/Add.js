@@ -56,7 +56,17 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
                                 store: 'Imt.usagepointmanagement.store.CalendarCategories',
                                 emptyText: Uni.I18n.translate('calendars.selectCategory', 'IMT', 'Select a category'),
                                 width: 600,
-                                noObjectsText: Uni.I18n.translate('calendars.noCategoriesWithActiveCalendarsExist', 'IMT', 'No categories with active calendars exist')
+                                noObjectsText: Uni.I18n.translate('calendars.noCategoriesWithActiveCalendarsExist', 'IMT', 'No categories with active calendars exist'),
+                                listeners: {
+                                    change: function (field, value) {
+                                        var combobox = me.down('#calendar-combo');
+                                        if(value) {
+                                            combobox.enable();
+                                        } else {
+                                            combobox.disable();
+                                        }
+                                    }
+                                }
                             }
                         },
                         {
