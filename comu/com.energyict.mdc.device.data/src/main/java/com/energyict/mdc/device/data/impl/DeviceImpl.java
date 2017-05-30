@@ -63,11 +63,8 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PkiService;
-import com.elster.jupiter.pki.PlaintextPassphrase;
-import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
@@ -81,7 +78,6 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.DateTimeFormatGenerator;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -122,6 +118,7 @@ import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.CannotSetMultipleComSchedulesWithSameComTask;
@@ -183,8 +180,8 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -198,7 +195,6 @@ import javax.validation.ConstraintValidatorContext;
 import javax.validation.Payload;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
-import javax.xml.bind.DatatypeConverter;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -1300,23 +1296,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                     .findFirst();
 
             if (optionalKeyAccessor.isPresent() && optionalKeyAccessor.get().getActualValue().isPresent()) {
+
                 Object actualValue = optionalKeyAccessor.get().getActualValue().get();
-                if (actualValue instanceof PlaintextSymmetricKey) {
-                    PlaintextSymmetricKey plaintextSymmetricKey = (PlaintextSymmetricKey) actualValue;
-                    if (plaintextSymmetricKey.getKey().isPresent()) {
-                        securityProperties.setProperty(configurationSecurityProperty.getName(), DatatypeConverter.printHexBinary(plaintextSymmetricKey.getKey().get().getEncoded()));
-                    }
-                } else if (actualValue instanceof PlaintextPassphrase) {
-                    PlaintextPassphrase plaintextPassphrase = (PlaintextPassphrase) actualValue;
-                    if (plaintextPassphrase.getPassphrase().isPresent()) {
-                        securityProperties.setProperty(configurationSecurityProperty.getName(), plaintextPassphrase.getPassphrase().get());
-                    }
-                } else if (actualValue instanceof CertificateWrapper) {
-                    CertificateWrapper certificateWrapper = (CertificateWrapper) actualValue;
-                    securityProperties.setProperty(configurationSecurityProperty.getName(), certificateWrapper);
-                }
+                Object adaptedValue = TypedPropertiesValueAdapter.adaptActualValueToUPLValue(actualValue, configurationSecurityProperty.getKeyAccessorType());
+                securityProperties.setProperty(configurationSecurityProperty.getName(), adaptedValue);
             }
-            // TODO: in case optional is not present, should we silently ignore/or throw an error instead?
         }
         return securityProperties;
     }
