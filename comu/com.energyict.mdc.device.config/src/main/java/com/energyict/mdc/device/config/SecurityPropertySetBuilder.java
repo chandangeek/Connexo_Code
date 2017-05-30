@@ -18,7 +18,7 @@ public interface SecurityPropertySetBuilder {
 
     SecurityPropertySetBuilder encryptionLevel(int level);
 
-    SecurityPropertySetBuilder client(String client);
+    SecurityPropertySetBuilder client(Object client);
 
     SecurityPropertySetBuilder securitySuite(int suite);
 

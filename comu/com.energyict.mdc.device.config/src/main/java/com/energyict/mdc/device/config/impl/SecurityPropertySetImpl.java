@@ -83,7 +83,8 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private int encryptionLevelId;
     private EncryptionDeviceAccessLevel encryptionLevel;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String client;
+    private String clientDbValue;
+    private Object client;
     private int securitySuiteId = -1;
     private SecuritySuite securitySuite;
     private int requestSecurityLevelId = -1;
@@ -274,8 +275,21 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Override
-    public String getClient() {
+    public Object getClient() {
+        if (client == null && clientDbValue != null && !clientDbValue.isEmpty()) {
+            Optional<com.energyict.mdc.upl.properties.PropertySpec> clientSecurityPropertySpec = getDeviceProtocol().getClientSecurityPropertySpec();
+            client = clientSecurityPropertySpec.isPresent()
+                    ? clientSecurityPropertySpec.get().getValueFactory().fromStringValue(clientDbValue)
+                    : null;
+        }
         return client;
+    }
+
+    @Override
+    public Optional<PropertySpec> getClientSecurityPropertySpec() {
+        return getDeviceProtocol().getClientSecurityPropertySpec().isPresent()
+                ? Optional.of(new UPLToConnexoPropertySpecAdapter(getDeviceProtocol().getClientSecurityPropertySpec().get()))
+                : Optional.empty();
     }
 
     @Override
@@ -470,8 +484,14 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     @Override
-    public void setClient(String client) {
+    public void setClient(Object client) {
         this.client = client;
+        if (client == null) {
+            this.clientDbValue = null;
+        } else {
+            Optional<com.energyict.mdc.upl.properties.PropertySpec> clientSecurityPropertySpec = this.getDeviceProtocol().getClientSecurityPropertySpec();
+            this.clientDbValue = clientSecurityPropertySpec.isPresent() ? clientSecurityPropertySpec.get().getValueFactory().toStringValue(client) : null;
+        }
     }
 
     @Override
@@ -806,13 +826,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             if (value.getDeviceProtocol().getClientSecurityPropertySpec().isPresent()) {
                 PropertySpec clientPropertySpec = new UPLToConnexoPropertySpecAdapter(value.getDeviceProtocol().getClientSecurityPropertySpec().get());
                 try {
-                    Object actualValue = value.client;
-                    try {
-                        actualValue = clientPropertySpec.getValueFactory().fromStringValue(value.client);
-                    } catch (Exception e) {
-                        // if conversion fails, validation will fail
-                    }
-                    if (!clientPropertySpec.validateValue(actualValue)) {
+                    if (!clientPropertySpec.validateValue(value.getClient())) {
                         context.disableDefaultConstraintViolation();
                         context.buildConstraintViolationWithTemplate(message)
                                 .addPropertyNode("client").addConstraintViolation()

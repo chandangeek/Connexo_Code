@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -42,7 +43,19 @@ public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpe
 
     EncryptionDeviceAccessLevel getEncryptionDeviceAccessLevel();
 
-    String getClient();
+    Object getClient();
+
+    /**
+     * Returns an optional {@link com.energyict.mdc.upl.properties.PropertySpec} containing the
+     * {@link com.energyict.mdc.upl.properties.PropertySpec} to use for the 'client'. This property
+     * spec can then be used to validate the value of the client field.
+     * <p>
+     * If 'client' should not be used(~ communication with the device doesn't
+     * need a client), then an empty Optional will be returned.
+     *
+     * @return The 'client' PropertySpec or an empty Optional in case the 'client' is not supported
+     */
+    Optional<PropertySpec> getClientSecurityPropertySpec();
 
     SecuritySuite getSecuritySuite();
 
@@ -72,7 +85,7 @@ public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpe
 
     void setEncryptionLevelId(int encryptionLevelId);
 
-    void setClient(String client);
+    void setClient(Object client);
 
     void setSecuritySuiteId(int securitySuiteId);
 
