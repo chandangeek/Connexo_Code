@@ -22,7 +22,19 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
             }
         });
 
+
         return [
+            !me.hasCalendars() ?
+            {
+                xtype: 'displayfield',
+                itemId: 'no-calendars',
+                fieldCls: 'x-form-invalid-under',
+                fieldLabel: Uni.I18n.translate('general.discardDays', 'UNI', 'Discard specific days'),
+                value: Uni.I18n.translate('general.discardDays.noCalendars', 'UNI', 'No calendars defined yet'),
+                htmlEncode: false,
+                labelWidth: 260,
+                width: 600
+            } :
             {
                 items: [
                     {
@@ -37,10 +49,10 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
                         readOnly: me.isReadOnly,
                         boxLabel: me.boxLabel ? me.boxLabel : '',
                         listeners: {
-                            change: function(fld, newValue){
+                            change: function (fld, newValue) {
                                 me.getCalendarCombo().setDisabled(!newValue);
                                 me.getEventCodeCombo().setDisabled(!(newValue && me.getCalendarCombo().getValue()));
-                                if(newValue && !me.getCalendarCombo().getValue()){
+                                if (newValue && !me.getCalendarCombo().getValue()) {
                                     me.calendarsStore.load();
                                 }
                             }
@@ -68,8 +80,8 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
                                 me.getEventCodeCombo().clearValue();
                                 var model = Ext.ModelManager.getModel('Uni.model.timeofuse.Calendar');
                                 model.getProxy().setUrl('/api/cal/calendars');
-                                model.load(newValue,{
-                                    callback: function(record){
+                                model.load(newValue, {
+                                    callback: function (record) {
                                         me.getEventCodeCombo().bindStore(record.events(), true);
                                         me.fireEvent('eventcodestorebound');
                                         me.getEventCodeCombo().enable();
@@ -86,7 +98,7 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
                         fieldLabel: Uni.I18n.translate('general.eventCode', 'UNI', 'Event code'),
                         queryMode: 'local',
                         required: true,
-                        name: this.getName() +'.eventCode',
+                        name: this.getName() + '.eventCode',
                         labelWidth: 260,
                         width: 600,
                         valueField: 'id',
@@ -114,7 +126,7 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
                 }
             }
         });
-        
+
         return [
             {
                 items: [
@@ -150,89 +162,98 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
     setLocalizedName: function (name) {
     },
 
-    getDiscardDisplayfield: function(){
+    getDiscardDisplayfield: function () {
         return this.down('#displayfield-discard');
     },
 
-    getCalendarDisplayfield: function(){
+    getCalendarDisplayfield: function () {
         return this.down('#displayfield-calendar');
     },
 
-    getEventCodeDisplayfield: function(){
+    getEventCodeDisplayfield: function () {
         return this.down('#displayfield-eventCode');
     },
 
-    getDiscardCheckbox: function(){
+    getDiscardCheckbox: function () {
         return this.down('#discard');
     },
 
-    getCalendarCombo: function(){
+    getCalendarCombo: function () {
         return this.down('#calendar');
     },
 
-    getEventCodeCombo: function(){
+    getEventCodeCombo: function () {
         return this.down('#eventCode');
     },
 
     setValue: function (value) {
         var me = this,
             dependenciesCounter = 2,
-            showFunc = function(){
+            showFunc = function () {
                 dependenciesCounter--;
-                if(!dependenciesCounter){
+                if (!dependenciesCounter) {
                     me.getCalendarDisplayfield().show();
                     me.getEventCodeDisplayfield().show();
                     Ext.resumeLayouts(true);
                     me.ownerCt.setLoading(false);
                 }
             };
-
-
-        if (this.isEdit) {
-            if(value) {
-                me.getDiscardCheckbox().setValue(value.discardDays);
-                if(value.discardDays){
-                    me.on('eventcodestorebound', me.onEventCodeStoreBound, me, value.eventCode);
-                    me.getCalendarCombo().setValue(value.calendar);
+        if (me.hasCalendars()) {
+            if (this.isEdit) {
+                if (value) {
+                    me.getDiscardCheckbox().setValue(value.discardDays);
+                    if (value.discardDays) {
+                        me.on('eventcodestorebound', me.onEventCodeStoreBound, me, value.eventCode);
+                        me.getCalendarCombo().setValue(value.calendar);
+                    }
                 }
-            }
-        } else {
-
-            var model = Ext.ModelManager.getModel('Uni.model.timeofuse.Calendar');
-            if(value && value.discardDays){
-                me.ownerCt.setLoading(true);
-                Ext.suspendLayouts();
-                me.getDiscardDisplayfield().setValue(Uni.I18n.translate('general.yes', 'UNI', 'Yes'));
-                me.calendarsStore.load({
-                    callback: function () {
-                        me.getCalendarDisplayfield().setValue(me.calendarsStore.getById(value.calendar).get('name'));
-                        showFunc();
-                    }
-                });
-                model.getProxy().setUrl('/api/cal/calendars');
-                model.load(value.calendar,{
-                    callback: function(record){
-                        me.getEventCodeDisplayfield().setValue(record.events().getById(value.eventCode).get('name'));
-                        showFunc();
-                    }
-                });
-
             } else {
-                me.getDiscardDisplayfield().setValue(Uni.I18n.translate('general.no', 'UNI', 'No'));
+
+                var model = Ext.ModelManager.getModel('Uni.model.timeofuse.Calendar');
+                if (value && value.discardDays) {
+                    me.ownerCt.setLoading(true);
+                    Ext.suspendLayouts();
+                    me.getDiscardDisplayfield().setValue(Uni.I18n.translate('general.yes', 'UNI', 'Yes'));
+                    me.calendarsStore.load({
+                        callback: function () {
+                            me.getCalendarDisplayfield().setValue(me.calendarsStore.getById(value.calendar).get('name'));
+                            showFunc();
+                        }
+                    });
+                    model.getProxy().setUrl('/api/cal/calendars');
+                    model.load(value.calendar, {
+                        callback: function (record) {
+                            me.getEventCodeDisplayfield().setValue(record.events().getById(value.eventCode).get('name'));
+                            showFunc();
+                        }
+                    });
+
+                } else {
+                    me.getDiscardDisplayfield().setValue(Uni.I18n.translate('general.no', 'UNI', 'No'));
+                }
             }
         }
     },
 
     getValue: function () {
         var me = this;
-        return {
+        return me.hasCalendars() ? {
             discardDays: me.getDiscardCheckbox().getValue(),
             calendar: me.getCalendarCombo().getValue(),
             eventCode: me.getEventCodeCombo().getValue()
-        };
+        } :
+        {
+            discardDays: false,
+            calendar: null,
+            eventCode: null
+        }
     },
 
-    onEventCodeStoreBound: function(value){
+    onEventCodeStoreBound: function (value) {
         this.getEventCodeCombo().setValue(value);
+    },
+
+    hasCalendars: function () {
+        !!this.calendarsStore.count();
     }
 });
