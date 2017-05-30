@@ -425,11 +425,13 @@ Ext.define('Uni.controller.Error', {
                 msgClass.prototype.initComponent.apply(me, arguments);
                 me.down('displayfield').margin = '0px';
                 me.down('displayfield').fieldStyle = 'min-height: 0px';
-                var fieldErrorCode = new Ext.form.field.Display({
-                    value: sLabel + separator + errorCode,
-                    fieldStyle: 'margin: 0px'
-                });
-                me.promptContainer.insert(2, fieldErrorCode);
+                if (Ext.isDefined(errorCode)) {
+                    var fieldErrorCode = new Ext.form.field.Display({
+                        value: sLabel + separator + errorCode,
+                        fieldStyle: 'margin: 0px'
+                    });
+                    me.promptContainer.insert(2, fieldErrorCode);
+                }
             }
         });
         box.show(config);
