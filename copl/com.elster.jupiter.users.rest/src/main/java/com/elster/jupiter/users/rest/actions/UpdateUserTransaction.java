@@ -76,6 +76,7 @@ public class UpdateUserTransaction implements Transaction<User> {
     private boolean isAnotherUserWithUserAdministratorRole(User user){
         return userService.getUsers().stream()
                 .filter(u -> u.getId() != user.getId())
+                .filter(User::getStatus)
                 .map(User::getGroups)
                 .anyMatch(groupList -> groupList.stream().anyMatch(g -> g.getName().equals(UserService.DEFAULT_ADMIN_ROLE)));
     }
