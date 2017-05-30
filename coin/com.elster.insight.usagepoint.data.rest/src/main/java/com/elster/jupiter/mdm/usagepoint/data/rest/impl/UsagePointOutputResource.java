@@ -540,8 +540,9 @@ public class UsagePointOutputResource {
             com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE,
             com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR
     })
+
     public Response editChannelDataOfOutput(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
-                                            @BeanParam JsonQueryParameters queryParameters, List<OutputChannelDataInfo> channelDataInfos) {
+                                            List<OutputChannelDataInfo> channelDataInfos) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
         EffectiveMetrologyConfigurationOnUsagePoint currentEffectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(currentEffectiveMC, contractId);
@@ -696,23 +697,27 @@ public class UsagePointOutputResource {
     }
 
     @POST
-    @Transactional
     @Path("/{purposeId}/outputs/{outputId}/channelData/copyfromreference")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public List<OutputChannelDataInfo> previewCopyFromReferenceChannelData(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
                                                                            ReferenceChannelDataInfo referenceChannelDataInfo) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
-        ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
-        if (!readingTypeDeliverable.getReadingType().isRegular()) {
-            throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
-        }
-        AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
+        try (TransactionContext context = transactionService.getContext()) {
+            if(referenceChannelDataInfo.editedReadings!=null && !referenceChannelDataInfo.editedReadings.isEmpty()) {
+                this.editChannelDataOfOutput(name, contractId, outputId, referenceChannelDataInfo.editedReadings);
+            }
+            UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);
+            EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+            MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, contractId);
+            ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, name);
+            if (!readingTypeDeliverable.getReadingType().isRegular()) {
+                throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
+            }
+            AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
 
-        return usagePointOutputReferenceCopier.copy(channel, referenceChannelDataInfo);
+            return usagePointOutputReferenceCopier.copy(channel, referenceChannelDataInfo);
+        }
     }
 
     @GET

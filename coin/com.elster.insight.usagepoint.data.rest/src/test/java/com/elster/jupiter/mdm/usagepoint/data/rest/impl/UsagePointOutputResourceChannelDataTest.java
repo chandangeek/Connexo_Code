@@ -993,6 +993,57 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     }
 
     @Test
+    public void testCopyFromReferenceChannelWithUpdatedData() {
+        DataAggregationService.MetrologyContractDataEditor editor = FakeBuilder.initBuilderStub(usagePoint, DataAggregationService.MetrologyContractDataEditor.class);
+        when(dataAggregationService.edit(eq(usagePoint), any(MetrologyContract.class), any(ReadingTypeDeliverable.class), eq(QualityCodeSystem.MDM))).thenReturn(editor);
+        ReadingType readingType = effectiveMC1.getMetrologyConfiguration().getContracts().get(0).getDeliverables().get(0).getReadingType();
+        ReferenceChannelDataInfo info = new ReferenceChannelDataInfo();
+        info.referenceUsagePoint = "testUP";
+        info.readingType = readingType.getMRID();
+        List<IntervalInfo> intervalInfos = new ArrayList<>();
+        Range<Instant> sourceRange = Range.openClosed(Instant.ofEpochMilli(SOURCE_INTERVAL_START), Instant.ofEpochMilli(SOURCE_INTERVAL_END));
+        intervalInfos.add(IntervalInfo.from(sourceRange));
+        info.intervals = intervalInfos;
+        info.referencePurpose = 1L;
+        info.allowSuspectData = true;
+        info.completePeriod = true;
+        info.startDate = Instant.ofEpochMilli(REFERENCE_INTERVAL_END);
+        Range<Instant> referenceRange = Range.openClosed(Instant.ofEpochMilli(REFERENCE_INTERVAL_START), Instant.ofEpochMilli(REFERENCE_INTERVAL_END));
+        OutputChannelDataInfo channelDataInfo = new OutputChannelDataInfo();
+        channelDataInfo.value = BigDecimal.valueOf(1L);
+        channelDataInfo.reportedDateTime = Instant.ofEpochMilli(REFERENCE_INTERVAL_END);
+        channelDataInfo.interval = IntervalInfo.from(referenceRange);
+        info.editedReadings = Collections.singletonList(channelDataInfo);
+        when(meteringService.findUsagePointByName(info.referenceUsagePoint)).thenReturn(Optional.of(usagePoint));
+        when(meteringService.getReadingType(readingType.getMRID())).thenReturn(Optional.of(readingType));
+        when(metrologyConfigurationService.findMetrologyPurpose(1L)).thenReturn(Optional.of(billing));
+        when(channel1.getMainReadingType()).thenReturn(readingType);
+        IntervalReadingRecord readingRecord = mockIntervalReadingRecord(referenceRange, BigDecimal.ONE);
+        when(channel1.getIntervalReadings(any())).thenReturn(Collections.singletonList(readingRecord));
+        when(usagePoint.getEffectiveMetrologyConfigurations(any())).thenReturn(Collections.singletonList(effectiveMC1));
+        when(effectiveMC1.getRange()).thenReturn(Range.all());
+        when(effectiveMC1.overlaps(any())).thenReturn(true);
+        when(effectiveMC1.isEffectiveAt(Instant.ofEpochMilli(REFERENCE_INTERVAL_END))).thenReturn(true);
+        ReadingQualityWithTypeFetcher readingQualityFetcher = mock(ReadingQualityWithTypeFetcher.class);
+        when(channel1.findReadingQualities()).thenReturn(readingQualityFetcher);
+        doReturn(readingQualityFetcher).when(readingQualityFetcher).ofQualityIndex(QualityCodeIndex.SUSPECT);
+        when(readingQualityFetcher.inTimeInterval(any())).thenReturn(readingQualityFetcher);
+        when(readingQualityFetcher.stream()).thenReturn(Stream.empty());
+
+        JsonModel json = JsonModel.create(target("/usagepoints/" + USAGE_POINT_NAME + "/purposes/100/outputs/1/channelData/copyfromreference").request()
+                .post(Entity.json(info), String.class));
+
+        ArgumentCaptor<List> readingsCaptor = ArgumentCaptor.forClass(List.class);
+        verify(editor).updateAll(readingsCaptor.capture());
+        assertThat(readingsCaptor.getAllValues()).hasSize(1);
+        assertThat(readingsCaptor.getValue()).hasSize(1);
+
+        assertThat(json.<String>get("$.[0].value")).isEqualTo("1");
+        assertThat(json.<Long>get("$.[0].interval.start")).isEqualTo(SOURCE_INTERVAL_START);
+        assertThat(json.<Long>get("$.[0].interval.end")).isEqualTo(SOURCE_INTERVAL_END);
+    }
+
+    @Test
     public void testGetHistoryFromChannel() throws IOException {
         Range<Instant> effectiveRange = Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_1.upperEndpoint());
         ValidationRule minMax = mockValidationRule(1, "MinMax");
