@@ -1,12 +1,13 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.mdc.upl.TypedProperties;
 import org.fest.assertions.core.Condition;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.junit.Test;
@@ -204,7 +205,7 @@ public class DlmsSecuritySupportTest extends AbstractSecuritySupportTest {
         securityProperties.setProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), encryptionKeyValue);
         String authenticationKeyValue = "MyAuthenticationKey";
         securityProperties.setProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), authenticationKeyValue);
-        String clientMacAddressValue = "1";
+        Object clientMacAddressValue = BigDecimal.ONE;
         securityProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), clientMacAddressValue);
         String passwordValue = "MyPassword";
         securityProperties.setProperty(SecurityPropertySpecTranslationKeys.PASSWORD.toString(), passwordValue);
@@ -216,7 +217,7 @@ public class DlmsSecuritySupportTest extends AbstractSecuritySupportTest {
                     }
 
                     @Override
-                    public String getClient() {
+                    public Object getClient() {
                         return clientMacAddressValue;
                     }
 
@@ -368,7 +369,7 @@ public class DlmsSecuritySupportTest extends AbstractSecuritySupportTest {
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
         assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(DlmsSecuritySupport.AuthenticationAccessLevelIds.MD5_AUTHENTICATION.getAccessLevel());
         assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(DlmsSecuritySupport.EncryptionAccessLevelIds.NO_MESSAGE_ENCRYPTION.getAccessLevel());
-        assertThat(deviceProtocolSecurityPropertySet.getClient()).isEqualTo("1");
+        assertThat(deviceProtocolSecurityPropertySet.getClient()).isEqualTo(BigDecimal.ONE);
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().size()).isEqualTo(1);
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService).getName())).isEqualTo("some password");
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService).getName())).isNull();
@@ -389,7 +390,7 @@ public class DlmsSecuritySupportTest extends AbstractSecuritySupportTest {
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
         assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(DlmsSecuritySupport.EncryptionAccessLevelIds.MESSAGE_ENCRYPTION_AUTHENTICATION.getAccessLevel());
         assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(DlmsSecuritySupport.AuthenticationAccessLevelIds.LOW_LEVEL_AUTHENTICATION.getAccessLevel());
-        assertThat(deviceProtocolSecurityPropertySet.getClient()).isEqualTo("1");
+        assertThat(deviceProtocolSecurityPropertySet.getClient()).isEqualTo(BigDecimal.ONE);
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().size()).isEqualTo(3);
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService).getName())).isEqualTo("some password");
         assertThat(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService).getName())).isEqualTo("some encryption key");

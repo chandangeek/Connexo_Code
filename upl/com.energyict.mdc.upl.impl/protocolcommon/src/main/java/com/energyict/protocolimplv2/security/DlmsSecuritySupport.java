@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -8,8 +9,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-
-import com.energyict.mdc.upl.TypedProperties;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ public class DlmsSecuritySupport extends AbstractSecuritySupport implements Lega
     private static final String HEX_PASSWORD_LEGACY_PROPERTY_NAME = "HexPassword";
     private static final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
     private static final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
-    private static final String DEFAULT_CLIENT = "1";
+    private static final BigDecimal DEFAULT_CLIENT = BigDecimal.ONE;
 
     public DlmsSecuritySupport(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -139,7 +138,7 @@ public class DlmsSecuritySupport extends AbstractSecuritySupport implements Lega
         }
         final int authenticationLevel = getAuthenticationLevel(securityLevelProperty);
         final int encryptionLevel = getEncryptionLevel(securityLevelProperty);
-        final String client = loadCorrectClientMacAddressPropertyValue(oldTypedProperties);
+        final BigDecimal client = loadCorrectClientMacAddressPropertyValue(oldTypedProperties);
 
         final TypedProperties result = TypedProperties.empty();
         result.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(oldTypedProperties, authenticationLevel, getAuthenticationAccessLevels()));
@@ -167,7 +166,7 @@ public class DlmsSecuritySupport extends AbstractSecuritySupport implements Lega
             }
 
             @Override
-            public String getClient() {
+            public Object getClient() {
                 return client;
             }
 
@@ -216,23 +215,24 @@ public class DlmsSecuritySupport extends AbstractSecuritySupport implements Lega
         return false;
     }
 
-    private String loadCorrectClientMacAddressPropertyValue(TypedProperties typedProperties) {
+    private BigDecimal loadCorrectClientMacAddressPropertyValue(TypedProperties typedProperties) {
         final Object clientMacAddress = typedProperties.getProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString());
         if (clientMacAddress != null) {
             if (String.class.isAssignableFrom(clientMacAddress.getClass())) {
                 typedProperties.removeProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString());
                 try {
-                    typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), new BigDecimal((String) clientMacAddress));
-                    return (String) clientMacAddress;
+                    BigDecimal clientMacAsBigDecimal = new BigDecimal((String) clientMacAddress);
+                    typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), clientMacAsBigDecimal);
+                    return clientMacAsBigDecimal;
                 } catch (NumberFormatException e) {
-                    typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), new BigDecimal(DEFAULT_CLIENT));
+                    typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), DEFAULT_CLIENT);
                     return DEFAULT_CLIENT;
                 }
             } else if (BigDecimal.class.isAssignableFrom(clientMacAddress.getClass())) {
-                return String.valueOf(((BigDecimal) clientMacAddress).intValue());
+                return ((BigDecimal) clientMacAddress);
             }
         }
-        typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), new BigDecimal(DEFAULT_CLIENT));
+        typedProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), DEFAULT_CLIENT);
         return DEFAULT_CLIENT;
     }
 

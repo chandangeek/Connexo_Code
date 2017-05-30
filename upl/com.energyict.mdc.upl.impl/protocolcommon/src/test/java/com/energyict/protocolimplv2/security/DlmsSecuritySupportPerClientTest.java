@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.mdc.upl.TypedProperties;
 import org.fest.assertions.core.Condition;
 
 import java.math.BigDecimal;
@@ -1079,8 +1079,8 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
                     }
 
                     @Override
-                    public String getClient() {
-                        return "1";
+                    public Object getClient() {
+                        return BigDecimal.ONE;
                     }
 
                     @Override
@@ -1165,8 +1165,8 @@ public class DlmsSecuritySupportPerClientTest extends AbstractSecuritySupportTes
                     }
 
                     @Override
-                    public String getClient() {
-                        return "1";
+                    public Object getClient() {
+                        return BigDecimal.ONE;
                     }
 
                     @Override

@@ -1,17 +1,5 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100;
 
-import com.energyict.cbo.ObservationTimestampPropertyImpl;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.GeneralCipheringKeyType;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.cosem.FrameCounterProvider;
-import com.energyict.dlms.cosem.G3NetworkManagement;
-import com.energyict.dlms.cosem.SAPAssignmentItem;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
@@ -59,6 +47,19 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.RequestSecurityLevel;
 import com.energyict.mdc.upl.security.ResponseSecurityLevel;
 import com.energyict.mdc.upl.security.SecuritySuite;
+
+import com.energyict.cbo.ObservationTimestampPropertyImpl;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.cosem.FrameCounterProvider;
+import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.cosem.SAPAssignmentItem;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -457,7 +458,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         publicClientProperties.getProperties().setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS.toString(),
                 BigDecimal.valueOf(ClientConfiguration.PUBLIC.clientId));
 
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(Integer.toString(ClientConfiguration.PUBLIC.clientId), 0, 0, 0, 0, 0, getDlmsSessionProperties().getProperties()));    //SecurityLevel 0:0
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(BigDecimal.valueOf(ClientConfiguration.PUBLIC.clientId), 0, 0, 0, 0, 0, getDlmsSessionProperties().getProperties()));    //SecurityLevel 0:0
 
         final DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties, getDlmsSessionProperties().getSerialNumber());
 

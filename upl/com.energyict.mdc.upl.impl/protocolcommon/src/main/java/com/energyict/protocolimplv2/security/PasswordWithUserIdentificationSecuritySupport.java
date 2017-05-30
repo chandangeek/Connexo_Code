@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -7,8 +8,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-
-import com.energyict.mdc.upl.TypedProperties;
 
 import java.util.Collections;
 import java.util.List;
@@ -89,7 +88,7 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
             }
 
             @Override
-            public String getClient() {
+            public Object getClient() {
                 return String.valueOf(deviceAccessIdentifier);
             }
 
