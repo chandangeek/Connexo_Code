@@ -600,7 +600,7 @@ public final class ChannelImpl implements SimpleChannelContract {
     @Override
     public List<ReadingQualityRecord> createReadingQualityForRecords(ReadingQualityType type, ReadingType readingType, List<BaseReadingRecord> records) {
         CimChannel cimChannel = getCimChannel(readingType).orElseThrow(IllegalArgumentException::new);
-        List<ReadingQualityRecordImpl> collect = records.stream().map(baseReading -> ReadingQualityRecordImpl.from(dataModel, type, cimChannel, baseReading)).collect(Collectors.toList());
+        List<ReadingQualityRecord> collect = records.stream().map(baseReading -> ReadingQualityRecordImpl.from(dataModel, type, cimChannel, baseReading)).collect(Collectors.toList());
         ReadingQualityRecordImpl.saveAll(dataModel, collect);
         return new ArrayList<>(collect);
     }
@@ -608,7 +608,7 @@ public final class ChannelImpl implements SimpleChannelContract {
     @Override
     public List<ReadingQualityRecord> createReadingQualityForTimestamps(ReadingQualityType type, ReadingType readingType, List<Instant> timestamps) {
         CimChannel cimChannel = getCimChannel(readingType).orElseThrow(IllegalArgumentException::new);
-        List<ReadingQualityRecordImpl> collect = timestamps.stream().map(instant -> ReadingQualityRecordImpl.from(dataModel, type, cimChannel, instant)).collect(Collectors.toList());
+        List<ReadingQualityRecord> collect = timestamps.stream().map(instant -> ReadingQualityRecordImpl.from(dataModel, type, cimChannel, instant)).collect(Collectors.toList());
         ReadingQualityRecordImpl.saveAll(dataModel, collect);
         return new ArrayList<>(collect);
     }

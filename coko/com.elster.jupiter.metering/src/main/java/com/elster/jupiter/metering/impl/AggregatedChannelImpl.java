@@ -229,7 +229,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     }
 
     private Map<Instant, AggregatedIntervalReadingRecord> getCalculatedIntervalReadings(Range<Instant> interval) {
-        if (isMetrologyConfigurationActive(interval)) {
+        if (isMetrologyConfigurationActive(interval) && allMeterRolesOnMetrologyConfigurationHasMeters(interval)) {
             return this.dataAggregationService
                         .calculate(usagePoint, metrologyContract, interval)
                         .getCalculatedDataFor(this.deliverable).stream()
@@ -243,7 +243,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     }
 
     private <T extends BaseReadingRecord> Map<Instant, T> getCalculatedRegisterReadings(Range<Instant> interval, Function<CalculatedReadingRecord, T> mapper) {
-        if (isMetrologyConfigurationActive(interval)) {
+        if (isMetrologyConfigurationActive(interval) && allMeterRolesOnMetrologyConfigurationHasMeters(interval)) {
             return this.dataAggregationService
                     .calculate(usagePoint, metrologyContract, interval)
                     .getCalculatedDataFor(this.deliverable)
@@ -261,6 +261,11 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     private boolean isMetrologyConfigurationActive(Range<Instant> interval) {
         return usagePoint.getEffectiveMetrologyConfigurations(interval).stream()
                 .anyMatch(emc -> emc.getMetrologyConfiguration().getContracts().contains(metrologyContract));
+    }
+
+    private boolean allMeterRolesOnMetrologyConfigurationHasMeters(Range<Instant> interval){
+        return usagePoint.getEffectiveMetrologyConfigurations(interval).stream()
+                .anyMatch(emc -> emc.isComplete(metrologyContract));
     }
 
     @Override
@@ -339,18 +344,12 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public List<BaseReadingRecord> getReadingsBefore(Instant when, int readingCount) {
-        return getReadings(Range.lessThan(when)).stream()
-                .sorted(Comparator.comparing(BaseReadingRecord::getTimeStamp).reversed())
-                .limit(readingCount)
-                .collect(Collectors.toList());
+        return persistedChannel.getReadingsBefore(when, readingCount);
     }
 
     @Override
     public List<BaseReadingRecord> getReadingsOnOrBefore(Instant when, int readingCount) {
-        return getReadings(Range.atMost(when)).stream()
-                .sorted(Comparator.comparing(BaseReadingRecord::getTimeStamp).reversed())
-                .limit(readingCount)
-                .collect(Collectors.toList());
+        return persistedChannel.getReadingsOnOrBefore(when, readingCount);
     }
 
     @Override
@@ -408,20 +407,17 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
 
     @Override
     public Instant getNextDateTime(Instant instant) {
-        return instant;
+        return persistedChannel.getNextDateTime(instant);
     }
 
     @Override
     public Instant getPreviousDateTime(Instant instant) {
-        return instant;
+        return persistedChannel.getPreviousDateTime(instant);
     }
 
     @Override
     public Instant truncateToIntervalLength(Instant instant) {
-        // TODO: cannot rely on persisted channel since its timeline may not have readings at all
-        // but on the other hand can we afford recalculating data for contract only in order to know this?
-        // same for some other methods in this class
-        return instant;
+        return persistedChannel.truncateToIntervalLength(instant);
     }
 
     @Override

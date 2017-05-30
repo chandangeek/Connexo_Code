@@ -302,7 +302,8 @@ public class ApplyMetrologyConfigurationToUsagePointIT {
         assertThat(effectiveMetrologyConfiguration).isPresent();
         assertThat(currentEffectiveMetrologyConfiguration.get().getMetrologyConfiguration()).isEqualTo(metrologyConfiguration);
         assertThat(currentEffectiveMetrologyConfiguration.get().getRange()).isEqualTo(Range.atLeast(INSTALLATION_TIME));
-        assertThat(currentEffectiveMetrologyConfiguration.get().getMetrologyConfiguration().getContracts().get(0).getStatus(usagePoint).isComplete()).isTrue();
+        MetrologyContract metrologyContract = currentEffectiveMetrologyConfiguration.get().getMetrologyConfiguration().getContracts().get(0);
+        assertThat(currentEffectiveMetrologyConfiguration.get().isComplete(metrologyContract)).isTrue();
 
         MetrologyContract contract1 = metrologyConfiguration.getContracts()
                 .stream()

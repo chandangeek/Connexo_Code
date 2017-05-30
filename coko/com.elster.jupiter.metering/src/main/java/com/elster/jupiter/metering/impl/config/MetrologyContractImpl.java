@@ -161,7 +161,7 @@ public class MetrologyContractImpl implements ServerMetrologyContract {
         if (!metrologyConfigurationService.getDataModel()
                 .query(ReadingTypeDeliverableNodeImpl.class)
                 .select(where("readingTypeDeliverable").isEqualTo(deliverableForRemove))
-                .isEmpty()){
+                .isEmpty()) {
             throw new CannotDeleteReadingTypeDeliverableException(metrologyConfigurationService.getThesaurus(), deliverableForRemove.getName());
         }
         if (this.deliverables.contains(deliverableForRemove)) {
@@ -191,11 +191,6 @@ public class MetrologyContractImpl implements ServerMetrologyContract {
 
     public void setMandatory(boolean mandatory) {
         this.mandatory = mandatory;
-    }
-
-    @Override
-    public Status getStatus(UsagePoint usagePoint) {
-        return new StatusImpl(this.metrologyConfigurationService.getThesaurus(), getMetrologyContractStatusKey(usagePoint));
     }
 
     @Override
@@ -233,83 +228,6 @@ public class MetrologyContractImpl implements ServerMetrologyContract {
     @Override
     public int hashCode() {
         return Long.hashCode(this.id);
-    }
-
-    MetrologyContractStatusKey getMetrologyContractStatusKey(UsagePoint usagePoint) {
-        if (this.metrologyConfiguration.isPresent() && this.metrologyConfiguration.get() instanceof UsagePointMetrologyConfiguration) {
-            UsagePointMetrologyConfiguration configuration = (UsagePointMetrologyConfiguration) this.metrologyConfiguration.get();
-            ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
-            getDeliverables()
-                    .stream()
-                    .map(ReadingTypeDeliverable::getFormula)
-                    .map(Formula::getExpressionNode)
-                    .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
-
-            List<MeterRole> meterRoles = requirementsCollector.getReadingTypeRequirements()
-                    .stream()
-                    .map(configuration::getMeterRoleFor)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toList());
-
-            boolean allMeterRolesHasMeters = true;
-            for (MeterRole meterRole : meterRoles) {
-                MeterActivation meterActivation;
-                if (!usagePoint.getMeterActivations(meterRole).isEmpty()) {
-                    meterActivation = usagePoint.getMeterActivations(meterRole)
-                            .stream()
-                            .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
-                            .findFirst()
-                            .orElse(null);
-                } else {
-                    meterActivation = null;
-                }
-                allMeterRolesHasMeters &= meterActivation != null;
-            }
-            return allMeterRolesHasMeters ? MetrologyContractStatusKey.COMPLETE : MetrologyContractStatusKey.INCOMPLETE;
-        }
-        return MetrologyContractStatusKey.UNKNOWN;
-    }
-
-    private static class StatusImpl implements Status {
-        private final Thesaurus thesaurus;
-        private final MetrologyContractStatusKey statusKey;
-
-        private StatusImpl(Thesaurus thesaurus, MetrologyContractStatusKey statusKey) {
-            this.thesaurus = thesaurus;
-            this.statusKey = statusKey;
-        }
-
-        @Override
-        public String getKey() {
-            return this.statusKey.name();
-        }
-
-        @Override
-        public String getName() {
-            return this.thesaurus.getFormat(this.statusKey.getTranslation()).format();
-        }
-
-        @Override
-        public boolean isComplete() {
-            return MetrologyContractStatusKey.COMPLETE.equals(this.statusKey);
-        }
-    }
-
-    enum MetrologyContractStatusKey {
-        COMPLETE(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_COMPLETE),
-        INCOMPLETE(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_INCOMPLETE),
-        UNKNOWN(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_UNKNOWN);
-
-        private final TranslationKey statusTranslation;
-
-        MetrologyContractStatusKey(TranslationKey statusTranslation) {
-            this.statusTranslation = statusTranslation;
-        }
-
-        TranslationKey getTranslation() {
-            return this.statusTranslation;
-        }
     }
 
     @Override
