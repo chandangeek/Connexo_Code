@@ -2,8 +2,8 @@ package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
-import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.CertificateWrapperAdapter;
 import org.junit.Test;
 
 import javax.net.ssl.X509KeyManager;
@@ -18,8 +18,6 @@ import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.spec.ECGenParameterSpec;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -61,9 +59,10 @@ public class CertificateWrapperExtractorImplTest {
 
         when(privateKeyWrapper.getPrivateKey()).thenReturn(originalPrivateKey);
         when(certificateWrapper.getPrivateKeyWrapper()).thenReturn(privateKeyWrapper);
+        CertificateWrapperAdapter uplCertificateWrapper = new CertificateWrapperAdapter(certificateWrapper, Optional.empty());
 
         //Business method
-        KeyStore keyStore = certificateWrapperExtractor.getKeyStore(certificateWrapper);
+        KeyStore keyStore = certificateWrapperExtractor.getKeyStore(uplCertificateWrapper);
         Key key = keyStore.getKey(alias, CertificateWrapperExtractorImpl.PARAMETERS);
 
         //Asserts
@@ -73,7 +72,7 @@ public class CertificateWrapperExtractorImplTest {
         assertArrayEquals(resultingPrivateKey.getEncoded(), originalPrivateKey.getEncoded());
 
         //Business method
-        Optional<X509KeyManager> keyManager = certificateWrapperExtractor.getKeyManager(certificateWrapper);
+        Optional<X509KeyManager> keyManager = certificateWrapperExtractor.getKeyManager(uplCertificateWrapper);
 
         //Asserts
         assertTrue(keyManager.isPresent());
@@ -92,28 +91,26 @@ public class CertificateWrapperExtractorImplTest {
 
         TrustedCertificate certificateWrapper = mock(TrustedCertificate.class);
 
-        TrustedCertificate trustedCertificateWrapper = mock(TrustedCertificate.class);
         X509Certificate x509Certificate2 = mock(X509Certificate.class);
-        when(trustedCertificateWrapper.getCertificate()).thenReturn(Optional.of(x509Certificate2));
-        when(trustedCertificateWrapper.getAlias()).thenReturn(alias2);
+        KeyStore keyStore = KeyStore.getInstance("JCEKS");
+        keyStore.load(null); // This initializes the empty key store
+        keyStore.setCertificateEntry(alias2, x509Certificate2);
 
-        TrustStore connexoTrustStore = mock(TrustStore.class);
-        List<TrustedCertificate> trustedCertificates = new ArrayList<>();
-        trustedCertificates.add(trustedCertificateWrapper);
-        when(connexoTrustStore.getCertificates()).thenReturn(trustedCertificates);
-        when(certificateWrapper.getTrustStore()).thenReturn(connexoTrustStore);
+        CertificateWrapperAdapter uplCertificateWrapper = new CertificateWrapperAdapter(certificateWrapper, Optional.of(keyStore));
 
         //Business method
-        KeyStore trustStore = certificateWrapperExtractor.getTrustStore(certificateWrapper);
+        Optional<KeyStore> optionalTrustStore = certificateWrapperExtractor.getTrustStore(uplCertificateWrapper);
 
         //Asserts
+        assertTrue(optionalTrustStore.isPresent());
+        KeyStore trustStore = optionalTrustStore.get();
         Certificate resultingCertificate = trustStore.getCertificate(alias2);
         assertNotNull(resultingCertificate);
         assertEquals(resultingCertificate, x509Certificate2);
         assertEquals(trustStore.getCertificateAlias(x509Certificate2), alias2);
 
         //Business method
-        Optional<X509TrustManager> trustManager = certificateWrapperExtractor.getTrustManager(certificateWrapper);
+        Optional<X509TrustManager> trustManager = certificateWrapperExtractor.getTrustManager(uplCertificateWrapper);
 
         //Asserts
         assertTrue(trustManager.isPresent());
