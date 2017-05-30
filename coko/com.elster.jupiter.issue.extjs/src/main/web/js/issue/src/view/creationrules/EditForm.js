@@ -94,10 +94,10 @@ Ext.define('Isu.view.creationrules.EditForm', {
                         margin: '0 0 -8 10',
                         htmlEncode: false,
                         hidden: true,
-                        value: '<div class="uni-icon-info-small" style="width: 16px; height: 16px;"></div>',
+                        value: '<span class="icon-info" style="display: inline-block; font-size:16px;"></span>',
                         setInfoTooltip: function (tooltip) {
                             if (tooltip) {
-                                this.getEl().down('.uni-icon-info-small').set({
+                                this.getEl().down('.icon-info').set({
                                     'data-qtip': tooltip
                                 });
                                 this.show();
