@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor.Registers;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -18,7 +19,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
@@ -292,7 +292,6 @@ public class MasterDataSerializer {
     }
 
     private List<Beacon3100ClientDetails> createClientDetails(Device device, byte[] dlmsMeterKEK) {
-        int clientId = 1; //default
         byte[] password = null;
         byte[] hlsPassword = null;
         byte[] ak = null;
@@ -302,9 +301,7 @@ public class MasterDataSerializer {
 
         for (DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet : this.extractor.securityPropertySets(device)) {
             for (DeviceMasterDataExtractor.SecurityProperty protocolSecurityProperty : this.extractor.securityProperties(device, securityPropertySet)) {
-                if (protocolSecurityProperty.name().equals(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString())) {
-                    clientId = ((BigDecimal) protocolSecurityProperty.value()).intValue();
-                } else if (protocolSecurityProperty.name().equals(SecurityPropertySpecTranslationKeys.PASSWORD.toString())) {
+                if (protocolSecurityProperty.name().equals(SecurityPropertySpecTranslationKeys.PASSWORD.toString())) {
                     if (securityPropertySet.authenticationDeviceAccessLevelId() >= 3) {
                         hlsPassword = parseASCIIPassword(device, protocolSecurityProperty.name(), (String) protocolSecurityProperty.value());
                     } else {
@@ -321,6 +318,7 @@ public class MasterDataSerializer {
             final String wrappedHLSPassword = hlsPassword == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(dlmsMeterKEK, hlsPassword), "");
             final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(dlmsMeterKEK, ak), "");
             final String wrappedEK = ek == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(dlmsMeterKEK, ek), "");
+            final int clientId = ((BigDecimal) securityPropertySet.client()).intValue();
             clientDetails.add(new Beacon3100ClientDetails(clientId, new Beacon3100ConnectionDetails(wrappedPassword, wrappedHLSPassword, wrappedAK, wrappedEK, initialFrameCounter)));
         }
 
