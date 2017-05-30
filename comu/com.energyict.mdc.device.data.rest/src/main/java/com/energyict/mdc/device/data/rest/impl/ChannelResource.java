@@ -589,7 +589,7 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA, com.elster.jupiter.estimation.security.Privileges.Constants.ESTIMATE_WITH_RULE, com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR})
-    public Response editChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId, @BeanParam JsonQueryParameters queryParameters, List<ChannelDataInfo> channelDataInfos) {
+    public Response editChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId, List<ChannelDataInfo> channelDataInfos) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
 
@@ -672,16 +672,20 @@ public class ChannelResource {
     }
 
     @POST
-    @Transactional
     @Path("/{channelid}/data/copyfromreference")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE})
     public List<ChannelDataInfo> previewCopyFromReferenceChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId,
                                                                      ReferenceChannelDataInfo referenceChannelDataInfo) {
-        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-        return channelReferenceDataCopier.copy(channel, referenceChannelDataInfo);
+        try (TransactionContext context = transactionService.getContext()) {
+            if(referenceChannelDataInfo.editedReadings!=null && !referenceChannelDataInfo.editedReadings.isEmpty()) {
+                this.editChannelData(name, channelId, referenceChannelDataInfo.editedReadings);
+            }
+            Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+            Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
+            return channelReferenceDataCopier.copy(channel, referenceChannelDataInfo);
+        }
     }
 
     @GET

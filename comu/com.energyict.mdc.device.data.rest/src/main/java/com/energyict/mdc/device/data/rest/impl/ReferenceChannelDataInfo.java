@@ -18,4 +18,5 @@ public class ReferenceChannelDataInfo {
     public List<IntervalInfo> intervals;
     public Long commentId;
     public String commentValue;
+    public List<ChannelDataInfo> editedReadings;
 }
