@@ -28,9 +28,8 @@ Ext.define('Uni.property.view.property.CalendarWithEventCode', {
             {
                 xtype: 'displayfield',
                 itemId: 'no-calendars',
-                fieldCls: 'x-form-invalid-under',
                 fieldLabel: Uni.I18n.translate('general.discardDays', 'UNI', 'Discard specific days'),
-                value: Uni.I18n.translate('general.discardDays.noCalendars', 'UNI', 'No calendars defined yet'),
+                value: '<div style="color: #eb5642">' + Uni.I18n.translate('general.discardDays.noCalendars', 'UNI', 'No calendars defined yet') + '</div>',
                 htmlEncode: false,
                 labelWidth: 260,
                 width: 600
