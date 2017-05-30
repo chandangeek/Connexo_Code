@@ -156,7 +156,7 @@ final class ChannelValidationImpl implements ChannelValidation {
                 .ifPresent(this::updateLastChecked);
         RangeSet<Instant> notValidatedRanges = ranges.subRangeSet(Range.greaterThan(getLastChecked()));
         lastValidationComplete = notValidatedRanges.asRanges().isEmpty()
-                || !notValidatedRanges.asRanges().stream().filter(range -> !channel.getReadings(range).isEmpty()).findAny().isPresent();
+                || notValidatedRanges.asRanges().stream().allMatch(range -> channel.getReadings(range).isEmpty());
     }
 
     @Override
@@ -165,32 +165,26 @@ final class ChannelValidationImpl implements ChannelValidation {
     }
 
     private Instant validate(Range<Instant> validationRange) {
-        if (!validationRange.hasUpperBound()) {
-            return lastChecked;
-        }
-        Range<Instant> range = Ranges.copy(validationRange).withClosedUpperBound(channel.truncateToIntervalLength(validationRange.upperEndpoint()));
-        if (range.hasUpperBound() && lastChecked.isBefore(range.upperEndpoint())) {
-            Range<Instant> dataRange = Ranges.copy(Range.openClosed(lastChecked, range.upperEndpoint()).intersection(range)).asOpenClosed();
-            List<? extends ValidationRuleSetVersion> versions = getChannelsContainerValidation().getRuleSet().getRuleSetVersions();
-
-            return versions.stream()
-                    .map(currentVersion -> Ranges.nonEmptyIntersection(dataRange, currentVersion.getRange())
-                            .flatMap(rangeToValidate -> {
-                                ChannelValidator validator = new ChannelValidator(channel, rangeToValidate);
-                                return activeRulesOfVersion(currentVersion).stream()
-                                        .map(validator::validateRule)
-                                        .min(Comparator.naturalOrder()); // minimum by rules
-                            }))
-                    .flatMap(Functions.asStream())
-                    .min(Comparator.naturalOrder()) // minimum by versions TODO CXO-6665: wat?
-                    // it prevents from validation with several versions at one shot.
-                    // as per agreement with Igor Nesterov, a proper behavior might be
-                    // not to validate with later version until all data are validated within the range of the previous one,
-                    // and to keep the latest resulting lastChecked as master lastChecked.
-                    .orElse(range.upperEndpoint());
+        if (validationRange.hasUpperBound()) {
+            Instant upperBound = channel.truncateToIntervalLength(validationRange.upperEndpoint());
+            return Ranges.nonEmptyIntersection(Range.greaterThan(lastChecked), Range.atMost(upperBound), validationRange)
+                    .map(dataRange -> getChannelsContainerValidation().getRuleSet().getRuleSetVersions().stream()
+                            .map(currentVersion -> Ranges.nonEmptyIntersection(dataRange, currentVersion.getRange())
+                                    .flatMap(rangeToValidate -> {
+                                        ChannelValidator validator = new ChannelValidator(channel, rangeToValidate);
+                                        return activeRulesOfVersion(currentVersion).stream()
+                                                .map(validator::validateRule)
+                                                .min(Comparator.naturalOrder()); // minimum by rules
+                                    }))
+                            .flatMap(Functions.asStream())
+                            .min(Comparator.naturalOrder()) // minimum by versions TODO CXO-6665: wat?
+                            // it prevents from validation with several versions at one shot.
+                            // as per agreement with Igor Nesterov, a proper behavior might be
+                            // not to validate with later version until all data are validated within the range of the previous one,
+                            // and to keep the latest resulting lastChecked as master lastChecked.
+                            .orElse(upperBound))
+                    .orElse(lastChecked);
         }
         return lastChecked;
     }
-
-
 }
