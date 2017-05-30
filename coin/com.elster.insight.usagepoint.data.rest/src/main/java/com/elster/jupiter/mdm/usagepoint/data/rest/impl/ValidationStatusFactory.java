@@ -67,7 +67,7 @@ public class ValidationStatusFactory {
     public UsagePointValidationStatusInfo getValidationStatusInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract,
                                                                   Channel channel, Range<Instant> interval) {
         UsagePointValidationStatusInfo info = new UsagePointValidationStatusInfo();
-        if (metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()) {
+        if (effectiveMetrologyConfiguration.isComplete(metrologyContract)) {
             ValidationEvaluator validationEvaluator = validationService.getEvaluator();
             info.validationActive = validationEvaluator.isValidationEnabled(channel);
             info.lastChecked = usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration, metrologyContract, channel.getMainReadingType()).orElse(null);
@@ -83,7 +83,7 @@ public class ValidationStatusFactory {
 
     public Map<ReadingTypeDeliverable, UsagePointValidationStatusInfo> getValidationStatusInfoForDeliverables(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
                                                                                                               MetrologyContract metrologyContract, Range<Instant> interval) {
-        if (metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()) {
+        if (effectiveMetrologyConfiguration.isComplete(metrologyContract)) {
             ChannelsContainer container = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
             ValidationEvaluator validationEvaluator = validationService.getEvaluator(container);
             Map<ReadingTypeDeliverable, UsagePointValidationStatusInfo> result = new HashMap<>();
@@ -127,7 +127,7 @@ public class ValidationStatusFactory {
 
     public UsagePointValidationStatusInfo getValidationStatusInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract, ChannelsContainer channelsContainer) {
         UsagePointValidationStatusInfo info = new UsagePointValidationStatusInfo();
-        if (metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()) {
+        if (effectiveMetrologyConfiguration.isComplete(metrologyContract)) {
             // force update for validation statuses
             // used here, since further methods (to get validation status) do not include status update
             validationService.forceUpdateValidationStatus(channelsContainer);

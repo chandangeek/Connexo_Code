@@ -713,10 +713,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = mockMetrologyConfigurationWithContract(1, "MetrologyConfiguration");
 
         MetrologyContract metrologyContract = usagePointMetrologyConfiguration.getContracts().get(0);
-        MetrologyContract.Status status = mock(MetrologyContract.Status.class);
-        when(metrologyContract.getStatus(usagePoint)).thenReturn(status);
-        when(metrologyContract.getStatus(usagePoint).getKey()).thenReturn("INCOMPLETE");
-        when(metrologyContract.getStatus(usagePoint).getName()).thenReturn("Incomplete");
         when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
         when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         when(effectiveMetrologyConfigurationOnUsagePoint.isEffectiveAt(any(Instant.class))).thenReturn(true);

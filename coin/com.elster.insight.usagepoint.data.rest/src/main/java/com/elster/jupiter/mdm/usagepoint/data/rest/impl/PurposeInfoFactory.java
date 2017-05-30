@@ -5,8 +5,10 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.calendar.Event;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.validation.ValidationService;
@@ -26,13 +28,16 @@ public class PurposeInfoFactory {
     private final ValidationService validationService;
     private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
     private final Clock clock;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public PurposeInfoFactory(ValidationStatusFactory validationStatusFactory, ValidationService validationService, DataValidationTaskInfoFactory dataValidationTaskInfoFactory, Clock clock) {
+    public PurposeInfoFactory(ValidationStatusFactory validationStatusFactory, ValidationService validationService, DataValidationTaskInfoFactory dataValidationTaskInfoFactory,
+                              Clock clock, Thesaurus thesaurus) {
         this.validationStatusFactory = validationStatusFactory;
         this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
         this.validationService = validationService;
         this.clock = clock;
+        this.thesaurus = thesaurus;
     }
 
     public PurposeInfo asInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract, boolean withValidationTasks) {
@@ -44,9 +49,10 @@ public class PurposeInfoFactory {
         purposeInfo.active = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract, clock.instant()).isPresent();
         purposeInfo.version = metrologyContract.getVersion();
         IdWithNameInfo status = new IdWithNameInfo();
-        MetrologyContract.Status metrologyContractStatus = metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint());
-        status.id = metrologyContractStatus.isComplete() ? "complete" : "incomplete";
-        status.name = metrologyContractStatus.getName();
+        status.id = effectiveMetrologyConfiguration.isComplete(metrologyContract) ? "complete" : "incomplete";
+        status.name = effectiveMetrologyConfiguration.isComplete(metrologyContract) ?
+                thesaurus.getFormat(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_COMPLETE).format()
+                : thesaurus.getFormat(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_INCOMPLETE).format();
         purposeInfo.status = status;
         effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).ifPresent(channelsContainer ->
                 purposeInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, channelsContainer));

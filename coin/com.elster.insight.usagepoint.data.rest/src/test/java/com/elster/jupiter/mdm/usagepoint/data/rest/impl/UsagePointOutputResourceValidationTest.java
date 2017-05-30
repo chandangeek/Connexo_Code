@@ -15,7 +15,6 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryType;
 import com.elster.jupiter.mdm.usagepoint.data.IChannelDataCompletionSummary;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
@@ -112,8 +111,6 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
     private Channel channel;
     @Mock
     private CimChannel cimChannel;
-    @Mock
-    private MetrologyContract.Status status;
     @Mock
     private ReadingQualityWithTypeFetcher readingQualityFetcher;
     @Mock
@@ -233,11 +230,8 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
         when(metrologyContract.getId()).thenReturn(1L);
-        when(metrologyContract.getStatus(usagePoint)).thenReturn(status);
         when(metrologyContract.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
-        when(status.isComplete()).thenReturn(true);
-        when(status.getKey()).thenReturn("COMPLETE");
-        when(status.getName()).thenReturn("Complete");
+        when(effectiveMetrologyConfiguration.isComplete(metrologyContract)).thenReturn(true);
     }
 
     private void setChannelStub() {
