@@ -81,7 +81,7 @@ public class EffectiveMetrologyConfigurationInfoFactory extends SelectableFieldF
                         c.getId(),
                         c.getMetrologyPurpose().getName(),
                         c.isMandatory(),
-                        c.getStatus(metrology.getUsagePoint()).getKey())).collect(Collectors.toList()));
+                        metrology.isComplete(c) ? "complete" : "incomplete")).collect(Collectors.toList()));
         return map;
     }
 }

@@ -4,27 +4,20 @@
 
 package com.elster.jupiter.kore.api.v2;
 
-import com.elster.jupiter.kore.api.impl.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IntervalInfo;
-import com.elster.jupiter.rest.util.RestValidationBuilder;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.core.Link;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -109,7 +102,7 @@ public class EffectiveMetrologyConfigurationInfoFactory extends SelectableFieldF
                         c.getId(),
                         c.getMetrologyPurpose().getName(),
                         c.isMandatory(),
-                        c.getStatus(metrology.getUsagePoint()).getKey())).collect(Collectors.toList()));
+                        metrology.isComplete(c) ? "complete" : "incomplete")).collect(Collectors.toList()));
         return map;
     }
 }
