@@ -148,7 +148,7 @@ Ext.define('Uni.view.menu.SideMenu', {
     add: function (items) {
         var me = this;
 
-        me.adjustItems(items)
+        me.adjustItems(items);
         me.callParent(arguments);
         setTimeout(function () {
             me.updateSelection();
@@ -297,12 +297,22 @@ Ext.define('Uni.view.menu.SideMenu', {
         }
     },
 
+    getFullTokenForSelection: function() {
+        return this.preProcessFullTokenForSelection('#' + Ext.util.History.getToken());
+    },
+
+    // Can be overridden whenever necessary in order to find the correct menu item to select
+    // (eg. DeviceMenu.js - where two paths should lead to the same menu item selection)
+    preProcessFullTokenForSelection: function(fullToken) {
+        return fullToken;
+    },
+
     /**
      * Checks which item is best to be selected based on the currently selected URL.
      */
     getItemForSelect: function () {
         var me = this,
-            fullToken = '#' + Ext.util.History.getToken(),
+            fullToken = me.getFullTokenForSelection(),
             selection;
 
         _.each(me.query('menuitem'), setSelection);
