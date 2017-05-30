@@ -417,6 +417,11 @@ public class RangesTest {
         assertThat(Ranges.intersection(Range.openClosed(1, 3), Range.lessThan(1))).isEmpty();
         assertThat(Ranges.intersection(Range.open(1, 3), Range.greaterThan(3))).isEmpty();
         assertThat(Ranges.intersection(Range.lessThan(1), Range.greaterThan(1))).isEmpty();
+        assertThat(Ranges.intersection(Range.closedOpen(1, 1), Range.closedOpen(1, 1))).contains(Range.closedOpen(1, 1));
+        assertThat(Ranges.intersection(Range.closedOpen(1, 1), Range.openClosed(1, 1))).isEmpty();
+        assertThat(Ranges.intersection(Range.greaterThan(3), Range.closed(3, 4), Range.lessThan(4))).contains(Range.open(3, 4));
+        assertThat(Ranges.intersection(Range.lessThan(3), Range.lessThan(4), Range.openClosed(3, 4))).isEmpty();
+        assertThat(Ranges.intersection(Range.lessThan(3), Range.lessThan(4), Range.closed(3, 4))).contains(Range.closedOpen(3, 3));
     }
 
     @Test
@@ -428,6 +433,11 @@ public class RangesTest {
         assertThat(Ranges.nonEmptyIntersection(Range.openClosed(1, 3), Range.lessThan(1))).isEmpty();
         assertThat(Ranges.nonEmptyIntersection(Range.open(1, 3), Range.greaterThan(3))).isEmpty();
         assertThat(Ranges.nonEmptyIntersection(Range.lessThan(1), Range.greaterThan(1))).isEmpty();
+        assertThat(Ranges.nonEmptyIntersection(Range.closedOpen(1, 1), Range.closedOpen(1, 1))).isEmpty();
+        assertThat(Ranges.nonEmptyIntersection(Range.closedOpen(1, 1), Range.openClosed(1, 1))).isEmpty();
+        assertThat(Ranges.nonEmptyIntersection(Range.greaterThan(3), Range.closed(3, 4), Range.lessThan(4))).contains(Range.open(3, 4));
+        assertThat(Ranges.nonEmptyIntersection(Range.lessThan(3), Range.lessThan(4), Range.openClosed(3, 4))).isEmpty();
+        assertThat(Ranges.nonEmptyIntersection(Range.lessThan(3), Range.lessThan(4), Range.closed(3, 4))).isEmpty();
     }
 
     @Test

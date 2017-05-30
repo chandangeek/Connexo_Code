@@ -11,6 +11,7 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -265,15 +266,26 @@ public class Ranges {
         return copy;
     }
 
-    public static <C extends Comparable<? super C>> Optional<Range<C>> intersection(Range<C> a, Range<C> b) {
-        return Optional.of(a)
-                .filter(b::isConnected)
-                .map(b::intersection);
+    @SafeVarargs
+    public static <C extends Comparable<? super C>> Optional<Range<C>> nonEmptyIntersection(Range<C>... ranges) {
+        return intersection(ranges)
+                .filter(Predicates.not(Range::isEmpty));
     }
 
-    public static <C extends Comparable<? super C>> Optional<Range<C>> nonEmptyIntersection(Range<C> a, Range<C> b) {
-        return intersection(a, b)
-                .filter(Predicates.not(Range::isEmpty));
+    @SafeVarargs
+    public static <C extends Comparable<? super C>> Optional<Range<C>> intersection(Range<C>... ranges) {
+        return Arrays.stream(ranges)
+                .reduce(Optional.of(Range.all()),
+                        Ranges::intersectionAccumulator,
+                        Ranges::intersectionCombiner);
+    }
+
+    private static <C extends Comparable<? super C>> Optional<Range<C>> intersectionAccumulator(Optional<Range<C>> optional, Range<C> range) {
+        return optional.filter(range::isConnected).map(range::intersection);
+    }
+
+    private static <C extends Comparable<? super C>> Optional<Range<C>> intersectionCombiner(Optional<Range<C>> optional1, Optional<Range<C>> optional2) {
+        return optional1.flatMap(range -> intersectionAccumulator(optional2, range));
     }
 
     public static <C extends Comparable<? super C>> Optional<C> lowerBound(Range<C> range) {
