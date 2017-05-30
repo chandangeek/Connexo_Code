@@ -46,6 +46,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -398,13 +399,10 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                 .stream()
                 .map(MetrologyContractCalculationIntrospector.ChannelUsage::getChannel)
                 .map(Channel::getLastDateTime)
-                .filter(lastDateTime -> lastDateTime != null)
+                .filter(Objects::nonNull)
                 .max(Comparator.naturalOrder());
-        if (max.isPresent()) {
-            return persistedChannelLastDateTime == null || max.get().compareTo(persistedChannelLastDateTime) >= 0 ? max.get() : persistedChannelLastDateTime;
-        } else {
-            return persistedChannelLastDateTime;
-        }
+        return max.filter(instant -> persistedChannelLastDateTime == null || instant.isAfter(persistedChannelLastDateTime))
+                .orElse(persistedChannelLastDateTime);
     }
 
     @Override
