@@ -50,7 +50,7 @@ public class UpdateUserTransaction implements Transaction<User> {
     }
 
     private boolean canUserBeDeactivated(User user){
-        return user.getGroups().stream().noneMatch(g -> g.getName().equals(UserService.DEFAULT_ADMIN_ROLE)) && isAnotherUserWithUserAdministratorRole(user);
+        return user.getGroups().stream().noneMatch(g -> g.getName().equals(UserService.DEFAULT_ADMIN_ROLE)) || isAnotherUserWithUserAdministratorRole(user);
     }
 
     private boolean updateMemberships(User user) {
