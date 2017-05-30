@@ -542,7 +542,7 @@ public class DemoTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             assertThat(scheduledConnectionTask.getProperty("host").getValue()).isEqualTo("10.0.0.135");
             assertThat(scheduledConnectionTask.getProperty("portNumber").getValue()).isEqualTo(new BigDecimal(4059));
-            assertThat(securityPropertySet.getClient()).isEqualTo("1");
+            assertThat(securityPropertySet.getClient()).isEqualTo(BigDecimal.ONE);
             TypedProperties securityProperties = gateway.getSecurityProperties(securityPropertySet);
             assertThat(securityProperties.propertyNames()).hasSize(2);
 
@@ -662,7 +662,7 @@ public class DemoTest {
             }
         }
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            assertThat(securityPropertySet.getClient()).isEqualTo("1");
+            assertThat(securityPropertySet.getClient()).isEqualTo(BigDecimal.ONE);
             TypedProperties securityProperties = device.getSecurityProperties(securityPropertySet);
             assertThat(securityProperties.getProperty("Password")).isEqualTo("1234567890123456");
             ctx.commit();
