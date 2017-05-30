@@ -1005,7 +1005,7 @@ public enum IntervalLength {
             sqlBuilder.append(truncationMillis);
             sqlBuilder.append(")");
         } else {
-            sqlBuilder.append("MIN(");
+            sqlBuilder.append("MAX(");
             sqlBuilder.append(expression);
             sqlBuilder.append(".");
             sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
