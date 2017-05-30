@@ -37,7 +37,7 @@ public class DeviceProtocolSecurityPropertySetImpl implements AdvancedDeviceProt
         return name;
     }
 
-    public String getClient() {
+    public Object getClient() {
         return client;
     }
 

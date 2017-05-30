@@ -13,9 +13,6 @@ import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.ComChannel;
@@ -35,28 +32,32 @@ import com.energyict.mdc.protocol.pluggable.PropertySpecMockSupport;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.InMemoryPersistence;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.*;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceCapabilityAdapterMappingImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceRegisterReadingNotSupported;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.HhuEnabledMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -65,15 +66,27 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.stream.Collectors;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Tests the adapter between a standard {@link MeterProtocol} and the new {@link DeviceProtocol}.
@@ -302,10 +315,10 @@ public class MeterProtocolAdapterTest {
     }
 
     @Test(expected = LegacyProtocolException.class)
-    public void invalidPropertyAdditionTest() throws InvalidPropertyException, MissingPropertyException {
+    public void invalidPropertyAdditionTest() throws PropertyValidationException {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
         TypedProperties properties = TypedProperties.empty();
-        doThrow(new InvalidPropertyException("Invalid property received")).when(meterProtocol).setProperties(Matchers.<Properties>any());
+        doThrow(new InvalidPropertyException("Invalid property received")).when(meterProtocol).setUPLProperties(Matchers.<TypedProperties>any());
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
@@ -316,10 +329,10 @@ public class MeterProtocolAdapterTest {
     }
 
     @Test(expected = LegacyProtocolException.class)
-    public void missingPropertyExceptionTest() throws InvalidPropertyException, MissingPropertyException {
+    public void missingPropertyExceptionTest() throws PropertyValidationException {
         MeterProtocol meterProtocol = getMockedMeterProtocol();
         TypedProperties properties = TypedProperties.empty();
-        doThrow(new MissingPropertyException("Missing property")).when(meterProtocol).setProperties(Matchers.<Properties>any());
+        doThrow(new MissingPropertyException("Missing property")).when(meterProtocol).setUPLProperties(Matchers.<TypedProperties>any());
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());

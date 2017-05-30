@@ -5,10 +5,8 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
@@ -23,7 +21,6 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -39,11 +36,6 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
     @Override
     public String getProtocolDescription() {
         return this.getClass().getName();
-    }
-
-    @Override
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-        // nothing to set
     }
 
     @Override
@@ -191,7 +183,7 @@ public class ThirdSimpleTestMeterProtocol implements MeterProtocol, LegacySecuri
             }
 
             @Override
-            public String getClient() {
+            public Object getClient() {
                 return null;
             }
 

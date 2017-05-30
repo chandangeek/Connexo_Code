@@ -7,7 +7,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannelInputStreamAdapter;
 import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
@@ -24,6 +23,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
+import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
@@ -42,6 +42,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -69,6 +70,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -484,15 +486,17 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     /**
      * This <i>forwards</i> the {@link PropertiesAdapter#getProperties()} to the {@link MeterProtocol} via the
-     * {@link MeterProtocol#setProperties(java.util.Properties)} method.
+     * {@link MeterProtocol#setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties)} method.
      * <p>
      * <b>This should happen only once!</b>
      */
     private void setPropertiesToMeterProtocol() {
         try {
-            this.meterProtocol.setProperties(this.propertiesAdapter.getProperties().toStringProperties());
+            this.meterProtocol.setUPLProperties(this.propertiesAdapter.getProperties());
         } catch (InvalidPropertyException | MissingPropertyException e) {
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
+        } catch (PropertyValidationException e) {
+            throw new NestedPropertyValidationException(e);
         }
     }
 
