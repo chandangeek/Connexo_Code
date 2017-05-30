@@ -19,13 +19,13 @@ import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.properties.rest.PropertyValuesResourceInfo;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.pluggable.rest.impl.CalendarResource;
 import com.energyict.mdc.pluggable.rest.impl.LoadProfileTypeResource;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
+import com.energyict.mdc.upl.TypedProperties;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
@@ -34,6 +34,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITHOUT_PRIVILEGES;
@@ -119,6 +120,13 @@ public class MdcPropertyUtils {
             propertyInfoList.add(propertyInfo);
         }
         return propertyInfoList;
+    }
+
+    public PropertyInfo convertPropertySpecToPropertyInfo(PropertySpec propertySpec, Object propertyValue) {
+        TypedProperties properties = TypedProperties.empty();
+        properties.setProperty(propertySpec.getName(), propertyValue);
+        List<PropertyInfo> propertyInfoList = convertPropertySpecsToPropertyInfos(Collections.singletonList(propertySpec), properties);
+        return !propertyInfoList.isEmpty() ? propertyInfoList.get(0) : null; // Safety measure, but should never be the case
     }
 
     public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, Device device) {
