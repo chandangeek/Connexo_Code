@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -25,6 +26,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.CalculatedReadingRecord;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -41,6 +43,8 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -59,6 +63,7 @@ import org.junit.Test;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -176,6 +181,9 @@ public class MetrologyContractChannelsContainerImplTestIT {
     @Test
     @Transactional
     public void testGetReadingsFromMetrologyConfigurationChannelsContainer() {
+        State deviceState = mock(State.class);
+        Stage deviceStage = mock(Stage.class);
+        String operationalDeviceStageKey = "mtr.enddevicestage.operational";
         Instant now = inMemoryBootstrapModule.getClock().instant();
         Instant installationTime = now.truncatedTo(ChronoUnit.HOURS);
 
@@ -191,6 +199,15 @@ public class MetrologyContractChannelsContainerImplTestIT {
 
         UsagePoint usagePoint = serviceCategory.newUsagePoint("UP", installationTime).create();
         usagePoint.apply(metrologyConfiguration, installationTime);
+
+        AmrSystem amrSystem = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter = spy(amrSystem.newMeter("", "meter1").create());
+        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
+        HeadEndInterface headEndInterface = new TestHeadEndInterface(readingType, readingType2);
+        inMemoryBootstrapModule.getMeteringDataModelService().addHeadEndInterface(headEndInterface);
+        usagePoint.linkMeters().activate(Instant.now(), meter, meterRole).complete();
 
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .getDataModel()
@@ -235,11 +252,16 @@ public class MetrologyContractChannelsContainerImplTestIT {
         List<AggregatedChannel.AggregatedIntervalReadingRecord> readingsAfterRemoveOfEditedValue = aggregatedChannel.getAggregatedIntervalReadings(requestedInterval);
         assertThat(readingsAfterRemoveOfEditedValue).hasSize(1);    // Still one value because the calculated value should now be returned again
         assertThat(readingsAfterRemoveOfEditedValue.get(0).getValue()).isEqualTo(calculatedValue);
+
+        inMemoryBootstrapModule.getMeteringDataModelService().removeHeadEndInterface(headEndInterface);
     }
 
     @Test
     @Transactional
     public void testGetRegisterReadingsFromMetrologyConfigurationChannelsContainer() {
+        State deviceState = mock(State.class);
+        Stage deviceStage = mock(Stage.class);
+        String operationalDeviceStageKey = "mtr.enddevicestage.operational";
         UsagePointMetrologyConfiguration metrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .newUsagePointMetrologyConfiguration("MC", serviceCategory).create();
         metrologyConfiguration.addMeterRole(meterRole);
@@ -254,6 +276,14 @@ public class MetrologyContractChannelsContainerImplTestIT {
 
         UsagePoint usagePoint = serviceCategory.newUsagePoint("UP", inMemoryBootstrapModule.getClock().instant()).create();
         usagePoint.apply(metrologyConfiguration);
+        AmrSystem amrSystem = inMemoryBootstrapModule.getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).get();
+        Meter meter = spy(amrSystem.newMeter("", "meter1").create());
+        when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
+        when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
+        when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
+        HeadEndInterface headEndInterface = new TestHeadEndInterface(readingType2, readingType3);
+        inMemoryBootstrapModule.getMeteringDataModelService().addHeadEndInterface(headEndInterface);
+        usagePoint.linkMeters().activate(Instant.now(), meter, meterRole).complete();
 
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .getDataModel()
@@ -295,5 +325,7 @@ public class MetrologyContractChannelsContainerImplTestIT {
         assertThat(persistedReadings).hasSize(0);
         readings = channel.getReadings(effectiveMetrologyConfiguration.getRange());
         assertThat(readings).hasSize(1);
+
+        inMemoryBootstrapModule.getMeteringDataModelService().removeHeadEndInterface(headEndInterface);
     }
 }

@@ -8,10 +8,12 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AggregatedChannel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -230,5 +232,39 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     @Override
     public long getId() {
         return id;
+    }
+
+    @Override
+    public boolean isComplete(MetrologyContract metrologyContract) {
+        UsagePointMetrologyConfiguration configuration = this.metrologyConfiguration.get();
+        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
+        metrologyContract.getDeliverables()
+                .stream()
+                .map(ReadingTypeDeliverable::getFormula)
+                .map(Formula::getExpressionNode)
+                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
+
+        List<MeterRole> meterRoles = requirementsCollector.getReadingTypeRequirements()
+                .stream()
+                .map(configuration::getMeterRoleFor)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+
+        boolean allMeterRolesHasMeters = true;
+        for (MeterRole meterRole : meterRoles) {
+            MeterActivation meterActivation;
+            if (!usagePoint.get().getMeterActivations(meterRole).isEmpty()) {
+                meterActivation = usagePoint.get().getMeterActivations(meterRole)
+                        .stream()
+                        .filter(meterActivationToCheck -> meterActivationToCheck.getEnd() == null)
+                        .findFirst()
+                        .orElse(null);
+            } else {
+                meterActivation = null;
+            }
+            allMeterRolesHasMeters &= meterActivation != null;
+        }
+        return allMeterRolesHasMeters;
     }
 }

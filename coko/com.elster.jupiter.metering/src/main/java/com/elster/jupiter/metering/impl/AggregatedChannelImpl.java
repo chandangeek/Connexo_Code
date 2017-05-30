@@ -228,7 +228,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     }
 
     private Map<Instant, AggregatedIntervalReadingRecord> getCalculatedIntervalReadings(Range<Instant> interval) {
-        if (isMetrologyConfigurationActive(interval)) {
+        if (isMetrologyConfigurationActive(interval) && allMeterRolesOnMetrologyConfigurationHasMeters(interval)) {
             return this.dataAggregationService
                         .calculate(usagePoint, metrologyContract, interval)
                         .getCalculatedDataFor(this.deliverable).stream()
@@ -242,7 +242,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     }
 
     private <T extends BaseReadingRecord> Map<Instant, T> getCalculatedRegisterReadings(Range<Instant> interval, Function<CalculatedReadingRecord, T> mapper) {
-        if (isMetrologyConfigurationActive(interval)) {
+        if (isMetrologyConfigurationActive(interval) && allMeterRolesOnMetrologyConfigurationHasMeters(interval)) {
             return this.dataAggregationService
                     .calculate(usagePoint, metrologyContract, interval)
                     .getCalculatedDataFor(this.deliverable)
@@ -260,6 +260,11 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     private boolean isMetrologyConfigurationActive(Range<Instant> interval) {
         return usagePoint.getEffectiveMetrologyConfigurations(interval).stream()
                 .anyMatch(emc -> emc.getMetrologyConfiguration().getContracts().contains(metrologyContract));
+    }
+
+    private boolean allMeterRolesOnMetrologyConfigurationHasMeters(Range<Instant> interval){
+        return usagePoint.getEffectiveMetrologyConfigurations(interval).stream()
+                .anyMatch(emc -> emc.isComplete(metrologyContract));
     }
 
     @Override
