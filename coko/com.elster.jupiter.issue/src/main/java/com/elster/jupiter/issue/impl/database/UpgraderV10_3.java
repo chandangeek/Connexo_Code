@@ -35,7 +35,6 @@ public class UpgraderV10_3 implements Upgrader {
     private void upgradeOpenIssue() {
         try (Connection connection = this.dataModel.getConnection(true)) {
             this.upgradeOpenIssue(connection);
-            this.changeUniqueIndex(connection);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
@@ -58,16 +57,4 @@ public class UpgraderV10_3 implements Upgrader {
         }
     }
 
-    private void changeUniqueIndex(Connection connection) {
-        String[] sqlStatements = {
-                "DROP INDEX ISU_UQ_RULE_NAME",
-                "CREATE UNIQUE INDEX ISU_UQ_RULE_NAME ON ISU_CREATIONRULE (NAME, TEMPLATE, OBSOLETE_TIME)"};
-        for (String sqlStatement : sqlStatements) {
-            try (PreparedStatement statement = connection.prepareStatement(sqlStatement)) {
-                statement.executeUpdate();
-            } catch (SQLException e) {
-                throw new UnderlyingSQLFailedException(e);
-            }
-        }
-    }
 }
