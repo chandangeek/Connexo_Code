@@ -11,6 +11,7 @@ Ext.define('Mdc.model.CopyFromReference', {
         'startDate',
         'allowSuspectData',
         'completePeriod',
+        'editedReadings',
         'intervals'
     ],
 
