@@ -7,6 +7,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
@@ -39,10 +40,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -75,6 +79,14 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         doReturn(messageFormat).when(thesaurus).getFormat(translationKey);
     }
 
+    @Before
+    public void initialiseMocks() throws Exception {
+        when(propertyValueInfoService.getPropertyInfo(any(PropertySpec.class), any(Function.class))).thenAnswer(invocation -> {
+            String propertyValue =  invocation.getArguments()[1] != null ? (String) ((Function) invocation.getArguments()[1]).apply("Client") : null;
+            return new PropertyInfo("Property", "Property", new PropertyValueInfo<>(propertyValue, null), new PropertyTypeInfo(), false);
+        });
+    }
+
     @Test
     public void testGetSecurityPropertySet() throws Exception {
         DeviceType deviceType = mock(DeviceType.class);
@@ -101,7 +113,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         assertThat(jsonModel.<List>get("$.data")).hasSize(2);
         assertThat(jsonModel.<Integer>get("$.data[0].id")).isEqualTo(101);
         assertThat(jsonModel.<String>get("$.data[0].name")).isEqualTo("Primary");
-        assertThat(jsonModel.<String>get("$.data[0].client")).isEqualTo("Primary client");
+        assertThat(jsonModel.<String>get("$.data[0].client.propertyValueInfo.value")).isEqualTo("Primary client");
         assertThat(jsonModel.<Integer>get("$.data[0].authenticationLevelId")).isEqualTo(1001);
         assertThat(jsonModel.<Integer>get("$.data[0].authenticationLevel.id")).isEqualTo(1001);
         assertThat(jsonModel.<String>get("$.data[0].authenticationLevel.name")).isEqualTo("Auth1");
@@ -390,9 +402,6 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
 
     @Test
     public void testGetConfSecurityProperties() throws Exception {
-        PropertyInfo propertyInfo = new PropertyInfo("name", "name", new PropertyValueInfo<>("value", null), new PropertyTypeInfo(), false);
-        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
-
         DeviceType deviceType = mock(DeviceType.class);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(456L);
@@ -513,24 +522,24 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         HashSet<PropertySpec> propertySpecs = new HashSet<>(Collections.singletonList(propertySpec));
         when(sps1.getPropertySpecs()).thenReturn(propertySpecs);
         when(propertyValueInfoService.findPropertyValue(any(PropertySpec.class), anyListOf(PropertyInfo.class))).thenReturn(keyAccessorType);
-        when(propertyValueInfoService.getPropertyInfo(any(PropertySpec.class), any())).thenReturn(propertyInfo);
+        when(propertyValueInfoService.getPropertyInfo(any(PropertySpec.class), any(Function.class))).thenReturn(propertyInfo);
 
         SecurityPropertySetInfo info = new SecurityPropertySetInfo();
         info.name = "New name";
-        info.client = "New client";
+        info.client = new PropertyInfo("Client", "", new PropertyValueInfo<>("New client", ""), new PropertyTypeInfo(), true);
         info.authenticationLevelId = 1002;
         info.encryptionLevelId = 2001;
         info.securitySuiteId = 3002;
         info.requestSecurityLevelId = 4002;
         info.responseSecurityLevelId = 5002;
-        info.properties =  Collections.singletonList(propertyInfo);
+        info.properties = Collections.singletonList(propertyInfo);
         info.version = OK_VERSION;
         info.parent = new VersionInfo<>(deviceConfiguration.getId(), OK_VERSION);
 
         Response response = target("/devicetypes/123/deviceconfigurations/456/securityproperties/101").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(sps1).setName(info.name);
-        verify(sps1).setClient(info.client);
+        verify(sps1).setClient(info.client.getPropertyValueInfo().getValue());
         verify(sps1).setAuthenticationLevelId(info.authenticationLevelId);
         verify(sps1).setEncryptionLevelId(info.encryptionLevelId);
         verify(sps1).setSecuritySuiteId(info.securitySuiteId);
@@ -567,20 +576,20 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
 
         SecurityPropertySetInfo info = new SecurityPropertySetInfo();
         info.name = "New name";
-        info.client = "New client";
+        info.client = new PropertyInfo("Client", "", new PropertyValueInfo<>("New client", ""), new PropertyTypeInfo(), true);
         info.authenticationLevelId = 1002;
         info.encryptionLevelId = 2001;
         info.securitySuiteId = 3002;
         info.requestSecurityLevelId = 4002;
         info.responseSecurityLevelId = 5002;
-        info.properties =  Collections.emptyList();
+        info.properties = Collections.emptyList();
         info.version = OK_VERSION;
         info.parent = new VersionInfo<>(deviceConfiguration.getId(), OK_VERSION);
 
         Response response = target("/devicetypes/123/deviceconfigurations/456/securityproperties/101").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(sps1).setName(info.name);
-        verify(sps1).setClient(info.client);
+        verify(sps1).setClient(info.client.getPropertyValueInfo().getValue());
         verify(sps1).setAuthenticationLevelId(info.authenticationLevelId);
         verify(sps1).setEncryptionLevelId(info.encryptionLevelId);
         verify(sps1).setSecuritySuiteId(info.securitySuiteId);
@@ -611,6 +620,18 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
         when(mock.getClient()).thenReturn(client);
+        PropertySpec clientPropertySpec = mock(PropertySpec.class);
+        ValueFactory valueFactory = mock(ValueFactory.class);
+        when(valueFactory.fromStringValue(Mockito.any(String.class)))
+                .thenAnswer(invocation -> {
+                    Object[] args = invocation.getArguments();
+                    return args[0];
+                });
+        when(valueFactory.toStringValue(any(String.class))).thenAnswer(invocation -> invocation.getArgumentAt(0, String.class));
+        when(clientPropertySpec.getName()).thenReturn("Client");
+        when(clientPropertySpec.getValueFactory()).thenReturn(valueFactory);
+        Optional<PropertySpec> clientPropertySpecOptional = Optional.of(clientPropertySpec);
+        when(mock.getClientSecurityPropertySpec()).thenReturn(clientPropertySpecOptional);
         AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         when(authenticationAccessLevel.getId()).thenReturn(authenticationAccessLevelId);
         when(authenticationAccessLevel.getTranslation()).thenReturn(authenticationAccessLevelName);
@@ -656,7 +677,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         }
 
         @Override
-        public com.energyict.mdc.device.config.SecurityPropertySetBuilder client(String client) {
+        public com.energyict.mdc.device.config.SecurityPropertySetBuilder client(Object client) {
             return this;
         }
 

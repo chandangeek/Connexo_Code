@@ -36,7 +36,6 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -65,6 +64,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.TypedProperties;
 
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -479,7 +479,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat((List) map.get("deviceConfigurations")).hasSize(1)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("deviceConfigurations")).get(0);
-        assertThat(jsonDeviceConfiguration).hasSize(19);
+        assertThat(jsonDeviceConfiguration).hasSize(20);
         assertThat(jsonDeviceConfiguration.get("id")).isEqualTo(113)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon")
@@ -515,6 +515,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(jsonDeviceConfiguration.get("version")).isEqualTo(((Number) OK_VERSION).intValue())
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("validateOnStore")).isEqualTo(false)
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("isLogicalSlave")).isEqualTo(false)
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 

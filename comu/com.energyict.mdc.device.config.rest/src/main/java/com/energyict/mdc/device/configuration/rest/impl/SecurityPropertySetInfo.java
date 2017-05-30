@@ -7,7 +7,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.configuration.rest.ExecutionLevelInfo;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 
@@ -29,7 +28,7 @@ public class SecurityPropertySetInfo {
     @JsonProperty("encryptionLevel")
     public SecurityLevelInfo encryptionLevel;
     @JsonProperty("client")
-    public String client;
+    public PropertyInfo client;
     @JsonProperty("securitySuiteId")
     public Integer securitySuiteId;
     @JsonProperty("securitySuite")
@@ -69,7 +68,7 @@ public class SecurityPropertySetInfo {
             this.responseSecurityLevelId = DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
         }
 
-        securityPropertySet.setClient(this.client);
+        securityPropertySet.setClient(this.client != null ? this.client.getPropertyValueInfo().getValue() : null);
         securityPropertySet.setAuthenticationLevelId(this.authenticationLevelId);
         securityPropertySet.setEncryptionLevelId(this.encryptionLevelId);
         securityPropertySet.setSecuritySuiteId(this.securitySuiteId);

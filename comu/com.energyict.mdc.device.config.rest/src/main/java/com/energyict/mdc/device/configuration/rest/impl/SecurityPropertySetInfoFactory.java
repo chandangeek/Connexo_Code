@@ -5,9 +5,9 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.users.Group;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
 import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.api.security.SecuritySuite;
+import com.energyict.mdc.upl.TypedProperties;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -53,7 +54,7 @@ public class SecurityPropertySetInfoFactory {
         info.authenticationLevel = SecurityLevelInfo.from(authenticationDeviceAccessLevel);
         info.encryptionLevelId = encryptionDeviceAccessLevel.getId();
         info.encryptionLevel = SecurityLevelInfo.from(encryptionDeviceAccessLevel);
-        info.client = securityPropertySet.getClient();
+        info.client = getClientAsPropertyInfo(securityPropertySet);
         info.securitySuiteId = securitySuite.getId();
         info.securitySuite = SecurityLevelInfo.from(securitySuite);
         info.requestSecurityLevelId = requestSecurityLevel.getId();
@@ -68,6 +69,14 @@ public class SecurityPropertySetInfoFactory {
         info.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(securityPropertySet.getPropertySpecs(), typedProperties);
         Collections.sort(info.properties, Comparator.comparing(propertyInfo -> propertyInfo.name)); // Properties are sorted by their name
         return info;
+    }
+
+    private PropertyInfo getClientAsPropertyInfo(SecurityPropertySet securityPropertySet) {
+        if (securityPropertySet.getClientSecurityPropertySpec().isPresent()) {
+            return mdcPropertyUtils.convertPropertySpecToPropertyInfo(securityPropertySet.getClientSecurityPropertySpec().get(), securityPropertySet.getClient());
+        } else {
+            return null;
+        }
     }
 
     private TypedProperties toTypedProperties(List<ConfigurationSecurityProperty> configurationSecurityProperties) {

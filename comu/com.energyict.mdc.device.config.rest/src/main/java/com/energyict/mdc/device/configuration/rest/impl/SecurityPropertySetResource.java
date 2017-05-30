@@ -12,7 +12,6 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -31,6 +30,7 @@ import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
 
 import javax.annotation.security.RolesAllowed;
@@ -131,7 +131,7 @@ public class SecurityPropertySetResource {
 
         SecurityPropertySetBuilder builder = deviceConfiguration
                 .createSecurityPropertySet(info.name)
-                .client(info.client)
+                .client(info.client != null ? info.client.getPropertyValueInfo().getValue() : null)
                 .authenticationLevel(info.authenticationLevelId)
                 .encryptionLevel(info.encryptionLevelId)
                 .securitySuite(info.securitySuiteId)
