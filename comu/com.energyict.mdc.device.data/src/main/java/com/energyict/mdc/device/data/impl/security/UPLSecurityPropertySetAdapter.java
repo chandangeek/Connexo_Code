@@ -19,7 +19,7 @@ public class UPLSecurityPropertySetAdapter implements SecurityPropertySet {
     }
 
     @Override
-    public String getClient() {
+    public Object getClient() {
         return cxoSecurityPropertySet.getClient();
     }
 
