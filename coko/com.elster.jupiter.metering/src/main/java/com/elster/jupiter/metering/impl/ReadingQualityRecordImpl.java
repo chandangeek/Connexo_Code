@@ -56,7 +56,7 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
     ReadingQualityRecordImpl(DataModel dataModel, EventService eventService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
-        this.actual = true;
+        doMakeActual();
     }
 
     ReadingQualityRecordImpl init(ReadingQualityType type, CimChannel cimChannel, BaseReading baseReading) {
@@ -175,10 +175,10 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
     }
 
 
-    static void saveAll(DataModel model, List<ReadingQualityRecordImpl> records) {
+    static void saveAll(DataModel model, List<ReadingQualityRecord> records) {
         List<ReadingQualityRecord> myRecords = new ArrayList<>(records);
         model.mapper(ReadingQualityRecord.class).persist(myRecords);
-        records.forEach(ReadingQualityRecordImpl::notifyCreated);
+        decorate(records.stream()).filterSubType(ReadingQualityRecordImpl.class).forEach(ReadingQualityRecordImpl::notifyCreated);
     }
 
     static void updateAll(DataModel model, List<ReadingQualityRecord> records) {
@@ -234,8 +234,12 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     @Override
     public void makeActual() {
-        this.actual = true;
+        doMakeActual();
         this.update("actual");
+    }
+
+    void doMakeActual() {
+        this.actual = true;
     }
 
     @Override
