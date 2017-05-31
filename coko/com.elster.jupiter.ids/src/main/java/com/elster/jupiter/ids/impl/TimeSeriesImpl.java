@@ -388,12 +388,14 @@ public final class TimeSeriesImpl implements TimeSeries {
 
     @Override
     public void removeEntries(Range<Instant> range) {
-        if (!range.hasUpperBound() || range.upperEndpoint().isAfter(lastTime) || range.upperEndpoint().equals(lastTime)) {
+        if (range.contains(lastTime)) {
             List<TimeSeriesEntry> entriesBefore = getEntriesBefore(lastTime, 1);
             if (!entriesBefore.isEmpty()) {
                 lastTime = entriesBefore.get(0).getTimeStamp();
-                dataModel.update(this, "lastTime");
+            } else {
+                lastTime = null;
             }
+            dataModel.update(this, "lastTime");
         }
         if (lockTime != null) {
             Range<Instant> allowed = Range.greaterThan(lockTime);
