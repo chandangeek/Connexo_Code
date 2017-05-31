@@ -127,7 +127,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     private volatile AppService appService;
     private volatile Clock clock;
 
-    private Optional<DestinationSpec> destinationSpec = Optional.empty();
+    private DestinationSpec destinationSpec;
 
     public EstimationServiceImpl() {
     }
@@ -319,9 +319,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     private boolean getMatchingMetrologyPurposes(MetrologyContract metrologyContract, ReadingType readingType) {
         return metrologyContract.getDeliverables()
                 .stream()
-                .filter(readingTypeDeliverable -> readingTypeDeliverable.getReadingType().equals((readingType)))
-                .findAny()
-                .isPresent();
+                .anyMatch(readingTypeDeliverable -> readingTypeDeliverable.getReadingType().equals((readingType)));
     }
 
     private void logEstimationReport(ChannelsContainer channelsContainer, Range<Instant> period, Logger logger, EstimationReportImpl report) {
@@ -346,9 +344,8 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                 .orElse(channelsContainer.getUsagePoint().map(HasName::getName).orElse(""));
         String purpose = channelsContainer.getUsagePoint()
                 .flatMap(usagePoint -> usagePoint.getCurrentEffectiveMetrologyConfiguration().map(emc ->
-                        emc.getMetrologyConfiguration().getContracts()
-                                .stream()
-                                .filter(metrologyContract -> report.getResults().keySet().stream().filter(rt -> getMatchingMetrologyPurposes(metrologyContract, rt)).findFirst().isPresent())
+                        emc.getMetrologyConfiguration().getContracts().stream()
+                                .filter(metrologyContract -> report.getResults().keySet().stream().anyMatch(rt -> getMatchingMetrologyPurposes(metrologyContract, rt)))
                                 .map(metrologyContract -> metrologyContract.getMetrologyPurpose().getName())
                                 .collect(Collectors.joining(" ,")))).map(p -> " of purpose " + p).orElse("");
 
@@ -516,10 +513,10 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
 
     @Override
     public DestinationSpec getDestination() {
-        if (!destinationSpec.isPresent()) {
-            destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME);
+        if (destinationSpec == null) {
+            destinationSpec = messageService.getDestinationSpec(DESTINATION_NAME).orElse(null);
         }
-        return destinationSpec.orElse(null);
+        return destinationSpec;
     }
 
     @Override
