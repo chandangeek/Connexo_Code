@@ -48,6 +48,7 @@ public class DeviceTypeInfo {
     public long version;
     public String deviceTypePurpose;
     public boolean fileManagementEnabled;
+    public boolean isLogicalSlave;
 
     public DeviceTypeInfo() {
     }
@@ -87,6 +88,7 @@ public class DeviceTypeInfo {
         deviceTypeInfo.version = deviceType.getVersion();
         deviceTypeInfo.deviceTypePurpose = deviceType.isDataloggerSlave() ? DeviceTypePurpose.DATALOGGER_SLAVE.name() : (deviceType.isMultiElementSlave() ? DeviceTypePurpose.MULTI_ELEMENT_SLAVE.name() : DeviceTypePurpose.REGULAR.name());
         deviceTypeInfo.fileManagementEnabled = deviceType.isFileManagementEnabled();
+        deviceTypeInfo.isLogicalSlave = deviceType.isLogicalSlave();
         return deviceTypeInfo;
     }
 
