@@ -8,7 +8,6 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.MacException;
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
@@ -28,6 +27,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -198,14 +198,14 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
                         .stream()
                         .forEach(deviceMessage -> {
                             if (validator.isStillValid(deviceMessage)) {
+                                reallyPending.add(deviceMessage);
+                            } else {
                                 deviceMessage.setProtocolInformation(
                                         this.serviceProvider.thesaurus()
                                                 .getFormat(MessageSeeds.CALENDAR_NO_LONGER_ALLOWED)
                                                 .format(
                                                         validator.failingCalendarNames(deviceMessage),
                                                         this.device.getDeviceType().getName()));
-                                reallyPending.add(deviceMessage);
-                            } else {
                                 invalidSinceCreation.add(deviceMessage);
                             }
                         });
