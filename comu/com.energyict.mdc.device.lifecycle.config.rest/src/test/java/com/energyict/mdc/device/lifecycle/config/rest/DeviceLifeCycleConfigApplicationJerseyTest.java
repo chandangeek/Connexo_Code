@@ -276,7 +276,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
 
     protected AuthorizedTransitionAction mockSimpleAction(long id, String name, State from, State to) {
         AuthorizedTransitionAction action = mockBasicAction(id, name, from, to);
-        when(action.getActions()).thenReturn(EnumSet.of(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE, MicroAction.CREATE_METER_ACTIVATION, MicroAction.ENABLE_VALIDATION));
+        when(action.getActions()).thenReturn(EnumSet.of(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE, MicroAction.ENABLE_VALIDATION));
         when(action.getChecks()).thenReturn(EnumSet.of(
                 MicroCheck.ALL_DATA_VALID,
                 MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
@@ -290,7 +290,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
 
     private AuthorizedTransitionAction mockSimpleActionWithoutCommunications(long id, String name, State from, State to) {
         AuthorizedTransitionAction action = mockBasicAction(id, name, from, to);
-        when(action.getActions()).thenReturn(EnumSet.of(MicroAction.CREATE_METER_ACTIVATION, MicroAction.ENABLE_VALIDATION));
+        when(action.getActions()).thenReturn(EnumSet.of(MicroAction.ENABLE_VALIDATION));
         when(action.getChecks()).thenReturn(EnumSet.of(
                 MicroCheck.ALL_DATA_VALID
         ));
@@ -299,7 +299,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
 
     private AuthorizedTransitionAction mockSimpleActionCommunicationRelatedMicroActions(long id, String name, State from, State to) {
         AuthorizedTransitionAction action = mockBasicAction(id, name, from, to);
-        when(action.getActions()).thenReturn(EnumSet.of(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE, MicroAction.CREATE_METER_ACTIVATION, MicroAction.ENABLE_VALIDATION));
+        when(action.getActions()).thenReturn(EnumSet.of(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE, MicroAction.ENABLE_VALIDATION));
         when(action.getChecks()).thenReturn(EnumSet.of(
                 MicroCheck.ALL_DATA_VALID
         ));
@@ -308,7 +308,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
 
     private AuthorizedTransitionAction mockSimpleActionCommunicationRelatedMicroChecks(long id, String name, State from, State to) {
         AuthorizedTransitionAction action = mockBasicAction(id, name, from, to);
-        when(action.getActions()).thenReturn(EnumSet.of(MicroAction.CREATE_METER_ACTIVATION, MicroAction.ENABLE_VALIDATION));
+        when(action.getActions()).thenReturn(EnumSet.of(MicroAction.ENABLE_VALIDATION));
         when(action.getChecks()).thenReturn(EnumSet.of(
                 MicroCheck.ALL_DATA_VALID,
                 MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,

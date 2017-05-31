@@ -317,15 +317,10 @@ public class AuthorizedActionRequestFactoryIT {
         info.triggeredBy = eventTypeInfo;
         info.privileges = Collections.singletonList(privilegeInfo);
 
-        info.microActions = new HashSet<>(1);
-        MicroActionAndCheckInfo microAction = new MicroActionAndCheckInfo();
-        microAction.key = MicroAction.CREATE_METER_ACTIVATION.name();
-        info.microActions.add(microAction);
-
         info.microChecks = new HashSet<>(1);
         MicroActionAndCheckInfo microCheck = new MicroActionAndCheckInfo();
         microCheck.key = MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID.name();
-        info.microChecks.add(microAction);
+        info.microChecks.add(microCheck);
 
         AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, info, AuthorizedActionRequestFactory.Operation.CREATE);
         AuthorizedAction newAction = request.perform();
