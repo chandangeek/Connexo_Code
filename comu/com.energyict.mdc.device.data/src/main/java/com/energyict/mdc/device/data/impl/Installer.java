@@ -116,7 +116,7 @@ public class Installer implements FullInstaller {
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/connectiontask/COMPLETION"))))
                     .filter(subscriber -> !jupiterEvents.getSubscribers()
                             .stream()
-                            .anyMatch(s -> s.getName().equals(subscriber.getFirst())))
+                            .anyMatch(s -> s.getName().equals(subscriber.getFirst().getKey())))
                     .forEach(subscriber -> this.doSubscriber(jupiterEvents, subscriber));
         }
     }
@@ -183,7 +183,7 @@ public class Installer implements FullInstaller {
                     Pair.of(SubscriberTranslationKeys.TEST_COMMUNICATION_COMPLETED_EVENT, whereCorrelationId().isEqualTo("com/energyict/mdc/connectiontask/COMPLETION")))
                     .filter(subscriber -> !jupiterEvents.getSubscribers()
                             .stream()
-                            .anyMatch(s -> s.getName().equals(subscriber.getFirst())))
+                            .anyMatch(s -> s.getName().equals(subscriber.getFirst().getKey())))
                     .forEach(subscriber -> this.doSubscriber(jupiterEvents, subscriber));
         }
     }
