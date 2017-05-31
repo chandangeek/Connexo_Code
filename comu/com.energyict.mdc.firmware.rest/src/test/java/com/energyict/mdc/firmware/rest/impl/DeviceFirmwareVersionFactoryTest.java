@@ -132,7 +132,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
                 .thenReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE));
         when(deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE))
                 .thenReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE));
-        when(deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER))
+        when(deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES))
                 .thenReturn(Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER));
         when(deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE))
                 .thenReturn(Optional.empty());
@@ -667,7 +667,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         List<DeviceMessageAttribute> messageAttributes = new ArrayList<>();
         messageAttributes.add(fileAttr);
         DeviceMessage firmwareMessage = mockFirmwareMessage();
-        when(firmwareMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER);
+        when(firmwareMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
         doReturn(messageAttributes).when(firmwareMessage).getAttributes();
         when(firmwareMessage.getId()).thenReturn(1001L);
         when(firmwareMessage.getReleaseDate()).thenReturn(TIME);
@@ -915,7 +915,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         List<DeviceMessageAttribute> meterMessageAttributes = new ArrayList<>();
         meterMessageAttributes.add(meterFileAttr);
         DeviceMessage uploadMeterFirmware = mockFirmwareMessage();
-        when(uploadMeterFirmware.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER);
+        when(uploadMeterFirmware.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
         doReturn(meterMessageAttributes).when(uploadMeterFirmware).getAttributes();
         when(uploadMeterFirmware.getReleaseDate()).thenReturn(TIME);
         when(uploadMeterFirmware.getModTime()).thenReturn(TIME);
@@ -946,7 +946,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         List<DeviceMessageAttribute> communicationMessageAttributes = new ArrayList<>();
         communicationMessageAttributes.add(communicationFileAttr);
         DeviceMessage uploadCommunicationFirmware = mockFirmwareMessage();
-        when(uploadCommunicationFirmware.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER);
+        when(uploadCommunicationFirmware.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
         doReturn(communicationMessageAttributes).when(uploadCommunicationFirmware).getAttributes();
         when(uploadCommunicationFirmware.getReleaseDate()).thenReturn(TIME.plusSeconds(2));
         when(uploadCommunicationFirmware.getModTime()).thenReturn(TIME.plusSeconds(2));
@@ -1000,7 +1000,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         List<DeviceMessageAttribute> meterMessageAttributes = new ArrayList<>();
         meterMessageAttributes.add(meterFileAttr);
         DeviceMessage uploadMeterFirmware = mockFirmwareMessage();
-        when(uploadMeterFirmware.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER);
+        when(uploadMeterFirmware.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
         doReturn(meterMessageAttributes).when(uploadMeterFirmware).getAttributes();
         when(uploadMeterFirmware.getReleaseDate()).thenReturn(TIME);
         when(uploadMeterFirmware.getModTime()).thenReturn(TIME);
@@ -1031,7 +1031,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         List<DeviceMessageAttribute> communicationMessageAttributes = new ArrayList<>();
         communicationMessageAttributes.add(communicationFileAttr);
         DeviceMessage uploadCommunicationFirmware = mockFirmwareMessage();
-        when(uploadCommunicationFirmware.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER);
+        when(uploadCommunicationFirmware.getDeviceMessageId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES);
         doReturn(communicationMessageAttributes).when(uploadCommunicationFirmware).getAttributes();
         when(uploadCommunicationFirmware.getReleaseDate()).thenReturn(TIME.plusSeconds(2));
         when(uploadCommunicationFirmware.getModTime()).thenReturn(TIME.plusSeconds(2));
