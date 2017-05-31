@@ -51,7 +51,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
 
     @Test
     public void getProtocolSupportedFirmwareOptionsWithOnlyActivateLaterTest() {
-        DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER);
+        DeviceType deviceType = getMockedDeviceTypeWithMessageIds(DeviceMessageId.FIRMWARE_UPGRADE_BROADCAST_FIRMWARE_UPGRADE);
 
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         Set<ProtocolSupportedFirmwareOptions> options = firmwareService.getSupportedFirmwareOptionsFor(deviceType);
@@ -76,7 +76,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     @Test
     public void getProtocolSupportedFirmwareOptionsWithActivateLaterAndActivateImmediateTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER,
+                DeviceMessageId.FIRMWARE_UPGRADE_START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES,
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE
         );
 
@@ -93,7 +93,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     @Test
     public void getProtocolSupportedFirmwareOptionsWithAllOptionsTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER,
+                DeviceMessageId.FIRMWARE_UPGRADE_BROADCAST_FIRMWARE_UPGRADE,
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE,
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE
         );
@@ -112,7 +112,7 @@ public class FirmwareServiceImplTest extends PersistenceTest {
     @Test
     public void getProtocolSupportedFirmwareOptionsWithAllOptionsAndDuplicatesByTheProtocolTest() {
         DeviceType deviceType = getMockedDeviceTypeWithMessageIds(
-                DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER,
+                DeviceMessageId.FIRMWARE_UPGRADE_BROADCAST_FIRMWARE_UPGRADE,
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE,
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE,
                 DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE_ACTIVATE_IMMEDIATE,

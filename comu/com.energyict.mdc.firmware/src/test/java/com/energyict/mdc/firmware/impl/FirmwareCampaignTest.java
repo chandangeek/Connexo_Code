@@ -65,7 +65,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
         when(deviceMessageSpec0.getId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE.dbValue());
         deviceMessageIds.add(deviceMessageSpec0);
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-        when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER.dbValue());
+        when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.dbValue());
         deviceMessageIds.add(deviceMessageSpec1);
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec2 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
         when(deviceMessageSpec2.getId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE.dbValue());
@@ -109,7 +109,7 @@ public class FirmwareCampaignTest extends PersistenceTest {
         when(deviceMessageSpec0.getId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE.dbValue());
         deviceMessageIds.add(deviceMessageSpec0);
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec1 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
-        when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER.dbValue());
+        when(deviceMessageSpec1.getId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_START_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.dbValue());
         deviceMessageIds.add(deviceMessageSpec1);
         com.energyict.mdc.upl.messages.DeviceMessageSpec deviceMessageSpec2 = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
         when(deviceMessageSpec2.getId()).thenReturn(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_ACTIVATE_DATE.dbValue());
