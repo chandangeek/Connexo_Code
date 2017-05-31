@@ -20,6 +20,7 @@ import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fileimport.impl.FileImportServiceImpl;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
@@ -74,6 +75,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -114,6 +116,7 @@ public class AppServerIT {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HttpService.class).toInstance(httpService);
+            bind(LicenseService.class).toInstance(mock(LicenseService.class));
         }
     }
 
