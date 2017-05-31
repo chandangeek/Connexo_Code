@@ -93,6 +93,7 @@ import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -244,6 +245,7 @@ public class ReadingEstimateIT {
     }
 
     @Test
+    @Ignore
     @Transactional
     public void test() {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
