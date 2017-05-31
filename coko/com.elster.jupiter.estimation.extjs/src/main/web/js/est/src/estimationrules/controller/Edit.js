@@ -203,8 +203,8 @@ Ext.define('Est.estimationrules.controller.Edit', {
                 page.setLoading(false);
                 if (success) {
                     me.getApplication().fireEvent('acknowledge', operation.action === 'create'
-                        ? Uni.I18n.translate('estimationrules.addRuleSuccess', 'EST', 'Estimation rule successfully added')
-                        : Uni.I18n.translate('estimationrules.saveRuleSuccess', 'EST', 'Estimation rule successfully saved'));
+                        ? Uni.I18n.translate('estimationrules.addRuleSuccess', 'EST', 'Estimation rule added')
+                        : Uni.I18n.translate('estimationrules.saveRuleSuccess', 'EST', 'Estimation rule saved'));
                     if (page.rendered) {
                         window.location.href = page.returnLink;
                     }
