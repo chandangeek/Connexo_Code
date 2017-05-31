@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.inject.Inject;
@@ -45,20 +46,20 @@ public class MeterInCorrectStageValidator implements ConstraintValidator<MeterIn
 
     private boolean isValid(Meter meter, UsagePoint usagePoint, Instant activationTime) {
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration(activationTime);
-        return isValid(meter, metrologyConfiguration, activationTime);
+        return isValid(meter, metrologyConfiguration, activationTime, usagePoint.getState(activationTime).getStage());
     }
 
-    private boolean isValid(Meter meter, Optional<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration, Instant activationTime) {
+    private boolean isValid(Meter meter, Optional<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration, Instant activationTime, Optional<Stage> usagePointStage) {
         Optional<State> state = meter.getState(activationTime);
         if (!state.isPresent()) {
             return true;
         }
-        if (!state.get().getStage().isPresent()) {
+        if (!state.get().getStage().isPresent() || !usagePointStage.isPresent()) {
             addContextValidationError("No stage present");
             return false;
         }
         Stage stage = state.get().getStage().get();
-        if (metrologyConfiguration.isPresent() && !stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())) {
+        if (metrologyConfiguration.isPresent() && usagePointStage.get().getName().equals(UsagePointStage.OPERATIONAL.getKey()) && !stage.getName().equals(EndDeviceStage.OPERATIONAL.getKey())) {
             addContextValidationError(getErrorMessage(PrivateMessageSeeds.METER_NOT_IN_OPERATIONAL_STAGE));
             return false;
         } else if (!metrologyConfiguration.isPresent() && stage.getName().equals(EndDeviceStage.POST_OPERATIONAL.getKey())) {
