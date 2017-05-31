@@ -80,7 +80,7 @@ public final class DeviceLifeCyclePropertySupport {
     }
 
     private static Instant getTimestamp(List<ExecutableActionProperty> properties, Predicate<ExecutableActionProperty> predicate) {
-        return getOptionalTimestamp(properties, predicate).get();
+        return getOptionalTimestamp(properties, predicate).orElse(null);
     }
 
     /**

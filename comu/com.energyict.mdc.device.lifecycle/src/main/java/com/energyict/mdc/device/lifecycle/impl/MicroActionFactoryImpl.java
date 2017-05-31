@@ -20,7 +20,6 @@ import com.energyict.mdc.device.lifecycle.impl.micro.actions.ActivateConnectionT
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.CancelAllServiceCalls;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.CloseAllIssues;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.CloseMeterActivation;
-import com.energyict.mdc.device.lifecycle.impl.micro.actions.CreateMeterActivation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.DetachSlaveFromMaster;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.DisableCommunication;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.DisableEstimation;
@@ -144,9 +143,6 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             }
             case ACTIVATE_CONNECTION_TASKS_IN_USE: {
                 return new ActivateConnectionTasks(thesaurus);
-            }
-            case CREATE_METER_ACTIVATION: {
-                return new CreateMeterActivation(thesaurus);
             }
             case CLOSE_METER_ACTIVATION: {
                 return new CloseMeterActivation(thesaurus);
