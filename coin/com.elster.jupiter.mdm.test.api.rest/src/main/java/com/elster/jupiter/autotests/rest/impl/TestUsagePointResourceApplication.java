@@ -2,6 +2,9 @@ package com.elster.jupiter.autotests.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
 
 import com.google.common.collect.ImmutableSet;
@@ -25,6 +28,8 @@ public class TestUsagePointResourceApplication extends Application {
     private volatile MeteringService meteringService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile OrmService ormService;
+    private volatile Thesaurus thesaurus;
+    private volatile NlsService nlsService;
 
     @Reference
     public void setMeteringService(MeteringService meteringService) {
@@ -39,6 +44,12 @@ public class TestUsagePointResourceApplication extends Application {
     @Reference
     public void setOrmService(OrmService ormService) {
         this.ormService = ormService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
     @Activate
@@ -66,6 +77,8 @@ public class TestUsagePointResourceApplication extends Application {
             bind(meteringService).to(MeteringService.class);
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(ormService).to(OrmService.class);
+            bind(nlsService).to(NlsService.class);
+            bind(thesaurus).to(Thesaurus.class);
         }
     }
 }
