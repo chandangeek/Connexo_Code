@@ -19,6 +19,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -27,6 +28,8 @@ import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.rest.ChannelPeriodType;
 
 import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -100,7 +103,7 @@ public class EstimationHelper {
     }
 
     List<ChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, List<Range<Instant>> ranges, List<EstimationResult> results, Optional<ReadingQualityComment> readingQualityComment) {
-        List<Instant> failedTimestamps = new ArrayList<>();
+        RangeSet<Instant> failedRanges = TreeRangeSet.create();
         List<ChannelDataInfo> channelDataInfos = new ArrayList<>();
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
@@ -115,14 +118,17 @@ public class EstimationHelper {
                 }
             }
             for (EstimationBlock block : result.remainingToBeEstimated()) {
+                RangeSet<Instant> rangesWithFailedTimeStamp = TreeRangeSet.create();
                 for (Estimatable estimatable : block.estimatables()) {
-                    failedTimestamps.add(estimatable.getTimestamp());
+                    ranges.stream().filter(instantRange -> instantRange.contains(estimatable.getTimestamp()))
+                            .findAny()
+                            .ifPresent(rangesWithFailedTimeStamp::add);
                 }
-
+                failedRanges.add(rangesWithFailedTimeStamp.span());
             }
         }
-        if (!failedTimestamps.isEmpty()) {
-            throw new EstimationErrorException(failedTimestamps);
+        if (!failedRanges.isEmpty()) {
+            throw new EstimationErrorException(failedRanges);
 
         }
         return channelDataInfos;
