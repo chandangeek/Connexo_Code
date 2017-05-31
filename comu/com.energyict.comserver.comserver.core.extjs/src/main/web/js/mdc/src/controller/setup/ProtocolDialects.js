@@ -95,8 +95,10 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
             var protocolDialectName = protocolDialect[0].get('name');
             if (protocolDialect[0].propertiesStore.data.items.length > 0) {
                 me.getProtocolDialectsDetailsTitle().setVisible(true);
+                me.getProtocolDialectPreview().down('uni-button-action').setVisible(true);
             } else {
                 me.getProtocolDialectsDetailsTitle().setVisible(false);
+                me.getProtocolDialectPreview().down('uni-button-action').setVisible(false);
             }
 
             if (me.getProtocolDialectPreview().rendered) {
@@ -123,8 +125,9 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
     showProtocolDialectsEditView: function (deviceTypeId, deviceConfigId, protocolDialectId) {
         this.deviceTypeId = deviceTypeId;
         this.deviceConfigurationId = deviceConfigId;
-        var me = this;
-        var returnlink;
+        var me = this,
+            returnlink,
+            router = me.getController('Uni.controller.history.Router');
 
         if (me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens().indexOf('null') >= -1) {
             returnlink = '#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigId + '/protocols';
@@ -142,24 +145,29 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
         model.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
         model.load(protocolDialectId, {
             success: function (protocolDialect) {
-                me.getApplication().fireEvent('loadProtocolDialect', protocolDialect);
-                Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
-                    success: function (deviceType) {
-                        me.getApplication().fireEvent('loadDeviceType', deviceType);
-                        var deviceConfigModel = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
-                        deviceConfigModel.getProxy().setExtraParam('deviceType', deviceTypeId);
-                        deviceConfigModel.load(deviceConfigId, {
-                            success: function (deviceConfiguration) {
-                                me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
-                                widget.down('form').loadRecord(protocolDialect);
-                                widget.down('property-form').loadRecordAsNotRequired(protocolDialect);
-                                widget.down('#protocolDialectEditAddTitle').update('<h1>' + Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[protocolDialect.get('name')]) + '</h1>');
-                                me.getApplication().fireEvent('changecontentevent', widget);
-                                widget.setLoading(false);
-                            }
-                        });
-                    }
-                });
+                if(protocolDialect.propertiesStore.count() === 0) {
+                    window.location.replace(router.getRoute('notfound').buildUrl());
+                    return;
+                } else {
+                    me.getApplication().fireEvent('loadProtocolDialect', protocolDialect);
+                    Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+                        success: function (deviceType) {
+                            me.getApplication().fireEvent('loadDeviceType', deviceType);
+                            var deviceConfigModel = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
+                            deviceConfigModel.getProxy().setExtraParam('deviceType', deviceTypeId);
+                            deviceConfigModel.load(deviceConfigId, {
+                                success: function (deviceConfiguration) {
+                                    me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
+                                    widget.down('form').loadRecord(protocolDialect);
+                                    widget.down('property-form').loadRecordAsNotRequired(protocolDialect);
+                                    widget.down('#protocolDialectEditAddTitle').update('<h1>' + Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[protocolDialect.get('name')]) + '</h1>');
+                                    me.getApplication().fireEvent('changecontentevent', widget);
+                                    widget.setLoading(false);
+                                }
+                            });
+                        }
+                    });
+                }
             }
         });
     },

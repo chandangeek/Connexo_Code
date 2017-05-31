@@ -145,7 +145,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             widget,
             goOnWithTheCurrentSearchResults = function() {
                 if (!searchResults.getCount()) {
-                    this.goBack();
+                    me.goBack();
                 } else {
                     me.devices = null;
                     me.allDevices = false;
@@ -359,7 +359,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             router = me.getController('Uni.controller.history.Router'),
             queryParams;
 
-        if (grid && search.service.searchDomain) {
+        if (search.service.searchDomain) {
             queryParams = {
                 restore: true
             };
