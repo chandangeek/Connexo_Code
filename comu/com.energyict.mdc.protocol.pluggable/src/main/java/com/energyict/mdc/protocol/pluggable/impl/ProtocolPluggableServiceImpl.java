@@ -333,6 +333,14 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         }
     }
 
+    private List<LicensedProtocol> getAllKnownProtocols(){
+        List<LicensedProtocol> protocols = new ArrayList<>();
+        for (LicensedProtocolService licensedProtocolService : this.licensedProtocolServices) {
+            protocols.addAll(licensedProtocolService.getAllKnownProtocols());
+        }
+        return protocols;
+    }
+
     @Override
     public List<LicensedProtocol> getAllLicensedProtocols() {
         Optional<License> mdcLicense = this.getMdcLicense();
@@ -979,7 +987,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         if (!this.deviceProtocolServices.isEmpty()) {
             this.setPrincipal();
             DeviceProtocolPluggableClassRegistrar registrar = new DeviceProtocolPluggableClassRegistrar(this, this.transactionService, this.meteringService);
-            registrar.registerAll(this.getAllLicensedProtocols());
+            registrar.registerAll(this.getAllKnownProtocols());
         } else {
             LOGGER.fine("No device protocol services have registered yet, makes no sense to attempt to register all device protocol pluggable classes");
         }
