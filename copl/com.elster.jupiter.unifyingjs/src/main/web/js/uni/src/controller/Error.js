@@ -72,7 +72,8 @@ Ext.define('Uni.controller.Error', {
         //</debug>
 
         var me = scope || this,
-            title;
+            title,
+            errorCode;
 
         if (Ext.isObject(error) && Ext.isDefined(error.title)) {
             title = error.title;
@@ -100,10 +101,10 @@ Ext.define('Uni.controller.Error', {
             error = error.msg;
         }
         if (Ext.isObject(error) && Ext.isDefined(error.errCode)) {
-            errCode = error.errCode;
+            errorCode = error.errCode;
         }
 
-        me.showError(title, error, errCode);
+        me.showError(title, error, errorCode);
     },
 
     handleRequestError: function (conn, response, options) {
