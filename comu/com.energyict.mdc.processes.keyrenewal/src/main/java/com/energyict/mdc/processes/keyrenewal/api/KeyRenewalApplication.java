@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.processes.keyrenewal.api;
 
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -144,11 +145,11 @@ public class KeyRenewalApplication extends Application implements TranslationKey
     }
 
     @Reference(target = "(name=" + KeyRenewalCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
-    public void setCustomPropertySet(KeyRenewalCustomPropertySet keyRenewalCustomPropertySet) {
-        this.keyRenewalCustomPropertySet = keyRenewalCustomPropertySet;
+    public void setCustomPropertySet(CustomPropertySet keyRenewalCustomPropertySet) {
+        this.keyRenewalCustomPropertySet = (KeyRenewalCustomPropertySet) keyRenewalCustomPropertySet;
     }
 
-       @Reference
+    @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
     }
