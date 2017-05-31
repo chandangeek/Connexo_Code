@@ -7,7 +7,6 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannelInputStreamAdapter;
 import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
@@ -42,6 +41,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.adapters.upl.UPLOfflineDeviceAdapter;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -69,6 +69,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -182,8 +183,8 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
-        if (meterProtocol instanceof RegisterProtocol) {
-            this.registerProtocol = (RegisterProtocol) meterProtocol;
+        if (getUplMeterProtocol() instanceof RegisterProtocol) {
+            this.registerProtocol = (RegisterProtocol) getUplMeterProtocol();
         } else {
             this.registerProtocol = null;
         }
@@ -195,8 +196,8 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
      * Initializes the inheritance classes.
      */
     private void initInheritors() {
-        if (this.meterProtocol instanceof HHUEnabler) {
-            this.hhuEnabler = (HHUEnabler) this.meterProtocol;
+        if (getUplMeterProtocol() instanceof HHUEnabler) {
+            this.hhuEnabler = (HHUEnabler) getUplMeterProtocol();
         }
     }
 
@@ -581,15 +582,17 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     @Override
     protected Class getProtocolClass() {
-        if (meterProtocol instanceof UPLProtocolAdapter) {
-            return ((UPLProtocolAdapter) meterProtocol).getActualClass();
-        } else {
-            return meterProtocol.getClass();
-        }
+        return getUplMeterProtocol().getClass();
     }
 
     public MeterProtocol getMeterProtocol() {
         return meterProtocol;
+    }
+
+    private com.energyict.mdc.upl.MeterProtocol getUplMeterProtocol() {
+        return (this.meterProtocol instanceof UPLProtocolAdapter)
+                    ? (com.energyict.mdc.upl.MeterProtocol) ((UPLProtocolAdapter) this.meterProtocol).getActual()
+                    : this.meterProtocol;
     }
 
     @Override

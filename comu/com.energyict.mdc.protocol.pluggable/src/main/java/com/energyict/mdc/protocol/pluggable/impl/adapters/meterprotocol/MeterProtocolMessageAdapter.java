@@ -29,7 +29,7 @@ public class MeterProtocolMessageAdapter extends AbstractDeviceMessageConverterA
     public MeterProtocolMessageAdapter(MeterProtocol meterProtocol, MessageAdapterMappingFactory messageAdapterMappingFactory, ProtocolPluggableService protocolPluggableService, IssueService issueService, CollectedDataFactory collectedDataFactory, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         super(messageAdapterMappingFactory, protocolPluggableService, issueService, collectedDataFactory, deviceMessageSpecificationService);
 
-        com.energyict.mdc.upl.MeterProtocol actualMeterProtocol = (messageAdapterMappingFactory instanceof UPLProtocolAdapter)
+        com.energyict.mdc.upl.MeterProtocol actualMeterProtocol = (meterProtocol instanceof UPLProtocolAdapter)
                       ? (com.energyict.mdc.upl.MeterProtocol) ((UPLProtocolAdapter) meterProtocol).getActual()
                       : meterProtocol;
 
