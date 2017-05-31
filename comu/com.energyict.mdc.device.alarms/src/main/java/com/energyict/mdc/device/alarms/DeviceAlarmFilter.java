@@ -67,12 +67,12 @@ public class DeviceAlarmFilter {
         return Collections.unmodifiableList(priorities);
     }
 
-    public void setPriority (Priority priority) {
+    public void setPriority(Priority priority) {
         this.priorities.add(priority);
     }
 
     public List<User> getUserAssignee() {
-        return userAssignee;
+        return Collections.unmodifiableList(userAssignee);
     }
 
     public boolean isUnassignedOnly() {
@@ -80,15 +80,15 @@ public class DeviceAlarmFilter {
     }
 
     public List<EndDevice> getDevices() {
-        return this.devices;
+        return Collections.unmodifiableList(this.devices);
     }
 
     public List<IssueReason> getAlarmReasons() {
-        return this.reasons;
+        return Collections.unmodifiableList(this.reasons);
     }
 
     public List<IssueStatus> getStatuses() {
-        return this.statuses;
+        return Collections.unmodifiableList(this.statuses);
     }
 
     public String getAlarmId() {
@@ -100,7 +100,7 @@ public class DeviceAlarmFilter {
     }
 
     public List<WorkGroup> getWorkGroupAssignees() {
-        return workGroupAssignees;
+        return Collections.unmodifiableList(workGroupAssignees);
     }
 
     public void addWorkGroupAssignees(WorkGroup workGroup) {
@@ -108,7 +108,7 @@ public class DeviceAlarmFilter {
     }
 
     public List<DueDateRange> getDueDates() {
-        return dueDates;
+        return Collections.unmodifiableList(dueDates);
     }
 
     public void setDueDates(long startTime, long endTime) {
@@ -124,7 +124,7 @@ public class DeviceAlarmFilter {
     }
 
     public List<Boolean> getCleared() {
-        return cleared;
+        return Collections.unmodifiableList(cleared);
     }
 
     public void addToClearead(boolean cleared) {

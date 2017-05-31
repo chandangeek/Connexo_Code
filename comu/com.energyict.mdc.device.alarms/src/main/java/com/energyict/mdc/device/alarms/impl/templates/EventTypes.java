@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.energyict.mdc.device.alarms.impl.event.DeviceAlarmEventDescription;
 
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class EventTypes {
@@ -21,7 +22,7 @@ public class EventTypes {
     }
 
     public EventType[] getEventTypes() {
-        return eventTypes;
+        return Arrays.copyOf(eventTypes, eventTypes.length);
     }
 
     public class EventType extends HasIdAndName {

@@ -38,11 +38,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AssignDeviceAlarmAction extends AbstractIssueAction {
 
     private static final String NAME = "AssignAlarmAction";
     public static final String ASSIGNEE = NAME + ".assignee";
+    private static final Logger LOGGER = Logger.getLogger(AssignDeviceAlarmAction.class.getName());
 
     private final IssueService issueService;
     private final UserService userService;
@@ -82,6 +85,7 @@ public class AssignDeviceAlarmAction extends AbstractIssueAction {
                 JSONObject jsonData = new JSONObject(assignee);
                 return issueService.findIssueAssignee(Long.valueOf(jsonData.get("userId").toString()), Long.valueOf(jsonData.get("workgroupId").toString()));
             } catch (JSONException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         }
         return new DeviceAlarmAssigneeImpl();
@@ -94,8 +98,10 @@ public class AssignDeviceAlarmAction extends AbstractIssueAction {
             String assignee = getPropertySpec(ASSIGNEE).get().getValueFactory().toStringValue(value);
             try {
                 JSONObject jsonData = new JSONObject(assignee);
-                return Optional.ofNullable(jsonData.get("comment").toString());
+                String comment = jsonData.get("comment").toString();
+                return Optional.ofNullable(comment);
             } catch (JSONException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         }
         return Optional.empty();
@@ -151,6 +157,7 @@ public class AssignDeviceAlarmAction extends AbstractIssueAction {
                 String comment = jsonData.get("comment").toString();
                 return new Assignee(user, workgroup, comment);
             } catch (JSONException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
             return null;
         }
@@ -215,6 +222,7 @@ public class AssignDeviceAlarmAction extends AbstractIssueAction {
                 jsonId.put("comment", comment.orElse(null));
                 return jsonId.toString();
             } catch (JSONException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
             return "";
         }
@@ -228,7 +236,7 @@ public class AssignDeviceAlarmAction extends AbstractIssueAction {
                 jsonId.put("comment", comment.orElse(""));
                 return jsonId.toString();
             } catch (JSONException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
             return "";
         }
