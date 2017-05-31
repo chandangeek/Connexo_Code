@@ -114,7 +114,8 @@ Ext.define('Imt.purpose.controller.Readings', {
                 canceledit: this.resumeEditorFieldValidation,
                 selectionchange: this.onDataGridSelectionChange,
                 select: this.showPreview,
-                beforeedit: this.beforeEditRecord
+                beforeedit: this.beforeEditRecord,
+                paste: this.onPaste
             },
             'purpose-bulk-action-menu': {
                 click: this.chooseBulkAction
@@ -589,6 +590,10 @@ Ext.define('Imt.purpose.controller.Readings', {
         menu.down('#mark-projected').setVisible(canMarkProjected);
         button.setDisabled(!selectedRecords.length || !menu.query('menuitem[hidden=false]').length);
         Ext.resumeLayouts();
+    },
+
+    onPaste: function (grid, event) {
+        event && event.record && event.record.set('modificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
     },
 
     resetReadings: function (records) {
