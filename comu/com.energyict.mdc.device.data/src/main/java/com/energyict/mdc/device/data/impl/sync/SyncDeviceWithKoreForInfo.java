@@ -11,6 +11,8 @@ import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
+import com.google.common.collect.Range;
+
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -52,9 +54,15 @@ public class SyncDeviceWithKoreForInfo extends AbstractSyncDeviceWithKoreMeter {
 
     public void deactivateMeter(Instant when) {
         this.getCurrentMeterActivation().ifPresent(meterActivation -> {
+            removeDataInChannelsAfter(when);
             meterActivation.endAt(when);
             this.currentMeterActivation = null;
         });
+    }
+
+    private void removeDataInChannelsAfter(Instant when) {
+        device.getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.getChannelsContainer().getChannels()
+                .forEach(channel -> channel.deleteReadings(Range.atLeast(when))));
     }
 
     @Override

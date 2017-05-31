@@ -1966,11 +1966,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public MeterActivation activate(Instant start) {
-        return new SyncDeviceWithKoreForActivation(this, deviceService, readingTypeUtilService, eventService, start).activateMeter(start);
-    }
-
-    @Override
     public MeterActivation activate(Instant start, UsagePoint usagePoint, MeterRole meterRole) {
         if (start == null || usagePoint == null || meterRole == null) {
             throw new IllegalArgumentException("All arguments are mandatory and can't be null.");

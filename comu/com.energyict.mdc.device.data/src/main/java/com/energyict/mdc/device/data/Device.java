@@ -249,15 +249,6 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
     boolean hasData();
 
     /**
-     * Activates the device. Either end the current MeterActivation and create a new one based on previous MeterActivation
-     * (the same usage point, meter role, multiplier, core channels and so on), or just create a new one.
-     *
-     * @param start start of the meterActivation
-     * @return the new meterActivation
-     */
-    MeterActivation activate(Instant start);
-
-    /**
      * Activates the device on a usage point. Either end the current MeterActivation and create a new one
      * based on previous MeterActivation but with the target Usage Point, or just create a new MeterActivation.
      * If this constitutes no change vs the current activation, the current MeterActivation will be returned.
