@@ -42,7 +42,6 @@ public enum TransitionType {
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
-                    MicroAction.CREATE_METER_ACTIVATION,
                     MicroAction.SET_MULTIPLIER,
                     MicroAction.SET_LAST_READING);
         }
@@ -86,7 +85,6 @@ public enum TransitionType {
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
-                    MicroAction.CREATE_METER_ACTIVATION,
                     MicroAction.SET_LAST_READING,
                     MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
@@ -126,7 +124,6 @@ public enum TransitionType {
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
-                    MicroAction.CREATE_METER_ACTIVATION,
                     MicroAction.SET_LAST_READING,
                     MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
@@ -165,7 +162,6 @@ public enum TransitionType {
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
-                    MicroAction.CREATE_METER_ACTIVATION,
                     MicroAction.SET_LAST_READING,
                     MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
@@ -206,7 +202,6 @@ public enum TransitionType {
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
                     MicroAction.SET_LAST_READING,
-                    MicroAction.CREATE_METER_ACTIVATION,
                     MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
     },
@@ -246,7 +241,6 @@ public enum TransitionType {
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
                     MicroAction.SET_LAST_READING,
-                    MicroAction.CREATE_METER_ACTIVATION,
                     MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
     },
@@ -300,7 +294,6 @@ public enum TransitionType {
             return EnumSet.of(
                     MicroAction.DETACH_SLAVE_FROM_MASTER,
                     MicroAction.CLOSE_ALL_ISSUES,
-                    MicroAction.CLOSE_METER_ACTIVATION,
                     MicroAction.DISABLE_VALIDATION,
                     MicroAction.DISABLE_ESTIMATION,
                     MicroAction.DISABLE_COMMUNICATION,
@@ -328,7 +321,6 @@ public enum TransitionType {
             return EnumSet.of(
                     MicroAction.DETACH_SLAVE_FROM_MASTER,
                     MicroAction.CLOSE_ALL_ISSUES,
-                    MicroAction.CLOSE_METER_ACTIVATION,
                     MicroAction.DISABLE_VALIDATION,
                     MicroAction.DISABLE_ESTIMATION,
                     MicroAction.DISABLE_COMMUNICATION,
@@ -339,6 +331,7 @@ public enum TransitionType {
         @Override
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
+                    MicroAction.CLOSE_METER_ACTIVATION,
                     MicroAction.REMOVE_DEVICE);
         }
     },
@@ -346,6 +339,7 @@ public enum TransitionType {
        @Override
        public Set<MicroAction> requiredActions() {
            return EnumSet.of(
+                   MicroAction.CLOSE_METER_ACTIVATION,
                    MicroAction.REMOVE_DEVICE);
        }
    };

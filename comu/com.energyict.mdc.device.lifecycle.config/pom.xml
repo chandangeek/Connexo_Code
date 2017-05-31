@@ -14,7 +14,7 @@
     </parent>
 
     <artifactId>mdc.device.lifecycle.config</artifactId>
-    <version>2.1.0${revision}</version>
+    <version>3.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.device.lifecycle.config [init DLD]</name>
     <description>

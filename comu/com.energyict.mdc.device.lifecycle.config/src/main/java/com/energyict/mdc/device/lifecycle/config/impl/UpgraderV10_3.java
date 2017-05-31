@@ -10,28 +10,44 @@ import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.streams.FancyJoiner;
+
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import javax.inject.Inject;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class UpgraderV10_3 implements Upgrader {
     private final DataModel dataModel;
     private final FiniteStateMachineService finiteStateMachineService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private List<String> finalsql = new ArrayList<>();
 
     @Inject
-    public UpgraderV10_3(DataModel dataModel, FiniteStateMachineService finiteStateMachineService) {
+    public UpgraderV10_3(DataModel dataModel, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.dataModel = dataModel;
         this.finiteStateMachineService = finiteStateMachineService;
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         List<String> sql = new ArrayList<>();
+        removeMicroAction();
         StageSet stageSet = finiteStateMachineService.findStageSetByName(MeteringService.END_DEVICE_STAGE_SET_NAME).orElseThrow(getDeviceStageSetException());
         long preOperationalId = stageSet.getStageByName(EndDeviceStage.PRE_OPERATIONAL.getKey()).orElseThrow(getDeviceStageSetException()).getId();
         long operationalId = stageSet.getStageByName(EndDeviceStage.OPERATIONAL.getKey()).orElseThrow(getDeviceStageSetException()).getId();
@@ -50,5 +66,50 @@ public class UpgraderV10_3 implements Upgrader {
 
     private Supplier<IllegalStateException> getDeviceStageSetException() {
         return () -> new IllegalStateException("Default end device stage set not installed correctly");
+    }
+
+    private void removeMicroAction() {
+        List<Long> ids = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().stream()
+                .map(DeviceLifeCycle::getAuthorizedActions)
+                .flatMap(Collection::stream)
+                .filter(authorizedAction -> AuthorizedTransitionAction.class.isAssignableFrom(authorizedAction.getClass()))
+                .map(authorizedAction -> (AuthorizedTransitionAction) authorizedAction)
+                .map(HasId::getId)
+                .collect(Collectors.toList());
+
+        removeActions(ids);
+    }
+
+    private void removeActions( List<Long>  ids) {
+        String sql = "SELECT ID, ACTIONBITS FROM DLD_AUTHORIZED_ACTION WHERE ID in " + ids.stream().collect(FancyJoiner.joining("," ,"", "(", ")"));
+        dataModel.useConnectionRequiringTransaction(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                ResultSet rs = statement.executeQuery(sql);
+                while (rs.next()) {
+                    calculateNewActionBits(rs.getLong(1), rs.getLong(2));
+                }
+                finalsql.stream().forEach(finalSQL -> {
+                    try {
+                        statement.execute(finalSQL);
+                    } catch (SQLException e) {
+                        throw new UnderlyingSQLFailedException(e);
+                    }
+                });
+            } catch (SQLException e) {
+                Logger.getLogger(this.getClass().getSimpleName()).log(Level.SEVERE, e.getMessage());
+                throw new UnderlyingSQLFailedException(e);
+            }
+        });
+    }
+
+    private void calculateNewActionBits(long id, long actionBits) throws SQLException {
+        long first5Cached = actionBits & 63L;
+        actionBits = actionBits >> 1L;
+        for(long i = 0; i <= 5; i++) {
+            actionBits &= ~(1L << i);
+        }
+        actionBits |= first5Cached;
+        String sql = "UPDATE DLD_AUTHORIZED_ACTION SET ACTIONBITS=" + actionBits + " WHERE ID = " + id;
+        finalsql.add(sql);
     }
 }

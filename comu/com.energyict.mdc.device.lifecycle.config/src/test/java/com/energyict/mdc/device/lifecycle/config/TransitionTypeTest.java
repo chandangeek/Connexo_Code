@@ -128,7 +128,6 @@ public class TransitionTypeTest {
     public void testMandatoryPreTransitionActionsActivate(){
         assertThat(TransitionType.ACTIVATE.requiredActions()).hasSize(3);
         assertThat(TransitionType.ACTIVATE.requiredActions()).contains(MicroAction.SET_LAST_READING);
-        assertThat(TransitionType.ACTIVATE.requiredActions()).contains(MicroAction.CREATE_METER_ACTIVATION);
         assertThat(TransitionType.ACTIVATE.requiredActions()).contains(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
     }
     @Test
@@ -269,7 +268,6 @@ public class TransitionTypeTest {
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.requiredActions()).hasSize(3);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.requiredActions()).contains(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE.requiredActions()).contains(MicroAction.SET_LAST_READING);
-        assertThat(TransitionType.INSTALL_AND_ACTIVATE.requiredActions()).contains(MicroAction.CREATE_METER_ACTIVATION);
     }
     @Test
     public void testMandatoryPreTransitionChecksInstallAndActivateWithoutCommissioning(){
@@ -294,7 +292,6 @@ public class TransitionTypeTest {
     public void testMandatoryPreTransitionActionsInstallAndActivateWithoutCommissioning(){
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.requiredActions()).hasSize(3);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.requiredActions()).contains(MicroAction.SET_LAST_READING);
-        assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.requiredActions()).contains(MicroAction.CREATE_METER_ACTIVATION);
         assertThat(TransitionType.INSTALL_AND_ACTIVATE_WITHOUT_COMMISSIONING.requiredActions()).contains(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
     }
     @Test
@@ -329,7 +326,6 @@ public class TransitionTypeTest {
     public void testMandatoryPreTransitionActionsInstallInactive(){
         assertThat(TransitionType.INSTALL_INACTIVE.requiredActions()).hasSize(3);
         assertThat(TransitionType.INSTALL_INACTIVE.requiredActions()).contains(MicroAction.SET_LAST_READING);
-        assertThat(TransitionType.INSTALL_INACTIVE.requiredActions()).contains(MicroAction.CREATE_METER_ACTIVATION);
         assertThat(TransitionType.INSTALL_INACTIVE.requiredActions()).contains(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
     }
     @Test
@@ -367,7 +363,6 @@ public class TransitionTypeTest {
     public void testMandatoryPreTransitionActionsInstallInactiveFromInStock(){
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.requiredActions()).hasSize(3);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.requiredActions()).contains(MicroAction.SET_LAST_READING);
-        assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.requiredActions()).contains(MicroAction.CREATE_METER_ACTIVATION);
         assertThat(TransitionType.INSTALL_INACTIVE_WITHOUT_COMMISSIONING.requiredActions()).contains(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
     }
     @Test
@@ -437,7 +432,6 @@ public class TransitionTypeTest {
     @Test
     public void testMandatoryPreTransitionActionsCommission(){
         assertThat(TransitionType.COMMISSION.requiredActions()).hasSize(3);
-        assertThat(TransitionType.COMMISSION.requiredActions()).contains(MicroAction.CREATE_METER_ACTIVATION);
         assertThat(TransitionType.COMMISSION.requiredActions()).contains(MicroAction.SET_LAST_READING);
         assertThat(TransitionType.COMMISSION.requiredActions()).contains(MicroAction.SET_MULTIPLIER);
     }

@@ -57,13 +57,6 @@ public enum MicroAction {
     DISABLE_COMMUNICATION(MicroCategory.COMMUNICATION),
 
     /**
-     * Creates a meter activation for the device.
-     * Requires that the user specifies the timestamp
-     * on which the meter activation should start.
-     */
-    CREATE_METER_ACTIVATION(MicroCategory.DATA_COLLECTION, "conflict_meter_activation"),
-
-    /**
      * Closes the current meter activation on the device.
      * Requires that the user specifies the timestamp
      * on which the meter activation should end.
