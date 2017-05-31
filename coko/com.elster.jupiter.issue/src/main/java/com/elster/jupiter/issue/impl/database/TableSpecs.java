@@ -31,12 +31,7 @@ import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 
@@ -251,7 +246,8 @@ public enum TableSpecs {
 
             table.primaryKey(CREATION_RULE_PK_NAME).on(idColumn).add();
             table.foreignKey(CREATION_RULE_FK_TO_REASON).map("reason").on(reasonRefIdColumn).references(ISU_REASON.name()).add();
-            table.unique(CREATION_RULE_UQ_NAME).on(nameColumn, template, obsoleteColumn).add();
+            UniqueConstraint previousConstraint = table.unique(CREATION_RULE_UQ_NAME).on(nameColumn, obsoleteColumn).upTo(Version.version(10, 3)).add();
+            table.unique(CREATION_RULE_UQ_NAME).on(nameColumn,template, obsoleteColumn).since(Version.version(10, 3)).previously(previousConstraint).add();
         }
     },
 
