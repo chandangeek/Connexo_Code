@@ -115,12 +115,7 @@ public class TaskContentInfo {
                 try {
                     if(field.getString("type").equals("InputDate") || field.getString("type").equals("InputShortDate")){
                         if(!jsonObject.getString(key).equals("")) {
-                            Date date = new Date(jsonObject.getLong(key));
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
-                            if(field.getString("type").equals("InputShortDate")){
-                                dateFormat = new SimpleDateFormat("MM/dd/yy");
-                            }
-                            propertyValueInfo = new PropertyValueInfo(dateFormat.format(date));
+                            propertyValueInfo = new PropertyValueInfo(jsonObject.getLong(key));
                         }
                     }else {
                         try {

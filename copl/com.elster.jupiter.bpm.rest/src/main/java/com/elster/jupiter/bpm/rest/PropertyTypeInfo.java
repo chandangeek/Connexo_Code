@@ -212,7 +212,7 @@ public class PropertyTypeInfo {
             if(taskContentInfo.propertyValueInfo == null) {
                 String comboDefault = getComboBoxValues(field, "defaultValueFormula");
                 taskContentInfo.propertyValueInfo = new PropertyValueInfo(combo, comboDefault);
-            }else if(taskContentInfo.propertyValueInfo.defaultValue.isEmpty()){
+            }else if(taskContentInfo.propertyValueInfo.defaultValue == null || "".equals(taskContentInfo.propertyValueInfo.defaultValue)){
                 String comboDefault = getComboBoxValues(field, "defaultValueFormula");
                 taskContentInfo.propertyValueInfo = new PropertyValueInfo(combo, comboDefault);
             }else{

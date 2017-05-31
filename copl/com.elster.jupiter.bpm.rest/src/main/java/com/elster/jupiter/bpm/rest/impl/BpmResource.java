@@ -1357,13 +1357,13 @@ public class BpmResource {
                             if ("TIMESTAMP".equals(taskContentInfo.get().propertyTypeInfo.simplePropertyType)) {
                                 Date date = new Date();
                                 if (taskContentInfo.get().propertyValueInfo != null && taskContentInfo.get().propertyValueInfo.value != null) {
-                                    date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value));
+                                    date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value.toString()));
                                     outputBindingContents.put(s.outputBinding, date);
                                 }
                             } else if ("DATE".equals(taskContentInfo.get().propertyTypeInfo.simplePropertyType)) {
                                 Date date = new Date();
                                 if (taskContentInfo.get().propertyValueInfo != null && taskContentInfo.get().propertyValueInfo.value != null) {
-                                    date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value));
+                                    date.setTime(Long.valueOf(taskContentInfo.get().propertyValueInfo.value.toString()));
                                     outputBindingContents.put(s.outputBinding, date);
                                 }
                             } else if (taskContentInfo.get().propertyTypeInfo.predefinedPropertyValuesInfo != null) {

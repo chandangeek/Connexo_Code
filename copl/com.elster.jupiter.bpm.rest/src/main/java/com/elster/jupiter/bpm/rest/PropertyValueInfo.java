@@ -7,9 +7,9 @@ package com.elster.jupiter.bpm.rest;
 
 public class PropertyValueInfo {
 
-    public String defaultValue;
-    public String value;
-    public String inheritedValue;
+    public Object defaultValue;
+    public Object value;
+    public Object inheritedValue;
     public boolean propertyHasValue;
 
     public PropertyValueInfo(){
@@ -33,7 +33,7 @@ public class PropertyValueInfo {
         }
     }
 
-    public PropertyValueInfo(String defaultValue){
+    public PropertyValueInfo(Object defaultValue){
         this.defaultValue = defaultValue;
     }
 
