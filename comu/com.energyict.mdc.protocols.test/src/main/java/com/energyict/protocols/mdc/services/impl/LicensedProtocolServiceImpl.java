@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.LicensedProtocol;
 import com.energyict.mdc.protocol.ProtocolFamily;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+
 import org.osgi.service.component.annotations.Component;
 
 import java.util.ArrayList;
@@ -49,6 +50,11 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
                 .filter(licensedProtocolRule -> licensedProtocolRule.getCode() < 10000)     //Entries above 10000 ar deprecated
                 .filter(licensedProtocolRule -> !EXCLUDED.contains(licensedProtocolRule.getClassName()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<LicensedProtocol> getAllKnownProtocols() {
+        return TEST_PROTOCOLS;
     }
 
     @Override
