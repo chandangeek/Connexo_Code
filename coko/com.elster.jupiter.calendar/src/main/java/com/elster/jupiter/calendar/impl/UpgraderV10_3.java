@@ -37,6 +37,7 @@ class UpgraderV10_3 implements Upgrader {
         ) {
             introduceEventSetWithExistingCalendarsSQL()
                     .forEach(perform(this::execute).on(statement));
+            changeOldTouCategory(statement);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
@@ -47,6 +48,11 @@ class UpgraderV10_3 implements Upgrader {
 
         this.calendarService.createVault();
         this.calendarService.createRecordSpec();
+    }
+
+    private void changeOldTouCategory(Statement statement) throws SQLException {
+        String sql = "UPDATE CAL_CATEGORY SET NAME = 'TOU' where NAME = 'Time of use'";
+        statement.execute(sql);
     }
 
     private void createNewCategories() {
