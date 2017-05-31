@@ -18,6 +18,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
         var me = this,
             metrologyConfiguration = me.usagePoint.get('metrologyConfiguration'),
             meterRolesStore = Ext.getStore('Imt.usagepointmanagement.store.MeterRoles'),
+            stage = me.usagePoint.get('state').stageName.split('.')[2],
             isReadyForLinkingMC = me.usagePoint.get('isReadyForLinkingMC');
 
         me.items = [
@@ -78,7 +79,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
             {
                 itemId: 'up-metrology-config-meters-empty',
                 fieldLabel: ' ',
-                privileges: isReadyForLinkingMC
+                privileges: stage === 'preoperational'
                 && !Ext.isEmpty(metrologyConfiguration)
                 && !Ext.isEmpty(metrologyConfiguration.meterRoles)
                 && Imt.privileges.UsagePoint.canAdministrate(),

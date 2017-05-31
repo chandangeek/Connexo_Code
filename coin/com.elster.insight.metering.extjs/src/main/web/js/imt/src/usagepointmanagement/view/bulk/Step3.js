@@ -37,7 +37,7 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step3', {
                     xtype: 'uni-form-error-message',
                     width: 613,
                     hidden: true,
-                    text: Uni.I18n.translate('searchItems.bulk.calendarErrorMsg', 'IMT', 'There are errors on this page that require your attention')
+                    text: Uni.I18n.translate('searchItems.bulk.calendarErrorMsgDot', 'IMT', 'There are errors on this page that require your attention.')
                 }
             ]
         },
