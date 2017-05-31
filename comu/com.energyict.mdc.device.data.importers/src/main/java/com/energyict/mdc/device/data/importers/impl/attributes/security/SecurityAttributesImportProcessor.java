@@ -52,6 +52,7 @@ public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImp
         try {
             updatedProperties(device, deviceConfigSecurityPropertySet, data);
         } catch (Exception e) {
+            logger.importLineFailed(data.getLineNumber(), e);
             throw new ProcessorException(MessageSeeds.SECURITY_ATTRIBUTES_NOT_SET, data.getLineNumber(), data.getDeviceIdentifier());
         }
     }
