@@ -51,6 +51,7 @@ public enum SimplePropertyType implements PropertyType {
     NONE_OR_BIGDECIMAL(NoneOrBigDecimalValueFactory.class),
     NONE_OR_TIMEDURATION(NoneOrTimeDurationValueFactory.class);
 
+
     private Class typeClass;
 
     SimplePropertyType(Class typeClass) {
@@ -64,6 +65,9 @@ public enum SimplePropertyType implements PropertyType {
         for (SimplePropertyType simplePropertyType : values()) {
             if (simplePropertyType.matches(valueFactory)) {
                 return simplePropertyType;
+            }
+            if(valueFactory.getValueType().equals(Integer.class) || valueFactory.getValueType().equals(Integer.class)){
+                return LONG;
             }
         }
         return UNKNOWN;
