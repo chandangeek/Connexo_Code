@@ -71,7 +71,7 @@ public class MetrologyConfigurationInfo {
                 .collect(Collectors.toList());
         this.purposes = metrologyConfiguration.getContracts()
                 .stream()
-                .map(c -> asDetailedPurposeInfo(c, usagePoint, readingTypeDeliverableFactory))
+                .map(c -> asDetailedPurposeInfo(c, usagePoint, readingTypeDeliverableFactory, effectiveMetrologyConfigurationOnUsagePoint))
                 .sorted(Comparator.comparing(info -> info.name))
                 .collect(Collectors.toList());
         this.status = statusInfo();
@@ -116,7 +116,8 @@ public class MetrologyConfigurationInfo {
     }
 
     private PurposeInfo asDetailedPurposeInfo(MetrologyContract metrologyContract, UsagePoint usagePoint,
-                                              ReadingTypeDeliverableFactory readingTypeDeliverableFactory) {
+                                              ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
+                                              EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint) {
         PurposeInfo info = new PurposeInfo();
         info.id = metrologyContract.getId();
         info.name = metrologyContract.getMetrologyPurpose().getName();
@@ -127,8 +128,8 @@ public class MetrologyConfigurationInfo {
                 .isPresent();
         info.meterRoles = asMeterRoleInfoList(metrologyContract, usagePoint);
         IdWithNameInfo metrologyContractStatus = new IdWithNameInfo();
-        metrologyContractStatus.id = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().isComplete(metrologyContract) ? "complete" : "incomplete";
-        metrologyContractStatus.name = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().isComplete(metrologyContract) ?
+        metrologyContractStatus.id = effectiveMetrologyConfigurationOnUsagePoint.isComplete(metrologyContract) ? "complete" : "incomplete";
+        metrologyContractStatus.name = effectiveMetrologyConfigurationOnUsagePoint.isComplete(metrologyContract) ?
                 thesaurus.getFormat(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_COMPLETE).format()
                 : thesaurus.getFormat(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_INCOMPLETE).format();
         info.status = metrologyContractStatus;
