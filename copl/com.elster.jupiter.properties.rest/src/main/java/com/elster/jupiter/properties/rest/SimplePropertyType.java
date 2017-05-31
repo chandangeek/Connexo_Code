@@ -66,7 +66,7 @@ public enum SimplePropertyType implements PropertyType {
             if (simplePropertyType.matches(valueFactory)) {
                 return simplePropertyType;
             }
-            if(valueFactory.getValueType().equals(Integer.class) || valueFactory.getValueType().equals(Integer.class)){
+            if(valueFactory.getValueType().equals(Integer.class) || valueFactory.getValueType().equals(Long.class)){
                 return LONG;
             }
         }
