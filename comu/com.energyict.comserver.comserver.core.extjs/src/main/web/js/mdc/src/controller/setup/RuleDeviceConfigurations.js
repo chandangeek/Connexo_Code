@@ -87,15 +87,22 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
         var me = this,
             ruleSetsStore = me.getStore('Cfg.store.ValidationRuleSets'),
             router = me.getController('Uni.controller.history.Router'),
-            widget = Ext.widget('rule-device-configuration-add', {ruleSetId: router.arguments.ruleSetId}),
-            ruleDeviceConfigNotLinkedStore = widget.down('#rule-device-configuration-add-grid-table').getStore();
-
-        me.ruleSetId = ruleSetId;
-        ruleDeviceConfigNotLinkedStore.removeAll();
+            ruleDeviceConfigNotLinkedStore = me.getStore('Mdc.store.RuleDeviceConfigurationsNotLinked'),
+            widget = Ext.widget('rule-device-configuration-add',
+                {
+                    ruleSetId: router.arguments.ruleSetId,
+                    store: ruleDeviceConfigNotLinkedStore,
+                    currentRoute: me.removeLastPartOfUrl(router.getRoute(router.currentRoute).buildUrl({ruleSetId: router.arguments.ruleSetId}))
+                }),
+            viewport = Ext.ComponentQuery.query('viewport')[0];
 
         me.getApplication().fireEvent('changecontentevent', widget);
+        viewport.setLoading();
+        me.ruleSetId = ruleSetId;
+        ruleDeviceConfigNotLinkedStore.removeAll();
         ruleDeviceConfigNotLinkedStore.getProxy().setExtraParam('ruleSetId', router.arguments.ruleSetId);
-        ruleDeviceConfigNotLinkedStore.load(function () {
+        ruleDeviceConfigNotLinkedStore.on('load', function() {
+            viewport.setLoading(false);
             ruleSetsStore.load({
                 params: {
                     id: router.arguments.ruleSetId
@@ -106,6 +113,7 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
                 }
             });
         });
+        ruleDeviceConfigNotLinkedStore.load();
     },
 
     loadDetails: function (rowModel, record) {
@@ -145,22 +153,7 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
             jsonData: Ext.encode(ids),
             success: function () {
                 location.href = '#/administration/validation/rulesets/' + me.ruleSetId + '/deviceconfigurations';
-                var message = selection.length
-                ? Uni.I18n.translatePlural(
-                    'validation.deviceconfiguration.addSuccess',
-                    selection.length,
-                    'MDC',
-                    'Successfully added {0} device configurations',
-                    'Successfully added {0} device configuration',
-                    'Successfully added {0} device configurations'
-                )
-                : Uni.I18n.translate(
-                    'validation.deviceconfiguration.addAllSuccess',
-                    'MDC',
-                    'Successfully added all device configurations'
-                );
-
-                me.getApplication().fireEvent('acknowledge', message);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.deviceConfigurationsAdded', 'MDC', 'Device configurations added'));
             },
             callback: function () {
                 me.getRuleDeviceConfigurationAddPanel().setLoading(false);
@@ -172,6 +165,12 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
         var record;
         record = menu.record || this.getRuleDeviceConfigurationBrowsePanel().down('rule-device-configuration-grid').getSelectionModel().getLastSelected();
         location.href = '#/administration/devicetypes/' + record.data.deviceType.id + '/deviceconfigurations/' + record.data.config.id;
+    },
+
+    removeLastPartOfUrl: function (url) {
+        var to = url.lastIndexOf('/') + 1;
+        return url.substring(0, to - 1);
     }
+
 });
 

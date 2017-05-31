@@ -144,7 +144,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
 
             cfg.config.record.destroy({
                 success: function () {
-                    scope.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.success', 'MDC', 'Successfully removed'));
+                    scope.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.estimationRuleSetRemoved', 'MDC', 'Estimation rule set removed'));
                     router.getRoute('administration/devicetypes/view/deviceconfigurations/view/estimationrulesets').forward();
                 },
                 failure: function (response) {
