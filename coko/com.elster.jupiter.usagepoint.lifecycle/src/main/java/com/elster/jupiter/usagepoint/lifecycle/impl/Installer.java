@@ -15,12 +15,15 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
 import java.util.Optional;
@@ -37,11 +40,15 @@ public class Installer implements FullInstaller {
     private final Thesaurus thesaurus;
     private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
     private final ServerUsagePointLifeCycleService usagePointLifeCycleService;
+    private final UsagePointLifeCycleBuilder usagePointLifeCycleBuilder;
+    private final ValidationService validationService;
+    private final PropertySpecService propertySpecService;
 
     @Inject
     public Installer(DataModel dataModel, MeteringService meteringService, MessageService messageService, TaskService taskService,
                      UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService, Thesaurus thesaurus,
-                     UsagePointLifeCycleService usagePointLifeCycleService) {
+                     UsagePointLifeCycleService usagePointLifeCycleService, UsagePointLifeCycleBuilder usagePointLifeCycleBuilder,
+                     ValidationService validationService, PropertySpecService propertySpecService) {
         this.dataModel = dataModel;
         this.meteringService = meteringService;
         this.messageService = messageService;
@@ -49,6 +56,9 @@ public class Installer implements FullInstaller {
         this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
         this.thesaurus = thesaurus;
         this.usagePointLifeCycleService = (ServerUsagePointLifeCycleService) usagePointLifeCycleService;
+        this.usagePointLifeCycleBuilder = usagePointLifeCycleBuilder;
+        this.validationService = validationService;
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
@@ -62,6 +72,11 @@ public class Installer implements FullInstaller {
         doTry(
                 "Create recurrent task",
                 this::createChangeRequestRecurrentTask,
+                logger
+        );
+        doTry(
+                "Create transitions, states, assign micro actions and checks",
+                this::createTransitionsStatesAssignMicroActionsAndChecks,
                 logger
         );
         doTry(
@@ -106,5 +121,9 @@ public class Installer implements FullInstaller {
         meteringService.getUsagePointQuery()
                 .select(Condition.TRUE)
                 .forEach(UsagePoint::setInitialState);
+    }
+
+    private  void createTransitionsStatesAssignMicroActionsAndChecks(){
+        usagePointLifeCycleBuilder.accept(usagePointLifeCycleConfigurationService.getDefaultLifeCycle());
     }
 }

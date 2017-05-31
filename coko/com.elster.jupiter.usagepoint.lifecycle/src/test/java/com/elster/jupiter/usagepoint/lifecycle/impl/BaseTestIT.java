@@ -7,6 +7,9 @@ package com.elster.jupiter.usagepoint.lifecycle.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -35,5 +38,17 @@ public abstract class BaseTestIT {
 
     protected <T> T get(Class<T> clazz) {
         return inMemoryPersistence.get(clazz);
+    }
+
+    protected UsagePointLifeCycleService getUsagePointLifeCycleService() {
+        return get(UsagePointLifeCycleService.class);
+    }
+
+    protected UsagePointMicroActionFactory getUsagePointMicroActionFactory() {
+        return get(UsagePointLifeCycleServiceImpl.class).getUsagePointMicroActionFactory();
+    }
+
+    protected UsagePointMicroCheckFactory getUsagePointMicroCheckFactory() {
+        return get(UsagePointLifeCycleServiceImpl.class).getUsagePointMicroCheckFactory();
     }
 }

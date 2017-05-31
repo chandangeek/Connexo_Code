@@ -14,10 +14,6 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleBuilder;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroActionFactory;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointMicroCheckFactory;
-import com.elster.jupiter.usagepoint.lifecycle.impl.actions.UsagePointMicroActionFactoryImpl;
-import com.elster.jupiter.usagepoint.lifecycle.impl.checks.UsagePointMicroCheckFactoryImpl;
 import com.elster.jupiter.users.UserService;
 
 import com.google.inject.AbstractModule;
@@ -45,8 +41,6 @@ public class UsagePointLifeCycleModule extends AbstractModule {
         bind(ServerUsagePointLifeCycleService.class).toProvider(UsagePointLifeCycleServiceProvider.class);
         bind(UsagePointLifeCycleService.class).toProvider(UsagePointLifeCycleServiceProvider.class);
         bind(UsagePointLifeCycleBuilder.class).toProvider(UsagePointLifeCycleServiceProvider.class);
-        bind(UsagePointMicroActionFactory.class).to(UsagePointMicroActionFactoryImpl.class).in(Scopes.SINGLETON);
-        bind(UsagePointMicroCheckFactory.class).to(UsagePointMicroCheckFactoryImpl.class).in(Scopes.SINGLETON);
     }
 
     private static class UsagePointLifeCycleServiceProvider implements Provider<UsagePointLifeCycleServiceImpl> {
