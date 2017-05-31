@@ -1289,12 +1289,14 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         if (responseText.message) {
                             window.down('#error-label').show();
                             window.down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
-                        } else if (responseText.readings) {
+                        } else if (responseText.ranges.ranges) {
                             window.down('#error-label').show();
-                            var listOfFailedReadings = [];
-                            Ext.Array.each(responseText.readings, function (readingTimestamp) {
-                                listOfFailedReadings.push(Uni.DateTime.formatDateTimeShort(new Date(readingTimestamp)));
+                            var listOfFailedReadings = _.map(responseText.ranges.ranges, function (interval) {
+                                return Uni.DateTime.formatDateTimeShort(new Date(interval.start))
+                                    + ' - '
+                                    + Uni.DateTime.formatDateTimeShort(new Date(interval.end))
                             });
+                            if(responseText.ranges.total > 10){listOfFailedReadings[listOfFailedReadings.length - 1] += " ..."}
                             var errorMessage = window.down('#estimator-field') ? Uni.I18n.translate('devicechannels.estimationErrorMessageWithIntervals', 'MDC', 'Could not estimate {0} with {1}',
                                 [listOfFailedReadings.join(', '), window.down('#estimator-field').getRawValue()]) : Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0}',
                                 listOfFailedReadings.join(', '));
@@ -1825,12 +1827,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             reading.get(validationInfo).estimatedByRule = false;
             reading.get(validationInfo).validationResult = 'validationStatus.ok';
             reading.set(modificationState, Uni.util.ReadingEditor.modificationState('EDITED'));
-            reading.set(modificationState, true);
-
         }
 
         reading.endEdit(true);
-
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
 
         me.resumeEditorFieldValidation(grid.editingPlugin, {

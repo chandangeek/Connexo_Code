@@ -6,18 +6,6 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationPrevie
     extend: 'Ext.form.Panel',
     alias: 'widget.rule-device-configuration-preview',
     frame: true,
-    requires: [
-        'Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationActionMenu'
-    ],
-    tools: [
-        {
-            xtype: 'uni-button-action',
-            privileges: Cfg.privileges.Validation.deviceConfiguration,
-            menu: {
-                xtype: 'rule-device-configuration-action-menu'
-            }
-        }
-    ],
     layout: {
         type: 'vbox'
     },

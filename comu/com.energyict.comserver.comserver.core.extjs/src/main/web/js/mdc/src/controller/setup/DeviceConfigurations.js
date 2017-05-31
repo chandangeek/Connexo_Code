@@ -238,7 +238,12 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 }
 
                 if (previewForm) {
-                    previewForm.loadRecord(deviceConfigurations[0]);
+                    var deviceConfiguration = deviceConfigurations[0];
+                    previewForm.loadRecord(deviceConfiguration);
+                    if (deviceConfiguration.get('isLogicalSlave')){
+                        previewForm.down('#mdc-deviceConfigurationPreview-dataLogger').hide();
+                        previewForm.down('#mdc-deviceConfigurationPreview-multiElement').hide();
+                    }
 
                     var actionMenu = preview.down('#device-configuration-action-menu');
                     if (actionMenu) {
@@ -356,11 +361,11 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                         }
                         var dataLoggerField = me.getDeviceConfigurationDetailDataLoggerField();
                         if (dataLoggerField) {
-                            dataLoggerField.setVisible(!hideField);
+                            dataLoggerField.setVisible(!hideField || deviceConfiguration.get('isLogicalSlave'));
                         }
                         var multiElementField = me.getDeviceConfigurationDetailMultiElementField();
                         if (multiElementField) {
-                            multiElementField.setVisible(!hideField);
+                            multiElementField.setVisible(!hideField || deviceConfiguration.get('isLogicalSlave'));
                         }
                         Ext.resumeLayouts(true);
 
@@ -578,7 +583,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             dataLoggerCheckBox.setValue(false);
             dataLoggerCheckBox.setDisabled(false);
         }
-        if (deviceType.isDataLoggerSlave() || deviceType.isMultiElementSlave()) {
+        if (deviceType.isDataLoggerSlave() || deviceType.isMultiElementSlave() || deviceType.get('isLogicalSlave')) {
             dataLoggerCheckBox.setVisible(false);
         }
     },
@@ -593,7 +598,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             multiElementCheckBox.setValue(false);
             multiElementCheckBox.setDisabled(false);
         }
-        if (deviceType.isDataLoggerSlave() || deviceType.isMultiElementSlave()) {
+        if (deviceType.isDataLoggerSlave() || deviceType.isMultiElementSlave() || deviceType.get('isLogicalSlave')) {
             multiElementCheckBox.setVisible(false);
         }
     },
