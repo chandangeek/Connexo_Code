@@ -66,16 +66,26 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                         }
                     },
                     setValue: function (value) {
+                        var me = this,
+                            record;
                         if (value && Object.prototype.toString.call(value) == "[object Array]") {
-                            Ext.getClass(this).prototype.setValue.apply(this, [value[0].get('key')]);
+                            record = me.getStore().findRecord('key', value[0].get('key'));
                         }
                         else if (value && Object.prototype.toString.call(value) == "[object Object]") {
-                            Ext.getClass(this).prototype.setValue.apply(this, [value.id]);
+                            record = me.getStore().findRecord('key', value.id);
                         }
                         else if (value && typeof value == 'string') {
-                            Ext.getClass(this).prototype.setValue.apply(this, [value]);
+                            record = me.getStore().findRecord('key', value);
                         }
+                        record && Ext.getClass(this).prototype.setValue.apply(this, [record]);
                         return this;
+                    },
+                    getValue: function(){
+                        var me = this;
+                        return {
+                            id: me.value,
+                            name: me.getDisplayValue()
+                        }
                     }
                 }
             },
