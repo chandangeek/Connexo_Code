@@ -155,7 +155,6 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
                 this.integerSpec("HalfDuplex", PropertyTranslationKeys.RTUPLUSBUS_HALF_DUPLEX),
                 this.integerSpec("ForcedDelay", PropertyTranslationKeys.RTUPLUSBUS_FORCED_DELAY),
                 this.integerSpec(NODEID.getName(), PropertyTranslationKeys.RTUPLUSBUS_NODEID, Range.closedOpen(3, 255)),
-                this.longSpec(PASSWORD.getName(),  PropertyTranslationKeys.RTUPLUSBUS_PASSWORD, 1L, 0x7FFFFFFFL),
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.RTUPLUSBUS_TIMEOUT),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.RTUPLUSBUS_RETRIES),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.RTUPLUSBUS_ROUNDTRIPCORRECTION),

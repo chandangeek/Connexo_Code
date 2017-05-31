@@ -138,7 +138,6 @@ public class Unilog extends AbstractUnilog implements SerialNumberSupport {
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC1107_ADDRESS),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC1107_NODEID),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC1107_SERIALNUMBER),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC1107_PASSWORD),
                 this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.IEC1107_PROFILEINTERVAL),
                 this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.IEC1107_TIMEOUT),
                 this.integerSpec(PK_RETRIES, PropertyTranslationKeys.IEC1107_RETRIES),

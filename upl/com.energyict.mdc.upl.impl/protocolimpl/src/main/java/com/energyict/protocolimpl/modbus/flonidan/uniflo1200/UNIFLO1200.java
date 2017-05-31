@@ -36,13 +36,9 @@ import com.energyict.protocolimpl.utils.ProtocolUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 
 /**
  * @author jme
@@ -171,16 +167,8 @@ public class UNIFLO1200 extends Modbus implements SerialNumberSupport {
 
 	@Override
 	public List<PropertySpec> getUPLPropertySpecs() {
-        List<PropertySpec> propertySpecs =
-				new ArrayList<>(super.getUPLPropertySpecs()
-                        .stream()
-                        .filter(propertySpec -> !propertySpec.getName().equals(PASSWORD.getName()))
-                        .collect(Collectors.toList()));
-        PropertySpecService propertySpecService = this.getPropertySpecService();
-        propertySpecs.add(
-                UPLPropertySpecFactory
-                        .specBuilder(PASSWORD.getName(), false, PropertyTranslationKeys.MODBUS_PASSWORD,() -> propertySpecService.stringSpecOfMaximumLength(8))
-                        .finish());
+		List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
+		PropertySpecService propertySpecService = this.getPropertySpecService();
         propertySpecs.add(
                 UPLPropertySpecFactory
                         .specBuilder("LoadProfileNumber", false, PropertyTranslationKeys.MODBUS_LOADPROFILE_NUMBER, propertySpecService::integerSpec)

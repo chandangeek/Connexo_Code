@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.dlms.actarisace6000;
 
-import com.energyict.dlms.DLMSReference;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dlms.DLMSReference;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -35,8 +36,6 @@ public class ACE6000Properties extends DlmsProtocolProperties {
                 UPLPropertySpecFactory.specBuilder("DelayAfterFail", false, PropertyTranslationKeys.DLMS_DELAY_AFTERFAIL, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder("RequestTimeZone", false, PropertyTranslationKeys.DLMS_REQUEST_TIME_ZONE, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder("FirmwareVersion", false, PropertyTranslationKeys.DLMS_FIRMWARE_VERSION, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("SecurityLevel", false, PropertyTranslationKeys.DLMS_SECURITYLEVEL, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("ClientMacAddress", false, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder("ServerUpperMacAddress", false, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder("ServerLowerMacAddress", false, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder("ExtendedLogging", false, PropertyTranslationKeys.DLMS_EXTENDED_LOGGING, this.propertySpecService::stringSpec).finish(),

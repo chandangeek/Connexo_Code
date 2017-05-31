@@ -14,7 +14,6 @@ KV|31032005|Handle DataContainerException
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
@@ -27,14 +26,11 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
-import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
 
@@ -163,13 +159,6 @@ public class DLMSEMO extends DLMSSN {
             default:
                 return (MeterEvent.OTHER);
         }
-    }
-
-    @Override
-    public List<PropertySpec> getUPLPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL));
-        return propertySpecs;
     }
 
     @Override

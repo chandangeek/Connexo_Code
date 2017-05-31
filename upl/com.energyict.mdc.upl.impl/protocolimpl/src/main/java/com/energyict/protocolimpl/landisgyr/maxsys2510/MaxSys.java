@@ -187,7 +187,6 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol,S
                 this.stringSpec(PK_SERIALNUMBER, PropertyTranslationKeys.LANDISGYR_SERIALNUMBER),
                 this.stringSpecofExactLength(PK_NODEID, 7, PropertyTranslationKeys.LANDISGYR_NODEID),
                 this.stringSpec(PK_NODE_PREFIX, PropertyTranslationKeys.LANDISGYR_NODE_PREFIX),
-                this.stringSpecofExactLength(PK_PASSWORD, 4, PropertyTranslationKeys.LANDISGYR_PASSWORD),
                 this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.LANDISGYR_TIMEOUT),
                 this.integerSpec(PK_RETRIES, PropertyTranslationKeys.LANDISGYR_RETRIES),
                 this.integerSpec(PK_ROUNDTRIPCORRECTION, PropertyTranslationKeys.LANDISGYR_ROUNDTRIPCORRECTION),

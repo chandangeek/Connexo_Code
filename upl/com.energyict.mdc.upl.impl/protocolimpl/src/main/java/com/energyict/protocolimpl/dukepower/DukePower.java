@@ -766,7 +766,6 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpecOfExactLength(ADDRESS.getName(), 7, PropertyTranslationKeys.DLMS_ADDRESS),
-                this.stringSpecOfExactLength(PASSWORD.getName(), 4, PropertyTranslationKeys.DLMS_PASSWORD),
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.DLMS_TIMEOUT),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.DLMS_RETRIES),
                 this.integerSpec("DelayAfterFail", PropertyTranslationKeys.DLMS_DELAY_AFTERFAIL),

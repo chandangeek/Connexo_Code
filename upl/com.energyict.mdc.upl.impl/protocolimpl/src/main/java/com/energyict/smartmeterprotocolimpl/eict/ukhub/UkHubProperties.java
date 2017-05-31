@@ -51,9 +51,7 @@ public class UkHubProperties extends DlmsProtocolProperties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.integerSpec(SECURITY_LEVEL, true, PropertyTranslationKeys.EICT_SECURITY_LEVEL),
                 this.integerSpec(ADDRESSING_MODE, false, PropertyTranslationKeys.EICT_ADDRESSING_MODE),
-                this.integerSpec(CLIENT_MAC_ADDRESS, false, PropertyTranslationKeys.EICT_CLIENT_MAC_ADDRESS),
                 this.stringSpec(SERVER_MAC_ADDRESS, false, PropertyTranslationKeys.EICT_SERVER_MAC_ADDRESS),
                 this.integerSpec(CONNECTION, false, PropertyTranslationKeys.EICT_CONNECTION),
                 this.integerSpec(PK_FORCED_DELAY, false, PropertyTranslationKeys.EICT_FORCED_DELAY),

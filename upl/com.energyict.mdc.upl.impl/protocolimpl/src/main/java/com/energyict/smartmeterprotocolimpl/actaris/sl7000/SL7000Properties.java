@@ -45,8 +45,6 @@ class SL7000Properties extends DlmsProtocolProperties {
                 this.integerSpec(PK_TIMEOUT),
                 this.integerSpec(PK_RETRIES),
                 this.integerSpec(PK_DELAY_AFTER_ERROR),
-                this.stringSpec(SECURITY_LEVEL),
-                this.integerSpec(CLIENT_MAC_ADDRESS),
                 this.stringSpec(SERVER_MAC_ADDRESS),
                 this.integerSpec(USE_REGISTER_PROFILE),
                 this.integerSpec(LIMIT_MAX_NR_OF_DAYS),

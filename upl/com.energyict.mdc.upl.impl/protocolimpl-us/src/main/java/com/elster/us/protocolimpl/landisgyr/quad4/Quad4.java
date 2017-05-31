@@ -41,7 +41,6 @@ import java.util.regex.Pattern;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
 import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
 import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
@@ -172,7 +171,6 @@ public class Quad4 extends PluggableMeterProtocol implements RegisterProtocol,Se
                 UPLPropertySpecFactory.specBuilder(SERIALNUMBER.getName(), false, PropertyTranslationKeys.QUAD4_SERIALNUMBER, this.propertySpecService::stringSpec).finish(),
                 this.stringSpecOfExactLength(NODEID.getName(), 7, PropertyTranslationKeys.QUAD4_NODEID),
                 UPLPropertySpecFactory.specBuilder(PROFILEINTERVAL.getName(), false, PropertyTranslationKeys.QUAD4_PROFILEINTERVAL, this.propertySpecService::stringSpec).finish(),
-                this.stringSpecOfExactLength(PASSWORD.getName(), 4, PropertyTranslationKeys.QUAD4_PASSWORD),
                 UPLPropertySpecFactory.specBuilder(PK_NODE_PREFIX, false, PropertyTranslationKeys.QUAD4_NODE_PREFIX, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_TIMEOUT, false, PropertyTranslationKeys.QUAD4_TIMEOUT, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_RETRIES, false, PropertyTranslationKeys.QUAD4_RETRIES, this.propertySpecService::integerSpec).finish(),

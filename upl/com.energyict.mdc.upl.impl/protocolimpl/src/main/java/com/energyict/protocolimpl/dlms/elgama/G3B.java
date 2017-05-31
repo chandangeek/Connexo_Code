@@ -48,7 +48,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
 
 /**
  * Copyrights EnergyICT
@@ -242,8 +241,6 @@ public class G3B extends AbstractDLMSProtocol {
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
         propertySpecs.add(this.stringSpec("Connection", PropertyTranslationKeys.DLMS_CONNECTION, false));
-        propertySpecs.add(this.stringSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL, false));
-        propertySpecs.add(this.stringSpec("ClientMacAddress", PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS, false));
         propertySpecs.add(this.stringSpec("ServerUpperMacAddress", PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS, false));
         propertySpecs.add(this.stringSpec("ServerLowerMacAddress", PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS, false));
         propertySpecs.add(this.stringSpec("InformationFieldSize", PropertyTranslationKeys.DLMS_INFORMATION_FIELD_SIZE, false));

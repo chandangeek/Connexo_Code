@@ -48,7 +48,6 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
@@ -330,12 +329,9 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        Stream<PropertySpec> propertySpecs = super.getUPLPropertySpecs().stream().filter(propertySpec -> !propertySpec.getName().equals(SECURITYLEVEL.getName()));
         PropertySpecService propertySpecService = this.getPropertySpecService();
         List<PropertySpec> myPropertySpecs = new ArrayList<>();
-        myPropertySpecs.add(this.stringSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL, true));
         myPropertySpecs.add(this.integerSpec(PROPNAME_CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION, false));
-        myPropertySpecs.add(this.integerSpec(PROPNAME_CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS, false));
         myPropertySpecs.add(this.integerSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS, false));
         myPropertySpecs.add(this.integerSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS, false));
         myPropertySpecs.add(this.integerSpec(PROPNAME_ADDRESSING_MODE, PropertyTranslationKeys.DLMS_ADDRESSING_MODE, false));
@@ -355,7 +351,7 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         myPropertySpecs.add(this.integerSpec(MAX_REC_PDU_SIZE, PropertyTranslationKeys.DLMS_MAX_REC_PDU_SIZE, false));
         myPropertySpecs.add(this.integerSpec(ISKRA_WRAPPER, PropertyTranslationKeys.DLMS_ISKRA_WRAPPER, false));
         myPropertySpecs.add(this.stringSpec(INCREMENT_FRAMECOUNTER_FOR_RETRIES, PropertyTranslationKeys.DLMS_INCREMENT_FRAMECOUNTER_FOR_RETRIES, false));
-        propertySpecs.forEach(myPropertySpecs::add);
+        super.getUPLPropertySpecs().forEach(myPropertySpecs::add);
         return myPropertySpecs;
     }
 

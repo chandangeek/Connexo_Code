@@ -491,7 +491,6 @@ public abstract class Metcom extends PluggableMeterProtocol implements HalfDuple
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.METCOM_ADDRESS),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.METCOM_PASSWORD),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.METCOM_NODEID),
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.METCOM_TIMEOUT),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.METCOM_RETRIES),

@@ -327,14 +327,12 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.stringSpec(DlmsProtocolProperties.ADDRESSING_MODE, PropertyTranslationKeys.DLMS_ADDRESSING_MODE, false));
-        propertySpecs.add(this.stringSpec(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS, false));
         propertySpecs.add(this.stringSpec(DlmsProtocolProperties.CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION, false));
         propertySpecs.add(this.stringSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS, false));
         propertySpecs.add(this.stringSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS, false));
         propertySpecs.add(this.stringSpec(PROPERTY_FORCEDTOREADCACHE, PropertyTranslationKeys.DLMS_FORCE_TO_READ_CACHE, false));
         propertySpecs.add(this.stringSpec(DlmsProtocolProperties.PK_TIMEOUT, PropertyTranslationKeys.DLMS_TIMEOUT, false));
         propertySpecs.add(this.stringSpec(DlmsProtocolProperties.PK_RETRIES, PropertyTranslationKeys.DLMS_RETRIES, false));
-        propertySpecs.add(this.stringSpec(DlmsProtocolProperties.SECURITY_LEVEL, PropertyTranslationKeys.DLMS_SECURITYLEVEL, false));
         return propertySpecs;
     }
 

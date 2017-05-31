@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -7,8 +8,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-
-import com.energyict.mdc.upl.TypedProperties;
 
 import java.util.Collections;
 import java.util.List;
@@ -59,12 +58,12 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-            typedProperties.setProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService)
-                    .getName(), deviceProtocolSecurityPropertySet.getClient()); // Add the client
-            if (typedProperties.hasValueFor(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService).getName())) {
+            String deviceAccessIdentifierPropertyName = DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService).getName();
+            typedProperties.setProperty(deviceAccessIdentifierPropertyName, deviceProtocolSecurityPropertySet.getClient()); // Add the client
+            if (typedProperties.hasValueFor(deviceAccessIdentifierPropertyName)) {
                 typedProperties.setProperty(
                         LEGACY_DEVICE_ACCESS_IDENTIFIER_PROPERTY,
-                        typedProperties.getProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService).getName())
+                        typedProperties.getProperty(deviceAccessIdentifierPropertyName)
                 );
             }
         }

@@ -181,8 +181,6 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.integerSpec(PK_NODEID, PropertyTranslationKeys.ION_NODEID),
-                this.stringSpec(PK_USER_ID, PropertyTranslationKeys.ION_USER_ID),
-                this.stringSpec(PK_PASSWORD, PropertyTranslationKeys.ION_PASSWORD),
                 this.stringSpec(PK_SERIALNUMBER, PropertyTranslationKeys.ION_SERIALNUMBER),
                 this.integerSpec(PK_PROFILEINTERVAL, PropertyTranslationKeys.ION_PROFILEINTERVAL),
                 this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.ION_TIMEOUT),
@@ -215,8 +213,8 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
             pUserId = properties.getTypedProperty(PK_USER_ID);
         }
 
-        if (properties.getTypedProperty(PASSWORD.getName()) != null) {
-            pPassword = properties.getTypedProperty(PASSWORD.getName());
+        if (properties.getTypedProperty(PK_PASSWORD) != null) {
+            pPassword = properties.getTypedProperty(PK_PASSWORD);
         }
 
         try {

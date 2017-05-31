@@ -219,7 +219,6 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.specBuilder(PASSWORD.getName(), false, PropertyTranslationKeys.DLMS_PASSWORD, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(RETRIES.getName(), false, PropertyTranslationKeys.DLMS_RETRIES, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(SERIALNUMBER.getName(), false, PropertyTranslationKeys.DLMS_SERIALNUMBER, this.propertySpecService::stringSpec).finish(),
                 new VariableBaseIntegerPropertySpec(CLIENTID, true, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_CLIENT_ID).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_CLIENT_ID_DESCRIPTION).format()),
@@ -227,8 +226,6 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
                 new VariableBaseIntegerPropertySpec(LOGICALDEVICE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOGICAL_DEVICE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOGICAL_DEVICE_DESCRIPTION).format()),
                 new VariableBaseIntegerPropertySpec(TIMEOUT.getName(), false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_TIMEOUT).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_TIMEOUT_DESCRIPTION).format()),
                 new SecurityLevelPropertySpec(DLMSSECURITYLEVEL, true, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_SECURITYLEVEL).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_SECURITYLEVEL_DESCRIPTION).format()),
-                UPLPropertySpecFactory.specBuilder(ENCRYPTIONKEY, false, PropertyTranslationKeys.DLMS_ENCRYPTIONKEY, this.propertySpecService::stringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(AUTHENTICATIONKEY, false, PropertyTranslationKeys.DLMS_AUTHENTICATIONKEY, this.propertySpecService::stringSpec).finish(),
                 new VariableBaseIntegerPropertySpec(USEMODEE, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_USEMODEE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_USEMODEE_DESCRIPTION).format()),
                 new VariableBaseIntegerPropertySpec(RETRIEVEOFFSET, false, this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_RETRIEVEOFFSET).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_RETRIEVEOFFSET_DESCRIPTION).format()),
                 UPLPropertySpecFactory.specBuilder(ARCHIVESTRUCTURE, false, PropertyTranslationKeys.DLMS_ARCHIVESTRUCTURE, this.propertySpecService::stringSpec).finish(),

@@ -19,7 +19,6 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
 import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
-import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
 import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
@@ -165,7 +164,6 @@ public class NXT4Properties {
         return Arrays.asList(
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.IEC1107_TIMEOUT),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.IEC1107_RETRIES),
-                this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.IEC1107_SECURITYLEVEL),
                 this.integerSpec("EchoCancelling", PropertyTranslationKeys.IEC1107_ECHOCANCELLING),
                 this.integerSpec("IEC1107Compatible", PropertyTranslationKeys.IEC1107_COMPATIBLE),
                 this.integerSpec("ForcedDelay", PropertyTranslationKeys.IEC1107_FORCED_DELAY),

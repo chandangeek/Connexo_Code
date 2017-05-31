@@ -299,7 +299,6 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.SEVC_ADDRESS),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.SEVC_PASSWORD),
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.SEVC_TIMEOUT),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.SEVC_RETRIES),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.SEVC_ROUNDTRIPCORRECTION),

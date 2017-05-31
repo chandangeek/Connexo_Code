@@ -109,7 +109,6 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.LIS100_SERIALNUMBER),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.LIS100_PASSWORD),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.LIS100_RETRIES));
     }
 

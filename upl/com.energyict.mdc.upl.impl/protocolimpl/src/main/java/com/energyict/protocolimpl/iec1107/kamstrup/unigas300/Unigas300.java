@@ -39,7 +39,6 @@ import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
 
 /**
@@ -160,11 +159,9 @@ public class Unigas300 extends AbstractUnigas300 implements SerialNumberSupport 
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC1107_ADDRESS),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC1107_PASSWORD),
                 this.integerSpec("Timeout", PropertyTranslationKeys.IEC1107_TIMEOUT),
                 this.integerSpec("Retries", PropertyTranslationKeys.IEC1107_RETRIES),
                 this.integerSpec("RoundtripCorrection", PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION),
-                this.integerSpec("SecurityLevel", PropertyTranslationKeys.IEC1107_SECURITYLEVEL),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC1107_NODEID),
                 this.integerSpec("EchoCancelling", PropertyTranslationKeys.IEC1107_ECHOCANCELLING),
                 this.integerSpec("IEC1107Compatible", PropertyTranslationKeys.IEC1107_COMPATIBLE),

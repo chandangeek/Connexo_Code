@@ -77,8 +77,6 @@ public class G3Properties extends DlmsProtocolProperties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.integerSpec(SECURITY_LEVEL, PropertyTranslationKeys.DLMS_SECURITYLEVEL),
-                this.integerSpec(CLIENT_MAC_ADDRESS, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
                 this.stringSpec(SERVER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_MAC_ADDRESS),
                 this.integerSpec(CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION),
                 this.stringSpec(HLS_SECRET, PropertyTranslationKeys.DLMS_HLS_SECRET),

@@ -153,15 +153,12 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
                 this.integerSpec("ExtendedLogging", PropertyTranslationKeys.DLMS_EXTENDED_LOGGING),
                 this.integerSpec("AddressingMode", PropertyTranslationKeys.DLMS_ADDRESSING_MODE),
                 this.integerSpec("Connection", PropertyTranslationKeys.DLMS_CONNECTION),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.DLMS_PASSWORD),
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.DLMS_TIMEOUT),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.DLMS_RETRIES),
                 this.integerSpec("DelayAfterfail", PropertyTranslationKeys.DLMS_DELAY_AFTERFAIL),
                 this.integerSpec("RequestTimeZone", PropertyTranslationKeys.DLMS_REQUEST_TIME_ZONE),
                 this.integerSpec("RequestClockObject", PropertyTranslationKeys.DLMS_REQUEST_CLOCK_OBJECT),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION),
-                this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL),
-                this.integerSpec("ClientMacAddress", PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
                 this.integerSpec("ServerUpperMacAddress", PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
                 this.integerSpec("ServerLowerMacAddress", PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS));
     }

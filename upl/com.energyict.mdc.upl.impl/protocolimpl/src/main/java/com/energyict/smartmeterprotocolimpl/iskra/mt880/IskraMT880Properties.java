@@ -46,8 +46,6 @@ class IskraMT880Properties extends DlmsProtocolProperties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.specBuilder(SECURITY_LEVEL, true, PropertyTranslationKeys.EICT_SECURITY_LEVEL, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(CLIENT_MAC_ADDRESS, false, PropertyTranslationKeys.EICT_CLIENT_MAC_ADDRESS, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(SERVER_MAC_ADDRESS, false, PropertyTranslationKeys.EICT_SERVER_MAC_ADDRESS, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(CONNECTION, false, PropertyTranslationKeys.EICT_CONNECTION, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(INFORMATION_FIELD_SIZE, false, PropertyTranslationKeys.EICT_INFORMATION_FIELD_SIZE, this.propertySpecService::integerSpec).finish(),

@@ -181,12 +181,10 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.specBuilder(SECURITYLEVEL.getName(), false, PropertyTranslationKeys.DLMS_SECURITYLEVEL, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(NODEID.getName(), false, PropertyTranslationKeys.DLMS_NODEID, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(ADDRESS.getName(), false, PropertyTranslationKeys.DLMS_ADDRESS, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(SERIALNUMBER.getName(), false, PropertyTranslationKeys.DLMS_SERIALNUMBER, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder("Connection", false, PropertyTranslationKeys.DLMS_CONNECTION, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder("ClientMacAddress", false, PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder("ServerUpperMacAddress", false, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder("ServerLowerMacAddress", false, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(TIMEOUT.getName(), false, PropertyTranslationKeys.DLMS_TIMEOUT, this.propertySpecService::integerSpec).finish(),

@@ -44,7 +44,6 @@ import java.util.logging.Logger;
 import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
 import static com.energyict.mdc.upl.MeterProtocol.Property.CORRECTTIME;
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
 import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
 import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
@@ -130,7 +129,6 @@ public class Ziv5Ctd extends PluggableMeterProtocol implements SerialNumber, Reg
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC870_ADDRESS),
                 this.stringSpec(NODEID.getName(), PropertyTranslationKeys.IEC870_NODEID),
                 this.stringSpec(SERIALNUMBER.getName(), PropertyTranslationKeys.IEC870_SERIALNUMBER),
-                this.integerSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC870_PASSWORD),
                 this.integerSpec(PROFILEINTERVAL.getName(), PropertyTranslationKeys.IEC870_PROFILEINTERVAL),
                 this.integerSpec(PK_TIMEOUT, PropertyTranslationKeys.IEC870_TIMEOUT),
                 this.integerSpec(PK_RETRIES, PropertyTranslationKeys.IEC870_RETRIES),

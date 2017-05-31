@@ -99,7 +99,6 @@ import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
 import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
 import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
@@ -1089,13 +1088,10 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpecOfMaxLength(ADDRESS.getName(), MAX_ADDRESS_LENGTH, PropertyTranslationKeys.DLMS_ADDRESS),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.DLMS_PASSWORD),
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.DLMS_TIMEOUT),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.DLMS_RETRIES),
-                this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL),
                 this.integerSpec("RequestTimeZone", PropertyTranslationKeys.DLMS_REQUEST_TIME_ZONE),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.DLMS_ROUNDTRIPCORRECTION),
-                this.integerSpec("ClientMacAddress", PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
                 this.integerSpec("ServerUpperMacAddress", PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
                 this.integerSpec("ServerLowerMacAddress", PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
                 this.stringSpec("FirmwareVersion", PropertyTranslationKeys.DLMS_FIRMWARE_VERSION),

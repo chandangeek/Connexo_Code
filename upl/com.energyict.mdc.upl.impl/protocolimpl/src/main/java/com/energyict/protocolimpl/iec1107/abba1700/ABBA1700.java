@@ -62,7 +62,6 @@ import java.util.logging.Logger;
 
 import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
 import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
-import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
 import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
 import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
@@ -216,8 +215,6 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
                 this.stringSpec(ADDRESS.getName(), PropertyTranslationKeys.IEC1107_ADDRESS),
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.IEC1107_PASSWORD),
-                this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.IEC1107_SECURITYLEVEL),
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.IEC1107_TIMEOUT),
                 this.integerSpec(RETRIES.getName(), PropertyTranslationKeys.IEC1107_RETRIES),
                 this.integerSpec(ROUNDTRIPCORRECTION.getName(), PropertyTranslationKeys.IEC1107_ROUNDTRIPCORRECTION),
@@ -236,7 +233,6 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
                 this.integerSpec("DelayAfterfail", PropertyTranslationKeys.IEC1107_DELAY_AFTER_FAIL),
                 this.integerSpec("RequestTimeZone", PropertyTranslationKeys.IEC1107_REQUEST_TIME_ZONE),
                 this.integerSpec("RequestClockObject", PropertyTranslationKeys.IEC1107_REQUEST_CLOCK_OBJECT),
-                this.integerSpec("ClientMacAddress", PropertyTranslationKeys.IEC1107_CLIENT_MAC_ADDRESS),
                 this.integerSpec("ServerUpperMacAddress", PropertyTranslationKeys.IEC1107_SERVER_UPPER_MAC_ADDRESS),
                 this.integerSpec("ServerLowerMacAddress", PropertyTranslationKeys.IEC1107_SERVER_LOWER_MAC_ADDRESS));
     }

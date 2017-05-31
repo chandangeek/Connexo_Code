@@ -51,9 +51,7 @@ public class ZigbeeGasProperties extends DlmsProtocolProperties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                UPLPropertySpecFactory.specBuilder(SECURITY_LEVEL, true, PropertyTranslationKeys.EICT_SECURITY_LEVEL, propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(ADDRESSING_MODE, false, PropertyTranslationKeys.EICT_ADDRESSING_MODE, propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(CLIENT_MAC_ADDRESS, false, PropertyTranslationKeys.EICT_CLIENT_MAC_ADDRESS, propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(SERVER_MAC_ADDRESS, false, PropertyTranslationKeys.EICT_SERVER_MAC_ADDRESS, propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(CONNECTION, false, PropertyTranslationKeys.EICT_CONNECTION, propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_FORCED_DELAY, false, PropertyTranslationKeys.EICT_FORCED_DELAY, propertySpecService::integerSpec).finish(),

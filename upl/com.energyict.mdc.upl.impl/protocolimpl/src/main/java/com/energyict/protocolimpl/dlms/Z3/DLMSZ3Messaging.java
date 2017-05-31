@@ -219,10 +219,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return Arrays.asList(
-                this.stringSpec(PASSWORD.getName(), PropertyTranslationKeys.DLMS_PASSWORD),
-                this.integerSpec(SECURITYLEVEL.getName(), PropertyTranslationKeys.DLMS_SECURITYLEVEL),
                 this.integerSpec("ConnectionMode", PropertyTranslationKeys.DLMS_CONNECTION_MODE),
-                this.integerSpec("ClientMacAddress", PropertyTranslationKeys.DLMS_CLIENT_MAC_ADDRESS),
                 this.integerSpec("ServerLowerMacAddress", PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS),
                 this.integerSpec("ServerUpperMacAddress", PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS),
                 this.integerSpec(TIMEOUT.getName(), PropertyTranslationKeys.DLMS_TIMEOUT),

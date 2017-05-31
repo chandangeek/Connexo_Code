@@ -52,9 +52,7 @@ public class Dsmr23Properties extends DlmsProtocolProperties {
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return new ArrayList<>(Arrays.asList(
-                UPLPropertySpecFactory.specBuilder(SECURITY_LEVEL, securityLevelIsRequired(), this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(ADDRESSING_MODE, false, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(CLIENT_MAC_ADDRESS, false, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(SERVER_MAC_ADDRESS, false, this.propertySpecService::stringSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(CONNECTION, false, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(PK_FORCED_DELAY, false, this.propertySpecService::integerSpec).finish(),

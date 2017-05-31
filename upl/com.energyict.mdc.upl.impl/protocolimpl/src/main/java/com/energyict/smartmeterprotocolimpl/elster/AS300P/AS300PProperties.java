@@ -46,9 +46,7 @@ public class AS300PProperties extends SmsWakeUpDlmsProtocolProperties {
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(this.getSmsWakeUpPropertySpecs(false));
         Stream.of(
-                this.integerSpec(SECURITY_LEVEL, true, PropertyTranslationKeys.ELSTER_SECURITYLEVEL),
                 this.integerSpec(ADDRESSING_MODE, false, PropertyTranslationKeys.ELSTER_ADDRESSING_MODE),
-                this.integerSpec(CLIENT_MAC_ADDRESS, false, PropertyTranslationKeys.ELSTER_CLIENT_MAC_ADDRESS),
                 this.stringSpec(SERVER_MAC_ADDRESS, false, PropertyTranslationKeys.ELSTER_SERVER_MAC_ADDRESS),
                 this.integerSpec(CONNECTION, false, PropertyTranslationKeys.ELSTER_CONNECTION),
                 this.integerSpec(PK_FORCED_DELAY, false, PropertyTranslationKeys.ELSTER_FORCED_DELAY),
