@@ -24,4 +24,9 @@ public interface LicensedProtocolService {
 
     boolean isValidJavaClassName(String javaClassName, License license);
 
+    /**
+     * @return  a list of all known protocols (that can be licensed)
+     */
+    List<LicensedProtocol> getAllKnownProtocols();
+
 }
