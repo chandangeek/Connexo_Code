@@ -292,6 +292,7 @@ public class MasterDataSerializer {
     }
 
     private List<Beacon3100ClientDetails> createClientDetails(Device device, byte[] dlmsMeterKEK) {
+        int clientId = 1; //default
         byte[] password = null;
         byte[] hlsPassword = null;
         byte[] ak = null;
@@ -301,7 +302,9 @@ public class MasterDataSerializer {
 
         for (DeviceMasterDataExtractor.SecurityPropertySet securityPropertySet : this.extractor.securityPropertySets(device)) {
             for (DeviceMasterDataExtractor.SecurityProperty protocolSecurityProperty : this.extractor.securityProperties(device, securityPropertySet)) {
-                if (protocolSecurityProperty.name().equals(SecurityPropertySpecTranslationKeys.PASSWORD.toString())) {
+                if (protocolSecurityProperty.name().equals(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString())) {
+                    clientId = ((BigDecimal) protocolSecurityProperty.value()).intValue();
+                } else if (protocolSecurityProperty.name().equals(SecurityPropertySpecTranslationKeys.PASSWORD.toString())) {
                     if (securityPropertySet.authenticationDeviceAccessLevelId() >= 3) {
                         hlsPassword = parseASCIIPassword(device, protocolSecurityProperty.name(), (String) protocolSecurityProperty.value());
                     } else {
@@ -318,7 +321,6 @@ public class MasterDataSerializer {
             final String wrappedHLSPassword = hlsPassword == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(dlmsMeterKEK, hlsPassword), "");
             final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(dlmsMeterKEK, ak), "");
             final String wrappedEK = ek == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(dlmsMeterKEK, ek), "");
-            final int clientId = ((BigDecimal) securityPropertySet.client()).intValue();
             clientDetails.add(new Beacon3100ClientDetails(clientId, new Beacon3100ConnectionDetails(wrappedPassword, wrappedHLSPassword, wrappedAK, wrappedEK, initialFrameCounter)));
         }
 
