@@ -19,12 +19,19 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 
 import com.google.common.collect.ImmutableSet;
@@ -34,6 +41,7 @@ import com.google.common.collect.Sets;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -64,11 +72,13 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
      * @return {@link IChannelDataCompletionSummary}.
      */
     @Override
-    public List<IChannelDataCompletionSummary> getDataCompletionStatistics(Channel channel, Range<Instant> interval) {
+    public List<IChannelDataCompletionSummary> getDataCompletionStatistics(Channel channel,
+                                                                           Range<Instant> interval,
+                                                                           EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
+                                                                           MetrologyContract contract) {
         List<IChannelDataCompletionSummary> summaryList = new LinkedList<>();
-        TreeMap<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings =
-                (channel.isRegular() ? channel.toList(interval).stream() : channel.getReadings(interval).stream().map(BaseReading::getTimeStamp))
-                        .collect(Collectors.toMap(
+        TreeMap<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings = getReadingTimestamps(effectiveMetrologyConfiguration, contract, interval, channel.getMainReadingType())
+                .collect(Collectors.toMap(
                                 Function.identity(),
                                 time -> Sets.newHashSet(),
                                 (hashSet1, hashSet2) -> hashSet1, // merge is not needed, everything should be distinct already
@@ -79,14 +89,7 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
         ChannelDataCompletionSummaryImpl validSummary = new ChannelDataCompletionSummaryImpl(interval, ChannelDataCompletionSummaryType.VALID);
         ChannelDataCompletionSummaryImpl estimatedSummary = new ChannelDataCompletionSummaryImpl(interval, ChannelDataCompletionSummaryType.ESTIMATED);
         summaryList.add(generalSummary);
-        channel.findReadingQualities() // supply the map with all qualities to consider
-                .inTimeInterval(interval)
-                .actual()
-                .ofQualitySystem(QualityCodeSystem.MDM)
-                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD, QualityCodeIndex.ERRORCODE, QualityCodeIndex.ACCEPTED))
-                .orOfAnotherTypeInSameSystems()
-                .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.EDITED, QualityCodeCategory.ESTIMATED, QualityCodeCategory.VALIDATION, QualityCodeCategory.PROJECTED))
-                .stream()
+        getReadingQualities(effectiveMetrologyConfiguration, contract, interval, channel.getMainReadingType())
                 .collect(Collectors.toMap(
                         ReadingQualityRecord::getReadingTimestamp,
                         record -> Sets.newHashSet(record.getType()),
@@ -99,7 +102,8 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
         gatherEdited(qualityTypesByAllTimings, editedSummary);
         summaryList.add(editedSummary);
         summaryList.add(estimatedSummary);
-        Optional<Instant> lastCheckedOptional = validationService.getLastChecked(channel);
+        Optional<Instant> usagePointChannelLastChecked = getLastChecked(effectiveMetrologyConfiguration, contract, channel.getMainReadingType());
+        Optional<Instant> lastCheckedOptional = usagePointChannelLastChecked.isPresent() ? usagePointChannelLastChecked : validationService.getLastChecked(channel);
         int uncheckedTimingsCount;
         if (lastCheckedOptional.isPresent()) {
             Instant lastChecked = lastCheckedOptional.get();
@@ -201,7 +205,7 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
                 Function.identity(),
                 deliverable -> container.getChannel(deliverable.getReadingType())
                         // channel cannot be unfound
-                        .map(channel -> getDataCompletionStatistics(channel, interval))
+                        .map(channel -> getDataCompletionStatistics(channel, interval, effectiveMetrologyConfiguration, contract))
                         .orElse(Collections.singletonList(getGeneralUsagePointDataCompletionSummary(interval))),
                 (summary1, summary2) -> { // merge should not appear since no ReadingTypeDeliverable duplication allowed
                     throw new LocalizedException(thesaurus,
@@ -216,5 +220,82 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
     @Override
     public IChannelDataCompletionSummary getGeneralUsagePointDataCompletionSummary(Range<Instant> interval) {
         return new ChannelDataCompletionSummaryImpl(interval, ChannelDataCompletionSummaryType.GENERAL);
+    }
+
+    private Stream<Instant> getReadingTimestamps(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract, Range<Instant> interval, ReadingType readingType) {
+        return getChannels(effectiveMetrologyConfiguration, metrologyContract, interval, readingType)
+                .flatMap(channel -> channel.isRegular()
+                        ? channel.toList(Ranges.copy(channel.getChannelsContainer().getRange().intersection(interval)).asOpenClosed()).stream()
+                        : channel.getReadings(Ranges.copy(channel.getChannelsContainer().getRange().intersection(interval)).asOpenClosed())
+                        .stream()
+                        .map(BaseReading::getTimeStamp));
+    }
+
+    private Stream<ReadingQualityRecord> getReadingQualities(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract, Range<Instant> interval, ReadingType readingType) {
+        return getChannels(effectiveMetrologyConfiguration, metrologyContract, interval, readingType)
+                .flatMap(channel -> channel.findReadingQualities() // supply the map with all qualities to consider
+                        .inTimeInterval(Ranges.copy(channel.getChannelsContainer().getRange().intersection(interval)).asOpenClosed())
+                        .actual()
+                        .ofQualitySystem(QualityCodeSystem.MDM)
+                        .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD, QualityCodeIndex.ERRORCODE, QualityCodeIndex.ACCEPTED))
+                        .orOfAnotherTypeInSameSystems()
+                        .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.EDITED, QualityCodeCategory.ESTIMATED, QualityCodeCategory.VALIDATION, QualityCodeCategory.PROJECTED))
+                        .stream());
+    }
+
+    private Stream<Channel> getChannels(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract, Range<Instant> interval, ReadingType readingType) {
+        UsagePoint usagePoint = effectiveMetrologyConfiguration.getUsagePoint();
+        return usagePoint.getEffectiveMetrologyConfigurations().stream()
+                .map(emc -> getMetrologyContract(emc.getMetrologyConfiguration(), metrologyContract.getMetrologyPurpose()).flatMap(emc::getChannelsContainer))
+                .filter(Optional::isPresent)
+                .filter(channelsContainer -> channelsContainer.get().getRange().isConnected(interval))
+                .map(channelsContainer -> channelsContainer.get().getChannel(readingType))
+                .filter(Optional::isPresent)
+                .map(Optional::get);
+    }
+
+    @Override
+    public Optional<Instant> getLastChecked(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
+        UsagePoint usagePoint = effectiveMetrologyConfiguration.getUsagePoint();
+
+        Map<ChannelsContainer, Instant> lastCheskedMap =  usagePoint.getEffectiveMetrologyConfigurations().stream()
+                .map(emc -> getMetrologyContract(emc.getMetrologyConfiguration(), metrologyContract.getMetrologyPurpose()).flatMap(emc::getChannelsContainer))
+                .filter(Optional::isPresent)
+                .map(channelsContainer -> Pair.of(channelsContainer.get(), validationService.getLastChecked(channelsContainer.get())))
+                .filter(pair -> pair.getLast().isPresent())
+                .collect(Collectors.toMap(Pair::getFirst, p -> p.getLast().get(), (a, b) -> a));
+
+        return Optional.ofNullable(getMinLastCheckedFromIncompleteRanges(lastCheskedMap).orElse(getMaxLastChecked(lastCheskedMap).orElse(null)));
+    }
+
+    private Optional<MetrologyContract> getMetrologyContract(MetrologyConfiguration metrologyConfiguration, MetrologyPurpose purpose){
+        return metrologyConfiguration.getContracts().stream().filter(metrologyContract -> metrologyContract.getMetrologyPurpose().equals(purpose)).findFirst();
+    }
+
+    @Override
+    public Optional<Instant> getLastChecked(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract, ReadingType readingType) {
+        UsagePoint usagePoint = effectiveMetrologyConfiguration.getUsagePoint();
+        ValidationEvaluator validationEvaluator = validationService.getEvaluator();
+        Map<ChannelsContainer, Instant> lastCheskedMap =  usagePoint.getEffectiveMetrologyConfigurations().stream()
+                .map(emc -> getMetrologyContract(emc.getMetrologyConfiguration(), metrologyContract.getMetrologyPurpose()).flatMap(emc::getChannelsContainer))
+                .filter(Optional::isPresent)
+                .map(channelsContainer -> Pair.of(channelsContainer.get(), validationEvaluator.getLastChecked(channelsContainer.get(), readingType)))
+                .filter(pair -> pair.getLast().isPresent())
+                .collect(Collectors.toMap(Pair::getFirst, p -> p.getLast().get(), (a, b) -> a));
+
+        return Optional.ofNullable(getMinLastCheckedFromIncompleteRanges(lastCheskedMap).orElse(getMaxLastChecked(lastCheskedMap).orElse(null)));
+    }
+
+    private Optional<Instant> getMinLastCheckedFromIncompleteRanges(Map<ChannelsContainer, Instant> lastCheskedMap){
+        return lastCheskedMap.entrySet().stream()
+                .filter(e -> !e.getKey().getRange().hasUpperBound() || e.getValue().isBefore(e.getKey().getRange().upperEndpoint()))
+                .map(Map.Entry::getValue)
+                .min(Comparator.naturalOrder());
+    }
+
+    private Optional<Instant> getMaxLastChecked(Map<ChannelsContainer, Instant> lastCheskedMap){
+        return lastCheskedMap.entrySet().stream()
+                .map(Map.Entry::getValue)
+                .max(Comparator.naturalOrder());
     }
 }
