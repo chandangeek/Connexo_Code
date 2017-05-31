@@ -69,7 +69,7 @@ Ext.define('Imt.purpose.view.history.HistoryGrid', {
             value = Ext.isEmpty(v) ? '-' : v,
             estimatedByRule = record.get('estimatedByRule'),
             estimationComment = record.get('commentValue')
-                ? ' ' + Uni.I18n.translate('general.estimationCommentWithComment', 'IMT', 'Estimation comment: {0}', record.get('commentValue'))
+                ? '. ' + Uni.I18n.translate('general.estimationCommentWithComment', 'IMT', 'Estimation comment: {0}', record.get('commentValue'))
                 : '',
             icon = '';
 
