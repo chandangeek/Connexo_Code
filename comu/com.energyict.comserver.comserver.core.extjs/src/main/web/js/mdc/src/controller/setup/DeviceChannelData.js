@@ -142,7 +142,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 beforeedit: this.beforeEditRecord,
                 edit: this.resumeEditorFieldValidation,
                 canceledit: this.resumeEditorFieldValidation,
-                selectionchange: this.onDataGridSelectionChange
+                selectionchange: this.onDataGridSelectionChange,
+                paste: this.onPaste
             },
             '#deviceLoadProfileChannelData #deviceLoadProfileChannelGraphView': {
                 resize: this.onGraphResize
@@ -787,7 +788,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             condition = (isNaN(point.y) && isNaN(value)) ? false : (point.y != value),
             updatedObj;
 
-        if (event.column) {
+        if (event.column && event.column.getEditor()) {
             event.column.getEditor().allowBlank = true;
         }
 
@@ -826,6 +827,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         } else if (!event.record.isModified('collectedValue') && condition) {
             me.resetChanges(event.record, point);
         }
+    },
+
+    onPaste: function (grid, event) {
+        event && event.record && event.record.set('mainModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
     },
 
     resetChanges: function (record, point) {
