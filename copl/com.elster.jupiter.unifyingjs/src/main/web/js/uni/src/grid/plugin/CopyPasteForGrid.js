@@ -63,8 +63,8 @@ Ext.define('Uni.grid.plugin.CopyPasteForGrid', {
         var me = this,
             eventEditFired = false,
             celleditingPlugin = grid.findPlugin('cellediting'),
-            columns = grid.columns.filter(function (column) {
-                column.dataIndex == me.editColumnDataIndex
+            columns = _.filter(grid.columns, function (column) {
+                return column.dataIndex == 'value' && column.hidden != false;
             }),
             column = (columns.length != 0) ? columns[0] : null,
             data = me.getHiddenTextArea(grid).getValue(),
@@ -83,6 +83,7 @@ Ext.define('Uni.grid.plugin.CopyPasteForGrid', {
                 if (rec) {
                     if (rec.get(me.editColumnDataIndex) != value) {
                         rec.set(me.editColumnDataIndex, value);
+                        grid.fireEvent('paste', grid, {record: rec, column: column});
                         !eventEditFired && celleditingPlugin.fireEvent('edit', celleditingPlugin, {record: rec, column: column});
                         eventEditFired = true;
                     }
