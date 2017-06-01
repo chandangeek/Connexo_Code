@@ -1040,7 +1040,8 @@ Ext.define('Cfg.controller.Validation', {
     deleteRule: function (rule) {
         var self = this,
             router = this.getController('Uni.controller.history.Router'),
-            view = self.getRulePreviewContainer() || self.getRuleSetBrowsePanel() || self.getRuleOverview() || self.getVersionsContainer() || self.getRulePreviewContainerPanel();
+            view = self.getRulePreviewContainer() || self.getRuleSetBrowsePanel() || self.getVersionRulePreviewContainer() ||
+                self.getRuleOverview() || self.getVersionsContainer() || self.getRulePreviewContainerPanel();
 
         view.setLoading(true);
 
@@ -1049,10 +1050,26 @@ Ext.define('Cfg.controller.Validation', {
         rule.destroy({
             callback: function (records, operation) {
                 if (operation.success) {
+                    var gridPagingToolbar = undefined;
                     if (self.getRulePreviewContainer()) {
-                        view.down('pagingtoolbartop').totalCount = 0;
+                        gridPagingToolbar = view.down('pagingtoolbartop');
                     } else if (self.getRuleSetBrowsePanel()) {
-                        view.down('#rulesTopPagingToolbar').totalCount = 0;
+                        gridPagingToolbar = view.down('#rulesTopPagingToolbar');
+                    } else if (self.getVersionRulePreviewContainer()) {
+                        var grid = view.down('grid');
+                        grid.getStore().load({
+                            params: {
+                                ruleSetId: grid.ruleSetId,
+                                versionId: grid.versionId
+                            }
+                        });
+                    }
+                    if (gridPagingToolbar) {
+                        gridPagingToolbar.isFullTotalCount = false;
+                        gridPagingToolbar.totalCount = -1;
+                        var grid = view.down('grid');
+                        grid.down('pagingtoolbarbottom').totalCount--;
+                        grid.getStore().loadPage(1);
                     }
 
                     if (self.getRuleOverview()) {
