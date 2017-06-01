@@ -62,10 +62,9 @@ public class ResourceHelper {
     }
 
     public List<DeviceConfiguration> findDeviceConfigurationsApplicableToMetrologyConfig(DeviceType deviceType, UsagePoint usagePoint, MeterRole meterRole, Instant shipmentDate) {
-        Range<Instant> shipmentRange = Range.atLeast(shipmentDate);
+        Range<Instant> deviceRange = Range.atLeast(shipmentDate);
         List<DeviceConfiguration> applicableConfigurations = new ArrayList<>();
-        usagePoint.getEffectiveMetrologyConfigurations().stream()
-                .filter(emc -> emc.getRange().isConnected(shipmentRange) && !emc.getRange().intersection(shipmentRange).isEmpty())
+        usagePoint.getEffectiveMetrologyConfigurations(deviceRange)
                 .forEach(effectiveMetrologyConfiguration -> {
                     Set<ReadingTypeRequirement> requirements = effectiveMetrologyConfiguration.getReadingTypeRequirements().stream()
                             .filter(readingTypeRequirement -> meterRole.equals(effectiveMetrologyConfiguration.getMetrologyConfiguration()
