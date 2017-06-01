@@ -704,7 +704,7 @@ public class UsagePointOutputResource {
     public List<OutputChannelDataInfo> previewCopyFromReferenceChannelData(@PathParam("name") String name, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
                                                                            ReferenceChannelDataInfo referenceChannelDataInfo) {
         try (TransactionContext context = transactionService.getContext()) {
-            if(referenceChannelDataInfo.editedReadings!=null && !referenceChannelDataInfo.editedReadings.isEmpty()) {
+            if (referenceChannelDataInfo.editedReadings != null && !referenceChannelDataInfo.editedReadings.isEmpty()) {
                 this.editChannelDataOfOutput(name, contractId, outputId, referenceChannelDataInfo.editedReadings);
             }
             UsagePoint usagePoint = resourceHelper.findUsagePointByNameOrThrowException(name);

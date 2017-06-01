@@ -97,6 +97,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -1037,6 +1038,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         verify(editor).updateAll(readingsCaptor.capture());
         assertThat(readingsCaptor.getAllValues()).hasSize(1);
         assertThat(readingsCaptor.getValue()).hasSize(1);
+        verify(transactionContext, never()).commit();
 
         assertThat(json.<String>get("$.[0].value")).isEqualTo("1");
         assertThat(json.<Long>get("$.[0].interval.start")).isEqualTo(SOURCE_INTERVAL_START);
