@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.GasDayOptions;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
 /**
@@ -33,8 +34,16 @@ class GasDayTruncater implements InstantTruncater {
             case DAY1: {
                 int hours = this.gasDayOptions.getYearStart().getHour();
                 if (hours > 0) {
-                    return intervalLength.truncate(instant.minus(hours, ChronoUnit.HOURS), zoneId)
-                            .plus(hours, ChronoUnit.HOURS);
+                    //CXO-7719: when DST: calculation was not correct
+                    ZonedDateTime truncatedDate = intervalLength.truncate(instant.atZone(zoneId).minus(hours, ChronoUnit.HOURS).toInstant(), zoneId).atZone(zoneId);
+                    ZonedDateTime result = truncatedDate.plus(hours, ChronoUnit.HOURS);
+                    int offSetTruncatedDate = truncatedDate.getOffset().getTotalSeconds();
+                    int offsetResult = result.getOffset().getTotalSeconds();
+                    int offset = offSetTruncatedDate - offsetResult;
+                    if (offset != 0) {
+                        result = result.plusSeconds(offset);
+                    }
+                    return result.toInstant();
                 } else {
                     return intervalLength.truncate(instant, zoneId);
                 }
