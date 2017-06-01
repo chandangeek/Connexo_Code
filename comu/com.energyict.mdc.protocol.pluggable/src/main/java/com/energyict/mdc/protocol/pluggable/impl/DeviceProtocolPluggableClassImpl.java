@@ -164,9 +164,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
 
     @Override
     protected void validateLicense() {
-        if (!this.protocolPluggableService.isLicensedProtocolClassName(this.getJavaClassName())) {
-            throw new ProtocolNotAllowedByLicenseException(this.getThesaurus(), this.getJavaClassName());
-        }
+        // No license information to validate since 10.3 (CXO-2089)
     }
 
     @Override
