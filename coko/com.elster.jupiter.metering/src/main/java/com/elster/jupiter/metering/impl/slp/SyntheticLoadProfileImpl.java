@@ -32,10 +32,12 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
+import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.TimeZone;
 
 @Unique(fields = "name", groups = {Save.Create.class}, message = "{" + PrivateMessageSeeds.Constants.DUPLICATE_SLP_NAME + "}")
 public class SyntheticLoadProfileImpl implements SyntheticLoadProfile {
@@ -165,6 +167,11 @@ public class SyntheticLoadProfileImpl implements SyntheticLoadProfile {
             result.put(entry.getTimeStamp(), entry.getBigDecimal(FIRST_VALUE_OFFSET));
         }
         return result.build();
+    }
+
+    @Override
+    public ZoneId getZoneId() {
+        return timeSeries.get().getZoneId();
     }
 
     @Override

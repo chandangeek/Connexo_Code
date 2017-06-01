@@ -17,9 +17,11 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.Period;
+import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TimeZone;
 
 @ProviderType
 public interface SyntheticLoadProfile extends HasId, HasName{
@@ -40,6 +42,8 @@ public interface SyntheticLoadProfile extends HasId, HasName{
     Instant getStartTime();
 
     Period getDuration();
+
+    ZoneId getZoneId();
 
     void addValues(Map<Instant, BigDecimal> values);
 
