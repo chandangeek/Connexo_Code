@@ -108,7 +108,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resum
  */
 public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
 
-    UPGRADE_FIRMWARE_WITH_USER_FILE(5001, "Upload firmware and activate later") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE(5001, "Upload firmware and activate immediately") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation));
@@ -116,7 +116,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
 
         @Override
         public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
-            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION(5002, "Upload firmware with resume option and activate immediately") {
@@ -211,17 +211,6 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
-        }
-    },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_ACTIVATE_IMMEDIATE(5009, "Upload firmware and activate immediately") {
-        @Override
-        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation));
-        }
-
-        @Override
-        public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
-            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
     UpgradeWaveCard(5010, "Upgrade the Wavecard firmware") {

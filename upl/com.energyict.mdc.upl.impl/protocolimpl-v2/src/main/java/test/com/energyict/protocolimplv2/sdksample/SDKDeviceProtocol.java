@@ -331,8 +331,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
                 FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.UPGRADE_FIRMWARE_ACTIVATE.get(this.propertySpecService, this.nlsService, this.converter),
-                FirmwareDeviceMessage.UPGRADE_FIRMWARE_URL_AND_ACTIVATE.get(this.propertySpecService, this.nlsService, this.converter),
-                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_ACTIVATE_IMMEDIATE.get(this.propertySpecService, this.nlsService, this.converter));
+                FirmwareDeviceMessage.UPGRADE_FIRMWARE_URL_AND_ACTIVATE.get(this.propertySpecService, this.nlsService, this.converter));
     }
 
     @Override
