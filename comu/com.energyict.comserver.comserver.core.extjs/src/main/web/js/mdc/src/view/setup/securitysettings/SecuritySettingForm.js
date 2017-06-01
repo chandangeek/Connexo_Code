@@ -264,7 +264,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
             propertyInfo.set('value', propertyInfo.getPropertyValue().get('value'));
         }
         me.down('form').clientKey = propertyInfo.get('key');
-        Ext.resumeLayouts();
+        Ext.resumeLayouts(true);
     }
 });
 

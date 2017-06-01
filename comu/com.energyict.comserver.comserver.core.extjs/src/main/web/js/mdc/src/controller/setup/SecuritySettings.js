@@ -51,6 +51,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     currentDeviceConfigurationId: undefined,
     deviceProtocolSupportsClient: undefined,
     deviceProtocolSupportSecuritySuites: undefined,
+    storeCounter: 0,
 
     init: function () {
         var me = this;
@@ -120,6 +121,11 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 }
                 me.getAuthCombobox().show();
             }
+            me.storeCounter--;
+            if(me.storeCounter <= 0) {
+                me.getFormPanel().resumeLayouts(true);
+                me.getFormPanel().resumeEvents();
+            }
         });
         me.getEncryptionLevelsStore().on('load', function (store, records, success) {
             if (success && records && records.length === 0) {
@@ -135,6 +141,11 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                     me.getEncrCombobox().clearInvalid();
                 }
                 me.getEncrCombobox().show();
+            }
+            me.storeCounter--;
+            if(me.storeCounter <= 0) {
+                me.getFormPanel().resumeLayouts(true);
+                me.getFormPanel().resumeEvents();
             }
         });
         me.getRequestSecurityLevelsStore().on('load', function (store, records, success) {
@@ -152,6 +163,11 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 }
                 me.getRequestSecurityCombobox().show();
             }
+            me.storeCounter--;
+            if(me.storeCounter <= 0) {
+                me.getFormPanel().resumeLayouts(true);
+                me.getFormPanel().resumeEvents();
+            }
         });
         me.getResponseSecurityLevelsStore().on('load', function (store, records, success) {
             if (success && records && records.length === 0) {
@@ -168,6 +184,11 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 }
                 me.getResponseSecurityCombobox().show();
             }
+            me.storeCounter--;
+            if(me.storeCounter <= 0) {
+                me.getFormPanel().resumeLayouts(true);
+                me.getFormPanel().resumeEvents();
+            }
         });
         me.getConfigurationSecurityPropertiesStore().on('load', function (store, records, success) {
             var formPanel = me.getFormPanel(),
@@ -175,7 +196,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 propertyForm = formPanel.down('property-form'),
                 record;
             record = form.getRecord();
-
+            me.getFormPanel().suspendLayouts();
             if (success && records.length) {
                 record.propertiesStore.removeAll();
                 record.propertiesStore.add(records);
@@ -188,6 +209,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 propertyForm.removeAll();
                 me.getSecuritySettingFormDetailsTitle().setVisible(false);
             }
+            me.getFormPanel().resumeLayouts(true);
         });
     },
 
@@ -499,21 +521,27 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             requestSecurityLevelStore = me.getRequestSecurityLevelsStore(),
             responseSecurityLevelStore = me.getResponseSecurityLevelsStore();
 
+        me.getFormPanel().suspendLayouts();
+        me.getFormPanel().suspendEvents(true);
         if (createView) {
             if (deviceProtocolSupportSecuritySuites) {
                 authCombobox.hide();
                 encrCombobox.hide();
                 requestSecurityCombobox.hide();
                 responseSecurityCombobox.hide();
+                me.getFormPanel().resumeLayouts(true);
             } else {
+                me.storeCounter = 2;
                 authenticationLevelStore.load();
                 encryptionLevelStore.load();
                 me.hideSecuritySuiteFields();
             }
         } else {
+            me.storeCounter = 2;
             authenticationLevelStore.load();
             encryptionLevelStore.load();
             if (deviceProtocolSupportSecuritySuites) {
+                me.storeCounter += 2;
                 securitySuitesStore.load();
                 requestSecurityLevelStore.load();
                 responseSecurityLevelStore.load();
@@ -544,8 +572,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             requestSecurityLevelsStore = requestSecurityCombobox.getStore(),
             responseSecurityCombobox = me.getResponseSecurityCombobox(),
             responseSecurityLevelsStore = responseSecurityCombobox.getStore(),
-            storesToLoad = 4;
+            storesToLoad = me.storeCounter = 4;
 
+        me.getFormPanel().suspendLayouts();
+        me.getFormPanel().suspendEvents(true);
         callBackFunction = function () {
             storesToLoad--;
             if (storesToLoad <= 0) {
