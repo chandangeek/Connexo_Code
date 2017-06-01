@@ -226,12 +226,11 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
 
         widget = Ext.widget('device-configuration-estimation-rule-sets-setup', {router: router});
 
-        me.getApplication().fireEvent('changecontentevent', widget);
         widget.down('device-configuration-estimation-rule-sets-grid').getStore().load();
-        me.loadDeviceTypeAndConfiguration(deviceTypeId, deviceConfigurationId, widget);
+        me.loadDeviceTypeAndConfigurationAndShowWidget(deviceTypeId, deviceConfigurationId, widget);
     },
 
-    loadDeviceTypeAndConfiguration: function (deviceTypeId, deviceConfigurationId, widget) {
+    loadDeviceTypeAndConfigurationAndShowWidget: function (deviceTypeId, deviceConfigurationId, widget) {
         var me = this;
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
@@ -246,6 +245,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
                         if (widget.down('#stepsMenu')) {
                             widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
                         }
+                        me.getApplication().fireEvent('changecontentevent', widget);
                     }
                 });
             }
