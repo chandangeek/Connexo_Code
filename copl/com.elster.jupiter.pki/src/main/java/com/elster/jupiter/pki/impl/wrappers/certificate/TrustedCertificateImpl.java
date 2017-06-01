@@ -56,7 +56,7 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
 
     @Override
     public Optional<CRL> getCRL() {
-        if (this.latestCrl==null || this.latestCrl.length==0) {
+        if (this.latestCrl == null || this.latestCrl.length == 0) {
             return Optional.empty();
         }
         try (InputStream bytes = new ByteArrayInputStream(this.latestCrl)) {
@@ -75,7 +75,7 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
     public void setCRL(CRL crl) {
         // TODO PERFORM CHECKS
         try {
-            this.latestCrl = ((X509CRL)crl).getEncoded();
+            this.latestCrl = ((X509CRL) crl).getEncoded();
             this.save();
         } catch (CRLException e) {
             e.printStackTrace();
@@ -125,8 +125,7 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
             void copyToMap(Map<String, Object> properties, TrustedCertificate certificateWrapper) {
                 properties.put(getPropertyName(), certificateWrapper.getTrustStore());
             }
-        },
-        ;
+        },;
 
         private final String propertyName;
 
@@ -135,7 +134,9 @@ public class TrustedCertificateImpl extends AbstractCertificateWrapperImpl imple
         }
 
         abstract PropertySpec asPropertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus);
+
         abstract void copyFromMap(Map<String, Object> properties, TrustedCertificate certificateWrapper);
+
         abstract void copyToMap(Map<String, Object> properties, TrustedCertificate certificateWrapper);
 
         String getPropertyName() {

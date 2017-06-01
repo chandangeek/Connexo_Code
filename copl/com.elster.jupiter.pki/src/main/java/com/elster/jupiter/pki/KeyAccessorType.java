@@ -18,7 +18,7 @@ import java.util.Optional;
  * name of a KeyAccessor.
  */
 @ConsumerType
-public interface KeyAccessorType extends HasId, HasName, com.energyict.mdc.upl.security.KeyAccessorType  {
+public interface KeyAccessorType extends HasId, HasName  {
 
     /**
      * The KeyAccessorType system assigned id

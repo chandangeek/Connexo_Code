@@ -14,7 +14,6 @@ import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.TranslationKeys;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpecService;
-
 import com.google.common.base.Joiner;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
@@ -47,7 +46,7 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
 
     @Override
     public Optional<PKCS10CertificationRequest> getCSR() {
-        if (this.csr==null || this.csr.length==0) {
+        if (this.csr == null || this.csr.length == 0) {
             return Optional.empty();
         }
         try {
@@ -124,7 +123,7 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
     public Optional<String> getAllKeyUsages() {
         if (!this.getCertificate().isPresent() && getCSR().isPresent()) {
             List<String> usages = new ArrayList<>();
-            for (Attribute attribute: getCSR().get().getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)) {
+            for (Attribute attribute : getCSR().get().getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)) {
                 for (ASN1Encodable asn1Encodable : attribute.getAttributeValues()) {
                     Extensions extensions = Extensions.getInstance(asn1Encodable);
                     Extension keyUsageExtension = extensions.getExtension(Extension.keyUsage);
@@ -152,11 +151,11 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
 
     private Set<ExtendedKeyUsage> getCsrExtendedKeyUsages(PKCS10CertificationRequest certificationRequest) {
         Set<ExtendedKeyUsage> extendedKeyUsages = EnumSet.noneOf(ExtendedKeyUsage.class);
-        for (Attribute attribute: certificationRequest.getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)) {
+        for (Attribute attribute : certificationRequest.getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)) {
             for (ASN1Encodable asn1Encodable : attribute.getAttributeValues()) {
                 Extensions extensions = Extensions.getInstance(asn1Encodable);
                 Extension extendedKeyUsage = extensions.getExtension(Extension.extendedKeyUsage);
-                if (extendedKeyUsage!=null) {
+                if (extendedKeyUsage != null) {
                     extendedKeyUsages.addAll(ExtendedKeyUsage.fromExtension(extendedKeyUsage));
                 }
             }
@@ -174,11 +173,11 @@ public class RequestableCertificateWrapperImpl extends AbstractCertificateWrappe
 
     private Set<KeyUsage> getCsrKeyUsages() {
         EnumSet<KeyUsage> keyUsages = EnumSet.noneOf(KeyUsage.class);
-        for (Attribute attribute: getCSR().get().getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)) {
+        for (Attribute attribute : getCSR().get().getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest)) {
             for (ASN1Encodable asn1Encodable : attribute.getAttributeValues()) {
                 Extensions extensions = Extensions.getInstance(asn1Encodable);
                 Extension keyUsageExtension = extensions.getExtension(Extension.keyUsage);
-                if (keyUsageExtension!=null) {
+                if (keyUsageExtension != null) {
                     keyUsages.addAll(KeyUsage.fromExtension(keyUsageExtension));
                 }
             }

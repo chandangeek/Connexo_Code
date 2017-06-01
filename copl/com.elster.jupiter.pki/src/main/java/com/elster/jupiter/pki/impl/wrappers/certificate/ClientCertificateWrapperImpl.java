@@ -14,7 +14,6 @@ import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.properties.PropertySpecService;
-
 import org.bouncycastle.asn1.x500.X500Name;
 
 import javax.inject.Inject;
@@ -35,7 +34,7 @@ public class ClientCertificateWrapperImpl extends RequestableCertificateWrapperI
      * Initializer for Client certificate wrapper
      *
      * @param privateKeyWrapper The Wrapper that will contain the private key for this client certificate
-     * @param keyType The type for this certificate.
+     * @param keyType           The type for this certificate.
      * @return The updated ClientCertificateWrapper
      */
     public ClientCertificateWrapperImpl init(PrivateKeyWrapper privateKeyWrapper, KeyType keyType) {
@@ -68,7 +67,7 @@ public class ClientCertificateWrapperImpl extends RequestableCertificateWrapperI
     @Override
     public void delete() {
         if (privateKeyReference.isPresent()) {
-            ((PrivateKeyWrapper)privateKeyReference.get()).delete();
+            ((PrivateKeyWrapper) privateKeyReference.get()).delete();
         }
         super.delete();
     }
