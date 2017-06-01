@@ -36,6 +36,9 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
             me.columns.push({
                 header: Uni.I18n.translate('securitySetting.client', 'MDC', 'Client'),
                 dataIndex: 'client',
+                renderer: function (value, grid, record) {
+                    return Ext.isEmpty(record.getClient()) ? '-' : record.getClient().getPropertyValue().get('value');
+                },
                 flex: 3
             });
         }
