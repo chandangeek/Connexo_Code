@@ -113,7 +113,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
             comTaskCommunicationSummary = me.getComTaskCommunicationSummary(),
             errorListConnection = [],
             errorListCommunication = [],
-            communicationTaskHistory = me.getDeviceCommunicationTaskHistoryGrid().getSelectionModel().getSelection()[0],
+            communicationTaskHistory = record,
             comTaskPreview = me.getDeviceCommunicationTaskHistoryPreviewPanel();
 
         Ext.suspendLayouts();
@@ -121,7 +121,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTaskHistory', {
         me.getComPortField().setValue(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), communicationTaskHistory.get('comSession').comPort, '<a href="#/administration/comservers/' + communicationTaskHistory.get('comSession').comServer.id + '">' + communicationTaskHistory.get('comSession').comServer.name + '</a>'));
         me.getDeviceConnectionHistoryPreviewForm().loadRecord(communicationTaskHistory.getComSession());
         connectionPreview.setTitle(Uni.I18n.translate('devicecommunicationtaskhistory.connectionPreviewTitle', 'MDC', '{0} on {1}', [communicationTaskHistory.getComSession().get('connectionMethod').name, communicationTaskHistory.getComSession().get('device').name]));
-        comTaskPreview.setTitle(Ext.String.format(Uni.DateTime.formatDateTime(communicationTaskHistory.get('startedOn'), Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS)));
+        comTaskPreview.setTitle(Uni.DateTime.formatDateTime(communicationTaskHistory.get('startTime'), Uni.DateTime.SHORT, Uni.DateTime.LONG));
 
         if (communicationTaskHistory.get('comSession').errors && communicationTaskHistory.get('comSession').errors.length > 0) {
             errorListConnection.push((Uni.I18n.translate('deviceconnectionhistory.errorsTitle', 'MDC', 'Errors:')));
