@@ -13,14 +13,21 @@ import com.elster.jupiter.slp.importers.impl.SyntheticLoadProfileDataImporterCon
 import com.elster.jupiter.slp.importers.impl.properties.TimeZonePropertySpec;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 
+import org.joda.time.Days;
+
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalField;
+import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor<SyntheticLoadProfileImportRecord> {
 
@@ -52,6 +59,10 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
         validateDuration();
         for (Map.Entry<String, Map<Instant, BigDecimal>> entry : values.entrySet()) {
             SyntheticLoadProfile syntheticLoadProfile = findSyntheticLoadProfile(entry.getKey());
+            entry.getValue().keySet()
+                    .stream()
+                    .sorted()
+                    .findFirst().ifPresent(instant -> isValidTimestamp(syntheticLoadProfile, instant));
             syntheticLoadProfile.addValues(entry.getValue());
         }
         if (logger instanceof SyntheticLoadProfileImportLogger) {
@@ -111,5 +122,21 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
             interval = findSyntheticLoadProfile(data.getSyntheticLoadProfiles().keySet().iterator().next()).getInterval();
         }
         return  interval;
+    }
+
+    private void isValidTimestamp (SyntheticLoadProfile syntheticLoadProfile, Instant firstTimestamp) {
+        String expectedDateTime = DefaultDateTimeFormatters.shortDate().withShortTime().build().format(syntheticLoadProfile.getStartTime().atZone(syntheticLoadProfile.getZoneId()));
+        String actualDateTime = DefaultDateTimeFormatters.shortDate().withShortTime().build().format(firstTimestamp.atZone(zoneId));
+        if (syntheticLoadProfile.getInterval().get(ChronoUnit.DAYS) > 0 && !ZoneId.systemDefault().equals(zoneId)){
+            if(!syntheticLoadProfile.getZoneId().getRules().getOffset(syntheticLoadProfile.getStartTime()).equals(zoneId)){
+                throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP, 2, expectedDateTime, actualDateTime);
+            }
+        } else if (firstTimestamp.atZone(zoneId).getMinute() % syntheticLoadProfile.getInterval().get(ChronoUnit.MINUTES) != 0){
+            throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP, 2, expectedDateTime, actualDateTime);
+        }
+        else if (firstTimestamp.atZone(syntheticLoadProfile.getZoneId()).getSecond() != 0
+                && firstTimestamp.atZone(syntheticLoadProfile.getZoneId()).getNano() != 0){
+            throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP, 2, expectedDateTime, actualDateTime);
+        }
     }
 }

@@ -29,7 +29,7 @@ public enum MessageSeeds implements MessageSeed {
     CORRECTIONFACTOR_NOT_FOUND(13, "NoSuchCorrectionFactor", "Can''t process line {0}: unknown correction factor name ''{1}''"),
     CORRECTIONFACTOR_WRONG_VALUE(14, "WrongValueFormat", "Can''t process line {0}: wrong value format"),
     CORRECTIONFACTOR_TIMESTAMP_BEFORE_STARTTIME(15, "TimestampIsBeforeStarttime", "Can''t process line {0}: the timestamp must be greater or equal to {1}"),
-    CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP(16, "WrongFirstTimestamp", "Can''t process line {0}: wrong first timestamp. First timestamp in the file should match to month, day and hour of ''Start time'' of all of the correction factors specified in the file."),
+    CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP(16, "WrongFirstTimestamp", "Can''t process line ''{0}'': wrong first timestamp. First timestamp in the file should match to month, day and hour of ''Start time'' of all of the correction factors specified in the file. Expected date and time : ''{1}'', actual date and time ''{2}''"),
     CORRECTIONFACTOR_WRONG_INTERVAL(17, "WrongInterval", "Can''t process line {0}: wrong timestamp. The interval between this and previous timestamp must be equal to ''Interval'' value of all of the correction factors specified in the file."),
     CORRECTIONFACTOR_NOT_ENOUGH_DATA(18, "NotEnoughData", "Can''t process the file: the file must contain amount of data wich is multiple of ''Duration'' attribute value of all of the correction factors specified in the file"),
     CORRECTIONFACTOR_IMPORT_FAILED(19, "CorrectionFactorImportFailed", "Import failed"),
