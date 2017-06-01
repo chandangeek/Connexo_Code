@@ -379,6 +379,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(134L, "testMC", 345L);
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+        when(usagePoint.getEffectiveMetrologyConfigurations(any())).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
         when(metrologyConfiguration.getContracts()).thenReturn(Collections.emptyList());
         when(effectiveMetrologyConfigurationOnUsagePoint.getRange()).thenReturn(Range.all());
         when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint));
