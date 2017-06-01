@@ -147,6 +147,8 @@ public final class DeviceMessageConstants {
     public static final String activityCalendarNameAttributeDefaultTranslation = "Name";
     public static final String activityCalendarAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
     public static final String activityCalendarCodeTableAttributeDefaultTranslation = "Activity calendar";
+    public static final String fullActivityCalendarAttributeName = "ActivityCalendarDeviceMessage.full.activitycalendar.codetable";
+    public static final String fullActivityCalendarCodeTableAttributeDefaultTranslation = "Activity calendar";
     public static final String contractsXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.contractsxmluserfile";
     public static final String contractsXmlUserFileAttributeDefaultTranslation = "File";
     public static final String specialDaysAttributeName = "ActivityCalendarDeviceMessage.specialdays.codetable";

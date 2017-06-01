@@ -41,6 +41,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dayPr
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dayProfileXmlUserFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.defaultTariffCodeAttrributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.defaultTariffCodeAttrributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fullActivityCalendarAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fullActivityCalendarCodeTableAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.seasonProfileXmlUserFileAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.seasonProfileXmlUserFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
@@ -313,7 +315,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.stringSpec(service, activityCalendarNameAttributeName, activityCalendarNameAttributeDefaultTranslation),
-                    this.codeTableSpec(service, activityCalendarAttributeName, activityCalendarCodeTableAttributeDefaultTranslation)
+                    this.codeTableSpec(service, fullActivityCalendarAttributeName, fullActivityCalendarCodeTableAttributeDefaultTranslation)
             );
         }
 
@@ -323,12 +325,12 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
         }
 
     },
-    ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME(20, "Send full with activation date") {
+    ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME(20, "Send full calendar with activation date") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.stringSpec(service, activityCalendarNameAttributeName, activityCalendarNameAttributeDefaultTranslation),
-                    this.codeTableSpec(service, activityCalendarAttributeName, activityCalendarCodeTableAttributeDefaultTranslation),
+                    this.codeTableSpec(service, fullActivityCalendarAttributeName, fullActivityCalendarCodeTableAttributeDefaultTranslation),
                     this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation)
             );
         }
@@ -344,7 +346,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
             return Arrays.asList(
                     this.stringSpec(service, activityCalendarTypeAttributeName, activityCalendarTypeAttributeDefaultTranslation, ActivityCalendarType.getAllDescriptions()),
                     this.stringSpec(service, activityCalendarNameAttributeName, activityCalendarNameAttributeDefaultTranslation),
-                    this.codeTableSpec(service, activityCalendarAttributeName, activityCalendarCodeTableAttributeDefaultTranslation),
+                    this.codeTableSpec(service, fullActivityCalendarAttributeName, fullActivityCalendarCodeTableAttributeDefaultTranslation),
                     this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation)
             );
         }
@@ -358,7 +360,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.codeTableSpec(service, activityCalendarAttributeName, activityCalendarCodeTableAttributeDefaultTranslation),
+                    this.codeTableSpec(service, fullActivityCalendarAttributeName, fullActivityCalendarCodeTableAttributeDefaultTranslation),
                     this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation)
             );
         }
@@ -374,7 +376,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecSupplier {
             return Arrays.asList(
                     this.bigDecimalSpec(service, contractAttributeName, contractAttributeDefaultTranslation),
                     this.stringSpec(service, activityCalendarNameAttributeName, activityCalendarNameAttributeDefaultTranslation),
-                    this.codeTableSpec(service, activityCalendarAttributeName, activityCalendarCodeTableAttributeDefaultTranslation),
+                    this.codeTableSpec(service, fullActivityCalendarAttributeName, fullActivityCalendarCodeTableAttributeDefaultTranslation),
                     this.dateTimeSpec(service, activityCalendarActivationDateAttributeName, activityCalendarActivationDateAttributeDefaultTranslation)
             );
         }

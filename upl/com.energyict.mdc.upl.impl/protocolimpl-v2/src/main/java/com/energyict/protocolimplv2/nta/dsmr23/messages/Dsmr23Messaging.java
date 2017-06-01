@@ -20,7 +20,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
@@ -59,6 +58,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.encry
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fullActivityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
@@ -178,6 +178,8 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
         supportedMessages.add(this.get(DisplayDeviceMessage.CONSUMER_MESSAGE_TEXT_TO_PORT_P1));
         supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND));
         supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME));
+        supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_SEND));
+        supportedMessages.add(this.get(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME));
         supportedMessages.add(this.get(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND));
         supportedMessages.add(this.get(ClockDeviceMessage.SET_TIME));
         supportedMessages.add(this.get(AdvancedTestMessage.XML_CONFIG));
@@ -246,6 +248,13 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
                 this.calendarExtractor.threadContext().setDevice(offlineDevice);
                 this.calendarExtractor.threadContext().setMessage(offlineDeviceMessage);
                 return convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor);
+            }
+            case fullActivityCalendarAttributeName: {
+                this.calendarExtractor.threadContext().setDevice(offlineDevice);
+                this.calendarExtractor.threadContext().setMessage(offlineDeviceMessage);
+                String activityCalendar = convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor);
+                String specialDays = parseSpecialDays((TariffCalendar) messageAttribute, this.calendarExtractor);
+                return activityCalendar + SEPARATOR + specialDays;
             }
             case authenticationLevelAttributeName:
                 return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
