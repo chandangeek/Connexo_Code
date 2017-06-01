@@ -114,8 +114,9 @@ public class TaskContentInfo {
             if(key.equals(value)){
                 try {
                     if(field.getString("type").equals("InputDate") || field.getString("type").equals("InputShortDate")){
-                        if(jsonObject.optLong(key) != 0) {
-                            propertyValueInfo = new PropertyValueInfo(jsonObject.getLong(key));
+                        long milliseconds = jsonObject.optLong(key);
+                        if(milliseconds != 0) {
+                            propertyValueInfo = new PropertyValueInfo(milliseconds);
                         }
                     }else {
                         try {
