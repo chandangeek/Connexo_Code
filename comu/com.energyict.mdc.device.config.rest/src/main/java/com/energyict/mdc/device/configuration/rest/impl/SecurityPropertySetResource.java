@@ -7,10 +7,12 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
@@ -22,6 +24,7 @@ import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -30,6 +33,7 @@ import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
 
@@ -128,10 +132,10 @@ public class SecurityPropertySetResource {
         if (info.responseSecurityLevelId == null) {
             info.responseSecurityLevelId = DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
         }
-
+        Optional<PropertySpec> clientPropertySpec = getClientPropertySpec(deviceConfiguration.getDeviceType());
         SecurityPropertySetBuilder builder = deviceConfiguration
                 .createSecurityPropertySet(info.name)
-                .client(info.client != null ? info.client.getPropertyValueInfo().getValue() : null)
+                .client(info.client != null && clientPropertySpec.isPresent() ? mdcPropertyUtils.findPropertyValue(clientPropertySpec.get(), Collections.singletonList(info.client)) : null)
                 .authenticationLevel(info.authenticationLevelId)
                 .encryptionLevel(info.encryptionLevelId)
                 .securitySuite(info.securitySuiteId)
@@ -157,10 +161,16 @@ public class SecurityPropertySetResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public Response updateSecurityPropertySet(@PathParam("securityPropertySetId") long securityPropertySetId, SecurityPropertySetInfo info) {
+    public Response updateSecurityPropertySet(@PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("securityPropertySetId") long securityPropertySetId, SecurityPropertySetInfo info) {
         info.id = securityPropertySetId;
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         SecurityPropertySet securityPropertySet = resourceHelper.lockSecurityPropertySetOrThrowException(info);
-        info.writeTo(securityPropertySet);
+        Optional<PropertySpec> clientPropertySpec = getClientPropertySpec(deviceConfiguration.getDeviceType());
+        Object propertyValue = null;
+        if(clientPropertySpec.isPresent()) {
+            propertyValue = mdcPropertyUtils.findPropertyValue(clientPropertySpec.get(), Collections.singletonList(info.client));
+        }
+        info.writeTo(securityPropertySet, propertyValue);
 
         List<ConfigurationSecurityProperty> configurationSecurityProperties = securityPropertySet.getConfigurationSecurityProperties();
         if (info.properties != null && !info.properties.isEmpty()) {
@@ -362,5 +372,30 @@ public class SecurityPropertySetResource {
         } else {
             return Optional.empty();
         }
+    }
+
+    @GET
+    @Transactional
+    @Path("/clienttype")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response getClientType(@PathParam("deviceTypeId") long deviceTypeId) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        PropertyInfo clientType = null;
+        Optional<PropertySpec> clientPropertySpec = getClientPropertySpec(deviceType);
+        if (clientPropertySpec.isPresent()) {
+            clientType = mdcPropertyUtils.convertPropertySpecToPropertyInfo(clientPropertySpec.get(), null);
+        }
+        return Response.ok(clientType).build();
+    }
+
+    private Optional<PropertySpec> getClientPropertySpec(DeviceType deviceType) {
+        if (deviceType.getDeviceProtocolPluggableClass().isPresent()) {
+            DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceType.getDeviceProtocolPluggableClass().get();
+            if (deviceProtocolPluggableClass.getDeviceProtocol().getClientSecurityPropertySpec().isPresent()) {
+                return Optional.of(new UPLToConnexoPropertySpecAdapter(deviceProtocolPluggableClass.getDeviceProtocol().getClientSecurityPropertySpec().get()));
+            }
+        }
+        return Optional.empty();
     }
 }

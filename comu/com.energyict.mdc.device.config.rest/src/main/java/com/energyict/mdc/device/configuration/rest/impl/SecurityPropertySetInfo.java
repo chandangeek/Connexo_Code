@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -13,6 +14,7 @@ import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
+import java.util.Optional;
 
 public class SecurityPropertySetInfo {
 
@@ -50,7 +52,7 @@ public class SecurityPropertySetInfo {
     public SecurityPropertySetInfo() {
     }
 
-    public void writeTo(SecurityPropertySet securityPropertySet) {
+    public void writeTo(SecurityPropertySet securityPropertySet, Object propertyValue) {
         securityPropertySet.setName(this.name);
         if (this.authenticationLevelId == null) {
             this.authenticationLevelId = DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
@@ -68,7 +70,7 @@ public class SecurityPropertySetInfo {
             this.responseSecurityLevelId = DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
         }
 
-        securityPropertySet.setClient(this.client != null ? this.client.getPropertyValueInfo().getValue() : null);
+        securityPropertySet.setClient(this.client != null && propertyValue != null ? propertyValue : null);
         securityPropertySet.setAuthenticationLevelId(this.authenticationLevelId);
         securityPropertySet.setEncryptionLevelId(this.encryptionLevelId);
         securityPropertySet.setSecuritySuiteId(this.securitySuiteId);
