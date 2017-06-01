@@ -934,10 +934,8 @@ Ext.define('Cfg.controller.Validation', {
                 location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.get('ruleSetVersionId') + '/rules/' + record.get('id');
                 break;
             case 'activateRule':
-                me.deactivateRule(record);
-                break;
             case 'deactivateRule':
-                me.deactivateRule(record);
+                me.toggleValidationRule(record);
                 break;
             case 'editRule':
                 location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.get('ruleSetVersionId') + '/rules/' + record.get('id') + '/edit';
@@ -948,9 +946,8 @@ Ext.define('Cfg.controller.Validation', {
         }
     },
 
-    deactivateRule: function (record, active) {
+    toggleValidationRule: function (record) {
         var me = this,
-            router = this.getController('Uni.controller.history.Router'),
             view = me.getRulePreviewContainer() || me.getRuleOverview() || me.getRulePreviewContainerPanel(),
             versionsGrid = me.getVersionsPreviewContainerPanel(),
             grid = view.down('grid'),
