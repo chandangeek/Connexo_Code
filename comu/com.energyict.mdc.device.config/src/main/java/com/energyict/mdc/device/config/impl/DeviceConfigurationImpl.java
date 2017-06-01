@@ -35,7 +35,6 @@ import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -76,6 +75,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
@@ -1358,7 +1358,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     private DeviceMessageSpec replaceDeviceMessageFileValueFactories(DeviceMessageSpec spec) {
-        return new FileMessageSpecImpl(this.getDeviceType(), spec, this.propertySpecService);
+        return new DeviceMessageSpecWithPossibleValuesImpl(this.getDeviceType(), spec, this.propertySpecService);
     }
 
     public List<DeviceConfValidationRuleSetUsage> getDeviceConfValidationRuleSetUsages() {

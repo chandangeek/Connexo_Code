@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -17,28 +18,29 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link FileMessageSpecImpl} component.
+ * Tests the {@link DeviceMessageSpecWithPossibleValuesImpl} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-05-13 (11:18)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class FileMessageSpecImplTest {
+public class DeviceMessageSpecWithPossibleValuesImplTest {
 
     private static final String EXPECTED_SPEC_NAME = "DeviceMessageSpecImplTest";
     private static final DeviceMessageId EXPECTED_DEVICE_MESSAGE_ID = DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE;
@@ -71,7 +73,7 @@ public class FileMessageSpecImplTest {
         when(this.deviceMessageSpec.getPropertySpecs()).thenReturn(Collections.emptyList());
 
         // Business method
-        FileMessageSpecImpl deviceMessageSpec = this.getTestInstance();
+        DeviceMessageSpecWithPossibleValuesImpl deviceMessageSpec = this.getTestInstance();
 
         // Asserts
         assertThat(deviceMessageSpec.getId()).isEqualTo(EXPECTED_DEVICE_MESSAGE_ID);
@@ -95,7 +97,7 @@ public class FileMessageSpecImplTest {
         when(this.deviceMessageSpec.getPropertySpecs()).thenReturn(Arrays.asList(string1, string2));
 
         // Business method
-        FileMessageSpecImpl deviceMessageSpec = this.getTestInstance();
+        DeviceMessageSpecWithPossibleValuesImpl deviceMessageSpec = this.getTestInstance();
 
         // Asserts
         assertThat(deviceMessageSpec.getId()).isEqualTo(EXPECTED_DEVICE_MESSAGE_ID);
@@ -130,7 +132,7 @@ public class FileMessageSpecImplTest {
         when(this.deviceMessageSpec.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
 
         // Business method
-        FileMessageSpecImpl deviceMessageSpec = this.getTestInstance();
+        DeviceMessageSpecWithPossibleValuesImpl deviceMessageSpec = this.getTestInstance();
 
         // Asserts
         assertThat(deviceMessageSpec.getId()).isEqualTo(EXPECTED_DEVICE_MESSAGE_ID);
@@ -154,8 +156,52 @@ public class FileMessageSpecImplTest {
         assertThat(possibleValues.getDefault()).isNull();
     }
 
-    private FileMessageSpecImpl getTestInstance() {
-        return new FileMessageSpecImpl(
+    @Test
+    public void oneKeyAccessorTypeSpecWithPossibleValues() {
+        KeyAccessorType keyAccessorType1 = mock(KeyAccessorType.class);
+        when(keyAccessorType1.getName()).thenReturn("A");
+        KeyAccessorType keyAccessorType2 = mock(KeyAccessorType.class);
+        when(keyAccessorType2.getName()).thenReturn("C");
+        KeyAccessorType keyAccessorType3 = mock(KeyAccessorType.class);
+        when(keyAccessorType3.getName()).thenReturn("B");
+        when(this.deviceType.getKeyAccessorTypes()).thenReturn(Arrays.asList(keyAccessorType1, keyAccessorType2, keyAccessorType3));
+        PropertySpec propertySpec = this.propertySpecService
+                .referenceSpec(KeyAccessorType.class)
+                .named("AK", "Authentication key")
+                .describedAs("desc")
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
+                .markRequired()
+                .markEditable()
+                .finish();
+        when(this.deviceMessageSpec.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+
+        // Business method
+        DeviceMessageSpecWithPossibleValuesImpl deviceMessageSpec = this.getTestInstance();
+
+        // Asserts
+        assertThat(deviceMessageSpec.getId()).isEqualTo(EXPECTED_DEVICE_MESSAGE_ID);
+        assertThat(deviceMessageSpec.getCategory()).isEqualTo(this.category);
+        assertThat(deviceMessageSpec.getName()).isEqualTo(EXPECTED_SPEC_NAME);
+        List<PropertySpec> propertySpecs = deviceMessageSpec.getPropertySpecs();
+        assertThat(propertySpecs).hasSize(1);
+        PropertySpec copyOfPropertySpec = propertySpecs.get(0);
+        assertThat(copyOfPropertySpec).isNotSameAs(propertySpec);
+        assertThat(copyOfPropertySpec.getName()).isEqualTo("AK");
+        assertThat(copyOfPropertySpec.getDisplayName()).isEqualTo("Authentication key");
+        assertThat(copyOfPropertySpec.getDescription()).isEqualTo("desc");
+        assertThat(copyOfPropertySpec.isRequired()).isTrue();
+        assertThat(copyOfPropertySpec.supportsMultiValues()).isFalse();
+        PropertySpecPossibleValues possibleValues = copyOfPropertySpec.getPossibleValues();
+        assertThat(possibleValues).isNotNull();
+        assertThat(possibleValues.getSelectionMode()).isEqualTo(PropertySelectionMode.COMBOBOX);
+        assertThat(possibleValues.isExhaustive()).isTrue();
+        assertThat(possibleValues.isEditable()).isTrue();
+        assertThat(possibleValues.getAllValues()).containsOnly(keyAccessorType1, keyAccessorType2, keyAccessorType3);
+        assertThat(possibleValues.getDefault()).isNull();
+    }
+
+    private DeviceMessageSpecWithPossibleValuesImpl getTestInstance() {
+        return new DeviceMessageSpecWithPossibleValuesImpl(
                 this.deviceType,
                 this.deviceMessageSpec,
                 this.propertySpecService);
