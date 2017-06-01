@@ -98,6 +98,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -1222,7 +1223,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(editedProfileReading.getChannelValues()).thenReturn(Collections.singletonMap(channel, readingRecord));
         when(deviceService.findDeviceByName(device.getName())).thenReturn(Optional.of(device));
         JsonModel json = JsonModel.create(target("/devices/1/channels/" + CHANNEL_ID1 + "/data/copyfromreference").request().post(Entity.json(info), String.class));
-
+        verify(transactionContext, never()).commit();
         assertThat(json.<String>get("$.[0].value")).isEqualTo("10");
         assertThat(json.<Long>get("$.[0].interval.start")).isEqualTo(SOURCE_INTERVAL_START);
         assertThat(json.<Long>get("$.[0].interval.end")).isEqualTo(SOURCE_INTERVAL_END);

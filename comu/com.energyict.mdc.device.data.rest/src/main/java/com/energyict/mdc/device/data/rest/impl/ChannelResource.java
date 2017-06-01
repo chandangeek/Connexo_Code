@@ -679,7 +679,7 @@ public class ChannelResource {
     public List<ChannelDataInfo> previewCopyFromReferenceChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId,
                                                                      ReferenceChannelDataInfo referenceChannelDataInfo) {
         try (TransactionContext context = transactionService.getContext()) {
-            if(referenceChannelDataInfo.editedReadings!=null && !referenceChannelDataInfo.editedReadings.isEmpty()) {
+            if (referenceChannelDataInfo.editedReadings != null && !referenceChannelDataInfo.editedReadings.isEmpty()) {
                 this.editChannelData(name, channelId, referenceChannelDataInfo.editedReadings);
             }
             Device device = resourceHelper.findDeviceByNameOrThrowException(name);
