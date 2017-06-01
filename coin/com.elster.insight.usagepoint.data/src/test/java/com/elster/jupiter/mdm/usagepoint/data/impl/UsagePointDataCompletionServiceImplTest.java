@@ -187,7 +187,7 @@ public class UsagePointDataCompletionServiceImplTest {
     @Test
     public void testGetValidationSummaryForPeriodWithoutData() {
         Range<Instant> interval = Range.openClosed(NOW, NOW.plusNanos(1));
-        summary = usagePointDataCompletionService.getDataCompletionStatistics(channel, interval, effectiveMetrologyConfiguration, metrologyContract).get(0);
+        summary = usagePointDataCompletionService.getDataCompletionStatistics(usagePoint, metrologyPurpose, interval, readingType).get(0);
         assertThat(summary.getValues()).isEmpty();
         assertThat(summary.getSum()).isZero();
         assertThat(summary.getTargetInterval()).isEqualTo(interval);
@@ -246,9 +246,9 @@ public class UsagePointDataCompletionServiceImplTest {
 
     @Test
     public void testGetValidationSummaryNominalCase() {
-        summary = usagePointDataCompletionService.getDataCompletionStatistics(channel, NOMINAL_RANGE, effectiveMetrologyConfiguration, metrologyContract).stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.GENERAL).findFirst().get();
-        editedSummary = usagePointDataCompletionService.getDataCompletionStatistics(channel, NOMINAL_RANGE, effectiveMetrologyConfiguration, metrologyContract).stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.EDITED).findFirst().get();
-        validSummary = usagePointDataCompletionService.getDataCompletionStatistics(channel, NOMINAL_RANGE, effectiveMetrologyConfiguration, metrologyContract).stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.VALID).findFirst().get();
+        summary = usagePointDataCompletionService.getDataCompletionStatistics(usagePoint, metrologyPurpose, NOMINAL_RANGE, readingType).stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.GENERAL).findFirst().get();
+        editedSummary = usagePointDataCompletionService.getDataCompletionStatistics(usagePoint, metrologyPurpose, NOMINAL_RANGE, readingType).stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.EDITED).findFirst().get();
+        validSummary = usagePointDataCompletionService.getDataCompletionStatistics(usagePoint, metrologyPurpose, NOMINAL_RANGE, readingType).stream().filter(sum -> sum.getType() == ChannelDataCompletionSummaryType.VALID).findFirst().get();
         assertThat(summary.getValues()).contains(
                 MapEntry.entry(ChannelDataCompletionSummaryFlag.SUSPECT, 2),
                 MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 2),
@@ -273,7 +273,7 @@ public class UsagePointDataCompletionServiceImplTest {
 
     @Test
     public void testGetValidationSummaryForInfiniteRange() {
-        summary = usagePointDataCompletionService.getDataCompletionStatistics(channel, Range.all(), effectiveMetrologyConfiguration, metrologyContract).get(0);
+        summary = usagePointDataCompletionService.getDataCompletionStatistics(usagePoint, metrologyPurpose, Range.all(), readingType).get(0);
         assertThat(summary.getValues()).contains(
                 MapEntry.entry(ChannelDataCompletionSummaryFlag.SUSPECT, 2),
                 MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 3),
@@ -343,7 +343,7 @@ public class UsagePointDataCompletionServiceImplTest {
         when(validationService.getLastChecked(channel)).thenReturn(Optional.empty());
         when(validationService.getLastChecked(channelsContainer)).thenReturn(Optional.empty());
         when(validationEvaluator.getLastChecked(channelsContainer, readingType)).thenReturn(Optional.empty());
-        summary = usagePointDataCompletionService.getDataCompletionStatistics(channel, NOMINAL_RANGE, effectiveMetrologyConfiguration, metrologyContract).get(0);
+        summary = usagePointDataCompletionService.getDataCompletionStatistics(usagePoint, metrologyPurpose, NOMINAL_RANGE, readingType).get(0);
         assertThat(summary.getValues()).contains(
                 MapEntry.entry(ChannelDataCompletionSummaryFlag.NOT_VALIDATED, 11));
         assertThat(summary.getSum()).isEqualTo(11);
@@ -362,7 +362,7 @@ public class UsagePointDataCompletionServiceImplTest {
                 })
                 .collect(Collectors.toList());
         when(channel.getReadings(NOMINAL_RANGE)).thenReturn(readings);
-        summary = usagePointDataCompletionService.getDataCompletionStatistics(channel, NOMINAL_RANGE, effectiveMetrologyConfiguration, metrologyContract).get(0);
+        summary = usagePointDataCompletionService.getDataCompletionStatistics(usagePoint, metrologyPurpose, NOMINAL_RANGE, readingType).get(0);
         assertThat(summary.getValues()).contains(
                 MapEntry.entry(ChannelDataCompletionSummaryFlag.SUSPECT, 2),
                 MapEntry.entry(ChannelDataCompletionSummaryFlag.VALID, 7),
