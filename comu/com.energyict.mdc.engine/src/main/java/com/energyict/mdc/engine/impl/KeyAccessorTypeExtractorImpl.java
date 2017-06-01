@@ -6,14 +6,14 @@ package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.KeyAccessorTypeAdapter;
 import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.KeyAccessorType;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -48,7 +48,7 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
     }
 
     private com.elster.jupiter.pki.KeyAccessorType toConnexoKeyAccessorType(KeyAccessorType keyAccessorType) {
-        return (com.elster.jupiter.pki.KeyAccessorType) keyAccessorType;
+        return ((KeyAccessorTypeAdapter) keyAccessorType).getKeyAccessorType();
     }
 
     private com.energyict.mdc.protocol.api.device.offline.OfflineDevice toConnexoDevice(OfflineDevice device) {
