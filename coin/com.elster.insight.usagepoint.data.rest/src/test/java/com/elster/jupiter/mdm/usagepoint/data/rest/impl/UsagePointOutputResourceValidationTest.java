@@ -195,8 +195,8 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(dataAggregationService.introspect(any(),any(),any())).thenReturn(metrologyContractCalculationIntrospector);
         List<MetrologyContractCalculationIntrospector.CalendarUsage> calendarUsages = Collections.emptyList();
         when(metrologyContractCalculationIntrospector.getCalendarUsagesFor(any())).thenReturn(calendarUsages);
-        when(usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration, metrologyContract, readingType)).thenReturn(Optional.of(DAY_BEFORE));
-        when(usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration, metrologyContract)).thenReturn(Optional.of(DAY_BEFORE));
+        when(usagePointDataCompletionService.getLastChecked(usagePoint, metrologyPurpose, readingType)).thenReturn(Optional.of(DAY_BEFORE));
+        when(usagePointDataCompletionService.getLastChecked(usagePoint, metrologyPurpose)).thenReturn(Optional.of(DAY_BEFORE));
     }
 
     private ReadingQualityRecord mockReadingQuality(ReadingQualityType readingQualityType) {
