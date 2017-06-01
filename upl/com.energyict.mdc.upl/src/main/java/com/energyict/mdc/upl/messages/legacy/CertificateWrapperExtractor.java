@@ -28,7 +28,7 @@ public interface CertificateWrapperExtractor {
     /**
      * Return a java KeyStore representing the TrustStore for the given server CertificateWrapper
      */
-    KeyStore getTrustStore(CertificateWrapper serverCertificateWrapper) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException;
+    Optional<KeyStore> getTrustStore(CertificateWrapper serverCertificateWrapper) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException;
 
     /**
      * Return an X509 TrustManager representing the TrustStore of the given server CertificateWrapper
