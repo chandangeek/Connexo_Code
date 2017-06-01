@@ -8,11 +8,18 @@ import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
+import com.elster.jupiter.pki.TrustedCertificate;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.CertificateWrapperAdapter;
 import com.energyict.mdc.upl.TypedProperties;
 
 import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.Optional;
 
 /**
@@ -26,11 +33,13 @@ import java.util.Optional;
  */
 public class TypedPropertiesValueAdapter {
 
+    private static final String TRUST_STORE = "JCEKS";
+
     /**
      * Adapts the CXO values (given as {@link TypedProperties} to UPL values, so that the 9.1 protocols can use them.<br/>
      * <b>Note that:</b> Values of type KeyAccessorType will be resolved to actual KeyAccessor value using {@link Device#getKeyAccessors()}.
      *
-     * @param device the {@link Device} for which the CXO values should be adapted
+     * @param device          the {@link Device} for which the CXO values should be adapted
      * @param typedProperties the CXO values to adapt
      * @return the UPL values usable by 9.1 protocols
      */
@@ -50,7 +59,7 @@ public class TypedPropertiesValueAdapter {
      * <b>Note that:</b> Value of type KeyAccessorType will be resolved to actual KeyAccessor value using {@link Device#getKeyAccessors()}.
      *
      * @param device the {@link Device} for which the CXO values should be adapted
-     * @param value the CXO value to adapt
+     * @param value  the CXO value to adapt
      * @return the UPL value usable by 9.1 protocols
      */
     public static Object adaptToUPLValue(Device device, Object value) {
@@ -63,7 +72,7 @@ public class TypedPropertiesValueAdapter {
      * Adapts the CXO values (given as {@link TypedProperties} to UPL values, so that the 9.1 protocols can use them.<br/>
      * <b>Note that:</b> Values of type KeyAccessorType will be resolved to actual KeyAccessor value using {@link OfflineDevice#getAllOfflineKeyAccessors}.
      *
-     * @param device the {@link Device} for which the CXO values should be adapted
+     * @param device          the {@link Device} for which the CXO values should be adapted
      * @param typedProperties the CXO values to adapt
      * @return the UPL values usable by 9.1 protocols
      */
@@ -83,7 +92,7 @@ public class TypedPropertiesValueAdapter {
      * <b>Note that:</b> Value of type KeyAccessorType will be resolved to actual KeyAccessor value using {@link OfflineDevice#getAllOfflineKeyAccessors}.
      *
      * @param device the {@link Device} for which the CXO values should be adapted
-     * @param value the CXO value to adapt
+     * @param value  the CXO value to adapt
      * @return the UPL value usable by 9.1 protocols
      */
     public static Object adaptToUPLValue(OfflineDevice device, Object value) {
@@ -100,7 +109,7 @@ public class TypedPropertiesValueAdapter {
 
         if (optionalKeyAccessor.isPresent() && optionalKeyAccessor.get().getActualValue().isPresent()) {
             Object actualValue = optionalKeyAccessor.get().getActualValue().get();
-            return adaptActualValueToUPLValue(actualValue);
+            return adaptActualValueToUPLValue(actualValue, keyAccessorType);
         }
         return null; // Return value as-is
     }
@@ -113,12 +122,12 @@ public class TypedPropertiesValueAdapter {
 
         if (optionalKeyAccessor.isPresent() && optionalKeyAccessor.get().getActualValue().isPresent()) {
             Object actualValue = optionalKeyAccessor.get().getActualValue().get();
-            return adaptActualValueToUPLValue(actualValue);
+            return adaptActualValueToUPLValue(actualValue, keyAccessorType);
         }
         return null;
     }
 
-    private static Object adaptActualValueToUPLValue(Object actualValue) {
+    public static Object adaptActualValueToUPLValue(Object actualValue, KeyAccessorType keyAccessorType) {
         if (actualValue instanceof PlaintextSymmetricKey) {
             PlaintextSymmetricKey plaintextSymmetricKey = (PlaintextSymmetricKey) actualValue;
             if (plaintextSymmetricKey.getKey().isPresent()) {
@@ -130,8 +139,24 @@ public class TypedPropertiesValueAdapter {
                 return plaintextPassphrase.getPassphrase().get();
             }
         } else if (actualValue instanceof CertificateWrapper) {
-            CertificateWrapper certificateWrapper = (CertificateWrapper) actualValue;
-            return certificateWrapper;
+            //Also include the trust store of this CertificateWrapper (if it's present)
+            Optional<KeyStore> optionalKeyStore = Optional.empty();
+            if (keyAccessorType.getTrustStore().isPresent()) {
+                try {
+                    KeyStore keyStore = KeyStore.getInstance(TRUST_STORE);
+                    keyStore.load(null); // This initializes the empty key store
+                    for (TrustedCertificate trustedCertificate : keyAccessorType.getTrustStore().get().getCertificates()) {
+                        if (trustedCertificate.getCertificate().isPresent()) {
+                            keyStore.setCertificateEntry(trustedCertificate.getAlias(), trustedCertificate.getCertificate().get());
+                        }
+                    }
+                    optionalKeyStore = Optional.of(keyStore);
+                } catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+
+            return new CertificateWrapperAdapter((CertificateWrapper) actualValue, optionalKeyStore);
         }
         return null;
     }
