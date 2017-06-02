@@ -119,6 +119,14 @@ Ext.define('Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
 
         editForm.updateRecord();
         record = editForm.getRecord();
+
+        var stageComboBox = editForm.down('#usagepoint-life-cycle-stage'),
+            stageObject = {
+                id: stageComboBox.getValue(),
+                name: stageComboBox.getRawValue()
+            };
+        record.set('stage', stageObject);
+
         Ext.suspendLayouts();
         me.showErrorPanel(false);
         Ext.resumeLayouts(true);
