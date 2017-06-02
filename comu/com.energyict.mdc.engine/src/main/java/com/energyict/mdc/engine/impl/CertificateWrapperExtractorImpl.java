@@ -5,7 +5,7 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.pki.ClientCertificateWrapper;
-import com.elster.jupiter.pki.TrustedCertificate;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.CertificateWrapperAdapter;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.security.CertificateWrapper;
@@ -41,7 +41,6 @@ public class CertificateWrapperExtractorImpl implements CertificateWrapperExtrac
 
     static final char[] PARAMETERS = new char[]{'i', '#', '?', 'r', 'P', '1', '_', 'L', 'v', '/', 'T', '@', '>', 'k', 'h', '*'};
 
-    private static final String TRUST_STORE = "JCEKS";
     private static final String KEY_STORE = "PKCS12";
 
     @Activate
@@ -55,7 +54,7 @@ public class CertificateWrapperExtractorImpl implements CertificateWrapperExtrac
     }
 
     private com.elster.jupiter.pki.CertificateWrapper toConnexoCertificateWrapper(CertificateWrapper certificateWrapper) {
-        return ((com.elster.jupiter.pki.CertificateWrapper) certificateWrapper);    //Downcast to Connexo interface
+        return ((CertificateWrapperAdapter) certificateWrapper).getCertificateWrapper();
     }
 
     @Override
@@ -69,33 +68,24 @@ public class CertificateWrapperExtractorImpl implements CertificateWrapperExtrac
     }
 
     @Override
-    public KeyStore getTrustStore(CertificateWrapper serverCertificateWrapper) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
-        com.elster.jupiter.pki.CertificateWrapper connexoCertificateWrapper = this.toConnexoCertificateWrapper(serverCertificateWrapper);
-
-        if (connexoCertificateWrapper instanceof TrustedCertificate) {
-            KeyStore trustStore = KeyStore.getInstance(TRUST_STORE);
-            trustStore.load(null); // This initializes the empty key store
-            for (TrustedCertificate trustedCertificate : ((TrustedCertificate) connexoCertificateWrapper).getTrustStore().getCertificates()) {
-                if (trustedCertificate.getCertificate().isPresent()) {
-                    trustStore.setCertificateEntry(trustedCertificate.getAlias(), trustedCertificate.getCertificate().get());
-                }
-            }
-            return trustStore;
-        } else {
-            throw new IllegalArgumentException("The given CertificateWrapper (alias '" + connexoCertificateWrapper.getAlias() + "') must be of type TrustedCertificate");
-        }
+    public Optional<KeyStore> getTrustStore(CertificateWrapper serverCertificateWrapper) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
+        return ((CertificateWrapperAdapter) serverCertificateWrapper).getTrustStore();
     }
 
     @Override
     public Optional<X509TrustManager> getTrustManager(CertificateWrapper serverCertificateWrapper) throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException {
-        KeyStore trustStore = getTrustStore(serverCertificateWrapper);
-        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        trustManagerFactory.init(trustStore);
-        return Stream
-                .of(trustManagerFactory.getTrustManagers())
-                .filter(keyManager -> keyManager instanceof X509TrustManager)
-                .map(X509TrustManager.class::cast)
-                .findAny();
+        Optional<KeyStore> trustStore = getTrustStore(serverCertificateWrapper);
+        if (trustStore.isPresent()) {
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init(trustStore.get());
+            return Stream
+                    .of(trustManagerFactory.getTrustManagers())
+                    .filter(keyManager -> keyManager instanceof X509TrustManager)
+                    .map(X509TrustManager.class::cast)
+                    .findAny();
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override

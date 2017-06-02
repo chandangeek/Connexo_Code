@@ -105,7 +105,7 @@ public class PendingMessagesValidatorTest {
 
     @Test
     public void messageWithoutAllowedCalendarAttributeValue() {
-        when(this.deviceMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.ACTIVITY_CALENDER_SEND);
+        when(this.deviceMessage.getDeviceMessageId()).thenReturn(DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_SEND);
         DeviceMessageAttribute calendarNameAttribute = mock(DeviceMessageAttribute.class);
         when(calendarNameAttribute.getDeviceMessage()).thenReturn(this.deviceMessage);
         when(calendarNameAttribute.getName()).thenReturn("Name");
@@ -120,7 +120,7 @@ public class PendingMessagesValidatorTest {
         when(calendarAttribute.getSpecification()).thenReturn(calendarPropertySpec);
         doReturn(Arrays.asList(calendarNameAttribute, calendarAttribute)).when(this.deviceMessage).getAttributes();
         DeviceMessageSpec messageSpec = mock(DeviceMessageSpec.class);
-        when(messageSpec.getId()).thenReturn(DeviceMessageId.ACTIVITY_CALENDER_SEND);
+        when(messageSpec.getId()).thenReturn(DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_SEND);
         when(messageSpec.getPropertySpecs()).thenReturn(Arrays.asList(calendarNamePropertySpec, calendarPropertySpec));
         when(this.deviceMessage.getSpecification()).thenReturn(messageSpec);
         when(this.deviceType.getAllowedCalendars()).thenReturn(Collections.emptyList());

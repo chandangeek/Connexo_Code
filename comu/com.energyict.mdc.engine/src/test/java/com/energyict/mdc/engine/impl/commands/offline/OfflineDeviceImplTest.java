@@ -499,10 +499,10 @@ public class OfflineDeviceImplTest {
         when(calendar.getName()).thenReturn(CALENDAR_NAME);
         Device device = createMockedDevice();
         when(device.getDeviceType().getAllowedCalendars()).thenReturn(Collections.emptyList());
-        DeviceMessageSpec sendCalendarSpec = this.getDeviceMessageSpec(DeviceMessageId.ACTIVITY_CALENDER_SEND.dbValue());
+        DeviceMessageSpec sendCalendarSpec = this.getDeviceMessageSpec(DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_SEND.dbValue());
         List<PropertySpec> propertySpecs = sendCalendarSpec.getPropertySpecs();
         DeviceMessage sendCalendar = mock(DeviceMessage.class);
-        when(sendCalendar.getDeviceMessageId()).thenReturn(DeviceMessageId.ACTIVITY_CALENDER_SEND);
+        when(sendCalendar.getDeviceMessageId()).thenReturn(DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_SEND);
         when(sendCalendar.getSpecification()).thenReturn(sendCalendarSpec);
 
         DeviceMessageAttribute calendarNameAttribute = mock(DeviceMessageAttribute.class);
