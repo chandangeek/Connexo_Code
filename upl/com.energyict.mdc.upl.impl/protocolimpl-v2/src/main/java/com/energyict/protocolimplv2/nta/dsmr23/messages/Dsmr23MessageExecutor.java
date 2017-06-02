@@ -98,6 +98,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.encry
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fullActivityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
@@ -690,7 +691,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
 
     protected void fullActivityCalendar(OfflineDeviceMessage pendingMessage) throws IOException {
         String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
-        String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarAttributeName).getValue();
+        String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fullActivityCalendarAttributeName).getValue();
 
         activityCalendar(calendarName, activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[0]);
         writeSpecialDays(activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[1]);
@@ -699,7 +700,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     protected void fullActivityCalendarWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
         String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
         String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getValue();
-        String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarAttributeName).getValue();
+        String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, fullActivityCalendarAttributeName).getValue();
 
         activityCalendarWithActivationDate(calendarName, epoch, activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[0]);
         writeSpecialDays(activityCalendarContents.split(AbstractDlmsMessaging.SEPARATOR)[1]);
