@@ -239,6 +239,7 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
         return this.scheduleTime;
     }
 
+    @Override
     public String getGeneralFailReason() {
         return this.generalFailReason;
     }
