@@ -55,8 +55,6 @@ public interface MetrologyContract extends HasId {
 
     boolean isMandatory();
 
-    Status getStatus(UsagePoint usagePoint);
-
     long getVersion();
 
     void update();
@@ -73,13 +71,4 @@ public interface MetrologyContract extends HasId {
     Collection<Set<ReadingType>> sortReadingTypesByDependencyLevel();
 
     List<ReadingType> sortReadingTypesByDependency();
-
-    interface Status {
-
-        String getKey();
-
-        String getName();
-
-        boolean isComplete();
-    }
 }
