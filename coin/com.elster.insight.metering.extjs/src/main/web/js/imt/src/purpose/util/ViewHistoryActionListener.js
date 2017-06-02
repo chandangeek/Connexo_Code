@@ -15,7 +15,7 @@ Ext.define('Imt.purpose.util.ViewHistoryActionListener', {
             }
         } else {
             outputFilterParams = {
-                endInterval: Number(record.get('interval').end - 1) + '-' + Number(record.get('interval').end)
+                endInterval: Number(record.get('interval').start) + '-' + Number(record.get('interval').end)
             }
         }
         router.getRoute('usagepoints/view/purpose/output/history').forward(router.arguments, outputFilterParams);
