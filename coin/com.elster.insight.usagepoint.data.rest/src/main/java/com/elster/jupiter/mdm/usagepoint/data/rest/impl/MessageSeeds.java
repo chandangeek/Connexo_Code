@@ -69,7 +69,8 @@ public enum MessageSeeds implements MessageSeed {
     VALIDATION_RULE_IS_NOT_APPLICABLE_TO_OUTPUT(64, "ValidationRuleIsNotApplicableToOutput", "Validation rule with id {0} is not applicable to output {1}"),
     ESTIMATION_RULE_IS_NOT_APPLICABLE_TO_OUTPUT(65, "EstimationRuleIsNotApplicableToOutput", "Estimation rule with id {0} is not applicable to output {1}"),
     NOTHING_TO_VALIDATE(66, "nothing.is.validated", "Validation is not configured on this purpose of this usage point starting from the specified date."),
-    INVALID_TRANSITION_TIME(67, "invalid.transition.time", "The transition date must be greater than date of creation of the usage point - {0}");
+    INVALID_TRANSITION_TIME(67, "invalid.transition.time", "The transition date must be greater than date of creation of the usage point - {0}"),
+    FIELD_VALUE_EXCEEDED(68, "field.value.exceeded", "'The value exceeds the maximum field length");
 
     private final int number;
     private final String key;
