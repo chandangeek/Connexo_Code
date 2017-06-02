@@ -75,7 +75,6 @@ import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -312,7 +311,6 @@ public class EstimationServiceImplTest {
     }
 
     @Test
-    @Ignore
     public void testPreviewEstimate() {
         EstimationBlock estimationBlock = mock(EstimationBlock.class);
         MetrologyPurpose metrologyPurpose = mock(MetrologyPurpose.class);
@@ -330,7 +328,7 @@ public class EstimationServiceImplTest {
         when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
         when(metrologyPurpose.getName()).thenReturn("Billing");
 
-       EstimationReport report = estimationService.previewEstimateForSuspects(QualityCodeSystem.MDC, channelsContainer, Range
+        EstimationReport report = estimationService.previewEstimateForSuspects(QualityCodeSystem.MDC, channelsContainer, Range
                 .all(), LOGGER);
         assertThat(report.getResults()).hasSize(2).containsKey(readingType1).containsKey(readingType2);
 
@@ -344,7 +342,6 @@ public class EstimationServiceImplTest {
     }
 
     @Test
-    @Ignore
     public void testPreviewEstimateFromOtherSystem() {
         EstimationReport report = estimationService.previewEstimateForSuspects(QualityCodeSystem.MDM, channelsContainer, Range
                 .all(), LOGGER);
@@ -352,7 +349,6 @@ public class EstimationServiceImplTest {
     }
 
     @Test
-    @Ignore
     public void testPreviewEstimateWhenRuleIsNotActive() {
         doReturn(false).when(rule1).isActive();
         doReturn(false).when(rule2).isActive();
