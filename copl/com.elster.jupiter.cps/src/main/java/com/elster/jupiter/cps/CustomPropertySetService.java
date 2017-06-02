@@ -484,4 +484,15 @@ public interface CustomPropertySetService {
     }
 
     <D, T extends PersistentDomainExtension<D>> void validateCustomPropertySetValues(CustomPropertySet<D, T> customPropertySet, CustomPropertySetValues values);
+
+    /**
+     * Check if {@link CustomPropertySet} has effective {@link CustomPropertySetValues} for all range -
+     * there is no time instant in this range, there is no effective value for custom property set.
+     * @param customPropertySet CustomPropertySet
+     * @param range Range to check CustomPropertySet has effective CustomPropertySetValues for any time
+     * @param <D> The businessObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return true if values cover all range, otherwise false
+     */
+    <D, T extends PersistentDomainExtension<D>> boolean validateCustomPropertySetHasValues(CustomPropertySet<D, T> customPropertySet, D businessObject, Range<Instant> range, Object... additionalPrimaryKeyValues);
 }

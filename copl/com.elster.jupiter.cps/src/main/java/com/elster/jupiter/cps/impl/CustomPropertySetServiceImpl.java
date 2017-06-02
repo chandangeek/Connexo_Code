@@ -629,6 +629,56 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> boolean validateCustomPropertySetHasValues(CustomPropertySet<D, T> customPropertySet, D businesObject, Range<Instant> range, Object... additionalPrimaryKeyValues) {
+        List<Range<Instant>> valuesRanges = this.getAllValuesFor(customPropertySet, businesObject, additionalPrimaryKeyValues)
+                .stream()
+                .map(Optional::of)
+                .map(e -> this.toCustomPropertySetValues(customPropertySet, e, additionalPrimaryKeyValues))
+                .map(CustomPropertySetValues::getEffectiveRange)
+                .collect(Collectors.toList());
+        return isRangeCovered(range, valuesRanges);
+    }
+
+    private <D, T extends PersistentDomainExtension<D>> List<T> getAllValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        return activeCustomPropertySet.getAllValuesEntityFor(businesObject, additionalPrimaryKeyValues);
+    }
+
+    /*
+      This method checks if ranges list fully encloses targetRange
+     */
+    private boolean isRangeCovered(Range<Instant> targetRange, List<Range<Instant>> ranges) {
+        // filter only ranges intersected with targetRange. other do no matter
+        List<Range<Instant>> intersected = ranges.stream()
+                .filter(r -> !targetRange.intersection(r).isEmpty()).collect(Collectors.toList());
+
+        // check if union range of intersected ranges encloses target range. if not - range is not covered
+        Range<Instant> commonRange = intersected.get(intersected.size() - 1)
+                .hasUpperBound() ? Range.closedOpen(intersected.get(0)
+                .lowerEndpoint(), intersected.get(intersected.size() - 1)
+                .upperEndpoint()) : Range.atLeast(intersected.get(0).lowerEndpoint());
+        if (!commonRange.encloses(targetRange)) {
+            // the case when targetRange has an interval that lower or higher all intervals in ranges list
+            return false;
+        }
+
+        // check gaps between intersected ranges
+        // if there is any gap - ranges list does not fully encloses the targetRange
+        // because this gap belongs to targetRange
+        for (int i = 0; i < intersected.size() - 1; i++) {
+            Instant previousRangeEnd = intersected.get(i).upperEndpoint();
+            Instant nextRangeStart = intersected.get(i + 1).lowerEndpoint();
+
+            if (!previousRangeEnd.equals(nextRangeStart)) {
+                // the case when targetRange has an interval that does not intersects with any interval in ranges list
+                return false;
+            }
+        }
+        // other cases are applicable
+        return true;
+    }
+
     @SuppressWarnings("unchecked")
     private <D> void cleanValuesIntervalFor(ActiveCustomPropertySet activeCustomPropertySet, D businesObject, Range<Instant> newRange, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
         OverlapCalculatorBuilder overlapCalculatorBuilder = this.calculateOverlapsFor(activeCustomPropertySet.getCustomPropertySet(), businesObject, additionalPrimaryKeyValues);
