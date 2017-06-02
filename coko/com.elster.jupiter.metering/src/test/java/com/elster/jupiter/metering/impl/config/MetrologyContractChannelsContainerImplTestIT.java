@@ -105,12 +105,12 @@ public class MetrologyContractChannelsContainerImplTestIT {
     }
 
     @Before
-    public void before(){
+    public void before() {
         when(headEndInterface.getAmrSystem()).thenReturn(KnownAmrSystem.MDC.getName());
     }
 
     @After
-    public void after(){
+    public void after() {
         reset(headEndInterface);
     }
 
