@@ -106,6 +106,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEn
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newPasswordAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.p1InformationAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.toDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
@@ -171,7 +172,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                 } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME)) {
                     fullActivityCalendarWithActivationDate(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND)) {
-                    String specialDayArrayBEREncodedBytes = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarAttributeName).getValue();
+                    String specialDayArrayBEREncodedBytes = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, specialDaysAttributeName).getValue();
                     writeSpecialDays(specialDayArrayBEREncodedBytes);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION)) {
                     activateDlmsEncryption(pendingMessage);
