@@ -4,6 +4,7 @@
 
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
@@ -27,13 +28,18 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Installer for the {@link DeviceProtocolUpgradeService}, which acts merely as a place holder,
- * as the data model doesn't contain any tables (and thus installation shouldn't do a thing)
+ * Installer for the {@link DeviceProtocolUpgradeService}, which will
+ * migrate all former security attributes to proper KeyAccessors on the
+ * devices. On the device types, corresponding KeyAccessorsTypes will be
+ * created along the way. These will be used in the SecurityPropertySets of
+ * the device configurations.
  *
  * @author stijn
  * @since 23.05.17 - 09:00
@@ -41,23 +47,27 @@ import java.util.logging.Logger;
 public class InstallerImpl implements FullInstaller {
 
     private final DataModel dataModel;
-    private KeyAccessorValuePersister keyAccessorValuePersister;
     private final DeviceService deviceService;
     private final PkiService pkiService;
+    private final DataVaultService dataVaultService;
+
+    private KeyAccessorValuePersister keyAccessorValuePersister;
 
     @Inject
-    public InstallerImpl(DataModel dataModel, DeviceService deviceService, PkiService pkiService) {
+    InstallerImpl(DataModel dataModel, DeviceService deviceService, PkiService pkiService, DataVaultService dataVaultService) {
         super();
         this.dataModel = dataModel;
         this.deviceService = deviceService;
         this.pkiService = pkiService;
+        this.dataVaultService = dataVaultService;
     }
 
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        if(checkTableExists()) {
-            moveSecurityAttributesToKeyAccessors();
+        if (checkTableExists()) {
+            logger.log(Level.INFO, "Upgrading all security settings - this may take some time depending on the number of devices in the system.");
+            moveSecurityAttributesToKeyAccessors(logger);
         }
     }
 
@@ -74,66 +84,119 @@ public class InstallerImpl implements FullInstaller {
         return tableExists[0];
     }
 
-    private void moveSecurityAttributesToKeyAccessors() {
-        // 1. Handle for DlmsSecuritySupport
-            String sql = "SELECT DEVICE, PROPERTYSPECPROVIDER, CLIENTMACADDRESS, PASSWORD, AUTHKEY, ENCRYPTIONKEY FROM PR1_DLMS_SECURITY";
-            List<String> propertyNames = Arrays.asList("Password", "AuthenticationKey", "EncryptionKey");
-
-            doMoveSecurityAttributesToKeyAccessors(sql, propertyNames);
-
+    private void moveSecurityAttributesToKeyAccessors(Logger logger) {
+        doTry(
+                "Upgrading security settings of DLMS security",
+                () -> moveSecurityAttrbituteToKeyAccessorsForDlmsSecuritySupport(logger),
+                logger
+        );
+        doTry(
+                "Upgrading security settings of No security or password protected security",
+                () -> moveSecurityAttributesToKeyAccessorsForNoOrPasswordSecuritySupport(logger),
+                logger
+        );
+        doTry(
+                "Upgrading security settings of Password with user identification security",
+                () -> moveSecurityAttributesToKeyAccessorsForPasswordWithUserIdentificationSecuritySupport(logger),
+                logger
+        );
+        doTry(
+                "Upgrading security settings of IEC1107 security",
+                () -> moveSecurityAttributesToKeyAccessorsForIEC1107SecuritySupport(logger),
+                logger
+        );
     }
 
-    private void doMoveSecurityAttributesToKeyAccessors(String sql, List<String> propertyNames) {
+    private void moveSecurityAttrbituteToKeyAccessorsForDlmsSecuritySupport(Logger logger) {
+        String sql = "SELECT DEVICE, PROPERTYSPECPROVIDER, CLIENTMACADDRESS, PASSWORD, AUTHKEY, ENCRYPTIONKEY FROM PR1_DLMS_SECURITY"; // CLIENTMACADDRESS maps to client
+        List<String> propertyNames = Arrays.asList("Password", "AuthenticationKey", "EncryptionKey");
+        doMoveSecurityAttributesToKeyAccessors(sql, propertyNames, logger);
+    }
+
+    private void moveSecurityAttributesToKeyAccessorsForNoOrPasswordSecuritySupport(Logger logger) {
+        String sql;
+        List<String> propertyNames;
+        sql = "SELECT DEVICE, PROPERTYSPECPROVIDER, null, PASSWORD FROM PR1_NO_OR_PWD_SECURITY"; // Doesn't have support for client
+        propertyNames = Collections.singletonList("Password");
+        doMoveSecurityAttributesToKeyAccessors(sql, propertyNames, logger);
+    }
+
+    private void moveSecurityAttributesToKeyAccessorsForPasswordWithUserIdentificationSecuritySupport(Logger logger) {
+        String sql;
+        List<String> propertyNames;
+        sql = "SELECT DEVICE, PROPERTYSPECPROVIDER, USER_NME, PASSWORD FROM PR1_BASIC_AUTHENTICATION"; // USER_NME maps to client
+        propertyNames = Collections.singletonList("Password");
+        doMoveSecurityAttributesToKeyAccessors(sql, propertyNames, logger);
+    }
+
+    private void moveSecurityAttributesToKeyAccessorsForIEC1107SecuritySupport(Logger logger) {
+        String sql;
+        List<String> propertyNames;
+        sql = "SELECT DEVICE, PROPERTYSPECPROVIDER, null, PASSWORD FROM PR1_IEC1107_SECURITY"; // Doesn't have support for client
+        propertyNames = Collections.singletonList("Password");
+        doMoveSecurityAttributesToKeyAccessors(sql, propertyNames, logger);
+    }
+
+    private void doMoveSecurityAttributesToKeyAccessors(String sql, List<String> propertyNames, Logger logger) {
         dataModel.useConnectionRequiringTransaction(connection -> {
             try (Statement statement = connection.createStatement()) {
                 String sqlQuery = sql.concat(" WHERE ENDTIME = 1000000000000000000"); // As we only want to migrate active entries (~ the ones having end time set as eternity)
                 ResultSet rs = statement.executeQuery(sqlQuery);
                 List<Long> securityPropertySetsAlreadyDone = new ArrayList<>();
                 while (rs.next()) {
-                    handleSecurityAttributeChangesFor(rs, propertyNames, securityPropertySetsAlreadyDone);
+                    handleSecurityAttributeChangesFor(rs, propertyNames, securityPropertySetsAlreadyDone, logger);
                 }
             }
         });
     }
 
-    private void handleSecurityAttributeChangesFor(ResultSet rs, List<String> propertyNames, List<Long> securityPropertySetsAlreadyDone) throws SQLException {
-        long deviceId = rs.getLong(1);
-        long securityPropertySetId = rs.getLong(2);
-        String clientMacAddress = rs.getString(3);
+    private void handleSecurityAttributeChangesFor(ResultSet rs, List<String> propertyNames, List<Long> securityPropertySetsAlreadyDone, Logger logger) throws SQLException {
+        int i = 1;
+        long deviceId = rs.getLong(i++);
+        long securityPropertySetId = rs.getLong(i++);
+        String clientMacAddress = rs.getString(i++);
         TypedProperties oldProperties = TypedProperties.empty();
-        addPropertyIfNotNull(oldProperties, "Password", rs.getString(4));
-        addPropertyIfNotNull(oldProperties, "AuthenticationKey", rs.getString(5));
-        addPropertyIfNotNull(oldProperties, "EncryptionKey", rs.getString(6));
+        for (String propertyName : propertyNames) {
+            addPropertyIfNotNull(oldProperties, propertyName, rs.getString(i++));
+        }
 
         Optional<Device> deviceOptional = deviceService.findDeviceById(deviceId);
         if (deviceOptional.isPresent()) {
-            Optional<SecurityPropertySet> securityPropertySetOptional = deviceOptional.get().getDeviceConfiguration().getSecurityPropertySets()
-                    .stream()
-                    .filter(securityPropertySet -> securityPropertySet.getId() == securityPropertySetId)
-                    .findFirst();
-            if (securityPropertySetOptional.isPresent()) {
-                SecurityPropertySet securityPropertySet = securityPropertySetOptional.get();
+            try {
+                Optional<SecurityPropertySet> securityPropertySetOptional = deviceOptional.get().getDeviceConfiguration().getSecurityPropertySets()
+                        .stream()
+                        .filter(securityPropertySet -> securityPropertySet.getId() == securityPropertySetId)
+                        .findFirst();
+                if (securityPropertySetOptional.isPresent()) {
+                    SecurityPropertySet securityPropertySet = securityPropertySetOptional.get();
 
-                // 1. Configuration level - update the SecurityPropertySet on DeviceConfig and add corresponding KeyAccessorTypes to the DeviceType
-                if (!securityPropertySetsAlreadyDone.contains(securityPropertySetId)) {
-                    updateExistingSecurityPropertySet(securityPropertySet, deviceOptional.get(), clientMacAddress);
-                    securityPropertySetsAlreadyDone.add(securityPropertySetId);
+                    // 1. Configuration level - update the SecurityPropertySet on DeviceConfig and add corresponding KeyAccessorTypes to the DeviceType
+                    if (!securityPropertySetsAlreadyDone.contains(securityPropertySetId)) {
+                        updateExistingSecurityPropertySet(securityPropertySet, deviceOptional.get(), clientMacAddress);
+                        securityPropertySetsAlreadyDone.add(securityPropertySetId);
+                    }
+
+                    // 2. Device level - create the corresponding KeyAccessors and fill in the actual value of the keys/passwords
+                    createKeyAccessorsOnDeviceAndFillInActualValue(deviceOptional.get(), securityPropertySet, oldProperties);
                 }
-
-                // 2. Configuration on device level - create the corresponding KeyAccessors and fill in the actual value of the keys/passwords
-                createKeyAccessorsOnDeviceAndFillInActualValue(deviceOptional.get(), securityPropertySet, oldProperties);
+            } catch (IllegalStateException e) {
+                logger.log(Level.SEVERE, "Migration of security properties for device with MRID " + deviceOptional.get().getmRID() + " failed: " + e.getMessage());
             }
         }
     }
 
     private void addPropertyIfNotNull(TypedProperties oldProperties, String name, String value) throws SQLException {
         if (value != null) {
-            oldProperties.setProperty(name, value); // dataVaultService.decrypt(rs.getString(4)));    //TODO: decrypt using datavault
+            oldProperties.setProperty(name, new String(dataVaultService.decrypt(value)));
         }
     }
 
     private void updateExistingSecurityPropertySet(SecurityPropertySet securityPropertySet, Device device, String clientMacAddress) {
-        securityPropertySet.setClient(clientMacAddress);
+        Object client = null;
+        if (securityPropertySet.getClientSecurityPropertySpec().isPresent()) {
+            client = securityPropertySet.getClientSecurityPropertySpec().get().getValueFactory().fromStringValue(clientMacAddress);
+        }
+        securityPropertySet.setClient(client);
         securityPropertySet.getPropertySpecs().forEach(
                 propertySpec ->
                         securityPropertySet.addConfigurationSecurityProperty(
