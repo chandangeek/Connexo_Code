@@ -120,7 +120,8 @@ Ext.define('Uni.property.controller.Registry', {
         NONE_OR_BIGDECIMAL: 'Uni.property.view.property.NoneOrBigDecimal',
         IRREGULAR_READINGTYPE: 'Uni.property.view.property.ReadingType',
         REGULAR_READINGTYPE: 'Uni.property.view.property.ReadingType',
-        ANY_READINGTYPE: 'Uni.property.view.property.ReadingType'
+        ANY_READINGTYPE: 'Uni.property.view.property.ReadingType',
+        INTEGER: 'Uni.property.view.property.Number'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)
