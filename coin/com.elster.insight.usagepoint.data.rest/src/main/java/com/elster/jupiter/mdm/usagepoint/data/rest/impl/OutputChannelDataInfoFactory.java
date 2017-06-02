@@ -157,6 +157,18 @@ public class OutputChannelDataInfoFactory {
         return outputChannelDataInfo;
     }
 
+    public OutputChannelDataInfo createUpdatedChannelDataInfo(Range<Instant> interval, BigDecimal newValue, boolean isProjected, Optional<ReadingQualityComment> readingQualityComment, ZoneId zoneId) {
+        OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
+        outputChannelDataInfo.interval = IntervalInfo.from(interval);
+        outputChannelDataInfo.value = newValue;
+        outputChannelDataInfo.isProjected = isProjected;
+        readingQualityComment.ifPresent(comment -> {
+            outputChannelDataInfo.commentId = comment.getId();
+            outputChannelDataInfo.commentValue = comment.getComment();
+        });
+        return outputChannelDataInfo;
+    }
+
     private long getEstimationCommentIdByValue(String commentValue) {
         return meteringService.getAllReadingQualityComments(ReadingQualityCommentCategory.ESTIMATION)
                 .stream()

@@ -27,12 +27,15 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -96,15 +99,16 @@ public class EstimationHelper {
         List<Instant> failedTimestamps = new ArrayList<>();
         List<OutputChannelDataInfo> channelDataInfos = new ArrayList<>();
 
-        List<IntervalReadingRecord> channelData = ranges.stream()
-                .flatMap(r -> channel.getIntervalReadings(Ranges.openClosed(r.lowerEndpoint(), r.upperEndpoint()))
-                        .stream())
-                .collect(Collectors.toList());
+        Map<Instant, IntervalReadingRecord> channelData = new TreeMap<>();
+        ranges.stream().flatMap(r -> channel.toList(Ranges.openClosed(r.lowerEndpoint(), r.upperEndpoint())).stream()).forEach(e -> channelData.put(e, null));
+        ranges.stream()
+                .flatMap(r -> channel.getIntervalReadings(Ranges.openClosed(r.lowerEndpoint(), r.upperEndpoint())).stream())
+                .forEach(readingRecord -> channelData.put(readingRecord.getTimeStamp(), readingRecord));
 
         for (EstimationResult result : results) {
             for (EstimationBlock block : result.estimated()) {
                 for (Estimatable estimatable : block.estimatables()) {
-                    getChannelDataInfo(estimatable, channelData, markAsProjected, readingQualityComment, channel.getZoneId()).ifPresent(info ->  {
+                    getChannelDataInfo(estimatable, channelData, markAsProjected, readingQualityComment, channel.getMainReadingType(), channel.getZoneId()).ifPresent(info -> {
                         info.isProjected = markAsProjected;
                         channelDataInfos.add(info);
                     });
@@ -123,14 +127,21 @@ public class EstimationHelper {
     }
 
 
-    private Optional<OutputChannelDataInfo> getChannelDataInfo(Estimatable estimatable, List<IntervalReadingRecord> channelData, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment, ZoneId zoneId) {
-        return channelData.stream()
-                .filter(readingRecord -> readingRecord.getTimeStamp().equals(estimatable.getTimestamp()))
-                .map(readingRecord -> getChannelDataInfo(readingRecord, estimatable, markAsProjected, readingQualityComment, zoneId))
+    private Optional<OutputChannelDataInfo> getChannelDataInfo(Estimatable estimatable, Map<Instant, IntervalReadingRecord> channelData, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment, ReadingType readingType, ZoneId zoneId) {
+        return channelData.entrySet().stream()
+                .filter(entry -> entry.getKey().equals(estimatable.getTimestamp()))
+                .map(entry -> entry.getValue() != null
+                        ? getChannelDataInfo(entry.getValue(), estimatable, markAsProjected, readingQualityComment, zoneId)
+                        : getChannelDataInfo(entry.getKey(), estimatable, markAsProjected, readingQualityComment, readingType, zoneId))
                 .findFirst();
     }
 
     private OutputChannelDataInfo getChannelDataInfo(IntervalReadingRecord reading, Estimatable estimatable, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment, ZoneId zoneId) {
         return channelDataInfoFactory.createUpdatedChannelDataInfo(reading, estimatable.getEstimation(), markAsProjected, readingQualityComment, zoneId);
+    }
+
+    private OutputChannelDataInfo getChannelDataInfo(Instant timeStamp, Estimatable estimatable, boolean markAsProjected, Optional<ReadingQualityComment> readingQualityComment, ReadingType readingType, ZoneId zoneId) {
+        Range<Instant> interval = Range.openClosed(ZonedDateTime.ofInstant(timeStamp, zoneId).minus(readingType.getIntervalLength().get()).toInstant(), timeStamp);
+        return channelDataInfoFactory.createUpdatedChannelDataInfo(interval, estimatable.getEstimation(), markAsProjected, readingQualityComment, zoneId);
     }
 }
