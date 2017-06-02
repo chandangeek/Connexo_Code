@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
@@ -29,7 +30,6 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130LogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130Messaging;
@@ -140,7 +140,7 @@ public class AM130 extends AM500 {
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(IDIS2_CLIENT_PUBLIC));
         IDISProperties publicClientProperties = getNewInstanceOfProperties();
         publicClientProperties.addProperties(clone);
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(Integer.toString(IDIS2_CLIENT_MANAGEMENT), 0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(BigDecimal.valueOf(IDIS2_CLIENT_MANAGEMENT), 0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
 
         long frameCounter;
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);

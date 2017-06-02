@@ -13,6 +13,7 @@ import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.SerialNumberSupport;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -57,7 +58,6 @@ import com.energyict.protocol.exception.DataEncryptionException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocol.exception.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
@@ -153,7 +153,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         clone.setProperty(com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(IDIS2_CLIENT_PUBLIC));
         Dsmr50Properties publicClientProperties = new Dsmr50Properties();
         publicClientProperties.addProperties(clone);
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(Integer.toString(IDIS2_CLIENT_PUBLIC), 0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(BigDecimal.valueOf(IDIS2_CLIENT_PUBLIC), 0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
 
         long frameCounter;
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);

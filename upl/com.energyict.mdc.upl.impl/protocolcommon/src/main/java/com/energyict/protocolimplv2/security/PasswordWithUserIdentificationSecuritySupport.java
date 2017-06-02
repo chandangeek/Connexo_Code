@@ -88,7 +88,7 @@ public class PasswordWithUserIdentificationSecuritySupport extends AbstractSecur
             }
 
             @Override
-            public String getClient() {
+            public Object getClient() {
                 return String.valueOf(deviceAccessIdentifier);
             }
 

@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjec
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
@@ -25,7 +26,6 @@ import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
@@ -172,7 +172,7 @@ public class BroadcastUpgrade {
         securityProperties.setProperty(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS.toString(), broadcastClientMacAddress);
         securityProperties.setProperty(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.toString(), broadcastAuthenticationHexKey);
         securityProperties.setProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), broadcastEncryptionHexKey);
-        final DeviceProtocolSecurityPropertySetImpl securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(Integer.toString(broadcastClientMacAddress.intValue()),  0, encryptionLevel, 0, 0, 0, securityProperties);//Auth level 0 does not matter, since there's no association created (pre-established)
+        final DeviceProtocolSecurityPropertySetImpl securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(BigDecimal.valueOf(broadcastClientMacAddress.intValue()),  0, encryptionLevel, 0, 0, 0, securityProperties);//Auth level 0 does not matter, since there's no association created (pre-established)
         blockTransferProperties.setSecurityPropertySet(securityPropertySet);
         blockTransferProperties.addProperties(securityPropertySet.getSecurityProperties());
         blockTransferProperties.getSecurityProvider().setInitialFrameCounter(highestFrameCounter + 1);

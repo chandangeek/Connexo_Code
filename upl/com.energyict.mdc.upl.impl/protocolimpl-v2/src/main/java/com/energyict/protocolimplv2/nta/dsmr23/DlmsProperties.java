@@ -170,9 +170,10 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public int getClientMacAddress() {
-        try {
-            return Integer.parseInt(getSecurityPropertySet().getClient());
-        } catch (NumberFormatException e) {
+        final BigDecimal value = (BigDecimal) getSecurityPropertySet().getClient();
+        if (value != null) {
+            return value.intValue();
+        } else {
             return BigDecimal.ONE.intValue();
         }
     }

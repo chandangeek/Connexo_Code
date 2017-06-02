@@ -309,8 +309,8 @@ public class DlmsSecuritySupportPerClient extends AbstractSecuritySupport implem
             }
 
             @Override
-            public String getClient() {
-                return Integer.toString(clientMacAddressValue);
+            public Object getClient() {
+                return BigDecimal.valueOf(clientMacAddressValue);
             }
 
             @Override

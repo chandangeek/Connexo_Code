@@ -184,7 +184,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport, Proto
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
         G3GatewayProperties publicClientProperties = new G3GatewayProperties();
         publicClientProperties.addProperties(clone);
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(Integer.toString(16),  0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(BigDecimal.valueOf(16),  0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
 
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
         publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
