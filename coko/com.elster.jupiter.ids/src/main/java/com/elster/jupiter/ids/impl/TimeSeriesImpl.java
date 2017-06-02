@@ -388,15 +388,6 @@ public final class TimeSeriesImpl implements TimeSeries {
 
     @Override
     public void removeEntries(Range<Instant> range) {
-        if (range.contains(lastTime)) {
-            List<TimeSeriesEntry> entriesBefore = getEntriesBefore(lastTime, 1);
-            if (!entriesBefore.isEmpty()) {
-                lastTime = entriesBefore.get(0).getTimeStamp();
-            } else {
-                lastTime = null;
-            }
-            dataModel.update(this, "lastTime");
-        }
         if (lockTime != null) {
             Range<Instant> allowed = Range.greaterThan(lockTime);
             if (allowed.isConnected(range)) {
@@ -406,6 +397,19 @@ public final class TimeSeriesImpl implements TimeSeries {
             }
         }
         getVault().removeEntries(this, range);
+        doUpdateLastDateTime(range);
+    }
+
+    private void doUpdateLastDateTime(Range<Instant> range) {
+        if (range.contains(lastTime)) {
+            List<TimeSeriesEntry> entriesBefore = getEntriesOnOrBefore(lastTime, 1); // Search for first entry before or on lastTime boundary
+            if (!entriesBefore.isEmpty()) {
+                lastTime = entriesBefore.get(0).getTimeStamp();
+            } else {
+                lastTime = null;
+            }
+            dataModel.update(this, "lastTime");
+        }
     }
 
     @Override
