@@ -175,7 +175,7 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
     }
 
     protected PropertySpec validateLoadProfileChannelsPropertySpec() {
-        return this.booleanSpecBuilder(DlmsProtocolProperties.VALIDATE_LOAD_PROFILE_CHANNELS, PropertyTranslationKeys.V2_ELSTER_PUBLIC_CLIENT_ASSOCIATION_PRE_ESTABLISHED).finish();
+        return this.booleanSpecBuilder(DlmsProtocolProperties.VALIDATE_LOAD_PROFILE_CHANNELS, PropertyTranslationKeys.V2_ELSTER_VALIDATE_LOAD_PROFILE_CHANNELS).finish();
     }
 
     public PropertySpecService getPropertySpecService() {

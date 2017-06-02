@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.cache.DeviceProtocolCacheXmlMarshallAdapter;
 import com.energyict.protocol.FrameCounterCache;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import java.util.Map;
  * @since 14/11/2016 - 13:07
  */
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
+@XmlRootElement
 public class BeaconCache extends DLMSCache implements DeviceProtocolCache, FrameCounterCache, Serializable {
 
     protected Map<Integer, Long> frameCounters = new HashMap<>();

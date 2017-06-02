@@ -79,7 +79,7 @@ public class AbstractDlmsMessaging {
                         (byte) ((rule.month() == -1) ? 0xFF : rule.month()), (byte) ((rule.day() == -1) ? 0xFF : rule.day()),
                         (byte) ((rule.dayOfWeek() == -1) ? 0xFF : rule.dayOfWeek())};
                 OctetString timeStamp = OctetString.fromByteArray(timeStampBytes, timeStampBytes.length);
-                Unsigned8 dayType = new Unsigned8(Integer.parseInt(rule.dayTypeName()));
+                Unsigned8 dayType = new Unsigned8(Integer.parseInt(rule.dayTypeId()));
                 Structure specialDayStructure = new Structure();
                 specialDayStructure.addDataType(new Unsigned16(dayIndex));
                 specialDayStructure.addDataType(timeStamp);
