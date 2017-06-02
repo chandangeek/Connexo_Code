@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.slp.importers.impl.syntheticloadprofile;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.fileimport.csvimport.FileImportLogger;
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
@@ -53,10 +54,6 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
         validateDuration();
         for (Map.Entry<String, Map<Instant, BigDecimal>> entry : values.entrySet()) {
             SyntheticLoadProfile syntheticLoadProfile = findSyntheticLoadProfile(entry.getKey());
-            entry.getValue().keySet()
-                    .stream()
-                    .sorted()
-                    .findFirst().ifPresent(instant -> validateFirstTimestamp(syntheticLoadProfile, instant));
             syntheticLoadProfile.addValues(entry.getValue());
         }
         if (logger instanceof SyntheticLoadProfileImportLogger) {
@@ -67,14 +64,31 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
     private void validateTimeStamps(SyntheticLoadProfileImportRecord data) {
         //Check if timestamp in the file is before 'Start time' of synthetic load profile specification
         for (Map.Entry<String, BigDecimal> entry : data.getSyntheticLoadProfiles().entrySet()) {
-            if (findSyntheticLoadProfile(entry.getKey()).getStartTime().isAfter(data.getTimeStamp())) {
+            SyntheticLoadProfile syntheticLoadProfile = findSyntheticLoadProfile(entry.getKey());
+            if (syntheticLoadProfile.getStartTime().isAfter(data.getTimeStamp())) {
                 throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_TIMESTAMP_BEFORE_STARTTIME, data.getLineNumber(),
-                        DefaultDateTimeFormatters.shortDate().withShortTime().build().format(findSyntheticLoadProfile(entry.getKey()).getStartTime()));
+                        DefaultDateTimeFormatters.shortDate().withShortTime().build().format(syntheticLoadProfile.getStartTime()));
             }
-        }
-        //Check for wrong interval of data (current timestamp minus previous timestamp is not equal to 'Interval' of all of the synthetic load profiles specified in the file)
-        if (previousTimeStamp != null && !previousTimeStamp.plus(getInterval(data)).equals(LocalDateTime.ofInstant(data.getTimeStamp(), zoneId))) {
-            throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_INTERVAL, data.getLineNumber());
+            //Check for wrong interval of data (current timestamp minus previous timestamp is not equal to 'Interval' of all of the synthetic load profiles specified in the file)
+            if (previousTimeStamp != null && !previousTimeStamp.plus(getInterval(data)).equals(LocalDateTime.ofInstant(data.getTimeStamp(), zoneId))) {
+                throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_INTERVAL, data.getLineNumber());
+            } else if (previousTimeStamp == null) {
+                long secondsOfMinute = Duration.from(ChronoUnit.MINUTES.getDuration()).getSeconds();
+
+                String expectedDateTime = DefaultDateTimeFormatters.shortDate()
+                        .withShortTime()
+                        .build()
+                        .format(syntheticLoadProfile.getStartTime().atZone(syntheticLoadProfile.getZoneId()));
+                String actualDateTime = DefaultDateTimeFormatters.shortDate().withShortTime().build().format(data.getTimeStamp().atZone(zoneId));
+                if(syntheticLoadProfile.getReadingType().getMacroPeriod().equals(MacroPeriod.DAILY) && data.getTimeStamp().atZone(zoneId).getHour() != 0){
+                    throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP, data.getLineNumber(), expectedDateTime, actualDateTime);
+                } else if (data.getTimeStamp().atZone(zoneId).getMinute() % (syntheticLoadProfile.getInterval().get(ChronoUnit.SECONDS) / secondsOfMinute) != 0) {
+                    throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP, data.getLineNumber(), expectedDateTime, actualDateTime);
+                } else if (data.getTimeStamp().atZone(syntheticLoadProfile.getZoneId()).getSecond() != 0
+                        && data.getTimeStamp().atZone(syntheticLoadProfile.getZoneId()).getNano() != 0) {
+                    throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP, data.getLineNumber(), expectedDateTime, actualDateTime);
+                }
+            }
         }
     }
 
@@ -116,24 +130,5 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
             interval = findSyntheticLoadProfile(data.getSyntheticLoadProfiles().keySet().iterator().next()).getInterval();
         }
         return  interval;
-    }
-
-    private void validateFirstTimestamp(SyntheticLoadProfile syntheticLoadProfile, Instant firstTimestamp) {
-        long secondsOfDay = Duration.from(ChronoUnit.DAYS.getDuration()).getSeconds();
-        long secondsOfMinute =  Duration.from(ChronoUnit.MINUTES.getDuration()).getSeconds();
-
-        String expectedDateTime = DefaultDateTimeFormatters.shortDate().withShortTime().build().format(syntheticLoadProfile.getStartTime().atZone(syntheticLoadProfile.getZoneId()));
-        String actualDateTime = DefaultDateTimeFormatters.shortDate().withShortTime().build().format(firstTimestamp.atZone(zoneId));
-        if (syntheticLoadProfile.getInterval().get(ChronoUnit.SECONDS) > secondsOfDay && !ZoneId.systemDefault().equals(zoneId)){
-            if(!syntheticLoadProfile.getZoneId().getRules().getOffset(syntheticLoadProfile.getStartTime()).equals(zoneId)){
-                throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP, 2, expectedDateTime, actualDateTime);
-            }
-        } else if (firstTimestamp.atZone(zoneId).getMinute() % (syntheticLoadProfile.getInterval().get(ChronoUnit.SECONDS) / secondsOfMinute) != 0){
-            throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP, 2, expectedDateTime, actualDateTime);
-        }
-        else if (firstTimestamp.atZone(syntheticLoadProfile.getZoneId()).getSecond() != 0
-                && firstTimestamp.atZone(syntheticLoadProfile.getZoneId()).getNano() != 0){
-            throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP, 2, expectedDateTime, actualDateTime);
-        }
     }
 }

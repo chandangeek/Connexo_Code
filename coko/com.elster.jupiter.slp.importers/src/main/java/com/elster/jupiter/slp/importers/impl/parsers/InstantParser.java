@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.TimeZone;
 
 public class InstantParser implements FieldParser<Instant> {
 
@@ -46,7 +47,7 @@ public class InstantParser implements FieldParser<Instant> {
 
             DateTimeFormatter dataTimeFormatter = DateTimeFormatter.ofPattern(format);
             LocalDateTime localDateTime = LocalDateTime.parse(value, dataTimeFormatter);
-            ZoneId zoneId = ZoneId.from(TimeZonePropertySpec.format.parse(timeZone));
+            ZoneId zoneId = TimeZone.getTimeZone(timeZone).toZoneId();
             return ZonedDateTime.of(localDateTime, zoneId).toInstant();
         } catch (Exception e) {
             throw new ValueParserException(value, format);
