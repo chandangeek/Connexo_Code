@@ -17,7 +17,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -26,6 +25,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.CalculatedReadingRecord;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
@@ -43,19 +43,20 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,9 +64,9 @@ import org.junit.Test;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -78,6 +79,7 @@ public class MetrologyContractChannelsContainerImplTestIT {
     private static MetrologyPurpose metrologyPurpose;
     private static ServiceCategory serviceCategory;
     private static ReadingType readingType;
+    private static HeadEndInterface headEndInterface;
 
     @Rule
     public ExpectedConstraintViolationRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -93,11 +95,23 @@ public class MetrologyContractChannelsContainerImplTestIT {
         metrologyPurpose = inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyPurpose(DefaultMetrologyPurpose.BILLING).get();
         serviceCategory.addMeterRole(meterRole);
         readingType = inMemoryBootstrapModule.getMeteringService().getReadingType(MAIN_READING_TYPE_MRID).get();
+        headEndInterface = mock(HeadEndInterface.class);
+        inMemoryBootstrapModule.getMeteringDataModelService().addHeadEndInterface(headEndInterface);
     }
 
     @AfterClass
     public static void tearDown() {
         inMemoryBootstrapModule.deactivate();
+    }
+
+    @Before
+    public void before(){
+        when(headEndInterface.getAmrSystem()).thenReturn(KnownAmrSystem.MDC.getName());
+    }
+
+    @After
+    public void after(){
+        reset(headEndInterface);
     }
 
     @Test
@@ -205,8 +219,7 @@ public class MetrologyContractChannelsContainerImplTestIT {
         when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
         when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
         when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
-        HeadEndInterface headEndInterface = new TestHeadEndInterface(readingType, readingType2);
-        inMemoryBootstrapModule.getMeteringDataModelService().addHeadEndInterface(headEndInterface);
+        when(headEndInterface.getCapabilities(any())).thenReturn(new EndDeviceCapabilities(Arrays.asList(readingType, readingType2), Collections.emptyList()));
         usagePoint.linkMeters().activate(Instant.now(), meter, meterRole).complete();
 
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
@@ -252,8 +265,6 @@ public class MetrologyContractChannelsContainerImplTestIT {
         List<AggregatedChannel.AggregatedIntervalReadingRecord> readingsAfterRemoveOfEditedValue = aggregatedChannel.getAggregatedIntervalReadings(requestedInterval);
         assertThat(readingsAfterRemoveOfEditedValue).hasSize(1);    // Still one value because the calculated value should now be returned again
         assertThat(readingsAfterRemoveOfEditedValue.get(0).getValue()).isEqualTo(calculatedValue);
-
-        inMemoryBootstrapModule.getMeteringDataModelService().removeHeadEndInterface(headEndInterface);
     }
 
     @Test
@@ -281,8 +292,7 @@ public class MetrologyContractChannelsContainerImplTestIT {
         when(meter.getState(any(Instant.class))).thenReturn(Optional.of(deviceState));
         when(deviceState.getStage()).thenReturn(Optional.of(deviceStage));
         when(deviceStage.getName()).thenReturn(operationalDeviceStageKey);
-        HeadEndInterface headEndInterface = new TestHeadEndInterface(readingType2, readingType3);
-        inMemoryBootstrapModule.getMeteringDataModelService().addHeadEndInterface(headEndInterface);
+        when(headEndInterface.getCapabilities(any())).thenReturn(new EndDeviceCapabilities(Arrays.asList(readingType2, readingType3), Collections.emptyList()));
         usagePoint.linkMeters().activate(Instant.now(), meter, meterRole).complete();
 
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = inMemoryBootstrapModule.getMetrologyConfigurationService()
@@ -325,7 +335,5 @@ public class MetrologyContractChannelsContainerImplTestIT {
         assertThat(persistedReadings).hasSize(0);
         readings = channel.getReadings(effectiveMetrologyConfiguration.getRange());
         assertThat(readings).hasSize(1);
-
-        inMemoryBootstrapModule.getMeteringDataModelService().removeHeadEndInterface(headEndInterface);
     }
 }
