@@ -54,7 +54,7 @@ public class MetrologyConfigurationHistoryInfoFactory {
     }
 
     private String filterFor(EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration) {
-        return "?variableid=correlationId&variableValue=" + metrologyConfiguration.getUsagePoint().getMRID() + ":processOnMetrologyConfig:"
+        return "?variableid=correlationId&variablevalue=" + metrologyConfiguration.getUsagePoint().getMRID() + ":processOnMetrologyConfig:"
                 + metrologyConfiguration.getMetrologyConfiguration().getId();
     }
 }

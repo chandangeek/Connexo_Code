@@ -305,8 +305,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         when(contract.isMandatory()).thenReturn(true);
         when(contract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
         when(contract.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
-        MetrologyContract.Status status = mockMetrologyContractStatus();
-        when(contract.getStatus(any())).thenReturn(status);
         return contract;
     }
 
@@ -316,14 +314,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         when(purpose.getName()).thenReturn(metrologyPurpose.getName().getDefaultMessage());
         when(purpose.getDescription()).thenReturn(metrologyPurpose.getDescription().getDefaultMessage());
         return purpose;
-    }
-
-    private MetrologyContract.Status mockMetrologyContractStatus() {
-        MetrologyContract.Status status = mock(MetrologyContract.Status.class);
-        when(status.isComplete()).thenReturn(false);
-        when(status.getKey()).thenReturn("INCOMPLETE");
-        when(status.getName()).thenReturn("incomplete");
-        return status;
     }
 
     private ReadingTypeDeliverable mockReadingTypeDeliverable(long id, String name, UsagePointMetrologyConfiguration metrologyConfiguration, ReadingType readingType) {

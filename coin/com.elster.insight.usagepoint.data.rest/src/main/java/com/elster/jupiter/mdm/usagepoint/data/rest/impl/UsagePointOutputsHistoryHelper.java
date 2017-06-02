@@ -74,7 +74,13 @@ public class UsagePointOutputsHistoryHelper {
                         .orElse(null),
                 usagePoint,
                 calendarService);
-        Map<Instant, List<JournaledReadingRecord>> historicalReadings = indexJournaledRecordsByTimestamp(journaledRegisterReadingRecords);
+
+        Map<Instant, RegisterReadingWithValidationStatus> preFilledDataMap = journaledRegisterReadingRecords.stream()
+                .map(ReadingRecord::getTimeStamp)
+                .distinct()
+                .collect(Collectors.toMap(Function.identity(), readingWithValidationStatusFactory::createRegisterReading, (a, b) -> a, TreeMap::new));
+
+        Map<Instant, List<JournaledReadingRecord>> historicalReadings = indexJournaledRecordsByTimestamp(journaledRegisterReadingRecords, preFilledDataMap.keySet());
 
         if (changedDataOnly) {
             historicalReadings = historicalReadings.entrySet()
@@ -83,10 +89,6 @@ public class UsagePointOutputsHistoryHelper {
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         }
 
-        Map<Instant, RegisterReadingWithValidationStatus> preFilledDataMap = journaledRegisterReadingRecords.stream()
-                .map(ReadingRecord::getTimeStamp)
-                .distinct()
-                .collect(Collectors.toMap(Function.identity(), readingWithValidationStatusFactory::createRegisterReading, (a, b) -> a, TreeMap::new));
         List<? extends ReadingQualityRecord> readingQualityRecords = journaledRegisterReadingRecords.stream()
                 .flatMap(record -> record.getReadingQualities().stream())
                 .collect(Collectors.toList());
@@ -185,7 +187,7 @@ public class UsagePointOutputsHistoryHelper {
     }
 
     private List<JournaledReadingRecord> putHistoricalDataFromChannel(UsagePoint usagePoint, ValidationEvaluator evaluator, AggregatedChannel aggregatedChannel, Range<Instant> effectiveInterval, List<? extends BaseReadingRecord> journaledChannelReadingRecords, Map<Instant, ChannelReadingWithValidationStatus> preFilledChannelDataMap, boolean changedDataOnly) {
-        Map<Instant, List<JournaledReadingRecord>> historicalReadings = indexJournaledRecordsByTimestamp(journaledChannelReadingRecords);
+        Map<Instant, List<JournaledReadingRecord>> historicalReadings = indexJournaledRecordsByTimestamp(journaledChannelReadingRecords, preFilledChannelDataMap.keySet());
         if (changedDataOnly) {
             historicalReadings = historicalReadings.entrySet()
                     .stream()
@@ -199,8 +201,9 @@ public class UsagePointOutputsHistoryHelper {
                 .collect(Collectors.toList());
     }
 
-    private Map<Instant, List<JournaledReadingRecord>> indexJournaledRecordsByTimestamp(List<? extends BaseReadingRecord> records) {
+    private Map<Instant, List<JournaledReadingRecord>> indexJournaledRecordsByTimestamp(List<? extends BaseReadingRecord> records, Set<Instant> intervalTimestamps) {
         return records.stream()
+                .filter(record -> intervalTimestamps.contains(record.getTimeStamp()))
                 .map(JournaledReadingRecord::new)
                 .collect(Collectors.groupingBy(JournaledReadingRecord::getTimeStamp));
     }

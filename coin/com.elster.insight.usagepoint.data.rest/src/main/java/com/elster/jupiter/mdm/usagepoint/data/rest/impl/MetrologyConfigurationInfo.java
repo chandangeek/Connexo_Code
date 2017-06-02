@@ -8,9 +8,9 @@ import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverableFactory;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.aggregation.MetrologyContractCalculationIntrospector;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.CustomPropertyNode;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.FunctionCallNode;
@@ -26,7 +26,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.Range;
 
 import java.net.URL;
 import java.time.Clock;
@@ -72,7 +71,7 @@ public class MetrologyConfigurationInfo {
                 .collect(Collectors.toList());
         this.purposes = metrologyConfiguration.getContracts()
                 .stream()
-                .map(c -> asDetailedPurposeInfo(c, usagePoint, readingTypeDeliverableFactory))
+                .map(c -> asDetailedPurposeInfo(c, usagePoint, readingTypeDeliverableFactory, effectiveMetrologyConfigurationOnUsagePoint))
                 .sorted(Comparator.comparing(info -> info.name))
                 .collect(Collectors.toList());
         this.status = statusInfo();
@@ -117,7 +116,8 @@ public class MetrologyConfigurationInfo {
     }
 
     private PurposeInfo asDetailedPurposeInfo(MetrologyContract metrologyContract, UsagePoint usagePoint,
-                                              ReadingTypeDeliverableFactory readingTypeDeliverableFactory) {
+                                              ReadingTypeDeliverableFactory readingTypeDeliverableFactory,
+                                              EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint) {
         PurposeInfo info = new PurposeInfo();
         info.id = metrologyContract.getId();
         info.name = metrologyContract.getMetrologyPurpose().getName();
@@ -128,8 +128,10 @@ public class MetrologyConfigurationInfo {
                 .isPresent();
         info.meterRoles = asMeterRoleInfoList(metrologyContract, usagePoint);
         IdWithNameInfo metrologyContractStatus = new IdWithNameInfo();
-        metrologyContractStatus.id = metrologyContract.getStatus(usagePoint).getKey().equals("COMPLETE") ? "complete" : "incomplete";
-        metrologyContractStatus.name = metrologyContract.getStatus(usagePoint).getName();
+        metrologyContractStatus.id = effectiveMetrologyConfigurationOnUsagePoint.isComplete(metrologyContract) ? "complete" : "incomplete";
+        metrologyContractStatus.name = effectiveMetrologyConfigurationOnUsagePoint.isComplete(metrologyContract) ?
+                thesaurus.getFormat(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_COMPLETE).format()
+                : thesaurus.getFormat(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_INCOMPLETE).format();
         info.status = metrologyContractStatus;
         info.readingTypeDeliverables = metrologyContract.getDeliverables()
                 .stream()
@@ -146,7 +148,7 @@ public class MetrologyConfigurationInfo {
                 .flatMap(eventSet -> eventSet.getEvents().stream()).collect(Collectors.toList());
 
 
-        eventList.stream().filter(event -> longs.contains(event.getCode())).forEach(event2 -> info.eventNames.add(info.eventNames.size(),event2.getName()));
+        eventList.stream().filter(event -> longs.contains(event.getCode())).forEach(event2 -> info.eventNames.add(info.eventNames.size(), event2.getName()));
         return info;
     }
 

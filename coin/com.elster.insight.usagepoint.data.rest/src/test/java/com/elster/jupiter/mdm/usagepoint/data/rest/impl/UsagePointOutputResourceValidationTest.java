@@ -8,6 +8,7 @@ import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.estimation.EstimationRule;
@@ -15,7 +16,6 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataCompletionSummaryType;
 import com.elster.jupiter.mdm.usagepoint.data.IChannelDataCompletionSummary;
-import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataCompletionService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
@@ -51,9 +51,7 @@ import com.jayway.jsonpath.JsonModel;
 
 import java.io.UnsupportedEncodingException;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -74,11 +72,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class UsagePointOutputResourceValidationTest extends UsagePointDataRestApplicationJerseyTest {
-    private static final Instant NOW = ZonedDateTime.of(2016, 6, 1, 12, 40, 30, 0, ZoneId.systemDefault()).toInstant();
-    private static final ZonedDateTime ZONED_NOW = ZonedDateTime.of(2016, 6, 1, 12, 40, 30, 0, ZoneId.of("Europe/Brussels"));
+    private static final ZonedDateTime NOW = ZonedDateTime.of(2016, 6, 1, 12, 40, 30, 0, TimeZoneNeutral.getMcMurdo());
 
-    private static final RelativePeriod TODAY = mockRelativePeriod(5, "Today", ZONED_NOW.withMinute(0), ZONED_NOW.plusDays(1).withMinute(0));
-    private static final Instant DAY_BEFORE = NOW.minus(1, ChronoUnit.DAYS);
+    private static final RelativePeriod TODAY = mockRelativePeriod(5, "Today", NOW.withMinute(0), NOW.plusDays(1).withMinute(0));
+    private static final Instant DAY_BEFORE = NOW.minusDays(1).toInstant();
     private static final String READING_TYPE_MRID = "13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     private static final String EXPECTED_FORMULA_DESCRIPTION = "15min A+ Wh / 1000";
 
@@ -113,8 +110,6 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
     @Mock
     private CimChannel cimChannel;
     @Mock
-    private MetrologyContract.Status status;
-    @Mock
     private ReadingQualityWithTypeFetcher readingQualityFetcher;
     @Mock
     private ValidationRuleSet validationRuleSet;
@@ -131,7 +126,8 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
 
     @Before
     public void setStubs() {
-        when(clock.instant()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW.toInstant());
+        when(clock.getZone()).thenReturn(NOW.getZone());
         when(meteringService.findUsagePointByName("UP")).thenReturn(Optional.of(usagePoint));
         when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(validationRuleSet));
         readingType = mockReadingType(READING_TYPE_MRID);
@@ -169,8 +165,6 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         readingTypeDeliverablesInfo.formula = new com.elster.jupiter.mdm.usagepoint.config.rest.FormulaInfo();
         readingTypeDeliverablesInfo.formula.description = EXPECTED_FORMULA_DESCRIPTION;
         when(readingTypeDeliverableFactory.asInfo(any(ReadingTypeDeliverable.class))).thenReturn(readingTypeDeliverablesInfo);
-        when(clock.instant()).thenReturn(ZONED_NOW.toInstant());
-        when(clock.getZone()).thenReturn(ZONED_NOW.getZone());
         when(timeService.findRelativePeriod(5)).thenReturn(Optional.of(TODAY));
         when(effectiveMetrologyConfiguration.getRange()).thenReturn(Range.all());
         when(usagePointDataCompletionService.getDataCompletionStatistics(eq(effectiveMetrologyConfiguration), eq(metrologyContract), any(Range.class))).thenReturn(Collections.singletonMap(deliverable, Collections
@@ -198,8 +192,8 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(dataAggregationService.introspect(any(),any(),any())).thenReturn(metrologyContractCalculationIntrospector);
         List<MetrologyContractCalculationIntrospector.CalendarUsage> calendarUsages = Collections.emptyList();
         when(metrologyContractCalculationIntrospector.getCalendarUsagesFor(any())).thenReturn(calendarUsages);
-        when(usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration, metrologyContract, readingType)).thenReturn(Optional.of(DAY_BEFORE));
-        when(usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration, metrologyContract)).thenReturn(Optional.of(DAY_BEFORE));
+        when(usagePointDataCompletionService.getLastChecked(usagePoint, metrologyPurpose, readingType)).thenReturn(Optional.of(DAY_BEFORE));
+        when(usagePointDataCompletionService.getLastChecked(usagePoint, metrologyPurpose)).thenReturn(Optional.of(DAY_BEFORE));
     }
 
     private ReadingQualityRecord mockReadingQuality(ReadingQualityType readingQualityType) {
@@ -233,11 +227,8 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         when(metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
         when(metrologyContract.getId()).thenReturn(1L);
-        when(metrologyContract.getStatus(usagePoint)).thenReturn(status);
         when(metrologyContract.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
-        when(status.isComplete()).thenReturn(true);
-        when(status.getKey()).thenReturn("COMPLETE");
-        when(status.getName()).thenReturn("Complete");
+        when(effectiveMetrologyConfiguration.isComplete(metrologyContract)).thenReturn(true);
     }
 
     private void setChannelStub() {
@@ -295,7 +286,7 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
         RelativePeriod relativePeriod = mock(RelativePeriod.class);
         when(relativePeriod.getId()).thenReturn(id);
         when(relativePeriod.getName()).thenReturn(name);
-        when(relativePeriod.getOpenClosedInterval(ZONED_NOW)).thenReturn(Range.openClosed(startDateTime.toInstant(), endDateTime.toInstant()));
+        when(relativePeriod.getOpenClosedInterval(NOW)).thenReturn(Range.openClosed(startDateTime.toInstant(), endDateTime.toInstant()));
         return relativePeriod;
     }
 
@@ -326,7 +317,7 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
     @Test
     public void testUsagePointDeliverablesWithFilterInfo() throws Exception {
         when(informativeDataValidationStatus.getOffendedRules()).thenReturn(Collections.singletonList(informativeRule));
-        when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.atLeast(NOW)));
+        when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.atLeast(DAY_BEFORE)));
         String json = target("/usagepoints/UP/purposes/1/outputs").queryParam("filter", buildFilter()).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Boolean>get("$.outputs[0].validationInfo.hasSuspects")).isTrue();
