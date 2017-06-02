@@ -51,6 +51,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService, M
         this.addPropertyValueInfoConverter(new RelativePeriodPropertyValueConverter());
         this.addPropertyValueInfoConverter(new ListPropertyValueConverter());
         this.addPropertyValueInfoConverter(new QuantityPropertyValueConverter());
+        this.addPropertyValueInfoConverter(new IntegerPropertyValueConverter());
     }
 
     @Override

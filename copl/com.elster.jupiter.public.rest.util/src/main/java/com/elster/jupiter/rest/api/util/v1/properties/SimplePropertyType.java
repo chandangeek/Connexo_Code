@@ -7,7 +7,6 @@ package com.elster.jupiter.rest.api.util.v1.properties;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListReadingQualityFactory;
 import com.elster.jupiter.properties.ListValueFactory;
-import com.elster.jupiter.properties.LongFactory;
 import com.elster.jupiter.properties.RelativePeriodFactory;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ThreeStateFactory;
@@ -25,7 +24,7 @@ public enum SimplePropertyType implements PropertyType {
     TEXT(String.class),
     TEXTAREA(StringFactory.class),
     TIMESTAMP(Instant.class),
-    LONG(LongFactory.class),
+    LONG(Long.class),
     IDWITHNAME(HasIdAndName.class),
     RELATIVEPERIOD(RelativePeriodFactory.class),
     SELECTIONGRID(ListValueFactory.class),
@@ -37,7 +36,8 @@ public enum SimplePropertyType implements PropertyType {
     ENDDEVICEEVENTTYPE(ListValueFactory.class),
     LIFECYCLESTATUSINDEVICETYPE(ListValueFactory.class),
     RAISEEVENTPROPS(HasIdAndName.class),
-    RELATIVEPERIODWITHCOUNT(HasIdAndName.class);
+    RELATIVEPERIODWITHCOUNT(HasIdAndName.class),
+    INTEGER(Integer.class);
 
     private Class typeClass;
 
@@ -49,9 +49,6 @@ public enum SimplePropertyType implements PropertyType {
         for (SimplePropertyType simplePropertyType : values()) {
             if (simplePropertyType.matches(valueFactory)) {
                 return simplePropertyType;
-            }
-            if(valueFactory.getValueType().equals(Integer.class) || valueFactory.getValueType().equals(Long.class)){
-                return LONG;
             }
         }
         return UNKNOWN;
