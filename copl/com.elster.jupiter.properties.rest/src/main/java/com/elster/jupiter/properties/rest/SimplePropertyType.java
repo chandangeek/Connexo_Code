@@ -7,7 +7,6 @@ package com.elster.jupiter.properties.rest;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListReadingQualityFactory;
 import com.elster.jupiter.properties.ListValueFactory;
-import com.elster.jupiter.properties.LongFactory;
 import com.elster.jupiter.properties.NoneOrBigDecimalValueFactory;
 import com.elster.jupiter.properties.NoneOrTimeDurationValueFactory;
 import com.elster.jupiter.properties.RelativePeriodFactory;
@@ -30,7 +29,7 @@ public enum SimplePropertyType implements PropertyType {
     TEXT(String.class),
     TEXTAREA(String.class),
     TIMESTAMP(Instant.class),
-    LONG(LongFactory.class),
+    LONG(Long.class),
     IDWITHNAME(HasIdAndName.class),
     RELATIVEPERIOD(RelativePeriodFactory.class),
     SELECTIONGRID(ListValueFactory.class),
@@ -49,7 +48,8 @@ public enum SimplePropertyType implements PropertyType {
     TIMEDURATION(TimeDuration.class),       //Property that can indicate any kind of duration/period
     TWO_VALUES_DIFFERENCE(TwoValuesDifferenceValueFactory.class),
     NONE_OR_BIGDECIMAL(NoneOrBigDecimalValueFactory.class),
-    NONE_OR_TIMEDURATION(NoneOrTimeDurationValueFactory.class);
+    NONE_OR_TIMEDURATION(NoneOrTimeDurationValueFactory.class),
+    INTEGER(Integer.class);
 
 
     private Class typeClass;
@@ -65,9 +65,6 @@ public enum SimplePropertyType implements PropertyType {
         for (SimplePropertyType simplePropertyType : values()) {
             if (simplePropertyType.matches(valueFactory)) {
                 return simplePropertyType;
-            }
-            if(valueFactory.getValueType().equals(Integer.class) || valueFactory.getValueType().equals(Long.class)){
-                return LONG;
             }
         }
         return UNKNOWN;
