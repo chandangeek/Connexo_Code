@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -50,7 +51,6 @@ import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doReturn;
@@ -82,7 +82,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
     @Before
     public void initialiseMocks() throws Exception {
         when(propertyValueInfoService.getPropertyInfo(any(PropertySpec.class), any(Function.class))).thenAnswer(invocation -> {
-            String propertyValue =  invocation.getArguments()[1] != null ? (String) ((Function) invocation.getArguments()[1]).apply("Client") : null;
+            String propertyValue = invocation.getArguments()[1] != null ? (String) ((Function) invocation.getArguments()[1]).apply("Client") : null;
             return new PropertyInfo("Property", "Property", new PropertyValueInfo<>(propertyValue, null), new PropertyTypeInfo(), false);
         });
     }
@@ -493,8 +493,16 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
     @Test
     public void testUpdateSecurityPropertySetDoesAddNewAttributes() throws Exception {
         DeviceType deviceType = mock(DeviceType.class);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        com.energyict.mdc.upl.properties.PropertySpec clientPropertySpec = mock(com.energyict.mdc.upl.properties.PropertySpec.class);
+        when(clientPropertySpec.getName()).thenReturn("Client");
+        when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.of(clientPropertySpec));
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(456L);
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         Group group1 = mockUserGroup(66L, "Z - user group 1");
@@ -521,12 +529,27 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(propertySpec.getName()).thenReturn("EncryptionKey");
         HashSet<PropertySpec> propertySpecs = new HashSet<>(Collections.singletonList(propertySpec));
         when(sps1.getPropertySpecs()).thenReturn(propertySpecs);
-        when(propertyValueInfoService.findPropertyValue(any(PropertySpec.class), anyListOf(PropertyInfo.class))).thenReturn(keyAccessorType);
+
         when(propertyValueInfoService.getPropertyInfo(any(PropertySpec.class), any(Function.class))).thenReturn(propertyInfo);
+        when(propertyValueInfoService.findPropertyValue(any(), any())).thenAnswer(invocationOnMock -> {
+            Object[] arguments = invocationOnMock.getArguments();
+            PropertySpec spec = (PropertySpec) arguments[0];
+            List<PropertyInfo> infos = (List<PropertyInfo>) arguments[1];
+            if (spec.getName().equals("Client")) {
+                return infos.stream()
+                        .filter(info -> info.name.equals(spec.getName()))
+                        .map(info -> info.propertyValueInfo.value)
+                        .filter(Objects::nonNull)
+                        .findAny()
+                        .orElse(null);
+            } else {
+                return keyAccessorType;
+            }
+        });
 
         SecurityPropertySetInfo info = new SecurityPropertySetInfo();
         info.name = "New name";
-        info.client = new PropertyInfo("Client", "", new PropertyValueInfo<>("New client", ""), new PropertyTypeInfo(), true);
+        info.client = new PropertyInfo("Client", "Client", new PropertyValueInfo<>("New client", ""), new PropertyTypeInfo(), true);
         info.authenticationLevelId = 1002;
         info.encryptionLevelId = 2001;
         info.securitySuiteId = 3002;
@@ -552,8 +575,16 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
     @Test
     public void testUpdateSecurityPropertySetDoesRemoveOldAttributes() throws Exception {
         DeviceType deviceType = mock(DeviceType.class);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        com.energyict.mdc.upl.properties.PropertySpec clientPropertySpec = mock(com.energyict.mdc.upl.properties.PropertySpec.class);
+        when(clientPropertySpec.getName()).thenReturn("Client");
+        when(deviceProtocol.getClientSecurityPropertySpec()).thenReturn(Optional.of(clientPropertySpec));
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getId()).thenReturn(456L);
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         Group group1 = mockUserGroup(66L, "Z - user group 1");
@@ -573,6 +604,18 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceConfigurationService.findDeviceConfiguration(456L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(456L, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(101, OK_VERSION)).thenReturn(Optional.of(sps1));
+
+        when(propertyValueInfoService.findPropertyValue(any(), any())).thenAnswer(invocationOnMock -> {
+            Object[] arguments = invocationOnMock.getArguments();
+            PropertySpec spec = (PropertySpec) arguments[0];
+            List<PropertyInfo> infos = (List<PropertyInfo>) arguments[1];
+            return infos.stream()
+                    .filter(info -> info.name.equals(spec.getName()))
+                    .map(info -> info.propertyValueInfo.value)
+                    .filter(Objects::nonNull)
+                    .findAny()
+                    .orElse(null);
+        });
 
         SecurityPropertySetInfo info = new SecurityPropertySetInfo();
         info.name = "New name";
