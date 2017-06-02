@@ -27,6 +27,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.properties.rest.PropertyValueInfoServiceModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -109,6 +110,7 @@ public class InMemoryIntegrationPersistence {
         modules.add(new KpiModule());
         modules.add(new MeteringGroupsModule());
         modules.add(new ValidationModule());
+        modules.add(new PropertyValueInfoServiceModule());
         modules.add(bootstrapModule);
 
         injector = Guice.createInjector(modules.toArray(new Module[modules.size()]));

@@ -31,6 +31,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.imports.impl.properties.SupportedNumberFormat;
 import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointsImporterFactory;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
@@ -50,7 +51,6 @@ import java.util.logging.Logger;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -62,7 +62,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
 public class UsagePointImportIT {
     @Rule
     public TestRule transactionalRule = new TransactionalRule(inMemoryPersistence.getTransactionService());
@@ -208,6 +207,7 @@ public class UsagePointImportIT {
         context.setMetrologyConfigurationService(inMemoryPersistence.getService(MetrologyConfigurationService.class));
         context.setUsagePointLifeCycleService(inMemoryPersistence.getService(UsagePointLifeCycleService.class));
         context.setNlsService(inMemoryPersistence.getService(NlsService.class));
+        context.setPropertyValueInfoService(inMemoryPersistence.getService(PropertyValueInfoService.class));
         return context;
     }
 
