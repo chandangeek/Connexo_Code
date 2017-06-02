@@ -6,11 +6,8 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -47,7 +44,6 @@ import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -174,13 +170,15 @@ public class DeviceResource {
         if(info.deviceConfiguration.deviceType!=null && info.usagePoint!=null && info.meterRole!=null){
             DeviceType deviceType = deviceConfigurationService.findDeviceTypeByName(String.valueOf(info.deviceConfiguration.deviceType.id))
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_TYPE));
-            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = meteringService.findUsagePointByMRID(info.usagePoint)
-                    .flatMap(usagePoint -> usagePoint.getCurrentEffectiveMetrologyConfiguration().map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration));
+            Optional<UsagePoint> usagePoint = meteringService.findUsagePointByMRID(info.usagePoint);
             MeterRole meterRole = metrologyConfigurationService.findMeterRole(info.meterRole)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METER_ROLE));
             List<DeviceConfiguration> applicableConfigurations;
-            if(metrologyConfiguration.isPresent()) {
-                applicableConfigurations = resourceHelper.findDeviceConfigurationsApplicableToMetrologyConfig(deviceType, metrologyConfiguration.get(), meterRole);
+            if (usagePoint.isPresent()) {
+                applicableConfigurations = resourceHelper.findDeviceConfigurationsApplicableToMetrologyConfig(deviceType,
+                        usagePoint.get(),
+                        meterRole,
+                        info.shipmentDate != null ? info.shipmentDate : clock.instant());
             } else {
                 applicableConfigurations = deviceType.getConfigurations();
             }
