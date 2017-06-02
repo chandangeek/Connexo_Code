@@ -113,6 +113,9 @@ public class SyntheticLoadProfileProcessorTest {
         when(syntheticLoadProfile1.getStartTime()).thenReturn(DATE);
         when(syntheticLoadProfile2.getStartTime()).thenReturn(DATE);
         when(syntheticLoadProfile3.getStartTime()).thenReturn(DATE);
+        when(syntheticLoadProfile1.getZoneId()).thenReturn(ZoneId.systemDefault());
+        when(syntheticLoadProfile2.getZoneId()).thenReturn(ZoneId.systemDefault());
+        when(syntheticLoadProfile3.getZoneId()).thenReturn(ZoneId.systemDefault());
 
         try {
             when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);

@@ -125,13 +125,16 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
     }
 
     private void isValidTimestamp (SyntheticLoadProfile syntheticLoadProfile, Instant firstTimestamp) {
+        long secondsOfDay = Duration.from(ChronoUnit.DAYS.getDuration()).getSeconds();
+        long secondsOfMinute =  Duration.from(ChronoUnit.MINUTES.getDuration()).getSeconds();
+
         String expectedDateTime = DefaultDateTimeFormatters.shortDate().withShortTime().build().format(syntheticLoadProfile.getStartTime().atZone(syntheticLoadProfile.getZoneId()));
         String actualDateTime = DefaultDateTimeFormatters.shortDate().withShortTime().build().format(firstTimestamp.atZone(zoneId));
-        if (syntheticLoadProfile.getInterval().get(ChronoUnit.DAYS) > 0 && !ZoneId.systemDefault().equals(zoneId)){
+        if (syntheticLoadProfile.getInterval().get(ChronoUnit.SECONDS) > secondsOfDay && !ZoneId.systemDefault().equals(zoneId)){
             if(!syntheticLoadProfile.getZoneId().getRules().getOffset(syntheticLoadProfile.getStartTime()).equals(zoneId)){
                 throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP, 2, expectedDateTime, actualDateTime);
             }
-        } else if (firstTimestamp.atZone(zoneId).getMinute() % syntheticLoadProfile.getInterval().get(ChronoUnit.MINUTES) != 0){
+        } else if (firstTimestamp.atZone(zoneId).getMinute() % (syntheticLoadProfile.getInterval().get(ChronoUnit.SECONDS) / secondsOfMinute) != 0){
             throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP, 2, expectedDateTime, actualDateTime);
         }
         else if (firstTimestamp.atZone(syntheticLoadProfile.getZoneId()).getSecond() != 0
