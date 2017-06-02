@@ -1,11 +1,11 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import com.energyict.mdc.upl.TypedProperties;
 import org.fest.assertions.core.Condition;
 
 import java.util.Optional;
@@ -100,7 +100,7 @@ public class IEC1107SecuritySupportTest extends AbstractSecuritySupportTest {
                     }
 
                     @Override
-                    public String getClient() {
+                    public Object getClient() {
                         return null;
                     }
 

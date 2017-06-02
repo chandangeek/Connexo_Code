@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -8,8 +9,6 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
-
-import com.energyict.mdc.upl.TypedProperties;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -112,7 +111,7 @@ public class AnsiC12SecuritySupport extends AbstractSecuritySupport implements L
             }
 
             @Override
-            public String getClient() {
+            public Object getClient() {
                 return null;
             }
 

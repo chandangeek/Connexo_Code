@@ -35,6 +35,7 @@ public class AM500SecuritySupport extends DsmrSecuritySupport {
                         .setDefaultValue(BigDecimal.ONE)
                         .addValues(DeviceSecurityProperty.getPossibleClientMacAddressValues(0, 0x7F))
                         .markExhaustive()
+                        .markRequired()
                         .finish()
         );
     }

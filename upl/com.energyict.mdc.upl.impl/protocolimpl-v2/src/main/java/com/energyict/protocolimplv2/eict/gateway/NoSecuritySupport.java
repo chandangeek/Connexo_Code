@@ -58,7 +58,7 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
             }
 
             @Override
-            public String getClient() {
+            public Object getClient() {
                 return null;
             }
 

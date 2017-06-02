@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 
-import com.energyict.mdc.upl.TypedProperties;
 import org.fest.assertions.core.Condition;
 
 import org.junit.Test;
@@ -126,7 +126,7 @@ public class ExtendedAnsiC12SecuritySupportTest extends AbstractSecuritySupportT
                     }
 
                     @Override
-                    public String getClient() {
+                    public Object getClient() {
                         return null;
                     }
 
