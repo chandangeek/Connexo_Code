@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.util.conditions.Where;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -64,6 +65,7 @@ public class DeviceResource {
 
     private List<Meter> queryDevices(boolean maySeeAny, QueryParameters queryParameters) {
         Query<Meter> query = meteringService.getMeterQuery();
+        query.setRestriction(Where.where("obsoleteTime").isNull());
         if (!maySeeAny) {
             query.setRestriction(meteringService.hasAccountability());
         }

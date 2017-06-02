@@ -38,6 +38,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -955,7 +956,11 @@ public class UsagePointOutputResource {
                 && NumericalOutputRegisterDataInfo.class.cast(registerDataInfo).isConfirmed)) {
             channel.confirmReadings(QualityCodeSystem.MDM, Collections.singletonList(reading));
         } else {
-            channel.editReadings(QualityCodeSystem.MDM, Collections.singletonList(reading));
+            try {
+                channel.editReadings(QualityCodeSystem.MDM, Collections.singletonList(reading));
+            } catch (UnderlyingSQLFailedException ex) {
+                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_VALUE_EXCEEDED, "value");
+            }
         }
 
         return registerDataInfo;
