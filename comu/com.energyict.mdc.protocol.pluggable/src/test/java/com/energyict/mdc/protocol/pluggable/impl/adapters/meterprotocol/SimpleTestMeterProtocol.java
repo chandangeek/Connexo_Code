@@ -5,8 +5,8 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -17,8 +17,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
@@ -35,7 +33,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -53,11 +50,6 @@ public class SimpleTestMeterProtocol implements MeterProtocol, MessageProtocol, 
     @Override
     public String getProtocolDescription() {
         return this.getClass().getName();
-    }
-
-    @Override
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-        // nothing to set
     }
 
     @Override

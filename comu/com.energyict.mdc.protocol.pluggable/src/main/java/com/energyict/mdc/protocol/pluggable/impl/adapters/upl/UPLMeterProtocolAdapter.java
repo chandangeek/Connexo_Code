@@ -1,13 +1,12 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.upl;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.cbo.Quantity;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.TypedPropertiesValueAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpecAdapter;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.CachingProtocol;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -15,10 +14,10 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
+import com.energyict.cbo.Quantity;
 import com.energyict.protocol.ProfileData;
 
 import java.io.IOException;
@@ -29,7 +28,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -202,11 +200,6 @@ public class UPLMeterProtocolAdapter implements MeterProtocol, UPLProtocolAdapte
     @Override
     public String getVersion() {
         return this.actual.getProtocolVersion();
-    }
-
-    @Override
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-        this.addProperties(TypedPropertiesValueAdapter.adaptToUPLValues(properties));
     }
 
     @Override

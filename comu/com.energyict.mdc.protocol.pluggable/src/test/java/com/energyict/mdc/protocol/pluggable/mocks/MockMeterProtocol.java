@@ -5,16 +5,14 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
 import com.energyict.cbo.Quantity;
@@ -30,7 +28,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -58,11 +55,6 @@ public class MockMeterProtocol implements MeterProtocol, MessageProtocol {
     @Override
     public String getProtocolDescription() {
         return javaClassName;
-    }
-
-    @Override
-    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-
     }
 
     @Override

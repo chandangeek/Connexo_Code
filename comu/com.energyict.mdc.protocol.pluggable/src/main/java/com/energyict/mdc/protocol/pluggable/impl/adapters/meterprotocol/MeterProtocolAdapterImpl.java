@@ -23,6 +23,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
+import com.energyict.mdc.protocol.api.exceptions.NestedPropertyValidationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
@@ -485,15 +486,17 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
 
     /**
      * This <i>forwards</i> the {@link PropertiesAdapter#getProperties()} to the {@link MeterProtocol} via the
-     * {@link MeterProtocol#setProperties(java.util.Properties)} method.
+     * {@link MeterProtocol#setUPLProperties(com.energyict.mdc.upl.properties.TypedProperties)} method.
      * <p>
      * <b>This should happen only once!</b>
      */
     private void setPropertiesToMeterProtocol() {
         try {
-            this.meterProtocol.setProperties(this.propertiesAdapter.getProperties().toStringProperties());
+            this.meterProtocol.setUPLProperties(this.propertiesAdapter.getProperties());
         } catch (InvalidPropertyException | MissingPropertyException e) {
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
+        } catch (PropertyValidationException e) {
+            throw new NestedPropertyValidationException(e);
         }
     }
 
