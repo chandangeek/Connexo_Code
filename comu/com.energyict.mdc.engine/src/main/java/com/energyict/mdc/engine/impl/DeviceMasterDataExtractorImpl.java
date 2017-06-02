@@ -929,7 +929,7 @@ public class DeviceMasterDataExtractorImpl implements DeviceMasterDataExtractor 
         }
 
         @Override
-        public String client() {
+        public Object client() {
             return this.actual.getClient();
         }
 
