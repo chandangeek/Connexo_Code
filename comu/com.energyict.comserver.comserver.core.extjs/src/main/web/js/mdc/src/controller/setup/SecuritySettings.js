@@ -24,6 +24,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         'ConfigurationSecurityProperties'
     ],
 
+    models: [
+        'Uni.property.model.Property'
+    ],
+
     refs: [
         {ref: 'formPanel', selector: 'securitySettingForm'},
         {ref: 'securitySettingPreview', selector: 'securitySettingPreview'},
@@ -34,7 +38,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         {ref: 'securitySuiteCombobox', selector: '#securitySuiteCombobox'},
         {ref: 'authCombobox', selector: '#authCombobox'},
         {ref: 'encrCombobox', selector: '#encrCombobox'},
-        {ref: 'clientField', selector: '#client-field'},
         {ref: 'requestSecurityCombobox', selector: '#requestSecurityCombobox'},
         {ref: 'responseSecurityCombobox', selector: '#responseSecurityCombobox'}
     ],
@@ -48,6 +51,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     currentDeviceConfigurationId: undefined,
     deviceProtocolSupportsClient: undefined,
     deviceProtocolSupportSecuritySuites: undefined,
+    storeCounter: 0,
 
     init: function () {
         var me = this;
@@ -97,7 +101,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         me.getSecuritySuiteCombobox().clearValue();
                         me.getSecuritySuiteCombobox().clearInvalid();
                     }
-                    me.getSecuritySuiteCombobox().enable();
                     me.getSecuritySuiteCombobox().show();
                 }
             }
@@ -116,8 +119,12 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                     me.getAuthCombobox().clearValue();
                     me.getAuthCombobox().clearInvalid();
                 }
-                me.getAuthCombobox().enable();
                 me.getAuthCombobox().show();
+            }
+            me.storeCounter--;
+            if(me.storeCounter <= 0) {
+                me.getFormPanel().resumeLayouts(true);
+                me.getFormPanel().resumeEvents();
             }
         });
         me.getEncryptionLevelsStore().on('load', function (store, records, success) {
@@ -133,8 +140,12 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                     me.getEncrCombobox().clearValue();
                     me.getEncrCombobox().clearInvalid();
                 }
-                me.getEncrCombobox().enable();
                 me.getEncrCombobox().show();
+            }
+            me.storeCounter--;
+            if(me.storeCounter <= 0) {
+                me.getFormPanel().resumeLayouts(true);
+                me.getFormPanel().resumeEvents();
             }
         });
         me.getRequestSecurityLevelsStore().on('load', function (store, records, success) {
@@ -150,8 +161,12 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                     me.getRequestSecurityCombobox().clearValue();
                     me.getRequestSecurityCombobox().clearInvalid();
                 }
-                me.getRequestSecurityCombobox().enable();
                 me.getRequestSecurityCombobox().show();
+            }
+            me.storeCounter--;
+            if(me.storeCounter <= 0) {
+                me.getFormPanel().resumeLayouts(true);
+                me.getFormPanel().resumeEvents();
             }
         });
         me.getResponseSecurityLevelsStore().on('load', function (store, records, success) {
@@ -167,16 +182,21 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                     me.getResponseSecurityCombobox().clearValue();
                     me.getResponseSecurityCombobox().clearInvalid();
                 }
-                me.getResponseSecurityCombobox().enable();
                 me.getResponseSecurityCombobox().show();
+            }
+            me.storeCounter--;
+            if(me.storeCounter <= 0) {
+                me.getFormPanel().resumeLayouts(true);
+                me.getFormPanel().resumeEvents();
             }
         });
         me.getConfigurationSecurityPropertiesStore().on('load', function (store, records, success) {
             var formPanel = me.getFormPanel(),
                 form = formPanel.down('form#myForm'),
-                propertyForm = formPanel.down('property-form');
-                record = form.getRecord();
-
+                propertyForm = formPanel.down('property-form'),
+                record;
+            record = form.getRecord();
+            me.getFormPanel().suspendLayouts();
             if (success && records.length) {
                 record.propertiesStore.removeAll();
                 record.propertiesStore.add(records);
@@ -186,8 +206,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 me.getSecuritySettingFormDetailsTitle().setVisible(true);
             } else {
                 propertyForm.hide();
+                propertyForm.removeAll();
                 me.getSecuritySettingFormDetailsTitle().setVisible(false);
             }
+            me.getFormPanel().resumeLayouts(true);
         });
     },
 
@@ -269,7 +291,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         if (securitySetting.length == 1) {
             var securitySettingName = securitySetting[0].get('name');
             me.getSecuritySettingPreview().setTitle(Ext.String.htmlEncode(securitySettingName));
-            me.getSecuritySettingPreviewForm().loadRecord(securitySetting[0]);
+            me.getSecuritySettingPreview().loadRecord(securitySetting[0]);
             me.getSecuritySettingPreview().down('property-form').readOnly = true;
             me.getSecuritySettingPreview().down('property-form').loadRecord(securitySetting[0]);
             me.getSecuritySettingPreviewDetailsTitle().setVisible(securitySetting[0].propertiesStore.data.items.length > 0);
@@ -305,6 +327,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         } else {
             // Else, not all of the security levels are specified
             me.getFormPanel().down('property-form').hide();
+            me.getFormPanel().down('property-form').removeAll();
             me.getSecuritySettingFormDetailsTitle().setVisible(false);
         }
     },
@@ -312,7 +335,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     showSecuritySettings: function (deviceTypeId, deviceConfigurationId) {
         var me = this,
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
-            securitySuitesStore = me.getSecuritySuitesStore();
+            securitySuitesStore = me.getSecuritySuitesStore(),
+            widget;
 
         me.currentDeviceTypeId = deviceTypeId;
         me.currentDeviceConfigurationId = deviceConfigurationId;
@@ -352,7 +376,11 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     },
 
     showSecuritySettingsCreateView: function (deviceTypeId, deviceConfigurationId) {
-        var me = this;
+        var me = this,
+            record,
+            clientSecurity,
+            container,
+            reader;
 
         me.currentDeviceTypeId = deviceTypeId;
         me.currentDeviceConfigurationId = deviceConfigurationId;
@@ -368,20 +396,41 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         me.setDeviceConfigName(deviceConfig.get('name'));
                         me.deviceProtocolSupportsClient = deviceConfig.get('deviceProtocolSupportsClient');
                         me.deviceProtocolSupportSecuritySuites = deviceConfig.get('deviceProtocolSupportSecuritySuites');
-                            container = Ext.widget('securitySettingForm', {
-                                deviceTypeId: deviceTypeId,
-                                deviceConfigurationId: deviceConfigurationId,
-                                securityHeader: Uni.I18n.translate('securitySetting.addSecuritySet', 'MDC', 'Add security set'),
-                                actionButtonName: Uni.I18n.translate('general.add', 'MDC', 'Add'),
-                                securityAction: 'add'
-                            });
-                            record = me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).create();
+                        container = Ext.widget('securitySettingForm', {
+                            deviceTypeId: deviceTypeId,
+                            deviceConfigurationId: deviceConfigurationId,
+                            securityHeader: Uni.I18n.translate('securitySetting.addSecuritySet', 'MDC', 'Add security set'),
+                            actionButtonName: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                            securityAction: 'add'
+                        });
+                        record = me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).create();
                         me.configureProxyOfAllSecurityStores(null);
                         me.loadAllSecurityStores(true, me.deviceProtocolSupportSecuritySuites);
-                        me.hideClientFieldIfNotApplicable(me.deviceProtocolSupportsClient);
                         container.down('form#myForm').loadRecord(record);
                         container.down('property-form').loadRecord(record);
-                        me.getApplication().fireEvent('changecontentevent', container);
+                        if (me.deviceProtocolSupportsClient) {
+                            Ext.Ajax.request({
+                                url: '/api/dtc/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/securityproperties/clienttype',
+                                method: 'GET',
+                                success: function (response) {
+                                    var decoded = response.responseText ? Ext.decode(response.responseText, true) : null;
+                                    if (!Ext.isEmpty(decoded)) {
+                                        var reader = Ext.create('Ext.data.reader.Json', {
+                                            model: 'Uni.property.model.Property'
+                                        });
+                                        clientSecurity = reader.read(decoded).records[0];
+                                        record = container.down('form#myForm').getRecord();
+                                        record.beginEdit();
+                                        record.setClient(clientSecurity);
+                                        container.createClientField(clientSecurity);
+                                    }
+                                    me.getApplication().fireEvent('changecontentevent', container);
+                                }
+                            });
+                        }
+                        else {
+                            me.getApplication().fireEvent('changecontentevent', container);
+                        }
 
                     }
                 });
@@ -417,7 +466,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                                 });
                                 me.configureProxyOfAllSecurityStores(securitySetting.get('securitySuiteId'));
                                 me.loadAllSecurityStores(false, me.deviceProtocolSupportSecuritySuites);
-                                me.hideClientFieldIfNotApplicable(me.deviceProtocolSupportsClient);
                                 container.down('form#myForm').loadRecord(securitySetting);
                                 var propertyForm = container.down('property-form');
                                 if (securitySetting.properties().count()) {
@@ -428,8 +476,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                                     propertyForm.hide();
                                     me.getSecuritySettingFormDetailsTitle().setVisible(false);
                                 }
-
                                 me.getApplication().fireEvent('loadSecuritySetting', securitySetting);
+                                if (me.deviceProtocolSupportsClient) {
+                                    container.createClientField(securitySetting.getClient());
+                                }
                                 me.getApplication().fireEvent('changecontentevent', container);
                             }
                         });
@@ -437,16 +487,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 });
             }
         });
-    },
-
-    hideClientFieldIfNotApplicable: function (deviceProtocolSupportsClient) {
-        var me = this,
-            clientField = me.getClientField();
-
-        if (!deviceProtocolSupportsClient) {
-            clientField.allowBlank = true;   // If the protocol doesn't support it, then don't require a values
-            clientField.hide();
-        }
     },
 
     configureProxyOfAllSecurityStores: function (securitySuiteId) {
@@ -481,21 +521,27 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             requestSecurityLevelStore = me.getRequestSecurityLevelsStore(),
             responseSecurityLevelStore = me.getResponseSecurityLevelsStore();
 
+        me.getFormPanel().suspendLayouts();
+        me.getFormPanel().suspendEvents(true);
         if (createView) {
             if (deviceProtocolSupportSecuritySuites) {
-                authCombobox.disable(); // Disable these fields (they will become enabled again after selection of a security suite)
-                encrCombobox.disable();
-                requestSecurityCombobox.disable();
-                responseSecurityCombobox.disable();
+                authCombobox.hide();
+                encrCombobox.hide();
+                requestSecurityCombobox.hide();
+                responseSecurityCombobox.hide();
+                me.getFormPanel().resumeLayouts(true);
             } else {
+                me.storeCounter = 2;
                 authenticationLevelStore.load();
                 encryptionLevelStore.load();
                 me.hideSecuritySuiteFields();
             }
         } else {
+            me.storeCounter = 2;
             authenticationLevelStore.load();
             encryptionLevelStore.load();
             if (deviceProtocolSupportSecuritySuites) {
+                me.storeCounter += 2;
                 securitySuitesStore.load();
                 requestSecurityLevelStore.load();
                 responseSecurityLevelStore.load();
@@ -526,8 +572,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             requestSecurityLevelsStore = requestSecurityCombobox.getStore(),
             responseSecurityCombobox = me.getResponseSecurityCombobox(),
             responseSecurityLevelsStore = responseSecurityCombobox.getStore(),
-            storesToLoad = 4;
+            storesToLoad = me.storeCounter = 4;
 
+        me.getFormPanel().suspendLayouts();
+        me.getFormPanel().suspendEvents(true);
         callBackFunction = function () {
             storesToLoad--;
             if (storesToLoad <= 0) {
@@ -560,11 +608,15 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             formPanel = me.getFormPanel(),
             form = formPanel.down('form#myForm'),
             propertyForm = formPanel.down('property-form'),
-            record = form.getRecord();
+            record = form.getRecord(),
+            property,
+            value,
+            error;
 
         form.getForm().clearInvalid();
         propertyForm.getForm().clearInvalid();
         if (form.isValid() && propertyForm.isValid()) {
+            record.beginEdit();
             me.hideErrorPanel();
             var preloader = Ext.create('Ext.LoadMask', {
                 msg: Uni.I18n.translate('general.saving', 'MDC', 'Saving...'),
@@ -574,7 +626,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             form.updateRecord();
             propertyForm.updateRecord();
             record.propertiesStore = propertyForm.getRecord() !== undefined ? propertyForm.getRecord().properties() : undefined;
-
+            if (!Ext.isEmpty(form.clientKey)) {
+                record.getClient().getPropertyValue().set('value', form.down('#' + form.clientKey).getValue());
+            }
+            record.endEdit();
             record.save({
                 backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/deviceconfigurations/view/securitysettings').buildUrl(),
                 success: function (response) {
@@ -585,6 +640,12 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         if (operation.error.status == 400) {
                             var result = Ext.JSON.decode(operation.response.responseText, true);
                             if (result && result.errors) {
+                                error = result.errors.filter(function( obj ) {
+                                    return obj.id === 'clientDbValue';
+                                });
+                                if(!Ext.isEmpty(error)) {
+                                    form.down('#' + form.clientKey).markInvalid(error[0].msg);
+                                }
                                 form.getForm().markInvalid(result.errors);
                                 propertyForm.getForm().markInvalid(result.errors);
                             }
