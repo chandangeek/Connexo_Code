@@ -142,7 +142,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 beforeedit: this.beforeEditRecord,
                 edit: this.resumeEditorFieldValidation,
                 canceledit: this.resumeEditorFieldValidation,
-                selectionchange: this.onDataGridSelectionChange
+                selectionchange: this.onDataGridSelectionChange,
+                paste: this.onPaste
             },
             '#deviceLoadProfileChannelData #deviceLoadProfileChannelGraphView': {
                 resize: this.onGraphResize
@@ -787,7 +788,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             condition = (isNaN(point.y) && isNaN(value)) ? false : (point.y != value),
             updatedObj;
 
-        if (event.column) {
+        if (event.column && event.column.getEditor()) {
             event.column.getEditor().allowBlank = true;
         }
 
@@ -826,6 +827,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         } else if (!event.record.isModified('collectedValue') && condition) {
             me.resetChanges(event.record, point);
         }
+    },
+
+    onPaste: function (grid, event) {
+        event && event.record && event.record.set('mainModificationState', Uni.util.ReadingEditor.modificationState('EDITED'));
     },
 
     resetChanges: function (record, point) {
@@ -955,6 +960,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             window = me.getReadingCopyFromReferenceWindow(),
             form = window.down('#reading-copy-window-form'),
             model = Ext.create('Mdc.model.CopyFromReference'),
+            changedData = me.getChangedData(me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData')),
             router = me.getController('Uni.controller.history.Router'),
             commentCombo = window.down('#estimation-comment-box'),
             commentValue = commentCombo.getRawValue(),
@@ -986,6 +992,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
 
         model.set('intervals', intervals);
+        model.set('editedReadings', changedData);
         model.save({
             failure: function (record, operation) {
                 var response = JSON.parse(operation.response.responseText);
@@ -1819,11 +1826,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         reading.beginEdit();
         reading.set(valueField, correctedInterval[valueField]);
         if (reading.isModified(valueField)) {
+            reading.set(modificationState, Uni.util.ReadingEditor.modificationState('EDITED'));
             reading.get(validationInfo).estimatedByRule = false;
             reading.get(validationInfo).validationResult = 'validationStatus.ok';
-            reading.set(modificationState, Uni.util.ReadingEditor.modificationState('EDITED'));
+            reading.set('estimatedCommentNotSaved', true);
         }
-
         reading.endEdit(true);
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
 
