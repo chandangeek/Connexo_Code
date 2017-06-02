@@ -21,6 +21,7 @@ import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
@@ -160,7 +161,7 @@ public class EndDeviceSearchDomain implements SearchDomain {
 
         private EndDeviceFinder(Condition condition) {
             this.finder = DefaultFinder
-                    .of(EndDevice.class, condition, meteringService.getDataModel())
+                    .of(EndDevice.class, condition.and(Where.where("obsoleteTime").isNull()), meteringService.getDataModel())
                     .defaultSortColumn("name");
         }
 
