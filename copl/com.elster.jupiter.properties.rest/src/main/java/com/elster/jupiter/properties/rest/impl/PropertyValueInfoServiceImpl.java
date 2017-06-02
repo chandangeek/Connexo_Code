@@ -67,6 +67,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         this.addPropertyValueInfoConverter(new NoneOrBigDecimalValueConverter());
         this.addPropertyValueInfoConverter(new TwoValuesDifferenceValueConverter());
         this.addPropertyValueInfoConverter(new NoneOrTimeDurationPropertyValueConverter(thesaurus));
+        this.addPropertyValueInfoConverter(new IntegerPropertyValueConverter());
     }
 
     @Override
