@@ -57,7 +57,7 @@ public class DeviceConfigurationResource {
      *
      * @summary Fetch a device configuration
      *
-     * @param deviceTypeId Id of the device type
+     * @param deviceTypeId Id of the devuce type
      * @param id Id of the device configuration
      * @param uriInfo uriInfo
      * @param fields fields

@@ -43,7 +43,7 @@ public class ConfigurationSecurityPropertySetResourceTest extends MultisensePubl
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = mockEncryptionAccessLevel(1001);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationAccessLevel(1002);
-        SecurityPropertySet securityPropertySet = mockSecurityPropertySet(13L, deviceConfiguration, "Zorro", 1, encryptionDeviceAccessLevel, authenticationDeviceAccessLevel, "Password", 123L, 1003L);
+        SecurityPropertySet securityPropertySet = mockSecurityPropertySet(13L, deviceConfiguration, "Zorro", encryptionDeviceAccessLevel, authenticationDeviceAccessLevel, 1003L);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
         PropertyInfo propertyInfo = new PropertyInfo("string.property", "string.property", new PropertyValueInfo<>("value", null), new PropertyTypeInfo(SimplePropertyType.TEXT, null, null, null), false);
         when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
@@ -73,13 +73,13 @@ public class ConfigurationSecurityPropertySetResourceTest extends MultisensePubl
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = mockEncryptionAccessLevel(1001);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationAccessLevel(1002);
         PropertySpec stringPropertySpec13 = mockStringPropertySpec();
-        SecurityPropertySet securityPropertySet = mockSecurityPropertySet(13L, deviceConfiguration, "Zorro", 1, encryptionDeviceAccessLevel, authenticationDeviceAccessLevel, "Password", 123L, 103L);
+        SecurityPropertySet securityPropertySet = mockSecurityPropertySet(13L, deviceConfiguration, "Zorro", encryptionDeviceAccessLevel, authenticationDeviceAccessLevel, 103L);
         when(securityPropertySet.getPropertySpecs()).thenReturn(Collections.singleton(stringPropertySpec13));
 
         PropertySpec stringPropertySpec15 = mockStringPropertySpec();
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel15 = mockEncryptionAccessLevel(1003);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel15 = mockAuthenticationAccessLevel(1004);
-        SecurityPropertySet securityPropertySet2 = mockSecurityPropertySet(15L, deviceConfiguration, "Alfa", 2, encryptionDeviceAccessLevel15, authenticationDeviceAccessLevel15, "Password", 123L, 103L);
+        SecurityPropertySet securityPropertySet2 = mockSecurityPropertySet(15L, deviceConfiguration, "Alfa", encryptionDeviceAccessLevel15, authenticationDeviceAccessLevel15, 103L);
         when(securityPropertySet2.getPropertySpecs()).thenReturn(Collections.singleton(stringPropertySpec15));
 
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet, securityPropertySet2));

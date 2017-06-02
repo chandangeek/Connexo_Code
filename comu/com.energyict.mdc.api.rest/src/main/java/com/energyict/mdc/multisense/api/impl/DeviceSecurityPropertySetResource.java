@@ -19,11 +19,14 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.upl.TypedProperties;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -33,6 +36,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -118,6 +122,53 @@ public class DeviceSecurityPropertySetResource {
                 .path(DeviceSecurityPropertySetResource.class)
                 .resolveTemplate("mrid", device.getmRID());
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
+    }
+
+    /**
+     * Models named set of security properties whose values are managed against a Device.
+     * The exact set of PropertySpecs that are used is determined by the AuthenticationDeviceAccessLevel
+     * and/or EncryptionDeviceAccessLevel select in the SecurityPropertySet.
+     * That in turn depends on the actual DeviceProtocol.
+     *
+     * @summary Uptdate a uniquely identified device security property set
+     *
+     * @param mrid mRID of the device
+     * @param deviceSecurityPropertySetId Id of the device's security set up update
+     * @param propertySetInfo Payload describing the updated values for the security set
+     * @param uriInfo uriInfo
+     * @return Updated security set
+     */
+    @PUT
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
+    @Path("/{securityPropertySetId}")
+    public DeviceSecurityPropertySetInfo createDeviceSecurityPropertySet(@PathParam("mrid") String mrid, @Context UriInfo uriInfo,
+                                                                         @PathParam("securityPropertySetId") long deviceSecurityPropertySetId,
+                                                                         DeviceSecurityPropertySetInfo propertySetInfo) {
+        if (propertySetInfo.device==null || propertySetInfo.device.version==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "device.version");
+        }
+        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, propertySetInfo.device.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
+
+        SecurityPropertySet securityPropertySet = deviceConfigurationService.findSecurityPropertySet(deviceSecurityPropertySetId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_SECURITY_PROPERTY_SET));
+
+        TypedProperties typedProperties = TypedProperties.empty();
+        for (PropertySpec propertySpec : securityPropertySet.getPropertySpecs()) {
+            if (propertyHasValue(propertySpec, propertySetInfo.properties)) {
+                Object newPropertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, propertySetInfo.properties);
+                typedProperties.setProperty(propertySpec.getName(), newPropertyValue);
+            } else {
+                typedProperties.removeProperty(propertySpec.getName());
+            }
+        }
+
+//        device.setSecurityProperties(securityPropertySet, typedProperties); //TODO
+        device.save();
+        return deviceSecurityPropertySetInfoFactory.from(device, securityPropertySet, uriInfo, Collections.emptyList());
     }
 
     /**

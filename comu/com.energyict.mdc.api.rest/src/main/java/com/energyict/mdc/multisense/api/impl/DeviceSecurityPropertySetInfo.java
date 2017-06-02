@@ -15,7 +15,6 @@ public class DeviceSecurityPropertySetInfo extends LinkInfo<Long> {
     public LinkInfo configuredSecurityPropertySet;
     public IntervalInfo effectivePeriod;
     public Boolean complete;
-    public PropertyInfo client;
-    public List<LinkInfo> properties;
+    public List<PropertyInfo> properties;
     public LinkInfo device;
 }
