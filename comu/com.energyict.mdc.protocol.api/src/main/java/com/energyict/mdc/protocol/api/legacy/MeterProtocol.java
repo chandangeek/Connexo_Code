@@ -6,12 +6,9 @@ package com.energyict.mdc.protocol.api.legacy;
 
 import com.energyict.mdc.protocol.api.legacy.dynamic.Pluggable;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.Properties;
 
 /**
  * Adds configuration support to the {@link com.energyict.mdc.upl.MeterProtocol} interface.
@@ -26,24 +23,6 @@ import java.util.Properties;
  *         KV 15122003 serialnumber of the device
  */
 public interface MeterProtocol extends Pluggable, com.energyict.mdc.upl.cache.CachingProtocol, com.energyict.mdc.upl.MeterProtocol {
-
-    /**
-     * <p>
-     * Sets the protocol specific properties.
-     * </p><p>
-     * This method can also be called at device configuration time to check the validity of
-     * the configured values </p><p>
-     * The implementer has to specify which keys are mandatory,
-     * and which are optional. Convention is to use lower case keys.</p><p>
-     * Typical keys are: <br>
-     * "address"  (MeterProtocol.ADDRESS) <br>
-     * "password"  (MeterProtocol.PASSWORD) </p>
-     *
-     * @param properties contains a set of protocol specific key value pairs
-     * @throws InvalidPropertyException if a property value is not compatible with the device type
-     * @throws MissingPropertyException if a required property is not present
-     */
-    void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException;
 
     /**
      * Gets the current status of the breaker<br/>
