@@ -56,7 +56,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
         assertThat(model.<String >get("$.deviceLifeCycleActions[1].privileges[0].name")).isEqualTo(DefaultLifeCycleTranslationKey.PRIVILEGE_LEVEL_1.getDefaultFormat());
         assertThat(model.<String >get("$.deviceLifeCycleActions[1].triggeredBy.symbol")).isEqualTo("#commissioning");
         assertThat(model.<String >get("$.deviceLifeCycleActions[1].triggeredBy.name")).isEqualTo(com.energyict.mdc.device.lifecycle.config.impl.DefaultLifeCycleTranslationKey.TRANSITION_FROM_IN_STOCK_TO_COMMISSIONING.getDefaultFormat());
-        assertThat(model.<List>get("$.deviceLifeCycleActions[0].microActions")).hasSize(3);
+        assertThat(model.<List>get("$.deviceLifeCycleActions[0].microActions")).hasSize(2);
         assertThat(model.<List>get("$.deviceLifeCycleActions[0].microChecks")).hasSize(3);
     }
 
