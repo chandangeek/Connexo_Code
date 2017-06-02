@@ -139,6 +139,10 @@ Ext.define('Uni.property.model.Property', {
         return this.getPropertyType().get('simplePropertyType');
     },
 
+    getPropertyParams: function () {
+        return this.getPropertyType().get('params');
+    },
+
     getValidationRule: function () {
         var propertyType = this.getPropertyType();
 

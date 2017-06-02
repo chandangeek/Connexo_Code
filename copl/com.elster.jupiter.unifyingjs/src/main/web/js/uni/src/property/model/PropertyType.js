@@ -5,7 +5,8 @@
 Ext.define('Uni.property.model.PropertyType', {
     extend: 'Ext.data.Model',
     fields: [
-        {name: 'simplePropertyType'}
+        {name: 'simplePropertyType'},
+        {name: 'params', persist: false}
     ],
     requires: [
         'Uni.property.model.PredefinedPropertyValue',

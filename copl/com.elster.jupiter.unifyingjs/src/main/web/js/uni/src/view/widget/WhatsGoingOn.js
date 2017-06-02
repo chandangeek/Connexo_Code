@@ -51,7 +51,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 }
 
                 if(item.data.type == 'servicecall') {
-                    return me.type == 'device'&& Scs.privileges.ServiceCall.canView();
+                    return Scs.privileges.ServiceCall.canView();
                 }
                 return true;
             }
