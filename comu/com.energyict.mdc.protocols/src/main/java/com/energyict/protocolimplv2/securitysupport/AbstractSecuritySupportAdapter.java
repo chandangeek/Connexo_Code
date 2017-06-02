@@ -97,7 +97,7 @@ public abstract class AbstractSecuritySupportAdapter {
                 }
 
                 @Override
-                public String getClient() {
+                public Object getClient() {
                     return null;
                 }
 
