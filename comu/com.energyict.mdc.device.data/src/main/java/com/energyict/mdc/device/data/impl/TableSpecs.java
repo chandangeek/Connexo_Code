@@ -1122,8 +1122,7 @@ public enum TableSpecs {
             table.addRefAnyColumns("ACTUALPASSPHRASE", false, SymmetricKeyAccessorImpl.Fields.PASSPHRASE_WRAPPER_ACTUAL.fieldName());
             table.addRefAnyColumns("TEMPPASSPHRASE", false, SymmetricKeyAccessorImpl.Fields.PASSPHRASE_WRAPPER_TEMP.fieldName());
         }
-    }
-    ;
+    };
 
     abstract void addTo(DataModel component, Encrypter encrypter);
 
