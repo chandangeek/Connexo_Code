@@ -154,9 +154,9 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                         .stream()
                         .map(AggregatedReadingIntervalRecordBackedByPersistentIntervalReadingRecord::new)
                         .collect(
-                            Collectors.toMap(
-                                IntervalReadingRecord::getTimeStamp,
-                                Function.identity()));
+                                Collectors.toMap(
+                                        IntervalReadingRecord::getTimeStamp,
+                                        Function.identity()));
 
         // return elements, sorted by timestamp
         Map<Instant, IntervalReadingRecord> orderedReadings = new TreeMap<>(calculatedReadings);
@@ -183,9 +183,9 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                 getPersistedRegisterReadings(interval)
                         .stream()
                         .collect(
-                            Collectors.toMap(
-                                    BaseReadingRecord::getTimeStamp,
-                                    Function.identity()));
+                                Collectors.toMap(
+                                        BaseReadingRecord::getTimeStamp,
+                                        Function.identity()));
         calculatedReadings.putAll(persistedReadings);
         return new ArrayList<>(calculatedReadings.values());
     }
@@ -208,9 +208,9 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                             .stream()
                             .map(AggregatedReadingIntervalRecordBackedByPersistentBaseReadingRecord::new)
                             .collect(
-                                Collectors.toMap(
-                                        BaseReadingRecord::getTimeStamp,
-                                        Function.identity()));
+                                    Collectors.toMap(
+                                            BaseReadingRecord::getTimeStamp,
+                                            Function.identity()));
             calculatedReadings.putAll(persistedReadings);
             return new ArrayList<>(calculatedReadings.values());
         } else {
@@ -220,21 +220,21 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                             .getReadings(interval)
                             .stream()
                             .collect(
-                                Collectors.toMap(
-                                        BaseReadingRecord::getTimeStamp,
-                                        Function.identity()));
+                                    Collectors.toMap(
+                                            BaseReadingRecord::getTimeStamp,
+                                            Function.identity()));
             calculatedReadings.putAll(persistedReadings);
             return new ArrayList<>(calculatedReadings.values());
         }
     }
 
     private Map<Instant, AggregatedIntervalReadingRecord> getCalculatedIntervalReadings(Range<Instant> interval) {
-        if (isMetrologyConfigurationActive(interval) && isMetrologyContractComplete(interval)) {
+        if (isMetrologyConfigurationActive(interval) && allMeterRolesOnMetrologyConfigurationHasMeters(interval)) {
             return this.dataAggregationService
-                        .calculate(usagePoint, metrologyContract, interval)
-                        .getCalculatedDataFor(this.deliverable).stream()
-                        .map(record -> new AggregatedReadingRecordImpl(this.persistedChannel, record))
-                        .collect(Collectors.toMap(
+                    .calculate(usagePoint, metrologyContract, interval)
+                    .getCalculatedDataFor(this.deliverable).stream()
+                    .map(record -> new AggregatedReadingRecordImpl(this.persistedChannel, record))
+                    .collect(Collectors.toMap(
                             AggregatedIntervalReadingRecord::getTimeStamp,
                             Function.identity()));
         } else {
@@ -243,16 +243,16 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     }
 
     private <T extends BaseReadingRecord> Map<Instant, T> getCalculatedRegisterReadings(Range<Instant> interval, Function<CalculatedReadingRecord, T> mapper) {
-        if (isMetrologyConfigurationActive(interval) && isMetrologyContractComplete(interval)) {
+        if (isMetrologyConfigurationActive(interval) && allMeterRolesOnMetrologyConfigurationHasMeters(interval)) {
             return this.dataAggregationService
                     .calculate(usagePoint, metrologyContract, interval)
                     .getCalculatedDataFor(this.deliverable)
                     .stream()
                     .map(mapper::apply)
                     .collect(
-                        Collectors.toMap(
-                                BaseReading::getTimeStamp,
-                                Function.identity()));
+                            Collectors.toMap(
+                                    BaseReading::getTimeStamp,
+                                    Function.identity()));
         } else {
             return new HashMap<>();
         }
@@ -263,7 +263,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
                 .anyMatch(emc -> emc.getMetrologyConfiguration().getContracts().contains(metrologyContract));
     }
 
-    private boolean isMetrologyContractComplete(Range<Instant> interval){
+    private boolean allMeterRolesOnMetrologyConfigurationHasMeters(Range<Instant> interval) {
         return usagePoint.getEffectiveMetrologyConfigurations(interval).stream()
                 .anyMatch(emc -> emc.isComplete(metrologyContract));
     }
@@ -475,18 +475,18 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
         Map<Instant, IntervalReadingRecord> persistedReadings = toMap(this.getPersistedIntervalReadings(interval));
         Map<Instant, AggregatedIntervalReadingRecord> merged =
                 calculatedReadings
-                    .entrySet()
-                    .stream()
-                    .map(entry -> this.merge(entry, persistedReadings))
-                    .collect(Collectors.toMap(
-                            AggregatedIntervalReadingRecord::getTimeStamp,
-                            Function.identity()));
+                        .entrySet()
+                        .stream()
+                        .map(entry -> this.merge(entry, persistedReadings))
+                        .collect(Collectors.toMap(
+                                AggregatedIntervalReadingRecord::getTimeStamp,
+                                Function.identity()));
         persistedReadings
-                    .entrySet()
-                    .stream()
-                    .map(Map.Entry::getValue)
-                    .map(AggregatedReadingIntervalRecordBackedByPersistentIntervalReadingRecord::new)
-                    .forEach(reading -> merged.put(reading.getTimeStamp(), reading));
+                .entrySet()
+                .stream()
+                .map(Map.Entry::getValue)
+                .map(AggregatedReadingIntervalRecordBackedByPersistentIntervalReadingRecord::new)
+                .forEach(reading -> merged.put(reading.getTimeStamp(), reading));
         return new ArrayList<>(merged.values());
     }
 
