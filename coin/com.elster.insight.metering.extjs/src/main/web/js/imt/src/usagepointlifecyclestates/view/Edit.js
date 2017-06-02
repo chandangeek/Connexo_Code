@@ -237,7 +237,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Edit', {
                 }
                 this.getForm().loadRecord(record);
                 if (!this.down('#usagepoint-life-cycle-stage').getValue()) {
-                    this.down('#usagepoint-life-cycle-stage').select(record.get('stageName'));
+                    this.down('#usagepoint-life-cycle-stage').select(record.get('stage').id);
                 }
                 var processOnEntryStore = this.down('#processesOnEntryGrid').getStore();
                 if (processOnEntryStore.modelId != record.getId()) {
