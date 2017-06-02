@@ -50,6 +50,7 @@ import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -60,12 +61,12 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -120,9 +121,8 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import org.junit.BeforeClass;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.math.BigDecimal;
@@ -138,6 +138,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import org.junit.BeforeClass;
+import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -692,16 +695,27 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return scheduledComTaskExecution;
     }
 
-    protected SecurityPropertySet mockSecurityPropertySet(long id, DeviceConfiguration deviceConfiguration, String name, EncryptionDeviceAccessLevel encryptionDeviceAccessLevel, AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel, long version) {
+    protected SecurityPropertySet mockSecurityPropertySet(long id, DeviceConfiguration deviceConfiguration, String name, int client, EncryptionDeviceAccessLevel encryptionDeviceAccessLevel, AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel, String configurationSecurityPropertyName, long keyAccessorTypeId, long version) {
         SecurityPropertySet mock = mock(SecurityPropertySet.class);
         when(mock.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         PropertySpec stringPropertySpec = mockStringPropertySpec();
+        PropertySpec bigDecimalPropertySpec = mockBigDecimalPropertySpec();
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
         when(mock.getPropertySpecs()).thenReturn(Collections.singleton(stringPropertySpec));
         when(mock.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
         when(mock.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
         when(mock.getVersion()).thenReturn(version);
+        when(mock.getClient()).thenReturn(BigDecimal.valueOf(client));
+        when(mock.getClientSecurityPropertySpec()).thenReturn(Optional.of(bigDecimalPropertySpec));
+        ConfigurationSecurityProperty configurationSecurityProperty = mock(ConfigurationSecurityProperty.class);
+        when(configurationSecurityProperty.getName()).thenReturn(configurationSecurityPropertyName);
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getName()).thenReturn(configurationSecurityPropertyName);
+        when(keyAccessorType.getId()).thenReturn(keyAccessorTypeId);
+        when(configurationSecurityProperty.getKeyAccessorType()).thenReturn(keyAccessorType);
+        when(mock.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(configurationSecurityProperty));
+
         when(deviceConfigurationService.findSecurityPropertySet(id)).thenReturn(Optional.of(mock));
         when(deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(eq(id), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
         when(deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(id, version)).thenReturn(Optional.of(mock));

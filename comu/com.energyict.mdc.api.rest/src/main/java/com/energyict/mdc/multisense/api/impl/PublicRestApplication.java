@@ -110,7 +110,11 @@ public class PublicRestApplication extends Application implements TranslationKey
         return ImmutableSet.of(
                 ExceptionLogger.class,
 
+                SecuritySuiteDeviceAccessLevelResource.class,
                 AuthenticationDeviceAccessLevelResource.class,
+                EncryptionDeviceAccessLevelResource.class,
+                RequestSecurityDeviceAccessLevelResource.class,
+                ResponseSecurityDeviceAccessLevelResource.class,
                 ComPortPoolResource.class,
                 ComScheduleResource.class,
                 ComTaskResource.class,
@@ -130,12 +134,13 @@ public class PublicRestApplication extends Application implements TranslationKey
                 DeviceResource.class,
                 DeviceSecurityPropertySetResource.class,
                 DeviceTypeResource.class,
-                EncryptionDeviceAccessLevelResource.class,
                 PartialConnectionTaskResource.class,
                 ProtocolDialectConfigurationPropertiesResource.class,
                 ProtocolTaskResource.class,
                 DeviceAlarmResource.class,
+                KeyAccessorResource.class,
                 KeyAccessorTypeResource.class,
+                ConfigurationKeyAccessorTypeResource.class,
                 RestExceptionMapper.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class
         );
@@ -365,8 +370,11 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(DeviceMessageCategoryInfoFactory.class).to(DeviceMessageCategoryInfoFactory.class);
             bind(ProtocolTaskInfoFactory.class).to(ProtocolTaskInfoFactory.class);
             bind(DeviceProtocolPluggableClassInfoFactory.class).to(DeviceProtocolPluggableClassInfoFactory.class);
+            bind(SecuritySuiteDeviceAccessLevelInfoFactory.class).to(SecuritySuiteDeviceAccessLevelInfoFactory.class);
             bind(AuthenticationDeviceAccessLevelInfoFactory.class).to(AuthenticationDeviceAccessLevelInfoFactory.class);
             bind(EncryptionDeviceAccessLevelInfoFactory.class).to(EncryptionDeviceAccessLevelInfoFactory.class);
+            bind(RequestSecurityDeviceAccessLevelInfoFactory.class).to(RequestSecurityDeviceAccessLevelInfoFactory.class);
+            bind(ResponseSecurityDeviceAccessLevelInfoFactory.class).to(ResponseSecurityDeviceAccessLevelInfoFactory.class);
             bind(ConfigurationSecurityPropertySetInfoFactory.class).to(ConfigurationSecurityPropertySetInfoFactory.class);
             bind(ComTaskExecutionInfoFactory.class).to(ComTaskExecutionInfoFactory.class);
             bind(ComTaskEnablementInfoFactory.class).to(ComTaskEnablementInfoFactory.class);
@@ -377,6 +385,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(DeviceMessageEnablementInfoFactory.class).to(DeviceMessageEnablementInfoFactory.class);
             bind(DeviceSecurityPropertySetInfoFactory.class).to(DeviceSecurityPropertySetInfoFactory.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
+            bind(KeyAccessorInfoFactory.class).to(KeyAccessorInfoFactory.class);
             bind(KeyAccessorTypeInfoFactory.class).to(KeyAccessorTypeInfoFactory.class);
             bind(DeviceAlarmStatusInfoFactory.class).to(DeviceAlarmStatusInfoFactory.class);
             bind(DeviceAlarmInfoFactory.class).to(DeviceAlarmInfoFactory.class);

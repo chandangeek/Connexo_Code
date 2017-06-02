@@ -12,8 +12,13 @@ import java.util.List;
 public class ConfigurationSecurityPropertySetInfo extends LinkInfo<Long> {
 
     public String name;
+    public PropertyInfo client;
+    public LinkInfo securitySuite;
     public LinkInfo authenticationAccessLevel;
     public LinkInfo encryptionAccessLevel;
+    public LinkInfo requestSecurityLevel;
+    public LinkInfo responseSecurityLevel;
 
-    public List<PropertyInfo> properties;
+
+    public List<LinkInfo> properties;
 }
