@@ -4,10 +4,12 @@
 
 package com.elster.jupiter.slp.importers.impl;
 
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -83,6 +85,8 @@ public class SyntheticLoadProfileProcessorTest {
 
     @Mock
     private SyntheticLoadProfile syntheticLoadProfile1, syntheticLoadProfile2, syntheticLoadProfile3;
+    @Mock
+    private ReadingType readingType1;
 
     private SyntheticLoadProfileDataImporterContext context;
 
@@ -113,9 +117,10 @@ public class SyntheticLoadProfileProcessorTest {
         when(syntheticLoadProfile1.getStartTime()).thenReturn(DATE);
         when(syntheticLoadProfile2.getStartTime()).thenReturn(DATE);
         when(syntheticLoadProfile3.getStartTime()).thenReturn(DATE);
-        when(syntheticLoadProfile1.getZoneId()).thenReturn(ZoneId.systemDefault());
-        when(syntheticLoadProfile2.getZoneId()).thenReturn(ZoneId.systemDefault());
-        when(syntheticLoadProfile3.getZoneId()).thenReturn(ZoneId.systemDefault());
+        when(syntheticLoadProfile1.getReadingType()).thenReturn(readingType1);
+        when(syntheticLoadProfile2.getReadingType()).thenReturn(readingType1);
+        when(syntheticLoadProfile3.getReadingType()).thenReturn(readingType1);
+        when(readingType1.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
 
         try {
             when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);
