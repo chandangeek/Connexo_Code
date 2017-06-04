@@ -102,7 +102,7 @@ public class GoingOnResource {
         private GoingOnInfo toGoingOnInfo(ProcessInstanceInfo processInstanceInfo) {
             Optional<UserTaskInfo> userTaskInfo = processInstanceInfo.openTasks
                     .stream()
-                    .min(Comparator.comparing(info -> Long.parseLong(info.dueDate)));
+                    .min(Comparator.comparing(info -> "".equals(info.dueDate) ? Long.MAX_VALUE : Long.parseLong(info.dueDate)));
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "process";
             goingOnInfo.id = userTaskInfo.map(info -> Long.parseLong(info.id)).orElse(0L);
