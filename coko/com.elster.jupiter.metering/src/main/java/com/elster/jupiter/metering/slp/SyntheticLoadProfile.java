@@ -43,8 +43,6 @@ public interface SyntheticLoadProfile extends HasId, HasName{
 
     Period getDuration();
 
-    ZoneId getZoneId();
-
     void addValues(Map<Instant, BigDecimal> values);
 
     Optional<BigDecimal> getValue(Instant date);
