@@ -132,7 +132,9 @@ public class UsagePointResource {
             usagePointFilter.setName("*" + like + "*");
         }
         usagePointFilter.setAccountabilityOnly(!maySeeAny(securityContext));
-        List<UsagePointInfo> usagePoints = meteringService.getUsagePoints(usagePointFilter).from(queryParameters)
+        List<UsagePointInfo> usagePoints = meteringService.getUsagePoints(usagePointFilter)
+                .sorted("name", true)
+                .from(queryParameters)
                 .stream()
                 .map(usagePoint -> new UsagePointInfo(usagePoint, clock))
                 .collect(Collectors.toList());
