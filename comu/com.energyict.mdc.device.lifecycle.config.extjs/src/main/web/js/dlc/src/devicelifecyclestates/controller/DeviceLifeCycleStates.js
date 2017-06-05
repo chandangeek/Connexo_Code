@@ -119,6 +119,14 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
 
         editForm.updateRecord();
         record = editForm.getRecord();
+
+        var stageComboBox = editForm.down('#cbo-stage'),
+            stageObject = {
+                id: stageComboBox.getValue(),
+                name: stageComboBox.getRawValue()
+            };
+        record.set('stage', stageObject);
+
         me.showErrorPanel(false);
         editForm.setLoading();
         record.set('onEntry', me.getProcessItemsFromStore(entryProcessesStore));

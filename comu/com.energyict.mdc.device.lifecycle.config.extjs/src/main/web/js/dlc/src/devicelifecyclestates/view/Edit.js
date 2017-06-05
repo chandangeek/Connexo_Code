@@ -57,7 +57,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                 {
                     xtype: 'combobox',
                     itemId: 'cbo-stage',
-                    name: 'stageName',
+                    name: 'stage',
                     msgTarget: 'under',
                     required: true,
                     fieldLabel: Uni.I18n.translate('general.Stage', 'DLC', 'Stage'),
@@ -240,6 +240,9 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                     }
                 }
                 this.getForm().loadRecord(record);
+                if (!this.down('#cbo-stage').getValue()) {
+                    this.down('#cbo-stage').select(record.get('stage').id);
+                }
                 var processOnEntryStore = this.down('#processesOnEntryGrid').getStore();
                 if (processOnEntryStore.modelId != record.getId()){
                     processOnEntryStore.removeAll();
