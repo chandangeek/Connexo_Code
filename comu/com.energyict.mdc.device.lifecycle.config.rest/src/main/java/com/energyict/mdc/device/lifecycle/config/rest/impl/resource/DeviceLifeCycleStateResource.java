@@ -14,7 +14,6 @@ import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
-import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -46,7 +45,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -107,7 +105,7 @@ public class DeviceLifeCycleStateResource {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().startUpdate();
         StageSet stageSet = deviceLifeCycle.getFiniteStateMachine().getStageSet().orElseThrow(getDefaultStageSetException());
-        Stage stage = stageSet.getStageByName(stateInfo.stageName).orElseThrow(getDefaultStageSetException());
+        Stage stage = stageSet.getStageByName((String) stateInfo.stage.id).orElseThrow(getDefaultStageSetException());
         FiniteStateMachineUpdater.StateBuilder stateUpdater = fsmUpdater.newCustomState(stateInfo.name, stage);
         stateInfo.onEntry.stream().map(this::findBpmBusinessProcess).forEach(stateUpdater::onEntry);
         stateInfo.onExit.stream().map(this::findBpmBusinessProcess).forEach(stateUpdater::onExit);
@@ -143,7 +141,7 @@ public class DeviceLifeCycleStateResource {
             stateUpdater.setName(info.name);
         }
         StageSet stageSet = deviceLifeCycle.getFiniteStateMachine().getStageSet().orElseThrow(getDefaultStageSetException());
-        Stage stage = stageSet.getStageByName(info.stageName).orElseThrow(getDefaultStageSetException());
+        Stage stage = stageSet.getStageByName((String) info.stage.id).orElseThrow(getDefaultStageSetException());
         stateUpdater.stage(stage);
         info.onEntry.stream().map(this::findBpmBusinessProcess).forEach(stateUpdater::onEntry);
         info.onExit.stream().map(this::findBpmBusinessProcess).forEach(stateUpdater::onExit);
@@ -250,7 +248,7 @@ public class DeviceLifeCycleStateResource {
     private void validateInfo(DeviceLifeCycleStateInfo stateInfo) {
         new RestValidationBuilder()
                 .notEmpty(stateInfo.name, "name", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY)
-                .notEmpty(stateInfo.stageName, "stageName", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY)
+                .notEmpty(stateInfo.stage, "stage", MessageSeeds.FIELD_CAN_NOT_BE_EMPTY)
                 .validate();
     }
 
