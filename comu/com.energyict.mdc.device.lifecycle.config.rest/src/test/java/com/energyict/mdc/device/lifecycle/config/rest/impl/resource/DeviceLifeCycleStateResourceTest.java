@@ -12,6 +12,7 @@ import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.metering.EndDeviceStage;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
@@ -222,7 +223,7 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
 
         DeviceLifeCycleStateInfo entity = new DeviceLifeCycleStateInfo();
         entity.name = "New state";
-        entity.stageName = EndDeviceStage.OPERATIONAL.getKey();
+        entity.stage = new IdWithNameInfo(EndDeviceStage.OPERATIONAL.getKey(), EndDeviceStage.OPERATIONAL.getKey());
         Response response = target("/devicelifecycles/1/states").request().post(Entity.json(entity));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
@@ -250,7 +251,7 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         info.name = "Eddited custom state";
         info.version = stateForEdit.getVersion();
         info.parent = new VersionInfo<>(dlc.getId(), dlc.getVersion());
-        info.stageName = EndDeviceStage.OPERATIONAL.getKey();
+        info.stage = new IdWithNameInfo(EndDeviceStage.OPERATIONAL.getKey(), EndDeviceStage.OPERATIONAL.getKey());
         Response response = target("/devicelifecycles/1/states/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(stateUpdater, times(1)).setName(Matchers.anyString());
@@ -279,7 +280,7 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
         info.name = "Eddited custom state";
         info.version = stateForEdit.getVersion();
         info.parent = new VersionInfo<>(dlc.getId(), dlc.getVersion());
-        info.stageName = EndDeviceStage.OPERATIONAL.getKey();
+        info.stage = new IdWithNameInfo(EndDeviceStage.OPERATIONAL.getKey(), EndDeviceStage.OPERATIONAL.getKey());
         Response response = target("/devicelifecycles/1/states/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(stateUpdater, times(0)).setName(Matchers.anyString());
