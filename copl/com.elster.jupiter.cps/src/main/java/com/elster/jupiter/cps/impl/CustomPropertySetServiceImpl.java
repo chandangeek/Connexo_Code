@@ -637,7 +637,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 .map(e -> this.toCustomPropertySetValues(customPropertySet, e, additionalPrimaryKeyValues))
                 .map(CustomPropertySetValues::getEffectiveRange)
                 .collect(Collectors.toList());
-        return isRangeCovered(range, valuesRanges);
+        return isRangeCovered(range, valuesRanges, customPropertySet.getName());
     }
 
     private <D, T extends PersistentDomainExtension<D>> List<T> getAllValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues) {
@@ -648,7 +648,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     /*
       This method checks if ranges list fully encloses targetRange
      */
-    private boolean isRangeCovered(Range<Instant> targetRange, List<Range<Instant>> ranges) {
+    static boolean isRangeCovered(Range<Instant> targetRange, List<Range<Instant>> ranges, String customPropertySetName) {
         // filter only ranges intersected with targetRange. other do no matter
         List<Range<Instant>> intersected = ranges.stream()
                 .filter(r -> !targetRange.intersection(r).isEmpty()).collect(Collectors.toList());
@@ -660,6 +660,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 .upperEndpoint()) : Range.atLeast(intersected.get(0).lowerEndpoint());
         if (!commonRange.encloses(targetRange)) {
             // the case when targetRange has an interval that lower or higher all intervals in ranges list
+            LOGGER.log(Level.WARNING, "CustomPropertySet '" + customPropertySetName + "' has values on intervals: " +
+                    ranges.stream().map(Range::toString).collect(Collectors.joining(", ")) + ", that do not cover required range " + targetRange);
             return false;
         }
 
@@ -672,6 +674,9 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
             if (!previousRangeEnd.equals(nextRangeStart)) {
                 // the case when targetRange has an interval that does not intersects with any interval in ranges list
+                LOGGER.log(Level.WARNING, "CustomPropertySet '" + customPropertySetName + "' has values on intervals: " +
+                        ranges.stream().map(Range::toString).collect(Collectors.joining(", ")) + ", that have a gap " +
+                        Range.open(previousRangeEnd, nextRangeStart) + " and do not cover required range " + targetRange);
                 return false;
             }
         }
