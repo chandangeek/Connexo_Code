@@ -23,21 +23,21 @@ Ext.define('Uni.model.WhatsGoingOn', {
         {
             name: 'status',
             type: 'string',
-            mapping: function (record) {
-                switch (record.status) {
-                    case 0:
-                        return Uni.I18n.translate('bpm.status.pending', 'BPM', 'Pending');
-                    case 1:
-                        return Uni.I18n.translate('bpm.status.active', 'BPM', 'Active');
-                    case 2:
-                        return Uni.I18n.translate('bpm.status.completed', 'BPM', 'Completed');
-                    case 3:
-                        return Uni.I18n.translate('bpm.status.cancelled', 'BPM', 'Cancelled');
-                    case 4:
-                        return Uni.I18n.translate('bpm.status.ongoing', 'BPM', 'Ongoing');
-                    default :
-                        return record.status;
-                }
+            convert: function (value, record) {
+                switch (value) {
+                    case '0':
+                        return Uni.I18n.translate('whatsGoingOn.status.pending', 'UNI', 'Pending');
+                    case '1':
+                        return Uni.I18n.translate('whatsGoingOn.status.active', 'UNI', 'Active');
+                    case '2':
+                        return Uni.I18n.translate('whatsGoingOn.status.completed', 'UNI', 'Completed');
+                    case '3':
+                        return Uni.I18n.translate('whatsGoingOn.status.cancelled', 'UNI', 'Cancelled');
+                    case '4':
+                        return Uni.I18n.translate('whatsGoingOn.status.ongoing', 'UNI', 'Ongoing');
+                    default :
+                        return value;
+                }
             }
         },
         {
