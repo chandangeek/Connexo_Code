@@ -1242,9 +1242,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     saveChannelDataEstimateModelr: function (record, readings, window, ruleId, action, comment) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            changedData = me.getChangedData(me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData')),
             adjustedPropertyFormErrors,
             validationInfoName = record.get('estimateBulk') ? 'bulkValidationInfo' : 'mainValidationInfo';
 
+        record.set('editedReadings', changedData);
         record.getProxy().setParams(decodeURIComponent(router.arguments.deviceId), router.arguments.channelId);
         window.setLoading();
         Ext.Ajax.suspendEvent('requestexception');
@@ -1711,6 +1713,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     correctReadings: function () {
         var me = this,
             model = Ext.create('Uni.model.readings.ReadingCorrection'),
+            changedData = me.getChangedData(me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData')),
             window = me.getCorrectReadingWindow(),
             records = window.record,
             router = me.getController('Uni.controller.history.Router'),
@@ -1749,6 +1752,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             }
         });
 
+        model.set('editedReadings', changedData);
         model.set('intervals', intervalsArray);
         model.set('projected', undefined);
         model.getProxy().setMdcUrl(decodeURIComponent(router.arguments.deviceId), router.arguments.channelId);
