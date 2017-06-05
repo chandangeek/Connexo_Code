@@ -50,7 +50,7 @@ public enum MessageSeeds implements MessageSeed {
     TRANSITION_DATE_IS_NOT_SPECIFIED(2011, Constants.TRANSITION_DATE_IS_NOT_SPECIFIED, "Transition date isn't specified for usage point", Level.WARNING),
     ACTIVATION_DATE_OF_TRANSITION_IS_BEFORE_UP_CREATION(2012, Constants.ACTIVATION_DATE_OF_TRANSITION_IS_BEFORE_UP_CREATION, "Transition date must be greater or equal to 'Created' date of usage point", Level.WARNING),
     PRE_TRANSITION_CHECK_FAILED(2013, Constants.PRE_TRANSITION_CHECK_FAILED, "Pre-transition check failed {0}", Level.WARNING),
-    CALENDAR_DOES_NOT_EXIST(20014, Constants.CALENDAR_DOES_NOT_EXIST, "Can''t process line {0}: No such {1} calendar");
+    CALENDAR_DOES_NOT_EXIST(2014, Constants.CALENDAR_DOES_NOT_EXIST, "Can''t process line {0}: No such {1} calendar");
 
     private final int number;
     private final String key;

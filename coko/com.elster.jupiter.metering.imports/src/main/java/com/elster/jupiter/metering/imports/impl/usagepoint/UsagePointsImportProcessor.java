@@ -176,7 +176,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
 
     private UsagePointDetailBuilder updateDetails(UsagePoint usagePoint, UsagePointImportRecord data) {
         UsagePointDetail detail = usagePoint.getDetail(getClock().instant())
-                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_SERVICECATEGORY_INVALID, data.getLineNumber(), data
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_VERSIONED_VALUES_NOT_FOUND, data.getLineNumber(), data
                         .getServiceKind()
                         .get()));
 
