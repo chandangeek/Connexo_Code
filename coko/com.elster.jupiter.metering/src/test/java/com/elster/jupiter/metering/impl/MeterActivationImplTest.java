@@ -8,6 +8,7 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
@@ -53,6 +54,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
@@ -136,6 +138,8 @@ public class MeterActivationImplTest extends EqualsContractTest {
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(meter.getUsagePoint(any())).thenReturn(Optional.empty());
         when(usagePoint.getId()).thenReturn(USAGEPOINT_ID);
+        when(usagePoint.getState(any(Instant.class))).thenReturn(mock(State.class, RETURNS_DEEP_STUBS));
+        when(otherUsagePoint.getState(any(Instant.class))).thenReturn(mock(State.class, RETURNS_DEEP_STUBS));
         when(meter.getId()).thenReturn(METER_ID);
         when(meter.getState(any())).thenReturn(Optional.empty());
         when(meter.getHeadEndInterface()).thenReturn(Optional.empty());
