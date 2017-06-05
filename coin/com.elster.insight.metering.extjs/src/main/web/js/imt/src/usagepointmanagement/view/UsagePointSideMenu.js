@@ -92,7 +92,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
 
             if (items.length) {
                 me.menuItems.push({
-                    title: Uni.I18n.translate('usagepoint.menu.data', 'IMT', 'Data'),
+                    title: Uni.I18n.translate('usagepoint.menu.purposes', 'IMT', 'Purposes'),
                     privileges: Imt.privileges.MetrologyConfig.view,
                     items: items
                 })

@@ -935,9 +935,11 @@ Ext.define('Imt.purpose.controller.Readings', {
     saveChannelDataEstimateModel: function (record, readings, window, ruleId, action, comment) {
         var me = this,
             grid = me.getReadingsList(),
+            changedData = me.getChangedData(me.getStore('Imt.purpose.store.Readings')),
             router = me.getController('Uni.controller.history.Router'),
             adjustedPropertyFormErrors;
 
+        record.set('editedReadings', changedData);
         record.getProxy().setParams(decodeURIComponent(router.arguments.usagePointId), router.arguments.purposeId, router.arguments.outputId);
         window.setLoading();
         Ext.Ajax.suspendEvent('requestexception');
@@ -1062,6 +1064,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             model = Ext.create('Uni.model.readings.ReadingCorrection'),
             window = me.getCorrectReadingWindow(),
             records = window.record,
+            changedData = me.getChangedData(me.getStore('Imt.purpose.store.Readings')),
             router = me.getController('Uni.controller.history.Router'),
             commentCombo = window.down('#estimation-comment-box'),
             commentValue = commentCombo.getRawValue(),
@@ -1092,7 +1095,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
 
         model.set('intervals', intervalsArray);
-
+        model.set('editedReadings', changedData);
         model.getProxy().setMdmUrl(router.arguments.usagePointId, router.arguments.purposeId, router.arguments.outputId);
         window.setLoading();
         Ext.Ajax.suspendEvent('requestexception');

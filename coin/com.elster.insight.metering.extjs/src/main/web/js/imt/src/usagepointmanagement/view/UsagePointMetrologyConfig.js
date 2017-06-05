@@ -18,7 +18,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
         var me = this,
             metrologyConfiguration = me.usagePoint.get('metrologyConfiguration'),
             meterRolesStore = Ext.getStore('Imt.usagepointmanagement.store.MeterRoles'),
-            stage = me.usagePoint.get('state').stageName.split('.')[2],
+            stage = me.usagePoint.get('state').stage.id.split('.')[2],
             isReadyForLinkingMC = me.usagePoint.get('isReadyForLinkingMC');
 
         me.items = [
