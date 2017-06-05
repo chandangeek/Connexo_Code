@@ -170,11 +170,6 @@ public class SyntheticLoadProfileImpl implements SyntheticLoadProfile {
     }
 
     @Override
-    public ZoneId getZoneId() {
-        return timeSeries.get().getZoneId();
-    }
-
-    @Override
     public void delete() {
         dataModel.mapper(SyntheticLoadProfileImpl.class).remove(this);
     }
