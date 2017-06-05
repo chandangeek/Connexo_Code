@@ -12,6 +12,8 @@ import com.elster.jupiter.fileimport.Status;
 import com.elster.jupiter.transaction.TransactionService;
 
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -113,6 +115,17 @@ class TransactionWrappedFileImportOccurenceImpl implements FileImportOccurrence 
             anonymousLogger.addHandler(logHandler);
         }
         return anonymousLogger;
+    }
+
+    @Override
+    public void save() {
+        // This method is empty by default
+    }
+
+    @Override
+    public Connection getCurrentConnection() throws SQLException {
+        // This method is empty by default
+        return null;
     }
 
     @Override

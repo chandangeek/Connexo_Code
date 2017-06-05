@@ -6,8 +6,6 @@ package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.logging.Level;
 
@@ -19,9 +17,5 @@ public interface ServerFileImportOccurrence extends FileImportOccurrence {
 
     void setStartDate(Instant instant);
 
-    void save();
-
     void log(Level level, Instant instant, String message);
-
-    Connection getCurrentConnection() throws SQLException;
 }

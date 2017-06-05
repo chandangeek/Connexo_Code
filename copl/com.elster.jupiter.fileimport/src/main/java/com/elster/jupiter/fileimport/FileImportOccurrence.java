@@ -9,6 +9,8 @@ import com.elster.jupiter.domain.util.Finder;
 import aQute.bnd.annotation.ProviderType;
 
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -93,5 +95,9 @@ public interface FileImportOccurrence {
     Finder<ImportLogEntry> getLogsFinder();
 
     String getMessage();
+
+    void save();
+
+    Connection getCurrentConnection() throws SQLException;
 
 }
