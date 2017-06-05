@@ -102,16 +102,16 @@ public class GoingOnResource {
         private GoingOnInfo toGoingOnInfo(ProcessInstanceInfo processInstanceInfo) {
             Optional<UserTaskInfo> userTaskInfo = processInstanceInfo.openTasks
                     .stream()
-                    .min(Comparator.comparing(info -> Long.parseLong(info.dueDate)));
+                    .min(Comparator.comparing(info -> "".equals(info.dueDate) ? Long.MAX_VALUE : Long.parseLong(info.dueDate)));
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "process";
-            goingOnInfo.id = userTaskInfo.map(info -> Long.parseLong(info.id)).orElse(0L);
+            goingOnInfo.id = "".equals(processInstanceInfo.processId) ? (0L) : Long.parseLong(processInstanceInfo.processId);
             goingOnInfo.reference = null;
             goingOnInfo.description = processInstanceInfo.name;
             goingOnInfo.severity = severity(goingOnInfo.dueDate);
             goingOnInfo.assignee = userTaskInfo.flatMap(info -> Optional.ofNullable(info.actualOwner)).orElse(null);
             goingOnInfo.assigneeIsCurrentUser = userTaskInfo.flatMap(info -> Optional.ofNullable(info.isAssignedToCurrentUser)).orElse(false);
-            goingOnInfo.status = userTaskInfo.flatMap(info -> Optional.ofNullable(info.status)).orElse(null);
+            goingOnInfo.status = "".equals(processInstanceInfo.status) ? null : processInstanceInfo.status;
             return goingOnInfo;
         }
 
