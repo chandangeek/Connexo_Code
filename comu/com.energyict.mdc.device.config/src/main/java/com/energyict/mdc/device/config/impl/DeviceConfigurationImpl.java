@@ -1592,7 +1592,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
 
         @Override
-        public SecurityPropertySetBuilder client(String client) {
+        public SecurityPropertySetBuilder client(Object client) {
             underConstruction.setClient(client);
             return this;
         }

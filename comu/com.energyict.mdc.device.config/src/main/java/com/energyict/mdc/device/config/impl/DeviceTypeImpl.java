@@ -932,11 +932,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private void fileManagementDisabled() {
         Instant now = this.clock.instant();
         this.deviceMessageFiles
-                .stream()
-                .forEach(deviceMessageFile -> {
-                    deviceMessageFile.setObsolete(now);
-                    this.getEventService().postEvent(EventType.DEVICE_MESSAGE_FILE_OBSOLETE.topic(), deviceMessageFile);
-                });
+            .stream()
+            .filter(deviceMessageFile -> !deviceMessageFile.isObsolete())
+            .forEach(deviceMessageFile -> {
+                deviceMessageFile.setObsolete(now);
+                this.getEventService().postEvent(EventType.DEVICE_MESSAGE_FILE_OBSOLETE.topic(), deviceMessageFile);
+            });
         this.touch();
         this.deviceConfigurations.forEach(ServerDeviceConfiguration::fileManagementDisabled);
     }
@@ -944,16 +945,15 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public List<DeviceMessageFile> getDeviceMessageFiles() {
         return this.deviceMessageFiles
-                .stream()
-                .filter(deviceMessageFile -> !deviceMessageFile.isObsolete())
-                .collect(Collectors.toList());
+            .stream()
+            .filter(deviceMessageFile -> !deviceMessageFile.isObsolete())
+            .collect(Collectors.toList());
     }
 
     @Override
     public DeviceMessageFile addDeviceMessageFile(Path path) {
         DeviceMessageFileImpl file = this.getDataModel().getInstance(DeviceMessageFileImpl.class).init(this, path);
         return createFile(file);
-
     }
 
     @Override
