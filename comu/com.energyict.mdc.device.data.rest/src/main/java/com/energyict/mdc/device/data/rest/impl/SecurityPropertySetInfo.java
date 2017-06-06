@@ -21,7 +21,7 @@ public class SecurityPropertySetInfo {
     @JsonProperty("encryptionLevel")
     public SecurityLevelInfo encryptionLevel;
     @JsonProperty("client")
-    public String client;
+    public PropertyInfo client;
     @JsonProperty("securitySuite")
     public SecurityLevelInfo securitySuite;
     @JsonProperty("requestSecurityLevel")
