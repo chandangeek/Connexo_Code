@@ -5,6 +5,8 @@
 package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
@@ -14,16 +16,20 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.MissingRequiredProperty;
 
+import com.google.common.collect.Range;
+
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public abstract class AbstractValidator implements IValidator {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
     protected final Map<String, Object> properties;
+    private Logger logger;
 
     public AbstractValidator(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.thesaurus = thesaurus;
@@ -35,6 +41,16 @@ public abstract class AbstractValidator implements IValidator {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.properties = properties;
+    }
+
+    @Override
+    public final void init(Channel channel, ReadingType readingType, Range<Instant> interval, Logger logger) {
+        this.logger = logger == null ? Logger.getLogger(this.getClass().getName()) : logger;
+        init(channel, readingType, interval);
+    }
+
+    protected final Logger getLogger() {
+        return logger == null ? Logger.getLogger(this.getClass().getName()) : logger;
     }
 
     protected void checkRequiredProperties() {

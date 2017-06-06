@@ -16,6 +16,8 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.logging.LogContext;
+import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.validation.ValidationPropertyDefinitionLevel;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.MissingRequiredProperty;
@@ -53,8 +55,6 @@ public class ConsecutiveZerosValidator extends AbstractValidator {
     static final String MINIMUM_THRESHOLD = "minimumThreshold";
     static final String CHECK_RETROACTIVELY = "checkRetroactively";
     private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
-
-    private final Logger logger = Logger.getLogger(ConsecutiveZerosValidator.class.getName());
 
     private enum TranslationKeys implements TranslationKey {
         CHECK_RETROACTIVELY(ConsecutiveZerosValidator.CHECK_RETROACTIVELY, "Check retroactively"),
@@ -152,7 +152,8 @@ public class ConsecutiveZerosValidator extends AbstractValidator {
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
         if (!readingType.getAccumulation().equals(Accumulation.DELTADELTA)) {
-            logger.log(NOT_DELTA_READING_TYPE.getLevel(), NOT_DELTA_READING_TYPE.getDefaultFormat(), intervalReadingRecord.getReadingType().getMRID());
+            LoggingContext.get()
+                    .info(getLogger(), getThesaurus().getFormat(NOT_DELTA_READING_TYPE).format(intervalReadingRecord.getReadingType().getMRID()));
             return VALID;
         }
         return zeroIntervals.contains(intervalReadingRecord.getTimeStamp()) ? SUSPECT : VALID;
@@ -267,7 +268,7 @@ public class ConsecutiveZerosValidator extends AbstractValidator {
                 intervalStarted = false;
             }
         }
-        if(intervalStarted){
+        if (intervalStarted) {
             long periodLength = endZeroInterval.toEpochMilli() - startZeroInterval.toEpochMilli();
             if (periodLength > minPeriod.getMilliSeconds() && periodLength < maxPeriod.getMilliSeconds()) {
                 zeroIntervals.add(Range.openClosed(startZeroInterval, endZeroInterval));

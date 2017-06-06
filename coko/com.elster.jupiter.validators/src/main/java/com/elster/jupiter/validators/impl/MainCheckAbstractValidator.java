@@ -48,7 +48,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -92,8 +91,6 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
 
     private Map<Instant, IntervalReadingRecord> checkReadingRecords;
     private Map<Instant, ValidationResult> checkReadingRecordValidations;
-
-    private Logger logger;
 
     MainCheckAbstractValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, MetrologyConfigurationService metrologyConfigurationService, ValidationService validationService) {
         super(thesaurus, propertySpecService);
@@ -439,14 +436,6 @@ public abstract class MainCheckAbstractValidator extends AbstractValidator {
     }
 
     abstract String getClassName();
-
-
-    Logger getLogger() {
-        if (logger == null) {
-            logger = Logger.getLogger(this.getClass().getName());
-        }
-        return logger;
-    }
 
     enum TranslationKeys implements TranslationKey {
         CHECK_PURPOSE(MainCheckAbstractValidator.CHECK_PURPOSE, "Check purpose"),

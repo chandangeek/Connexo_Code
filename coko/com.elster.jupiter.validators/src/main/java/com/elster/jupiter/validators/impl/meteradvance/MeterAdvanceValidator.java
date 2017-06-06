@@ -61,7 +61,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class MeterAdvanceValidator extends AbstractValidator {
@@ -117,8 +116,6 @@ public class MeterAdvanceValidator extends AbstractValidator {
             ).compare(from, to) == 0;
         }
     }
-
-    private Logger logger = Logger.getLogger(MeterAdvanceValidator.class.getName());
 
     static final DateTimeFormatter dateAndTimeFormatter = DefaultDateTimeFormatters.mediumDate().withShortTime().build();
 
@@ -187,7 +184,7 @@ public class MeterAdvanceValidator extends AbstractValidator {
 
             this.validationStrategy = computeValidationStrategy(deltaOfReferenceReadings, sumOfChannelReadings, firstChannelInterval, intervalToSummarize);
         } catch (SkipValidationException e) {
-            this.logger.log(e.getMessageSeed().getLevel(), e.getLocalizedMessage());
+            this.getLogger().log(e.getMessageSeed().getLevel(), e.getLocalizedMessage());
             this.validationStrategy = ValidationStrategy.skipValidation(e.getSkipValidationOption());
         }
     }
