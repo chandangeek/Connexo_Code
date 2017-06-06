@@ -28,8 +28,7 @@ Ext.define('Imt.devicemanagement.model.Device', {
         url: '/api/udr/devices',
         timeout: 240000,
         reader: {
-            type: 'json',
-            root: 'meterInfos'
+            type: 'json'
         }
     }
 });
