@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogFilter', {
             multiSelect: true,
             options: [
                 {
-                    display: Uni.I18n.translate('deviceconnectionhistory.debug', 'MDC', 'Debug'),
+                    display: Uni.I18n.translate('deviceconnectionhistory.logging', 'MDC', 'Logging'),
                     value: 'Debug'
                 },
                 {
