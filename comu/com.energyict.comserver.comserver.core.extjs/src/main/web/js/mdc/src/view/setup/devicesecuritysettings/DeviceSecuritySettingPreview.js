@@ -66,7 +66,6 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingPreview',
                                     xtype: 'displayfield',
                                     fieldLabel: Uni.I18n.translate('securitySetting.client', 'MDC', 'Client'),
                                     labelWidth: 200,
-                                    name: 'client',
                                     itemId: 'mdc-deviceSecuritySettingPreview-client'
                                 },
                                 {
@@ -174,6 +173,18 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingPreview',
         this.down('#mdc-deviceSecuritySettingPreview-requestSecurityLevel').setVisible(hasSecuritySuite);
         this.down('#mdc-deviceSecuritySettingPreview-responseSecurityLevel').setVisible(hasSecuritySuite);
         this.down('#mdc-deviceSecuritySettingPreview-client').setVisible(hasClient);
+    },
+
+    loadRecord: function (record) {
+        var me = this;
+        me.down('form').loadRecord(record);
+        if (!Ext.isEmpty(me.down('#mdc-deviceSecuritySettingPreview-client'))) {
+            if (!Ext.isEmpty(record.getClient())) {
+                me.down('#mdc-deviceSecuritySettingPreview-client').setValue(record.getClient().getPropertyValue().get('value'));
+            } else {
+                me.down('#mdc-deviceSecuritySettingPreview-client').setValue("-");
+            }
+        }
     }
 });
 
