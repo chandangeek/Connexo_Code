@@ -70,7 +70,10 @@ public enum MessageSeeds implements MessageSeed {
     ESTIMATION_RULE_IS_NOT_APPLICABLE_TO_OUTPUT(65, "EstimationRuleIsNotApplicableToOutput", "Estimation rule with id {0} is not applicable to output {1}"),
     NOTHING_TO_VALIDATE(66, "nothing.is.validated", "Validation is not configured on this purpose of this usage point starting from the specified date."),
     INVALID_TRANSITION_TIME(67, "invalid.transition.time", "The transition date must be greater than date of creation of the usage point - {0}"),
-    FIELD_VALUE_EXCEEDED(68, "field.value.exceeded", "'The value exceeds the maximum field length");
+    FIELD_VALUE_EXCEEDED(68, "field.value.exceeded", "'The value exceeds the maximum field length"),
+    NO_CAS_VERSION_AT_DATE(69, "no.open.cas.version.at.date", "Can''t update values of one of the custom attribute sets because there is no version at {0}"),
+    ANOTHER_CAS_VERSION_IN_THE_FUTURE(70, "another.cas.version.in.the.future", "Can''t create new version for one of the custom attribute sets because there is another version with start date after {0}"),
+    ;
 
     private final int number;
     private final String key;
