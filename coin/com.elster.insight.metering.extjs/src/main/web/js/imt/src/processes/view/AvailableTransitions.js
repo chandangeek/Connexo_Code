@@ -12,7 +12,7 @@ Ext.define('Imt.processes.view.AvailableTransitions', {
                     store = Ext.getStore('Imt.processes.store.AvailableTransitions');
 
                 store.getProxy().setExtraParam('usagePointId', me.up('property-form').context.id);
-                me.propertyParams.toStage && store.getProxy().setExtraParam('toStage', me.propertyParams.toStage);
+                me.propertyParams.get('toStage') && store.getProxy().setExtraParam('toStage', me.propertyParams.get('toStage'));
             }
         }
     },
