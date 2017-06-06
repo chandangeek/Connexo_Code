@@ -63,8 +63,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -351,22 +353,15 @@ public class UsagePointConfigurationServiceImpl implements ServerUsagePointConfi
 
     @Override
     public List<ReadingTypeDeliverable> getMatchingDeliverablesOnValidationRuleSet(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet) {
-        Optional<? extends ValidationRuleSetVersion> activeRuleSetVersion = validationRuleSet.getRuleSetVersions()
-                .stream()
-                .filter(validationRuleSetVersion -> validationRuleSetVersion.getStatus() == ValidationVersionStatus.CURRENT)
-                .findFirst();
-        if (activeRuleSetVersion.isPresent() && !activeRuleSetVersion.get().getRules().isEmpty()) {
-            List<ReadingType> ruleSetReadingTypes = activeRuleSetVersion.get().getRules()
-                    .stream()
-                    .flatMap(rule -> rule.getReadingTypes().stream())
-                    .collect(Collectors.toList());
-            return metrologyContract.getDeliverables()
-                    .stream()
-                    .filter(deliverable -> ruleSetReadingTypes.contains(deliverable.getReadingType()))
-                    .collect(Collectors.toList());
-        }
+        Map<ReadingType, ReadingTypeDeliverable> readingTypeDeliverables = metrologyContract.getDeliverables().stream()
+                .collect(Collectors.toMap(ReadingTypeDeliverable::getReadingType, Function.identity()));
 
-        return Collections.emptyList();
+        return validationRuleSet.getRuleSetVersions().stream()
+                .flatMap(version -> version.getRules().stream())
+                .flatMap(rule -> rule.getReadingTypes().stream())
+                .filter(readingTypeDeliverables::containsKey)
+                .map(readingTypeDeliverables::get)
+                .collect(Collectors.toList());
     }
 
     @Override
