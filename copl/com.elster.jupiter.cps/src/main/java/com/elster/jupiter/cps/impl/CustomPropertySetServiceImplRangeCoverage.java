@@ -28,11 +28,11 @@ public class CustomPropertySetServiceImplRangeCoverage {
     static Instant I03 = instant("20170203000000");
     static Instant I04 = instant("20170204000000");
     static Instant I05 = instant("20170205000000");
-    static Instant I06 = instant("20170205000000");
-    static Instant I07 = instant("20170205000000");
-    static Instant I08 = instant("20170205000000");
-    static Instant I09 = instant("20170205000000");
-    static Instant I10 = instant("20170205000000");
+    static Instant I06 = instant("20170206000000");
+    static Instant I07 = instant("20170207000000");
+    static Instant I08 = instant("20170208000000");
+    static Instant I09 = instant("20170209000000");
+    static Instant I10 = instant("20170210000000");
 
     private boolean fullyCovered;
     private Range<Instant> targetRange;
@@ -63,14 +63,43 @@ public class CustomPropertySetServiceImplRangeCoverage {
                         .addRange(Range.closed(I01, I03))
                         .addRange(Range.atLeast(I03))
                         .build(),
-                supposedNotCovered()
-                        .withTargetRange(Range.closedOpen(I01, I04))
-                        .addRange(Range.closed(I02, I03))
+                supposedCovered()
+                        .withTargetRange(Range.atLeast(I02))
+                        .addRange(Range.atLeast(I02))
+                        .build(),
+                supposedCovered()
+                        .withTargetRange(Range.closed(I05,I07))
+                        .addRange(Range.closed(I01,I02))
+                        .addRange(Range.closed(I02,I03))
+                        .addRange(Range.closed(I04,I05))
+                        .addRange(Range.closed(I05,I06))
+                        .addRange(Range.closed(I06,I07))
+                        .addRange(Range.atLeast(I07))
                         .build(),
                 supposedNotCovered()
-                        .withTargetRange(Range.closedOpen(I01, I05))
+                        .withTargetRange(Range.closedOpen(I01, I04))
+                        .addRange(Range.closed(I05, I06))
+                        .build(),
+                supposedNotCovered()
+                        .withTargetRange(Range.closedOpen(I02, I04))
                         .addRange(Range.closed(I01, I02))
-                        .addRange(Range.closed(I03, I06))
+                        .build(),
+                supposedNotCovered()
+                        .withTargetRange(Range.closedOpen(I02, I04))
+                        .addRange(Range.closed(I01, I03))
+                        .build(),
+                supposedNotCovered()
+                        .withTargetRange(Range.closedOpen(I01, I04))
+                        .addRange(Range.closed(I01, I02))
+                        .addRange(Range.closed(I03, I04))
+                        .build(),
+                supposedNotCovered()
+                        .withTargetRange(Range.atLeast(I05))
+                        .addRange(Range.closed(I01, I02))
+                        .addRange(Range.atLeast(I06))
+                        .build(),
+                supposedNotCovered()
+                        .withTargetRange(Range.atLeast(I05))
                         .build()
         );
     }

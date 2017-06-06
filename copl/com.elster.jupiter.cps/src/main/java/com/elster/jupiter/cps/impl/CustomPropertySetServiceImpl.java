@@ -649,13 +649,25 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
       This method checks if ranges list fully encloses targetRange
      */
     static boolean isRangeCovered(Range<Instant> targetRange, List<Range<Instant>> ranges, String customPropertySetName) {
+        if (ranges.isEmpty()) {
+            LOGGER.log(Level.WARNING, "CustomPropertySet '" + customPropertySetName + "' has no values on the required range " + targetRange);
+            return false;
+        }
+
         // filter only ranges intersected with targetRange. other do no matter
         List<Range<Instant>> intersected = ranges.stream()
-                .filter(r -> !targetRange.intersection(r).isEmpty()).collect(Collectors.toList());
+                .filter(targetRange::isConnected).collect(Collectors.toList());
+
+        if (intersected.isEmpty()) {
+            // the case when all ranges do not intersect the target range
+            LOGGER.log(Level.WARNING, "CustomPropertySet '" + customPropertySetName + "' has values on intervals: " +
+                    ranges.stream().map(Range::toString).collect(Collectors.joining(", ")) + ", that do not intersect the required range " + targetRange);
+            return false;
+        }
 
         // check if union range of intersected ranges encloses target range. if not - range is not covered
         Range<Instant> commonRange = intersected.get(intersected.size() - 1)
-                .hasUpperBound() ? Range.closedOpen(intersected.get(0)
+                .hasUpperBound() ? Range.closed(intersected.get(0)
                 .lowerEndpoint(), intersected.get(intersected.size() - 1)
                 .upperEndpoint()) : Range.atLeast(intersected.get(0).lowerEndpoint());
         if (!commonRange.encloses(targetRange)) {
