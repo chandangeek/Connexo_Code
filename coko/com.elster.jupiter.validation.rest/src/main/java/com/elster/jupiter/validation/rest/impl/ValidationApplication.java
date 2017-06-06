@@ -19,7 +19,6 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
@@ -50,7 +49,6 @@ public class ValidationApplication extends Application implements TranslationKey
     public static final String COMPONENT_NAME = "VAL";
 
     private volatile ValidationService validationService;
-    private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
@@ -78,11 +76,6 @@ public class ValidationApplication extends Application implements TranslationKey
     @Reference
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
-    }
-
-    @Reference
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
     }
 
     @Reference
@@ -127,7 +120,6 @@ public class ValidationApplication extends Application implements TranslationKey
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(nlsService).to(NlsService.class);
             bind(validationService).to(ValidationService.class);
-            bind(transactionService).to(TransactionService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(thesaurus).to(Thesaurus.class);

@@ -61,13 +61,6 @@ public class ValidationRuleInfoFactory {
         return validationRuleInfo;
     }
 
-    public ValidationRuleInfos createValidationRuleInfos(List<ValidationRuleInfo> validationRules) {
-        ValidationRuleInfos validationRuleInfos = new ValidationRuleInfos();
-        validationRuleInfos.rules = validationRules;
-        validationRuleInfos.total = validationRules.size();
-        return validationRuleInfos;
-    }
-
     public Set<ValidationRuleInfo> createInfosForDataValidationStatus(DataValidationStatus dataValidationStatus) {
         return dataValidationStatus.getOffendedRules().stream()
                 .map(this::createValidationRuleInfo)

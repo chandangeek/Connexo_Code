@@ -89,7 +89,6 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
         ValidationApplication app = new ValidationApplication();
         app.setValidationService(validationService);
         app.setRestQueryService(restQueryService);
-        app.setTransactionService(transactionService);
         app.setMeteringGroupsService(meteringGroupsService);
         app.setMetrologyConfigurationService(metrologyConfigurationService);
         app.setNlsService(nlsService);

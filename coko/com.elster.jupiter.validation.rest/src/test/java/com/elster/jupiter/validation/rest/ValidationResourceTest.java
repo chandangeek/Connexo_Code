@@ -498,10 +498,8 @@ public class ValidationResourceTest extends BaseValidationRestTest {
 
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
 
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<List>get("$.rules")).hasSize(1);
-        assertThat(jsonModel.<String>get("$.rules[0].name")).isEqualTo("MyRuleUpdated");
-        assertThat(jsonModel.<String>get("$.rules[0].action")).isEqualTo(ValidationAction.FAIL.name());
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo("MyRuleUpdated");
+        assertThat(jsonModel.<String>get("$.action")).isEqualTo(ValidationAction.FAIL.name());
     }
 
 
@@ -575,10 +573,8 @@ public class ValidationResourceTest extends BaseValidationRestTest {
 
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
 
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<List>get("$.rules")).hasSize(1);
-        assertThat(jsonModel.<String>get("$.rules[0].name")).isEqualTo("MyRuleUpdated");
-        assertThat(jsonModel.<String>get("$.rules[0].action")).isEqualTo(ValidationAction.WARN_ONLY.name());
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo("MyRuleUpdated");
+        assertThat(jsonModel.<String>get("$.action")).isEqualTo(ValidationAction.WARN_ONLY.name());
     }
 
     @Test
