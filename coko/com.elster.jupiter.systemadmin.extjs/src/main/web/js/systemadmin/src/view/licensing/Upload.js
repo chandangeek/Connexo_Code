@@ -27,6 +27,7 @@ Ext.define('Sam.view.licensing.Upload', {
                     itemId: 'form-errors',
                     xtype: 'uni-form-error-message',
                     name: 'form-errors',
+                    width: 450,
                     hidden: true
                 },
                 {
@@ -67,24 +68,7 @@ Ext.define('Sam.view.licensing.Upload', {
     ],
 
     initComponent: function () {
-        var me = this;
-        me.side = [
-            {
-                ui: 'medium',
-                items: {
-                    xtype: 'uni-view-menu-side',
-                    title: Uni.I18n.translate('general.licensing', 'SAM', 'Licensing'),
-                    itemId: 'sideMenu',
-                    menuItems: [
-                        {
-                            itemId: 'navEl',
-                            text: Uni.I18n.translate('licensing.uploadLicenses', 'SAM', 'Upload licenses'),
-                            href: '#/administration/licenses/upload'
-                        }
-                    ]
-                }}
-        ];
-        this.callParent(this);
+        this.callParent(arguments);
         Ext.apply(Ext.form.VTypes, {
             fileUpload: function (val, field) {
                 var fileName = /^.*\.(lic)$/i;

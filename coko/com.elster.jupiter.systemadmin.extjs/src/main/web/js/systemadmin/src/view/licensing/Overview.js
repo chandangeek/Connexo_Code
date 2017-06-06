@@ -56,23 +56,6 @@ Ext.define('Sam.view.licensing.Overview', {
                 ]
             }
         ];
-        me.side = [
-            {
-                ui: 'medium',
-                items: {
-                    xtype: 'uni-view-menu-side',
-                    title: Uni.I18n.translate('general.licensing', 'SAM', 'Licensing'),
-                    objectType: Uni.I18n.translate('general.licensing', 'SAM', 'Licensing'),
-                    itemId: 'sideMenu',
-                    menuItems: [
-                        {
-                            itemId: 'navEl',
-                            text: Uni.I18n.translate('general.licenses', 'SAM', 'Licenses'),
-                            href: me.router.getRoute('administration/licenses').buildUrl()
-                        }
-                    ]
-                }}
-        ];
         me.callParent(this);
     }
 
