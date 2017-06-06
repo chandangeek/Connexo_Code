@@ -231,7 +231,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                     MeterActivation newActivation = meterActivation.split(activation.getStart());
                     saveMeterActivation(((MeterActivationImpl)newActivation), meterRole);
                 } else {
-                    meterActivation.advanceStartDate(activation.getStart());
                     saveMeterActivation(meterActivation, meterRole);
                 }
 
@@ -239,12 +238,13 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 convertMeterActivationsToStreamOfMeters(this.usagePoint.getMeterActivations())
                         .forEach(m -> getMeterTimeLine(m, this.meterTimeLines));
                 getMeterTimeLine(meter, this.meterTimeLines).adjust(activation, activateVisitor);
+
+                notifyInterestedComponents();
+                refreshMeterActivations();
             }
         });
 
-        notifyInterestedComponents();
         this.usagePoint.touch();
-        refreshMeterActivations();
     }
 
     private void saveMeterActivation(MeterActivationImpl meterActivation, MeterRole meterRole) {

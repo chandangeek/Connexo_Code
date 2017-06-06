@@ -996,13 +996,22 @@ public enum IntervalLength {
     }
 
     protected AggregationFunction appendSpecialTruncation(SqlBuilder sqlBuilder, String expression, String truncationMillis) {
-        sqlBuilder.append("FLOOR(");
-        sqlBuilder.append(expression);
-        sqlBuilder.append(".");
-        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName());
-        sqlBuilder.append("/");
-        sqlBuilder.append(truncationMillis);
-        sqlBuilder.append(")");
+        if (sqlBuilder.getText().endsWith("GROUP BY ")) {
+            sqlBuilder.append("FLOOR(");
+            sqlBuilder.append(expression);
+            sqlBuilder.append(".");
+            sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName());
+            sqlBuilder.append("/");
+            sqlBuilder.append(truncationMillis);
+            sqlBuilder.append(")");
+        } else {
+            sqlBuilder.append("MAX(");
+            sqlBuilder.append(expression);
+            sqlBuilder.append(".");
+            sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
+            sqlBuilder.append(")");
+        }
+
         return AggregationFunction.FLOOR;
     }
 
