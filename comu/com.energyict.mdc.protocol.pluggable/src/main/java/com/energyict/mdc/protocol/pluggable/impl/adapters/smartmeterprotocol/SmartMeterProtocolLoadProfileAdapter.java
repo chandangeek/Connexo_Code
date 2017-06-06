@@ -51,20 +51,23 @@ public class SmartMeterProtocolLoadProfileAdapter implements DeviceLoadProfileSu
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
     private final IdentificationService identificationService;
-    private final OfflineDevice offlineDevice;
+    private OfflineDevice offlineDevice;
 
     /**
      * The used {@link SmartMeterProtocolClockAdapter}
      */
     private final SmartMeterProtocolClockAdapter smartMeterProtocolClockAdapter;
 
-    public SmartMeterProtocolLoadProfileAdapter(final SmartMeterProtocol smartMeterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory, IdentificationService identificationService, OfflineDevice offlineDevice) {
+    public SmartMeterProtocolLoadProfileAdapter(final SmartMeterProtocol smartMeterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory, IdentificationService identificationService) {
         this.smartMeterProtocol = smartMeterProtocol;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
         this.identificationService = identificationService;
-        this.offlineDevice = offlineDevice;
         this.smartMeterProtocolClockAdapter = new SmartMeterProtocolClockAdapter(smartMeterProtocol);
+    }
+
+    public void setOfflineDevice(OfflineDevice offlineDevice) {
+        this.offlineDevice = offlineDevice;
     }
 
     /**

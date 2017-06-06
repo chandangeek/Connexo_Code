@@ -5,6 +5,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
@@ -23,8 +24,6 @@ import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
-
-import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -57,20 +56,23 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
     private final IdentificationService identificationService;
-    private final OfflineDevice offlineDevice;
+    private OfflineDevice offlineDevice;
 
     /**
      * The used <code>MeterProtocolClockAdapter</code> for the time handling of the {@link CollectedLoadProfile} interface.
      */
     private final MeterProtocolClockAdapter meterProtocolClockAdapter;
 
-    public MeterProtocolLoadProfileAdapter(final MeterProtocol meterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory, IdentificationService identificationService, OfflineDevice offlineDevice) {
+    public MeterProtocolLoadProfileAdapter(final MeterProtocol meterProtocol, IssueService issueService, CollectedDataFactory collectedDataFactory, IdentificationService identificationService) {
         this.meterProtocol = meterProtocol;
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
         this.identificationService = identificationService;
-        this.offlineDevice = offlineDevice;
         this.meterProtocolClockAdapter = new MeterProtocolClockAdapter(meterProtocol);
+    }
+
+    public void setOfflineDevice(OfflineDevice offlineDevice) {
+        this.offlineDevice = offlineDevice;
     }
 
     /**

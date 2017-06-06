@@ -208,7 +208,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     protected void initializeAdapters() {
         this.propertiesAdapter = new PropertiesAdapter();
         this.meterProtocolRegisterAdapter = new MeterProtocolRegisterAdapter(registerProtocol, issueService, collectedDataFactory);
-        this.meterProtocolLoadProfileAdapter = new MeterProtocolLoadProfileAdapter(meterProtocol, issueService, collectedDataFactory, identificationService, offlineDevice);
+        this.meterProtocolLoadProfileAdapter = new MeterProtocolLoadProfileAdapter(meterProtocol, issueService, collectedDataFactory, identificationService);
         this.meterProtocolClockAdapter = new MeterProtocolClockAdapter(meterProtocol);
         this.deviceProtocolTopologyAdapter = new DeviceProtocolTopologyAdapter(issueService, collectedDataFactory);
 
@@ -235,6 +235,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     @Override
     public void init(com.energyict.mdc.upl.offline.OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = new UPLOfflineDeviceAdapter(offlineDevice);
+        meterProtocolLoadProfileAdapter.setOfflineDevice(this.offlineDevice);
         doInit(comChannel);
     }
 
