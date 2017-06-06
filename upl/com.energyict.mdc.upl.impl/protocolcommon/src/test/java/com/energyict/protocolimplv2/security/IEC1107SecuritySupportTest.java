@@ -124,7 +124,7 @@ public class IEC1107SecuritySupportTest extends AbstractSecuritySupportTest {
 
         // asserts
         assertNotNull(legacyProperties);
-        assertThat(legacyProperties.getProperty("SecurityLevel")).isEqualTo("2");
+        assertThat(legacyProperties.getProperty("SecurityLevel")).isEqualTo(2);
         assertThat(legacyProperties.getProperty("Password")).isEqualTo(passwordValue);
     }
 
