@@ -161,7 +161,8 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     xtype: 'button',
                                     itemId: 'addReadingTypeButton',
                                     text: Uni.I18n.translate('validation.addReadingTypes', 'CFG', 'Add reading types'),
-                                    action: 'addReadingTypes'
+                                    action: 'addReadingTypes',
+                                    margin: '0 0 0 10'
                                 }
                             ]
                         },
