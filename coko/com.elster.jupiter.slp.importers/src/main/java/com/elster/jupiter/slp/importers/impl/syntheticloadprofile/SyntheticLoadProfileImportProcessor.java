@@ -73,14 +73,16 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
             if (previousTimeStamp != null && !previousTimeStamp.plus(getInterval(data)).equals(LocalDateTime.ofInstant(data.getTimeStamp(), zoneId))) {
                 throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_INTERVAL, data.getLineNumber());
             } else if (previousTimeStamp == null) {
-                long secondsOfMinute = ChronoUnit.MINUTES.getDuration().getSeconds();
                 String expectedDateTime = DefaultDateTimeFormatters.shortDate().withShortTime().build().format(syntheticLoadProfile.getStartTime().atZone(zoneId));
                 String actualDateTime = DefaultDateTimeFormatters.shortDate().withShortTime().build().format(data.getTimeStamp().atZone(zoneId));
                 if (syntheticLoadProfile.getReadingType().getMacroPeriod().equals(MacroPeriod.DAILY) && data.getTimeStamp().atZone(zoneId).getHour() != 0) {
                     throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP, data.getLineNumber(), expectedDateTime, actualDateTime);
-                } else if (data.getTimeStamp().atZone(zoneId).getMinute() % (syntheticLoadProfile.getInterval().get(ChronoUnit.SECONDS) / secondsOfMinute) != 0) {
+                } else if (syntheticLoadProfile.getInterval().getUnits().contains(ChronoUnit.SECONDS) && data.getTimeStamp()
+                        .atZone(zoneId)
+                        .getMinute() % (syntheticLoadProfile.getInterval().get(ChronoUnit.MINUTES)) != 0) {
                     throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP, data.getLineNumber(), expectedDateTime, actualDateTime);
-                } else if (data.getTimeStamp().atZone(zoneId).getSecond() != 0
+                }
+                if (data.getTimeStamp().atZone(zoneId).getSecond() != 0
                         && data.getTimeStamp().atZone(zoneId).getNano() != 0) {
                     throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP, data.getLineNumber(), expectedDateTime, actualDateTime);
                 }
