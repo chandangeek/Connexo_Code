@@ -245,7 +245,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
                 false,
                 new String[]{},
                 start + 1,
-                start + limit);
+                start + limit + 1);
         updateVersionsEndDate(versions);
 
         return Collections.unmodifiableList(
