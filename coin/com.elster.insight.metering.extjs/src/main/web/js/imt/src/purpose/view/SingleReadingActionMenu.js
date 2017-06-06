@@ -3,7 +3,7 @@
  */
 
 Ext.define('Imt.purpose.view.SingleReadingActionMenu', {
-    extend: 'Ext.menu.Menu',
+    extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.purpose-readings-data-action-menu',
     initComponent: function() {
         this.items = [
@@ -71,7 +71,7 @@ Ext.define('Imt.purpose.view.SingleReadingActionMenu', {
                 itemId: 'view-history',
                 text: Uni.I18n.translate('general.viewHistory', 'IMT', 'View history'),
                 action: 'viewHistory',
-                section: this.SECTION_ACTION
+                section: this.SECTION_VIEW
             },
             {
                 itemId: 'reset-value',

@@ -300,14 +300,11 @@ Ext.define('Imt.purpose.controller.Readings', {
         var me = this,
             validationResult = menu.record.get('validationResult') === 'validationStatus.suspect' ||
                 menu.record.get('estimatedNotSaved') === true,
-            estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule,
             canClearProjected = menu.record.get('isProjected') === true,
             canMarkProjected = menu.record.get('isProjected') === false && (menu.record.isModified('value') || menu.record.get('ruleId') !== 0 || !Ext.isEmpty(menu.record.get('modificationState'))),
             canEditingComment = menu.record.get('estimatedByRule'),
             flagForComment = function (value) {
-                if (value === 'EDITED' ||
-                    value === 'ESTIMATED' ||
-                    value === 'REMOVED') {
+                if (value === 'EDITED' || value === 'ESTIMATED' || value === 'REMOVED') {
                     return true;
                 } else {
                     return false;
@@ -315,9 +312,6 @@ Ext.define('Imt.purpose.controller.Readings', {
             };
 
         Ext.suspendLayouts();
-        //menu.down('#estimate-value').setVisible(validationResult);
-        //menu.down('#estimate-value-with-rule').setVisible(validationResult && estimationRulesCount);
-
         if (!canEditingComment && menu.record.get('modificationState') && menu.record.get('modificationState').flag) {
             canEditingComment = flagForComment(menu.record.get('modificationState').flag);
         }
@@ -341,6 +335,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         if (menu.down('#correct-value')) {
             menu.down('#correct-value').setVisible(!Ext.isEmpty(menu.record.get('value')))
         }
+        menu.reorderItems();
         Ext.resumeLayouts();
     },
 
@@ -534,9 +529,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             menu = button.down('menu'),
             estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule,
             flagForComment = function (value) {
-                if (value === 'EDITED' ||
-                    value === 'ESTIMATED' ||
-                    value === 'REMOVED') {
+                if (value === 'EDITED' || value === 'ESTIMATED' || value === 'REMOVED') {
                     return true;
                 } else {
                     return false;
@@ -579,8 +572,6 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
 
         Ext.suspendLayouts();
-        //menu.down('#estimate-value').setVisible(canEstimate);
-        //menu.down('#estimate-value-with-rule').setVisible(canEstimateWithRule);
         menu.down('#edit-estimation-comment').setVisible(canEditingComment);
         menu.down('#copy-form-value').setVisible(canCopyFromReference);
         menu.down('#confirm-value').setVisible(canConfirm);
@@ -588,6 +579,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         menu.down('#correct-value').setVisible(canCorrect);
         menu.down('#clear-projected').setVisible(canClearProjected);
         menu.down('#mark-projected').setVisible(canMarkProjected);
+        menu.reorderItems();
         button.setDisabled(!selectedRecords.length || !menu.query('menuitem[hidden=false]').length);
         Ext.resumeLayouts();
     },
