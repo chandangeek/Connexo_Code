@@ -7,7 +7,6 @@ package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfo;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
-import com.elster.jupiter.validation.ValidationVersionStatus;
 import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -22,7 +21,6 @@ public class ValidationRuleSetInfo {
     public Long startDate;
     public Long endDate;
     public int numberOfVersions;
-    public boolean hasCurrent;
     public long version;
     public Long currentVersionId;
     public ValidationRuleSetVersionInfo currentVersion;
@@ -32,14 +30,11 @@ public class ValidationRuleSetInfo {
         id = validationRuleSet.getId();
         name = validationRuleSet.getName();
         description = validationRuleSet.getDescription();
-        hasCurrent = false;
         validationRuleSet.getRuleSetVersions().stream()
-                .filter(v -> ValidationVersionStatus.CURRENT.equals(v.getStatus()))
                 .findFirst()
                 .ifPresent(ver -> {
                     Optional.ofNullable(ver.getStartDate()).ifPresent(sd -> this.startDate = sd.toEpochMilli());
                     Optional.ofNullable(ver.getEndDate()).ifPresent(ed -> this.endDate = ed.toEpochMilli());
-                    this.hasCurrent = true;
                     this.currentVersionId = ver.getId();
                 });
         numberOfVersions = validationRuleSet.getRuleSetVersions().size();

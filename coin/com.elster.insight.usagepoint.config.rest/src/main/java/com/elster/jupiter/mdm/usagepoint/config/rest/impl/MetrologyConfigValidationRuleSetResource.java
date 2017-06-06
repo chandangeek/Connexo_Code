@@ -12,9 +12,6 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
-import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfo;
-import com.elster.jupiter.usagepoint.lifecycle.rest.UsagePointLifeCycleStateInfoFactory;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -34,7 +31,6 @@ import javax.ws.rs.core.Response;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Path("/validationrulesets")
 public class MetrologyConfigValidationRuleSetResource {
@@ -42,17 +38,13 @@ public class MetrologyConfigValidationRuleSetResource {
     private final ValidationService validationService;
     private final UsagePointConfigurationService usagePointConfigurationService;
     private final MetrologyConfigurationService metrologyConfigurationService;
-    private final UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService;
-    private final UsagePointLifeCycleStateInfoFactory usagePointLifeCycleStateInfoFactory;
     private final ResourceHelper resourceHelper;
 
     @Inject
-    public MetrologyConfigValidationRuleSetResource(ValidationService validationService, UsagePointConfigurationService usagePointConfigurationService, MetrologyConfigurationService metrologyConfigurationService, UsagePointLifeCycleConfigurationService usagePointLifeCycleConfigurationService, UsagePointLifeCycleStateInfoFactory usagePointLifeCycleStateInfoFactory, ResourceHelper resourceHelper) {
+    public MetrologyConfigValidationRuleSetResource(ValidationService validationService, UsagePointConfigurationService usagePointConfigurationService, MetrologyConfigurationService metrologyConfigurationService, ResourceHelper resourceHelper) {
         this.validationService = validationService;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.metrologyConfigurationService = metrologyConfigurationService;
-        this.usagePointLifeCycleConfigurationService = usagePointLifeCycleConfigurationService;
-        this.usagePointLifeCycleStateInfoFactory = usagePointLifeCycleStateInfoFactory;
         this.resourceHelper = resourceHelper;
     }
 

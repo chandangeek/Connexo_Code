@@ -336,7 +336,6 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         JsonModel ruleSet = jsonModel.getSubModel("$.contracts[0].validationRuleSets[0]");
         assertThat(ruleSet.<Integer>get("$.id")).isEqualTo(1);
         assertThat(ruleSet.<String>get("$.name")).isEqualTo("ValidationRuleSet");
-        assertThat(ruleSet.<Boolean>get("$.hasCurrent")).isTrue();
         assertThat(ruleSet.<Integer>get("$.currentVersionId")).isEqualTo(1);
         assertThat(ruleSet.<Integer>get("$.currentVersion.id")).isEqualTo(1);
         assertThat(ruleSet.<String>get("$.currentVersion.status")).isEqualTo(ValidationVersionStatus.CURRENT.name());
@@ -354,8 +353,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         JsonModel ruleSet = jsonModel.getSubModel("$.contracts[0].validationRuleSets[0]");
         assertThat(ruleSet.<Integer>get("$.id")).isEqualTo(1);
         assertThat(ruleSet.<String>get("$.name")).isEqualTo("ValidationRuleSet");
-        assertThat(ruleSet.<Boolean>get("$.hasCurrent")).isFalse();
-        assertThat(ruleSet.hasPath("$.currentVersionId")).isFalse();
+        assertThat(ruleSet.hasPath("$.currentVersionId")).isTrue();
         assertThat(ruleSet.hasPath("$.currentVersion")).isFalse();
     }
 
