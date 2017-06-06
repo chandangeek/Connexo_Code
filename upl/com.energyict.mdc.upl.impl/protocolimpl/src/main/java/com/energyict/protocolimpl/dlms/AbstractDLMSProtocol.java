@@ -378,9 +378,9 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         addressingMode = properties.getTypedProperty(PROPNAME_ADDRESSING_MODE, 2);
         manufacturer = properties.getTypedProperty(PROPNAME_MANUFACTURER, "EIT");
         informationFieldSize = properties.getTypedProperty(PROPNAME_INFORMATION_FIELD_SIZE, -1);
-        iiapInvokeId = properties.getTypedProperty(PROPNAME_IIAP_INVOKE_ID, -0);
-        iiapPriority = properties.getTypedProperty(PROPNAME_IIAP_PRIORITY, -1);
-        iiapServiceClass = properties.getTypedProperty(PROPNAME_IIAP_SERVICE_CLASS, -1);
+        iiapInvokeId = properties.getTypedProperty(PROPNAME_IIAP_INVOKE_ID, 0);
+        iiapPriority = properties.getTypedProperty(PROPNAME_IIAP_PRIORITY, 1);
+        iiapServiceClass = properties.getTypedProperty(PROPNAME_IIAP_SERVICE_CLASS, 1);
         cipheringType = properties.getTypedProperty(PROPNAME_CIPHERING_TYPE, CipheringType.GLOBAL.getType());
 
         this.numberOfClocksetTries = properties.getTypedProperty(PROPNAME_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES, DEFAULT_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES);
