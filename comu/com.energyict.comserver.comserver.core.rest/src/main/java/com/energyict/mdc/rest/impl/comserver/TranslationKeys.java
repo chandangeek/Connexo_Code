@@ -13,7 +13,7 @@ public enum TranslationKeys implements TranslationKey {
     ERROR("Error", "Error"),
     WARN("Warning", "Warning"),
     INFO("Information", "Information"),
-    DEBUG("Debug", "Debug"),
+    DEBUG("Debug", "Logging"),
     TRACE("Trace", "Trace"),
     COMSERVER_ONLINE("comserver.online", "Online"),
     COMSERVER_OFFLINE("comserver.offline", "Offline"),
