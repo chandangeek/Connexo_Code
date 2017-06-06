@@ -276,7 +276,7 @@
                     <instructions>
                         <_include>bnd.bnd</_include>
                         <Embed-Dependency>
-                            groupId=!com.elster.jupiter;
+                            groupId=!com.elster.jupiter|org.bouncycastle;
                             scope=!test;
                             artifactId=!commons-logging|serialio-xmodemapi-osgi|javax.servlet-api|org.osgi.core|org.osgi.compendium|mdc.*
                         </Embed-Dependency>
