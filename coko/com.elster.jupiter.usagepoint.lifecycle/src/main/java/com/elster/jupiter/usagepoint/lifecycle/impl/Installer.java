@@ -81,6 +81,11 @@ public class Installer implements FullInstaller {
                 logger
         );
         doTry(
+                "Set default life cycle to all usage points",
+                this::setInitialStateForInstalledUsagePoints,
+                logger
+        );
+        doTry(
                 "Create initial change request for existing usage points",
                 this::createInitialChangeRequestForInstalledUsagePoints,
                 logger
