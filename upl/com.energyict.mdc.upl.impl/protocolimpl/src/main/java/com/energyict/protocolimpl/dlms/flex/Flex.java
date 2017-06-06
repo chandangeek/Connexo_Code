@@ -74,6 +74,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -1030,7 +1031,7 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
             iRequestTimeZone = properties.getTypedProperty("RequestTimeZone", 0);
             iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
 
-            iClientMacAddress = properties.getTypedProperty("ClientMacAddress", 16);
+            iClientMacAddress = properties.getTypedProperty("ClientMacAddress", BigDecimal.valueOf(16)).intValue();
             iServerUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 1);
             iServerLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 0);
             firmwareVersion = properties.getTypedProperty("FirmwareVersion", "ANY");

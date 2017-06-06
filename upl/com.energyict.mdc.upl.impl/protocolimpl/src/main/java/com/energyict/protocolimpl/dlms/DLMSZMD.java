@@ -1,5 +1,17 @@
 package com.energyict.protocolimpl.dlms;
 
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSObis;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.ObjectReference;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -14,19 +26,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.ObjectReference;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MessageProtocol;
@@ -46,6 +45,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -248,11 +248,11 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, MessageProtocol
                 // In case the EV_NORMAL_END_OF_INTERVAL bit is not set, save the interval and add it to the next or save as separate!
                 // Changed 19082015: all intervalData obj will be added 1-on-1 to the profileData - double intervals will be merged afterwards (see #mergeDuplicateIntervalsIncludingIntervalStatus below)
                 if ((intervalList[i].getField(IL_EVENT) & EV_NORMAL_END_OF_INTERVAL) != 0) {
-                            profileData.addInterval(intervalData);
-                    } else {
+                    profileData.addInterval(intervalData);
+                } else {
                     roundUp2nearestInterval(intervalData);
-                        profileData.addInterval(intervalData);
-                    }
+                    profileData.addInterval(intervalData);
+                }
             }
 
             if (DEBUG >= 1) {
@@ -354,7 +354,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, MessageProtocol
     }
 
     @Override
-    public String getSerialNumber(){
+    public String getSerialNumber() {
         /* The serial number is present in a reserved object: COSEM Logical device name object
          * In order to facilitate access using SN referencing, this object has a reserved short name by DLMS/COSEM convention: 0xFD00.
          * See topic 'Reserved base_names for special COSEM objects' in the DLMS Blue Book.
@@ -368,7 +368,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, MessageProtocol
                 return retrievedSerial;
             }
         } catch (IOException e) {
-           throw DLMSIOExceptionHandler.handle(e, getProtocolRetriesProperty() + 1);
+            throw DLMSIOExceptionHandler.handle(e, getProtocolRetriesProperty() + 1);
         }
     }
 
@@ -382,7 +382,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, MessageProtocol
     @Override
     protected void doSetProperties(TypedProperties properties) throws PropertyValidationException {
         super.doSetProperties(properties);
-        this.setClientMacAddress(Integer.parseInt(properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, "32").trim()));
+        this.setClientMacAddress(properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, BigDecimal.valueOf(32)).intValue());
         this.setServerUpperMacAddress(Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "1").trim()));
         this.setServerLowerMacAddress(Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "0").trim()));
         eventIdIndex = Integer.parseInt(properties.getTypedProperty(PROPNAME_EVENT_ID_INDEX, "-1").trim()); // ZMD=1, ZMQ=2

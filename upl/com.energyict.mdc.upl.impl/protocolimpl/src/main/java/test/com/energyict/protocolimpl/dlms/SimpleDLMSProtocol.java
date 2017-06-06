@@ -1,14 +1,5 @@
 package test.com.energyict.protocolimpl.dlms;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -40,6 +31,14 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.ProfileData;
@@ -53,6 +52,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -217,7 +217,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         this.deviceId = properties.getTypedProperty(ADDRESS.getName(), "");
         this.serialNumber = properties.getTypedProperty(SERIALNUMBER.getName(), "");
         this.connectionMode = properties.getTypedProperty("Connection", 1);
-        this.clientMacAddress = properties.getTypedProperty("ClientMacAddress", 16);
+        this.clientMacAddress = properties.getTypedProperty("ClientMacAddress", BigDecimal.valueOf(16)).intValue();
         this.serverLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 1);
         this.serverUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 17);
         this.timeOut = properties.getTypedProperty(TIMEOUT.getName(), (this.connectionMode == 0) ? 5000 : 60000);    // set the HDLC timeout to 5000 for the WebRTU KP

@@ -246,7 +246,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         this.password = properties.getTypedProperty(PASSWORD.getName(), "");
         this.securityLevel = properties.getTypedProperty(SECURITYLEVEL.getName(), 0);
         this.connectionMode = properties.getTypedProperty("ConnectionMode", 1);
-        this.clientMacAddress = properties.getTypedProperty("ClientMacAddress", 16);
+        this.clientMacAddress = properties.getTypedProperty("ClientMacAddress", BigDecimal.valueOf(16)).intValue();
         this.serverLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 1);
         this.serverUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 17);
         // if HDLC set default timeout to 10s, if TCPIP set default timeout to 60s
