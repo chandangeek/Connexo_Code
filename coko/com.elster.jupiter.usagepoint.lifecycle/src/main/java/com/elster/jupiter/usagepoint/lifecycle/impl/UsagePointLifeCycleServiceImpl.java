@@ -380,6 +380,12 @@ public class UsagePointLifeCycleServiceImpl implements ServerUsagePointLifeCycle
     }
 
     @Override
+    public void createMissingUsagePointInitialStateChangeRequest(UsagePoint usagePoint) {
+        this.dataModel.getInstance(UsagePointStateChangeRequestImpl.class)
+                .initForExistentUsagePoint(usagePoint, "-", usagePoint.getState(usagePoint.getInstallationTime()).getName(), usagePoint.getInstallationTime());
+    }
+
+    @Override
     public String getComponentName() {
         return COMPONENT_NAME;
     }

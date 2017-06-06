@@ -20,6 +20,7 @@ import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycleConfigurationService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
@@ -64,6 +65,7 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
     private final Thesaurus thesaurus;
     private final UsagePointLifeCycleConfigurationService lifeCycleConfigurationService;
     private final ServerUsagePointLifeCycleService lifeCycleService;
+    private final UserService userService;
 
     private long id;
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
@@ -89,12 +91,14 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
                                             DataModel dataModel,
                                             Thesaurus thesaurus,
                                             UsagePointLifeCycleConfigurationService lifeCycleConfigurationService,
-                                            ServerUsagePointLifeCycleService lifeCycleService) {
+                                            ServerUsagePointLifeCycleService lifeCycleService,
+                                            UserService userService) {
         this.clock = clock;
         this.dataModel = dataModel;
         this.thesaurus = thesaurus;
         this.lifeCycleConfigurationService = lifeCycleConfigurationService;
         this.lifeCycleService = lifeCycleService;
+        this.userService = userService;
     }
 
     UsagePointStateChangeRequestImpl init(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, String application, Map<String, Object> properties) {
@@ -121,6 +125,20 @@ public class UsagePointStateChangeRequestImpl implements UsagePointStateChangeRe
         this.originator.set(this.lifeCycleService.getCurrentUser());
         this.dataModel.persist(this);
         return this;
+    }
+
+    void initForExistentUsagePoint(UsagePoint usagePoint, String fromStateName, String toStateName, Instant transitionTime) {
+        this.status = Status.COMPLETED;
+        this.fromStateName = fromStateName;
+        this.toStateName = toStateName;
+        this.usagePoint.set(usagePoint);
+        this.transitionTime = transitionTime;
+        this.scheduleTime = this.clock.instant();
+        // skip if the user cannot be found
+        userService.findUser(usagePoint.getOriginator()).ifPresent(user -> {
+            this.originator.set(user);
+            this.dataModel.persist(this);
+        });
     }
 
     UsagePointStateChangeRequestImpl initAsFailRecord(UsagePoint usagePoint, UsagePointTransition transition, Instant transitionTime, String failReason) {

@@ -34,5 +34,7 @@ public interface ServerUsagePointLifeCycleService extends UsagePointLifeCycleSer
 
     void createUsagePointInitialStateChangeRequest(UsagePoint usagePoint);
 
+    void createMissingUsagePointInitialStateChangeRequest(UsagePoint usagePoint);
+
     User getCurrentUser();
 }

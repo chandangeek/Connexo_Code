@@ -9,6 +9,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -80,8 +81,8 @@ public class Installer implements FullInstaller {
                 logger
         );
         doTry(
-                "Set default life cycle to all usage points",
-                this::setInitialStateForInstalledUsagePoints,
+                "Create initial change request for existing usage points",
+                this::createInitialChangeRequestForInstalledUsagePoints,
                 logger
         );
     }
@@ -121,6 +122,12 @@ public class Installer implements FullInstaller {
         meteringService.getUsagePointQuery()
                 .select(Condition.TRUE)
                 .forEach(UsagePoint::setInitialState);
+    }
+
+    private void createInitialChangeRequestForInstalledUsagePoints() {
+        meteringService.getUsagePoints(new UsagePointFilter())
+                .stream()
+                .forEach(usagePointLifeCycleService::createMissingUsagePointInitialStateChangeRequest);
     }
 
     private  void createTransitionsStatesAssignMicroActionsAndChecks(){
