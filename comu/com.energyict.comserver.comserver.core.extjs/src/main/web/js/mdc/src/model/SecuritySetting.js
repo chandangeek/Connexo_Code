@@ -15,7 +15,6 @@ Ext.define('Mdc.model.SecuritySetting', {
     fields: [
         {name: 'id',type:'number',useNull:true},
         {name: 'name', type: 'string', useNull: true},
-        {name: 'client', type: 'string', useNull: true},
         {name: 'securitySuite', persist: false},
         {name: 'securitySuiteId', type: 'number', useNull: true },
         {name: 'authenticationLevelId', type: 'number', useNull: true},
@@ -29,6 +28,7 @@ Ext.define('Mdc.model.SecuritySetting', {
     ],
     associations: [
         {name: 'securitySuite', type: 'hasOne', model: 'Mdc.model.SecuritySuite'},
+        {name: 'client', type: 'hasOne', model: 'Uni.property.model.Property', associationKey: 'client', getterName: 'getClient', setterName: 'setClient', foreignKey: 'client'},
         {name: 'authenticationLevel', type: 'hasOne', model: 'Mdc.model.AuthenticationLevel'},
         {name: 'encryptionLevel', type: 'hasOne', model: 'Mdc.model.EncryptionLevel'},
         {name: 'requestSecurityLevel', type: 'hasOne', model: 'Mdc.model.RequestSecurityLevel'},

@@ -59,7 +59,8 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
                             reasons: [
                                 Uni.I18n.translate('validation.rulesets.empty.list.item1', 'MDC', 'No validation rule sets have been added yet.'),
                                 Uni.I18n.translate('validation.rulesets.empty.list.item3', 'MDC', 'Validation rule sets exist, but none of them match this device configuration.'),
-                                Uni.I18n.translate('validation.rulesets.empty.list.item2', 'MDC', 'Validation rule sets exist, but you do not have permission to view them.')
+                                Uni.I18n.translate('validation.rulesets.empty.list.item2', 'MDC', 'Matching validation rule sets exist, but you do not have permission to view them.'),
+                                Uni.I18n.translate('validation.rulesets.empty.list.item4', 'MDC', 'All matching validation rule sets have already been added to the device configuration.')
                             ],
                             stepItems: [
                                 {

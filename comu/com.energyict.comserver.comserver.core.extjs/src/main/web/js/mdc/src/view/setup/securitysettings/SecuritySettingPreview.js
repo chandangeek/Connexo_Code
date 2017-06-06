@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('securitySetting.client', 'MDC', 'Client'),
                 labelWidth: 200,
-                name: 'client'
+                itemId: 'clientField'
             });
         }
         if (me.deviceProtocolSupportSecuritySuites) {
@@ -159,6 +159,17 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
         ];
 
         me.callParent(arguments);
-    }
+    },
 
+    loadRecord: function(record) {
+        var me = this;
+        me.down('form').loadRecord(record);
+        if(!Ext.isEmpty(me.down('#clientField'))) {
+            if(!Ext.isEmpty(record.getClient())) {
+                me.down('#clientField').setValue(record.getClient().getPropertyValue().get('value'));
+            } else {
+                me.down('#clientField').setValue("-");
+            }
+        }
+    }
 });

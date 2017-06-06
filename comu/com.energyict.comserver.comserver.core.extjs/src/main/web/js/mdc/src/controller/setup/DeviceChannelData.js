@@ -960,6 +960,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             window = me.getReadingCopyFromReferenceWindow(),
             form = window.down('#reading-copy-window-form'),
             model = Ext.create('Mdc.model.CopyFromReference'),
+            changedData = me.getChangedData(me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData')),
             router = me.getController('Uni.controller.history.Router'),
             commentCombo = window.down('#estimation-comment-box'),
             commentValue = commentCombo.getRawValue(),
@@ -991,6 +992,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
 
         model.set('intervals', intervals);
+        model.set('editedReadings', changedData);
         model.save({
             failure: function (record, operation) {
                 var response = JSON.parse(operation.response.responseText);
@@ -1824,11 +1826,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         reading.beginEdit();
         reading.set(valueField, correctedInterval[valueField]);
         if (reading.isModified(valueField)) {
+            reading.set(modificationState, Uni.util.ReadingEditor.modificationState('EDITED'));
             reading.get(validationInfo).estimatedByRule = false;
             reading.get(validationInfo).validationResult = 'validationStatus.ok';
-            reading.set(modificationState, Uni.util.ReadingEditor.modificationState('EDITED'));
+            reading.set('estimatedCommentNotSaved', true);
         }
-
         reading.endEdit(true);
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
 

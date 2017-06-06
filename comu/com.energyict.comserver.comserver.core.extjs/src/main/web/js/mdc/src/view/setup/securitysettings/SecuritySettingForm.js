@@ -8,7 +8,8 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
         'Ext.form.field.TextArea',
         'Ext.button.Button',
         'Uni.util.FormErrorMessage',
-        'Uni.property.form.Property'
+        'Uni.property.form.Property',
+        'Uni.property.controller.Registry'
     ],
     alias: 'widget.securitySettingForm',
     config: {
@@ -27,12 +28,13 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                 {
                     xtype: 'form',
                     itemId: 'myForm',
-                    width: '50%',
+                    width: 600,
                     defaults: {
                         labelWidth: 250,
                         validateOnChange: false,
                         validateOnBlur: false,
-                        anchor: '100%'
+                        width: 600
+
                     },
                     items: [
                         {
@@ -40,7 +42,6 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                             itemId: 'mdc-security-settings-form-errors',
                             name: 'errors',
                             margin: '0 0 10 0',
-                            width: 600,
                             hidden: true
                         },
                         {
@@ -51,16 +52,6 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                             regex: /[a-zA-Z0-9]+/,
                             allowBlank: false,
                             fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-                            msgTarget: 'under'
-                        },
-                        {
-                            xtype: 'textfield',
-                            name: 'client',
-                            itemId: 'client-field',
-                            required: true,
-                            regex: /[a-zA-Z0-9]+/,
-                            allowBlank: false,
-                            fieldLabel: Uni.I18n.translate('securitySetting.client', 'MDC', 'Client'),
                             msgTarget: 'under'
                         },
                         {
@@ -244,6 +235,36 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
             }
         );
         Ext.resumeLayouts();
+    },
+
+    createClientField: function(propertyInfo) {
+        var me = this,
+            fieldType,
+            registry = Uni.property.controller.Registry,
+            comp;
+
+        Ext.suspendLayouts();
+        propertyInfo.set('name', Uni.I18n.translate('securitySetting.client', 'MDC', 'Client'));
+        fieldType = registry.getProperty(propertyInfo.getType());
+        comp = Ext.create(fieldType, {
+            property: propertyInfo,
+            itemId: 'clientValue',
+            labelWidth: 250,
+            validateOnChange: false,
+            validateOnBlur: false,
+            width: '100%',
+            resetButtonHidden: true,
+            blankText: Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
+        });
+        comp.on('afterrender', function () {
+            comp.clearInvalid();
+        });
+        me.down('form').insert(2, comp);
+        if(!Ext.isEmpty(propertyInfo.getPropertyValue().get('value'))) {
+            propertyInfo.set('value', propertyInfo.getPropertyValue().get('value'));
+        }
+        me.down('form').clientKey = propertyInfo.get('key');
+        Ext.resumeLayouts(true);
     }
 });
 
