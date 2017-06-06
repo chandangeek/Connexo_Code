@@ -1388,6 +1388,21 @@ public class UsagePointImpl implements ServerUsagePoint {
     }
 
     @Override
+    public String getOriginator() {
+        return dataModel.mapper(UsagePoint.class)
+                .at(Instant.EPOCH)
+                .find(Collections.singletonList(Operator.EQUAL.compare("id", this.getId())))
+                .stream()
+                .min(Comparator.naturalOrder())
+                .map(journalEntry -> journalEntry.get().getUserName()).orElse(userName);
+    }
+
+    @Override
+    public String getUserName() {
+        return userName;
+    }
+
+    @Override
     public void setInitialState() {
         if (!state.all().isEmpty()) {
             throw new IllegalStateException("Usage point already has life cycle state");
