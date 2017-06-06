@@ -13,6 +13,7 @@ import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
@@ -139,10 +140,13 @@ public class DeviceLifeCycleServiceImplTest {
     private State state;
     @Mock
     private StateTransitionTriggerEvent event;
+    @Mock
+    private LicenseService licenseService;
 
     @Before
     public void initializeMocks() {
         // Mock thesaurus such that it returns the key as the translation
+        when(licenseService.getLicensedApplicationKeys()).thenReturn(Arrays.asList("MDC", "INS"));
         when(this.thesaurus.getFormat(any(TranslationKey.class)))
                 .thenAnswer(invocationOnMock -> new NoTranslation((TranslationKey) invocationOnMock.getArguments()[0]));
         when(this.thesaurus.getFormat(any(MessageSeed.class)))
@@ -861,7 +865,7 @@ public class DeviceLifeCycleServiceImplTest {
 
     private DeviceLifeCycleServiceImpl getTestInstance() {
         return new DeviceLifeCycleServiceImpl(this.nlsService, this.threadPrincipleService, this.propertySpecService, this.microCheckFactory, this.microActionFactory, this.deviceLifeCycleConfigurationService, this.userService, Clock
-                .systemDefaultZone());
+                .systemDefaultZone(), this.licenseService);
     }
 
     public static class NoTranslation implements NlsMessageFormat {

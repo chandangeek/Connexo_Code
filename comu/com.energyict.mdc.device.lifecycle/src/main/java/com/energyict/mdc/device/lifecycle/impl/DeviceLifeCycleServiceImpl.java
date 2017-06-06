@@ -7,6 +7,7 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -82,6 +83,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile UserService userService;
     private volatile Clock clock;
+    private volatile LicenseService licenseService;
     private Thesaurus thesaurus;
 
     // For OSGi purposes
@@ -98,7 +100,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                                       ServerMicroActionFactory microActionFactory,
                                       DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                                       UserService userService,
-                                      Clock clock) {
+                                      Clock clock,
+                                      LicenseService licenseService){
         this();
         this.setNlsService(nlsService);
         this.setThreadPrincipalService(threadPrincipalService);
@@ -108,6 +111,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         this.setUserService(userService);
         this.setClock(clock);
+        this.setLicenseService(licenseService);
     }
 
     @Reference
@@ -148,6 +152,11 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
     }
 
     @Override
@@ -389,9 +398,11 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                         .map(microCheck -> this.execute(microCheck, device, effectiveTimestamp))
                         .flatMap(Functions.asStream())
                         .collect(Collectors.toList());
-        microCheckFactory.from(MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY)
-                .evaluate(device, effectiveTimestamp, action.getStateTransition().getTo())
-                .ifPresent(violations::add);
+        if(licenseService.getLicensedApplicationKeys().contains("INS")) {
+            microCheckFactory.from(MicroCheck.METROLOGY_CONFIGURATION_IN_CORRECT_STATE_IF_ANY)
+                    .evaluate(device, effectiveTimestamp, action.getStateTransition().getTo())
+                    .ifPresent(violations::add);
+        }
         if (!violations.isEmpty()) {
             throw new MultipleMicroCheckViolationsException(this.thesaurus, MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED, violations);
         }
