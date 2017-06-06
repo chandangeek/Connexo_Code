@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 @ConsumerType
 public interface Validator extends HasDynamicProperties {
@@ -29,6 +30,10 @@ public interface Validator extends HasDynamicProperties {
     Optional<QualityCodeIndex> getReadingQualityCodeIndex();
 
     void init(Channel channel, ReadingType readingType, Range<Instant> interval);
+
+    default void init(Channel channel, ReadingType readingType, Range<Instant> interval, Logger logger) {
+        init(channel, readingType, interval);
+    }
 
     /**
      * Marks the end of validating the interval specified through init(). Implementing validators return a Map that is either empty, or that contains mappings of Date

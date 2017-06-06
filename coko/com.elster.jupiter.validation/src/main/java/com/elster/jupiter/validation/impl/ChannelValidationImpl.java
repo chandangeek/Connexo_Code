@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 final class ChannelValidationImpl implements ChannelValidation {
@@ -149,9 +150,9 @@ final class ChannelValidationImpl implements ChannelValidation {
     }
 
     @Override
-    public void validate(RangeSet<Instant> ranges) {
+    public void validate(RangeSet<Instant> ranges, Logger logger) {
         ranges.asRanges().stream()
-                .map(this::validate)
+                .map(range -> validate(range, logger))
                 .max(Comparator.naturalOrder())
                 .ifPresent(this::updateLastChecked);
         RangeSet<Instant> notValidatedRanges = ranges.subRangeSet(Range.greaterThan(getLastChecked()));
@@ -164,7 +165,7 @@ final class ChannelValidationImpl implements ChannelValidation {
         return lastValidationComplete;
     }
 
-    private Instant validate(Range<Instant> validationRange) {
+    private Instant validate(Range<Instant> validationRange, Logger logger) {
         if (validationRange.hasUpperBound()) {
             Instant upperBound = channel.truncateToIntervalLength(validationRange.upperEndpoint());
             return Ranges.nonEmptyIntersection(Range.greaterThan(lastChecked), Range.atMost(upperBound), validationRange)
@@ -173,7 +174,7 @@ final class ChannelValidationImpl implements ChannelValidation {
                                     .flatMap(rangeToValidate -> {
                                         ChannelValidator validator = new ChannelValidator(channel, rangeToValidate);
                                         return activeRulesOfVersion(currentVersion).stream()
-                                                .map(validator::validateRule)
+                                                .map(validationRule -> validator.validateRule(validationRule, logger))
                                                 .min(Comparator.naturalOrder()); // minimum by rules
                                     }))
                             .flatMap(Functions.asStream())

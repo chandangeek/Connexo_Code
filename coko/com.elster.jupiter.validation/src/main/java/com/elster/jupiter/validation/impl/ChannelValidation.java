@@ -10,6 +10,7 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
 import java.time.Instant;
+import java.util.logging.Logger;
 
 public interface ChannelValidation {
 
@@ -27,7 +28,7 @@ public interface ChannelValidation {
 
     boolean moveLastCheckedBefore(Instant date);
 
-    void validate(RangeSet<Instant> ranges);
+    void validate(RangeSet<Instant> ranges, Logger logger);
 
     boolean isLastValidationComplete();
 }

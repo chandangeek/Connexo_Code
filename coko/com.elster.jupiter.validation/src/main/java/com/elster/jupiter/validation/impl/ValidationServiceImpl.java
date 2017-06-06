@@ -94,6 +94,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Operator.EQUAL;
@@ -109,6 +110,7 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     static final String DESTINATION_NAME = "DataValidation";
     static final String SUBSCRIBER_NAME = "DataValidation";
     public static final String VALIDATION_USER = "validation";
+    public static final Logger LOGGER = Logger.getLogger(ValidationService.class.getName());
 
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
@@ -464,12 +466,12 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
 
     @Override
     public void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer) {
-        validate(new ValidationContextImpl(targetQualityCodeSystems, channelsContainer));
+        validate(new ValidationContextImpl(targetQualityCodeSystems, channelsContainer, LOGGER));
     }
 
     @Override
     public void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType) {
-        validate(new ValidationContextImpl(targetQualityCodeSystems, channelsContainer, readingType));
+        validate(new ValidationContextImpl(targetQualityCodeSystems, channelsContainer, readingType, LOGGER));
     }
 
     @Override
@@ -606,11 +608,11 @@ public class ValidationServiceImpl implements ServerValidationService, MessageSe
     }
 
     ChannelsContainerValidationList activeChannelsContainerValidationsFor(ChannelsContainer channelsContainer) {
-        return dataModel.getInstance(ChannelsContainerValidationList.class).ofActivePersistedValidations(channelsContainer);
+        return dataModel.getInstance(ChannelsContainerValidationList.class).ofActivePersistedValidations(channelsContainer, LOGGER);
     }
 
     ChannelsContainerValidationList updatedChannelsContainerValidationsFor(ValidationContext validationContext) {
-        return dataModel.getInstance(ChannelsContainerValidationList.class).ofUpdatedValidations(validationContext);
+        return dataModel.getInstance(ChannelsContainerValidationList.class).ofUpdatedValidations(validationContext, LOGGER);
     }
 
     private Optional<ChannelsContainerValidation> getForRuleSet(List<ChannelsContainerValidation> channelsContainerValidations, ValidationRuleSet ruleSet) {

@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -65,6 +66,8 @@ public class ChannelValidatorTest {
     private IntervalReadingRecord readingRecord;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ReadingQualityWithTypeFetcher fetcher;
+    @Mock
+    private Logger logger;
 
     @Before
     public void setUp() {
@@ -101,7 +104,7 @@ public class ChannelValidatorTest {
 
         ChannelValidator channelValidator = new ChannelValidator(channel, RANGE);
 
-        channelValidator.validateRule(rule);
+        channelValidator.validateRule(rule, logger);
 
         verify(channel).createReadingQualityForRecords(validationQuality, readingType, Arrays.asList(readingRecord));
         verify(channel).createReadingQualityForRecords(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, Arrays.asList(readingRecord));
@@ -118,7 +121,7 @@ public class ChannelValidatorTest {
 
         ChannelValidator channelValidator = new ChannelValidator(channel, RANGE);
 
-        channelValidator.validateRule(rule);
+        channelValidator.validateRule(rule, logger);
 
         verify(channel).createReadingQualityForRecords(validationQuality, readingType, Collections.singletonList(readingRecord));
         verify(channel).createReadingQualityForRecords(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, Collections.singletonList(readingRecord));
@@ -134,7 +137,7 @@ public class ChannelValidatorTest {
 
         ChannelValidator channelValidator = new ChannelValidator(channel, RANGE);
 
-        channelValidator.validateRule(rule);
+        channelValidator.validateRule(rule, logger);
 
         verify(channel, never()).createReadingQuality(validationQuality, readingType, readingRecord);
     }
@@ -149,7 +152,7 @@ public class ChannelValidatorTest {
 
         ChannelValidator channelValidator = new ChannelValidator(channel, RANGE);
 
-        channelValidator.validateRule(rule);
+        channelValidator.validateRule(rule, logger);
 
         verify(channel, never()).createReadingQuality(validationQuality, readingType, readingRecord);
         verify(readingQualityRecord).makeActual();
@@ -168,7 +171,7 @@ public class ChannelValidatorTest {
 
         ChannelValidator channelValidator = new ChannelValidator(channel, RANGE);
 
-        channelValidator.validateRule(rule);
+        channelValidator.validateRule(rule, logger);
 
         verify(channel).createReadingQualityForRecords(validationQuality, readingType, Collections.singletonList(readingRecord));
     }
@@ -186,7 +189,7 @@ public class ChannelValidatorTest {
 
         ChannelValidator channelValidator = new ChannelValidator(channel, RANGE);
 
-        channelValidator.validateRule(rule);
+        channelValidator.validateRule(rule, logger);
 
         verify(channel, never()).createReadingQuality(validationQuality, readingType, readingRecord);
     }
