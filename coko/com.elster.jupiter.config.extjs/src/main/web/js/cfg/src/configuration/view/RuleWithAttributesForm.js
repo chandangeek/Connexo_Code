@@ -14,6 +14,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesForm', {
     application: null,
     padding: '10 0 0 0',
     layout: 'column',
+    width: '100%',
     type: null,
     kindOfReadingType: '',
     hasAdministerPrivileges: false,

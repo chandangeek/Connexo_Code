@@ -13,8 +13,10 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesField', {
         'Uni.property.form.Property'
     ],
     labelWidth: 250,
+    width: '100%',
     defaults: {
         labelWidth: 250,
+        width: '100%',
         xtype: 'displayfield'
     },
     record: undefined,
@@ -57,6 +59,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesField', {
         me.items.push({
             xtype: 'property-form',
             itemId: 'property-form' + me.record.getId() + me.kindOfReadingType,
+            width: '100%',
             isEdit: false
         });
 
