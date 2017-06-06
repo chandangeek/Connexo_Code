@@ -42,6 +42,7 @@ public enum DeviceSecurityProperty {
                     .describedAs(new DescriptionTranslationKey(SecurityPropertySpecTranslationKeys.CLIENT_MAC_ADDRESS))
                     .setDefaultValue(defaultValue)
                     .addValues(getPossibleClientMacAddressValues(1, 0x7F))
+                    .markExhaustive()
                     .markRequired()
                     .finish();
         }
