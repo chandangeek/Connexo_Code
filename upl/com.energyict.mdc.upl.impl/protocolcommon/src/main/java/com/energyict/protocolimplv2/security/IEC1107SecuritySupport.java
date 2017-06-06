@@ -69,7 +69,7 @@ public class IEC1107SecuritySupport extends AbstractSecuritySupport implements L
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()));
+            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel());
         }
         return typedProperties;
     }
