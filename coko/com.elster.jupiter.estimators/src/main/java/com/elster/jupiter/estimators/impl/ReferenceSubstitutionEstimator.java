@@ -77,7 +77,7 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
         if (checkPurpose == null || referenceUsagePoint == null || referenceReadingTypeProperty == null) {
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_ESTIMATOR_MISC_CONFIGURATION_NOT_COMPLETE)
-                            .format(currentUsagePointName,currentMetrologyPurpose.getName(),currentReadingType.getFullAliasName(),getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME).format()));
+                            .format(currentUsagePointName, currentMetrologyPurpose.getName(), currentReadingType.getFullAliasName(), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME).format()));
             throw new EstimationCancelledException();
         }
     }
@@ -105,23 +105,23 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
             validatingUsagePoint = referenceUsagePoint.getUsagePoint();
             validatingReadingType = estimationBlocks.get(0).getReadingType();
             setCheckReadingTypeIfNull(referenceReadingTypeProperty.getReadingType());
-            validateReferenceReadingType(estimationBlocks.get(0).getReadingType(),checkReadingType);
+            validateReferenceReadingType(estimationBlocks.get(0).getReadingType(), checkReadingType);
         } catch (EstimationCancelledException e) {
-            return SimpleEstimationResult.of(estimationBlocks,Collections.emptyList());
+            return SimpleEstimationResult.of(estimationBlocks, Collections.emptyList());
         }
         return super.estimate(estimationBlocks, system);
     }
 
-    private void getValidatingUsagePointData(EstimationBlock estimationBlock){
+    private void getValidatingUsagePointData(EstimationBlock estimationBlock) {
         currentReadingType = estimationBlock.getReadingType();
         Optional<UsagePoint> usagePoint = estimationBlock.getChannel().getChannelsContainer().getUsagePoint();
-        if (usagePoint.isPresent()){
+        if (usagePoint.isPresent()) {
             currentUsagePointName = usagePoint.get().getName();
-        }else {
+        } else {
             throw new IllegalStateException("Channels container of estimation block has no usage point");
         }
         ChannelsContainer channelsContainer = estimationBlock.getChannel().getChannelsContainer();
-        if (channelsContainer instanceof MetrologyContractChannelsContainer){
+        if (channelsContainer instanceof MetrologyContractChannelsContainer) {
             currentMetrologyPurpose = ((MetrologyContractChannelsContainer) channelsContainer).getMetrologyContract().getMetrologyPurpose();
         } else {
             throw new IllegalStateException("Channels container is not instance of MetrologyContractChannelsContainer");
@@ -130,7 +130,7 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
 
     private void validateEstimationBlocksSize(List<EstimationBlock> estimationBlocks) throws
             EstimationCancelledException {
-        if (estimationBlocks.isEmpty()){
+        if (estimationBlocks.isEmpty()) {
             throw new EstimationCancelledException();
         }
     }
@@ -140,7 +140,8 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
         if (!areReadingTypesComparable(validatingReadingType, referenceReadingType)) {
             LoggingContext.get()
                     .warning(getLogger(), getThesaurus().getFormat(MessageSeeds.REFERENCE_ESTIMATOR_REFERENCE_READING_TYPE_NOT_COMPARABLE)
-                            .format(currentUsagePointName,currentMetrologyPurpose.getName(),currentReadingType.getFullAliasName(),getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME).format()));
+                            .format(currentUsagePointName, currentMetrologyPurpose.getName(), currentReadingType.getFullAliasName(), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
+                                    .format()));
             throw new EstimationCancelledException();
         }
     }
@@ -190,7 +191,7 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
             }
             if (contract == null) {
                 throw new LocalizedFieldValidationException(MessageSeeds.REFERENCE_VALIDATE_PROPS_NO_PURPOSE_ON_USAGE_POINT, "properties." + CHECK_PURPOSE);
-            }else {
+            } else {
                 Channel channel = null;
                 Optional<ChannelsContainer> channelsContainerWithCheckChannel = effectiveMC.get()
                         .getChannelsContainer(contract);
@@ -200,7 +201,7 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
                         channel = checkChannel.get();
                     }
                 }
-                if (channel == null){
+                if (channel == null) {
                     throw new LocalizedFieldValidationException(MessageSeeds.REFERENCE_VALIDATE_PROPS_NO_READING_TYPE_ON_PURPOSE_ON_USAGE_POINT, "properties." + CHECK_READING_TYPE);
                 }
             }
@@ -224,7 +225,7 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
     @Override
     String getMessage(ReferenceReadingQuality referenceReadingQuality, EstimationBlock estimationBlock) {
         String message;
-        switch (referenceReadingQuality){
+        switch (referenceReadingQuality) {
             case NO_MC:
                 message = getThesaurus().getFormat(MessageSeeds.REFERENCE_ESTIMATOR_FAIL_EFFECTIVE_MC_NOT_FOUND)
                         .format(blockToString(estimationBlock), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
@@ -233,7 +234,8 @@ public class ReferenceSubstitutionEstimator extends AbstractMainCheckEstimator {
                 break;
             case NO_PURPOSE_ON_UP:
                 message = getThesaurus().getFormat(MessageSeeds.REFERENCE_ESTIMATOR_FAIL_PURPOSE_DOES_NOT_EXIST_ON_UP)
-                        .format(currentUsagePointName,currentMetrologyPurpose.getName(),currentReadingType.getFullAliasName(),getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME).format(), validatingUsagePoint.getName());
+                        .format(currentUsagePointName, currentMetrologyPurpose.getName(), currentReadingType.getFullAliasName(), getThesaurus().getFormat(TranslationKeys.ESTIMATOR_NAME)
+                                .format(), validatingUsagePoint.getName());
                 break;
             case NO_CHECK_CHANNEL:
                 message = getThesaurus().getFormat(MessageSeeds.REFERENCE_ESTIMATOR_FAIL_NO_OUTPUTS_ON_PURPOSE_WITH_READING_TYPE)
