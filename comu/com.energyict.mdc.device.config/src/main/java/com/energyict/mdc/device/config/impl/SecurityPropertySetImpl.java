@@ -849,7 +849,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Override
     public SecurityPropertySet cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
         SecurityPropertySetBuilder builder = deviceConfiguration.createSecurityPropertySet(getName());
-        builder.client(client);
+        builder.client(getClient());
         builder.authenticationLevel(authenticationLevelId);
         builder.encryptionLevel(encryptionLevelId);
         builder.securitySuite(securitySuiteId);
