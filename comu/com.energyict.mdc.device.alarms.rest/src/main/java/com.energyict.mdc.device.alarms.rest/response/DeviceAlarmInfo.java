@@ -22,7 +22,7 @@ public class DeviceAlarmInfo {
     public IssueAssigneeInfo userAssignee;
     public String title;
     public long creationDate;
-    public boolean clearedStatus;
+    public DeviceAlarmClearStatusInfo clearedStatus;
     public long version;
 
     public DeviceInfo device;
@@ -40,7 +40,7 @@ public class DeviceAlarmInfo {
         this.title = deviceAlarm.getTitle();
         this.creationDate = deviceAlarm.getCreateDateTime().toEpochMilli();
         this.version = deviceAlarm.getVersion();
-        this.clearedStatus = deviceAlarm.isStatusCleared();
+        this.clearedStatus = new DeviceAlarmClearStatusInfo(deviceAlarm.getClearStatus());
         this.priority = new PriorityInfo(deviceAlarm.getPriority());
     }
 

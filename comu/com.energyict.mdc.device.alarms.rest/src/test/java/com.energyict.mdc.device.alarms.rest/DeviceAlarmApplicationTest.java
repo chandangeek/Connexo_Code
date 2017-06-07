@@ -48,6 +48,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
+import com.energyict.mdc.device.alarms.entity.DeviceAlarmClearStatus;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
 import com.energyict.mdc.device.data.DeviceService;
@@ -80,6 +81,7 @@ import org.mockito.Mock;
 
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -358,10 +360,9 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
     }
 
     protected DeviceAlarm mockAlarm(long id, IssueReason reason, IssueStatus status, IssueAssignee assingee, List<DeviceAlarmRelatedEvent> events, Meter meter) {
-        DeviceAlarm alarm = mock(DeviceAlarm.class);
+        DeviceAlarm alarm = mock(DeviceAlarm.class, RETURNS_DEEP_STUBS);
         when(alarm.getId()).thenReturn(id);
         when(alarm.getIssueId()).thenReturn("ALM-001");
-        when(alarm.isStatusCleared()).thenReturn(true);
         when(alarm.getReason()).thenReturn(reason);
         when(alarm.getStatus()).thenReturn(status);
         when(alarm.getDueDate()).thenReturn(null);
