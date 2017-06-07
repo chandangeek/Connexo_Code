@@ -22,6 +22,7 @@ import com.energyict.mdc.device.alarms.impl.records.HistoricalDeviceAlarmRelated
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmImpl;
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmRelatedEventImpl;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.ListIterator;
 
@@ -32,6 +33,7 @@ import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_CLEARED_STATUS;
+import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_CLEARED_STATUS_TIMESTAMP;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_FK_TO_ISSUE;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_HISTORY_FK_TO_ISSUE;
 import static com.energyict.mdc.device.alarms.impl.database.DatabaseConst.DAL_ALARM_HISTORY_PK;
@@ -175,7 +177,8 @@ public enum TableSpecs {
 
         static void buildAlarmTable(Table<?> table, Column idColumn, String alarmTable, String pkKey, String... fkKeys) {
             Column alarmColRef = table.column(DAL_ALARM).number().conversion(NUMBER2LONG).notNull().add();
-            table.column(DAL_ALARM_CLEARED_STATUS).bool().map("clearedStatus").add();
+            table.column(DAL_ALARM_CLEARED_STATUS).bool().map("clearStatus.statusValue").notNull().add();
+            table.column(DAL_ALARM_CLEARED_STATUS_TIMESTAMP).number().map("clearStatus.statusChangeDateTime").conversion(NUMBER2INSTANT).notNull().add();
             table.primaryKey(pkKey).on(idColumn).add();
             if (fkKeys == null || fkKeys.length != EXPECTED_FK_KEYS_LENGTH) {
                 throw new IllegalArgumentException("Passed arguments don't match foreigen keys");

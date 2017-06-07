@@ -273,6 +273,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     @SuppressWarnings("unchecked")
     private OpenIssue getAlarmForUpdate(OpenIssue openIssue, IssueEvent event) {
         if (openIssue instanceof OpenDeviceAlarm && event instanceof DeviceAlarmEvent) {
+            DeviceAlarmEvent alarmEvent = (DeviceAlarmEvent) event;
             OpenDeviceAlarm alarm = OpenDeviceAlarm.class.cast(openIssue);
             List<String> clearingEvents = new ArrayList<>();
             alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(CLEARING_EVENTS))
@@ -280,26 +281,25 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                     ((ArrayList<EventTypeInfo>) (element.getValue())).forEach(value -> clearingEvents.add(value.getName())));
             Optional<RaiseEventPropsInfo> newEventProps = alarm.getRule().getProperties().entrySet().stream().filter(entry -> entry.getKey().equals(RAISE_EVENT_PROPS))
                     .findFirst().map(found -> (RaiseEventPropsInfo) found.getValue());
-
             if (!clearingEvents.isEmpty() &&
-                    ((DeviceAlarmEvent) event).isClearing(clearingEvents)) {
-                if (!alarm.isStatusCleared()) {
-                    alarm.toggleClearedStatus();
+                    alarmEvent.isClearing(clearingEvents)) {
+                if (!alarm.getClearStatus().isCleared()) {
+                    alarm.getClearStatus().toggle(alarmEvent.getTimestamp());
                 }
                 if (newEventProps.isPresent() &&
                         newEventProps.get().hasDecreaseUrgency()) {
                     alarm.setPriority(Priority.get(alarm.getPriority().lowerUrgency(), alarm.getPriority().getImpact()));
                 }
             } else {
-                if (alarm.isStatusCleared()) {
-                    alarm.toggleClearedStatus();
+                if (alarm.getClearStatus().isCleared()) {
+                    alarm.getClearStatus().reset();
                 }
                 if (newEventProps.isPresent() &&
                         newEventProps.get().hasIncreaseUrgency()) {
                     alarm.setPriority(Priority.get(alarm.getPriority().increaseUrgency(), alarm.getPriority().getImpact()));
                 }
             }
-            alarm.addRelatedAlarmEvent(alarm.getDevice().getId(), ((EndDeviceEventCreatedEvent) event).getEventTypeMrid(), ((EndDeviceEventCreatedEvent) event).getTimestamp());
+            alarm.addRelatedAlarmEvent(alarm.getDevice().getId(), alarmEvent.getEventTypeMrid(), ((EndDeviceEventCreatedEvent) event).getTimestamp());
             return alarm;
         }
         return openIssue;

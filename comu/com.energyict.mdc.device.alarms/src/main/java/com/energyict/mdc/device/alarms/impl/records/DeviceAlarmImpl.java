@@ -20,6 +20,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
+import com.energyict.mdc.device.alarms.entity.DeviceAlarmClearStatus;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 
 import javax.inject.Inject;
@@ -48,7 +49,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     private Reference<Issue> baseIssue = ValueReference.absent();
-    private Boolean clearedStatus = Boolean.FALSE;
+    private DeviceAlarmClearStatus clearStatus = new DeviceAlarmClearStatus();
 
 
     private long id;//do we need this id ? we have a reference to base issue instead...
@@ -163,16 +164,6 @@ public class DeviceAlarmImpl implements DeviceAlarm {
         getBaseIssue().setRule(rule);
     }
 
-    @Override
-    public Boolean isStatusCleared() {
-        return clearedStatus;
-    }
-
-    @Override
-    public void toggleClearedStatus() {
-        clearedStatus = !clearedStatus;
-    }
-
 
     @Override
     public Optional<IssueComment> addComment(String body, User author) {
@@ -217,6 +208,10 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     @Override
     public void setCreateDateTime(Instant dateTime) {
         getBaseIssue().setCreateDateTime(dateTime);
+    }
+
+    public DeviceAlarmClearStatus getClearStatus() {
+        return clearStatus;
     }
 
     @Override

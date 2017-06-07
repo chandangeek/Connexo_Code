@@ -20,4 +20,5 @@ final class DatabaseConst {
     static final String DAL_ALARM_OPEN_FK_TO_ISSUE = "DAL_ALM_OPN_FK_TO_ISU";
 
     static final String DAL_ALARM_CLEARED_STATUS = "CLEARED_STATUS";
+    static final String DAL_ALARM_CLEARED_STATUS_TIMESTAMP = "CLEARED_STATUS_TIMESTAMP";
 }
