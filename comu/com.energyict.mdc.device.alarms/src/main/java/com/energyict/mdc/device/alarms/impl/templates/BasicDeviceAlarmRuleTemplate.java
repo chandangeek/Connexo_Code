@@ -292,7 +292,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 }
             } else {
                 if (alarm.getClearStatus().isCleared()) {
-                    alarm.getClearStatus().reset();
+                    alarm.getClearStatus().init();
                 }
                 if (newEventProps.isPresent() &&
                         newEventProps.get().hasIncreaseUrgency()) {

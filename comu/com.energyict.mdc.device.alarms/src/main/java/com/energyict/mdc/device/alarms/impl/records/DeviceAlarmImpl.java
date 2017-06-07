@@ -49,7 +49,7 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     }
 
     private Reference<Issue> baseIssue = ValueReference.absent();
-    private DeviceAlarmClearStatus clearStatus = new DeviceAlarmClearStatus();
+    private DeviceAlarmClearStatus clearStatus;
 
 
     private long id;//do we need this id ? we have a reference to base issue instead...
@@ -70,6 +70,8 @@ public class DeviceAlarmImpl implements DeviceAlarm {
     public DeviceAlarmImpl(DataModel dataModel, DeviceAlarmService deviceAlarmService) {
         this.dataModel = dataModel;
         this.deviceAlarmService = deviceAlarmService;
+        this.clearStatus = new DeviceAlarmClearStatus();
+        this.clearStatus.init();
     }
 
     public long getId() {

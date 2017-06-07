@@ -13,8 +13,6 @@ public final class DeviceAlarmClearStatus {
     Instant statusChangeDateTime;
 
     public DeviceAlarmClearStatus() {
-        this.statusValue = Boolean.FALSE;
-        this.statusChangeDateTime = Instant.EPOCH;
     }
 
     public boolean isCleared() {
@@ -30,7 +28,7 @@ public final class DeviceAlarmClearStatus {
         statusChangeDateTime = timeStamp;
     }
 
-    public void reset() {
+    public void init() {
         statusValue = Boolean.FALSE;
         statusChangeDateTime = Instant.EPOCH;
     }
