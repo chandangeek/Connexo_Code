@@ -16,7 +16,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.Fetcher;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -82,6 +81,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
@@ -512,11 +512,12 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
-        handleCertificatePropertyValue(propertyValue); //TODO: is this step still required?
-
-        //Now update the given security property.
-        Device device = this.findDevice(deviceIdentifier);
-        device.setSecurityProperty(propertyName, propertyValue);
+        //TODO: re-add usefull implementation
+//        handleCertificatePropertyValue(propertyValue);
+//
+//        //Now update the given security property.
+//        Device device = this.findDevice(deviceIdentifier);
+//        device.setSecurityProperty(propertyName, propertyValue);
     }
 
     @Override
