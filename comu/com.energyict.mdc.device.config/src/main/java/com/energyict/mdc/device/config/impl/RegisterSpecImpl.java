@@ -15,6 +15,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.obis.ObisCode;
+
+import com.energyict.mdc.common.ValidObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -45,6 +47,7 @@ abstract class RegisterSpecImpl<T extends RegisterSpec> extends PersistentIdObje
     private final Reference<RegisterType> registerType = ValueReference.absent();
     @Size(max = 80, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String overruledObisCodeString;
+    @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
     private ObisCode overruledObisCode;
     @SuppressWarnings("unused")
     private String userName;

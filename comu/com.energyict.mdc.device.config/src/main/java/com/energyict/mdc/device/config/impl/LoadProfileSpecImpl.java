@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.validation.ValidationRule;
+import com.energyict.mdc.common.ValidObisCode;
 import com.energyict.mdc.common.interval.Temporals;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -39,6 +40,7 @@ class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements
     private final Reference<LoadProfileType> loadProfileType = ValueReference.absent();
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private String overruledObisCodeString;
+    @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
     private ObisCode overruledObisCode;
     @SuppressWarnings("unused")
     private String userName;

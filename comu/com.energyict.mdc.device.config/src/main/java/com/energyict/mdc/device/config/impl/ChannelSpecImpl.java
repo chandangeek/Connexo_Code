@@ -16,6 +16,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.obis.ObisCode;
+
+import com.energyict.mdc.common.ValidObisCode;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -80,6 +82,7 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
     @Range(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
     private Integer nbrOfFractionDigits = 0;
     private String overruledObisCodeString;
+    @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
     private ObisCode overruledObisCode;
     private BigDecimal overflow;
     private TimeDuration interval;
