@@ -1,18 +1,22 @@
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
- *//*
+ */
 
 
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.Stage;
+import com.elster.jupiter.fsm.StageSet;
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointStage;
-import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointState;
-import com.elster.jupiter.usagepoint.lifecycle.config.impl.UsagePointStateRemoveException;
+import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -20,6 +24,7 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -29,11 +34,10 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleApplicationTest {
@@ -41,26 +45,27 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
     @Mock
     private UsagePointLifeCycle lifeCycle;
     @Mock
-    private UsagePointState state;
+    private State state;
     @Mock
-    private UsagePointStage stage;
+    private Stage stage;
+
 
     @Before
     public void before() {
         when(usagePointLifeCycleConfigurationService.findUsagePointLifeCycle(12L)).thenReturn(Optional.of(lifeCycle));
-        when(lifeCycle.getStates()).thenReturn(Collections.singletonList(state));
         when(lifeCycle.getId()).thenReturn(12L);
         when(lifeCycle.getVersion()).thenReturn(4L);
-        when(state.getLifeCycle()).thenReturn(lifeCycle);
-        when(state.getStage()).thenReturn(stage);
-        when(stage.getKey()).thenReturn(UsagePointStage.Key.OPERATIONAL);
+        List<State> states = new ArrayList<>();
+        states.add(state);
+        when(lifeCycle.getStates()).thenReturn(states);
+        when(state.getStage()).thenReturn(Optional.of(stage));
+
     }
 
     @Test
     public void testGetLifeCycleStates() {
         when(state.getId()).thenReturn(4L);
         when(state.getName()).thenReturn("State");
-        when(state.isInitial()).thenReturn(true);
         when(state.getVersion()).thenReturn(3L);
 
         String response = target("/lifecycle/12/states").request().get(String.class);
@@ -69,10 +74,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         assertThat(model.<List>get("$.states")).hasSize(1);
         assertThat(model.<Number>get("$.states[0].id")).isEqualTo(4);
         assertThat(model.<String>get("$.states[0].name")).isEqualTo("State");
-        assertThat(model.<String>get("$.states[0].stage")).isEqualTo("OPERATIONAL");
         assertThat(model.<Number>get("$.states[0].version")).isEqualTo(3);
-        assertThat(model.<Number>get("$.states[0].parent.id")).isEqualTo(12);
-        assertThat(model.<Number>get("$.states[0].parent.version")).isEqualTo(4);
     }
 
     @Test
@@ -93,11 +95,8 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         assertThat(model.<String>get("$.name")).isEqualTo("State");
         assertThat(model.<Number>get("$.version")).isEqualTo(3);
         assertThat(model.<Boolean>get("$.isInitial")).isEqualTo(true);
-        assertThat(model.<String>get("$.stage")).isEqualTo("OPERATIONAL");
         assertThat(model.<Number>get("$.onEntry[0].id")).isEqualTo(1);
         assertThat(model.<Number>get("$.onExit[0].id")).isEqualTo(2);
-        assertThat(model.<Number>get("$.parent.id")).isEqualTo(12);
-        assertThat(model.<Number>get("$.parent.version")).isEqualTo(4);
     }
 
     @Test
@@ -111,12 +110,17 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         assertThat(model.<String>get("$.error")).isEqualTo("no.such.life.cycle.state");
     }
 
-
     @Test
     public void testNewState() throws Exception {
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
-        UsagePointState.UsagePointStateCreator builder = FakeBuilder.initBuilderStub(state, UsagePointState.UsagePointStateCreator.class);
-        when(lifeCycle.newState(anyString())).thenReturn(builder);
+        when(state.getStage()).thenReturn(Optional.of(stage));
+        when(stage.getId()).thenReturn(1L);
+        when(stage.getName()).thenReturn("Stage");
+        StageSet defaultStageSet = mock(StageSet.class);
+        when(usagePointLifeCycleConfigurationService.getDefaultStageSet()).thenReturn(defaultStageSet);
+        when(defaultStageSet.getStageByName(anyString())).thenReturn(Optional.of(stage));
+        UsagePointTransition.UsagePointTransitionCreator builder = FakeBuilder.initBuilderStub(state, UsagePointTransition.UsagePointTransitionCreator.class);
+        when(lifeCycle.newTransition(anyString(), any(), any())).thenReturn(builder);
         ProcessReference onEntry = mockProcessReference(1L, "processName 1", "deploymentId 1", "processId 1");
         BpmProcessDefinition onEntryProcess = onEntry.getStateChangeBusinessProcess();
         when(bpmService.findBpmProcessDefinition(onEntryProcess.getId())).thenReturn(Optional.of(onEntryProcess));
@@ -131,39 +135,53 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         when(state.getOnEntryProcesses()).thenReturn(Collections.singletonList(onEntry));
         when(state.getOnExitProcesses()).thenReturn(Collections.singletonList(onExit));
 
+        FiniteStateMachineUpdater lifeCycleUpdater = mock(FiniteStateMachineUpdater.class);
+        FiniteStateMachineBuilder.StateBuilder stateBuilder = mock(FiniteStateMachineBuilder.StateBuilder.class);
+        when(lifeCycle.getUpdater()).thenReturn(lifeCycleUpdater);
+        when(lifeCycleUpdater.newCustomState(anyString(), any())).thenReturn(stateBuilder);
+        when(stateBuilder.complete()).thenReturn(state);
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
+        info.stage = "Stage";
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
         info.parent = new VersionInfo<>(12L, 4L);
-        info.stage = UsagePointStage.Key.OPERATIONAL;
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
 
         Response response = target("/lifecycle/12/states").request().post(json);
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Number>get("$.id")).isEqualTo(4);
         assertThat(model.<String>get("$.name")).isEqualTo("State");
-        assertThat(model.<String>get("$.stage")).isEqualTo("OPERATIONAL");
         assertThat(model.<Number>get("$.version")).isEqualTo(1);
         assertThat(model.<Boolean>get("$.isInitial")).isEqualTo(false);
         assertThat(model.<Number>get("$.onEntry[0].id")).isEqualTo(1);
         assertThat(model.<Number>get("$.onExit[0].id")).isEqualTo(2);
-        assertThat(model.<Number>get("$.parent.id")).isEqualTo(12);
-        assertThat(model.<Number>get("$.parent.version")).isEqualTo(4);
     }
 
     @Test
     public void testNewStateProcessNotFound() throws Exception {
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
-        UsagePointState.UsagePointStateCreator builder = FakeBuilder.initBuilderStub(state, UsagePointState.UsagePointStateCreator.class);
-        when(lifeCycle.newState(anyString())).thenReturn(builder);
+        when(state.getStage()).thenReturn(Optional.of(stage));
+        when(stage.getId()).thenReturn(1L);
+        when(stage.getName()).thenReturn("Stage");
+        StageSet defaultStageSet = mock(StageSet.class);
+        when(usagePointLifeCycleConfigurationService.getDefaultStageSet()).thenReturn(defaultStageSet);
+        when(defaultStageSet.getStageByName(anyString())).thenReturn(Optional.of(stage));
+        UsagePointTransition.UsagePointTransitionCreator builder = FakeBuilder.initBuilderStub(state, UsagePointTransition.UsagePointTransitionCreator.class);
+        when(lifeCycle.newTransition(anyString(), any(), any())).thenReturn(builder);
         when(bpmService.findBpmProcessDefinition(anyLong())).thenReturn(Optional.empty());
+
+        FiniteStateMachineUpdater lifeCycleUpdater = mock(FiniteStateMachineUpdater.class);
+        FiniteStateMachineBuilder.StateBuilder stateBuilder = mock(FiniteStateMachineBuilder.StateBuilder.class);
+        when(lifeCycle.getUpdater()).thenReturn(lifeCycleUpdater);
+        when(lifeCycleUpdater.newCustomState(anyString(), any())).thenReturn(stateBuilder);
+        when(stateBuilder.complete()).thenReturn(state);
 
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = UsagePointStage.Key.OPERATIONAL;
+        info.stage = "Stage";
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
         info.parent = new VersionInfo<>(12L, 4L);
@@ -179,16 +197,13 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
     @Test
     public void testEditState() throws Exception {
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
-        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 3L)).thenReturn(Optional.of(state));
+        when(usagePointLifeCycleConfigurationService.findUsagePointState(anyLong())).thenReturn(Optional.of(state));
         ProcessReference onEntry = mockProcessReference(1L, "processName 1", "deploymentId 1", "processId 1");
         BpmProcessDefinition onEntryProcess = onEntry.getStateChangeBusinessProcess();
         when(bpmService.findBpmProcessDefinition(onEntryProcess.getId())).thenReturn(Optional.of(onEntryProcess));
         ProcessReference onExit = mockProcessReference(2L, "processName 2", "deploymentId 2", "processId 2");
         BpmProcessDefinition onExitProcess = onExit.getStateChangeBusinessProcess();
         when(bpmService.findBpmProcessDefinition(onExitProcess.getId())).thenReturn(Optional.of(onExitProcess));
-
-        UsagePointState.UsagePointStateUpdater builder = FakeBuilder.initBuilderStub(state, UsagePointState.UsagePointStateUpdater.class, UsagePointState.UsagePointStateCreator.class);
-        when(state.startUpdate()).thenReturn(builder);
         when(state.getId()).thenReturn(4L);
         when(state.getName()).thenReturn("State changed");
         when(state.isInitial()).thenReturn(false);
@@ -196,14 +211,26 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         when(state.getOnEntryProcesses()).thenReturn(Collections.singletonList(onEntry));
         when(state.getOnExitProcesses()).thenReturn(Collections.singletonList(onExit));
 
+        FiniteStateMachine finiteStateMachine = mock(FiniteStateMachine.class);
+        FiniteStateMachineUpdater finiteStateMachineUpdater = mock(FiniteStateMachineUpdater.class);
+        FiniteStateMachineUpdater.StateUpdater builder = mock(FiniteStateMachineUpdater.StateUpdater.class);
+        when(state.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(finiteStateMachine.startUpdate()).thenReturn(finiteStateMachineUpdater);
+        when(finiteStateMachineUpdater.state(anyString())).thenReturn(builder);
+        when(builder.complete()).thenReturn(state);
+
+        StageSet defaultStageSet = mock(StageSet.class);
+        when(usagePointLifeCycleConfigurationService.getDefaultStageSet()).thenReturn(defaultStageSet);
+        when(defaultStageSet.getStageByName(anyString())).thenReturn(Optional.of(stage));
+
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State changed";
+        info.stage = "Stage";
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
-        info.stage = UsagePointStage.Key.OPERATIONAL;
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
 
         Response response = target("/lifecycle/12/states/4").request().put(json);
@@ -216,26 +243,37 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         assertThat(model.<Number>get("$.onExit[0].id")).isEqualTo(2);
         assertThat(model.<Number>get("$.parent.id")).isEqualTo(12);
         assertThat(model.<Number>get("$.parent.version")).isEqualTo(4);
-        assertThat(model.<String>get("$.stage")).isEqualTo("OPERATIONAL");
-        verify(builder).setName("State changed");
-        verify(builder).onEntry(onEntryProcess);
-        verify(builder).onExit(onExitProcess);
     }
 
     @Test
     public void testEditStateProcessNotFound() throws Exception {
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
-        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 3L)).thenReturn(Optional.of(state));
-        UsagePointState.UsagePointStateUpdater builder = FakeBuilder.initBuilderStub(state, UsagePointState.UsagePointStateUpdater.class, UsagePointState.UsagePointStateCreator.class);
-        when(state.startUpdate()).thenReturn(builder);
+        when(usagePointLifeCycleConfigurationService.findUsagePointState(anyLong())).thenReturn(Optional.of(state));
         when(bpmService.findBpmProcessDefinition(anyLong())).thenReturn(Optional.empty());
+
+        when(state.getId()).thenReturn(4L);
+        when(state.getName()).thenReturn("State changed");
+        when(state.isInitial()).thenReturn(false);
+        when(state.getVersion()).thenReturn(3L);
+
+        FiniteStateMachine finiteStateMachine = mock(FiniteStateMachine.class);
+        FiniteStateMachineUpdater finiteStateMachineUpdater = mock(FiniteStateMachineUpdater.class);
+        FiniteStateMachineUpdater.StateUpdater builder = mock(FiniteStateMachineUpdater.StateUpdater.class);
+        when(state.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(finiteStateMachine.startUpdate()).thenReturn(finiteStateMachineUpdater);
+        when(finiteStateMachineUpdater.state(anyString())).thenReturn(builder);
+        when(builder.complete()).thenReturn(state);
+
+        StageSet defaultStageSet = mock(StageSet.class);
+        when(usagePointLifeCycleConfigurationService.getDefaultStageSet()).thenReturn(defaultStageSet);
+        when(defaultStageSet.getStageByName(anyString())).thenReturn(Optional.of(stage));
 
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State changed";
+        info.stage = "Stage";
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
-        info.stage = UsagePointStage.Key.OPERATIONAL;
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -253,10 +291,29 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         when(usagePointLifeCycleConfigurationService.findUsagePointLifeCycle(12L)).thenReturn(Optional.of(lifeCycle));
         when(usagePointLifeCycleConfigurationService.findUsagePointState(4L)).thenReturn(Optional.of(state));
 
+        when(bpmService.findBpmProcessDefinition(anyLong())).thenReturn(Optional.empty());
+
+        when(state.getId()).thenReturn(4L);
+        when(state.getName()).thenReturn("State changed");
+        when(state.isInitial()).thenReturn(false);
+        when(state.getVersion()).thenReturn(3L);
+
+        FiniteStateMachine finiteStateMachine = mock(FiniteStateMachine.class);
+        FiniteStateMachineUpdater finiteStateMachineUpdater = mock(FiniteStateMachineUpdater.class);
+        FiniteStateMachineUpdater.StateUpdater builder = mock(FiniteStateMachineUpdater.StateUpdater.class);
+        when(state.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(finiteStateMachine.startUpdate()).thenReturn(finiteStateMachineUpdater);
+        when(finiteStateMachineUpdater.state(anyString())).thenReturn(builder);
+        when(builder.complete()).thenReturn(state);
+
+        StageSet defaultStageSet = mock(StageSet.class);
+        when(usagePointLifeCycleConfigurationService.getDefaultStageSet()).thenReturn(defaultStageSet);
+        when(defaultStageSet.getStageByName(anyString())).thenReturn(Optional.of(stage));
+
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = UsagePointStage.Key.OPERATIONAL;
+        info.stage ="Stage";
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
         info.version = 2L;
@@ -266,31 +323,6 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         Response response = target("/lifecycle/12/states/4").request().put(json);
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save 'State'");
-        assertThat(model.<String>get("$.error")).isEqualTo("State has changed since the page was last updated.");
-    }
-
-    @Test
-    public void testEditStateConcurrentState() throws Exception {
-        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
-        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 2L)).thenReturn(Optional.empty());
-        when(usagePointLifeCycleConfigurationService.findUsagePointState(4L)).thenReturn(Optional.of(state));
-
-        UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
-        info.id = 4L;
-        info.name = "State";
-        info.stage = UsagePointStage.Key.OPERATIONAL;
-        info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
-        info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
-        info.version = 2L;
-        info.parent = new VersionInfo<>(12L, 4L);
-        Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
-
-        Response response = target("/lifecycle/12/states/4").request().put(json);
-        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save 'State'");
-        assertThat(model.<String>get("$.error")).isEqualTo("State has changed since the page was last updated.");
     }
 
     @Test
@@ -298,8 +330,14 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
         when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 3L)).thenReturn(Optional.of(state));
 
-        UsagePointState.UsagePointStateUpdater builder = FakeBuilder.initBuilderStub(state, UsagePointState.UsagePointStateUpdater.class, UsagePointState.UsagePointStateCreator.class);
-        when(state.startUpdate()).thenReturn(builder);
+        FiniteStateMachine finiteStateMachine = mock(FiniteStateMachine.class);
+        FiniteStateMachineUpdater finiteStateMachineUpdater = mock(FiniteStateMachineUpdater.class);
+        FiniteStateMachineUpdater.StateUpdater builder = mock(FiniteStateMachineUpdater.StateUpdater.class);
+        when(state.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(finiteStateMachine.startUpdate()).thenReturn(finiteStateMachineUpdater);
+        when(finiteStateMachineUpdater.state(anyString())).thenReturn(builder);
+        when(builder.complete()).thenReturn(state);
+
         when(state.getId()).thenReturn(4L);
         when(state.getName()).thenReturn("State");
         when(state.isInitial()).thenReturn(true);
@@ -308,7 +346,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = UsagePointStage.Key.OPERATIONAL;
+        info.stage = "Stage";
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -317,28 +355,6 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Number>get("$.id")).isEqualTo(4);
         assertThat(model.<Boolean>get("$.isInitial")).isEqualTo(true);
-        verify(builder).setInitial();
-    }
-
-    @Test
-    public void testSetInitialStateConcurrent() throws Exception {
-        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
-        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 2L)).thenReturn(Optional.empty());
-        when(usagePointLifeCycleConfigurationService.findUsagePointState(4L)).thenReturn(Optional.of(state));
-
-        UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
-        info.id = 4L;
-        info.name = "State";
-        info.stage = UsagePointStage.Key.OPERATIONAL;
-        info.version = 2L;
-        info.parent = new VersionInfo<>(12L, 4L);
-        Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
-
-        Response response = target("/lifecycle/12/states/4/status").request().put(json);
-        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-        assertThat(model.<String>get("$.message")).isEqualTo("Failed to save 'State'");
-        assertThat(model.<String>get("$.error")).isEqualTo("State has changed since the page was last updated.");
     }
 
     @Test
@@ -349,14 +365,13 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = UsagePointStage.Key.OPERATIONAL;
+        info.stage = "Stage";
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
 
         Response response = target("/lifecycle/12/states/4").request().build(HttpMethod.DELETE, json).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
-        verify(state).remove();
     }
 
     @Test
@@ -368,7 +383,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = UsagePointStage.Key.OPERATIONAL;
+        info.stage = "Stage";
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -377,30 +392,6 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(model.<String>get("$.error")).isEqualTo("State has changed since the page was last updated.");
-        verify(state, never()).remove();
     }
 
-    @Test
-    public void testRemoveStateFailCheck() throws Exception {
-        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointLifeCycleByIdAndVersion(12L, 4L)).thenReturn(Optional.of(lifeCycle));
-        when(usagePointLifeCycleConfigurationService.findAndLockUsagePointStateByIdAndVersion(4L, 3L)).thenReturn(Optional.of(state));
-        doThrow(UsagePointStateRemoveException.stateIsTheLastState(thesaurus)).when(state).remove();
-
-        UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
-        info.id = 4L;
-        info.name = "State";
-        info.stage = UsagePointStage.Key.OPERATIONAL;
-        info.version = 3L;
-        info.parent = new VersionInfo<>(12L, 4L);
-        Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
-
-        Response response = target("/lifecycle/12/states/4").request().build(HttpMethod.DELETE, json).invoke();
-        assertThat(response.getStatus()).isEqualTo(422); // why? it should be bad request!
-        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
-        assertThat(model.<String>get("$.message")).isNotNull();
-        assertThat(model.<Boolean>get("$.success")).isFalse();
-        assertThat(model.<String>get("$.error")).isEqualTo("can.not.remove.last.state");
-        verify(state).remove();
-    }
 }
-*/
