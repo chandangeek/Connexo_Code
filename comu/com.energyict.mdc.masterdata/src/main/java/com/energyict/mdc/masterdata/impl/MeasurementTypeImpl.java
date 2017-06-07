@@ -16,6 +16,8 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.energyict.obis.ObisCode;
 import com.energyict.cbo.Unit;
+
+import com.energyict.mdc.common.ValidObisCode;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
@@ -59,7 +61,7 @@ public abstract class MeasurementTypeImpl extends PersistentIdObject<Measurement
     }
 
     protected final MasterDataService masterDataService;
-
+    @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
     private ObisCode obisCodeCached;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String obisCode;
@@ -86,6 +88,9 @@ public abstract class MeasurementTypeImpl extends PersistentIdObject<Measurement
 
     @Override
     public void save () {
+        if(this.obisCodeCached == null){
+            this.getObisCode();
+        }
         super.save();
         this.synchronizeOldValues();
     }

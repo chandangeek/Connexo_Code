@@ -133,7 +133,7 @@ public class RegisterTypeImplTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}", strict = false)
     public void testCreateWithoutObisCode() {
         String registerTypeName = "testCreateWithoutObisCode";
         ReadingType readingType = inMemoryPersistence.getMeteringService()

@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ValidObisCode;
 import com.energyict.mdc.common.interval.Temporals;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -59,6 +60,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String obisCode;
     private String oldObisCode;
+    @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
     private ObisCode obisCodeCached;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @IncorrectTimeDuration(groups = {Save.Create.class, Save.Update.class})
@@ -135,6 +137,9 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
 
     @Override
     public void save() {
+        if(obisCodeCached == null && obisCode != null){
+            this.getObisCode();
+        }
         if (intervalChanged) {
             updateChannelTypeUsagesAccordingToNewInterval();
             this.intervalChanged = false;

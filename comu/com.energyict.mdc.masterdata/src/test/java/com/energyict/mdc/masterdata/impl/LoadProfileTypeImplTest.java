@@ -275,7 +275,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}", strict = false)
     public void testCreateWithoutObisCode() {
         MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
         TimeDuration interval = INTERVAL_15_MINUTES;

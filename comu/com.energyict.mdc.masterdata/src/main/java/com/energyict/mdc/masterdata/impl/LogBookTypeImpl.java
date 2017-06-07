@@ -11,6 +11,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.obis.ObisCode;
+
+import com.energyict.mdc.common.ValidObisCode;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 
@@ -51,6 +53,7 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String obisCode;
+    @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
     private ObisCode obisCodeCached;
     private String oldObisCode;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")

@@ -86,7 +86,7 @@ public class LogBookTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_UNIQUE + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_UNIQUE + "}", strict = false)
     public void testDuplicateLogBookType() {
         String logBookTypeName = "testDuplicateLogBookType";
         LogBookType logBookType;
@@ -105,7 +105,7 @@ public class LogBookTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}", strict = false)
     public void testLogBookTypeCreationWithoutObisCode() {
         String logBookTypeName = "testDuplicateLogBookType";
         LogBookType logBookType = PersistenceTest.inMemoryPersistence.getMasterDataService().newLogBookType(logBookTypeName, null);
