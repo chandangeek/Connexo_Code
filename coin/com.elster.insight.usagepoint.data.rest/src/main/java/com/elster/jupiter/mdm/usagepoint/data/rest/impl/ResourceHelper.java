@@ -446,4 +446,10 @@ public class ResourceHelper {
     public List<MeterRole> getMeterRoles() {
         return meteringService.getMeterRoles();
     }
+
+    public String formatDate(Instant date) {
+        DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService()
+                .getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
+        return dateTimeFormatter.format(LocalDateTime.ofInstant(date, ZoneId.systemDefault()));
+    }
 }

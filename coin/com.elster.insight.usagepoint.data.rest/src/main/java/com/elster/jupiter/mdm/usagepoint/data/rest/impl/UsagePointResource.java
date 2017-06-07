@@ -44,6 +44,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -530,6 +531,17 @@ public class UsagePointResource {
                         .findFirst()
                         .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetId));
                 validateCasValues(set, customPropertySetInfo);
+            } else {
+                UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findActiveUsagePointMetrologyConfigurationOrThrowException(info.id);
+                for (RegisteredCustomPropertySet customPropertySet : usagePointMetrologyConfiguration.getCustomPropertySets()) {
+                    UsagePointVersionedPropertySet propertySet = usagePoint.forCustomProperties().getVersionedPropertySet(customPropertySet.getId());
+                    if (!createNew && propertySet.getVersionValues(info.activationTime).isEmpty()) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.NO_CAS_VERSION_AT_DATE, "", resourceHelper.formatDate(info.activationTime));
+                    } else if (createNew && propertySet.getAllVersionValues().stream()
+                            .anyMatch(values -> values.getEffectiveRange().lowerEndpoint().isAfter(info.activationTime))) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.ANOTHER_CAS_VERSION_IN_THE_FUTURE, resourceHelper.formatDate(info.activationTime));
+                    }
+                }
             }
             return Response.accepted().build();
         }
@@ -537,29 +549,25 @@ public class UsagePointResource {
         applyMetrologyConfiguration(usagePoint, validationBuilder, info);
 
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
-            if (!createNew) {
-                resourceHelper.persistCustomProperties(usagePoint, customPropertySetInfo);
-            } else if (customPropertySetInfo.isVersioned && createNew) {
+            if (createNew && customPropertySetInfo.isVersioned) {
                 UsagePointVersionedPropertySet propertySet = usagePoint.forCustomProperties().getVersionedPropertySet(customPropertySetInfo.id);
-                CustomPropertySetValues existingVersion = propertySet.getValues();
-
+                CustomPropertySetValues existingVersion = propertySet.getVersionValues(info.activationTime);
                 if (existingVersion != null) {
-                    Range<Instant> existingRange = existingVersion.getEffectiveRange();
-                    if (!existingRange.hasUpperBound() && info.activationTime.isAfter(existingRange.lowerEndpoint())) {
-                        Range<Instant> range = Range.closedOpen(existingVersion.getEffectiveRange().lowerEndpoint(), info.activationTime);
-                        CustomPropertySetValues existingValues = CustomPropertySetValues.emptyDuring(range);
-                        copyPropertyValues(propertySet, existingValues, customPropertySetInfo);
-                        propertySet.setVersionValues(info.activationTime, existingValues);
-                        CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(info.activationTime);
-                        copyPropertyValues(propertySet, values, customPropertySetInfo);
-                        propertySet.setVersionValues(info.activationTime, values);
-                    } else {
-                        CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(info.activationTime);
-                        copyPropertyValues(propertySet, values, customPropertySetInfo);
-                        propertySet.setVersionValues(info.activationTime, values);
-                    }
+                    Range<Instant> range = Range.closedOpen(existingVersion.getEffectiveRange().lowerEndpoint(), info.activationTime);
+                    CustomPropertySetValues existingValues = CustomPropertySetValues.emptyDuring(range);
+                    copyPropertyValues(propertySet, existingValues, existingVersion);
+                    propertySet.setVersionValues(info.activationTime, existingValues);
+                    CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(info.activationTime);
+                    copyPropertyValues(propertySet, values, customPropertySetInfo);
+                    propertySet.setVersionValues(info.activationTime, values);
                 } else {
-                    resourceHelper.persistCustomProperties(usagePoint, customPropertySetInfo);
+                    Instant startTime = propertySet.getAllVersionValues().stream()
+                            .filter(values -> values.getEffectiveRange().hasUpperBound())
+                            .map(values -> values.getEffectiveRange().upperEndpoint()).max(Comparator.naturalOrder())
+                            .orElse(info.activationTime);
+                    CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(startTime);
+                    copyPropertyValues(propertySet, values, customPropertySetInfo);
+                    propertySet.setVersionValues(startTime, values);
                 }
             } else {
                 resourceHelper.persistCustomProperties(usagePoint, customPropertySetInfo);
@@ -586,7 +594,7 @@ public class UsagePointResource {
             } else {
                 usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime);
             }
-        } catch (UsagePointManagementException ex) {
+        } catch (LocalizedException ex) {
             validationBuilder.addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "metrologyConfiguration", ex.getMessageArgs())).validate();
         }
     }
@@ -1291,16 +1299,12 @@ public class UsagePointResource {
     }
 
     private void copyPropertyValues(UsagePointVersionedPropertySet from, CustomPropertySetValues to, CustomPropertySetInfo info) {
-        List<String> propertyNames = from.getCustomPropertySet().getPropertySpecs()
-                .stream()
-                .map(PropertySpec::getName)
-                .collect(Collectors.toList());
+        copyPropertyValues(from, to, customPropertySetInfoFactory.getCustomPropertySetValues(info, from.getCustomPropertySet().getPropertySpecs()));
+    }
 
-        for (String propertyName : propertyNames) {
-            CustomPropertySetValues fromValues = customPropertySetInfoFactory.getCustomPropertySetValues(info,
-                    from.getCustomPropertySet().getPropertySpecs());
-            Object property = fromValues.getProperty(propertyName);
-            to.setProperty(propertyName, property);
-        }
+    private void copyPropertyValues(UsagePointVersionedPropertySet from, CustomPropertySetValues to, CustomPropertySetValues fromValues) {
+        from.getCustomPropertySet().getPropertySpecs().stream()
+                .map(PropertySpec::getName)
+                .forEach(propertyName -> to.setProperty(propertyName, fromValues.getProperty(propertyName)));
     }
 }
