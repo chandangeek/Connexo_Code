@@ -10,7 +10,8 @@ import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
-    INVALID_VALUE(1, "CMN.InvalidValue", "Invalid value", Level.SEVERE);
+    INVALID_VALUE(1, "CMN.InvalidValue", "Invalid value", Level.SEVERE),
+    INVALID_OBIS_CODE(2,"CMN.InvalidObisCode","Invalid obis code", Level.SEVERE);
 
     public static final String COMPONENT_NAME = "CMN";
 
