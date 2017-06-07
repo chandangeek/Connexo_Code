@@ -18,9 +18,8 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
-import com.google.common.collect.Range;
-
 import javax.inject.Inject;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
@@ -30,6 +29,7 @@ import java.util.Optional;
 public class LogBookImpl implements ServerLogBookForConfigChange {
 
     private final DataModel dataModel;
+    private final Clock clock;
 
     enum FieldNames {
         LATEST_EVENT_OCCURRENCE_IN_METER("lastEventOccurrence"),
@@ -57,8 +57,9 @@ public class LogBookImpl implements ServerLogBookForConfigChange {
     private Instant modTime;
 
     @Inject
-    public LogBookImpl(DataModel dataModel) {
+    public LogBookImpl(DataModel dataModel, Clock clock) {
         this.dataModel = dataModel;
+        this.clock = clock;
     }
 
     LogBookImpl initialize(LogBookSpec logBookSpec, DeviceImpl device) {
@@ -130,7 +131,11 @@ public class LogBookImpl implements ServerLogBookForConfigChange {
     @Override
     public void setNewLogBookSpec(LogBookSpec logBookSpec) {
         this.logBookSpec.set(logBookSpec);
-        this.dataModel.update(this, "logBookSpec");
+        Instant now = Instant.now(clock);
+        if(this.latestEventAddition != null && this.latestEventAddition.isAfter(now)) {
+            this.latestEventAddition = now;
+        }
+        this.dataModel.update(this, "logBookSpec", "latestEventAddition");
     }
 
     abstract static class LogBookUpdater implements LogBook.LogBookUpdater {
