@@ -68,7 +68,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.InstallationTimeField', {
                         required: true,
                         layout: 'hbox',
                         valueInMilliseconds: true,
-                        value: new Date(),
                         dateConfig: {
                             width: 133
                         },
