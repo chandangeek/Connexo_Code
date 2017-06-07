@@ -324,6 +324,8 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         if (direction > 0) {
             if (stepView.xtype === 'cps-info-form') {
                 validationParams.customPropertySetId = stepView.getRecord().getId();
+            } else {
+                validationParams.createNew = buttonValue;
             }
             me.doRequest({
                 params: validationParams,
