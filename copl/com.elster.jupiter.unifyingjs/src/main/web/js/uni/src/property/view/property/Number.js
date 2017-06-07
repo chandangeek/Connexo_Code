@@ -110,6 +110,10 @@ Ext.define('Uni.property.view.property.Number', {
             return rule.get('allowDecimals');
         }
         return false;
+    },
+
+    getSortFunctionForPossibleValues: function() {
+        return function(a, b) { return a - b; };
     }
 
 });
