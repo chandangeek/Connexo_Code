@@ -21,7 +21,7 @@ public class DeviceAlarmShortInfoFactory {
         DeviceAlarmShortInfo info = new DeviceAlarmShortInfo();
         info.id = alarm.getId();
         info.title = alarm.getTitle();
-        info.status = deviceAlarmStatusInfoFactory.from(alarm.getStatus(), alarm.isStatusCleared(), null, null);
+        info.status = deviceAlarmStatusInfoFactory.from(alarm.getStatus(), alarm.getClearStatus().isCleared(), null, null);
         info.version = alarm.getVersion();
         return info;
     }
