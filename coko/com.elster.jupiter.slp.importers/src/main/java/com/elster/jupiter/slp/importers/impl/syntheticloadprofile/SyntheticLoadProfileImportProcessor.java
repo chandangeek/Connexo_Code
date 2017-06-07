@@ -32,6 +32,8 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
     private TemporalAmount interval;
     private ZoneId zoneId;
 
+    private final int SECONDS_IN_MINUTE = 60;
+
     SyntheticLoadProfileImportProcessor(String timeZone, SyntheticLoadProfileDataImporterContext context) {
         super(context);
         this.zoneId = ZoneId.from(TimeZonePropertySpec.format.parse(timeZone));
@@ -77,9 +79,8 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
                 String actualDateTime = DefaultDateTimeFormatters.shortDate().withShortTime().build().format(data.getTimeStamp().atZone(zoneId));
                 if (syntheticLoadProfile.getReadingType().getMacroPeriod().equals(MacroPeriod.DAILY) && data.getTimeStamp().atZone(zoneId).getHour() != 0) {
                     throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP, data.getLineNumber(), expectedDateTime, actualDateTime);
-                } else if (syntheticLoadProfile.getInterval().getUnits().contains(ChronoUnit.SECONDS) && data.getTimeStamp()
-                        .atZone(zoneId)
-                        .getMinute() % (syntheticLoadProfile.getInterval().get(ChronoUnit.MINUTES)) != 0) {
+                } else if (syntheticLoadProfile.getInterval().getUnits().contains(ChronoUnit.SECONDS)
+                        && data.getTimeStamp().atZone(zoneId).getMinute() % ((syntheticLoadProfile.getInterval().get(ChronoUnit.SECONDS)) / SECONDS_IN_MINUTE) != 0) {
                     throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_WRONG_FIRST_TIMESTAMP, data.getLineNumber(), expectedDateTime, actualDateTime);
                 }
                 if (data.getTimeStamp().atZone(zoneId).getSecond() != 0
