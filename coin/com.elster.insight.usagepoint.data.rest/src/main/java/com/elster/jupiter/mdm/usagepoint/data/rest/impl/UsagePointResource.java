@@ -44,6 +44,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -516,6 +517,11 @@ public class UsagePointResource {
                 .notEmpty(info.id, "id")
                 .notEmpty(info.name, "name");
         validationBuilder.validate();
+        new RestValidationBuilder()
+                .on(info.activationTime)
+                .check(startTime -> !usagePoint.getInstallationTime().isAfter(info.activationTime))
+                .field("metrologyConfiguration")
+                .message(MessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE).test().validate();
 
         if (validate) {
             if (customPropertySetId > 0) {
@@ -533,12 +539,17 @@ public class UsagePointResource {
             } else {
                 UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findActiveUsagePointMetrologyConfigurationOrThrowException(info.id);
                 for (RegisteredCustomPropertySet customPropertySet : usagePointMetrologyConfiguration.getCustomPropertySets()) {
-                    UsagePointVersionedPropertySet propertySet = usagePoint.forCustomProperties().getVersionedPropertySet(customPropertySet.getId());
-                    if (!createNew && propertySet.getVersionValues(info.activationTime).isEmpty()) {
-                        throw new LocalizedFieldValidationException(MessageSeeds.NO_CAS_VERSION_AT_DATE, "", resourceHelper.formatDate(info.activationTime));
-                    } else if (createNew && propertySet.getAllVersionValues().stream()
-                            .anyMatch(values -> values.getEffectiveRange().lowerEndpoint().isAfter(info.activationTime))) {
-                        throw new LocalizedFieldValidationException(MessageSeeds.ANOTHER_CAS_VERSION_IN_THE_FUTURE, resourceHelper.formatDate(info.activationTime));
+                    Optional<UsagePointVersionedPropertySet> propertySet = usagePoint.forCustomProperties().getAllPropertySets().stream()
+                            .filter(usagePointPropertySet -> usagePointPropertySet.getId() == customPropertySet.getId()
+                                    && usagePointPropertySet.getCustomPropertySet().isVersioned())
+                            .map(UsagePointVersionedPropertySet.class::cast)
+                            .findFirst();
+                    if (!createNew && !propertySet.filter(cps -> cps.getVersionValues(info.activationTime) != null).isPresent()) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.NO_CAS_VERSION_AT_DATE, "metrologyConfiguration", resourceHelper.formatDate(info.activationTime));
+                    } else if (createNew && propertySet
+                            .filter(cps -> cps.getAllVersionValues().stream().anyMatch(values -> values.getEffectiveRange().lowerEndpoint().isAfter(info.activationTime)))
+                            .isPresent()) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.ANOTHER_CAS_VERSION_IN_THE_FUTURE, "metrologyConfiguration", resourceHelper.formatDate(info.activationTime));
                     }
                 }
             }
@@ -593,7 +604,7 @@ public class UsagePointResource {
             } else {
                 usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime);
             }
-        } catch (UsagePointManagementException ex) {
+        } catch (LocalizedException ex) {
             validationBuilder.addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "metrologyConfiguration", ex.getMessageArgs())).validate();
         }
     }

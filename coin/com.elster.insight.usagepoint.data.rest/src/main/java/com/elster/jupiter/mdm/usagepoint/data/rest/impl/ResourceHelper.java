@@ -304,12 +304,10 @@ public class ResourceHelper {
         if (!meterActivationReadingTypes.isEmpty()) {
             List<String> metrologyPurposes = metrologyContracts.stream()
                     .filter(MetrologyContract::isMandatory)
-                    .filter(contract -> !contract.getRequirements()
+                    .filter(contract -> contract.getRequirements()
                             .stream()
-                            .filter(requirement -> meterActivationReadingTypes.stream()
-                                    .filter(requirement::matches).findAny().isPresent())
-                            .findAny()
-                            .isPresent())
+                            .noneMatch(requirement -> meterActivationReadingTypes.stream()
+                                    .anyMatch(requirement::matches)))
                     .map(MetrologyContract::getMetrologyPurpose)
                     .map(MetrologyPurpose::getName)
                     .collect(Collectors.toList());
@@ -335,30 +333,23 @@ public class ResourceHelper {
                             linker.clear(meterRole);
                         } else if (meterActivation.meter != null && !Checks.is(meterActivation.meter.name)
                                 .emptyOrOnlyWhiteSpace()) {
-                            replaceOrActivateMeter(linker, usagePoint, activationTime, meterActivation.meter.name, meterRole);
+                            replaceOrActivateMeter(linker, activationTime, meterActivation.meter.name, meterRole);
                         }
                     });
         } else {
-            usagePoint.getMeterActivations().stream()
-                    .forEach(m -> {
-                        Optional<MeterRole> meterRole = m.getMeterRole();
-                        if (meterRole.isPresent()) {
-                            validateUnlinkMeters(usagePoint, meterRole.get());
-                            linker.clear(meterRole.get());
-                        }
-                    });
+            usagePoint.getMeterActivations().forEach(meterActivation -> meterActivation.getMeterRole()
+                    .ifPresent(meterRole -> {
+                        validateUnlinkMeters(usagePoint, meterRole);
+                        linker.clear(meterRole);
+                    }));
         }
         linker.completeRemoveOrAdd();
     }
 
-    private void replaceOrActivateMeter(UsagePointMeterActivator linker, UsagePoint usagePoint, Instant activationTime, String meterName, MeterRole meterRole) {
+    private void replaceOrActivateMeter(UsagePointMeterActivator linker, Instant activationTime, String meterName, MeterRole meterRole) {
         Meter meter = findMeterByNameOrThrowException(meterName);
-        if (!usagePoint.getMeterActivations(activationTime).isEmpty()) {
-            linker.clear(activationTime, meterRole);
-            linker.activate(activationTime, meter, meterRole);
-        } else {
-            linker.activate(activationTime, meter, meterRole);
-        }
+        linker.clear(meterRole);
+        linker.activate(activationTime, meter, meterRole);
     }
 
     private void validateUnlinkMeters(UsagePoint usagePoint, MeterRole meterRole) {
@@ -379,9 +370,7 @@ public class ResourceHelper {
                     .stream()
                     .filter(meterActivation -> allRequirements
                         .stream()
-                        .filter(readingTypeRequirement -> !readingTypeRequirement.getMatchesFor(meterActivation.getChannelsContainer()).isEmpty())
-                        .findAny()
-                        .isPresent())
+                        .anyMatch(readingTypeRequirement -> !readingTypeRequirement.getMatchesFor(meterActivation.getChannelsContainer()).isEmpty()))
                     .findAny()
                     .ifPresent(meterActivation -> {
                         DateTimeFormatter dateTimeFormatter = userService.getUserPreferencesService().getDateTimeFormatter(threadPrincipalService.getPrincipal(), PreferenceType.LONG_DATE, PreferenceType.LONG_TIME);
