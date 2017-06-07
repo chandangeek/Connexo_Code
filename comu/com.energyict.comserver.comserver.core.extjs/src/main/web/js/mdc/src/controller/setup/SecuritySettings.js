@@ -440,7 +440,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
     showSecuritySettingsEditView: function (deviceTypeId, deviceConfigurationId, securitySettingId) {
         var me = this;
-
         me.currentDeviceTypeId = deviceTypeId;
         me.currentDeviceConfigurationId = deviceConfigurationId;
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
@@ -465,7 +464,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                                     securityAction: 'save'
                                 });
                                 me.configureProxyOfAllSecurityStores(securitySetting.get('securitySuiteId'));
-                                me.loadAllSecurityStores(false, me.deviceProtocolSupportSecuritySuites);
                                 container.down('form#myForm').loadRecord(securitySetting);
                                 var propertyForm = container.down('property-form');
                                 if (securitySetting.properties().count()) {
@@ -481,6 +479,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                                     container.createClientField(securitySetting.getClient());
                                 }
                                 me.getApplication().fireEvent('changecontentevent', container);
+                                me.loadAllSecurityStores(false, me.deviceProtocolSupportSecuritySuites);
                             }
                         });
                     }
@@ -530,6 +529,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 requestSecurityCombobox.hide();
                 responseSecurityCombobox.hide();
                 me.getFormPanel().resumeLayouts(true);
+                me.getFormPanel().resumeEvents();
             } else {
                 me.storeCounter = 2;
                 authenticationLevelStore.load();
