@@ -517,6 +517,11 @@ public class UsagePointResource {
                 .notEmpty(info.id, "id")
                 .notEmpty(info.name, "name");
         validationBuilder.validate();
+        new RestValidationBuilder()
+                .on(info.activationTime)
+                .check(startTime -> !usagePoint.getInstallationTime().isAfter(info.activationTime))
+                .field("metrologyConfiguration")
+                .message(MessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE).test().validate();
 
         if (validate) {
             if (customPropertySetId > 0) {
@@ -539,12 +544,12 @@ public class UsagePointResource {
                                     && usagePointPropertySet.getCustomPropertySet().isVersioned())
                             .map(UsagePointVersionedPropertySet.class::cast)
                             .findFirst();
-                    if (!createNew && !propertySet.filter(cps -> !cps.getVersionValues(info.activationTime).isEmpty()).isPresent()) {
-                        throw new LocalizedFieldValidationException(MessageSeeds.NO_CAS_VERSION_AT_DATE, "customPropertySets", resourceHelper.formatDate(info.activationTime));
+                    if (!createNew && !propertySet.filter(cps -> cps.getVersionValues(info.activationTime) != null).isPresent()) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.NO_CAS_VERSION_AT_DATE, "metrologyConfiguration", resourceHelper.formatDate(info.activationTime));
                     } else if (createNew && propertySet
                             .filter(cps -> cps.getAllVersionValues().stream().anyMatch(values -> values.getEffectiveRange().lowerEndpoint().isAfter(info.activationTime)))
                             .isPresent()) {
-                        throw new LocalizedFieldValidationException(MessageSeeds.ANOTHER_CAS_VERSION_IN_THE_FUTURE, "customPropertySets", resourceHelper.formatDate(info.activationTime));
+                        throw new LocalizedFieldValidationException(MessageSeeds.ANOTHER_CAS_VERSION_IN_THE_FUTURE, "metrologyConfiguration", resourceHelper.formatDate(info.activationTime));
                     }
                 }
             }
