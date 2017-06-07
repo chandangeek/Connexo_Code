@@ -15,4 +15,8 @@ public interface PropertyValueConverter {
     Object convertInfoToValue(PropertySpec propertySpec, Object infoValue);
 
     Object convertValueToInfo(PropertySpec propertySpec, Object domainValue);
+
+    default PropertyValidationRule getDefaultPropertyValidationRule(){
+        return null;
+    }
 }

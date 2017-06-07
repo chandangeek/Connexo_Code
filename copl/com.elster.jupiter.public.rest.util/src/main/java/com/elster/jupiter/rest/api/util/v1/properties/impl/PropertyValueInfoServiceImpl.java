@@ -74,8 +74,9 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService, M
 
     @Override
     public PropertyInfo getPropertyInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider) {
-        PropertyType propertyType = getConverter(propertySpec).getPropertyType(propertySpec);
-        PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo(propertyType, null, getPredefinedPropertyValueInfo(propertySpec, propertyType), null);
+        PropertyValueConverter converter = getConverter(propertySpec);
+        PropertyType propertyType = converter.getPropertyType(propertySpec);
+        PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo(propertyType, converter.getDefaultPropertyValidationRule(), getPredefinedPropertyValueInfo(propertySpec, propertyType), null);
         PropertyValueInfo propertyValueInfo = getPropertyValueInfo(propertySpec, propertyValueProvider);
         return new PropertyInfo(propertySpec.getDisplayName(), propertySpec.getName(), propertyValueInfo, propertyTypeInfo, propertySpec.isRequired());
     }

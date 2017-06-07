@@ -5,7 +5,9 @@
 package com.elster.jupiter.rest.api.util.v1.properties.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.api.util.v1.properties.NumberValidationRules;
 import com.elster.jupiter.rest.api.util.v1.properties.PropertyType;
+import com.elster.jupiter.rest.api.util.v1.properties.PropertyValidationRule;
 import com.elster.jupiter.rest.api.util.v1.properties.PropertyValueConverter;
 import com.elster.jupiter.rest.api.util.v1.properties.SimplePropertyType;
 
@@ -37,6 +39,14 @@ public class LongPropertyValueConverter implements PropertyValueConverter {
     @Override
     public Object convertValueToInfo(PropertySpec propertySpec, Object domainValue) {
         return domainValue;
+    }
+
+    @Override
+    public PropertyValidationRule getDefaultPropertyValidationRule() {
+        NumberValidationRules<Long> rules = new NumberValidationRules<>();
+        rules.setMinimumValue(Long.MIN_VALUE);
+        rules.setMaximumValue(Long.MAX_VALUE);
+        return rules;
     }
 
 }
