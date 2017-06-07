@@ -32,6 +32,7 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +49,7 @@ import static java.util.stream.Collectors.toList;
 public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
     private final DataModel dataModel;
+    private final Clock clock;
 
     @SuppressWarnings("unused")
     private long id;
@@ -64,9 +66,10 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
     private Instant modTime;
 
     @Inject
-    public LoadProfileImpl(DataModel dataModel) {
+    public LoadProfileImpl(DataModel dataModel, Clock clock) {
         super();
         this.dataModel = dataModel;
+        this.clock = clock;
     }
 
     LoadProfileImpl initialize(LoadProfileSpec loadProfileSpec, DeviceImpl device) {
@@ -157,7 +160,11 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
     @Override
     public void setNewLoadProfileSpec(LoadProfileSpec loadProfileSpec) {
         this.loadProfileSpec.set(loadProfileSpec);
-        this.dataModel.update(this, "loadProfileSpec");
+        Instant now = Instant.now(clock);
+        if(this.lastReading != null && this.lastReading.isAfter(now)) {
+            this.lastReading = now;
+        }
+        this.dataModel.update(this, "loadProfileSpec", "lastReading");
     }
 
     abstract static class LoadProfileUpdater implements LoadProfile.LoadProfileUpdater {

@@ -269,6 +269,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @SuppressWarnings("unused")
     private long id;
+    @Valid
     private List<ReadingTypeObisCodeUsageImpl> readingTypeObisCodeUsages = new ArrayList<>();
     private final Reference<DeviceType> deviceType = ValueReference.absent();
     @DeviceConfigurationIsPresentAndActive(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")

@@ -10,6 +10,8 @@ import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
+import com.google.common.collect.Range;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
@@ -29,7 +31,7 @@ public class SynchDeviceWithKoreForConfigurationChange extends AbstractSyncDevic
     @Override
     public void syncWithKore(DeviceImpl device) {
         this.setDevice(device);
-
+        removeDataInChannelsAfter(getStart());
         endCurrentMeterConfigurationIfPresent();
         createKoreMeterConfiguration();
         // create a new MeterActivation
@@ -37,6 +39,11 @@ public class SynchDeviceWithKoreForConfigurationChange extends AbstractSyncDevic
         MeterActivation activation = activateMeter(getStart());
         // add Kore Channels for all MDC Channels and registers
         addKoreChannelsIfNecessary(activation);
+    }
+
+    private void removeDataInChannelsAfter(Instant when) {
+        device.getMeterActivation(when).ifPresent(meterActivation -> meterActivation.getChannelsContainer().getChannels()
+                .forEach(channel -> channel.deleteReadings(Range.atLeast(when))));
     }
 
     @Override
