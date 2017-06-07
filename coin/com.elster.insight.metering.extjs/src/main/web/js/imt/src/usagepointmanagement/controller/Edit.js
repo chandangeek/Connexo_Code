@@ -89,9 +89,6 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             '#add-usage-point general-info-form #up-service-category-combo': {
                 change: me.onServiceCategoryChange
             },
-            '#add-usage-point general-info-form techinfo-installationtimefield #installation-time-date': {
-                change: me.onCreateTimeChange
-            },
             '#add-usage-point metrology-configuration-with-meters-info-form #metrology-configuration-combo': {
                 change: me.onMetrologyConfigurationChange
             },
@@ -544,7 +541,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                                 }
                             }
                         }
-                    )
+                    );
                     me.getWizard().down('calendar-info-form').add(
                         {
                             xtype: 'fieldcontainer',
