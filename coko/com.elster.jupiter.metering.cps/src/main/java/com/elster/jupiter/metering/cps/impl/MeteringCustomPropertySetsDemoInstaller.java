@@ -75,6 +75,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -470,15 +471,16 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
 
     void createSyntheticLoadProfiles(){
         TimeZone timeZone = TimeZone.getTimeZone(clock.getZone());
+        Instant startTime =  LocalDate.parse("2017-01-01").atStartOfDay().atZone(timeZone.toZoneId()).toInstant();
         ReadingType readingTypeDailyApluskWh = meteringService.getReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
                 .orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
-        syntheticLoadProfileService.newSyntheticLoadProfile("Loss factor", Period.ofYears(1), Instant.parse("2017-01-01T00:00:00Z"), readingTypeDailyApluskWh, timeZone)
+        syntheticLoadProfileService.newSyntheticLoadProfile("Loss factor", Period.ofYears(1), startTime, readingTypeDailyApluskWh, timeZone)
                 .withDescription("Loss factor")
                 .build();
 
         ReadingType readingTypeHourlyVolume = meteringService.getReadingType("0.0.7.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0")
                 .orElseGet(() -> meteringService.createReadingType("0.0.7.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0", "Hourly volume m³"));
-        syntheticLoadProfileService.newSyntheticLoadProfile("CCF", Period.ofMonths(1), Instant.parse("2017-01-01T00:00:00Z"), readingTypeHourlyVolume, timeZone)
+        syntheticLoadProfileService.newSyntheticLoadProfile("CCF", Period.ofMonths(1), startTime, readingTypeHourlyVolume, timeZone)
                 .withDescription("Climate Correction Factor")
                 .build();
     }
