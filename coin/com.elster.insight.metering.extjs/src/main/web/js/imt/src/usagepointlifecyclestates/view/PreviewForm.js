@@ -31,9 +31,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.PreviewForm', {
                 fieldLabel: Uni.I18n.translate('general.stage', 'IMT', 'Stage'),
                 name: 'stage',
                 renderer: function (value) {
-                    var stage = Ext.getStore('Imt.usagepointlifecycle.store.Stages').getById(value);
-
-                    return stage ? stage.get('name') : value;
+                    return value ? value.name : value;
                 }
             },
             {
