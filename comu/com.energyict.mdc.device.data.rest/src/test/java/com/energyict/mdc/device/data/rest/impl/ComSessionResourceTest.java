@@ -29,12 +29,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import org.junit.Test;
@@ -367,6 +362,12 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(comSession.getNumberOfFailedTasks()).thenReturn(1002);
         when(comSession.getNumberOfPlannedButNotExecutedTasks()).thenReturn(1003);
         when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Success);
+
+
+        Finder<ComSessionJournalEntry> finder = mockFinder(Collections.emptyList());
+        when(comSession.getJournalEntries(EnumSet.of(ComServer.LogLevel.ERROR))).thenReturn(finder);
+        Finder<ComSessionJournalEntry> finder2 = mockFinder(Collections.emptyList());
+        when(comSession.getJournalEntries(EnumSet.of(ComServer.LogLevel.WARN))).thenReturn(finder2);
         return comSession;
     }
 
