@@ -294,6 +294,7 @@ public enum TransitionType {
             return EnumSet.of(
                     MicroAction.DETACH_SLAVE_FROM_MASTER,
                     MicroAction.CLOSE_ALL_ISSUES,
+                    MicroAction.CLOSE_METER_ACTIVATION,
                     MicroAction.DISABLE_VALIDATION,
                     MicroAction.DISABLE_ESTIMATION,
                     MicroAction.DISABLE_COMMUNICATION,
@@ -321,6 +322,7 @@ public enum TransitionType {
             return EnumSet.of(
                     MicroAction.DETACH_SLAVE_FROM_MASTER,
                     MicroAction.CLOSE_ALL_ISSUES,
+                    MicroAction.CLOSE_METER_ACTIVATION,
                     MicroAction.DISABLE_VALIDATION,
                     MicroAction.DISABLE_ESTIMATION,
                     MicroAction.DISABLE_COMMUNICATION,
