@@ -67,10 +67,7 @@ Ext.define('Uni.property.view.property.Number', {
     },
 
     getComboCmp: function () {
-        var result = this.callParent(arguments);
-        result.fieldStyle = 'text-align:right;';
-
-        return result;
+        return this.callParent(arguments);
     },
 
     markInvalid: function (error) {

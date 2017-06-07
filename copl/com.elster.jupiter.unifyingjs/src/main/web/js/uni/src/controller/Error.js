@@ -72,7 +72,8 @@ Ext.define('Uni.controller.Error', {
         //</debug>
 
         var me = scope || this,
-            title;
+            title,
+            errorCode;
 
         if (Ext.isObject(error) && Ext.isDefined(error.title)) {
             title = error.title;
@@ -100,10 +101,10 @@ Ext.define('Uni.controller.Error', {
             error = error.msg;
         }
         if (Ext.isObject(error) && Ext.isDefined(error.errCode)) {
-            errCode = error.errCode;
+            errorCode = error.errCode;
         }
 
-        me.showError(title, error, errCode);
+        me.showError(title, error, errorCode);
     },
 
     handleRequestError: function (conn, response, options) {
@@ -425,11 +426,13 @@ Ext.define('Uni.controller.Error', {
                 msgClass.prototype.initComponent.apply(me, arguments);
                 me.down('displayfield').margin = '0px';
                 me.down('displayfield').fieldStyle = 'min-height: 0px';
-                var fieldErrorCode = new Ext.form.field.Display({
-                    value: sLabel + separator + errorCode,
-                    fieldStyle: 'margin: 0px'
-                });
-                me.promptContainer.insert(2, fieldErrorCode);
+                if (Ext.isDefined(errorCode)) {
+                    var fieldErrorCode = new Ext.form.field.Display({
+                        value: sLabel + separator + errorCode,
+                        fieldStyle: 'margin: 0px'
+                    });
+                    me.promptContainer.insert(2, fieldErrorCode);
+                }
             }
         });
         box.show(config);
