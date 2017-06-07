@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.domain.util.Save.CREATE;
@@ -128,6 +129,8 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     @SuppressWarnings("unused")
     private String userName;
 
+    private static final Logger LOG = Logger.getLogger(MetrologyConfigurationImpl.class.getName());
+
     @Inject
     MetrologyConfigurationImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, Clock clock, Publisher publisher) {
         this.dataModel = dataModel;
@@ -204,11 +207,12 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     private void checkLinkedUsagePoints() {
-        if (!metrologyConfigurationService.getDataModel()
+        List<EffectiveMetrologyConfigurationOnUsagePoint> linkedUsagePoints = metrologyConfigurationService.getDataModel()
                 .query(EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class)
                 .select(where("metrologyConfiguration").isEqualTo(this)
-                        .and(where("interval").isEffective()), Order.NOORDER, false, null, 1, 1)
-                .isEmpty()) {
+                        .and(where("interval").isEffective()), Order.NOORDER, false, null, 1, 1);
+        if (!linkedUsagePoints.isEmpty()) {
+            LOG.warning("The metrology configuration is still used by at least one usage point: " + linkedUsagePoints.get(0).getUsagePoint().getName());
             throw new CannotDeactivateMetrologyConfiguration(this.metrologyConfigurationService.getThesaurus());
         }
     }
