@@ -24,16 +24,16 @@ Ext.define('Dal.model.Alarm', {
         {
             name: 'statusDetail',
             convert: function (value, rec) {
-                if (rec.get('clearedStatus'))
+                if (rec.get('clearedStatus').statusValue)
                     return Ext.String.format(Uni.I18n.translate('device.alarms.statusDetail', 'DAL', '{0} has been cleared on {1}'),
-                        rec.get('alarmId'), Uni.DateTime.formatDateTimeShort(new Date(rec.get('dueDate'))));
+                        rec.get('alarmId'), Uni.DateTime.formatDateTimeShort(new Date(rec.get('clearedStatus').statusChangeDateTime)));
                 return '';
             }
         },
         {
             name: 'cleared',
             convert: function (value, rec) {
-                return rec.get('clearedStatus') ? Uni.I18n.translate('device.alarms.cleared.yes', 'DAL', 'Yes') : Uni.I18n.translate('device.alarms.cleared.no', 'DAL', 'No');
+                return rec.get('clearedStatus').statusValue ? Uni.I18n.translate('device.alarms.cleared.yes', 'DAL', 'Yes') : Uni.I18n.translate('device.alarms.cleared.no', 'DAL', 'No');
             }
         },
         {name: 'userAssignee', type: 'auto'},
