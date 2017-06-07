@@ -67,7 +67,7 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
             SyntheticLoadProfile syntheticLoadProfile = findSyntheticLoadProfile(entry.getKey());
             if (syntheticLoadProfile.getStartTime().isAfter(data.getTimeStamp())) {
                 throw new ProcessorException(MessageSeeds.CORRECTIONFACTOR_TIMESTAMP_BEFORE_STARTTIME, data.getLineNumber(),
-                        DefaultDateTimeFormatters.shortDate().withShortTime().build().format(syntheticLoadProfile.getStartTime()));
+                        DefaultDateTimeFormatters.shortDate().withShortTime().build().format(syntheticLoadProfile.getStartTime().atZone(zoneId)));
             }
             //Check for wrong interval of data (current timestamp minus previous timestamp is not equal to 'Interval' of all of the synthetic load profiles specified in the file)
             if (previousTimeStamp != null && !previousTimeStamp.plus(getInterval(data)).equals(LocalDateTime.ofInstant(data.getTimeStamp(), zoneId))) {
