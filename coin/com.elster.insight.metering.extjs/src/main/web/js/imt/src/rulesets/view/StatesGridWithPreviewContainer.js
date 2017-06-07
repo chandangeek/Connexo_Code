@@ -31,6 +31,7 @@ Ext.define('Imt.rulesets.view.StatesGridWithPreviewContainer',{
                         boxLabel: Uni.I18n.translate('general.allUsagePointStates', 'IMT', 'All usage point states'),
                         name: 'states',
                         inputValue: 'all',
+                        itemId: 'add-metrology-purpose-all-states',
                         checked: true,
                         id: 'all-states'
                     },
@@ -39,6 +40,7 @@ Ext.define('Imt.rulesets.view.StatesGridWithPreviewContainer',{
                         name: 'states',
                         inputValue: 'selected',
                         id: 'selected-states',
+                        itemId: 'add-metrology-purpose-selected-states',
                         listeners: {
                             change: function(fld, newValue, oldValue, eOpts){
                                 var statesGrid = me.down('#add-usage-point-states-grid');
