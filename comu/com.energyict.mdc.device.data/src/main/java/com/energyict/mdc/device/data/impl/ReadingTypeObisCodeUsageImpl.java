@@ -4,12 +4,15 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.obis.ObisCode;
+
+import com.energyict.mdc.common.ValidObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 
@@ -40,6 +43,8 @@ public class ReadingTypeObisCodeUsageImpl implements ReadingTypeObisCodeUsage {
     @IsPresent
     private Reference<Device> device = ValueReference.absent();
     private String obisCodeString;
+    @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
+    private ObisCode obisCode;
     private DataModel dataModel;
     private String userName;
     private long version;
@@ -54,6 +59,7 @@ public class ReadingTypeObisCodeUsageImpl implements ReadingTypeObisCodeUsage {
     public ReadingTypeObisCodeUsageImpl initialize(Device device, ReadingType readingType, ObisCode obisCode) {
         this.device.set(device);
         this.readingType.set(readingType);
+        this.obisCode = obisCode;
         this.obisCodeString = obisCode.toString();
         return this;
     }
