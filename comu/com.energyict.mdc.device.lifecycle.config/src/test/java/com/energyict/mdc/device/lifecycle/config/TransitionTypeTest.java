@@ -185,13 +185,14 @@ public class TransitionTypeTest {
     }
     @Test
     public void testMandatoryPreTransitionActionsDeActivateAndDecommission(){
-        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.requiredActions()).hasSize(6);
+        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.requiredActions()).hasSize(7);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.requiredActions()).contains(MicroAction.DETACH_SLAVE_FROM_MASTER);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.requiredActions()).contains(MicroAction.CLOSE_ALL_ISSUES);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.requiredActions()).contains(MicroAction.DISABLE_VALIDATION);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.requiredActions()).contains(MicroAction.DISABLE_ESTIMATION);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.requiredActions()).contains(MicroAction.DISABLE_COMMUNICATION);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.requiredActions()).contains(MicroAction.REMOVE_LOCATION);
+        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.requiredActions()).contains(MicroAction.CLOSE_METER_ACTIVATION);
     }
     @Test
     public void testOptionalPreTransitionActionsDeactivateAndDecommission(){
@@ -225,13 +226,14 @@ public class TransitionTypeTest {
     }
     @Test
     public void testMandatoryPreTransitionActionsDecommission(){
-        assertThat(TransitionType.DECOMMISSION.requiredActions()).hasSize(6);
+        assertThat(TransitionType.DECOMMISSION.requiredActions()).hasSize(7);
         assertThat(TransitionType.DECOMMISSION.requiredActions()).contains(MicroAction.DETACH_SLAVE_FROM_MASTER);
         assertThat(TransitionType.DECOMMISSION.requiredActions()).contains(MicroAction.CLOSE_ALL_ISSUES);
         assertThat(TransitionType.DECOMMISSION.requiredActions()).contains(MicroAction.DISABLE_VALIDATION);
         assertThat(TransitionType.DECOMMISSION.requiredActions()).contains(MicroAction.DISABLE_ESTIMATION);
         assertThat(TransitionType.DECOMMISSION.requiredActions()).contains(MicroAction.DISABLE_COMMUNICATION);
         assertThat(TransitionType.DECOMMISSION.requiredActions()).contains(MicroAction.REMOVE_LOCATION);
+        assertThat(TransitionType.DECOMMISSION.requiredActions()).contains(MicroAction.CLOSE_METER_ACTIVATION);
     }
     @Test
     public void testMandatoryPreTransitionChecksInstallAndActivate(){
