@@ -6,7 +6,6 @@ package com.energyict.mdc.processes.keyrenewal.api;
 
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -57,29 +56,19 @@ public class DeviceResource {
         Device device = null;
         try (TransactionContext context = transactionService.getContext()) {
             try {
-                device = deviceService.findDeviceByMrid(mRID)
-                        .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
-                EndDevice endDevice = meteringService.findEndDeviceByMRID(mRID)
-                        .orElseThrow((exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE)));
-
-                serviceCall = serviceCallCommands.createRenewKeyServiceCall(Optional.of(device), deviceCommandInfo);
-                serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
-                serviceCallCommands.requestTransition(serviceCall, DefaultState.ONGOING);    // Immediately transit to 'ONGOING' state
+                device = findDeviceByMridOrThrowException(mRID);
+                EndDevice endDevice = findEndDeviceByMridOrThrowException(mRID);
+                serviceCall = createRenewKeyServiceCallAndTransition(deviceCommandInfo, device);
                 validateDeviceCommandInfo(serviceCall, deviceCommandInfo);
-                //for (EndDevice endDevice : endDevices) {
+
                 serviceCall.log(LogLevel.INFO, "Handling operations for end device with MRID " + endDevice.getMRID());
                 headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, device);
-                //}
                 serviceCallCommands.requestTransition(serviceCall, DefaultState.WAITING);
+
                 context.commit();
                 return Response.accepted().build();
             } catch (RuntimeException e) {
-                if (serviceCall == null) {
-                    serviceCall = serviceCallCommands.createRenewKeyServiceCall(Optional.ofNullable(device), deviceCommandInfo);
-                }
-                serviceCallCommands.rejectServiceCall(serviceCall, e.getMessage() != null ? e.getMessage() : e.toString());
-                context.commit();
-                return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+                return handleException(deviceCommandInfo, serviceCall, device, context, e);
             }
         }
     }
@@ -93,35 +82,48 @@ public class DeviceResource {
         Device device = null;
         try (TransactionContext context = transactionService.getContext()) {
             try {
-                device = deviceService.findDeviceByMrid(mRID)
-                        .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
-                EndDevice endDevice = meteringService.findEndDeviceByMRID(mRID)
-                        .orElseThrow((exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE)));
-
-                serviceCall = serviceCallCommands.createRenewKeyServiceCall(Optional.of(device), deviceCommandInfo);
-                serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
-                serviceCallCommands.requestTransition(serviceCall, DefaultState.ONGOING);    // Immediately transit to 'ONGOING' state
+                device = findDeviceByMridOrThrowException(mRID);
+                EndDevice endDevice = findEndDeviceByMridOrThrowException(mRID);
+                serviceCall = createRenewKeyServiceCallAndTransition(deviceCommandInfo, device);
                 validateDeviceCommandInfo(serviceCall, deviceCommandInfo);
-                //for (EndDevice endDevice : endDevices) {
-                serviceCall.log(LogLevel.INFO, "Handling operations for end device with MRID " + endDevice.getMRID());
+
+                serviceCall.log(LogLevel.INFO, "Performing test comminication for end device with MRID " + endDevice.getMRID());
                 headEndController.performTestCommunication(endDevice, serviceCall, deviceCommandInfo, device);
-                //}
                 serviceCallCommands.requestTransition(serviceCall, DefaultState.WAITING);
+
                 context.commit();
                 return Response.accepted().build();
             } catch (RuntimeException e) {
-                if (serviceCall == null) {
-                    serviceCall = serviceCallCommands.createRenewKeyServiceCall(Optional.ofNullable(device), deviceCommandInfo);
-                }
-                serviceCallCommands.rejectServiceCall(serviceCall, e.getMessage() != null ? e.getMessage() : e.toString());
-                context.commit();
-                return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+                return handleException(deviceCommandInfo, serviceCall, device, context, e);
             }
         }
     }
 
-    private HeadEndInterface getHeadEndInterface(EndDevice endDevice) {
-        return endDevice.getHeadEndInterface().orElseThrow(exceptionFactory.newExceptionSupplier(com.energyict.mdc.processes.keyrenewal.api.MessageSeeds.NO_HEAD_END_INTERFACE, endDevice.getMRID()));
+    private ServiceCall createRenewKeyServiceCallAndTransition(DeviceCommandInfo deviceCommandInfo, Device device) {
+        ServiceCall serviceCall;
+        serviceCall = serviceCallCommands.createRenewKeyServiceCall(Optional.of(device), deviceCommandInfo);
+        serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
+        serviceCallCommands.requestTransition(serviceCall, DefaultState.ONGOING);
+        return serviceCall;
+    }
+
+    private Device findDeviceByMridOrThrowException(String mRID) {
+        return deviceService.findDeviceByMrid(mRID)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+    }
+
+    private EndDevice findEndDeviceByMridOrThrowException(String mRID) {
+        return meteringService.findEndDeviceByMRID(mRID)
+                .orElseThrow((exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE)));
+    }
+
+    private Response handleException(DeviceCommandInfo deviceCommandInfo, ServiceCall serviceCall, Device device, TransactionContext context, RuntimeException e) {
+        if (serviceCall == null) {
+            serviceCall = serviceCallCommands.createRenewKeyServiceCall(Optional.ofNullable(device), deviceCommandInfo);
+        }
+        serviceCallCommands.rejectServiceCall(serviceCall, e.getMessage() != null ? e.getMessage() : e.toString());
+        context.commit();
+        return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
     }
 
     /**
