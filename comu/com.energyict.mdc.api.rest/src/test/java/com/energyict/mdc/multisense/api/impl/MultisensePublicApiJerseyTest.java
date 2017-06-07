@@ -50,10 +50,14 @@ import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
@@ -65,6 +69,7 @@ import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -105,12 +110,21 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
+import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
+import com.energyict.mdc.protocol.api.security.SecuritySuite;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.CXOAuthenticationLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.CXOEncryptionLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.CXORequestSecurityLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.CXOResponseSecurityLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.CXOSecuritySuiteAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLRequestSecurityLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLResponseSecurityLevelAdapter;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLSecuritySuiteLevelAdapter;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ClockTask;
@@ -121,6 +135,7 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
 
 import javax.ws.rs.core.Application;
 import java.math.BigDecimal;
@@ -134,6 +149,7 @@ import java.util.Currency;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -148,6 +164,7 @@ import static org.mockito.Matchers.longThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTest {
     private static final String MANUFACTURER = "The Manufacturer";
@@ -155,6 +172,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     private static final String MODELVERSION = "The modelVersion";
     private static final Pattern MRID_PATTERN = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
     private static final String MRID_REPLACEMENT = "$1-$2-$3-$4-$5";
+    private static final int UNUSED_SECURITY_ACCESS_LEVEL = -1;
     @Mock
     DeviceService deviceService;
     @Mock
@@ -179,8 +197,6 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
     Clock clock;
-
-    static ProtocolPluggableService protocolPluggableService;
     @Mock
     SchedulingService schedulingService;
     @Mock
@@ -194,11 +210,12 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     @Mock
     MetrologyConfigurationService metrologyConfigurationService;
     @Mock
-    PropertyValueInfoService propertyValueInfoService;
-    @Mock
     DeviceAlarmService deviceAlarmService;
     @Mock
     ThreadPrincipalService threadPrincipalService;
+
+    static ProtocolPluggableService protocolPluggableService;
+    static PropertyValueInfoService propertyValueInfoService;
 
 
     @BeforeClass
@@ -211,7 +228,35 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel.class))).thenAnswer(invocation -> {
             Object[] args = invocation.getArguments();
             return new UPLEncryptionLevelAdapter((com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel) args[0]);
-        })        ;
+        });
+        when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.SecuritySuite.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new UPLSecuritySuiteLevelAdapter((com.energyict.mdc.upl.security.SecuritySuite) args[0]);
+        });
+        when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.RequestSecurityLevel.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new UPLRequestSecurityLevelAdapter((com.energyict.mdc.upl.security.RequestSecurityLevel) args[0]);
+        });
+        when(protocolPluggableService.adapt(any(com.energyict.mdc.upl.security.ResponseSecurityLevel.class))).thenAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            return new UPLResponseSecurityLevelAdapter((com.energyict.mdc.upl.security.ResponseSecurityLevel) args[0]);
+        });
+    }
+
+    @BeforeClass
+    public static void initializePropertyValueInfoServiceMock() throws Exception {
+        propertyValueInfoService = mock(PropertyValueInfoService.class);
+        when(propertyValueInfoService.getPropertyInfo(any(PropertySpec.class), any(Function.class))).thenAnswer(invocation -> {
+            String propertyName = invocation.getArguments()[0] != null ? ((PropertySpec) invocation.getArguments()[0]).getName() : "property";
+            Object value = invocation.getArguments()[1] != null ? ((Function) invocation.getArguments()[1]).apply(propertyName) : "";
+            if (value instanceof BigDecimal) {
+                Integer propertyValue = invocation.getArguments()[1] != null ? ((BigDecimal) value).intValue() : null;
+                return new PropertyInfo("Property", "Property", new PropertyValueInfo<>(propertyValue, null), new PropertyTypeInfo(), false);
+            } else {
+                String propertyValue = invocation.getArguments()[1] != null ? value.toString() : null;
+                return new PropertyInfo("Property", "Property", new PropertyValueInfo<>(propertyValue, null), new PropertyTypeInfo(), false);
+            }
+        });
     }
 
     @Override
@@ -297,6 +342,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(deviceService.findAndLockDeviceByIdAndVersion(eq(deviceId), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
         when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(mRID), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
         when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(mRID), eq(version))).thenReturn(Optional.of(mock));
+        DeviceType deviceType = mockDeviceType(99L, "Device type for " + serial, 1L);
+        when(mock.getDeviceType()).thenReturn(deviceType);
         when(mock.getVersion()).thenReturn(version);
         return mock;
     }
@@ -568,20 +615,42 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     DeviceProtocolPluggableClass mockPluggableClass(long id, String name, String version,
                                                     List<AuthenticationDeviceAccessLevel> authAccessLvls,
                                                     List<EncryptionDeviceAccessLevel> encAccessLvls) {
+        return mockPluggableClass(id, name, version, authAccessLvls, encAccessLvls, Collections.<SecuritySuite>emptyList(), Collections.<RequestSecurityLevel>emptyList(), Collections.<ResponseSecurityLevel>emptyList());
+    }
+
+    DeviceProtocolPluggableClass mockPluggableClass(long id, String name, String version,
+                                                    List<AuthenticationDeviceAccessLevel> authAccessLvls,
+                                                    List<EncryptionDeviceAccessLevel> encAccessLvls,
+                                                    List<SecuritySuite> securitySuites,
+                                                    List<RequestSecurityLevel> requestSecurityLvls,
+                                                    List<ResponseSecurityLevel> responseSecurityLevels) {
         DeviceProtocolPluggableClass mock = mock(DeviceProtocolPluggableClass.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
         when(mock.getJavaClassName()).thenReturn("com.energyict.prot." + name + ".class");
         when(mock.getVersion()).thenReturn(version);
         when(protocolPluggableService.findDeviceProtocolPluggableClass(id)).thenReturn(Optional.of(mock));
-        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class, withSettings().extraInterfaces(AdvancedDeviceProtocolSecurityCapabilities.class));
         List<com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel> adaptedAuthLevels = authAccessLvls.stream().map(CXOAuthenticationLevelAdapter::new).collect(Collectors.toList());
         List<com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel> adaptedEncrLevels = encAccessLvls.stream().map(CXOEncryptionLevelAdapter::new).collect(Collectors.toList());
+        List<com.energyict.mdc.upl.security.SecuritySuite> adaptedSecuritySuites = securitySuites.stream().map(CXOSecuritySuiteAdapter::new).collect(Collectors.toList());
+        List<com.energyict.mdc.upl.security.RequestSecurityLevel> adaptedRequestSecurityLevels = requestSecurityLvls.stream().map(CXORequestSecurityLevelAdapter::new).collect(Collectors.toList());
+        List<com.energyict.mdc.upl.security.ResponseSecurityLevel> adaptedResponseSecurityLevels = responseSecurityLevels.stream().map(CXOResponseSecurityLevelAdapter::new).collect(Collectors.toList());
 
         when(deviceProtocol.getAuthenticationAccessLevels()).thenReturn(adaptedAuthLevels);
         when(deviceProtocol.getEncryptionAccessLevels()).thenReturn(adaptedEncrLevels);
+        when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getSecuritySuites()).thenReturn(adaptedSecuritySuites);
+        when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getRequestSecurityLevels()).thenReturn(adaptedRequestSecurityLevels);
+        when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getResponseSecurityLevels()).thenReturn(adaptedResponseSecurityLevels);
         when(mock.getDeviceProtocol()).thenReturn(deviceProtocol);
 
+        return mock;
+    }
+
+    SecuritySuite mockSecuritySuite(int id) {
+        SecuritySuite mock = mock(SecuritySuite.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getTranslation()).thenReturn("Proper name for " + id);
         return mock;
     }
 
@@ -596,6 +665,24 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
 
     EncryptionDeviceAccessLevel mockEncryptionAccessLevel(int id) {
         EncryptionDeviceAccessLevel mock = mock(EncryptionDeviceAccessLevel.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getTranslation()).thenReturn("Proper name for " + id);
+        PropertySpec propertySpec = mockBigDecimalPropertySpec();
+        when(mock.getSecurityProperties()).thenReturn(Collections.singletonList(propertySpec));
+        return mock;
+    }
+
+    RequestSecurityLevel mockRequestSecurityDeviceAccessLevel(int id) {
+        RequestSecurityLevel mock = mock(RequestSecurityLevel.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getTranslation()).thenReturn("Proper name for " + id);
+        PropertySpec propertySpec = mockBigDecimalPropertySpec();
+        when(mock.getSecurityProperties()).thenReturn(Collections.singletonList(propertySpec));
+        return mock;
+    }
+
+    ResponseSecurityLevel mockResponseSecurityDeviceAccessLevel(int id) {
+        ResponseSecurityLevel mock = mock(ResponseSecurityLevel.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getTranslation()).thenReturn("Proper name for " + id);
         PropertySpec propertySpec = mockBigDecimalPropertySpec();
@@ -693,16 +780,46 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return scheduledComTaskExecution;
     }
 
-    protected SecurityPropertySet mockSecurityPropertySet(long id, DeviceConfiguration deviceConfiguration, String name, EncryptionDeviceAccessLevel encryptionDeviceAccessLevel, AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel, long version) {
+    protected SecurityPropertySet mockSecurityPropertySet(long id, DeviceConfiguration deviceConfiguration, String name, int client, EncryptionDeviceAccessLevel encryptionDeviceAccessLevel, AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel, String configurationSecurityPropertyName, long keyAccessorTypeId, long version) {
+        SecuritySuite securitySuite = mock(SecuritySuite.class);
+        RequestSecurityLevel requestSecurityLevel = mock(RequestSecurityLevel.class);
+        ResponseSecurityLevel responseSecurityLevel = mock(ResponseSecurityLevel.class);
+        when(securitySuite.getId()).thenReturn(UNUSED_SECURITY_ACCESS_LEVEL);
+        when(requestSecurityLevel.getId()).thenReturn(UNUSED_SECURITY_ACCESS_LEVEL);
+        when(responseSecurityLevel.getId()).thenReturn(UNUSED_SECURITY_ACCESS_LEVEL);
+        return mockSecurityPropertySet(id, deviceConfiguration, name, client, securitySuite, encryptionDeviceAccessLevel, authenticationDeviceAccessLevel, requestSecurityLevel, responseSecurityLevel, configurationSecurityPropertyName, keyAccessorTypeId, version);
+    }
+
+    protected SecurityPropertySet mockSecurityPropertySet(long id, DeviceConfiguration deviceConfiguration, String name, int client,
+                                                          SecuritySuite securitySuite,
+                                                          EncryptionDeviceAccessLevel encryptionDeviceAccessLevel,
+                                                          AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel,
+                                                          RequestSecurityLevel requestSecurityLevel,
+                                                          ResponseSecurityLevel responseSecurityLevel,
+                                                          String configurationSecurityPropertyName, long keyAccessorTypeId, long version) {
         SecurityPropertySet mock = mock(SecurityPropertySet.class);
         when(mock.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         PropertySpec stringPropertySpec = mockStringPropertySpec();
+        PropertySpec bigDecimalPropertySpec = mockBigDecimalPropertySpec();
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
         when(mock.getPropertySpecs()).thenReturn(Collections.singleton(stringPropertySpec));
+        when(mock.getSecuritySuite()).thenReturn(securitySuite);
         when(mock.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
         when(mock.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
+        when(mock.getRequestSecurityLevel()).thenReturn(requestSecurityLevel);
+        when(mock.getResponseSecurityLevel()).thenReturn(responseSecurityLevel);
         when(mock.getVersion()).thenReturn(version);
+        when(mock.getClient()).thenReturn(BigDecimal.valueOf(client));
+        when(mock.getClientSecurityPropertySpec()).thenReturn(Optional.of(bigDecimalPropertySpec));
+        ConfigurationSecurityProperty configurationSecurityProperty = mock(ConfigurationSecurityProperty.class);
+        when(configurationSecurityProperty.getName()).thenReturn(configurationSecurityPropertyName);
+        KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+        when(keyAccessorType.getName()).thenReturn(configurationSecurityPropertyName);
+        when(keyAccessorType.getId()).thenReturn(keyAccessorTypeId);
+        when(configurationSecurityProperty.getKeyAccessorType()).thenReturn(keyAccessorType);
+        when(mock.getConfigurationSecurityProperties()).thenReturn(Collections.singletonList(configurationSecurityProperty));
+
         when(deviceConfigurationService.findSecurityPropertySet(id)).thenReturn(Optional.of(mock));
         when(deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(eq(id), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
         when(deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(id, version)).thenReturn(Optional.of(mock));

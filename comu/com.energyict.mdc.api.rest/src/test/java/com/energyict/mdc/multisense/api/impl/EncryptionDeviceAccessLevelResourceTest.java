@@ -4,24 +4,22 @@
 
 package com.energyict.mdc.multisense.api.impl;
 
-import com.elster.jupiter.properties.rest.PropertyInfo;
-import com.elster.jupiter.properties.rest.PropertyTypeInfo;
-import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.CXOEncryptionLevelAdapter;
+
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -31,8 +29,6 @@ public class EncryptionDeviceAccessLevelResourceTest extends MultisensePublicApi
     public void testAllGetEncryptionDeviceAccessLevelsPaged() throws Exception {
         EncryptionDeviceAccessLevel accessLevel = mockEncryptionAccessLevel(2);
         mockPluggableClass(77, "WebRTU", "1.2.3.4", Collections.emptyList(), Collections.singletonList(accessLevel));
-        PropertyInfo propertyInfo = new PropertyInfo("name", "name", new PropertyValueInfo<>("value", null), new PropertyTypeInfo(), false);
-        when(propertyValueInfoService.getPropertyInfo(any(), any())).thenReturn(propertyInfo);
         Response response = target("/pluggableclasses/77/encryptionaccesslevels").queryParam("start", 0).queryParam("limit", 10).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());

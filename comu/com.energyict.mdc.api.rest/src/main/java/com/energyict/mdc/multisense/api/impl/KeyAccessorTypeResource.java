@@ -14,7 +14,13 @@ import com.energyict.mdc.multisense.api.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -23,7 +29,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-@Path("/devices/{mrId}/keyAccessorTypes")
+@Path("/devices/{mrid}/keyAccessorTypes")
 public class KeyAccessorTypeResource {
 
     private final KeyAccessorTypeInfoFactory keyAccessorTypeInfoFactory;
@@ -39,8 +45,8 @@ public class KeyAccessorTypeResource {
 
     /**
      * Renews the keys for the devices for the given key accessor type.
-     *
-     * @param mrId              mRID of device for which the key will be updated
+     *                                   K
+     * @param mrid              mRID of device for which the key will be updated
      * @param keyAccessorTypeId Identifier of the key accessor type
      * @param uriInfo           uriInfo
      * @summary renews the key for the device / keyAccessorType
@@ -51,10 +57,10 @@ public class KeyAccessorTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Path("/{keyAccessorTypeId}/renew")
-    public Response renewKey(@PathParam("mrId") String mrId, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
+    public Response renewKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
                              @Context UriInfo uriInfo) {
 
-        Device device = deviceService.findDeviceByMrid(mrId)
+        Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
         KeyAccessorType keyAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
         device.getKeyAccessor(keyAccessorType).get().renew();
@@ -64,7 +70,7 @@ public class KeyAccessorTypeResource {
     /**
      * Switch the keys for the devices for the given key accessor type.
      *
-     * @param mrId              mRID of device for which the key will be updated
+     * @param mrid              mRID of device for which the key will be updated
      * @param keyAccessorTypeId Identifier of the key accessor type
      * @param uriInfo           uriInfo
      * @summary switches the keys for the device / keyAccessorType (temp - actual)
@@ -75,10 +81,10 @@ public class KeyAccessorTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Path("/{keyAccessorTypeId}/switch")
-    public Response switchKey(@PathParam("mrId") String mrId, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
+    public Response switchKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
                              @Context UriInfo uriInfo) {
 
-        Device device = deviceService.findDeviceByMrid(mrId)
+        Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
         KeyAccessorType keyAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
         device.getKeyAccessor(keyAccessorType).get().swapValues();
@@ -89,7 +95,7 @@ public class KeyAccessorTypeResource {
     /**
      * Clears the temp value of the keys for the devices for the given key accessor type.
      *
-     * @param mrId              mRID of device for which the key will be updated
+     * @param mrid              mRID of device for which the key will be updated
      * @param keyAccessorTypeId Identifier of the key accessor type
      * @param uriInfo           uriInfo
      * @summary clears the temp value of the key for the device / keyAccessorType
@@ -100,10 +106,10 @@ public class KeyAccessorTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Path("/{keyAccessorTypeId}/clear")
-    public Response clearTempValue(@PathParam("mrId") String mrId, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
+    public Response clearTempValue(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
                               @Context UriInfo uriInfo) {
 
-        Device device = deviceService.findDeviceByMrid(mrId)
+        Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
         KeyAccessorType keyAccessorType = getKeyAccessorType(keyAccessorTypeId, device.getDeviceType());
         device.getKeyAccessor(keyAccessorType).get().clearTempValue();
@@ -125,8 +131,8 @@ public class KeyAccessorTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{keyAccessorTypeName}")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public KeyAccessorTypeInfo getKeyAccessorType(@PathParam("mrId") String mrId, @PathParam("keyAccessorTypeName") String name, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        DeviceType devicetype = deviceService.findDeviceByMrid(mrId)
+    public KeyAccessorTypeInfo getKeyAccessorType(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeName") String name, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
+        DeviceType devicetype = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE))
                 .getDeviceType();
         KeyAccessorType keyAccessorType = getKeyAccessorType(name, devicetype);
