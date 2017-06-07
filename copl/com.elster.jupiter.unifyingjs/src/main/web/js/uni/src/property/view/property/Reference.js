@@ -5,24 +5,21 @@
 Ext.define('Uni.property.view.property.Reference', {
     extend: 'Uni.property.view.property.BaseCombo',
 
-    referencesStore: Ext.create('Ext.data.Store', {
-        fields: ['key', 'value']
-    }),
-
     getEditCmp: function () {
-        var me = this;
+        var me = this,
+            referencesStore = Ext.create('Ext.data.Store', {
+                fields: ['key', 'value']
+            });
 
-        // clear store
-        me.referencesStore.loadData([], false);
-        _.map(me.getProperty().getPossibleValues(), function (item) {
-            me.referencesStore.add({key: item.id, value: item.name});
+        _.forEach(me.getProperty().getPossibleValues(), function (item) {
+            referencesStore.add({key: item.id, value: item.name});
         });
 
         return {
             xtype: 'combobox',
             itemId: me.key + 'combobox',
             name: this.getName(),
-            store: me.referencesStore,
+            store: referencesStore,
             queryMode: 'local',
             displayField: 'value',
             valueField: 'key',
