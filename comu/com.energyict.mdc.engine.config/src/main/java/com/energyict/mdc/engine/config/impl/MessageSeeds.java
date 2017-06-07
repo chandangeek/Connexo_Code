@@ -110,6 +110,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String PORT_NUMBER_MAX_VALUE = "PortNumberMaxValue";
         public static final String COM_PORT_POOL_PROPERTY_HAS_NO_SPEC = "comportPoolProperty.hasNoSpec";
         public static final String COM_PORT_PPOOL_PROPERTY_VALUE_OF_WRONG_TYPE = "comportPoolProperty.wrongValueType";
+        public static final String COM_PORT_POOL_PROPERTY_OBIS_INVALID = "comportPoolProperty.invalidObisCode";
     }
 
 }

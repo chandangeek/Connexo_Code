@@ -19,6 +19,7 @@ import java.util.Optional;
 
 @ComportPoolPropertyMustHaveSpec(groups = {Save.Create.class, Save.Update.class})
 @ComportPoolPropertyValueHasCorrectType(groups = {Save.Create.class, Save.Update.class})
+@ObisCodePropertyIsValid(groups = {Save.Create.class, Save.Update.class})
 public class ComPortPoolPropertyImpl implements ComPortPoolProperty {
 
     private final DataModel dataModel;

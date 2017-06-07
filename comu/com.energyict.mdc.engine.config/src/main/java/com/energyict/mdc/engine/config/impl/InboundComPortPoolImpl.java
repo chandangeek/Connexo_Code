@@ -101,7 +101,7 @@ public final class InboundComPortPoolImpl extends ComPortPoolImpl implements Inb
             }
         }
         ComPortPoolPropertyImpl property = ComPortPoolPropertyImpl.from(dataModel, this, key, value);
-        Save.CREATE.validate(dataModel, property);
+      //  Save.CREATE.validate(dataModel, property);
         properties.add(property);
         if (property.isRequired()) {
             if (this.addedOrRemovedRequiredProperties.contains(key)) {

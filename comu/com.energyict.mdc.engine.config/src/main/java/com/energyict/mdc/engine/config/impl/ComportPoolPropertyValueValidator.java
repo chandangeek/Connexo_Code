@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.config.impl;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.obis.ObisCode;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
