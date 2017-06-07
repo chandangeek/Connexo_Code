@@ -829,6 +829,10 @@ public class UsagePointOutputResource {
                                     readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
                                     if (persistedReading != null && (persistedReading.getValue() != null || persistedReading.getText() != null)) {
                                         readingWithValidationStatus.setPersistedReadingRecord(persistedReading);
+                                        ReadingRecord calculatedReading = calculatedReadings.get(readingTimestamp);
+                                        if (calculatedReading != null) {
+                                            readingWithValidationStatus.setCalculatedReadingRecord(calculatedReading);
+                                        }
                                         previousReadingRecord = persistedReading;
                                     } else {
                                         ReadingRecord calculatedReading = calculatedReadings.get(readingTimestamp);
