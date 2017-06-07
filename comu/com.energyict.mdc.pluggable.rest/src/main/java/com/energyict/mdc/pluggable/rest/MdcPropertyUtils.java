@@ -90,14 +90,18 @@ public class MdcPropertyUtils {
 
     private void modifyPropertyTypeInfo(PropertyInfo propertyInfo, PropertySpec propertySpec, final UriInfo uriInfo, PropertyDefaultValuesProvider valuesProvider) {
         PropertyTypeInfo propertyTypeInfo = propertyInfo.propertyTypeInfo;
-        propertyTypeInfo.propertyValidationRule = getPropertyValidationRule(propertySpec);
+        if (propertyTypeInfo.propertyValidationRule == null) {
+            propertyTypeInfo.propertyValidationRule = getPropertyValidationRule(propertySpec);
+        }
         propertyTypeInfo.predefinedPropertyValuesInfo = getPredefinedPropertyValueInfo(propertySpec, valuesProvider);
         propertyTypeInfo.referenceUri = getReferenceUri(uriInfo, propertySpec, propertyTypeInfo.simplePropertyType);
     }
 
     private void modifyPropertyTypeInfo(PropertyInfo propertyInfo, PropertySpec propertySpec, PropertyValuesResourceProvider valuesProvider) {
         PropertyTypeInfo propertyTypeInfo = propertyInfo.propertyTypeInfo;
-        propertyTypeInfo.propertyValidationRule = getPropertyValidationRule(propertySpec);
+        if (propertyTypeInfo.propertyValidationRule == null) {
+            propertyTypeInfo.propertyValidationRule = getPropertyValidationRule(propertySpec);
+        }
         propertyTypeInfo.propertyValuesResource = new PropertyValuesResourceInfo();
         if (valuesProvider.getPropertiesValuesResource(propertySpec).isPresent()) {
             propertyTypeInfo.propertyValuesResource.possibleValuesURI = valuesProvider.getPropertiesValuesResource(propertySpec)
