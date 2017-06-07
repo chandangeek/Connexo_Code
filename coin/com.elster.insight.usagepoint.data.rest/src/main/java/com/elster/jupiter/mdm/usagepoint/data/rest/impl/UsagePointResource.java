@@ -44,6 +44,7 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -593,7 +594,7 @@ public class UsagePointResource {
             } else {
                 usagePoint.apply(usagePointMetrologyConfiguration, info.activationTime);
             }
-        } catch (UsagePointManagementException ex) {
+        } catch (LocalizedException ex) {
             validationBuilder.addValidationError(new LocalizedFieldValidationException(ex.getMessageSeed(), "metrologyConfiguration", ex.getMessageArgs())).validate();
         }
     }
