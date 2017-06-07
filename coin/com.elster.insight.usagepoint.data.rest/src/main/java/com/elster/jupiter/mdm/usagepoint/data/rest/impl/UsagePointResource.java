@@ -534,12 +534,17 @@ public class UsagePointResource {
             } else {
                 UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findActiveUsagePointMetrologyConfigurationOrThrowException(info.id);
                 for (RegisteredCustomPropertySet customPropertySet : usagePointMetrologyConfiguration.getCustomPropertySets()) {
-                    UsagePointVersionedPropertySet propertySet = usagePoint.forCustomProperties().getVersionedPropertySet(customPropertySet.getId());
-                    if (!createNew && propertySet.getVersionValues(info.activationTime).isEmpty()) {
-                        throw new LocalizedFieldValidationException(MessageSeeds.NO_CAS_VERSION_AT_DATE, "", resourceHelper.formatDate(info.activationTime));
-                    } else if (createNew && propertySet.getAllVersionValues().stream()
-                            .anyMatch(values -> values.getEffectiveRange().lowerEndpoint().isAfter(info.activationTime))) {
-                        throw new LocalizedFieldValidationException(MessageSeeds.ANOTHER_CAS_VERSION_IN_THE_FUTURE, resourceHelper.formatDate(info.activationTime));
+                    Optional<UsagePointVersionedPropertySet> propertySet = usagePoint.forCustomProperties().getAllPropertySets().stream()
+                            .filter(usagePointPropertySet -> usagePointPropertySet.getId() == customPropertySet.getId()
+                                    && usagePointPropertySet.getCustomPropertySet().isVersioned())
+                            .map(UsagePointVersionedPropertySet.class::cast)
+                            .findFirst();
+                    if (!createNew && !propertySet.filter(cps -> !cps.getVersionValues(info.activationTime).isEmpty()).isPresent()) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.NO_CAS_VERSION_AT_DATE, "customPropertySets", resourceHelper.formatDate(info.activationTime));
+                    } else if (createNew && propertySet
+                            .filter(cps -> cps.getAllVersionValues().stream().anyMatch(values -> values.getEffectiveRange().lowerEndpoint().isAfter(info.activationTime)))
+                            .isPresent()) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.ANOTHER_CAS_VERSION_IN_THE_FUTURE, "customPropertySets", resourceHelper.formatDate(info.activationTime));
                     }
                 }
             }
