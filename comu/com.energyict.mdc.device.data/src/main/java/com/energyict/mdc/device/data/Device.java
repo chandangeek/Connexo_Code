@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
@@ -24,7 +23,6 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -50,8 +48,11 @@ import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendarInformation;
+
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
@@ -225,11 +226,6 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      * Resolve the key accessors and their types to their actual values (if present) and return them as TypedProperties.
      */
     TypedProperties getSecurityProperties(SecurityPropertySet securityPropertySet);
-
-    //TODO: once there is an actual implementation, remove the default implementation
-    default void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties) {};
-
-    default void setSecurityProperty(String propertyName, Object propertyValue) {};
 
     List<ProtocolDialectProperties> getProtocolDialectPropertiesList();
 
