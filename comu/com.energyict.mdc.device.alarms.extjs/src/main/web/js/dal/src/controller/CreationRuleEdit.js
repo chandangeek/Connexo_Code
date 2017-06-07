@@ -67,7 +67,6 @@ Ext.define('Dal.controller.CreationRuleEdit', {
     },
 
     showEdit: function (id) {
-
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             clipboard = this.getStore('Dal.store.Clipboard'),
@@ -97,7 +96,6 @@ Ext.define('Dal.controller.CreationRuleEdit', {
                     success: function (record) {
                         rule = record;
                         me.getApplication().fireEvent('alarmCreationRuleEdit', rule);
-                        dependenciesOnLoad();
                         me.loadDependencies(dependenciesOnLoad);
                     }
                 });
@@ -106,10 +104,6 @@ Ext.define('Dal.controller.CreationRuleEdit', {
                 me.loadDependencies(dependenciesOnLoad);
             }
         }
-
-        dependenciesOnLoad();
-
-
     },
 
     loadDependencies: function (callback) {
