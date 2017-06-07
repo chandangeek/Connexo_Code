@@ -36,6 +36,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -129,12 +132,16 @@ public class UsagePointProcessorForMultisenseTest {
     private LocationTemplate locationTemplate;
     @Mock
     private UsagePointMetrologyConfiguration metrologyConfiguration;
+    @Mock
+    private Connection connection;
+    @Mock
+    private Savepoint savepoint;
 
 
     private MeteringDataImporterContext context;
 
     @Before
-    public void initMocks() throws FileNotFoundException {
+    public void initMocks() throws FileNotFoundException, SQLException {
         when(threadPrincipalService.getLocale()).thenReturn(Locale.ENGLISH);
         when(meteringService.getLocationTemplate()).thenReturn(locationTemplate);
         when(meteringService.findUsagePointByMRID(anyString())).thenReturn(Optional.empty());
@@ -169,6 +176,10 @@ public class UsagePointProcessorForMultisenseTest {
         when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_correct.csv").getPath()));
         when(fileImportOccurrenceIncorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_incorrect.csv").getPath()));
         when(fileImportOccurrenceFail.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_fail.csv").getPath()));
+        when(fileImportOccurrenceCorrect.getCurrentConnection()).thenReturn(connection);
+        when(fileImportOccurrenceIncorrect.getCurrentConnection()).thenReturn(connection);
+        when(fileImportOccurrenceFail.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
 
         context = new MeteringDataImporterContext();
         context.setMeteringService(meteringService);
@@ -217,13 +228,15 @@ public class UsagePointProcessorForMultisenseTest {
     }
 
     @Test
-    public void testCanSetMetrologyConfiguration() throws IOException {
+    public void testCanSetMetrologyConfiguration() throws IOException, SQLException {
         String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
         when(metrologyConfiguration.isActive()).thenReturn(true);
         when(metrologyConfiguration.getServiceCategory()).thenReturn(serviceCategoryTwo);
@@ -250,13 +263,15 @@ public class UsagePointProcessorForMultisenseTest {
     }
 
     @Test
-    public void testFailSetMetrologyConfigurationDefferentServiceCategory() throws IOException {
+    public void testFailSetMetrologyConfigurationDefferentServiceCategory() throws IOException, SQLException {
         String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
         when(metrologyConfiguration.isActive()).thenReturn(true);
         when(metrologyConfiguration.getServiceCategory()).thenReturn(serviceCategoryOne);
@@ -269,13 +284,15 @@ public class UsagePointProcessorForMultisenseTest {
     }
 
     @Test
-    public void testFailSetMetrologyConfigurationNoInstallationTime() throws IOException {
+    public void testFailSetMetrologyConfigurationNoInstallationTime() throws IOException, SQLException {
         String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
         when(metrologyConfiguration.isActive()).thenReturn(true);
         when(metrologyConfiguration.getServiceCategory()).thenReturn(serviceCategoryOne);
@@ -288,13 +305,15 @@ public class UsagePointProcessorForMultisenseTest {
     }
 
     @Test
-    public void testFailSetInactiveMetrologyConfiguration() throws IOException {
+    public void testFailSetInactiveMetrologyConfiguration() throws IOException, SQLException {
         String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
         when(metrologyConfiguration.isActive()).thenReturn(false);
         when(metrologyConfiguration.getServiceCategory()).thenReturn(serviceCategoryTwo);
@@ -307,13 +326,15 @@ public class UsagePointProcessorForMultisenseTest {
     }
 
     @Test
-    public void testFailSetUnexistingMetrologyConfiguration() throws IOException {
+    public void testFailSetUnexistingMetrologyConfiguration() throws IOException, SQLException {
         String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         when(metrologyConfigurationService.findMetrologyConfiguration("SP10_DEMO_1")).thenReturn(Optional.empty());
 
         importer.process(occurrence);
@@ -341,13 +362,15 @@ public class UsagePointProcessorForMultisenseTest {
     }
 
     @Test
-    public void createWithNonExistingTOUCalendar() throws IOException {
+    public void createWithNonExistingTOUCalendar() throws IOException, SQLException {
         String content = "id;serviceKind;Created;touCalendarName;touCalendarUsageStartTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;BOGUS;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(this.logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         when(this.meteringService.findUsagePointByName("DOA_UPS1_UP001")).thenReturn(Optional.empty());
         when(this.calendarService.findCalendarByName("BOGUS")).thenReturn(Optional.empty());
 
@@ -360,7 +383,7 @@ public class UsagePointProcessorForMultisenseTest {
     }
 
     @Test
-    public void createWithTOUCalendar() throws IOException {
+    public void createWithTOUCalendar() throws IOException, SQLException {
         String content = "id;serviceKind;Created;touCalendarName;touCalendarUsageStartTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;" + TIME_OF_USE_CALENDAR_NAME + ";28/07/2016 00:00";
         Instant expectedCalendarStart = LocalDateTime.of(2016, Month.JULY, 28, 0, 0, 0).atOffset(ZoneOffset.UTC).toInstant();
@@ -368,6 +391,8 @@ public class UsagePointProcessorForMultisenseTest {
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(this.logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         when(this.meteringService.findUsagePointByName("DOA_UPS1_UP001")).thenReturn(Optional.empty());
 
         // Business method
@@ -380,13 +405,15 @@ public class UsagePointProcessorForMultisenseTest {
     }
 
     @Test
-    public void createWithTOUCalendarWithoutStartTime() throws IOException {
+    public void createWithTOUCalendarWithoutStartTime() throws IOException, SQLException {
         String content = "id;serviceKind;Created;touCalendarName;touCalendarUsageStartTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;" + TIME_OF_USE_CALENDAR_NAME;
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(this.logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         when(this.meteringService.findUsagePointByName("DOA_UPS1_UP001")).thenReturn(Optional.empty());
 
         // Business method
@@ -399,7 +426,7 @@ public class UsagePointProcessorForMultisenseTest {
     }
 
     @Test
-    public void createWithWorkForceCalendar() throws IOException {
+    public void createWithWorkForceCalendar() throws IOException, SQLException {
         String content = "id;serviceKind;Created;workForceCalendarName;workForceCalendarUsageStartTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;" + WORKFORCE_OF_USE_CALENDAR_NAME + ";28/07/2016 00:00";
         Instant expectedCalendarStart = LocalDateTime.of(2016, Month.JULY, 28, 0, 0, 0).atOffset(ZoneOffset.UTC).toInstant();
@@ -407,6 +434,8 @@ public class UsagePointProcessorForMultisenseTest {
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(this.logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         when(this.meteringService.findUsagePointByName("DOA_UPS1_UP001")).thenReturn(Optional.empty());
 
         // Business method
@@ -419,13 +448,15 @@ public class UsagePointProcessorForMultisenseTest {
     }
 
     @Test
-    public void createWithWorkForceCalendarWithoutStartTime() throws IOException {
+    public void createWithWorkForceCalendarWithoutStartTime() throws IOException, SQLException {
         String content = "id;serviceKind;Created;workForceCalendarName;workForceCalendarUsageStartTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;" + WORKFORCE_OF_USE_CALENDAR_NAME;
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(this.logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         when(this.meteringService.findUsagePointByName("DOA_UPS1_UP001")).thenReturn(Optional.empty());
 
         // Business method
@@ -438,7 +469,7 @@ public class UsagePointProcessorForMultisenseTest {
     }
 
     @Test
-    public void createWithCommandsCalendar() throws IOException {
+    public void createWithCommandsCalendar() throws IOException, SQLException {
         String content = "id;serviceKind;Created;commandsCalendarName;commandsCalendarUsageStartTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;" + COMMANDS_OF_USE_CALENDAR_NAME + ";28/07/2016 00:00";
         Instant expectedCalendarStart = LocalDateTime.of(2016, Month.JULY, 28, 0, 0, 0).atOffset(ZoneOffset.UTC).toInstant();
@@ -446,6 +477,9 @@ public class UsagePointProcessorForMultisenseTest {
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(this.logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
+
         when(this.meteringService.findUsagePointByName("DOA_UPS1_UP001")).thenReturn(Optional.empty());
 
         // Business method
@@ -458,13 +492,15 @@ public class UsagePointProcessorForMultisenseTest {
     }
 
     @Test
-    public void createWithCommandsCalendarWithoutStartTime() throws IOException {
+    public void createWithCommandsCalendarWithoutStartTime() throws IOException, SQLException {
         String content = "id;serviceKind;Created;commandsCalendarName;commandsCalendarUsageStartTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;" + COMMANDS_OF_USE_CALENDAR_NAME;
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(this.logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         when(this.meteringService.findUsagePointByName("DOA_UPS1_UP001")).thenReturn(Optional.empty());
 
         // Business method
@@ -477,7 +513,7 @@ public class UsagePointProcessorForMultisenseTest {
     }
 
     @Test
-    public void createWithAllCalendars() throws IOException {
+    public void createWithAllCalendars() throws IOException, SQLException {
         String content = "id;serviceKind;Created;touCalendarName;touCalendarUsageStartTime;workForceCalendarName;workForceCalendarUsageStartTime;commandsCalendarName;commandsCalendarUsageStartTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;" + TIME_OF_USE_CALENDAR_NAME + ";28/07/2016 00:00;" + WORKFORCE_OF_USE_CALENDAR_NAME + ";28/08/2016 00:00;" + COMMANDS_OF_USE_CALENDAR_NAME + ";28/09/2016 00:00";
         Instant expectedTimeOfUseCalendarStart = LocalDateTime.of(2016, Month.JULY, 28, 0, 0, 0).atOffset(ZoneOffset.UTC).toInstant();
@@ -487,6 +523,8 @@ public class UsagePointProcessorForMultisenseTest {
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(this.logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         when(this.meteringService.findUsagePointByName("DOA_UPS1_UP001")).thenReturn(Optional.empty());
 
         // Business method
@@ -503,13 +541,15 @@ public class UsagePointProcessorForMultisenseTest {
     }
 
     @Test
-    public void createWithAllCalendarsWithoutStartTime() throws IOException {
+    public void createWithAllCalendarsWithoutStartTime() throws IOException, SQLException {
         String content = "id;serviceKind;Created;touCalendarName;touCalendarUsageStartTime;workForceCalendarName;workForceCalendarUsageStartTime;commandsCalendarName;commandsCalendarUsageStartTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;" + TIME_OF_USE_CALENDAR_NAME + ";;" + WORKFORCE_OF_USE_CALENDAR_NAME + ";;" + COMMANDS_OF_USE_CALENDAR_NAME + ";";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(this.logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         when(this.meteringService.findUsagePointByName("DOA_UPS1_UP001")).thenReturn(Optional.empty());
 
         // Business method

@@ -49,6 +49,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -182,11 +185,15 @@ public class UsagePointProcessorTest {
     private UsagePointMeterActivator linker;
     @Mock
     private PropertySpec transitionSpec;
+    @Mock
+    private Connection connection;
+    @Mock
+    private Savepoint savepoint;
 
     private MeteringDataImporterContext context;
 
     @Before
-    public void initMocks() throws FileNotFoundException {
+    public void initMocks() throws FileNotFoundException, SQLException {
         when(meteringService.getLocationTemplate()).thenReturn(locationTemplate);
         when(templateFieldZipCode.getName()).thenReturn("zipCode");
         when(templateFieldZipCode.isMandatory()).thenReturn(false);
@@ -308,6 +315,9 @@ public class UsagePointProcessorTest {
         when(fileImportOccurrenceIncorrect.getLogger()).thenReturn(logger);
         when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_correct.csv").getPath()));
         when(fileImportOccurrenceIncorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_incorrect.csv").getPath()));
+        when(fileImportOccurrenceCorrect.getCurrentConnection()).thenReturn(connection);
+        when(fileImportOccurrenceIncorrect.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
 
         context = spy(new MeteringDataImporterContext());
         context.setMeteringService(meteringService);
@@ -342,13 +352,15 @@ public class UsagePointProcessorTest {
     }
 
     @Test
-    public void testProcessWithInactiveMetrologyConfiguration() {
+    public void testProcessWithInactiveMetrologyConfiguration() throws SQLException {
         String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
 
         when(metrologyConfiguration.isActive()).thenReturn(false);
@@ -362,13 +374,15 @@ public class UsagePointProcessorTest {
     }
 
     @Test
-    public void testFailSetUnexistingMetrologyConfiguration() {
+    public void testFailSetUnexistingMetrologyConfiguration() throws SQLException {
         String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         when(metrologyConfigurationService.findMetrologyConfiguration("SP10_DEMO_1")).thenReturn(Optional.empty());
 
         importer.process(occurrence);
@@ -378,7 +392,7 @@ public class UsagePointProcessorTest {
     }
 
     @Test
-    public void testSetMeterActivation() {
+    public void testSetMeterActivation() throws SQLException {
         String csv = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime;meter1;meterrole1;activationDate1\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00;meter;meter.role.default;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
@@ -386,6 +400,8 @@ public class UsagePointProcessorTest {
 
         when(occurrence.getLogger()).thenReturn(logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(csv.getBytes(Charset.forName("UTF-8"))));
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         when(metrologyConfigurationService.findMetrologyConfiguration("SP10_DEMO_1")).thenReturn(Optional.of(metrologyConfiguration));
         when(usagePoint.linkMeters()).thenReturn(linker);
         when(meteringService.findMeterByName("meter")).thenReturn(Optional.of(meter));
@@ -401,7 +417,7 @@ public class UsagePointProcessorTest {
     }
 
     @Test
-    public void testPerformTransition() {
+    public void testPerformTransition() throws SQLException {
         String csv = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime;meter1;meterrole1;activationDate1;transition;transitionDate;transitionConnectionState\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00;meter;meter.role.default;28/07/2016 00:00;Install active;28/07/2016 00:00;Connected";
         FileImporter importer = createUsagePointImporter();
@@ -410,6 +426,8 @@ public class UsagePointProcessorTest {
         PropertyInfo propertyInfo = mock(PropertyInfo.class);
 
         mockMeterActivation(occurrence, csv);
+        when(occurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(savepoint);
         when(usagePointLifeCycleService.getAvailableTransitions(any(UsagePoint.class), eq("INS"))).thenReturn(Collections.singletonList(usagePointTransition));
         when(usagePointTransition.getName()).thenReturn("Install active");
         when(usagePointTransition.getChecks()).thenReturn(Collections.emptySet());

@@ -41,6 +41,9 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
 import java.io.ByteArrayInputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -88,7 +91,7 @@ public class UsagePointImportIT {
 
     @Test
     @Transactional
-    public void testUsagePointImport() {
+    public void testUsagePointImport() throws SQLException {
         configureServices();
         FileImporter importer = createUsagePointImporter();
         String csv = "id;created;installationTime;serviceKind;countryCode;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;isSDP;isVirtual;phaseCode;countryName;administrativeArea;locality;metrologyConfiguration;metrologyConfigurationTime;meterRole1;meter1;activationdate1;transition;transitionDate;transitionConnectionState;allowUpdate\n" +
@@ -180,10 +183,13 @@ public class UsagePointImportIT {
         threadPrincipalService.set(user);
     }
 
-    private FileImportOccurrence mockFileImportOccurrence(String csv) {
+    private FileImportOccurrence mockFileImportOccurrence(String csv) throws SQLException {
         FileImportOccurrence importOccurrence = mock(FileImportOccurrence.class);
         when(importOccurrence.getContents()).thenReturn(new ByteArrayInputStream(csv.getBytes()));
         when(importOccurrence.getLogger()).thenReturn(mock(Logger.class));
+        Connection connection = mock(Connection.class);
+        when(importOccurrence.getCurrentConnection()).thenReturn(connection);
+        when(connection.setSavepoint()).thenReturn(mock(Savepoint.class));
         return importOccurrence;
     }
 
