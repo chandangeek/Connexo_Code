@@ -1,5 +1,15 @@
 package com.energyict.protocolimplv2.dlms.idis.am500.messages;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.ResultType;
+
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Integer8;
@@ -23,15 +33,6 @@ import com.energyict.dlms.cosem.RegisterMonitor;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.MessageTag;
-import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
@@ -74,6 +75,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emerg
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileIdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyThresholdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fullActivityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitoredValueAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.normalThresholdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
@@ -133,9 +135,9 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
-                } catch (Exception e){
+                } catch (Exception e) {
                     //in case we get an exception and we did not managed to put the collected message to failed, we will do it here
-                    if(!collectedMessage.getNewDeviceMessageStatus().equals(DeviceMessageStatus.FAILED)) {
+                    if (!collectedMessage.getNewDeviceMessageStatus().equals(DeviceMessageStatus.FAILED)) {
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation(e.getMessage());
                         collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
@@ -150,9 +152,16 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
 
     protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME)) {
-            writeActivityCalendar(pendingMessage);
+            String name = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
+            String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getValue();
+            String codeTableDescription = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarAttributeName).getValue();
+
+            writeActivityCalendar(name, activationDate, codeTableDescription);
         } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND)) {
-            writeSpecialDays(pendingMessage);
+            String codeTableDescription = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, specialDaysAttributeName).getValue();
+            writeSpecialDays(codeTableDescription);
+        } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME)) {
+            writeFullCalendar(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS)) {
             resetAllAlarmBits(ALARM_BITS_OBISCODE);
             collectedMessage.setDeviceProtocolInformation("Reset ALL alarm bits from " + ALARM_BITS_OBISCODE.toString());
@@ -329,7 +338,8 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         int overThresholdDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, overThresholdDurationAttributeName).getValue());
         int underThresholdDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, underThresholdDurationAttributeName).getValue());
         int emergencyProfileId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileIdAttributeName).getValue());
-        Date emergencyProfileActivationDate = new Date(new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileActivationDateAttributeName).getValue()).longValue());
+        Date emergencyProfileActivationDate = new Date(new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileActivationDateAttributeName)
+                .getValue()).longValue());
         int emergencyProfileDuration = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileDurationAttributeName).getValue());
         String emergencyProfileGroupIdList = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, emergencyProfileGroupIdListAttributeName).getValue();
         int actionWhenUnderThreshold = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, actionWhenUnderThresholdAttributeName).getValue());
@@ -463,10 +473,16 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         data.setValueAttr(new Unsigned32(filter));
     }
 
-    protected void writeActivityCalendar(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+    protected void writeFullCalendar(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         String name = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activityCalendarNameAttributeName).getValue();
         String activationDate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activityCalendarActivationDateAttributeName).getValue();
-        String codeTableDescription = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activityCalendarAttributeName).getValue();
+        String codeTableDescription = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, fullActivityCalendarAttributeName).getValue();
+
+        writeActivityCalendar(name, activationDate, codeTableDescription);
+        writeSpecialDays(codeTableDescription);
+    }
+
+    protected void writeActivityCalendar(String name, String activationDate, String codeTableDescription) throws IOException {
         String typeTag = "Activity_Calendar";
 
         //Insert attribute values in the XML description, this was not done in the format method (since we only have one message attribute at a time there...)
@@ -490,8 +506,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         activityCalendarController.writeCalendar();
     }
 
-    protected void writeSpecialDays(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-        String codeTableDescription = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, specialDaysAttributeName).getValue();
+    protected void writeSpecialDays(String codeTableDescription) throws IOException {
         String type = "Special_Days";
 
         MessageTag mainTag = new MessageTag(type);

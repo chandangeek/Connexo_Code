@@ -1,14 +1,15 @@
 package com.energyict.protocolimplv2.nta.abstractnta.messages;
 
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.properties.NumberLookup;
+import com.energyict.mdc.upl.properties.TariffCalendar;
+
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.properties.NumberLookup;
-import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
@@ -39,17 +40,9 @@ public class AbstractDlmsMessaging {
         return protocol;
     }
 
-    protected String convertCodeTableToXML(com.energyict.mdc.upl.properties.TariffCalendar calendar, TariffCalendarExtractor extractor) {
+    protected String convertCodeTableToXML(com.energyict.mdc.upl.properties.TariffCalendar calendar, TariffCalendarExtractor extractor, long epoch, String name) {
         try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(calendar, extractor, 0, "0");
-        } catch (ParserConfigurationException e) {
-            throw DataParseException.generalParseException(e);
-        }
-    }
-
-    protected String convertSpecialDaysCodeTableToXML(com.energyict.mdc.upl.properties.TariffCalendar messageAttribute, TariffCalendarExtractor extractor) {
-        try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, extractor, 1, "");
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(calendar, extractor, epoch, name);
         } catch (ParserConfigurationException e) {
             throw DataParseException.generalParseException(e);
         }

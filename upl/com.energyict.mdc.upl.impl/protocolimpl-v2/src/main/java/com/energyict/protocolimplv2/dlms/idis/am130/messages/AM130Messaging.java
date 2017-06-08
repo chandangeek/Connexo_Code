@@ -74,6 +74,7 @@ public class AM130Messaging extends IDISMessaging {
         supportedMessages.add(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP2.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(MBusSetupDeviceMessage.Commission.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));

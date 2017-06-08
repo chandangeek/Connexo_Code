@@ -16,6 +16,7 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -48,6 +49,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.conta
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.emergencyProfileDurationAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fullActivityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.monitoredValueAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
@@ -149,12 +151,10 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
                 || propertySpec.getName().equals(contactorActivationDateAttributeName)
                 || propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());     //Epoch
-        } else if (propertySpec.getName().equals(activityCalendarAttributeName)) {
+        } else if (propertySpec.getName().equals(activityCalendarAttributeName) || propertySpec.getName().equals(specialDaysAttributeName) || propertySpec.getName().equals(fullActivityCalendarAttributeName)) {
             this.calendarExtractor.threadContext().setDevice(offlineDevice);
             this.calendarExtractor.threadContext().setMessage(offlineDeviceMessage);
-            return convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor);
-        } else if (propertySpec.getName().equals(specialDaysAttributeName)) {
-            return convertSpecialDaysCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor);
+            return convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor, 0, "0");
         } else if (propertySpec.getName().equals(configUserFileAttributeName)) {
             DeviceMessageFile userFile = (DeviceMessageFile) messageAttribute;
             return ProtocolTools.getHexStringFromBytes(this.messageFileExtractor.binaryContents(userFile), "");  //Bytes of the userFile, as a hex string

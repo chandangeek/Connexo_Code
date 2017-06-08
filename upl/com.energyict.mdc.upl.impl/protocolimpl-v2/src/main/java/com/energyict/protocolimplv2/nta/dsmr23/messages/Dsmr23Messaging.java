@@ -20,6 +20,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
@@ -247,12 +248,12 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case activityCalendarAttributeName: {
                 this.calendarExtractor.threadContext().setDevice(offlineDevice);
                 this.calendarExtractor.threadContext().setMessage(offlineDeviceMessage);
-                return convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor);
+                return convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor, 0, "0");
             }
             case fullActivityCalendarAttributeName: {
                 this.calendarExtractor.threadContext().setDevice(offlineDevice);
                 this.calendarExtractor.threadContext().setMessage(offlineDeviceMessage);
-                String activityCalendar = convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor);
+                String activityCalendar = convertCodeTableToXML((TariffCalendar) messageAttribute, this.calendarExtractor, 0, "0");
                 String specialDays = parseSpecialDays((TariffCalendar) messageAttribute, this.calendarExtractor);
                 return activityCalendar + SEPARATOR + specialDays;
             }
