@@ -11,6 +11,8 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import com.energyict.mdc.common.Constants;
+
 import org.osgi.service.component.annotations.Component;
 
 import java.util.Arrays;
@@ -19,7 +21,7 @@ import java.util.List;
 @Component(
         name = "com.energyict.mdc.common.impl.TranslationInstaller",
         service = {MessageSeedProvider.class, TranslationKeyProvider.class},
-        property = "name=" + MessageSeeds.COMPONENT_NAME,
+        property = "name=" + Constants.COMPONENT_NAME,
         immediate = true)
 public class TranslationInstaller implements MessageSeedProvider, TranslationKeyProvider {
 
@@ -35,7 +37,7 @@ public class TranslationInstaller implements MessageSeedProvider, TranslationKey
 
     @Override
     public String getComponentName() {
-        return MessageSeeds.COMPONENT_NAME;
+        return Constants.COMPONENT_NAME;
     }
 
     @Override

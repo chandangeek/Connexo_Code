@@ -6,14 +6,14 @@ package com.energyict.mdc.common.impl;
 
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import com.energyict.mdc.common.Constants;
+
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
 
     INVALID_VALUE(1, "CMN.InvalidValue", "Invalid value", Level.SEVERE),
     INVALID_OBIS_CODE(2,"CMN.InvalidObisCode","Invalid obis code", Level.SEVERE);
-
-    public static final String COMPONENT_NAME = "CMN";
 
     private final int number;
     private final String key;
@@ -29,7 +29,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return COMPONENT_NAME;
+        return Constants.COMPONENT_NAME;
     }
 
     @Override

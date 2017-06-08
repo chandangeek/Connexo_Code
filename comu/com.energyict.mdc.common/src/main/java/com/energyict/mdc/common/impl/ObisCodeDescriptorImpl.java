@@ -3,6 +3,7 @@ package com.energyict.mdc.common.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.Constants;
 import com.energyict.mdc.common.services.ObisCodeDescriptor;
 
 import com.energyict.obis.ObisCode;
@@ -39,6 +40,6 @@ public class ObisCodeDescriptorImpl implements ObisCodeDescriptor {
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(Constants.COMPONENT_NAME, Layer.DOMAIN);
     }
 }
