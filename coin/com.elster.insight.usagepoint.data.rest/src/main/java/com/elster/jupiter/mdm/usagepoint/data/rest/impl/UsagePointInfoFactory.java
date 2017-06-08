@@ -62,12 +62,13 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component(name = "insight.usagepoint.info.factory", service = {InfoFactory.class}, immediate = true)
@@ -266,6 +267,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                     MeterRoleInfo mrInfo = meterActivationInfo.meterRole;
                     if(meterActivationInfo.meter != null) {
                         mrInfo.meter = meterActivationInfo.meter.name;
+                        mrInfo.url = meterActivationInfo.meter.url;
                     }
                     return mrInfo;
                 }).collect(Collectors.toList());
@@ -435,10 +437,12 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .ifPresent(metrologyConfiguration -> metrologyConfiguration.getMeterRoles()
                         .forEach(meterRole -> mandatoryMeterRoles.put(meterRole, new MeterRoleInfo(meterRole))));
 
-        Map<MeterRole, MeterActivation> meterRoleToMeterInfoMapping = usagePoint.getMeterActivations(clock.instant())
-                .stream()
+        Map<MeterRole, MeterActivation> meterRoleToMeterInfoMapping = new HashMap<>();
+
+        usagePoint.getMeterActivations().stream()
                 .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getMeter().isPresent())
-                .collect(Collectors.toMap(meterActivation -> meterActivation.getMeterRole().get(), Function.identity()));
+                .sorted(Comparator.comparing(MeterActivation::getStart))
+                .forEach(meterActivation -> meterRoleToMeterInfoMapping.putIfAbsent(meterActivation.getMeterRole().get(), meterActivation));
 
         return mandatoryMeterRoles.entrySet()
                 .stream()
