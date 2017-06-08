@@ -459,6 +459,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                             if (item.id.indexOf("interval") !== -1) {
                                 me.getEditPage().down('#timeDuration').setActiveError(item.msg);
                             }
+                            if (item.id.indexOf("obisCodeCached.obisCode") !== -1) {
+                                me.getEditPage().down('#txt-load-profile-type-obis-code').setActiveError(item.msg);
+                            }
                         });
                         basicForm.markInvalid(json.errors);
                         me.registerTypesIsValid(json.errors);

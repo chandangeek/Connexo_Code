@@ -284,6 +284,20 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                         me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowledgment.added', 'MDC', 'Channel configuration added'));
                         router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward();
                     },
+                    failure: function (response) {
+                        if (response && response.status === 400) {
+                            var json = Ext.decode(response.responseText, true);
+                            if (json && json.errors) {
+                                Ext.Array.each(json.errors, function (error) {
+                                    if (error.id === 'overruledObisCode.obisCode') {
+                                        formPanel.down('#obis-code-container').setActiveError(error.msg);
+                                    }
+                                });
+                                form.markInvalid(json.errors);
+                                formErrorsPanel.show();
+                            }
+                        }
+                    },
                     callback: function () {
                         preloader.destroy();
                     }
@@ -291,7 +305,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
 
             } else if (btn.action === 'edit') {
                 form.updateRecord();
-
                 if (useMultiplier) {
                     if (calculatedReadingTypeField.isVisible()) {
                         record.setMultipliedCalculatedReadingType(calculatedReadingTypeField.getValue());
@@ -317,13 +330,18 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                         router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.arguments);
                     },
                     failure: function (record, operation) {
-                        Ext.suspendLayouts();
-                        formErrorsPanel.show();
-                        var json = Ext.decode(operation.response.responseText);
-                        if (json && json.errors) {
-                            form.markInvalid(json.errors);
+                        if (operation.response.status === 400) {
+                            var json = Ext.decode(operation.response.responseText, true);
+                            if (json && json.errors) {
+                                Ext.Array.each(json.errors, function (error) {
+                                    if (error.id === 'overruledObisCode.obisCode') {
+                                        formPanel.down('#obis-code-container').setActiveError(error.msg);
+                                    }
+                                });
+                                form.markInvalid(json.errors);
+                                formErrorsPanel.show();
+                            }
                         }
-                        Ext.resumeLayouts(true);
                     },
                     callback: function () {
                         formPanel.setLoading(false);
