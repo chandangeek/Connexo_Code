@@ -110,8 +110,8 @@ class UsagePointDataCompletionServiceImpl implements UsagePointDataCompletionSer
             uncheckedTimingsCount = uncheckedTimings.size();
             uncheckedTimings.clear(); // removed from qualityTypesByAllTimings
             if (Range.atMost(lastChecked).isConnected(interval)) { // something is validated
-                gatherStatistics(qualityTypesByAllTimings, generalSummary);
                 gatherEstimated(qualityTypesByAllTimings, estimatedSummary);
+                gatherStatistics(qualityTypesByAllTimings, generalSummary);
                 gatherValidated(qualityTypesByAllTimings, validSummary);
                 if (validSummary.getSum() > 0) {
                     summaryList.add(validSummary);
