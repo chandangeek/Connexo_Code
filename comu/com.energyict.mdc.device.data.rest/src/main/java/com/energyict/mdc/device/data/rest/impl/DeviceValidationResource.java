@@ -26,7 +26,6 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import com.google.common.collect.Range;
 
@@ -168,7 +167,7 @@ public class DeviceValidationResource {
                         .filter(loadProfile -> lpPeriod.id.equals(loadProfile.getId()))
                         .flatMap(l -> l.getChannels().stream())
                         .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), intervalLP).stream())
-                        .filter(s -> (s.getReadingQualities().stream().anyMatch(q -> q.getType().qualityIndex().orElse(QualityCodeIndex.DATAVALID).equals(QualityCodeIndex.SUSPECT))))
+                        .filter(s -> (Stream.concat(s.getReadingQualities().stream(), s.getBulkReadingQualities().stream()).anyMatch(q -> q.getType().isSuspect())))
                         .collect(Collectors.toList()));
             });
         }
@@ -239,9 +238,7 @@ public class DeviceValidationResource {
                 .collect(Collectors.toMap(m -> (NumericalRegister) (m.getKey()), m -> (List<DataValidationStatus>) (m.getValue())));
 
         validationStatusInfo.allDataValidated = isAllDataValidated(device);
-
         MonitorValidationInfo info = validationInfoFactory.createMonitorValidationInfoForLoadProfileAndRegister(loadProfileStatus, registerStatus, validationStatusInfo);
-
         return Response.status(Response.Status.OK).entity(info).build();
     }
 
