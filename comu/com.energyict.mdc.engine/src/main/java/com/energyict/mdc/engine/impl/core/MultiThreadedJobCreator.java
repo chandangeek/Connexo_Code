@@ -81,6 +81,7 @@ public class MultiThreadedJobCreator implements Runnable {
                 Thread.currentThread().interrupt();
             }
         }
+        executor.shutdownNow();
     }
 
     private ExecutorService newFixedThreadPoolWithQueueSize(int maxPoolSize, ThreadFactory threadFactory) {
