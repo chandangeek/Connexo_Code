@@ -8,11 +8,9 @@ public final class ModuleConstants {
     private ModuleConstants() {
     }
 
-    public static final String ALARM_REASON = "alarm.reason";
     public static final String END_DEVICE_EVENT_CREATED = "end.device.event.created";
     public static final String AQ_DEVICE_ALARM_EVENT_SUBSC = "DeviceAlarmCreation";
     public static final String AQ_DEVICE_ALARM_EVENT_DISPLAYNAME = "Create device alarms";
-
     public static final String DEVICE_IDENTIFIER = "endDeviceId";
     public static final String SKIPPED_TASK_IDS = "skippedTaskIDs";
     public static final String END_DEVICE_EVENT_TYPE = "endDeviceEventType";
