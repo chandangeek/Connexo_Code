@@ -45,6 +45,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.common.Constants;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
@@ -581,7 +582,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN).join(nlsService.getThesaurus(Constants.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference

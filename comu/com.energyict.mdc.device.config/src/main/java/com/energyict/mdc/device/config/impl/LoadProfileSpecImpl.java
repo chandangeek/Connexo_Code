@@ -77,6 +77,9 @@ class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements
     @Override
     public ObisCode getDeviceObisCode() {
         if (!Checks.is(this.overruledObisCodeString).empty()) {
+            if (overruledObisCode!=null && overruledObisCode.toString().equals(this.overruledObisCodeString)) {
+                return overruledObisCode; // to avoid making an invalid obis code valid
+            }
             this.overruledObisCode = ObisCode.fromString(this.overruledObisCodeString);
             return overruledObisCode;
         }
