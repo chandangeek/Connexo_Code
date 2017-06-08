@@ -14,6 +14,7 @@ import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.KeyAccessorType;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -39,7 +40,7 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
 
     @Deactivate
     public void deactivate() {
-        Services.tariffCalendarExtractor(null);
+        Services.keyAccessorTypeExtractor(null);
     }
 
     @Override
@@ -78,7 +79,13 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
     }
 
     @Override
-    public Optional<Object> tempValue(KeyAccessorType keyAccessorType) {
+    public String actualValueContent(KeyAccessorType keyAccessorType) {
+        Optional<Object> optional = actualValue(keyAccessorType);
+        return convertSecurityValueToString(optional);
+    }
+
+    @Override
+    public Optional<Object> passiveValue(KeyAccessorType keyAccessorType) {
         com.elster.jupiter.pki.KeyAccessorType connexoKeyAccessorType = this.toConnexoKeyAccessorType(keyAccessorType);
         Optional<OfflineKeyAccessor> offlineKeyAccessor = toConnexoDevice(threadContext().getDevice()).getAllOfflineKeyAccessors()
                 .stream()
@@ -89,27 +96,38 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
                 : Optional.empty();
     }
 
+    @Override
+    public String passiveValueContent(KeyAccessorType keyAccessorType) {
+        Optional<Object> optional = passiveValue(keyAccessorType);
+        return convertSecurityValueToString(optional);
+    }
+
+    private String convertSecurityValueToString(Optional<Object> optional) {
+        if (optional.isPresent() && optional.get() instanceof CertificateWrapper) {
+            throw new UnsupportedOperationException("Support to format CertificateWrapper as text does not exist.");    //TODO: once needed, support should be added off-course
+        }
+        return optional.isPresent() ? optional.get().toString() : ""; // Note that the 'toString() should work fine for symmetric keys/passwords
+    }
+
     private Optional<Object> extractUplValueOutOf(Optional<OfflineKeyAccessor> offlineKeyAccessor, Object value) {
         if (value instanceof PlaintextSymmetricKey) {
-            return handlePlainTextSymmetricKey(offlineKeyAccessor);
+            return handlePlainTextSymmetricKey((PlaintextSymmetricKey) value);
         } else if (value instanceof PlaintextPassphrase) {
-            return handlePlainTextPassphrase(offlineKeyAccessor);
+            return handlePlainTextPassphrase((PlaintextPassphrase) value);
         } else if (value instanceof CertificateWrapper) {
             return Optional.of(value);  //Return instance of CertificateWrapper as-is
         }
         return null;
     }
 
-    private Optional<Object> handlePlainTextSymmetricKey(Optional<OfflineKeyAccessor> offlineKeyAccessor) {
-        PlaintextSymmetricKey plaintextSymmetricKey = (PlaintextSymmetricKey) offlineKeyAccessor.get().getActualValue().get();
+    private Optional<Object> handlePlainTextSymmetricKey(PlaintextSymmetricKey plaintextSymmetricKey) {
         if (plaintextSymmetricKey.getKey().isPresent()) {
             return Optional.of(DatatypeConverter.printHexBinary(plaintextSymmetricKey.getKey().get().getEncoded()));
         }
         return Optional.empty();
     }
 
-    private Optional<Object> handlePlainTextPassphrase(Optional<OfflineKeyAccessor> offlineKeyAccessor) {
-        PlaintextPassphrase plaintextPassphrase = (PlaintextPassphrase) offlineKeyAccessor.get().getActualValue().get();
+    private Optional<Object> handlePlainTextPassphrase(PlaintextPassphrase plaintextPassphrase) {
         if (plaintextPassphrase.getPassphrase().isPresent()) {
             return Optional.of(plaintextPassphrase.getPassphrase().get());
         }
