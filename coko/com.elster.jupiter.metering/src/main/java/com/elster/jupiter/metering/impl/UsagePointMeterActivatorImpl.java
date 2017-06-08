@@ -321,15 +321,17 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
     private void notifyInterestedComponents() {
         eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this.usagePoint);
-        this.meterTimeLines
-                .values()
-                .stream()
-                .map(TimeLine::getElements)
-                .flatMap(Collection::stream)
-                .map(Activation::getStart)
-                .sorted()
-                .findFirst()
-                .ifPresent(earliestChange -> this.usagePoint.postCalendarTimeSeriesCacheHandlerMessage(earliestChange));
+        if(meterTimeLines != null) {
+            this.meterTimeLines
+                    .values()
+                    .stream()
+                    .map(TimeLine::getElements)
+                    .flatMap(Collection::stream)
+                    .map(Activation::getStart)
+                    .sorted()
+                    .findFirst()
+                    .ifPresent(earliestChange -> this.usagePoint.postCalendarTimeSeriesCacheHandlerMessage(earliestChange));
+        }
     }
 
     @Override
