@@ -5,8 +5,10 @@ import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.PropertySpec;
+
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm.Kaifa;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -39,7 +41,7 @@ public class KaifaDsmr40MessageConverterTest extends AbstractV2MessageConverterT
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new KaifaDsmr40MessageConverter(propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, numberLookupExtractor, calendarExtractor);
+        return new KaifaDsmr40MessageConverter(propertySpecService, this.nlsService, this.converter, this.loadProfileExtractor, numberLookupExtractor, calendarExtractor, keyAccessorTypeExtractor);
     }
 
     @Override

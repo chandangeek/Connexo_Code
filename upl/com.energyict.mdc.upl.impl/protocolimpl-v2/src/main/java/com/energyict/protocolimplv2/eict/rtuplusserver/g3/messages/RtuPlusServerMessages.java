@@ -11,6 +11,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
@@ -24,6 +25,7 @@ import com.energyict.mdc.upl.properties.DeviceGroup;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.dlms.aso.SecurityContext;
@@ -110,8 +112,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     private final DeviceGroupExtractor deviceGroupExtractor;
     private final DeviceExtractor deviceExtractor;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public RtuPlusServerMessages(DlmsSession session, OfflineDevice offlineDevice, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor) {
+    public RtuPlusServerMessages(DlmsSession session, OfflineDevice offlineDevice, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         this.session = session;
         this.offlineDevice = offlineDevice;
         this.collectedDataFactory = collectedDataFactory;
@@ -122,6 +125,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
         this.messageFileExtractor = messageFileExtractor;
         this.deviceGroupExtractor = deviceGroupExtractor;
         this.deviceExtractor = deviceExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     public List<DeviceMessageSpec> getSupportedMessages() {
@@ -685,8 +689,11 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
                     .collect(Collectors.joining(";"));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.newEncryptionKeyAttributeName)) {
-            return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
+                || propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)
+                || propertySpec.getName().equals(DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName)
+                || propertySpec.getName().equals(DeviceMessageConstants.newEncryptionKeyAttributeName)
+                || propertySpec.getName().equals(DeviceMessageConstants.newWrappedEncryptionKeyAttributeName)) {
+            return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
         } else {
             return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string propertyspecs
         }

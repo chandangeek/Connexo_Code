@@ -1,5 +1,18 @@
 package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -25,18 +38,6 @@ import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
@@ -44,6 +45,7 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -69,8 +71,11 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import org.xml.sax.SAXException;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.RandomAccessFile;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -508,15 +513,17 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType does not have a valid passive value.");
         }
 
-        String[] split = keyAccessorTypeNameAndTempValue.split(">-->", 2);
-        if (split.length != 2) {
-            throw new ProtocolException("Failed to retrieve proper value for attribute keyAccessorType.");
+        String[] values;
+        ByteArrayInputStream in = new ByteArrayInputStream(DatatypeConverter.parseHexBinary(keyAccessorTypeNameAndTempValue));
+        try {
+            values = (String[]) new ObjectInputStream(in).readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw DataParseException.generalParseException(e);
         }
-        String keyAccessorName = split[0];
-        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(split[1], "");
+        String keyAccessorName = values[0];
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(values[1], "");
         byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
 
-        this.keyAccessorTypeExtractor.threadContext().setDevice(getProtocol().getOfflineDevice());
         Optional<String> securityAttribute = this.keyAccessorTypeExtractor.correspondingSecurityAttribute(
                 keyAccessorName,
                 getProtocol().getDlmsSessionProperties().getSecurityPropertySet().getName()

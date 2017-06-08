@@ -1,18 +1,21 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
-import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
+import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimplv2.messages.ChannelConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DLMSConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.EIWebConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.GeneralDeviceMessage;
 import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
@@ -40,6 +43,10 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiwe
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.XMLAttributeDeviceMessageEntry;
 import com.google.common.collect.ImmutableMap;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.Map;
 
 /**
@@ -51,13 +58,40 @@ import java.util.Map;
  */
 public class EIWebMessageConverter extends AbstractMessageConverter {
 
-    public EIWebMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
+
+    public EIWebMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, nlsService, converter);
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return messageAttribute.toString();
+        switch (propertySpec.getName()) {
+            case DeviceMessageConstants.SetDLMSPasswordAttributeName:
+            case DeviceMessageConstants.SetISP1PasswordAttributeName:
+            case DeviceMessageConstants.SetISP2PasswordAttributeName:
+            case DeviceMessageConstants.SetPOPPasswordAttributeName:
+            case DeviceMessageConstants.SetOpusPasswordAttributeName:
+            case DeviceMessageConstants.SetEIWebPasswordAttributeName:
+            case DeviceMessageConstants.SetDukePowerPasswordAttributeName:
+                return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
+            case DeviceMessageConstants.AdminPassword:
+                return marshallActualPassiveValueOfKeyAccessorType((KeyAccessorType) messageAttribute);
+            default:
+                return messageAttribute.toString();
+        }
+    }
+
+    private String marshallActualPassiveValueOfKeyAccessorType(KeyAccessorType messageAttribute) {
+        String[] keys = new String[]{this.keyAccessorTypeExtractor.actualValueContent(messageAttribute), this.keyAccessorTypeExtractor.passiveValueContent(messageAttribute)};
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            new ObjectOutputStream(out).writeObject(keys);
+            return DatatypeConverter.printHexBinary(out.toByteArray());
+        } catch (IOException e) {
+            throw DataParseException.generalParseException(e);
+        }
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {

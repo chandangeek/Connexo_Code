@@ -21,6 +21,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -119,8 +120,9 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport, Proto
     private final DeviceMessageFileExtractor messageFileExtractor;
     private final DeviceGroupExtractor deviceGroupExtractor;
     private final DeviceExtractor deviceExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public RtuPlusServer(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor) {
+    public RtuPlusServer(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, DeviceGroupExtractor deviceGroupExtractor, DeviceExtractor deviceExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
         this.propertySpecService = propertySpecService;
@@ -129,6 +131,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport, Proto
         this.messageFileExtractor = messageFileExtractor;
         this.deviceGroupExtractor = deviceGroupExtractor;
         this.deviceExtractor = deviceExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     @Override
@@ -422,7 +425,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport, Proto
 
     protected RtuPlusServerMessages getRtuPlusServerMessages() {
         if (rtuPlusServerMessages == null) {
-            rtuPlusServerMessages = new RtuPlusServerMessages(this.getDlmsSession(), offlineDevice, collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, messageFileExtractor, deviceGroupExtractor, deviceExtractor);
+            rtuPlusServerMessages = new RtuPlusServerMessages(this.getDlmsSession(), offlineDevice, collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, messageFileExtractor, deviceGroupExtractor, deviceExtractor, keyAccessorTypeExtractor);
         }
         return rtuPlusServerMessages;
     }

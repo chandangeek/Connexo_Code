@@ -40,7 +40,7 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.hexStringSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeDefaultTranslation),
-                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeDefaultTranslation)
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeDefaultTranslation) // The actual value of the KeyAccessor reference will be used
             );
         }
     },
@@ -120,7 +120,7 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.hexStringSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeDefaultTranslation),
-                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeDefaultTranslation),
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeDefaultTranslation), // The actual value of the KeyAccessor reference will be used
                     this.bigDecimalSpec(service, DeviceMessageConstants.ZigBeeConfigurationDeviceType, DeviceMessageConstants.ZigBeeConfigurationDeviceTypeDefaultTranslation)
             );
         }
@@ -221,7 +221,7 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
 
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
-   @Override
+    @Override
     public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         return new DeviceMessageSpecImpl(
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),

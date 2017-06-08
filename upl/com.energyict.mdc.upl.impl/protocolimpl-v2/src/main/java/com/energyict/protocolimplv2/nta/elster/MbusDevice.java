@@ -33,16 +33,18 @@ public class MbusDevice extends AbstractNtaMbusDevice {
 
     private Dsmr23MbusMessaging dsmr23MbusMessaging;
     private final LoadProfileExtractor loadProfileExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public MbusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+    public MbusDevice(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor1) {
         super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
         this.loadProfileExtractor = loadProfileExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor1;
     }
 
     @Override
     public DeviceMessageSupport getDeviceMessageSupport() {
         if (dsmr23MbusMessaging == null) {
-            dsmr23MbusMessaging = new Dsmr23MbusMessaging(this, this.getPropertySpecService(), this.getNlsService(), this.getConverter(), this.loadProfileExtractor);
+            dsmr23MbusMessaging = new Dsmr23MbusMessaging(this, this.getPropertySpecService(), this.getNlsService(), this.getConverter(), this.loadProfileExtractor, this.keyAccessorTypeExtractor);
         }
         return dsmr23MbusMessaging;
     }

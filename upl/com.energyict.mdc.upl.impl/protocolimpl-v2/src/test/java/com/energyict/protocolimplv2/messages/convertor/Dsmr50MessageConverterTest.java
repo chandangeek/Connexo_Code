@@ -5,13 +5,17 @@ import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540;
 
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test that creates OfflineDeviceMessages (the attributes are all filled with dummy values) and converts them to the legacy XML message,
@@ -40,11 +44,17 @@ public class Dsmr50MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new Dsmr50MessageConverter(propertySpecService, nlsService, converter, loadProfileExtractor, numberLookupExtractor, calendarExtractor);
+        return new Dsmr50MessageConverter(propertySpecService, nlsService, converter, loadProfileExtractor, numberLookupExtractor, calendarExtractor, keyAccessorTypeExtractor);
     }
 
     @Override
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
+        if (propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName) ||
+                propertySpec.getName().equals(DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName)) {
+            KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+            when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("key");
+            return keyAccessorType;
+        }
         return "key";
     }
 }

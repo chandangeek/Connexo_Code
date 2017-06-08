@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
@@ -20,11 +21,11 @@ public enum PPPConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
     SetISP1Phone(19001, "Set ISP1 phone", PropertyType.STRING, DeviceMessageConstants.SetISP1PhoneAttributeName, DeviceMessageConstants.SetISP1PhoneAttributeDefaultTranslation),
     SetISP1Username(19002, "Set ISP1 username", PropertyType.STRING, DeviceMessageConstants.SetISP1UsernameAttributeName, DeviceMessageConstants.SetISP1UsernameAttributeDefaultTranslation),
-    SetISP1Password(19003, "Set ISP1 password", PropertyType.STRING, DeviceMessageConstants.SetISP1PasswordAttributeName, DeviceMessageConstants.SetISP1PasswordAttributeDefaultTranslation),
+    SetISP1Password(19003, "Set ISP1 password", PropertyType.KEYACCESSORTYPE_REFERENCE, DeviceMessageConstants.SetISP1PasswordAttributeName, DeviceMessageConstants.SetISP1PasswordAttributeDefaultTranslation), // The passive value of the KeyAccessor reference will be used
     SetISP1Tries(19004, "Set ISP1 tries", PropertyType.STRING, DeviceMessageConstants.SetISP1TriesAttributeName, DeviceMessageConstants.SetISP1TriesAttributeDefaultTranslation),
     SetISP2Phone(19005, "Set ISP2 phone", PropertyType.STRING, DeviceMessageConstants.SetISP2PhoneAttributeName, DeviceMessageConstants.SetISP2PhoneAttributeDefaultTranslation),
     SetISP2Username(19006, "Set ISP2 username", PropertyType.STRING, DeviceMessageConstants.SetISP2UsernameAttributeName, DeviceMessageConstants.SetISP2UsernameAttributeDefaultTranslation),
-    SetISP2Password(19007, "Set ISP2 password", PropertyType.STRING, DeviceMessageConstants.SetISP2PasswordAttributeName, DeviceMessageConstants.SetISP2PasswordAttributeDefaultTranslation),
+    SetISP2Password(19007, "Set ISP2 password", PropertyType.KEYACCESSORTYPE_REFERENCE, DeviceMessageConstants.SetISP2PasswordAttributeName, DeviceMessageConstants.SetISP2PasswordAttributeDefaultTranslation), // The passive value of the KeyAccessor reference will be used
     SetISP2Tries(19008, "Set ISP2 tries", PropertyType.STRING, DeviceMessageConstants.SetISP2TriesAttributeName, DeviceMessageConstants.SetISP2TriesAttributeDefaultTranslation),
     SetPPPIdleTimeout(19009, "Set PPP idle timeout", PropertyType.STRING, DeviceMessageConstants.SetPPPIdleTimeoutAttributeName, DeviceMessageConstants.SetPPPIdleTimeoutAttributeDefaultTranslation),
     SetPPPRetryInterval(19010, "Set PPP retry interval", PropertyType.STRING, DeviceMessageConstants.SetPPPRetryIntervalAttributeName, DeviceMessageConstants.SetPPPRetryIntervalAttributeDefaultTranslation),
@@ -52,6 +53,18 @@ public enum PPPConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
                 TranslationKeyImpl translationKey = new TranslationKeyImpl(propertyName, defaultTranslation);
                 return service
                         .bigDecimalSpec()
+                        .named(propertyName, translationKey)
+                        .describedAs(translationKey.description())
+                        .markRequired()
+                        .finish();
+            }
+        },
+        KEYACCESSORTYPE_REFERENCE {
+            @Override
+            protected PropertySpec get(PropertySpecService service, String propertyName, String defaultTranslation) {
+                TranslationKeyImpl translationKey = new TranslationKeyImpl(propertyName, defaultTranslation);
+                return service
+                        .referenceSpec(KeyAccessorType.class.getName())
                         .named(propertyName, translationKey)
                         .describedAs(translationKey.description())
                         .markRequired()

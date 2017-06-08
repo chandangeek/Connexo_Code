@@ -25,6 +25,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -219,13 +220,14 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     private final DeviceMasterDataExtractor extractor;
     private final DeviceGroupExtractor deviceGroupExtractor;
     private final CertificateWrapperExtractor certificateWrapperExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
     private final DeviceExtractor deviceExtractor;
     protected Beacon3100Messaging beacon3100Messaging;
     private BeaconCache beaconCache = null;
     private Beacon3100RegisterFactory registerFactory;
     private Beacon3100LogBookFactory logBookFactory;
 
-    public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, CertificateWrapperExtractor certificateWrapperExtractor, DeviceExtractor deviceExtractor) {
+    public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceExtractor deviceExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
         this.converter = converter;
@@ -233,6 +235,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         this.extractor = extractor;
         this.deviceGroupExtractor = deviceGroupExtractor;
         this.certificateWrapperExtractor = certificateWrapperExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
         this.deviceExtractor = deviceExtractor;
     }
 
@@ -589,7 +592,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     protected Beacon3100Messaging getBeacon3100Messaging() {
         if (beacon3100Messaging == null) {
-            beacon3100Messaging = new Beacon3100Messaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), objectMapperService, this.getPropertySpecService(), this.nlsService, this.converter, this.extractor, this.deviceGroupExtractor, deviceExtractor, certificateWrapperExtractor);
+            beacon3100Messaging = new Beacon3100Messaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), objectMapperService, this.getPropertySpecService(), this.nlsService, this.converter, this.extractor, this.deviceGroupExtractor, deviceExtractor, certificateWrapperExtractor, keyAccessorTypeExtractor);
         }
         return beacon3100Messaging;
     }

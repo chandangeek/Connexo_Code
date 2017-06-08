@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -17,6 +18,7 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155;
@@ -53,8 +55,9 @@ public class Messaging implements DeviceMessageSupport {
     private final Converter converter;
     private final TariffCalendarExtractor calendarExtractor;
     private final LoadProfileExtractor loadProfileExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public Messaging(MTU155 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, LoadProfileExtractor loadProfileExtractor) {
+    public Messaging(MTU155 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         this.protocol = protocol;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
@@ -63,6 +66,7 @@ public class Messaging implements DeviceMessageSupport {
         this.converter = converter;
         this.calendarExtractor = calendarExtractor;
         this.loadProfileExtractor = loadProfileExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     @Override
@@ -149,7 +153,7 @@ public class Messaging implements DeviceMessageSupport {
             case DeviceMessageConstants.executionKeyAttributeName:
             case DeviceMessageConstants.temporaryKeyAttributeName:
             case DeviceMessageConstants.passwordAttributeName:
-                return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
+                return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
             case DeviceMessageConstants.activityCalendarAttributeName:
                 return CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalendar) messageAttribute, this.calendarExtractor);
             case DeviceMessageConstants.loadProfileAttributeName:

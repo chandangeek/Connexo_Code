@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
@@ -18,6 +19,8 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test that creates OfflineDeviceMessages (the attributes are all filled with dummy values) and converts them to the legacy XML message,
@@ -66,7 +69,7 @@ public class REMIDataloggerMessageConverterTest extends AbstractV2MessageConvert
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new REMIDataloggerMessageConverter(propertySpecService, nlsService, converter, loadProfileExtractor);
+        return new REMIDataloggerMessageConverter(propertySpecService, nlsService, converter, loadProfileExtractor, keyAccessorTypeExtractor);
     }
 
     @Override
@@ -75,11 +78,13 @@ public class REMIDataloggerMessageConverterTest extends AbstractV2MessageConvert
             case DeviceMessageConstants.usernameAttributeName:
                 return "user";
             case DeviceMessageConstants.passwordAttributeName:
-                return "pass";
+                KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+                when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("pass");
+                return keyAccessorType;
             case DeviceMessageConstants.apnAttributeName:
                 return "apn";
             case DeviceMessageConstants.enableDSTAttributeName:
-                return new Boolean(true);
+                return true;
             case DeviceMessageConstants.AlarmFilterAttributeName:
                 return "ABCDEF01";
             default:

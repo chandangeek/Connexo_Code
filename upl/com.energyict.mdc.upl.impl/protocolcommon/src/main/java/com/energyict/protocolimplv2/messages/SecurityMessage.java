@@ -25,6 +25,9 @@ import java.util.stream.Stream;
 
 /**
  * Provides a summary of all <i>Security</i> related messages.
+ * Remark: If the message has a property spec of type reference<KeyAccessorType>, unless otherwise stated the new key value is taken from the <b>passive</b>
+ * value of the KeyAccessor of the Device.
+ *
  * <p/>
  * Copyrights EnergyICT
  * Date: 13/03/13
@@ -132,7 +135,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
     /**
      * For backwards compatibility
      */
-            CHANGE_HLS_SECRET(7013, "Change HLS secret") {
+     CHANGE_HLS_SECRET(7013, "Change HLS secret") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
@@ -339,7 +342,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.bigDecimalSpecBuilder(service, DeviceMessageConstants.clientMacAddress, DeviceMessageConstants.clientMacAddressDefaultTranslation).finish(),
-                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.masterKey, DeviceMessageConstants.masterKeyDefaultTranslation),
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.masterKey, DeviceMessageConstants.masterKeyDefaultTranslation), // The actual value of the KeyAccessor reference will be used
                     this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
                     this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation)
             );

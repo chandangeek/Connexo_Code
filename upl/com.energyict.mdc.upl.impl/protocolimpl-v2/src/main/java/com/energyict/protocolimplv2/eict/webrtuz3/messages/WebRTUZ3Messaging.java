@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -15,6 +16,7 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.protocolimpl.generic.messages.ActivityCalendarMessage;
@@ -73,8 +75,9 @@ public class WebRTUZ3Messaging extends AbstractDlmsMessaging implements DeviceMe
     private final IssueFactory issueFactory;
     private final TariffCalendarExtractor calendarExtractor;
     private final NumberLookupExtractor numberLookupExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public WebRTUZ3Messaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor) {
+    public WebRTUZ3Messaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(protocol);
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
@@ -83,6 +86,7 @@ public class WebRTUZ3Messaging extends AbstractDlmsMessaging implements DeviceMe
         this.issueFactory = issueFactory;
         this.calendarExtractor = calendarExtractor;
         this.numberLookupExtractor = numberLookupExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     protected WebRTUZ3MessageExecutor getMessageExecutor() {
@@ -161,7 +165,7 @@ public class WebRTUZ3Messaging extends AbstractDlmsMessaging implements DeviceMe
                 propertySpec.getName().equals(newAuthenticationKeyAttributeName) ||
                 propertySpec.getName().equals(newPasswordAttributeName) ||
                 propertySpec.getName().equals(passwordAttributeName)) {
-            return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
+            return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)) {
             return String.valueOf(((Duration) messageAttribute).getSeconds());
         } else if (propertySpec.getName().equals(emergencyProfileGroupIdListAttributeName)) {

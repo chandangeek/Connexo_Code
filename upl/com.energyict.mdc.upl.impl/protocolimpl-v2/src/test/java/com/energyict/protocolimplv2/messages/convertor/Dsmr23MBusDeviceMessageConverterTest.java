@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -19,6 +20,8 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test that creates OfflineDeviceMessages (the attributes are all filled with dummy values) and converts them to the legacy XML message,
@@ -86,7 +89,7 @@ public class Dsmr23MBusDeviceMessageConverterTest extends AbstractV2MessageConve
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new Dsmr23MBusDeviceMessageConverter(propertySpecService, nlsService, converter, loadProfileExtractor);
+        return new Dsmr23MBusDeviceMessageConverter(propertySpecService, nlsService, converter, loadProfileExtractor, keyAccessorTypeExtractor);
     }
 
     @Override
@@ -97,9 +100,13 @@ public class Dsmr23MBusDeviceMessageConverterTest extends AbstractV2MessageConve
             case DeviceMessageConstants.contactorModeAttributeName:
                 return 1;
             case DeviceMessageConstants.openKeyAttributeName:
-                return "open";
+                KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+                when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("open");
+                return keyAccessorType;
             case DeviceMessageConstants.transferKeyAttributeName:
-                return "transfer";
+                keyAccessorType = mock(KeyAccessorType.class);
+                when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("transfer");
+                return keyAccessorType;
             default:
                 return "";
         }

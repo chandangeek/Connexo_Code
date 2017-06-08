@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
@@ -12,6 +13,7 @@ import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.properties.Temporals;
@@ -119,12 +121,18 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
     private final LoadProfileExtractor loadProfileExtractor;
     private final NumberLookupExtractor numberLookupExtractor;
     private final TariffCalendarExtractor calendarExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public Dsmr23MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, TariffCalendarExtractor calendarExtractor) {
+    public Dsmr23MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, TariffCalendarExtractor calendarExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, nlsService, converter);
         this.loadProfileExtractor = loadProfileExtractor;
         this.numberLookupExtractor = numberLookupExtractor;
         this.calendarExtractor = calendarExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
+    }
+
+    protected KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {
+        return keyAccessorTypeExtractor;
     }
 
     @Override
@@ -146,7 +154,7 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
                 propertySpec.getName().equals(newAuthenticationKeyAttributeName) ||
                 propertySpec.getName().equals(newPasswordAttributeName) ||
                 propertySpec.getName().equals(passwordAttributeName)) {
-            return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
+            return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
         } else if (propertySpec.getName().equals(emergencyProfileGroupIdListAttributeName)) {
             return this.numberLookupExtractor.id((NumberLookup) messageAttribute);
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
