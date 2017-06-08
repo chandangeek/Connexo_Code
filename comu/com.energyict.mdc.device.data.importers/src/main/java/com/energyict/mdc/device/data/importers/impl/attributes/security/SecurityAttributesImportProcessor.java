@@ -20,6 +20,7 @@ import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 
+import javax.validation.ConstraintViolationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,19 +66,24 @@ public class SecurityAttributesImportProcessor extends AbstractDeviceDataFileImp
     private void updatedProperties(Device device, SecurityPropertySet deviceConfigSecurityPropertySet, SecurityAttributesImportRecord data) {
         List<ConfigurationSecurityProperty> securityProperties = deviceConfigSecurityPropertySet.getConfigurationSecurityProperties();
         for (PropertySpec propertySpec : deviceConfigSecurityPropertySet.getPropertySpecs()) {
-            if (data.getSecurityAttributes().containsKey(propertySpec.getName())) {
-                ConfigurationSecurityProperty securityProperty = securityProperties.stream()
-                        .filter(sp -> sp.getName().equals(propertySpec.getName()))
-                        .findAny()
-                        .orElseThrow(()->new ProcessorException(MessageSeeds.NO_VALUE_FOR_SECURITY_PROPERTY, data.getLineNumber(), propertySpec.getName()));
+            try {
+                if (data.getSecurityAttributes().containsKey(propertySpec.getName())) {
+                    ConfigurationSecurityProperty securityProperty = securityProperties.stream()
+                            .filter(sp -> sp.getName().equals(propertySpec.getName()))
+                            .findAny()
+                            .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_VALUE_FOR_SECURITY_PROPERTY, data.getLineNumber(), propertySpec
+                                    .getName()));
 
-                KeyAccessorType keyAccessorType = securityProperty.getKeyAccessorType();
-                KeyAccessor<SecurityValueWrapper> keyAccessor = device.getKeyAccessor(keyAccessorType)
-                        .orElseGet(() -> device.newKeyAccessor(keyAccessorType));
-                if (!keyAccessor.getActualValue().isPresent()) {
-                    createNewActualValue(keyAccessor, keyAccessorType);
+                    KeyAccessorType keyAccessorType = securityProperty.getKeyAccessorType();
+                    KeyAccessor<SecurityValueWrapper> keyAccessor = device.getKeyAccessor(keyAccessorType)
+                            .orElseGet(() -> device.newKeyAccessor(keyAccessorType));
+                    if (!keyAccessor.getActualValue().isPresent()) {
+                        createNewActualValue(keyAccessor, keyAccessorType);
+                    }
+                    setPropertyOnSecurityAccessor(data, propertySpec, keyAccessor.getActualValue().get());
                 }
-                setPropertyOnSecurityAccessor(data, propertySpec, keyAccessor.getActualValue().get());
+            } catch (ConstraintViolationException e) {
+                throw new PropertySpecAwareConstraintViolationException(propertySpec, e);
             }
         }
     }

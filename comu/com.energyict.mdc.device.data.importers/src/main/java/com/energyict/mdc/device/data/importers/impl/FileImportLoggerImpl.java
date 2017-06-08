@@ -4,12 +4,16 @@
 
 package com.energyict.mdc.device.data.importers.impl;
 
-import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.csvimport.exceptions.ImportException;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.importers.impl.attributes.security.PropertySpecAwareConstraintViolationException;
 import com.energyict.mdc.upl.issue.Warning;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 
 public abstract class FileImportLoggerImpl<T extends FileImportRecord> implements FileImportLogger<T> {
 
@@ -59,16 +63,28 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
         String message;
         if (exception instanceof ImportException) {
             message = ((ImportException) exception).getLocalizedMessage(this.context.getThesaurus());
-        } else if(exception instanceof VerboseConstraintViolationException) {
-            message = this.context.getThesaurus()
-                    .getFormat(TranslationKeys.IMPORT_MISSING_MANDATORY_PROCESSOR_ERROR_TEMPLATE)
-                    .format(lineNumber, exception.getLocalizedMessage());
+            fileImportOccurrence.getLogger().warning(message);
+        } else if(exception instanceof PropertySpecAwareConstraintViolationException) {
+            PropertySpecAwareConstraintViolationException constraintViolationException = (PropertySpecAwareConstraintViolationException) exception;
+            for (ConstraintViolation<?> constraintViolation : constraintViolationException.getConstraintViolationException().getConstraintViolations()) {
+                if (Checks.is(constraintViolation.getPropertyPath().toString()).emptyOrOnlyWhiteSpace()) {
+                    message = this.context.getThesaurus()
+                            .getFormat(TranslationKeys.IMPORT_MISSING_MANDATORY_PROCESSOR_ERROR_TEMPLATE)
+                            .format(lineNumber, constraintViolationException.getPropertySpec().getName(), constraintViolation.getMessage());
+                } else {
+                    message = this.context.getThesaurus()
+                            .getFormat(TranslationKeys.IMPORT_MISSING_MANDATORY_PROCESSOR_ERROR_PROPERTY_TEMPLATE)
+                            .format(lineNumber, constraintViolationException.getPropertySpec().getName(), constraintViolation.getPropertyPath(), constraintViolation.getMessage());
+                }
+                fileImportOccurrence.getLogger().warning(message);
+            }
+
         } else {
             message = this.context.getThesaurus()
                     .getFormat(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE)
                     .format(lineNumber, exception.getLocalizedMessage());
+            fileImportOccurrence.getLogger().warning(message);
         }
-        fileImportOccurrence.getLogger().warning(message);
     }
 
     @Override
