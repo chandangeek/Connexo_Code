@@ -32,6 +32,7 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -54,7 +55,7 @@ import static org.mockito.Mockito.when;
  */
 public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest {
     private final Instant start = ZonedDateTime.of(2014, 10, 10, 13, 10, 10, 0, ZoneId.of("Europe/Brussels")).toInstant();
-    private final Instant end = ZonedDateTime.of(2014, 10,10,13,10,20, 0, ZoneId.of("Europe/Brussels")).toInstant();
+    private final Instant end = ZonedDateTime.of(2014, 10, 10, 13, 10, 20, 0, ZoneId.of("Europe/Brussels")).toInstant();
     private ComSession comSession1;
 
     @Override
@@ -87,6 +88,13 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(partialConnectionTask.getPluggableClass()).thenReturn(pluggeableClass);
         doReturn(partialConnectionTask).when(connectionTask).getPartialConnectionTask();
         ComSession comSession1 = mockComSession(connectionTask, 61L, 0);
+        ComSessionJournalEntry warningJournalEntry1 = mockComSessionJournalEntry(start.plusSeconds(1), ComServer.LogLevel.WARN, "Clock has been shifted");
+        ComSessionJournalEntry warningJournalEntry2 = mockComSessionJournalEntry(start.plusSeconds(2), ComServer.LogLevel.WARN, "Clock out of sync");
+        ComSessionJournalEntry errorJournalEntry = mockComSessionJournalEntry(start.plusSeconds(3), ComServer.LogLevel.ERROR, "Force clock failed");
+        Finder<ComSessionJournalEntry> comSessionJournalEntryFinder = mockFinder(Arrays.asList(warningJournalEntry1, warningJournalEntry2));
+        when(comSession1.getJournalEntries(EnumSet.of(ComServer.LogLevel.WARN))).thenReturn(comSessionJournalEntryFinder);
+        comSessionJournalEntryFinder = mockFinder(Collections.singletonList(errorJournalEntry));
+        when(comSession1.getJournalEntries(EnumSet.of(ComServer.LogLevel.ERROR))).thenReturn(comSessionJournalEntryFinder);
         when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Collections.singletonList(comSession1));
         String response = target("/devices/XAW1/connectionmethods/3/comsessions").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
 
@@ -112,7 +120,14 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<Integer>get("$.comSessions[0].comTaskCount.numberOfIncompleteTasks")).isEqualTo(1003);
         assertThat(jsonModel.<Boolean>get("$.comSessions[0].isDefault")).isEqualTo(true);
         assertThat(jsonModel.<Integer>get("$.comSessions[0].id")).isEqualTo(61);
-
+        assertThat(jsonModel.<List>get("$.comSessions[0].warnings")).hasSize(2);
+        assertThat(jsonModel.<String>get("$.comSessions[0].warnings[0].details")).isEqualTo(warningJournalEntry1.getMessage());
+        assertThat(jsonModel.<Long>get("$.comSessions[0].warnings[0].timestamp")).isEqualTo(warningJournalEntry1.getTimestamp().toEpochMilli());
+        assertThat(jsonModel.<String>get("$.comSessions[0].warnings[1].details")).isEqualTo(warningJournalEntry2.getMessage());
+        assertThat(jsonModel.<Long>get("$.comSessions[0].warnings[1].timestamp")).isEqualTo(warningJournalEntry2.getTimestamp().toEpochMilli());
+        assertThat(jsonModel.<List>get("$.comSessions[0].errors")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.comSessions[0].errors[0].details")).isEqualTo(errorJournalEntry.getMessage());
+        assertThat(jsonModel.<Long>get("$.comSessions[0].errors[0].timestamp")).isEqualTo(errorJournalEntry.getTimestamp().toEpochMilli());
     }
 
     private Device mockDevice(ConnectionTask<?, ?> connectionTask) {
@@ -193,6 +208,10 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         ComSession comSession1 = mockComSession(connectionTask, 61L, 1);
         ComSession comSession2 = mockComSession(connectionTask, 62L, 3);
         ComSession comSession3 = mockComSession(connectionTask, 63L, 2);
+        Finder comSessionJournalEntryFinder = mockFinder(Collections.emptyList());
+        when(comSession1.getJournalEntries(anyObject())).thenReturn(comSessionJournalEntryFinder);
+        when(comSession2.getJournalEntries(anyObject())).thenReturn(comSessionJournalEntryFinder);
+        when(comSession3.getJournalEntries(anyObject())).thenReturn(comSessionJournalEntryFinder);
         when(connectionTaskService.findAllSessionsFor(connectionTask)).thenReturn(Arrays.asList(comSession1, comSession2, comSession3));
         String response = target("/devices/XAW1/connectionmethods/3/comsessions").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
 
@@ -256,7 +275,7 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         ComSessionJournalEntry journalEntry4 = mockComSessionJournalEntry(start.plusSeconds(2), ComServer.LogLevel.DEBUG, "Check clock");
         ComSessionJournalEntry journalEntry5 = mockComSessionJournalEntry(start.plusSeconds(3), ComServer.LogLevel.DEBUG, "Reset clock");
         ComSessionJournalEntry journalEntry6 = mockComSessionJournalEntry(start.plusSeconds(4), ComServer.LogLevel.DEBUG, "Fix clock");
-        Finder<ComSessionJournalEntry> comSessionJournalEntryFinder = mockFinder(Arrays.asList(journalEntry3,journalEntry4,journalEntry5, journalEntry6));
+        Finder<ComSessionJournalEntry> comSessionJournalEntryFinder = mockFinder(Arrays.asList(journalEntry3, journalEntry4, journalEntry5, journalEntry6));
         when(comSession1.getJournalEntries(anyObject())).thenReturn(comSessionJournalEntryFinder);
         ComSession.CombinedLogEntry combinedLogEntry1 = mockCombinedLogEntry(start, ComServer.LogLevel.INFO, "Starting connection", null);
         ComSession.CombinedLogEntry combinedLogEntry2 = mockCombinedLogEntry(start.plusSeconds(1), ComServer.LogLevel.DEBUG, "Set clock", "stack.trace.1");
