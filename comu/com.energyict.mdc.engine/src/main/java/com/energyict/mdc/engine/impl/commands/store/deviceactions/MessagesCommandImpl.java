@@ -21,6 +21,7 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
@@ -234,13 +235,14 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
         DeviceProtocolMessageList messageList = new DeviceProtocolMessageList(this.pendingInvalidMessages, getGroupedDeviceCommand().getCommandRoot().getServiceProvider().deviceMessageService());
         this.pendingInvalidMessages
                 .stream()
-                .map(this::toCollectedMessage)
+                .map(this::toInvalidCollectedMessage)
                 .forEach(messageList::addCollectedMessage);
         return messageList;
     }
 
-    private CollectedMessage toCollectedMessage(OfflineDeviceMessage offlineMessage) {
+    private CollectedMessage toInvalidCollectedMessage(OfflineDeviceMessage offlineMessage) {
         DeviceProtocolMessage message = new DeviceProtocolMessage(offlineMessage.getIdentifier());
+        message.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
         message.setFailureInformation(
                 ResultType.ConfigurationMisMatch,
                 getIssueService()
