@@ -48,7 +48,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
-import com.energyict.mdc.device.alarms.entity.DeviceAlarmClearStatus;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
 import com.energyict.mdc.device.alarms.rest.i18n.DeviceAlarmTranslationKeys;
 import com.energyict.mdc.device.data.DeviceService;
@@ -134,7 +133,7 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
 
     @Override
     protected Application getApplication() {
-        DeviceAlarmApplication deviceAlarmApplication = new DeviceAlarmApplication(){
+        DeviceAlarmApplication deviceAlarmApplication = new DeviceAlarmApplication() {
             //to mock security context
             @Override
             public Set<Class<?>> getClasses() {
@@ -198,12 +197,12 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         return Collections.singletonList(propertySpec);
     }
 
-    protected IssueActionType getDefaultIssueActionType(){
+    protected IssueActionType getDefaultIssueActionType() {
         IssueType issueType = getDefaultIssueType();
         return mockIssueActionType(1, "send", issueType);
     }
 
-    protected IssueActionType mockIssueActionType(long id, String name, IssueType issueType){
+    protected IssueActionType mockIssueActionType(long id, String name, IssueType issueType) {
         IssueActionType type = mock(IssueActionType.class);
         IssueAction action = mockIssueAction(name);
         when(type.getId()).thenReturn(id);
@@ -212,7 +211,7 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         return type;
     }
 
-    protected IssueAction mockIssueAction(String name){
+    protected IssueAction mockIssueAction(String name) {
         IssueAction action = mock(IssueAction.class);
         when(action.getDisplayName()).thenReturn(name);
         List<PropertySpec> propertySpec = mockPropertySpecs();
@@ -220,11 +219,11 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         return action;
     }
 
-    protected IssueType getDefaultIssueType(){
+    protected IssueType getDefaultIssueType() {
         return mockIssueType("devicealarm", "Device alarm");
     }
 
-    protected CreationRuleTemplate mockCreationRuleTemplate(String name, String description, IssueType issueType, List<PropertySpec> properties){
+    protected CreationRuleTemplate mockCreationRuleTemplate(String name, String description, IssueType issueType, List<PropertySpec> properties) {
         CreationRuleTemplate template = mock(CreationRuleTemplate.class);
         when(template.getName()).thenReturn(name);
         when(template.getDisplayName()).thenReturn("Display Name: " + name);
@@ -240,11 +239,11 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         return template;
     }
 
-    protected IssueType mockIssueType(String key, String name){
+    protected IssueType mockIssueType(String key, String name) {
         IssueType issueType = mock(IssueType.class);
         when(issueType.getKey()).thenReturn(key);
         when(issueType.getName()).thenReturn(name);
-        when(issueType.getPrefix()).thenReturn(name+key);
+        when(issueType.getPrefix()).thenReturn(name + key);
         return issueType;
     }
 
@@ -295,7 +294,7 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         IssueType issueType = mock(IssueType.class);
         when(issueType.getKey()).thenReturn("devicealarm");
         when(issueType.getName()).thenReturn(name);
-        when(issueType.getPrefix()).thenReturn(name+key);
+        when(issueType.getPrefix()).thenReturn(name + key);
         IssueReason reason = mock(IssueReason.class);
         when(reason.getKey()).thenReturn(key);
         when(reason.getName()).thenReturn(name);
@@ -316,7 +315,7 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         return meter;
     }
 
-    protected Thesaurus getThesaurus(){
+    protected Thesaurus getThesaurus() {
         return this.thesaurus;
     }
 
@@ -325,7 +324,7 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
     }
 
 
-    protected IssueAssignee mockAssignee(long userId, String userName, long workGroupId, String workGroupName){
+    protected IssueAssignee mockAssignee(long userId, String userName, long workGroupId, String workGroupName) {
         IssueAssignee assignee = mock(IssueAssignee.class);
         User user = mock(User.class);
         WorkGroup workGroup = mock(WorkGroup.class);
@@ -378,7 +377,7 @@ public class DeviceAlarmApplicationTest extends FelixRestApplicationJerseyTest {
         return alarm;
     }
 
-    protected List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvent(){
+    protected List<DeviceAlarmRelatedEvent> getDeviceAlarmRelatedEvent() {
         DeviceAlarmRelatedEvent event = mock(DeviceAlarmRelatedEvent.class);
         EndDeviceEventRecord eventRecord = mock(EndDeviceEventRecord.class);
         LogBookType logBookType = mock(LogBookType.class);
