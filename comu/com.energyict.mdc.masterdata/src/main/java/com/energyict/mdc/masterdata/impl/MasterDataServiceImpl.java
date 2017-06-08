@@ -26,6 +26,8 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.obis.ObisCode;
+
+import com.energyict.mdc.common.Constants;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -235,7 +237,7 @@ public class MasterDataServiceImpl implements MasterDataService, MessageSeedProv
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN).join(nlsService.getThesaurus(Constants.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Override
