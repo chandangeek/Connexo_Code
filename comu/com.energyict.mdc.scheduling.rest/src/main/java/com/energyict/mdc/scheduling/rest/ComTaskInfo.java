@@ -15,11 +15,13 @@ import java.util.List;
 public class ComTaskInfo {
     public long id;
     public String name;
+    public boolean isSystemComTask;
 
     public static ComTaskInfo from(ComTask comTask) {
         ComTaskInfo info = new ComTaskInfo();
         info.id=comTask.getId();
         info.name=comTask.getName();
+        info.isSystemComTask = comTask.isSystemComTask();
         return info;
     }
 
