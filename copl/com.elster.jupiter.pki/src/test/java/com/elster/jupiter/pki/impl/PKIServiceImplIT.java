@@ -1016,7 +1016,7 @@ public class PKIServiceImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INVALID_VALUE + "}", property = "key")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.INVALID_HEX_VALUE + "}", property = "key")
     public void testUpdatePropertiesSymmetricKeyWithImproperHexStringKey() throws Exception {
         KeyType created = inMemoryPersistence.getPkiService().newSymmetricKeyType("AES128-props-plain", "AES", 128).add();
         KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
