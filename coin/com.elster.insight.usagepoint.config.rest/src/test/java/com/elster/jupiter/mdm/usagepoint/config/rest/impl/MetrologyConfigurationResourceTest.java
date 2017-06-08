@@ -77,13 +77,10 @@ import static org.mockito.Mockito.when;
 public class MetrologyConfigurationResourceTest extends UsagePointConfigurationRestApplicationJerseyTest {
 
     @Mock
-    private UsagePointMetrologyConfiguration config1;
+    private UsagePointMetrologyConfiguration config1, config2;
     @Mock
-    private MetrologyContract metrologyContract1;
-    @Mock
-    private UsagePointMetrologyConfiguration config2;
-    @Mock
-    private MetrologyContract metrologyContract2;
+    private MetrologyContract metrologyContract1, metrologyContract2;
+    private ReadingType readingType = mockReadingType();
     @Mock
     private ValidationRuleSet vrs, vrs2, vrs3;
     @Mock
@@ -91,21 +88,18 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     @Mock
     private ServiceCategory serviceCategory;
     @Mock
-    private MetrologyContractInfo metrologyContractInfo;
-    @Mock
     private ReadingTypeDeliverable readingTypeDeliverable;
+    private MetrologyContractInfo metrologyContractInfo;
 
     @Before
     public void initializeMocks() {
-        config1 = mockMetrologyConfiguration(1L, "config1", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE, this.metrologyContract1);
-        config2 = mockMetrologyConfiguration(2L, "config2", ServiceKind.WATER, MetrologyConfigurationStatus.ACTIVE, this.metrologyContract2);
+        config1 = mockMetrologyConfiguration(1L, "config1", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE, metrologyContract1, readingType);
+        config2 = mockMetrologyConfiguration(2L, "config2", ServiceKind.WATER, MetrologyConfigurationStatus.ACTIVE, metrologyContract2);
         when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn(Arrays.asList(config1, config2));
         when(metrologyConfigurationService.findMetrologyConfiguration(1)).thenReturn(Optional.of(config1));
         when(metrologyConfigurationService.findMetrologyConfiguration(2)).thenReturn(Optional.of(config2));
-        when(this.config1.getContracts()).thenReturn(Collections.singletonList(this.metrologyContract1));
-        when(this.config2.getContracts()).thenReturn(Collections.singletonList(this.metrologyContract2));
 
-        ValidationRuleSetVersion validationRuleSetVersion = mockValidationRuleSetVersion(vrs, 1);
+        ValidationRuleSetVersion validationRuleSetVersion = mockValidationRuleSetVersion(vrs, 1, readingType);
         ValidationRuleSetVersion validationRuleSetVersion2 = mockValidationRuleSetVersion(vrs2, 2);
         ValidationRuleSetVersion validationRuleSetVersion3 = mockValidationRuleSetVersion(vrs3, 3);
         EstimationRule estimationRule = mock(EstimationRule.class);
@@ -120,7 +114,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(ers3.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         when(ers3.getId()).thenReturn(53L);
         metrologyContractInfo = new MetrologyContractInfo(metrologyContract1);
-        metrologyContractInfo.validationRuleSets = Collections.singletonList(new ValidationRuleSetInfo(vrs3));
+        metrologyContractInfo.validationRuleSets = Collections.singletonList(new ValidationRuleSetInfoFactory().from(vrs3, Collections.emptySet()));
         metrologyContractInfo.estimationRuleSets = Collections.emptyList();
         when(vrs3.getId()).thenReturn(2L);
         when(vrs3.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
@@ -149,19 +143,33 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     }
 
     private ValidationRuleSetVersion mockValidationRuleSetVersion(ValidationRuleSet validationRuleSet, long id) {
+        return mockValidationRuleSetVersion(validationRuleSet, id, mockReadingType());
+    }
+
+    private ValidationRuleSetVersion mockValidationRuleSetVersion(ValidationRuleSet validationRuleSet, long id,
+                                                                  ReadingType readingType) {
         ValidationRuleSetVersion validationRuleSetVersion = mock(ValidationRuleSetVersion.class);
         ValidationRule validationRule = mock(ValidationRule.class);
-        ReadingType readingType = mockReadingType();
         when(validationRuleSetVersion.getId()).thenReturn(id);
         when(validationRuleSetVersion.getStatus()).thenReturn(ValidationVersionStatus.CURRENT);
         when(validationRuleSetVersion.getRuleSet()).thenReturn(validationRuleSet);
         doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
+        when(validationRule.appliesTo(readingType)).thenReturn(true);
         when(validationRule.getRuleSetVersion()).thenReturn(validationRuleSetVersion);
         doReturn(Collections.singletonList(validationRule)).when(validationRuleSetVersion).getRules();
         return validationRuleSetVersion;
     }
 
-    private UsagePointMetrologyConfiguration mockMetrologyConfiguration(long id, String name, ServiceKind serviceKind, MetrologyConfigurationStatus status, MetrologyContract metrologyContract) {
+    private UsagePointMetrologyConfiguration mockMetrologyConfiguration(long id, String name, ServiceKind serviceKind,
+                                                                        MetrologyConfigurationStatus status,
+                                                                        MetrologyContract metrologyContract) {
+        return mockMetrologyConfiguration(id, name, serviceKind, status, metrologyContract, mockReadingType());
+    }
+
+    private UsagePointMetrologyConfiguration mockMetrologyConfiguration(long id, String name, ServiceKind serviceKind,
+                                                                        MetrologyConfigurationStatus status,
+                                                                        MetrologyContract metrologyContract,
+                                                                        ReadingType readingType) {
         UsagePointMetrologyConfiguration mock = mock(UsagePointMetrologyConfiguration.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
@@ -178,8 +186,6 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(role.getKey()).thenReturn(DefaultMeterRole.DEFAULT.getKey());
         when(role.getDisplayName()).thenReturn(DefaultMeterRole.DEFAULT.getDefaultFormat());
         when(mock.getMeterRoles()).thenReturn(Collections.singletonList(role));
-
-        ReadingType readingType = mockReadingType();
 
         MetrologyPurpose purpose = mock(MetrologyPurpose.class);
         when(purpose.getId()).thenReturn(1L);
@@ -336,25 +342,11 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         JsonModel ruleSet = jsonModel.getSubModel("$.contracts[0].validationRuleSets[0]");
         assertThat(ruleSet.<Integer>get("$.id")).isEqualTo(1);
         assertThat(ruleSet.<String>get("$.name")).isEqualTo("ValidationRuleSet");
+        assertThat(ruleSet.<Boolean>get("$.hasCurrent")).isTrue();
         assertThat(ruleSet.<Integer>get("$.currentVersionId")).isEqualTo(1);
         assertThat(ruleSet.<Integer>get("$.currentVersion.id")).isEqualTo(1);
         assertThat(ruleSet.<String>get("$.currentVersion.status")).isEqualTo(ValidationVersionStatus.CURRENT.name());
         assertThat(ruleSet.<Integer>get("$.currentVersion.numberOfRules")).isEqualTo(1);
-    }
-
-    @Test
-    public void testLinkedValidationRuleSetsWithNoActiveVersions() {
-        vrs.getRuleSetVersions().forEach(version -> when(version.getStatus()).thenReturn(ValidationVersionStatus.FUTURE));
-        String json = target("/metrologyconfigurations/1/contracts").request().get(String.class);
-        JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<List<?>>get("$.contracts[*]")).hasSize(1);
-        assertThat(jsonModel.<List<?>>get("$.contracts[0].validationRuleSets[*]")).hasSize(1);
-        JsonModel ruleSet = jsonModel.getSubModel("$.contracts[0].validationRuleSets[0]");
-        assertThat(ruleSet.<Integer>get("$.id")).isEqualTo(1);
-        assertThat(ruleSet.<String>get("$.name")).isEqualTo("ValidationRuleSet");
-        assertThat(ruleSet.hasPath("$.currentVersionId")).isTrue();
-        assertThat(ruleSet.hasPath("$.currentVersion")).isFalse();
     }
 
     @Test
@@ -722,15 +714,15 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
-        assertThat((List) model.get("$.usagePointRequirements")).hasSize(1);
-        assertThat((String) model.get("$.usagePointRequirements[0].name")).isEqualTo("stickyCriteria");
-        assertThat((String) model.get("$.usagePointRequirements[0].type")).isEqualTo("String");
-        assertThat((String) model.get("$.usagePointRequirements[0].factoryName")).isNotEmpty();
-        assertThat((String) model.get("$.usagePointRequirements[0].selectionMode")).isEqualTo("multiple");
-        assertThat((String) model.get("$.usagePointRequirements[0].visibility")).isEqualTo("sticky");
-        assertThat((List) model.get("$.usagePointRequirements[0].values[*].id")).containsOnly("Value 1", "Value 2", "Value 3", "Value 4");
-        assertThat((String) model.get("$.usagePointRequirements[0].value[0].operator")).isEqualTo("==");
-        assertThat((List) model.get("$.usagePointRequirements[0].value[0].criteria")).containsOnly("Value 1", "Value 2");
+        assertThat(model.<List<?>>get("$.usagePointRequirements")).hasSize(1);
+        assertThat(model.<String>get("$.usagePointRequirements[0].name")).isEqualTo("stickyCriteria");
+        assertThat(model.<String>get("$.usagePointRequirements[0].type")).isEqualTo("String");
+        assertThat(model.<String>get("$.usagePointRequirements[0].factoryName")).isNotEmpty();
+        assertThat(model.<String>get("$.usagePointRequirements[0].selectionMode")).isEqualTo("multiple");
+        assertThat(model.<String>get("$.usagePointRequirements[0].visibility")).isEqualTo("sticky");
+        assertThat(model.<List<String>>get("$.usagePointRequirements[0].values[*].id")).containsOnly("Value 1", "Value 2", "Value 3", "Value 4");
+        assertThat(model.<String>get("$.usagePointRequirements[0].value[0].operator")).isEqualTo("==");
+        assertThat(model.<List<String>>get("$.usagePointRequirements[0].value[0].criteria")).containsOnly("Value 1", "Value 2");
     }
 
     @Test

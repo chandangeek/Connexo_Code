@@ -204,6 +204,7 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(UsagePointLifeCycleStateInfoFactory.class).to(UsagePointLifeCycleStateInfoFactory.class);
             bind(BusinessProcessInfoFactory.class).to(BusinessProcessInfoFactory.class);
+            bind(ValidationRuleSetInfoFactory.class).to(ValidationRuleSetInfoFactory.class);
         }
     }
 }

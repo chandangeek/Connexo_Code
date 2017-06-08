@@ -23,6 +23,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -30,11 +31,9 @@ import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.ValidationVersionStatus;
-import com.elster.jupiter.validation.rest.DataValidationTaskInfoFactory;
-import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -59,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -78,12 +78,12 @@ public class MetrologyConfigurationResource {
     private final MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory;
     private final ReadingTypeDeliverableFactory readingTypeDeliverableFactory;
     private final MetrologyConfigurationService metrologyConfigurationService;
-    private final DataValidationTaskInfoFactory dataValidationTaskInfoFactory;
+    private final ValidationRuleSetInfoFactory validationRuleSetInfoFactory;
 
     @Inject
     public MetrologyConfigurationResource(ResourceHelper resourceHelper, MeteringService meteringService, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService, EstimationService estimationService,
                                           CustomPropertySetService customPropertySetService, CustomPropertySetInfoFactory customPropertySetInfoFactory, MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory,
-                                          MetrologyConfigurationService metrologyConfigurationService, ReadingTypeDeliverableFactory readingTypeDeliverableFactory, DataValidationTaskInfoFactory dataValidationTaskInfoFactory) {
+                                          MetrologyConfigurationService metrologyConfigurationService, ReadingTypeDeliverableFactory readingTypeDeliverableFactory, ValidationRuleSetInfoFactory validationRuleSetInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.meteringService = meteringService;
         this.usagePointConfigurationService = usagePointConfigurationService;
@@ -94,7 +94,7 @@ public class MetrologyConfigurationResource {
         this.metrologyConfigurationInfoFactory = metrologyConfigurationInfoFactory;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.readingTypeDeliverableFactory = readingTypeDeliverableFactory;
-        this.dataValidationTaskInfoFactory = dataValidationTaskInfoFactory;
+        this.validationRuleSetInfoFactory = validationRuleSetInfoFactory;
     }
 
     @GET
@@ -234,27 +234,17 @@ public class MetrologyConfigurationResource {
     public PagedInfoList getMetrologyConfigurationPurposes(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         List<MetrologyContractInfo> metrologyContractInfos = new ArrayList<>();
         for (MetrologyContract metrologyContract : resourceHelper.getMetrologyConfigOrThrowException(id).getContracts()) {
-            List<ValidationRuleSetInfo> validationRuleSetInfos = new ArrayList<>();
-            if (!usagePointConfigurationService.getValidationRuleSets(metrologyContract).isEmpty()) {
-                for (ValidationRuleSet validationRuleSet : usagePointConfigurationService.getValidationRuleSets(metrologyContract)) {
-                    ValidationRuleSetInfo validationRuleSetInfo = new ValidationRuleSetInfo(validationRuleSet,
-                            resourceHelper.getUsagePointLifeCycleStateInfos(metrologyContract, validationRuleSet));
-                    validationRuleSet.getRuleSetVersions()
-                            .stream()
-                            .filter(validationRuleSetVersion -> validationRuleSetVersion.getStatus() == ValidationVersionStatus.CURRENT)
-                            .findFirst()
-                            .ifPresent(version -> validationRuleSetInfo.currentVersion = new ValidationRuleSetVersionInfo(version));
-                    validationRuleSetInfos.add(validationRuleSetInfo);
-                }
-            }
-            List<EstimationRuleSetInfo> estimationRuleSetInfos = usagePointConfigurationService
+            MetrologyContractInfo metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
+            metrologyContractInfo.validationRuleSets = usagePointConfigurationService.getValidationRuleSets(metrologyContract).stream()
+                    .map(validationRuleSet -> validationRuleSetInfoFactory.from(validationRuleSet,
+                            metrologyContract.getDeliverables().stream().map(ReadingTypeDeliverable::getReadingType).collect(Collectors.toSet()),
+                            resourceHelper.getUsagePointLifeCycleStateInfos(metrologyContract, validationRuleSet)))
+                    .collect(Collectors.toList());
+            metrologyContractInfo.estimationRuleSets = usagePointConfigurationService
                     .getEstimationRuleSets(metrologyContract)
                     .stream()
                     .map(EstimationRuleSetInfo::new)
                     .collect(Collectors.toList());
-            MetrologyContractInfo metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
-            metrologyContractInfo.validationRuleSets = validationRuleSetInfos;
-            metrologyContractInfo.estimationRuleSets = estimationRuleSetInfos;
             metrologyContractInfos.add(metrologyContractInfo);
         }
         metrologyContractInfos.sort(Comparator.comparing(a -> a.name, String.CASE_INSENSITIVE_ORDER));
@@ -307,25 +297,30 @@ public class MetrologyConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MetrologyContractInfo getLinkableValidationRuleSetsForMetrologyContract(@PathParam("contractId") long contractId) {
         MetrologyContract metrologyContract = resourceHelper.findContractByIdOrThrowException(contractId);
-        List<ValidationRuleSet> linkedValidationRuleSets = usagePointConfigurationService.getValidationRuleSets(metrologyContract);
-        List<ValidationRuleSetInfo> linkableValidationRuleSets = validationService.getValidationRuleSets()
+        Set<ValidationRuleSet> linkedValidationRuleSets = new HashSet<>(usagePointConfigurationService.getValidationRuleSets(metrologyContract));
+        MetrologyContractInfo metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
+        metrologyContractInfo.validationRuleSets = validationService.getValidationRuleSets()
                 .stream()
                 .filter(validationRuleSet -> validationRuleSet.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
-                .filter(validationRuleSet -> !usagePointConfigurationService.getMatchingDeliverablesOnValidationRuleSet(metrologyContract, validationRuleSet).isEmpty())
                 .filter(validationRuleSet -> !linkedValidationRuleSets.contains(validationRuleSet))
-                .map(ValidationRuleSetInfo::new)
+                .map(validationRuleSet -> toLinkableValidationRuleSetInfo(metrologyContract, validationRuleSet))
+                .flatMap(Functions.asStream())
                 .collect(Collectors.toList());
-        List<EstimationRuleSetInfo> linkableEstimationRuleSets = estimationService.getEstimationRuleSets()
+        metrologyContractInfo.estimationRuleSets = estimationService.getEstimationRuleSets()
                 .stream()
                 .filter(estimationRuleSet -> estimationRuleSet.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
                 .filter(estimationRuleSet -> usagePointConfigurationService.isLinkableEstimationRuleSet(metrologyContract, estimationRuleSet,
                         usagePointConfigurationService.getEstimationRuleSets(metrologyContract)))
                 .map(EstimationRuleSetInfo::new)
                 .collect(Collectors.toList());
-        MetrologyContractInfo metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
-        metrologyContractInfo.validationRuleSets = linkableValidationRuleSets;
-        metrologyContractInfo.estimationRuleSets = linkableEstimationRuleSets;
         return metrologyContractInfo;
+    }
+
+    private Optional<ValidationRuleSetInfo> toLinkableValidationRuleSetInfo(MetrologyContract metrologyContract, ValidationRuleSet validationRuleSet) {
+        return Optional.of(usagePointConfigurationService.getMatchingDeliverablesOnValidationRuleSet(metrologyContract, validationRuleSet))
+                .filter(Predicates.not(List::isEmpty))
+                .map(deliverables -> deliverables.stream().map(ReadingTypeDeliverable::getReadingType).collect(Collectors.toSet()))
+                .map(readingTypes -> validationRuleSetInfoFactory.from(validationRuleSet, readingTypes));
     }
 
     @PUT
