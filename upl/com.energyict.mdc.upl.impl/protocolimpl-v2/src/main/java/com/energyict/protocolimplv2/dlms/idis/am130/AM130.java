@@ -30,7 +30,6 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130LogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130Messaging;
@@ -138,10 +137,10 @@ public class AM130 extends AM500 {
      */
     protected void readFrameCounter(ComChannel comChannel, int timeout) {
         TypedProperties clone = TypedProperties.copyOf(getDlmsSessionProperties().getProperties());
-        clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(IDIS2_CLIENT_PUBLIC));
+
         IDISProperties publicClientProperties = getNewInstanceOfProperties();
         publicClientProperties.addProperties(clone);
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(BigDecimal.valueOf(IDIS2_CLIENT_MANAGEMENT), 0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(BigDecimal.valueOf(IDIS2_CLIENT_PUBLIC), 0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
 
         long frameCounter;
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
