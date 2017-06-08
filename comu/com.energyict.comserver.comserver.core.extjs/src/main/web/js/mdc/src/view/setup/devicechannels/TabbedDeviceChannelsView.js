@@ -170,7 +170,10 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                             count = store.getCount();
 
                                         for (var i = 0; i < count; i++) {
-                                            if (store.getAt(i).get('value')) {
+                                            if (store.getAt(i).get('value') ||
+                                                store.getAt(i).get('validationResult').main === 'suspect' ||
+                                                store.getAt(i).get('validationResult').bulk === 'suspect')
+                                            {
                                                 noItemsSteps && noItemsSteps.setVisible(false);
                                                 addReadingsButton && addReadingsButton.setVisible(false);
                                                 graphView && graphView.setVisible(true);
