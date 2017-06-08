@@ -16,20 +16,22 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus.RtuServer;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.OutputConfigurationMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -143,7 +145,7 @@ public class EIWebPlusMessageConverterTest extends AbstractV2MessageConverterTes
 
             @Override
             public String format(PropertySpec propertySpec, Object messageAttribute) {
-                return new RtuServer(collectedDataFactory, propertySpecService, nlsService, EIWebPlusMessageConverterTest.super.converter, messageFileExtractor).format(null, null, propertySpec, messageAttribute);
+                return new RtuServer(collectedDataFactory, propertySpecService, nlsService, EIWebPlusMessageConverterTest.super.converter, messageFileExtractor, keyAccessorTypeExtractor).format(null, null, propertySpec, messageAttribute);
             }
 
             @Override
@@ -168,7 +170,7 @@ public class EIWebPlusMessageConverterTest extends AbstractV2MessageConverterTes
      */
     public class ExtendedEIWebPlusMessageConverter extends EIWebPlusMessageConverter {
         public ExtendedEIWebPlusMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
-            super(propertySpecService, nlsService, converter, deviceMessageFileExtractor);
+            super(propertySpecService, nlsService, converter, deviceMessageFileExtractor, keyAccessorTypeExtractor);
         }
 
         @Override

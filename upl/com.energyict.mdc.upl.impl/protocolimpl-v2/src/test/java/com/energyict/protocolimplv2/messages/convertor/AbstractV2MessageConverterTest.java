@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
@@ -63,6 +64,8 @@ public abstract class AbstractV2MessageConverterTest {
     protected NumberLookupExtractor numberLookupExtractor;
     @Mock
     protected DeviceMessageFileExtractor deviceMessageFileExtractor;
+    @Mock
+    protected KeyAccessorTypeExtractor keyAccessorTypeExtractor;
     @Mock
     protected NlsService nlsService;
     @Mock

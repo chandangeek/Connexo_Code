@@ -1,13 +1,9 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.LittleEndianInputStream;
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.upl.InboundDAO;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.meterdata.CollectedConfigurationInformation;
 import com.energyict.mdc.upl.meterdata.CollectedData;
@@ -19,6 +15,12 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.LittleEndianInputStream;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
@@ -51,6 +53,7 @@ public class ProtocolHandler {
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
     private ContentType contentType;
     private PacketBuilder packetBuilder;
     private ProfileBuilder profileBuilder;
@@ -68,6 +71,7 @@ public class ProtocolHandler {
         this.propertySpecService = context.getPropertySpecService();
         this.nlsService = context.getNlsService();
         this.converter = context.getConverter();
+        this.keyAccessorTypeExtractor = context.getKeyAccessorTypeExtractor();
     }
 
     private void setContentType(HttpServletRequest request) {
@@ -211,7 +215,7 @@ public class ProtocolHandler {
 
     private LegacyMessageConverter getMessageConverter() {
         if (messageConverter == null) {
-            messageConverter = new EIWebMessageConverter(this.propertySpecService, this.nlsService, this.converter);
+            messageConverter = new EIWebMessageConverter(this.propertySpecService, this.nlsService, this.converter, this.keyAccessorTypeExtractor);
         }
         return messageConverter;
     }

@@ -2,12 +2,14 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -35,17 +37,19 @@ import java.util.Map;
 public class UkHubMessageConverter extends AbstractMessageConverter {
 
     private final DeviceMessageFileExtractor deviceMessageFileExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public UkHubMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor) {
+    public UkHubMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor deviceMessageFileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, nlsService, converter);
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName:
-                return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
+                return this.keyAccessorTypeExtractor.actualValueContent((KeyAccessorType) messageAttribute);
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:

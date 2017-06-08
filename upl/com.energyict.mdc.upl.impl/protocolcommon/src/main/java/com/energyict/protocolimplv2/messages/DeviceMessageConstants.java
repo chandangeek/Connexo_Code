@@ -1034,9 +1034,9 @@ public final class DeviceMessageConstants {
     public static final String FTIONModemReset = "DeviceActionMessage.ftionmodemreset";
     public static final String FTIONModemResetDefaultTranslation = "FTION modem reset";
     public static final String AdminOld = "DeviceActionMessage.adminold";
-    public static final String AdminOldDefaultTranslation = "Admin old";
     public static final String AdminNew = "DeviceActionMessage.adminnew";
-    public static final String AdminNewDefaultTranslation = "Admin new";
+    public static final String AdminPassword = "Admin password";
+    public static final String AdminPasswordDefaultTranslation = "Admin password";
 
     public static final String IEC1107ClassIdAttributeName = "GeneralDeviceMessage.iec1107classid";
     public static final String IEC1107ClassIdAttributeDefaultTranslation = "IEC1107 class ID";

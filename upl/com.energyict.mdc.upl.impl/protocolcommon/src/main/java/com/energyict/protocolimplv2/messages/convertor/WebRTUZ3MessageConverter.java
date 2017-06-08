@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -8,6 +9,7 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
@@ -74,10 +76,12 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlCo
 public class WebRTUZ3MessageConverter extends AbstractMessageConverter {
 
     private final TariffCalendarExtractor tariffCalendarExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public WebRTUZ3MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor) {
+    public WebRTUZ3MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, nlsService, converter);
         this.tariffCalendarExtractor = tariffCalendarExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     @Override
@@ -104,7 +108,7 @@ public class WebRTUZ3MessageConverter extends AbstractMessageConverter {
                 propertySpec.getName().equals(newAuthenticationKeyAttributeName) ||
                 propertySpec.getName().equals(newPasswordAttributeName) ||
                 propertySpec.getName().equals(passwordAttributeName)) {
-            return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
+            return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
         } else if (propertySpec.getName().equals(meterTimeAttributeName)) {
             return dateTimeFormat.format((Date) messageAttribute);
         }

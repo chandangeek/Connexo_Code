@@ -14,6 +14,7 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.Message;
 import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
@@ -83,13 +84,15 @@ public class RtuServer implements DeviceProtocol, SerialNumberSupport {
     private final NlsService nlsService;
     private final Converter converter;
     private final DeviceMessageFileExtractor messageFileExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public RtuServer(CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
+    public RtuServer(CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         this.collectedDataFactory = collectedDataFactory;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
         this.messageFileExtractor = messageFileExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
         this.securitySupport = new NoOrPasswordSecuritySupport(propertySpecService);
     }
 
@@ -206,7 +209,7 @@ public class RtuServer implements DeviceProtocol, SerialNumberSupport {
 
     private LegacyMessageConverter getMessageConverter() {
         if (messageConverter == null) {
-            messageConverter = new EIWebPlusMessageConverter(this.propertySpecService, this.nlsService, this.converter, this.messageFileExtractor);
+            messageConverter = new EIWebPlusMessageConverter(this.propertySpecService, this.nlsService, this.converter, this.messageFileExtractor, this.keyAccessorTypeExtractor);
         }
         return messageConverter;
     }

@@ -51,15 +51,15 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
-                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.openKeyAttributeName, DeviceMessageConstants.openKeyAttributeDefaultTranslation),
-                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.transferKeyAttributeName, DeviceMessageConstants.transferKeyAttributeDefaultTranslation)
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.openKeyAttributeName, DeviceMessageConstants.openKeyAttributeDefaultTranslation), // The passive value of the KeyAccessor reference will be used
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.transferKeyAttributeName, DeviceMessageConstants.transferKeyAttributeDefaultTranslation) // The passive value of the KeyAccessor reference will be used
             );
         }
     },
     SetEncryptionKeysUsingCryptoserver(24006, "Set encryption key using cryptoserver") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
-            return Collections.singletonList(this.hexStringSpec(service, DeviceMessageConstants.defaultKeyAttributeName, DeviceMessageConstants.defaultKeyAttributeDefaultTranslation));
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.defaultKeyAttributeName, DeviceMessageConstants.defaultKeyAttributeDefaultTranslation)); // The actual value of the KeyAccessor reference will be used
         }
     },
     UseCorrectedValues(24007, "Use corrected values") {

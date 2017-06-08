@@ -1,14 +1,5 @@
 package com.energyict.protocolimplv2.dlms.idis.am500;
 
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
@@ -21,6 +12,7 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -36,6 +28,16 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
+
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -84,13 +86,15 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     private final Converter converter;
     private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileExtractor messageFileExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public AM500(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
+    public AM500(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.calendarExtractor = calendarExtractor;
         this.nlsService = nlsService;
         this.converter = converter;
         this.messageFileExtractor = messageFileExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     protected NlsService getNlsService() {
@@ -107,6 +111,10 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     protected DeviceMessageFileExtractor getMessageFileExtractor() {
         return messageFileExtractor;
+    }
+
+    protected KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {
+        return keyAccessorTypeExtractor;
     }
 
     @Override
@@ -316,7 +324,7 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
 
     protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
-            idisMessaging = new IDISMessaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.nlsService, this.converter, this.calendarExtractor, this.messageFileExtractor);
+            idisMessaging = new IDISMessaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.nlsService, this.converter, this.calendarExtractor, this.messageFileExtractor, this.keyAccessorTypeExtractor);
         }
         return idisMessaging;
     }

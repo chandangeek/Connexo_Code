@@ -5,6 +5,8 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+
 import com.energyict.protocolimplv2.messages.enums.DLMSGatewayNotificationRelayType;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
@@ -21,7 +23,14 @@ public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
 
     SetDLMSDeviceID(28001, "Set DLMS device ID", DeviceMessageConstants.SetDLMSDeviceIDAttributeName, DeviceMessageConstants.SetDLMSDeviceIDAttributeDefaultTranslation),
     SetDLMSMeterID(28002, "Set DLMS meter ID", DeviceMessageConstants.SetDLMSMeterIDAttributeName, DeviceMessageConstants.SetDLMSMeterIDAttributeDefaultTranslation),
-    SetDLMSPassword(28003, "Set DLMS password", DeviceMessageConstants.SetDLMSPasswordAttributeName, DeviceMessageConstants.SetDLMSPasswordAttributeDefaultTranslation),
+    SetDLMSPassword(28003, "Set DLMS password") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.SetDLMSPasswordAttributeName, DeviceMessageConstants.SetDLMSPasswordAttributeDefaultTranslation) // The passive value of the KeyAccessor reference will be used
+            );
+        }
+    },
     SetDLMSIdleTime(28004, "Set DLMS idle time", DeviceMessageConstants.SetDLMSIdleTimeAttributeName, DeviceMessageConstants.SetDLMSIdleTimeAttributeDefaultTranslation),
 
     MeterPushNotificationSettings(28005, "Configure meter push notification settings") {
@@ -92,6 +101,16 @@ public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .addValues(values)
+                .markRequired()
+                .finish();
+    }
+
+    protected PropertySpec keyAccessorTypeReferenceSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .referenceSpec(KeyAccessorType.class.getName())
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
                 .markRequired()
                 .finish();
     }

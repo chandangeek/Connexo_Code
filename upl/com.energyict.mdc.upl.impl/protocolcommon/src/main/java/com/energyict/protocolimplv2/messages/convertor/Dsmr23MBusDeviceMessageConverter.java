@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
@@ -8,6 +9,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -46,10 +48,16 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.trans
 public class Dsmr23MBusDeviceMessageConverter extends AbstractMessageConverter {
 
     private final LoadProfileExtractor loadProfileExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public Dsmr23MBusDeviceMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
+    public Dsmr23MBusDeviceMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, nlsService, converter);
         this.loadProfileExtractor = loadProfileExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
+    }
+
+    protected KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {
+        return keyAccessorTypeExtractor;
     }
 
     @Override
@@ -88,7 +96,7 @@ public class Dsmr23MBusDeviceMessageConverter extends AbstractMessageConverter {
                 return dateTimeFormatWithTimeZone.format((Date) messageAttribute);
             case DeviceMessageConstants.openKeyAttributeName:
             case DeviceMessageConstants.transferKeyAttributeName:
-                return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
+                return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
             default:
                 return messageAttribute.toString();
         }

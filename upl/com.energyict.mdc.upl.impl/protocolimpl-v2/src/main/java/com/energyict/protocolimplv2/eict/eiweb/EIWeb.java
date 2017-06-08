@@ -12,6 +12,7 @@ import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
@@ -71,12 +72,14 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public EIWeb(CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    public EIWeb(CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         this.collectedDataFactory = collectedDataFactory;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
         this.securitySupport = new SimplePasswordSecuritySupport(propertySpecService);
     }
 
@@ -198,7 +201,7 @@ public class EIWeb implements DeviceProtocol, SerialNumberSupport {
 
     private LegacyMessageConverter getMessageConverter() {
         if (messageConverter == null) {
-            messageConverter = new EIWebMessageConverter(propertySpecService, nlsService, converter);
+            messageConverter = new EIWebMessageConverter(propertySpecService, nlsService, converter, keyAccessorTypeExtractor);
         }
         return messageConverter;
     }

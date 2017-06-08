@@ -20,6 +20,8 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
+import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
@@ -41,6 +43,10 @@ import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageVal
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
@@ -270,7 +276,7 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case newAuthenticationKeyAttributeName:
             case passwordAttributeName:
             case newWrappedAuthenticationKeyAttributeName:
-                return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
+                return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
             case meterTimeAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());
             case specialDaysAttributeName:
@@ -286,7 +292,6 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case firmwareUpdateActivationDateAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());  //Epoch (millis)
             case keyAccessorTypeAttributeName:
-                this.keyAccessorTypeExtractor.threadContext().setDevice(offlineDevice);
                 return convertKeyAccessorType((KeyAccessorType) messageAttribute, this.keyAccessorTypeExtractor);
 
             default:
@@ -295,10 +300,14 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     }
 
     private String convertKeyAccessorType(KeyAccessorType messageAttribute, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
-        Optional<Object> optional = keyAccessorTypeExtractor.tempValue(messageAttribute);
-        return optional.isPresent()
-                ? keyAccessorTypeExtractor.name(messageAttribute) + ">-->" + optional.get().toString()   // Note that the 'toString() should work fine for symmetric keys/passphrases
-                : null;                                                                                 // (as tempValue should already been resolved to String)
+        String[] values = new String[]{keyAccessorTypeExtractor.name(messageAttribute), this.keyAccessorTypeExtractor.passiveValueContent(messageAttribute)};
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            new ObjectOutputStream(out).writeObject(values);
+            return DatatypeConverter.printHexBinary(out.toByteArray());
+        } catch (IOException e) {
+            throw DataParseException.generalParseException(e);
+        }
     }
 
     @Override

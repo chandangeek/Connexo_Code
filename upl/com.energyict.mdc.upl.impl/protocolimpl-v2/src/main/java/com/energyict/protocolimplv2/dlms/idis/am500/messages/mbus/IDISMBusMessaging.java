@@ -3,12 +3,14 @@ package com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.protocolcommon.exceptions.CodingException;
@@ -41,12 +43,14 @@ public class IDISMBusMessaging extends AbstractDlmsMessaging implements DeviceMe
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public IDISMBusMessaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
+    public IDISMBusMessaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(protocol);
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     private DeviceMessageSpec get(DeviceMessageSpecSupplier supplier) {
@@ -88,7 +92,7 @@ public class IDISMBusMessaging extends AbstractDlmsMessaging implements DeviceMe
         } else if (propertySpec.getName().equals(capturePeriodAttributeName)) {
             return String.valueOf(((TemporalAmount) messageAttribute).get(ChronoUnit.SECONDS));
         } else if (propertySpec.getName().equals(openKeyAttributeName) || propertySpec.getName().equals(transferKeyAttributeName)) {
-            return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
+            return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
         }
         return messageAttribute.toString();
     }

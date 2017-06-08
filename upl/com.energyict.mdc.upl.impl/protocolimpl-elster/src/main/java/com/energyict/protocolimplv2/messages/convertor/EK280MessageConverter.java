@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
@@ -11,6 +12,7 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.elster.protocolimpl.dlms.tariff.CodeTableBase64Builder;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -51,13 +53,15 @@ public class EK280MessageConverter extends AbstractMessageConverter {
     private final TariffCalendarFinder calendarFinder;
     private final DeviceMessageFileExtractor messageFileExtractor;
     private final DeviceMessageFileFinder deviceMessageFileFinder;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public EK280MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, DeviceMessageFileFinder deviceMessageFileFinder) {
+    public EK280MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarFinder calendarFinder, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, DeviceMessageFileFinder deviceMessageFileFinder, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, nlsService, converter);
         this.calendarFinder = calendarFinder;
         this.calendarExtractor = calendarExtractor;
         this.messageFileExtractor = messageFileExtractor;
         this.deviceMessageFileFinder = deviceMessageFileFinder;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     @Override
@@ -102,10 +106,11 @@ public class EK280MessageConverter extends AbstractMessageConverter {
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(passwordAttributeName) ||
-                propertySpec.getName().equals(masterKey) ||
                 propertySpec.getName().equals(newAuthenticationKeyAttributeName) ||
                 propertySpec.getName().equals(newEncryptionKeyAttributeName)) {
-            return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
+            return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
+        } else if (propertySpec.getName().equals(masterKey)) {
+                 return this.keyAccessorTypeExtractor.actualValueContent((KeyAccessorType) messageAttribute);
         } else if (propertySpec.getName().equals(activityCalendarAttributeName)) {
             return messageAttribute instanceof TariffCalendar ? CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalendar) messageAttribute, this.calendarExtractor) : messageAttribute.toString();
         } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {

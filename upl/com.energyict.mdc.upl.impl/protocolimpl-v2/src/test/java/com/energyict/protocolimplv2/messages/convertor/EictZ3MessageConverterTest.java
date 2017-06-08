@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimpl.dlms.eictz3.EictZ3;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -24,6 +25,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmw
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.openKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.transferKeyAttributeName;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test that creates OfflineDeviceMessages (the attributes are all filled with dummy values) and converts them to the legacy XML message,
@@ -68,7 +71,7 @@ public class EictZ3MessageConverterTest extends AbstractV2MessageConverterTest {
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new EictZ3MessageConverter(propertySpecService, nlsService, converter);
+        return new EictZ3MessageConverter(propertySpecService, nlsService, converter, keyAccessorTypeExtractor);
     }
 
     /**
@@ -84,7 +87,9 @@ public class EictZ3MessageConverterTest extends AbstractV2MessageConverterTest {
         } else if (propertySpec.getName().equals(contactorModeAttributeName)) {
             return BigDecimal.valueOf(1);
         } else if (propertySpec.getName().equals(openKeyAttributeName) || propertySpec.getName().equals(transferKeyAttributeName)) {
-            return "0101001010101010";
+            KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+            when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("0101001010101010");
+            return keyAccessorType;
         } else if (propertySpec.getName().equals(firmwareUpdateFileAttributeName)) {
             return "path";
         }

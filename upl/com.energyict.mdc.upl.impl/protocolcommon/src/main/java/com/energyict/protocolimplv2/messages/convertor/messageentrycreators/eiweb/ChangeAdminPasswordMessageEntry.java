@@ -6,9 +6,15 @@ import com.energyict.mdc.upl.messages.legacy.MessageTag;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 
+import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
+
+import javax.xml.bind.DatatypeConverter;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
 /**
  * Copyrights EnergyICT
@@ -28,15 +34,20 @@ public class ChangeAdminPasswordMessageEntry extends AbstractEIWebMessageEntry {
 
     @Override             //E.G. <AdminOld>sdfsdf</AdminOld><AdminNew>sdfsdf2</AdminNew>
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-
-        String adminOldValue = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.AdminOld).getValue();
-        String adminNewValue = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.AdminNew).getValue();
+        String[] keys;
+        String adminActualPassiveValue = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.AdminPassword).getValue();
+        ByteArrayInputStream in = new ByteArrayInputStream(DatatypeConverter.parseHexBinary(adminActualPassiveValue));
+        try {
+            keys = (String[]) new ObjectInputStream(in).readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw DataParseException.generalParseException(e);
+        }
 
         MessageTag oldTag = new MessageTag(LEGACY_ADMINOLD_TAG);
-        oldTag.add(new MessageValue(adminOldValue));
+        oldTag.add(new MessageValue(keys[0]));
 
         MessageTag newTag = new MessageTag(LEGACY_ADMINNEW_TAG);
-        newTag.add(new MessageValue(adminNewValue));
+        newTag.add(new MessageValue(keys[1]));
 
         return MessageEntry
                 .fromContent(SimpleTagWriter.writeTag(oldTag) + SimpleTagWriter.writeTag(newTag))

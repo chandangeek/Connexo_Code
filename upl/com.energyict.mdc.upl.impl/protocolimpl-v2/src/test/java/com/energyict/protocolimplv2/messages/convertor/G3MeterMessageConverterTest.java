@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
@@ -11,6 +12,7 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimpl.dlms.g3.AS330D;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -96,7 +98,7 @@ public class G3MeterMessageConverterTest extends AbstractV2MessageConverterTest 
     }
 
     protected LegacyMessageConverter doGetMessageConverter() {
-        return new TestG3MeterMessageConverter(propertySpecService, this.nlsService, this.converter, this.calendarExtractor);
+        return new TestG3MeterMessageConverter(propertySpecService, this.nlsService, this.converter, this.calendarExtractor, this.keyAccessorTypeExtractor);
     }
 
     /**
@@ -120,7 +122,9 @@ public class G3MeterMessageConverterTest extends AbstractV2MessageConverterTest 
         } else if (propertySpec.getName().equals(plcTypeFirmwareUpdateAttributeName)) {
             return Boolean.TRUE;
         } else if (propertySpec.getName().equals(pskAttributeName)) {
-            return "PSK";
+            KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+            when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("PSK");
+            return keyAccessorType;
         } else if (propertySpec.getName().equals(activityCalendarTypeAttributeName)) {
             return ActivityCalendarType.PublicNetwork.getDescription();
         } else if (propertySpec.getName().equals(plcG3TimeoutAttributeName)) {
@@ -144,8 +148,8 @@ public class G3MeterMessageConverterTest extends AbstractV2MessageConverterTest 
      */
     public class TestG3MeterMessageConverter extends G3MeterMessageConverter {
 
-        public TestG3MeterMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor) {
-            super(propertySpecService, nlsService, converter, tariffCalendarExtractor);
+        public TestG3MeterMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+            super(propertySpecService, nlsService, converter, tariffCalendarExtractor, keyAccessorTypeExtractor);
         }
 
         @Override

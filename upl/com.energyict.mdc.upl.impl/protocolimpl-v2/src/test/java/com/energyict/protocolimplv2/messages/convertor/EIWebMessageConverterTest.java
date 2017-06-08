@@ -9,6 +9,8 @@ import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+
 import com.energyict.protocolimplv2.messages.ChannelConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
@@ -40,6 +42,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiwe
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SimplePeakShaverMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.TotalizerEIWebMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.XMLAttributeDeviceMessageEntry;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,6 +50,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EIWebMessageConverterTest extends AbstractV2MessageConverterTest {
@@ -218,7 +223,7 @@ public class EIWebMessageConverterTest extends AbstractV2MessageConverterTest {
         assertEquals("<RefreshClockEvery>1</RefreshClockEvery>", messageEntry.getContent());
 
         messageEntry = new EIWebConfigurationMessageEntry().createMessageEntry(null, setEIWebPassword);
-        assertEquals("<EIWeb id=\"1\"><EIWebPassword>1</EIWebPassword></EIWeb>", messageEntry.getContent());
+        assertEquals("<EIWeb id=\"1\"><EIWebPassword>newPassword</EIWebPassword></EIWeb>", messageEntry.getContent());
 
         messageEntry = new EIWebConfigurationMessageEntry().createMessageEntry(null, setEIWebCurrentInterval);
         assertEquals("<EIWeb id=\"1\"><EIWebCurrentInterval>1</EIWebCurrentInterval></EIWeb>", messageEntry.getContent());
@@ -239,7 +244,7 @@ public class EIWebMessageConverterTest extends AbstractV2MessageConverterTest {
         assertEquals("<DLMSDeviceID>1</DLMSDeviceID>", messageEntry.getContent());
 
         messageEntry = new SimpleEIWebMessageEntry().createMessageEntry(null, setDLMSPassword);
-        assertEquals("<DLMSPassword>1</DLMSPassword>", messageEntry.getContent());
+        assertEquals("<DLMSPassword>newPassword</DLMSPassword>", messageEntry.getContent());
 
         messageEntry = new SimpleEIWebMessageEntry().createMessageEntry(null, setDukePowerID);
         assertEquals("<DukePowerID>1</DukePowerID>", messageEntry.getContent());
@@ -284,7 +289,8 @@ public class EIWebMessageConverterTest extends AbstractV2MessageConverterTest {
         assertEquals("<Peakshaver id=\"1\"><SwitchTime><Day>1</Day><Month>1</Month><Year>1</Year><Hour>1</Hour><Minute>1</Minute><Second>1</Second></SwitchTime></Peakshaver>", messageEntry.getContent());
 
         messageEntry = new SetLoadMessageEntry().createMessageEntry(null, setLoad);
-        assertEquals("<Peakshaver id=\"1\"><Load id=\"1\"><MaxOff>1</MaxOff><Delay>1</Delay><Manual>1</Manual><Status>1</Status><IPAddress>1</IPAddress><ChnNbr>1</ChnNbr></Load></Peakshaver>", messageEntry.getContent());
+        assertEquals("<Peakshaver id=\"1\"><Load id=\"1\"><MaxOff>1</MaxOff><Delay>1</Delay><Manual>1</Manual><Status>1</Status><IPAddress>1</IPAddress><ChnNbr>1</ChnNbr></Load></Peakshaver>", messageEntry
+                .getContent());
 
         messageEntry = new SimpleEIWebMessageEntry().createMessageEntry(null, setInputChannel);
         assertEquals("<InputChannel>1</InputChannel>", messageEntry.getContent());
@@ -317,7 +323,7 @@ public class EIWebMessageConverterTest extends AbstractV2MessageConverterTest {
         assertEquals("<FTIONClearMem>1</FTIONClearMem>", messageEntry.getContent());
 
         messageEntry = new ChangeAdminPasswordMessageEntry().createMessageEntry(null, setChangeAdminPassword);
-        assertEquals("<AdminOld>1</AdminOld><AdminNew>1</AdminNew>", messageEntry.getContent());
+        assertEquals("<AdminOld>oldPassword</AdminOld><AdminNew>newPassword</AdminNew>", messageEntry.getContent());
 
         messageEntry = new SimpleEIWebMessageEntry().createMessageEntry(null, setOutputOn);
         assertEquals("<OutputOn>1</OutputOn>", messageEntry.getContent());
@@ -344,13 +350,26 @@ public class EIWebMessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new EIWebMessageConverter(propertySpecService, nlsService, converter);
+        return new EIWebMessageConverter(propertySpecService, nlsService, converter, keyAccessorTypeExtractor);
     }
 
     @Override
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
         if (propertySpec.getName().equals(DeviceMessageConstants.xmlMessageAttributeName)) {
             return "<tag>value</tag>";
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.SetDLMSPasswordAttributeName)
+                || propertySpec.getName().equals(DeviceMessageConstants.SetISP1PasswordAttributeName)
+                || propertySpec.getName().equals(DeviceMessageConstants.SetISP2PasswordAttributeName)
+                || propertySpec.getName().equals(DeviceMessageConstants.SetEIWebPasswordAttributeName)
+                || propertySpec.getName().equals(DeviceMessageConstants.SetDukePowerPasswordAttributeName)) {
+            KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+            when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("newPassword");
+            return keyAccessorType;
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.AdminPassword)) {
+            KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
+            when(keyAccessorTypeExtractor.actualValueContent(keyAccessorType)).thenReturn("oldPassword");
+            when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("newPassword");
+            return keyAccessorType;
         } else {
             return "1";
         }

@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.meterdata.LoadProfile;
@@ -8,6 +9,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -51,10 +53,12 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.white
 public class IskraMx372MessageConverter extends AbstractMessageConverter {
 
     private final LoadProfileExtractor loadProfileExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public IskraMx372MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor) {
+    public IskraMx372MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, nlsService, converter);
         this.loadProfileExtractor = loadProfileExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     @Override
@@ -107,7 +111,8 @@ public class IskraMx372MessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.toDateAttributeName:
                 return dateTimeFormatWithTimeZone.format((Date) messageAttribute);
             case DeviceMessageConstants.newHexPasswordAttributeName:
-                return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
+            case DeviceMessageConstants.passwordAttributeName:
+                return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
             default:
                 return messageAttribute.toString();
         }

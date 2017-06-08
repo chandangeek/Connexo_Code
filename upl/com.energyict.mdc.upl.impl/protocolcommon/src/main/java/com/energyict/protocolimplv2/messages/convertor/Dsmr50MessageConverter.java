@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
@@ -9,6 +10,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.properties.Temporals;
@@ -46,8 +48,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWr
  */
 public class Dsmr50MessageConverter extends Dsmr40MessageConverter {
 
-    public Dsmr50MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, TariffCalendarExtractor calendarExtractor) {
-        super(propertySpecService, nlsService, converter, loadProfileExtractor, numberLookupExtractor, calendarExtractor);
+    public Dsmr50MessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, LoadProfileExtractor loadProfileExtractor, NumberLookupExtractor numberLookupExtractor, TariffCalendarExtractor calendarExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+        super(propertySpecService, nlsService, converter, loadProfileExtractor, numberLookupExtractor, calendarExtractor, keyAccessorTypeExtractor);
     }
 
     @Override
@@ -123,7 +125,7 @@ public class Dsmr50MessageConverter extends Dsmr40MessageConverter {
                 propertySpec.getName().equals(newWrappedAuthenticationKeyAttributeName) ||
                 propertySpec.getName().equals(newEncryptionKeyAttributeName) ||
                 propertySpec.getName().equals(newWrappedEncryptionKeyAttributeName)) {
-            return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
+            return getKeyAccessorTypeExtractor().passiveValueContent((KeyAccessorType) messageAttribute);
         } else if (propertySpec.getName().equals(disableDefaultRouting)
                 || propertySpec.getName().equals(adp_Blacklist_table_entry_TTL)
                 || propertySpec.getName().equals(adp_unicast_RREQ_gen_enable)

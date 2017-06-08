@@ -7,6 +7,8 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+
 import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
@@ -162,7 +164,9 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
     SetDukePowerPassword(31018, "Set DukePower password") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(this.stringSpecBuilder(service, DeviceMessageConstants.SetDukePowerPasswordAttributeName, DeviceMessageConstants.SetDukePowerPasswordAttributeDefaultTranslation).finish());
+            return Collections.singletonList(
+                    this.keyAccessorReferenceSpec(service, DeviceMessageConstants.SetDukePowerPasswordAttributeName, DeviceMessageConstants.SetDukePowerPasswordAttributeDefaultTranslation)
+            );
         }
     },
     SetDukePowerIdleTime(31019, "Set DukePower idle time") {
@@ -1043,6 +1047,16 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         return service
                 .referenceSpec(DeviceMessageFile.class.getName())
                 .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired()
+                .finish();
+    }
+
+    protected PropertySpec keyAccessorReferenceSpec(PropertySpecService service, String propertyName, String defaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(propertyName, defaultTranslation);
+        return service
+                .referenceSpec(KeyAccessorType.class.getName())
+                .named(propertyName, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()
                 .finish();

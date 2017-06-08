@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
@@ -27,7 +28,7 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, DeviceMessageConstants.id, DeviceMessageConstants.idDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2)),
-                    this.stringSpec(service, DeviceMessageConstants.SetEIWebPasswordAttributeName, DeviceMessageConstants.SetEIWebPasswordAttributeDefaultTranslation)
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.SetEIWebPasswordAttributeName, DeviceMessageConstants.SetEIWebPasswordAttributeDefaultTranslation) // The passive value of the KeyAccessor reference will be used
             );
         }
     },
@@ -156,6 +157,16 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier
         return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .addValues(exhaustiveValues)
                 .markExhaustive()
+                .finish();
+    }
+
+    protected PropertySpec keyAccessorTypeReferenceSpec(PropertySpecService service, String propertyName, String defaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(propertyName, defaultTranslation);
+        return service
+                .referenceSpec(KeyAccessorType.class.getName())
+                .named(propertyName, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired()
                 .finish();
     }
 

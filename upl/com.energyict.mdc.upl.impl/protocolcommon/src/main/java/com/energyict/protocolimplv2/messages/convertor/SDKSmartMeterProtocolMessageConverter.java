@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.LoadProfileExtractor;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
 import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
@@ -12,6 +13,7 @@ import com.energyict.mdc.upl.properties.NumberLookup;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -106,12 +108,14 @@ public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConver
     private final TariffCalendarExtractor tariffCalendarExtractor;
     private final NumberLookupExtractor numberLookupExtractor;
     private final LoadProfileExtractor loadProfileExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public SDKSmartMeterProtocolMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor) {
+    public SDKSmartMeterProtocolMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor tariffCalendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, nlsService, converter);
         this.tariffCalendarExtractor = tariffCalendarExtractor;
         this.numberLookupExtractor = numberLookupExtractor;
         this.loadProfileExtractor = loadProfileExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     @Override
@@ -144,7 +148,7 @@ public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConver
                 propertySpec.getName().equals(newAuthenticationKeyAttributeName) ||
                 propertySpec.getName().equals(newPasswordAttributeName) ||
                 propertySpec.getName().equals(passwordAttributeName)) {
-            return messageAttribute.toString(); // Reference<KeyAccessorType> is already resolved to actual key by framework before passing on to protocols
+            return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
         } else if (propertySpec.getName().equals(emergencyProfileGroupIdListAttributeName)) {
             return this.numberLookupExtractor.id((NumberLookup) messageAttribute);
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
