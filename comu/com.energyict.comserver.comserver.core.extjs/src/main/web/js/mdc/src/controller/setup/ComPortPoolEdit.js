@@ -238,11 +238,11 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
             formErrorsPanel = form.down('uni-form-error-message'),
             basicForm = form.getForm(),
             responseText;
-
         if (response.status == 400) {
             responseText = Ext.decode(response.responseText, true);
             if (responseText && responseText.errors) {
                 basicForm.markInvalid(responseText.errors);
+                form.down('#property-form').markInvalid(responseText.errors);
                 formErrorsPanel.show();
             }
         }

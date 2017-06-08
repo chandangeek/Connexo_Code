@@ -232,6 +232,11 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 failure: function (rec, operation) {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
+                        Ext.each(json.errors, function(error){
+                           if(error.id === 'obisCodeCached.obisCode') {
+                               error.id = 'obisCode';
+                           }
+                        });
                         me.getRegisterTypeEditForm().getForm().markInvalid(json.errors);
                         me.showErrorPanel();
                     }

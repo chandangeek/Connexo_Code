@@ -114,6 +114,21 @@ Ext.define('Mdc.securityaccessors.view.EditDeviceKeyAttributes', {
             ]
 
         };
+
+        me.side = [
+            {
+                xtype: 'panel',
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'deviceMenu',
+                        itemId: 'stepsMenu',
+                        device: me.device
+                    }
+                ]
+            }
+        ];
+
         me.callParent(arguments);
     }
 

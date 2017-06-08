@@ -79,7 +79,6 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                             width: '100%',
                             layout: {
                                 type: 'column'
-                            //    align: 'stretch'
                             },
                             items: [
                                 {
