@@ -72,7 +72,7 @@ Ext.define('Uni.controller.Error', {
         //</debug>
 
         var me = scope || this,
-            title;
+            title, errCode = '';
 
         if (Ext.isObject(error) && Ext.isDefined(error.title)) {
             title = error.title;
