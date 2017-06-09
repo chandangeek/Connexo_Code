@@ -310,9 +310,7 @@ public enum DeviceMessageId {
     SECURITY_GENERATE_KEY_PAIR(7047),
     SECURITY_GENERATE_CSR(7048),
     SECURITY_CHANGE_WEBPORTAL_PASSWORD1(7049),
-    SECURITY_IMPORT_CA_CERTIFICATE(7050),
-    SECURITY_IMPORT_END_DEVICE_CERTIFICATE(7051),
-    IMPORT_SERVER_END_DEVICE_CERTIFICATE(7052),
+    SECURITY_IMPORT_CERTIFICATE(7050),
     CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY(7053),
     CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY(7054),
     CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT(7055),
@@ -817,7 +815,10 @@ public enum DeviceMessageId {
     }
 
     public static DeviceMessageId from(long dbId) {
-        return Arrays.stream(DeviceMessageId.values()).filter( dmi -> dmi.dbValue() == dbId ).findFirst().orElseThrow(()-> new IllegalArgumentException(String.format("No DeviceMessageId found having id %d", dbId)));
+        return Arrays.stream(DeviceMessageId.values())
+                .filter(dmi -> dmi.dbValue() == dbId)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(String.format("No DeviceMessageId found having id %d", dbId)));
     }
 
     public static Set<DeviceMessageId> fileManagementRelated() {
