@@ -4,15 +4,16 @@
 
 package com.energyict.mdc.engine.impl;
 
+import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.PlaintextPassphrase;
 import com.elster.jupiter.pki.PlaintextSymmetricKey;
 import com.energyict.mdc.protocol.api.device.offline.OfflineKeyAccessor;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.CertificateWrapperAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.KeyAccessorTypeAdapter;
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import org.osgi.service.component.annotations.Activate;
@@ -114,10 +115,10 @@ public class KeyAccessorTypeExtractorImpl implements KeyAccessorTypeExtractor {
             return handlePlainTextSymmetricKey((PlaintextSymmetricKey) value);
         } else if (value instanceof PlaintextPassphrase) {
             return handlePlainTextPassphrase((PlaintextPassphrase) value);
-        } else if (value instanceof CertificateWrapper) {
-            return Optional.of(value);  //Return instance of CertificateWrapper as-is
+        } else if (value instanceof com.elster.jupiter.pki.CertificateWrapper) {
+            return Optional.of(new CertificateWrapperAdapter((com.elster.jupiter.pki.CertificateWrapper) value, Optional.empty()));      //Return instance of CertificateWrapper as-is
         }
-        return null;
+        return Optional.empty();
     }
 
     private Optional<Object> handlePlainTextSymmetricKey(PlaintextSymmetricKey plaintextSymmetricKey) {
