@@ -471,7 +471,7 @@ sub install_tomcat {
 		print "Installing Apache Tomcat For Connexo as service ...\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.bat") or die "Could not open $TOMCAT_DIR/bin/setenv.bat: $!";
-			print $FH "set CATALINA_OPTS=".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=\"$CATALINA_HOME\" -Dorg.uberfire.metadata.index.dir=\"$CATALINA_HOME\" -Dorg.uberfire.nio.git.ssh.cert.dir=\"$CATALINA_HOME\" -Dorg.guvnor.m2repo.dir=\"$CATALINA_HOME/repositories\" -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\" -Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\" -Dbtm.root=\"$CATALINA_HOME\" -Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\" -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false -Dorg.jboss.logging.provider=slf4j -Dorg.uberfire.nio.git.ssh.algorithm=RSA\n";
+			print $FH "set CATALINA_OPTS=".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=\"$CATALINA_HOME\" -Dorg.uberfire.metadata.index.dir=\"$CATALINA_HOME\" -Dorg.uberfire.nio.git.ssh.cert.dir=\"$CATALINA_HOME\" -Dorg.guvnor.m2repo.dir=\"$CATALINA_HOME/repositories/kie\" -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\" -Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\" -Dbtm.root=\"$CATALINA_HOME\" -Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\" -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false -Dorg.jboss.logging.provider=slf4j -Dorg.uberfire.nio.git.ssh.algorithm=RSA\n";
 			close($FH);
 			system("service.bat install ConnexoTomcat$SERVICE_VERSION");
 		} else {
@@ -479,9 +479,9 @@ sub install_tomcat {
             (my $replaceACCOUNT = $CONNEXO_ADMIN_ACCOUNT) =~ s/ /\\ /g;
             (my $replacePASSWORD = $CONNEXO_ADMIN_PASSWORD) =~ s/ /\\ /g;
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.sh") or die "Could not open $TOMCAT_DIR/bin/setenv.sh: $!";
-			print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=$replaceHOME -Dorg.uberfire.metadata.index.dir=$replaceHOME -Dorg.uberfire.nio.git.ssh.cert.dir=$replaceHOME -Dorg.guvnor.m2repo.dir=$replaceHOME/repositories -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=$replaceACCOUNT -Dconnexo.password=$replacePASSWORD -Dbtm.root=$replaceHOME -Dbitronix.tm.configuration=$replaceHOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false -Dconnexo.configuration=$replaceHOME/conf/connexo.properties -Dorg.jboss.logging.provider=slf4j -Dorg.uberfire.nio.git.ssh.algorithm=RSA\"\n";
+			print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=$replaceHOME -Dorg.uberfire.metadata.index.dir=$replaceHOME -Dorg.uberfire.nio.git.ssh.cert.dir=$replaceHOME -Dorg.guvnor.m2repo.dir=$replaceHOME/repositories/kie -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dflow.url=$FLOW_URL -Dconnexo.url=$CONNEXO_URL -Dconnexo.user=$replaceACCOUNT -Dconnexo.password=$replacePASSWORD -Dbtm.root=$replaceHOME -Dbitronix.tm.configuration=$replaceHOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false -Dconnexo.configuration=$replaceHOME/conf/connexo.properties -Dorg.jboss.logging.provider=slf4j -Dorg.uberfire.nio.git.ssh.algorithm=RSA\"\n";
 			close($FH);
-			
+
 			open(my $FH,"> /etc/init.d/ConnexoTomcat$SERVICE_VERSION") or die "Could not open /etc/init.d/ConnexoTomcat$SERVICE_VERSION: $!";
                         print $FH "#!/bin/sh\n";
                         print $FH "#\n";
@@ -586,7 +586,7 @@ sub install_facts {
 		chdir "$CONNEXO_DIR";
 		system("\"$JAVA_HOME/bin/jar\" -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" custom.properties") == 0 or die "$JAVA_HOME/bin/jar -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" custom.properties failed: $?";
 		unlink("$CONNEXO_DIR/custom.properties");
-		
+
 		make_path("$CONNEXO_DIR/resources");
 		copy("$FACTS_BASE_POST_INSTALL","$FACTS_TEMP_POST_INSTALL");
 		if ("$ACTIVATE_SSO" eq "yes") {
@@ -626,15 +626,15 @@ sub install_facts {
 
 sub replace_in_file {
 	my ($filename,$src,$dst)=@_;
-	open (IN,"$filename") or die "Cannot open file ".$filename." for read";     
-	my @lines=<IN>;  
+	open (IN,"$filename") or die "Cannot open file ".$filename." for read";
+	my @lines=<IN>;
 	close IN;
- 
+
 	open (OUT,">","$filename") or die "Cannot open file ".$filename." for write";
-	foreach my $line (@lines) {  
-		$line =~ s/$src/$dst/ig;  
-		print OUT $line;  
-	}  
+	foreach my $line (@lines) {
+		$line =~ s/$src/$dst/ig;
+		print OUT $line;
+	}
 	close OUT;
 }
 
@@ -725,7 +725,7 @@ sub activate_sso {
                 $PUBLIC_KEY_PROPERTIES=<$FH>;
                 chomp($PUBLIC_KEY_PROPERTIES);
                 close($FH);
-            }              
+            }
             #if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
             #    copy("$CONNEXO_DIR/bin/vcruntime140.dll","$APACHE_PATH/bin/vcruntime140.dll");
             #    system("$APACHE_PATH/bin/httpd.exe -k install -n \"Apache2.4\"");
@@ -790,12 +790,12 @@ sub activate_sso {
                 add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.yellowfin.admin.usr=$CONNEXO_ADMIN_ACCOUNT");
                 add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.yellowfin.admin.pwd=$CONNEXO_ADMIN_PASSWORD");
             }
-            
+
             add_to_file("$CATALINA_BASE/conf/connexo.properties","");
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.url=http://$HOST_NAME:$CONNEXO_HTTP_PORT");
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.externalurl=http://$HOST_NAME");
             add_to_file("$CATALINA_BASE/conf/connexo.properties","$PUBLIC_KEY_PROPERTIES");
-			
+
 			add_to_file($config_file,"$PUBLIC_KEY_PROPERTIES");
 
             #if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
@@ -1215,7 +1215,7 @@ sub perform_upgrade {
     for my $i (0 .. $#NEW_JARS) {
         my @result = map { $OLD_JARS[$_][1], $OLD_JARS[$_][2] }
                grep { $NEW_JARS[$i][0] eq $OLD_JARS[$_][0] }
-                 0 .. $#OLD_JARS;  
+                 0 .. $#OLD_JARS;
         if (("$NEW_JARS[$i][1]" ne "$result[0]") && ("$result[0]" ne "")) {
             print_screen_file($upgrade_log,"    $NEW_JARS[$i][0]\n");
             print_screen_file($upgrade_log,"        NEW version: $NEW_JARS[$i][1] (git: $NEW_JARS[$i][2])\n");
@@ -1228,7 +1228,7 @@ sub perform_upgrade {
     for my $i (0 .. $#NEW_JARS) {
         my @result = map { $OLD_JARS[$_][1], $OLD_JARS[$_][2] }
                grep { $NEW_JARS[$i][0] eq $OLD_JARS[$_][0] }
-                 0 .. $#OLD_JARS;  
+                 0 .. $#OLD_JARS;
         if ("$result[0]" eq "") {
             print_screen_file($upgrade_log,"    $NEW_JARS[$i][0]\n");
             print_screen_file($upgrade_log,"        Version: $NEW_JARS[$i][1] (git: $NEW_JARS[$i][2])\n");
@@ -1240,7 +1240,7 @@ sub perform_upgrade {
     for my $i (0 .. $#OLD_JARS) {
         my @result = map { $NEW_JARS[$_][1], $NEW_JARS[$_][2] }
                grep { $OLD_JARS[$i][0] eq $NEW_JARS[$_][0] }
-                 0 .. $#NEW_JARS;  
+                 0 .. $#NEW_JARS;
         if ("$result[0]" eq "") {
             print_screen_file($upgrade_log,"    $OLD_JARS[$i][0]\n");
             print_screen_file($upgrade_log,"        Version: $OLD_JARS[$i][1] (git: $OLD_JARS[$i][2])\n");
@@ -1248,7 +1248,7 @@ sub perform_upgrade {
     }
 
     close($upgrade_log);
-    
+
     print "\n\n";
     print "Make sure you have made a backup of your oracle schemas before starting the upgrade.\n";
     print "Without backup you won't be able to re-install Connexo if changes were already made to the oracle schemas.\n\n";
@@ -1267,7 +1267,7 @@ sub perform_upgrade {
         close($upgrade_log);
         rmtree("$CONNEXO_DIR/bundles");
         rename("$CONNEXO_DIR/bundles_obsolete","$CONNEXO_DIR/bundles");
-		
+
 		# start connexo & tomcat
 		print "\nStarting Connexo & ConnexoTomcat services\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
@@ -1305,7 +1305,7 @@ sub perform_upgrade {
 			system("/sbin/chkconfig --del Connexo$UPGRADE_OLD_SERVICE_VERSION");
 			unlink("/etc/init.d/Connexo$UPGRADE_OLD_SERVICE_VERSION");
 		}
-	
+
         #rename bin folder
         print "Renaming bin to bin_obsolete\n";
         make_path("$CONNEXO_DIR/bin_obsolete");
@@ -1431,7 +1431,7 @@ sub perform_upgrade {
         #copy existing flow repository
         print "Copying Flow repository\n";
         dircopy("$CONNEXO_DIR/partners_obsolete/tomcat/.niogit","$CONNEXO_DIR/partners/tomcat/.niogit");
-        dircopy("$CONNEXO_DIR/partners_obsolete/tomcat/repositories", "$CONNEXO_DIR/partners/tomcat/repositories");
+        dircopy("$CONNEXO_DIR/partners_obsolete/tomcat/repositories/kie", "$CONNEXO_DIR/partners/tomcat/repositories/kie");
 
         activate_sso();
         change_owner();
