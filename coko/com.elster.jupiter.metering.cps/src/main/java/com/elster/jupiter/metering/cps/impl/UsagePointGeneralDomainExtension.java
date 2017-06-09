@@ -58,10 +58,10 @@ public class UsagePointGeneralDomainExtension extends AbstractVersionedPersisten
 
     @NotNull(message = "{CannotBeNull}")
     private Boolean prepay;
-    @NotNull(message = "{CannotBeNull}")
+    @NotNull(message = "{CanNotBeEmpty}")
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String marketCodeSector;
-    @NotNull(message = "{CannotBeNull}")
+    @NotNull(message = "{CanNotBeEmpty}")
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String meteringPointType;
 
