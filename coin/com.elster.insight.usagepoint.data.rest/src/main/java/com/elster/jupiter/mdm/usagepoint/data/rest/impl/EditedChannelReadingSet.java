@@ -16,8 +16,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -31,6 +33,7 @@ class EditedChannelReadingSet {
     private final List<BaseReading> estimatedReadings = new ArrayList<>();
     private final List<BaseReading> confirmedReadings = new ArrayList<>();
     private final Set<Instant> removeCandidates = new HashSet<>();
+    private final Map<Long, Optional<ReadingQualityComment>> readingQualitiesComments = new HashMap<>();
 
     EditedChannelReadingSet(ResourceHelper resourceHelper) {
         this.resourceHelper = resourceHelper;
@@ -104,9 +107,10 @@ class EditedChannelReadingSet {
     }
 
     private String extractComment(OutputChannelDataInfo channelDataInfo) {
-        return Optional.ofNullable(channelDataInfo.commentId)
-                .flatMap(this.resourceHelper::getReadingQualityComment)
+        return Optional.ofNullable(channelDataInfo)
+                .map(info -> info.commentId)
+                .flatMap(id -> readingQualitiesComments.computeIfAbsent(id, this.resourceHelper::getReadingQualityComment))
                 .map(ReadingQualityComment::getComment)
-                .orElse(null);
+                .orElse(channelDataInfo != null ? channelDataInfo.commentValue : null);
     }
 }
