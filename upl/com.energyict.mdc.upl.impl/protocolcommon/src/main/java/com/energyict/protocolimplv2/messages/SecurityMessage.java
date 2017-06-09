@@ -27,8 +27,8 @@ import java.util.stream.Stream;
  * Provides a summary of all <i>Security</i> related messages.
  * Remark: If the message has a property spec of type reference<KeyAccessorType>, unless otherwise stated the new key value is taken from the <b>passive</b>
  * value of the KeyAccessor of the Device.
- *
- * <p/>
+ * <p>
+ * <p>
  * Copyrights EnergyICT
  * Date: 13/03/13
  * Time: 15:18
@@ -135,7 +135,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
     /**
      * For backwards compatibility
      */
-     CHANGE_HLS_SECRET(7013, "Change HLS secret") {
+            CHANGE_HLS_SECRET(7013, "Change HLS secret") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
@@ -464,27 +464,11 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
                     this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.passwordAttributeName, DeviceMessageConstants.passwordAttributeDefaultTranslation));
         }
     },
-    IMPORT_CA_CERTIFICATE(7050, "Import CA certificate") {
+    IMPORT_CA_CERTIFICATE(7050, "Import certificate (into device)") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
-            return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.certificateAliasAttributeName, DeviceMessageConstants.certificateAliasAttributeDefaultTranslation));
-        }
-    },
-    IMPORT_CLIENT_END_DEVICE_CERTIFICATE(7051, "Import client end device certificate") {
-        @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            //Referring to an entry in the persisted key store
-            //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
-            return Collections.singletonList(stringSpec(service, DeviceMessageConstants.clientCertificateAliasAttributeName, DeviceMessageConstants.clientCertificateAliasAttributeDefaultTranslation));
-        }
-    },
-    IMPORT_SERVER_END_DEVICE_CERTIFICATE(7052, "Import server end device certificate") {
-        @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            //Referring to a certificateWrapper
-            //TODO refactor this messsage so it works with the KeyAccessorType propertyspec
-            return Collections.singletonList(stringSpec(service, DeviceMessageConstants.certificateWrapperIdAttributeName, DeviceMessageConstants.clientCertificateAliasAttributeDefaultTranslation));
+            //Referring to a CertificateWrapper in the database. Can be a CA certificate, a device certificate or a HES (MDC) certificate.
+            return Collections.singletonList(this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.certificateWrapperAttributeName, DeviceMessageConstants.certificateWrapperAttributeDefaultTranslation));
         }
     },
     CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY_AND_NEW_PLAIN_KEY(7053, "Change authentication key using service key and new plain key") {

@@ -4,7 +4,7 @@ package com.energyict.protocolimplv2.messages;
  * Lists all translation keys that are used for the message attribute names.
  * Every key should be unique.
  * Also, do not name them CategoryName.MessageSpecName, this is already used as translation key for the message name.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 19/03/13
  * Time: 8:45
@@ -246,16 +246,11 @@ public final class DeviceMessageConstants {
     public static final String securitySuiteAttributeName = "SecurityMessage.securitySuite";
     public static final String securitySuiteAttributeDefaultTranslation = "Security suite";
     public static final String certificateEntityAttributeName = "SecurityMessage.certificateEntity";
-    public static final String CACertificateAliasAttributeName = "SecurityMessage.CACertificateAlias";
-    public static final String clientCertificateAliasAttributeName = "SecurityMessage.clientCertificateAlias";
-    public static final String clientCertificateAliasAttributeDefaultTranslation = "Client certificate alias";
-    public static final String certificateWrapperIdAttributeName = "SecurityMessage.certificateWrapperId";
-    public static final String certificateWrapperIdAttributeDefaultTranslation = "Certificate wrapper ID";
     public static final String certificateEntityAttributeDefaultTranslation = "Certificate entity";
-    public static final String certificateAliasAttributeName = "SecurityMessage.certificateAlias";
-    public static final String certificateAliasAttributeDefaultTranslation = "Certificate alias";
+
     public static final String certificateWrapperAttributeName = "SecurityMessage.certificateWrapper";
-    public static final String certificateWrapperAttributeDefaultTranslation = "Certificate wrapper";
+    public static final String certificateWrapperAttributeDefaultTranslation = "Certificate";
+
     public static final String certificateTypeAttributeName = "SecurityMessage.certificateType";
     public static final String certificateTypeAttributeDefaultTranslation = "Certificate type";
     public static final String certificateIssuerAttributeName = "SecurityMessage.certificateIssuer";
