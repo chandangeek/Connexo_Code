@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.estimation;
 
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
@@ -16,6 +17,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 public class EstimationBlockFormatter {
 
@@ -30,32 +32,28 @@ public class EstimationBlockFormatter {
     public String format(EstimationBlock estimationBlock) {
         Instant start = estimationBlock.estimatables().get(0).getTimestamp();
         Instant end = estimationBlock.estimatables().get(estimationBlock.estimatables().size() - 1).getTimestamp();
-        Optional<UsagePoint> usagePointOptional = estimationBlock.getChannel().getChannelsContainer().getUsagePoint();
-        Optional<Meter> meterOptional = estimationBlock.getChannel().getChannelsContainer().getMeter();
-        return " from " + DATE_TIME_FORMATTER.format(start)
-                + " until " + DATE_TIME_FORMATTER.format(end)
-                + " on " + estimationBlock.getReadingType().getFullAliasName()
-                + Optional.of(estimationBlock.getChannel().getChannelsContainer())
+        ChannelsContainer channelsContainer = estimationBlock.getChannel().getChannelsContainer();
+        return new StringJoiner("")
+                .add("from ")
+                .add(DATE_TIME_FORMATTER.format(start))
+                .add(" until ")
+                .add(DATE_TIME_FORMATTER.format(end))
+                .add(" on ")
+                .add(channelsContainer instanceof MetrologyContractChannelsContainer ?
+                        channelsContainer.getUsagePoint().map(UsagePoint::getName).orElse("") :
+                        channelsContainer.getMeter().map(Meter::getName).orElse(""))
+                .add(Optional.of(channelsContainer)
                         .filter(container -> container instanceof MetrologyContractChannelsContainer)
                         .map(MetrologyContractChannelsContainer.class::cast)
                         .map(MetrologyContractChannelsContainer::getMetrologyContract)
                         .map(MetrologyContract::getMetrologyPurpose)
                         .map(MetrologyPurpose::getName)
-                        .map(name -> " of purpose " + name)
-                        .orElse("")
-                + " of"
-                + usagePointOptional
-                        .map(UsagePoint::getName)
-                        .map(name -> " usage point " + name)
-                        .orElse("")
-                + usagePointOptional // if both usage point and meter are present, add 'and'
-                        .flatMap(usagePoint -> meterOptional)
-                        .map(meter -> " and")
-                        .orElse("")
-                + meterOptional
-                        .map(Meter::getName)
-                        .map(name -> " meter " + name)
-                        .orElse("")
-                + " with " + estimationBlock.estimatables().size() + " suspects";
+                        .map(name -> "/" + name + "/")
+                        .orElse("/"))
+                .add(estimationBlock.getReadingType().getFullAliasName())
+                .add(" with ")
+                .add(String.valueOf(estimationBlock.estimatables().size()))
+                .add(" suspects")
+                .toString();
     }
 }
