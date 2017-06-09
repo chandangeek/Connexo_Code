@@ -8,6 +8,8 @@ Ext.define('Uni.grid.plugin.EditableCells', {
     /**
      * @private
      */
+    fields: [],
+
     fieldsListeners: [],
 
     /**
@@ -30,9 +32,10 @@ Ext.define('Uni.grid.plugin.EditableCells', {
         var me = this,
             grid = gridView.up('gridpanel'),
             suffix = 0;
-
-        me.fieldsListeners.map(function (listener) {
-            listener.destroy();
+debugger;
+        me.fields.map(function (field) {
+            field.clearListeners();
+            field.destroy();
         });
 
         if (grid.rendered && !gridView.isHidden()) {
@@ -61,11 +64,13 @@ Ext.define('Uni.grid.plugin.EditableCells', {
                                     }
                                 ));
 
-                            me.fieldsListeners.push(field.on({
+                            field.on({
                                 change: me.onCellChange,
                                 scope: me,
                                 destroyable: true
-                            }));
+                            });
+
+                            me.fields.push(field);
                         }
                     });
                 }
