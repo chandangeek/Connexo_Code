@@ -238,6 +238,8 @@ public class ValidationEventHandlerTest {
 
         handler.handle(localEvent);
 
+        verify(validationService).validate(channelsContainer1, scope1);
+        verify(validationService).validate(channelsContainer2, scope2);
         verify(validationService).validate(allDependentScope);
         verifyNoMoreInteractions(validationService);
         InOrder inOrder = Mockito.inOrder(channelMdm1, channelMdm2);
@@ -255,6 +257,8 @@ public class ValidationEventHandlerTest {
 
         handler.handle(localEvent);
 
+        verify(validationService).validate(channelsContainer1, scope1);
+        verify(validationService).validate(channelsContainer2, scope2);
         verify(validationService).validate(dependentScope1);
         verifyNoMoreInteractions(validationService);
         InOrder inOrder = Mockito.inOrder(channelMdm1, channelMdm2);

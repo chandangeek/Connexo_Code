@@ -71,6 +71,11 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
                 if (StorerProcess.DEFAULT == action) { // we want to revalidate data automatically only if they come from meter, not by editing
                     scopePerChannelPerChannelsContainer.entrySet().forEach(
                             containerAndScope -> validationService.validate(containerAndScope.getKey(), containerAndScope.getValue()));
+                } else if (StorerProcess.ESTIMATION != action) {
+                    scopePerChannelPerChannelsContainer.entrySet().forEach(
+                            containerAndScope -> validationService.validate(
+                                    containerAndScope.getKey(), containerAndScope.getValue().entrySet().stream().filter(entry -> !entry.getKey().isRegular())
+                                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))));
                 }
                 validationService.validate(dependentScope);
             }
