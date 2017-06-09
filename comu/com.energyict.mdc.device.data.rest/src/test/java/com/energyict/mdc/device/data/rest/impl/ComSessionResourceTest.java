@@ -386,6 +386,12 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(comSession.getNumberOfFailedTasks()).thenReturn(1002);
         when(comSession.getNumberOfPlannedButNotExecutedTasks()).thenReturn(1003);
         when(comSession.getSuccessIndicator()).thenReturn(ComSession.SuccessIndicator.Success);
+
+
+        Finder<ComSessionJournalEntry> finder = mockFinder(Collections.emptyList());
+        when(comSession.getJournalEntries(EnumSet.of(ComServer.LogLevel.ERROR))).thenReturn(finder);
+        Finder<ComSessionJournalEntry> finder2 = mockFinder(Collections.emptyList());
+        when(comSession.getJournalEntries(EnumSet.of(ComServer.LogLevel.WARN))).thenReturn(finder2);
         return comSession;
     }
 
