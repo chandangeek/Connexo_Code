@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -154,6 +155,8 @@ public abstract class AbstractCimChannel implements CimChannel {
             ReadingQualityType qualityForCreate = ReadingQualityType.of(system, QualityCodeIndex.ADDED);
             ProcessStatus processStatusToSet = ProcessStatus.of(ProcessStatus.Flag.EDITED);
             Map<Instant, List<ReadingQualityRecord>> readingQualitiesByTimestamp = findReadingQualitiesByTimestamp(readings, Collections.emptySet());
+            Range<Instant> range = readings.stream().map(BaseReading::getTimeStamp).map(Range::singleton).reduce(Range::span).get();
+            Map<Instant, BaseReadingRecord> oldReadings = getChannel().getReadings(range).stream().collect(Collectors.toMap(BaseReading::getTimeStamp, Function.identity()));
             ReadingStorer storer = meteringService.createUpdatingStorer(StorerProcess.EDIT);
             List<ReadingQualityRecord> toCreate = new ArrayList<>();
             List<ReadingQualityRecord> toUpdate = new ArrayList<>();
@@ -161,7 +164,7 @@ public abstract class AbstractCimChannel implements CimChannel {
             for (BaseReading reading : readings) {
                 List<ReadingQualityRecord> currentQualityRecords = Optional.ofNullable(readingQualitiesByTimestamp.get(reading.getTimeStamp())).orElseGet(Collections::emptyList);
 
-                Optional<BaseReadingRecord> oldReading = getChannel().getReading(reading.getTimeStamp());
+                Optional<BaseReadingRecord> oldReading = Optional.ofNullable(oldReadings.get(reading.getTimeStamp()));
                 ProcessStatus processStatus = processStatusToSet.or(oldReading.map(BaseReadingRecord::getProcessStatus).orElse(ProcessStatus.of()));
 
                 Pair<List<ReadingQualityRecord>, List<ReadingQualityRecord>> qualitiesWhenEditingOrEstimating = cleanObsoleteQualitiesWhenEditingOrEstimating(currentQualityRecords);
@@ -196,6 +199,8 @@ public abstract class AbstractCimChannel implements CimChannel {
             ReadingStorer storer = meteringService.createUpdatingStorer(StorerProcess.CONFIRM);
             Set<QualityCodeSystem> controlledSystems = system == QualityCodeSystem.MDM ? Collections.emptySet() : Collections.singleton(system);
             Map<Instant, List<ReadingQualityRecord>> readingQualitiesByTimestamp = findReadingQualitiesByTimestamp(readings, controlledSystems);
+            Range<Instant> range = readings.stream().map(BaseReading::getTimeStamp).map(Range::singleton).reduce(Range::span).get();
+            Map<Instant, BaseReadingRecord> oldReadings = getReadings(range).stream().collect(Collectors.toMap(BaseReading::getTimeStamp, Function.identity()));
             List<ReadingQualityRecord> toCreate = new ArrayList<>();
             List<ReadingQualityRecord> toUpdate = new ArrayList<>();
             List<ReadingQualityRecord> toDelete = new ArrayList<>();
@@ -216,7 +221,7 @@ public abstract class AbstractCimChannel implements CimChannel {
                     } else if (confirmedReadingQualityRecord.getLast() != null) {
                         toUpdate.add(confirmedReadingQualityRecord.getLast());
                     }
-                    Optional<BaseReadingRecord> oldReading = getReading(reading.getTimeStamp());
+                    Optional<BaseReadingRecord> oldReading = Optional.ofNullable(oldReadings.get(reading.getTimeStamp()));
                     ProcessStatus processStatus = ProcessStatus.of(ProcessStatus.Flag.CONFIRMED).or(oldReading.map(BaseReadingRecord::getProcessStatus).orElse(ProcessStatus.of()));
                     storer.addReading(this, reading, processStatus);
                 }
@@ -248,6 +253,9 @@ public abstract class AbstractCimChannel implements CimChannel {
         if (!readings.isEmpty()) {
             Optional<AbstractCimChannel> derivedCimChannel = derivedCimChannel().map(AbstractCimChannel.class::cast);
             Map<Instant, List<ReadingQualityRecord>> readingQualitiesByTimestamp = findReadingQualitiesByTimestamp(readings, Collections.emptySet());
+            Range<Instant> range = readings.stream().map(BaseReading::getTimeStamp).map(Range::singleton).reduce(Range::span).get();
+            Map<Instant, BaseReadingRecord> oldReadings = getReadings(range).stream().collect(Collectors.toMap(BaseReading::getTimeStamp, Function.identity()));
+
             ReadingStorer storer = meteringService.createUpdatingStorer(StorerProcess.ESTIMATION);
             List<ReadingQualityRecord> toCreate = new ArrayList<>();
             List<ReadingQualityRecord> toUpdate = new ArrayList<>();
@@ -255,7 +263,7 @@ public abstract class AbstractCimChannel implements CimChannel {
             for (BaseReading reading : readings) {
                 List<ReadingQualityRecord> currentQualityRecords = Optional.ofNullable(readingQualitiesByTimestamp.get(reading.getTimeStamp())).orElse(new ArrayList<>());
 
-                Optional<BaseReadingRecord> oldReading = getReading(reading.getTimeStamp());
+                Optional<BaseReadingRecord> oldReading = Optional.ofNullable(oldReadings.get(reading.getTimeStamp()));
                 ProcessStatus processStatus = ProcessStatus.of(ProcessStatus.Flag.ESTIMATED).or(oldReading.map(BaseReadingRecord::getProcessStatus).orElse(ProcessStatus.of()));
 
                 List<? extends ReadingQuality> readingQualitiesFromReading = reading.getReadingQualities();
