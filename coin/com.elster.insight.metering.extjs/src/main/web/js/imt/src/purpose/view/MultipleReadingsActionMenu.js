@@ -72,7 +72,7 @@ Ext.define('Imt.purpose.view.MultipleReadingsActionMenu', {
                 privileges: Imt.privileges.UsagePoint.admin,
                 text: Uni.I18n.translate('general.viewHistory', 'IMT', 'View history'),
                 action: 'viewHistory',
-                section: this.SECTION_ACTION
+                section: this.SECTION_VIEW
             },
             {
                 itemId: 'reset-value',

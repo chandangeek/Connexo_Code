@@ -83,6 +83,16 @@ Ext.define('Imt.usagepointmanagement.view.forms.LifeCycleTransition', {
                 }
             },
             {
+                xtype: 'component',
+                itemId: 'transition-date-field-errors',
+                cls: 'x-form-invalid-under',
+                style: {
+                    'white-space': 'normal',
+                    'padding': '0px 0px 10px 275px'
+                },
+                hidden: true
+            },
+            {
                 xtype: 'property-form',
                 itemId: 'transition-property-form',
                 defaults: {
@@ -113,9 +123,12 @@ Ext.define('Imt.usagepointmanagement.view.forms.LifeCycleTransition', {
 
         Ext.suspendLayouts();
         if (transitionRecord) {
+            var effectiveTimestamp = moment(_.max(possibleTransitionDates)).add(1, 'm');
             resetTransitionButton.enable();
             transitionDateField.show();
-            transitionRecord.set('effectiveTimestamp', _.max(possibleTransitionDates));
+            me.down('#transition-date-field-errors').hide();
+            transitionDateField.down('#date-time-field-date').setMinValue(moment(effectiveTimestamp).startOf('day').toDate());
+            transitionRecord.set('effectiveTimestamp', effectiveTimestamp);
             me.loadRecord(transitionRecord);
             transitionPropertyForm.show();
             transitionPropertyForm.loadRecord(transitionRecord);
@@ -151,7 +164,7 @@ Ext.define('Imt.usagepointmanagement.view.forms.LifeCycleTransition', {
         var me = this;
 
         Ext.suspendLayouts();
-        me.getForm().markInvalid(errors);
+        me.getForm().markInvalid(me.mapErrors(errors));
         me.down('#transition-property-form').markInvalid(errors);
         Ext.resumeLayouts(true);
     },
@@ -162,6 +175,40 @@ Ext.define('Imt.usagepointmanagement.view.forms.LifeCycleTransition', {
         Ext.suspendLayouts();
         me.getForm().clearInvalid();
         me.down('#transition-property-form').clearInvalid();
+        me.down('#transition-date-field-errors').hide();
         Ext.resumeLayouts(true);
+    },
+
+    mapErrors: function (errors) {
+        var map = {},
+            errMsg = [],
+            errorsField = this.down('#transition-date-field-errors');
+
+        Ext.Array.each(errors, function (error) {
+
+            if (Ext.String.startsWith(error.id, 'effectiveTimestamp')) {
+                error.id = 'effectiveTimestamp.transition-date-field-errors';
+                errMsg.push(error.msg);
+                if (!map[error.id]) {
+                    map[error.id] = {
+                        id: error.id
+                    };
+                } else {
+                    map[error.id].msg.push(error.msg);
+                }
+            } else {
+                if (!map[error.id]) {
+                    map[error.id] = {
+                        id: error.id,
+                        msg: [' '+error.msg]
+                    };
+                }
+            }
+            errorsField.show();
+            errorsField.update(' '+errMsg.join('<br> '));
+
+        });
+
+        return _.values(map);
     }
 });
