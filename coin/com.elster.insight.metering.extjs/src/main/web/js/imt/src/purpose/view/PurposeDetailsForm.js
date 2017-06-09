@@ -36,15 +36,16 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                         itemId: 'purpose-status',
                         fieldLabel: Uni.I18n.translate('general.label.status', 'IMT', 'Status'),
                         htmlEncode: false,
-                        renderer: function (status, meta, record) {
-                            if (!Ext.isEmpty(status)) {
-                                var icon = '&nbsp;&nbsp;<i class="icon ' + (status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
-                                    + status.name
-                                    + '"></i>';
-                                return status.name + icon
-                            } else {
+                        renderer: function (status) {
+                            if (Ext.isEmpty(status)) {
                                 return '-'
                             }
+                            var icon = '<span class="'
+                                    + (status.id === 'incomplete' ? 'icon-warning' : 'icon-checkmark-circle')
+                                    + '" style="margin-left:10px; display: inline-block; font-size:16px; color: '
+                                    + (status.id === 'incomplete' ? '#eb5642' : '#33cc33')
+                                    + ';" data-qtip="' + status.name + '"></span>';
+                            return status.name + icon
                         }
                     },
                     {
