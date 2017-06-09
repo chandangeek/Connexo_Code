@@ -7,9 +7,14 @@ package com.elster.jupiter.orm;
 import aQute.bnd.annotation.ProviderType;
 
 /**
- * Created by bvn on 1/5/17.
+ * Counterpart to the {@link DdlDifference} that only offers a DDL statement for execution, this Difference allows code
+ * to execute to implement a table update
  */
 @ProviderType
 public interface DifferenceCommand extends Difference {
+    /**
+     * Allows Java code execution in order to update a table.
+     * The execute() method will be executed in a transaction
+     */
     public void execute();
 }

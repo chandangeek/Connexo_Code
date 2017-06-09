@@ -17,6 +17,8 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.schema.ExistingConstraint;
 import com.elster.jupiter.orm.schema.ExistingTable;
 import com.elster.jupiter.orm.schema.SchemaInfoProvider;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Registration;
 import com.elster.jupiter.util.streams.Functions;
 
@@ -49,6 +51,7 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
     private final Logger logger;
     private final State state;
     private final Set<DifferencesListener> listeners = new HashSet<>();
+    private final TransactionService transactionService;
 
     private interface State {
         Context createContext(DataModelImpl dataModel);
@@ -72,6 +75,12 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
 
     private static class PerformCautiousUpgrade implements State {
 
+        private final TransactionService transactionService;
+
+        private PerformCautiousUpgrade(TransactionService transactionService) {
+            this.transactionService = transactionService;
+        }
+
         @Override
         public Context createContext(DataModelImpl dataModel) {
             return new LongContext(dataModel);
@@ -85,6 +94,19 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
                     .map(DdlDifference::ddl)
                     .flatMap(List::stream)
                     .forEach(each -> execute(context, each));
+
+            final boolean inTransaction = transactionService.isInTransaction();
+            if (inTransaction) {
+                handleDifferenceCommands(differences);
+            } else {
+                try (TransactionContext transactionContext = transactionService.getContext()) {
+                    handleDifferenceCommands(differences);
+                    transactionContext.commit();
+                }
+            }
+        }
+
+        private void handleDifferenceCommands(List<Difference> differences) {
             differences.stream()
                     .filter(difference -> difference instanceof DifferenceCommand)
                     .map(DifferenceCommand.class::cast)
@@ -186,22 +208,23 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
 
     }
 
-    static DataModelUpgrader forUpgrade(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, Logger logger) {
-        return new DataModelUpgraderImpl(schemaInfoProvider, ormService, logger, new PerformCautiousUpgrade());
+    static DataModelUpgrader forUpgrade(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, Logger logger, TransactionService transactionService) {
+        return new DataModelUpgraderImpl(schemaInfoProvider, ormService, logger, new PerformCautiousUpgrade(transactionService), transactionService);
     }
 
-    static DataModelDifferencesLister forDifferences(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, FileSystem fileSystem, Logger logger) {
-        DataModelUpgraderImpl dataModelUpgrader = new DataModelUpgraderImpl(schemaInfoProvider, ormService, logger, new CollectStrictUpgrade());
+    static DataModelDifferencesLister forDifferences(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, FileSystem fileSystem, Logger logger, TransactionService transactionService) {
+        DataModelUpgraderImpl dataModelUpgrader = new DataModelUpgraderImpl(schemaInfoProvider, ormService, logger, new CollectStrictUpgrade(), transactionService);
         dataModelUpgrader.register(new DifferencesLogListener());
         dataModelUpgrader.register(new SqlDiffFileListener(fileSystem));
         return dataModelUpgrader;
     }
 
-    private DataModelUpgraderImpl(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, Logger logger, State state) {
+    private DataModelUpgraderImpl(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, Logger logger, State state, TransactionService transactionService) {
         this.schemaInfoProvider = schemaInfoProvider;
         this.ormService = ormService;
         this.logger = logger;
         this.state = state;
+        this.transactionService = transactionService;
     }
 
     @Override

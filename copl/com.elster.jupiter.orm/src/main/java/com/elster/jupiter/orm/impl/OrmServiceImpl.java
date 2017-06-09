@@ -23,6 +23,7 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionEvent;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Registration;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.Functions;
@@ -67,6 +68,7 @@ public final class OrmServiceImpl implements OrmService {
     private volatile ValidationProviderResolver validationProviderResolver;
     private final Map<String, DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<>());
     private volatile SchemaInfoProvider schemaInfoProvider;
+    private volatile TransactionService transactionService;
     private Registration clearCacheOnRollBackRegistration;
 
     // For OSGi purposes
@@ -75,7 +77,7 @@ public final class OrmServiceImpl implements OrmService {
 
     // For testing purposes
     @Inject
-    public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService, Publisher publisher, ValidationProviderResolver validationProviderResolver, FileSystem fileSystem, SchemaInfoProvider schemaInfoProvider) {
+    public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService, Publisher publisher, ValidationProviderResolver validationProviderResolver, FileSystem fileSystem, SchemaInfoProvider schemaInfoProvider, TransactionService transactionService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -85,6 +87,7 @@ public final class OrmServiceImpl implements OrmService {
         setValidationProviderResolver(validationProviderResolver);
         setFileSystem(fileSystem);
         setSchemaInfoProvider(schemaInfoProvider);
+        setTransactionService(transactionService);
         activate();
     }
 
@@ -173,6 +176,11 @@ public final class OrmServiceImpl implements OrmService {
     @Reference
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     private DataModel createDataModel(boolean register) {
@@ -377,12 +385,12 @@ public final class OrmServiceImpl implements OrmService {
 
     @Override
     public DataModelUpgrader getDataModelUpgrader(Logger logger) {
-        return DataModelUpgraderImpl.forUpgrade(schemaInfoProvider, this, logger);
+        return DataModelUpgraderImpl.forUpgrade(schemaInfoProvider, this, logger, transactionService);
     }
 
     @Override
     public DataModelDifferencesLister getDataModelDifferences(Logger logger) {
-        return DataModelUpgraderImpl.forDifferences(schemaInfoProvider, this, fileSystem, logger);
+        return DataModelUpgraderImpl.forDifferences(schemaInfoProvider, this, fileSystem, logger, transactionService);
     }
 
     public FileSystem getFileSystem() {
