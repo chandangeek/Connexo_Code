@@ -51,6 +51,7 @@ import com.energyict.protocolimpl.utils.ProtocolUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -197,7 +198,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
             this.iRequestClockObject = properties.getTypedProperty("RequestClockObject", 0);
             this.iRoundtripCorrection = properties.getTypedProperty("RoundtripCorrection", 0);
             this.iSecurityLevelProperty = properties.getTypedProperty(SECURITYLEVEL.getName(), 0);
-            this.iClientMacAddress = properties.getTypedProperty("ClientMacAddress", 16);
+            this.iClientMacAddress = properties.getTypedProperty("ClientMacAddress", BigDecimal.valueOf(16)).intValue();
             this.iServerUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 1);
             this.iServerLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 0);
             if (DEBUG >= 1) {

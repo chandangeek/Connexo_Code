@@ -1137,7 +1137,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         iSecurityLevelProperty = properties.getTypedProperty(SECURITYLEVEL.getName(), 1);
         iRequestTimeZone = properties.getTypedProperty("RequestTimeZone", 0);
         iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
-        iClientMacAddress = properties.getTypedProperty("ClientMacAddress", 100);
+        iClientMacAddress = properties.getTypedProperty("ClientMacAddress", BigDecimal.valueOf(100)).intValue();
         iServerUpperMacAddress = properties.getTypedProperty("ServerUpperMacAddress", 1);
         iServerLowerMacAddress = properties.getTypedProperty("ServerLowerMacAddress", 17);
         firmwareVersion = properties.getTypedProperty("FirmwareVersion", "ANY");

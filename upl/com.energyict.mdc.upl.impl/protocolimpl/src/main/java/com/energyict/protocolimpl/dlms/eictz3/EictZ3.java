@@ -1413,7 +1413,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
 
         this.requestTimeZone = properties.getTypedProperty(PROPNAME_REQUEST_TIME_ZONE, 0) != 0;
         this.roundtripCorrection = properties.getTypedProperty(PROPNAME_ROUNDTRIP_CORRECTION, 0);
-        this.clientMacAddress = properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, 1);
+        this.clientMacAddress = properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, BigDecimal.ONE).intValue();
         this.serverUpperMacAddress = properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, 17);
         this.serverLowerMacAddress = properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, 17);
         this.nodeAddress = properties.getTypedProperty(NODEID.getName(), "");

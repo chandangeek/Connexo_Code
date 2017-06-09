@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -496,7 +497,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
                 throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getTypedProperty(PR_SECURITY_LEVEL, "0"));
             }
 
-            iClientMacAddress = properties.getTypedProperty(PR_CLIENT_MAC_ADDRESS, 32);
+            iClientMacAddress = properties.getTypedProperty(PR_CLIENT_MAC_ADDRESS, BigDecimal.valueOf(32)).intValue();
             iServerUpperMacAddress = properties.getTypedProperty(PR_SRV_UP_MACADDR, 1);
             iServerLowerMacAddress = properties.getTypedProperty(PR_SRV_LOW_MACADDR, 0);
             transparentConnectTime = properties.getTypedProperty(PR_TRANSP_CONNECT_TIME, 10);
