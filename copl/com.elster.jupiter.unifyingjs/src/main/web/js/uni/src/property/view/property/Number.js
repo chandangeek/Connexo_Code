@@ -8,15 +8,6 @@ Ext.define('Uni.property.view.property.Number', {
 
     getNormalCmp: function () {
         var me = this;
-        var min = me.property.raw.propertyTypeInfo.predefinedPropertyValuesInfo ? me.property.raw.propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues[0] : null;
-        var minValue = (min || min === 0) ? min : -9000000000000000 ;
-        var max = null;
-        if(me.property.raw.propertyTypeInfo.predefinedPropertyValuesInfo) {
-            var range = me.property.raw.propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues;
-            max = range[range.length-1]
-        }
-
-        var maxValue = (max || max === 0) ? max : 9000000000000000;
         return {
             xtype: 'numberfield',
             name: this.getName(),
@@ -25,9 +16,9 @@ Ext.define('Uni.property.view.property.Number', {
             hideTrigger: false,
             keyNavEnabled: false,
             mouseWheelEnabled: false,
-            minValue: minValue,
-            maxValue: maxValue,
-            allowDecimals: false,
+            minValue: me.initMinValue(),
+            maxValue: me.initMaxValue(),
+            allowDecimals: me.initAllowDecimals(),
             msgTarget: 'under',
             readOnly: me.isReadOnly,
             inputType: me.inputType,
@@ -85,5 +76,44 @@ Ext.define('Uni.property.view.property.Number', {
         } else {
             return me.down('numberfield')
         }
+    },
+    initMinValue: function(){
+        var me = this;
+        var rule = me.getProperty().getValidationRule();
+        if (rule) {
+            return rule.get('minimumValue');
+        }
+        var predefinedPropertyValuesInfo =  me.getProperty().getPropertyType().predefinedPropertyValuesInfo;
+        var min = predefinedPropertyValuesInfo ? predefinedPropertyValuesInfo.possibleValues[0] : null;
+        // quick fix. Extjs numberfield works incorrect with numbers which are not in range -9000000000000000 - 9000000000000000.
+        return  (min || min === 0) ? min : -9000000000000000 ;
+    },
+    initMaxValue: function(){
+        var me = this;
+        var rule = me.getProperty().getValidationRule();
+        if (rule) {
+            return rule.get('maximumValue');
+        }
+        var predefinedPropertyValuesInfo =  me.getProperty().getPropertyType().predefinedPropertyValuesInfo;
+        var max = null;
+        if(predefinedPropertyValuesInfo) {
+            var range = predefinedPropertyValuesInfo.possibleValues.length - 1;
+            max = predefinedPropertyValuesInfo.possibleValues[range]
+        }
+        // quick fix. Extjs numberfield works incorrect with numbers which are not in range -9000000000000000 - 9000000000000000.
+        return (max || max === 0) ? max : 9000000000000000;
+    },
+    initAllowDecimals: function(){
+        var me = this;
+        var rule = me.getProperty().getValidationRule();
+        if (rule) {
+            return rule.get('allowDecimals');
+        }
+        return false;
+    },
+
+    getSortFunctionForPossibleValues: function() {
+        return function(a, b) { return a - b; };
     }
+
 });
