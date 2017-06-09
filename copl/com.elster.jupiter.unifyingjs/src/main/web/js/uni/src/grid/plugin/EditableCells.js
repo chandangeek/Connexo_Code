@@ -32,7 +32,7 @@ Ext.define('Uni.grid.plugin.EditableCells', {
         var me = this,
             grid = gridView.up('gridpanel'),
             suffix = 0;
-debugger;
+
         me.fields.map(function (field) {
             field.clearListeners();
             field.destroy();
