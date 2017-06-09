@@ -13,6 +13,7 @@ import com.energyict.mdc.upl.offline.OfflineLogBook;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -48,15 +49,15 @@ public class PreStoreLogBook {
      * @return the preStored logbook
      */
     public Optional<Pair<DeviceIdentifier, LocalLogBook>> preStore(CollectedLogBook deviceLogBook) {
-        Set<UniqueDuo<String, Instant>> uniqueCheck = new HashSet<>();
+        Set<UniqueTrio<String, String, Instant>> uniqueCheck = new HashSet<>();
         Optional<OfflineLogBook> offlineLogBook = this.comServerDAO.findOfflineLogBook(deviceLogBook.getLogBookIdentifier());
         if (offlineLogBook.isPresent()) {
             List<EndDeviceEvent> filteredEndDeviceEvents = new ArrayList<>();
             Instant lastLogbook = null;
             Instant currentDate = this.clock.instant();
             for (EndDeviceEvent endDeviceEvent : MeterDataFactory.createEndDeviceEventsFor(deviceLogBook, offlineLogBook.get().getLogBookId())) {
-                if (uniqueCheck.add(new UniqueDuo<>(endDeviceEvent.getEventTypeCode(), endDeviceEvent.getCreatedDateTime()))) {
-                    if (!endDeviceEvent.getCreatedDateTime().isAfter(currentDate)) {
+                if(uniqueCheck.add(new UniqueTrio<>(endDeviceEvent.getEventTypeCode(), endDeviceEvent.getType(), endDeviceEvent.getCreatedDateTime()))) {
+                    if (!endDeviceEvent.getCreatedDateTime().isAfter(currentDate.plus(1, ChronoUnit.DAYS))) {
                         filteredEndDeviceEvents.add(endDeviceEvent);
                         if (lastLogbook == null || endDeviceEvent.getCreatedDateTime().isAfter(lastLogbook)) {
                             lastLogbook = endDeviceEvent.getCreatedDateTime();
@@ -92,13 +93,15 @@ public class PreStoreLogBook {
 
     }
 
-    private class UniqueDuo<F, S> {
+    private class UniqueTrio<F,S,T>{
         final F first;
         final S second;
+        final T third;
 
-        private UniqueDuo(F first, S second) {
+        private UniqueTrio(F first, S second, T third) {
             this.first = first;
             this.second = second;
+            this.third = third;
         }
 
         @Override
@@ -106,13 +109,13 @@ public class PreStoreLogBook {
             if (this == o) {
                 return true;
             }
-            if (!(o instanceof UniqueDuo)) {
+            if (!(o instanceof UniqueTrio)) {
                 return false;
             }
 
-            UniqueDuo<F, S> uniqueDuo = (UniqueDuo<F, S>) o;
+            UniqueTrio<F,S, T> uniqueDuo = (UniqueTrio<F,S,T>) o;
 
-            return first.equals(uniqueDuo.first) && second.equals(uniqueDuo.second);
+            return first.equals(uniqueDuo.first) && second.equals(uniqueDuo.second) && third.equals(uniqueDuo.third);
 
         }
 
@@ -123,5 +126,6 @@ public class PreStoreLogBook {
             return result;
         }
     }
+
 
 }
