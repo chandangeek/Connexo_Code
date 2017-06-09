@@ -56,6 +56,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     {
                         xtype: 'fieldcontainer',
                         itemId: 'obis-code-container',
+                        msgTarget: 'under',
                         required: true,
                         width: 450,
                         layout: 'hbox',

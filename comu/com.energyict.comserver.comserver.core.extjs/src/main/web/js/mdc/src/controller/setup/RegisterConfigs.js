@@ -327,17 +327,21 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                     },
                     failure: function (record, operation) {
                         var json = Ext.decode(operation.response.responseText, true);
-
-                    if (json && !Ext.isEmpty(json.errors)) {
-                        Ext.suspendLayouts();
-                        errorMsgPnl.show();
-                        baseForm.markInvalid(json.errors);
-                        var calculatedReadingTypeError = Ext.Array.findBy(json.errors, function (item) { return item.id == 'calculatedReadingType';});
-                        if (calculatedReadingTypeError && form.down('[name=calculatedReadingType]').isHidden()) {
-                            form.down('#mdc-calculated-readingType-combo').markInvalid(calculatedReadingTypeError.msg);
+                        if (json && !Ext.isEmpty(json.errors)) {
+                            Ext.Array.each(json.errors, function (item) {
+                                if (item.id === 'overruledObisCode.obisCode') {
+                                    form.down('#obis-code-container').setActiveError(item.msg);
+                                }
+                            });
+                            Ext.suspendLayouts();
+                            errorMsgPnl.show();
+                            baseForm.markInvalid(json.errors);
+                            var calculatedReadingTypeError = Ext.Array.findBy(json.errors, function (item) { return item.id == 'calculatedReadingType';});
+                            if (calculatedReadingTypeError && form.down('[name=calculatedReadingType]').isHidden()) {
+                                form.down('#mdc-calculated-readingType-combo').markInvalid(calculatedReadingTypeError.msg);
+                            }
+                            Ext.resumeLayouts(true);
                         }
-                        Ext.resumeLayouts(true);
-                    }
                 },
                 callback: function () {
                     form.setLoading(false);
@@ -495,6 +499,11 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                         errorMsgPnl.show();
                         var json = Ext.decode(operation.response.responseText);
                         if (json && json.errors) {
+                            Ext.Array.each(json.errors, function (item) {
+                                if (item.id === 'overruledObisCode.obisCode') {
+                                    form.down('#obis-code-container').setActiveError(item.msg);
+                                }
+                            });
                             baseForm.markInvalid(json.errors);
                             var calculatedReadingTypeError = Ext.Array.findBy(json.errors, function (item) { return item.id == 'calculatedReadingType';});
                             if (calculatedReadingTypeError && form.down('[name=calculatedReadingType]').isHidden()) {
