@@ -34,6 +34,7 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.conditions.Order;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -207,12 +208,14 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     private void checkLinkedUsagePoints() {
-        List<EffectiveMetrologyConfigurationOnUsagePoint> linkedUsagePoints = metrologyConfigurationService.getDataModel()
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> linkedUsagePoint = metrologyConfigurationService.getDataModel()
                 .query(EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class)
                 .select(where("metrologyConfiguration").isEqualTo(this)
-                        .and(where("interval").isEffective()), Order.NOORDER, false, null, 1, 1);
-        if (!linkedUsagePoints.isEmpty()) {
-            LOG.warning("The metrology configuration is still used by at least one usage point: " + linkedUsagePoints.get(0).getUsagePoint().getName());
+                        .and(where("interval").isEffective(Range.atLeast(clock.instant()))))
+                .stream()
+                .filter(emc -> !emc.getRange().hasUpperBound() || !emc.getRange().lowerEndpoint().equals(emc.getRange().upperEndpoint()))
+                .findAny();
+        if (linkedUsagePoint.isPresent()) {
             throw new CannotDeactivateMetrologyConfiguration(this.metrologyConfigurationService.getThesaurus());
         }
     }
