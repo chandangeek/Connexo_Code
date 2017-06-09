@@ -1,15 +1,5 @@
 package com.energyict.protocolimpl.dlms.JanzC280;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.NotInObjectListException;
-import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -33,6 +23,15 @@ import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -66,7 +65,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
     private static final int DEFAULT_MAX_PDU_SIZE = 512;
     private static final int DEFAULT_SERVER_LOWER_MAC_ADDRESS = 32;
     private static final int DEFAULT_SERVER_UPPER_MAC_ADDRESS = 1;
-    private static final int DEFAULT_CLIENT_MAC_ADDRESS = 16;
+    private static final BigDecimal DEFAULT_CLIENT_MAC_ADDRESS = BigDecimal.valueOf(16);
     private static final int DEFAULT_INFORMATION_FIELD_SIZE = 96;
     private static final int DEFAULT_CONNECTION_MODE = 0;
     private static final String HHUSIGNON_METERID = "CTR_EBOX";
@@ -267,7 +266,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
     public int getNumberOfChannels() throws IOException {
         if (this.numberOfChannels == -1) {
             logger.info("Loading the number of channels, looping over all load diagrams...");
-            this.enabledChannelNumbers =  new ArrayList<>();
+            this.enabledChannelNumbers = new ArrayList<>();
 
             /* Loop over all configuration registers. ( there are 12 'Configuration of the load diagram' registers).
              * If the channel is in use, the register value maps the definition/name of a load profile.
@@ -344,7 +343,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
             this.maxRecPduSize = Integer.parseInt(properties.getTypedProperty(DlmsProtocolProperties.MAX_REC_PDU_SIZE, Integer.toString(DEFAULT_MAX_PDU_SIZE)));
             this.serverLowerMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, Integer.toString(DEFAULT_SERVER_LOWER_MAC_ADDRESS)));
             this.serverUpperMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, Integer.toString(DEFAULT_SERVER_UPPER_MAC_ADDRESS)));
-            this.clientMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, Integer.toString(DEFAULT_CLIENT_MAC_ADDRESS)));
+            this.clientMacAddress = properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, DEFAULT_CLIENT_MAC_ADDRESS).intValue();
             this.informationFieldSize = Integer.parseInt(properties.getTypedProperty(PROPNAME_INFORMATION_FIELD_SIZE, Integer.toString(DEFAULT_INFORMATION_FIELD_SIZE)));
             this.connectionMode = Integer.parseInt(properties.getTypedProperty(PROPNAME_CONNECTION, Integer.toString(DEFAULT_CONNECTION_MODE)));
         } catch (NumberFormatException e) {
@@ -359,7 +358,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
             data = getCosemObjectFactory().getData(OBISCODE_SERIAL_NUMBER);
             return AXDRDecoder.decode(data.getRawValueAttr()).getVisibleString().getStr().trim();
         } catch (IOException e) {
-            throw DLMSIOExceptionHandler.handle(e, retries+1);
+            throw DLMSIOExceptionHandler.handle(e, retries + 1);
         }
     }
 
