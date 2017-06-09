@@ -54,14 +54,15 @@ class EstimationEngine {
     }
 
     private static Stream<EstimationBlock> findBlocksToEstimate(QualityCodeSystem system, Channel channel, Range<Instant> period, ReadingType readingType, Set<QualityCodeIndex> qualityCodes) {
-        if (qualityCodes.size() > 1 && !channel.getIntervalReadings(readingType, period)
-                .isEmpty()) { // not only suspects
-            return decorate(channel.getIntervalReadings(readingType, period).stream())
-                    .map(BaseReadingRecordEstimatable::new)
-                    .map(Estimatable.class::cast)
-                    .partitionWhen((est1, est2) -> !channel.getNextDateTime(est1.getTimestamp())
-                            .equals(est2.getTimestamp()))
-                    .map(estimableList -> SimpleEstimationBlock.of(channel, readingType, estimableList));
+        if (qualityCodes.size() > 1) {
+            List<Estimatable> estimatables = channel.toList(period).stream()
+                    .map(instant -> channel.getReadings(period).stream()
+                            .filter(reading ->
+                                    reading.getTimeStamp().equals(instant)).findFirst()
+                            .map(BaseReadingRecordEstimatable::new).map(Estimatable.class::cast)
+                            .orElseGet(() -> new MissingReadingRecordEstimatable(instant)))
+                    .collect(Collectors.toList());
+            return Stream.of(SimpleEstimationBlock.of(channel, readingType, estimatables));
         }
 
         return findBlocksBasedOnReadingQualities(system, channel, period, readingType, qualityCodes);
