@@ -1148,7 +1148,8 @@ public class UsagePointResource {
 
     private void checkTransitionTime(Instant transitionTime, UsagePoint usagePoint) {
         if (!transitionTime.isAfter(usagePoint.getInstallationTime())) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_TRANSITION_TIME, "effectiveTimestamp", usagePoint.getInstallationTime().atZone(usagePoint.getZoneId()));
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_TRANSITION_TIME, "effectiveTimestamp",
+                    resourceHelper.formatDate(usagePoint.getInstallationTime().atZone(usagePoint.getZoneId()).toInstant()));
         }
     }
 
