@@ -99,6 +99,7 @@ public class SyntheticLoadProfileProcessorTest {
         when(licenseService.getLicensedApplicationKeys()).thenReturn(Collections.singletonList("INS"));
         when(licenseService.getLicenseForApplication("INS")).thenReturn(Optional.ofNullable(license));
         when(clock.instant()).thenReturn(Instant.EPOCH);
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(nlsMessageFormat);
         when(nlsMessageFormat.format()).thenReturn("message");
@@ -176,7 +177,7 @@ public class SyntheticLoadProfileProcessorTest {
         Map<String, Object> properties = new HashMap<>();
         properties.put(DataImporterProperty.DELIMITER.getPropertyKey(), ";");
         properties.put(DataImporterProperty.DATE_FORMAT.getPropertyKey(), "dd/MM/yyyy HH:mm");
-        properties.put(DataImporterProperty.TIME_ZONE.getPropertyKey(), "GMT+00:00");
+        properties.put(DataImporterProperty.TIME_ZONE.getPropertyKey(), "GMT+03:00");
         properties.put(DataImporterProperty.NUMBER_FORMAT.getPropertyKey(), new SupportedNumberFormat.SupportedNumberFormatValueFactory()
                 .fromStringValue("FORMAT4"));
         return factory.createImporter(properties);

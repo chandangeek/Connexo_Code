@@ -36,7 +36,7 @@ public class SyntheticLoadProfileImportProcessor extends AbstractImportProcessor
 
     SyntheticLoadProfileImportProcessor(String timeZone, SyntheticLoadProfileDataImporterContext context) {
         super(context);
-        this.zoneId = ZoneId.from(TimeZonePropertySpec.format.parse(timeZone));
+        this.zoneId = getContext().getClock().getZone();
     }
 
     @Override
