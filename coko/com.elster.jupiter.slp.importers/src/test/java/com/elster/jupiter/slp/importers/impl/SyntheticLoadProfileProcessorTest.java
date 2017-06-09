@@ -5,20 +5,22 @@
 package com.elster.jupiter.slp.importers.impl;
 
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
+import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
+import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
-import com.elster.jupiter.metering.slp.SyntheticLoadProfileService;
-import com.elster.jupiter.slp.importers.impl.syntheticloadprofile.SyntheticLoadProfileImporterFactory;
 import com.elster.jupiter.slp.importers.impl.properties.SupportedNumberFormat;
+import com.elster.jupiter.slp.importers.impl.syntheticloadprofile.SyntheticLoadProfileImporterFactory;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.io.FileInputStream;
@@ -28,7 +30,6 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,7 +39,9 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -56,7 +59,10 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SyntheticLoadProfileProcessorTest {
 
-    private final Instant DATE = ZonedDateTime.of(2017, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private final Instant DATE = ZonedDateTime.of(2017, 1, 1, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo()).toInstant();
+
+    @Rule
+    public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
 
     @Mock
     Clock clock;
@@ -99,7 +105,7 @@ public class SyntheticLoadProfileProcessorTest {
         when(licenseService.getLicensedApplicationKeys()).thenReturn(Collections.singletonList("INS"));
         when(licenseService.getLicenseForApplication("INS")).thenReturn(Optional.ofNullable(license));
         when(clock.instant()).thenReturn(Instant.EPOCH);
-        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+        when(clock.getZone()).thenReturn(TimeZoneNeutral.getMcMurdo());
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(nlsMessageFormat);
         when(nlsMessageFormat.format()).thenReturn("message");
@@ -177,7 +183,7 @@ public class SyntheticLoadProfileProcessorTest {
         Map<String, Object> properties = new HashMap<>();
         properties.put(DataImporterProperty.DELIMITER.getPropertyKey(), ";");
         properties.put(DataImporterProperty.DATE_FORMAT.getPropertyKey(), "dd/MM/yyyy HH:mm");
-        properties.put(DataImporterProperty.TIME_ZONE.getPropertyKey(), "GMT+03:00");
+        properties.put(DataImporterProperty.TIME_ZONE.getPropertyKey(), "GMT+13:00");
         properties.put(DataImporterProperty.NUMBER_FORMAT.getPropertyKey(), new SupportedNumberFormat.SupportedNumberFormatValueFactory()
                 .fromStringValue("FORMAT4"));
         return factory.createImporter(properties);
