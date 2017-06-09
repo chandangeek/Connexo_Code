@@ -58,13 +58,15 @@ Ext.define('Imt.purpose.view.summary.PurposeDataView', {
                 //Last reading?
                 defaultFromDate: me.interval.getIntervalStart(new Date()),
                 defaultDuration: all.count + all.timeUnit,
-                durationStore: durations
+                durationStore: durations,
+                itemId: 'output-readings-topfilter-duration-interval'
             };
             durations.loadData(me.interval.get('duration'));
         } else {
             duration = {
                 defaultFromDate: moment().startOf('day').subtract(1, 'years').toDate(),
-                defaultDuration: '1years'
+                defaultDuration: '1years',
+                itemId: 'output-readings-topfilter-duration-interval'
             };
         }
 
