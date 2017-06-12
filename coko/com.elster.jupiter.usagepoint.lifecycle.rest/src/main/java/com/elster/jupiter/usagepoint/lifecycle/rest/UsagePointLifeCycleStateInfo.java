@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -20,7 +21,6 @@ public class UsagePointLifeCycleStateInfo {
     public List<BusinessProcessInfo> onEntry = new ArrayList<>();
     public List<BusinessProcessInfo> onExit = new ArrayList<>();
     public VersionInfo<Long> parent;
-    public String stage;
-    public String stageName;
+    public IdWithNameInfo stage;
     public String usagePointLifeCycleName;
 }

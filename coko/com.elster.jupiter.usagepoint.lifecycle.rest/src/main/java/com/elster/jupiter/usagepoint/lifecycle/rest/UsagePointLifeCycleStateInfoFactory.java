@@ -5,8 +5,10 @@
 package com.elster.jupiter.usagepoint.lifecycle.rest;
 
 import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 
@@ -30,8 +32,7 @@ public class UsagePointLifeCycleStateInfoFactory {
         info.name = thesaurus.getString(state.getName(), state.getName());
         info.version = state.getVersion();
         info.isInitial = state.isInitial();
-        info.stage = thesaurus.getString(state.getStage().get().getName(), state.getStage().get().getName());
-        info.stageName = state.getStage().get().getName();
+        state.getStage().map(Stage::getName).ifPresent(stageName -> info.stage = new IdWithNameInfo(stageName, thesaurus.getString(stageName, stageName)));
         info.parent = new VersionInfo<>(lifeCycle.getId(), lifeCycle.getVersion());
         info.usagePointLifeCycleName = thesaurus.getString(lifeCycle.getName(), lifeCycle.getName());
         return info;

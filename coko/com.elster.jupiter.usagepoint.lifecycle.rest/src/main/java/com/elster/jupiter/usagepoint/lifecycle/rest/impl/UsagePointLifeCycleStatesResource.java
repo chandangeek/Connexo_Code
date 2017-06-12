@@ -85,7 +85,7 @@ public class UsagePointLifeCycleStatesResource {
                 .validate();
         UsagePointLifeCycle lifeCycle = this.resourceHelper.getLifeCycleByIdOrThrowException(lifeCycleId);
         StageSet defaultStageSet = usagePointLifeCycleConfigurationService.getDefaultStageSet();
-        Stage stage = defaultStageSet.getStageByName(stateInfo.stage).get();
+        Stage stage = defaultStageSet.getStageByName((String) stateInfo.stage.id).get();
         FiniteStateMachineUpdater lifeCycleUpdater = lifeCycle.getUpdater();
         FiniteStateMachineBuilder.StateBuilder stateBuilder = lifeCycleUpdater.newCustomState(stateInfo.name, stage);
         stateInfo.onEntry.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(stateBuilder::onEntry);
@@ -116,7 +116,7 @@ public class UsagePointLifeCycleStatesResource {
         stateInfo.onEntry.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onEntry);
         stateInfo.onExit.stream().map(this.resourceHelper::getBpmProcessOrThrowException).forEach(builder::onExit);
         StageSet defaultStageSet = usagePointLifeCycleConfigurationService.getDefaultStageSet();
-        Stage stage = defaultStageSet.getStageByName(stateInfo.stage).get();
+        Stage stage = defaultStageSet.getStageByName((String) stateInfo.stage.id).get();
         builder.stage(stage);
         state = builder.complete();
         finiteStateMachineUpdater.complete();
