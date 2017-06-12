@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.identifiers.CallHomeIdPlaceHolder;
@@ -53,11 +54,9 @@ public class RegisterFrame extends AbstractInboundFrame {
         String[] obisCodeAndValue = parameter.split("=");
         if (obisCodeAndValue.length == 2) {
             ObisCode obisCode;
-            try {
-                obisCode = ObisCode.fromString(obisCodeAndValue[0]);
-            } catch (IllegalArgumentException e) {
-                //Move on to the next parameter
-                return;
+            obisCode = ObisCode.fromString(obisCodeAndValue[0]);
+            if (obisCode.isInvalid()) {
+                return; //Move on to the next parameter
             }
             RegisterInfo registerInfo = new RegisterInfo(obisCode, obisCodeAndValue[1], getInboundParameters().getReadTime());
             RegisterValue registerValue = registerInfo.parse();
