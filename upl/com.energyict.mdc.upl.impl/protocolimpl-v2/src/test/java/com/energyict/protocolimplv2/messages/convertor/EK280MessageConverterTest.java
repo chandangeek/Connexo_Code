@@ -60,7 +60,7 @@ public class EK280MessageConverterTest extends AbstractV2MessageConverterTest {
     public void testMessageConversion_ChangeSecurityKeys() {
         OfflineDeviceMessage offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_SECURITY_KEYS.get(propertySpecService, this.nlsService, this.converter));
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<ChangeKeys ClientId=\"1\" WrapperKey=\"MASTER_Key\" NewAuthenticationKey=\"AUTH_Key\" NewEncryptionKey=\"ENCR_Key\"> </ChangeKeys>", messageEntry.getContent());
+        assertEquals("<ChangeKeys ClientId=\"1\" NewAuthenticationKey=\"AUTH_Key\" NewEncryptionKey=\"ENCR_Key\"> </ChangeKeys>", messageEntry.getContent());
     }
 
     @Test
@@ -145,10 +145,6 @@ public class EK280MessageConverterTest extends AbstractV2MessageConverterTest {
                 return keyAccessorType;
             case DeviceMessageConstants.clientMacAddress:
                 return BigDecimal.ONE;
-            case DeviceMessageConstants.masterKey:
-                keyAccessorType = mock(KeyAccessorType.class);
-                when(keyAccessorTypeExtractor.actualValueContent(keyAccessorType)).thenReturn("MASTER_Key");
-                return keyAccessorType;
             case DeviceMessageConstants.newAuthenticationKeyAttributeName:
                 keyAccessorType = mock(KeyAccessorType.class);
                 when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("AUTH_Key");

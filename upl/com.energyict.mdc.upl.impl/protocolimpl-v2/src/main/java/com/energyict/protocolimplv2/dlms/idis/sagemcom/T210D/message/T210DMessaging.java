@@ -55,7 +55,7 @@ public class T210DMessaging extends AM540Messaging {
     @Override
     protected List<DeviceMessageSpec> addSupportedDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
         //Security
-        supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
 //        supportedMessages.add(SecurityMessage.SET_REQUIRED_PROTECTION_FOR_DATA_PROTECTION_SETUP.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         //Supervision monitor
         supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR_FOR_IMPORT_EXPORT.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));

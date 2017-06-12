@@ -175,6 +175,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.commo
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterSerialNumberAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newMasterKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
 
@@ -275,12 +277,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 SecurityMessage.AGREE_NEW_ENCRYPTION_KEY.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.AGREE_NEW_AUTHENTICATION_KEY.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.CHANGE_SECURITY_SUITE.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS.get(this.propertySpecService, this.nlsService, this.converter),
-                SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEY.get(this.propertySpecService, this.nlsService, this.converter),
+                SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEY_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.CHANGE_HLS_SECRET_PASSWORD.get(this.propertySpecService, this.nlsService, this.converter),
                 SecurityMessage.CHANGE_HLS_SECRET_PASSWORD_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter),
 
@@ -465,11 +467,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             case DeviceMessageConstants.passwordAttributeName:
             case DeviceMessageConstants.newPasswordAttributeName:
             case DeviceMessageConstants.newAuthenticationKeyAttributeName:
-            case DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName:
             case DeviceMessageConstants.newEncryptionKeyAttributeName:
-            case DeviceMessageConstants.newWrappedEncryptionKeyAttributeName:
             case DeviceMessageConstants.newMasterKeyAttributeName:
-            case DeviceMessageConstants.newWrappedMasterKeyAttributeName:
                 return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
             case DeviceMessageConstants.certificateWrapperAttributeName:
 
@@ -523,14 +522,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 return Optional.of(multicastSerializer.serialize(device, offlineDevice, deviceMessage, getBeacon3100Properties()));
             } else if (deviceMessage.getMessageId() == FirmwareDeviceMessage.CONFIGURE_MULTICAST_BLOCK_TRANSFER_TO_SLAVE_DEVICES.id()) {
                 return Optional.of(multicastSerializer.serialize(device, offlineDevice, deviceMessage, getBeacon3100Properties()));
-            } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS.id()
-                    || deviceMessage.getMessageId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT.id()) {
+            } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY.id()
+                    || deviceMessage.getMessageId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY_FOR_CLIENT.id()) {
                 new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY);
-            } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS.id()
-                    || deviceMessage.getMessageId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT.id()) {
+            } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY.id()
+                    || deviceMessage.getMessageId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY_FOR_CLIENT.id()) {
                 new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY);
-            } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS.id()
-                    || deviceMessage.getMessageId() == SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT.id()) {
+            } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEY.id()
+                    || deviceMessage.getMessageId() == SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEY_FOR_CLIENT.id()) {
                 new KeyMessageChangeValidator().validateNewKeyValueForFreeTextClient(offlineDevice.getId(), deviceMessage, SecurityPropertySpecTranslationKeys.MASTER_KEY);
             }
         } catch (DeviceConfigurationException e) {
@@ -662,17 +661,17 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = agreeNewKey(collectedMessage, 2);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_SECURITY_SUITE)) {
                         changeSecuritySuite(pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS)) {
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
                         changeAuthKey(collectedMessage, pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY_FOR_CLIENT)) {
                         changeAuthKey(collectedMessage, pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)) {
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY)) {
                         changeEncryptionKey(collectedMessage, pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY_FOR_CLIENT)) {
                         changeEncryptionKey(collectedMessage, pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS)) {
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEY)) {
                         changeMasterKey(collectedMessage, pendingMessage);
-                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_CLIENT)) {
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEY_FOR_CLIENT)) {
                         changeMasterKey(collectedMessage, pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD)) {
                         changeHlsSecret(pendingMessage);
@@ -1792,11 +1791,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     protected CollectedMessage changeEncryptionKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        String newKey = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName);
-        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), DeviceMessageConstants.newWrappedEncryptionKeyAttributeName);
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName), "");
+        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId(), newSymmetricKey, masterKey);
 
         //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(newKey, ""));
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
 
         int clientInUse = getProtocol().getDlmsSession().getProperties().getClientMacAddress();
         int clientToChangeKeyFor = getClientId(pendingMessage);
@@ -1847,32 +1847,33 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     protected CollectedMessage changeAuthKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        String newKey = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.newAuthenticationKeyAttributeName);
-        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName);
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName), "");
+        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId(), newSymmetricKey, masterKey);
 
         //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(newKey, ""));
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
         return collectedMessage;
     }
 
     protected CollectedMessage changeMasterKey(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
-        String newKey = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.newMasterKeyAttributeName);
-        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.MASTER_KEY.getId(), DeviceMessageConstants.newWrappedMasterKeyAttributeName);
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newMasterKeyAttributeName), "");
+        byte[] masterKey = getProtocol().getDlmsSessionProperties().getSecurityProvider().getMasterKey();
+        changeKeyAndUseNewKey(pendingMessage, SecurityMessage.KeyID.MASTER_KEY.getId(), newSymmetricKey, masterKey);
 
         //Update the key in the security provider, it is used instantly
-        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeMasterKey(ProtocolTools.getBytesFromHexString(newKey, ""));
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeMasterKey(newSymmetricKey);
         return collectedMessage;
     }
 
-    private void changeKeyAndUseNewKey(OfflineDeviceMessage pendingMessage, int keyId, String wrappedKeyAttributeName) throws IOException {
-        String newWrappedKey = getDeviceMessageAttributeValue(pendingMessage, wrappedKeyAttributeName);
-        byte[] keyBytes = ProtocolTools.getBytesFromHexString(newWrappedKey, "");
+    private void changeKeyAndUseNewKey(OfflineDeviceMessage pendingMessage, int keyId, byte[] newSymmetricKey, byte[] masterKey) throws IOException {
+        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
         int clientId = getClientId(pendingMessage);
 
         Array keyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(keyId));
-        keyData.addDataType(OctetString.fromByteArray(keyBytes));
+        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
         keyArray.addDataType(keyData);
 
         getSecuritySetup(clientId).transferGlobalKey(keyArray);

@@ -1,5 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.NumberLookup;
+import com.energyict.mdc.upl.properties.TariffCalendar;
+
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
@@ -41,16 +52,6 @@ import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
-import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
-import com.energyict.mdc.upl.properties.NumberLookup;
-import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.generic.MessageParser;
@@ -758,11 +759,14 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
                     success = true;
                 } else if (changeGlobalkey) {
+                    byte[] newSymmetricKey = messageHandler.getNewEncryptionKey();
+                    byte[] masterKey = protocol.getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
+                    byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
 
                     Array globalKeyArray = new Array();
                     Structure keyData = new Structure();
                     keyData.addDataType(new TypeEnum(0));    // 0 means keyType: global unicast encryption key
-                    keyData.addDataType(OctetString.fromByteArray(messageHandler.getNewEncryptionKey()));
+                    keyData.addDataType(OctetString.fromByteArray(wrappedKey));
                     globalKeyArray.addDataType(keyData);
 
                     SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
@@ -770,11 +774,14 @@ public class WebRTUZ3MessageExecutor extends MessageParser {
 
                     success = true;
                 } else if (changeAuthkey) {
+                    byte[] newSymmetricKey = messageHandler.getNewAuthenticationKey();
+                    byte[] masterKey = protocol.getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
+                    byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
 
                     Array globalKeyArray = new Array();
                     Structure keyData = new Structure();
                     keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-                    keyData.addDataType(OctetString.fromByteArray(messageHandler.getNewAuthenticationKey()));
+                    keyData.addDataType(OctetString.fromByteArray(wrappedKey));
                     globalKeyArray.addDataType(keyData);
 
                     SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();

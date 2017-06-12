@@ -14,13 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
-import static com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider.DATATRANSPORT_ENCRYPTIONKEY;
-import static com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY;
-import static com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY;
-import static com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider.NEW_HLS_SECRET;
-
-
 /**
  * Provides property information for the InHomeDisplay
  */
@@ -60,11 +53,6 @@ public class InHomeDisplayProperties extends SmsWakeUpDlmsProtocolProperties {
                 this.integerSpec(PK_RETRIES, false, PropertyTranslationKeys.EICT_RETRIES),
                 this.integerSpec(PK_TIMEOUT, false, PropertyTranslationKeys.EICT_TIMEOUT),
                 this.integerSpec(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.EICT_ROUND_TRIP_CORRECTION),
-                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, false, PropertyTranslationKeys.EICT_DATATRANSPORT_AUTHENTICATIONKEY),
-                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false, PropertyTranslationKeys.EICT_DATATRANSPORT_ENCRYPTIONKEY),
-                this.hexStringSpec(NEW_DATATRANSPORT_AUTHENTICATION_KEY, false, PropertyTranslationKeys.EICT_NEW_DATATRANSPORT_AUTHENTICATIONKEY),
-                this.hexStringSpec(NEW_DATATRANSPORT_ENCRYPTION_KEY, false, PropertyTranslationKeys.EICT_NEW_DATATRANSPORT_ENCRYPTIONKEY),
-                this.stringSpec(NEW_HLS_SECRET, false, PropertyTranslationKeys.EICT_NEW_HLS_SECRET),
                 this.stringSpec(ZIGBEE_MAC, false, PropertyTranslationKeys.EICT_ZIGBEE_MAC),
                 this.stringSpec(ZIGBEE_PCLK, false, PropertyTranslationKeys.EICT_ZIGBEE_PCLK),
                 this.integerSpec(NTA_SIMULATION_TOOL, false, PropertyTranslationKeys.EICT_NTA_SIMULATION_TOOL),

@@ -2,6 +2,7 @@ package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
@@ -14,8 +15,7 @@ import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
-import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY;
+import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.MASTERKEY;
 
 /**
  * Copyrights EnergyICT
@@ -24,6 +24,7 @@ import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRA
  */
 class WebRTUZ3Properties extends DlmsProtocolProperties {
 
+    private static final String MASTER_KEY = "MasterKey";
     private static final int MAX_RECEIVE_PDU_SIZE = 4096;
     private static final boolean DEFAULT_Z_3_BULK_REQUES_SUPPORT = true;
 
@@ -47,8 +48,7 @@ class WebRTUZ3Properties extends DlmsProtocolProperties {
                 UPLPropertySpecFactory.specBuilder(PK_TIMEOUT, false, PropertyTranslationKeys.EICT_TIMEOUT, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.EICT_ROUND_TRIP_CORRECTION, this.propertySpecService::integerSpec).finish(),
                 UPLPropertySpecFactory.specBuilder(BULK_REQUEST, false, PropertyTranslationKeys.EICT_BULK_REQUEST, this.propertySpecService::integerSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(DATATRANSPORT_AUTHENTICATIONKEY, false, PropertyTranslationKeys.EICT_DATATRANSPORT_AUTHENTICATIONKEY, this.propertySpecService::hexStringSpec).finish(),
-                UPLPropertySpecFactory.specBuilder(DATATRANSPORT_ENCRYPTIONKEY, false, PropertyTranslationKeys.EICT_DATATRANSPORT_ENCRYPTIONKEY, this.propertySpecService::hexStringSpec).finish());
+                UPLPropertySpecFactory.specBuilder(MASTERKEY, false, PropertyTranslationKeys.DLMS_MASTERKEY, () -> this.propertySpecService.referenceSpec(KeyAccessorType.class.getName())).finish());
     }
 
     @ProtocolProperty

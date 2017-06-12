@@ -171,16 +171,10 @@ public final class DeviceMessageConstants {
     public static final String authenticationLevelAttributeDefaultTranslation = "Authentication level";
     public static final String newEncryptionKeyAttributeName = "SecurityMessage.new.encryptionkey";
     public static final String newEncryptionKeyAttributeDefaultTranslation = "New encryption key";
-    public static final String newWrappedEncryptionKeyAttributeName = "SecurityMessage.new.wrapped.encryptionkey";
-    public static final String newWrappedEncryptionKeyAttributeDefaultTranslation = "New wrapped encryption key";
     public static final String newAuthenticationKeyAttributeName = "SecurityMessage.new.authenticationkey";
     public static final String newAuthenticationKeyAttributeDefaultTranslation = "New authentication key";
-    public static final String newWrappedAuthenticationKeyAttributeName = "SecurityMessage.new.wrapped.authenticationkey";
     public static final String newMasterKeyAttributeName = "SecurityMessage.new.masterkey";
     public static final String newMasterKeyAttributeDefaultTranslation = "New master key";
-    public static final String newWrappedMasterKeyAttributeName = "SecurityMessage.new.wrapped.masterkey";
-    public static final String newWrappedMasterKeyAttributeDefaultTranslation = "New wrapped master key";
-    public static final String newWrappedAuthenticationKeyAttributeDefaultTranslation = "New wrapped authentication key";
     public static final String clientMacAddress = "ClientMacAddress";
     public static final String client = "SecurityMessage.client";
     public static final String clientDefaultTranslation = "Client";
@@ -1028,9 +1022,7 @@ public final class DeviceMessageConstants {
     public static final String FTIONMailConfigDefaultTranslation = "FTION mail configuration";
     public static final String FTIONModemReset = "DeviceActionMessage.ftionmodemreset";
     public static final String FTIONModemResetDefaultTranslation = "FTION modem reset";
-    public static final String AdminOld = "DeviceActionMessage.adminold";
-    public static final String AdminNew = "DeviceActionMessage.adminnew";
-    public static final String AdminPassword = "Admin password";
+    public static final String AdminPassword = "Admin.password";
     public static final String AdminPasswordDefaultTranslation = "Admin password";
 
     public static final String IEC1107ClassIdAttributeName = "GeneralDeviceMessage.iec1107classid";

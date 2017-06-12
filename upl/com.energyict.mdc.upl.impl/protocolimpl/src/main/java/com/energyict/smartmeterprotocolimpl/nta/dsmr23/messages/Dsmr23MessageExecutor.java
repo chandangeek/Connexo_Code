@@ -1,5 +1,18 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
+import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.NumberLookup;
+import com.energyict.mdc.upl.properties.TariffCalendar;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnection;
@@ -51,18 +64,6 @@ import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.io.NestedIOException;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.NumberLookupExtractor;
-import com.energyict.mdc.upl.messages.legacy.NumberLookupFinder;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
-import com.energyict.mdc.upl.properties.NumberLookup;
-import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
@@ -597,10 +598,14 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
     protected void changeGlobalKey(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Change global encryption key.");
+        byte[] newSymmetricKey = messageHandler.getNewEncryptionKey();
+        byte[] masterKey = protocol.getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
+        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
+
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(0));    // 0 means keyType: global unicast encryption key
-        keyData.addDataType(OctetString.fromByteArray(messageHandler.getNewEncryptionKey()));
+        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
         globalKeyArray.addDataType(keyData);
 
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
@@ -609,10 +614,14 @@ public class Dsmr23MessageExecutor extends MessageParser {
 
     protected void changeAuthenticationKey(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Change global authentication key.");
+        byte[] newSymmetricKey = messageHandler.getNewAuthenticationKey();
+        byte[] masterKey = protocol.getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
+        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
+
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(messageHandler.getNewAuthenticationKey()));
+        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
         globalKeyArray.addDataType(keyData);
 
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();

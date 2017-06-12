@@ -1,5 +1,12 @@
 package com.energyict.protocolimpl.dlms.g3.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.SecurityContext;
@@ -17,12 +24,6 @@ import com.energyict.dlms.cosem.DataAccessResultCode;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
-import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.MessageTag;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
@@ -59,6 +60,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -255,9 +257,9 @@ public class G3Messaging extends AnnotatedMessaging {
     /**
      * Adds a child tag to the given {@link StringBuffer}.
      *
-     * @param buf     The string builder to whose contents the child tag needs to be added.
+     * @param buf The string builder to whose contents the child tag needs to be added.
      * @param tagName The name of the child tag to add.
-     * @param value   The contents (value) of the tag.
+     * @param value The contents (value) of the tag.
      */
     protected void addChildTag(StringBuilder buf, String tagName, Object value) {
         buf.append(System.getProperty("line.separator"));
@@ -573,23 +575,26 @@ public class G3Messaging extends AnnotatedMessaging {
 
     @RtuMessageHandler
     public final MessageResult changeEncryptionKey(SecurityConfigurationMessages.ChangeEncryptionKeyMessage message) throws IOException {
-        String wrappedEncryptionKeyString = message.getNewWrappedEncryptionKey();
-        String oldGlobalKey = ProtocolTools.getHexStringFromBytes(session.getProperties().getSecurityProvider().getGlobalKey(), "");
-        byte[] wrappedEncryptionKey = ProtocolTools.getBytesFromHexString(wrappedEncryptionKeyString, "");
-        getLogger().info("Received [ChangeEncryptionKeyMessage], wrapped key is '" + wrappedEncryptionKeyString + "'");
+        byte[] oldGlobalKey = session.getProperties().getSecurityProvider().getGlobalKey();
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(message.getNewEncryptionKey());
+        byte[] masterKey = session.getProperties().getSecurityProvider().getMasterKey();
+        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
+
+
+        getLogger().info("Received [ChangeEncryptionKeyMessage]");
         Array encryptionKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(0));    // 0 means keyType: encryptionKey (global key)
-        keyData.addDataType(OctetString.fromByteArray(wrappedEncryptionKey));
+        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
         encryptionKeyArray.addDataType(keyData);
 
         getSecuritySetup().transferGlobalKey(encryptionKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        session.getProperties().getSecurityProvider().changeEncryptionKey(ProtocolTools.getBytesFromHexString(message.getNewEncryptionKey(), ""));
+        session.getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
 
         //Reset frame counter, only if a different key has been written
-        if (!oldGlobalKey.equalsIgnoreCase(message.getNewEncryptionKey())) {
+        if (!Arrays.equals(oldGlobalKey, newSymmetricKey)) {
             SecurityContext securityContext = session.getAso().getSecurityContext();
             securityContext.setFrameCounter(1);
             securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
@@ -604,19 +609,21 @@ public class G3Messaging extends AnnotatedMessaging {
 
     @RtuMessageHandler
     public final MessageResult changeAuthenticationKey(SecurityConfigurationMessages.ChangeAuthenticationKeyMessage message) throws IOException {
-        String wrappedAuthenticationKeyString = message.getNewWrappedAuthenticationKey();
-        byte[] wrappedAuthenticationKeysBytes = ProtocolTools.getBytesFromHexString(wrappedAuthenticationKeyString, "");
-        getLogger().info("Received [ChangeAuthenticationKeyMessage], wrapped key is '" + wrappedAuthenticationKeyString + "'");
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(message.getNewAuthenticationKey());
+        byte[] masterKey = session.getProperties().getSecurityProvider().getMasterKey();
+        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
+
+        getLogger().info("Received [ChangeAuthenticationKeyMessage]");
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(2));    // 2 means keyType: authenticationKey
-        keyData.addDataType(OctetString.fromByteArray(wrappedAuthenticationKeysBytes));
+        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
         globalKeyArray.addDataType(keyData);
 
         getSecuritySetup().transferGlobalKey(globalKeyArray);
 
         //Update the key in the security provider, it is used instantly
-        session.getProperties().getSecurityProvider().changeAuthenticationKey(ProtocolTools.getBytesFromHexString(message.getNewAuthenticationKey(), ""));
+        session.getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
 
         return MessageResult.createSuccess(message.getMessageEntry());
     }

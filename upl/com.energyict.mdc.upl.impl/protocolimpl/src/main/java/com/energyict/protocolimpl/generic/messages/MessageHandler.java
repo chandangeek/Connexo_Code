@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.generic.messages;
 
+import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -40,6 +41,7 @@ public class MessageHandler extends DefaultHandler {
     private String mbusClientVersion;
     private String mbusClientDeviceType;
     private String mbusShortId;
+
     /**
      * {@inheritDoc}
      */
@@ -248,16 +250,16 @@ public class MessageHandler extends DefaultHandler {
         } else if (RtuMessageConstant.CHANGE_MBUS_CLIENT_ATTRIBUTES.equals(qName)) {
             setType(RtuMessageConstant.CHANGE_MBUS_CLIENT_ATTRIBUTES);
             handleMBusClientAttributes(attrbs);
-        }else if (RtuMessageConstant.MBUS_CLIENT_REMOTE_COMMISSION.equals(qName)) {
+        } else if (RtuMessageConstant.MBUS_CLIENT_REMOTE_COMMISSION.equals(qName)) {
             setType(RtuMessageConstant.MBUS_CLIENT_REMOTE_COMMISSION);
             handleMbusClientRemoteCommission(attrbs);
         } else if (RtuMessageConstant.CHANGE_MBUS_CLIENT_ATTRIBUTES.equals(qName)) {
             setType(RtuMessageConstant.CHANGE_MBUS_CLIENT_ATTRIBUTES);
             handleChangeMBusClientAttributes(attrbs);
-        }else if (RtuMessageConstant.MBUS_REMOTE_COMMISSION.equals(qName)) {
+        } else if (RtuMessageConstant.MBUS_REMOTE_COMMISSION.equals(qName)) {
             setType(RtuMessageConstant.MBUS_REMOTE_COMMISSION);
             handleMbusClientRemoteCommission(attrbs);
-        }else {
+        } else {
             if (!isXmlInContent) { // If there is XML in the content, then the protocol will parse it himself ...
                 throw new SAXException("Unknown messageContent : " + qName);
             }
@@ -722,42 +724,28 @@ public class MessageHandler extends DefaultHandler {
 
     /* Change the authentication key */
 
-    private byte[] wrappedAuthenticationKey = new byte[0];
-    private String plainAuthenticationKey = "";
+    private byte[] authenticationKey = new byte[0];
 
     protected void handleChangeAuthenticationKey(Attributes attrbs) {
-        this.wrappedAuthenticationKey = DLMSUtils.hexStringToByteArray(attrbs.getValue(RtuMessageConstant.AEE_NEW_AUTHENTICATION_KEY));
-        if (attrbs.getValue(RtuMessageConstant.AEE_PLAIN_NEW_AUTHENTICATION_KEY) != null) {
-            this.plainAuthenticationKey = attrbs.getValue(RtuMessageConstant.AEE_PLAIN_NEW_AUTHENTICATION_KEY);
-        }
+        String hexKey = attrbs.getValue(RtuMessageConstant.AEE_NEW_AUTHENTICATION_KEY);
+        this.authenticationKey = hexKey != null ? DLMSUtils.hexStringToByteArray(hexKey) : new byte[0];
     }
 
     public byte[] getNewAuthenticationKey() {
-        return wrappedAuthenticationKey;
-    }
-
-    public String getPlainAuthenticationKey() {
-        return plainAuthenticationKey;
+        return authenticationKey;
     }
 
     /* Change the encryption key */
 
-    private byte[] wrappedEncryptionKey = new byte[0];
-    private String plainEncryptionKey = "";
+    private byte[] encryptionKey = new byte[0];
 
     protected void handleChangeEncryptionKey(Attributes attrbs) {
-        this.wrappedEncryptionKey = DLMSUtils.hexStringToByteArray(attrbs.getValue(RtuMessageConstant.AEE_NEW_ENCRYPTION_KEY));
-        if (attrbs.getValue(RtuMessageConstant.AEE_PLAIN_NEW_ENCRYPTION_KEY) != null) {
-            this.plainEncryptionKey = attrbs.getValue(RtuMessageConstant.AEE_PLAIN_NEW_ENCRYPTION_KEY);
-        }
+        String hexKey = attrbs.getValue(RtuMessageConstant.AEE_NEW_ENCRYPTION_KEY);
+        this.encryptionKey = hexKey != null ? DLMSUtils.hexStringToByteArray(hexKey) : new byte[0];
     }
 
     public byte[] getNewEncryptionKey() {
-        return wrappedEncryptionKey;
-    }
-
-    public String getPlainEncryptionKey() {
-        return plainEncryptionKey;
+        return encryptionKey;
     }
 
     /* Change the HLS secret */
@@ -1110,7 +1098,7 @@ public class MessageHandler extends DefaultHandler {
     public Unsigned32 getMbusClientIdentificationNumber(boolean fixMbusHexShortId) throws IOException {
         try {
             return getIdentificationNumber(mbusClientIdentificationNumber, fixMbusHexShortId);
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             throw new ProtocolException("Invalid Client Identification Number. ASCII value expected.");
         }
     }
@@ -1118,7 +1106,7 @@ public class MessageHandler extends DefaultHandler {
     public Unsigned16 getMbusClientManufacturerID() throws IOException {
         try {
             return getManufacturerId(mbusClientManufacturerId);
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             throw new ProtocolException("Invalid Manufacturer Id value.");
         }
     }
@@ -1126,7 +1114,7 @@ public class MessageHandler extends DefaultHandler {
     public Unsigned8 getMbusClientVersion() throws IOException {
         try {
             return getVersion(mbusClientVersion);
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             throw new ProtocolException("Invalid Client Version value.");
         }
     }
@@ -1134,7 +1122,7 @@ public class MessageHandler extends DefaultHandler {
     public Unsigned8 getMbusDeviceType() throws IOException {
         try {
             return getDeviceType(mbusClientDeviceType);
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             throw new ProtocolException("Invalid Client Device type value.");
         }
     }
@@ -1145,15 +1133,16 @@ public class MessageHandler extends DefaultHandler {
 
     private Unsigned16 getManufacturerId(String manufacturerId) throws IOException {
         char[] chars = manufacturerId.toCharArray();
-        int id =  Integer.parseInt("" + ((chars[2]-64) + (chars[1]-64)*32 + (chars[0]-64)*32*32));
+        int id = Integer.parseInt("" + ((chars[2] - 64) + (chars[1] - 64) * 32 + (chars[0] - 64) * 32 * 32));
         return new Unsigned16(id);
     }
 
     private Unsigned32 getIdentificationNumber(String indentificationNumber, boolean fixMbusHexShortId) throws IOException {
-        if(fixMbusHexShortId)
+        if (fixMbusHexShortId) {
             return new Unsigned32(Integer.parseInt(indentificationNumber));
-        else
+        } else {
             return new Unsigned32(Integer.parseInt(indentificationNumber, 16));
+        }
     }
 
     private Unsigned8 getVersion(String version) throws IOException {

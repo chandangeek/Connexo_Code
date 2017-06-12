@@ -17,9 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
-import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY;
-
 /**
  * Copyrights EnergyICT
  * Date: 20-jul-2011
@@ -64,9 +61,7 @@ public class UkHubProperties extends DlmsProtocolProperties {
                 this.integerSpec(BULK_REQUEST, false, PropertyTranslationKeys.EICT_BULK_REQUEST),
                 this.integerSpec(CIPHERING_TYPE, false, PropertyTranslationKeys.EICT_CIPHERING_TYPE),
                 this.integerSpec(NTA_SIMULATION_TOOL, false, PropertyTranslationKeys.EICT_NTA_SIMULATION_TOOL),
-                this.integerSpec(LOGBOOK_SELECTOR, false, PropertyTranslationKeys.EICT_LOGBOOK_SELECTOR),
-                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, false, PropertyTranslationKeys.EICT_DATATRANSPORT_AUTHENTICATIONKEY),
-                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false, PropertyTranslationKeys.EICT_DATATRANSPORT_ENCRYPTIONKEY));
+                this.integerSpec(LOGBOOK_SELECTOR, false, PropertyTranslationKeys.EICT_LOGBOOK_SELECTOR));
     }
 
     private <T> PropertySpec spec(String name, boolean required, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {

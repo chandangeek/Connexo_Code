@@ -52,8 +52,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meter
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newHexPasswordAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWrappedEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.plcTypeFirmwareUpdateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.pskAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
@@ -103,9 +101,7 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(pskAttributeName) ||
                 propertySpec.getName().equals(newHexPasswordAttributeName) ||
                 propertySpec.getName().equals(newAuthenticationKeyAttributeName) ||
-                propertySpec.getName().equals(newWrappedAuthenticationKeyAttributeName) ||
-                propertySpec.getName().equals(newEncryptionKeyAttributeName) ||
-                propertySpec.getName().equals(newWrappedEncryptionKeyAttributeName)) {
+                propertySpec.getName().equals(newEncryptionKeyAttributeName)) {
             return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
         } else if (propertySpec.getName().equals(disableDefaultRouting)
                 || propertySpec.getName().equals(adp_Blacklist_table_entry_TTL)
@@ -174,8 +170,8 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
 
                 .put(messageSpec(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL), new MultipleAttributeMessageEntry("ChangeAuthenticationLevel", "Authentication_level"))
                 .put(messageSpec(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION), new MultipleAttributeMessageEntry(RtuMessageConstant.AEE_ACTIVATE_SECURITY, "Security_level"))
-                .put(messageSpec(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS), new MultipleAttributeMessageEntry(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY, "NewAuthenticationKey", "NewWrappedAuthenticationKey"))
-                .put(messageSpec(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS), new MultipleAttributeMessageEntry(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY, "NewEncryptionKey", "NewWrappedEncryptionKey"))
+                .put(messageSpec(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY), new MultipleAttributeMessageEntry(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY, "NewAuthenticationKey"))
+                .put(messageSpec(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY), new MultipleAttributeMessageEntry(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY, "NewEncryptionKey"))
                 .put(messageSpec(SecurityMessage.CHANGE_HLS_SECRET_HEX), new MultipleAttributeMessageEntry(RtuMessageConstant.AEE_CHANGE_HLS_SECRET, "HLS_Secret"))
                 .put(messageSpec(SecurityMessage.CHANGE_LLS_SECRET_HEX), new MultipleAttributeMessageEntry("ChangeLLSSecret", "LLS_Secret"))
                 .put(messageSpec(SecurityMessage.WRITE_PSK), new MultipleAttributeMessageEntry("WritePlcPsk", "PSK"))

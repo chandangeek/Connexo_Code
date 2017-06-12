@@ -274,8 +274,6 @@ public class RtuMessageConstant {
     public static final String AEE_AUTHENTICATIONLEVEL = "AuthenticationLevel";
     public static final String AEE_NEW_AUTHENTICATION_KEY = "NewAuthenticationKey";
     public static final String AEE_NEW_ENCRYPTION_KEY = "NewEncryptionKey";
-    public static final String AEE_PLAIN_NEW_AUTHENTICATION_KEY = "PlainNewAuthenticationKey";
-    public static final String AEE_PLAIN_NEW_ENCRYPTION_KEY = "PlainNewEncryptionKey";
 
     //Cryptoserver messages
     public static final String SERVICEKEY_HLSSECRET = "ServiceKeyHLSSecret";

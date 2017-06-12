@@ -36,7 +36,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activ
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.masterKey;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
@@ -96,7 +95,7 @@ public class EK280MessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_DEFAULT_TARIFF_CODE), new EK280ActivityCalendarMessageEntry(calendarFinder, calendarExtractor, messageFileExtractor, deviceMessageFileFinder))
 
                 // Security messages
-                .put(messageSpec(SecurityMessage.CHANGE_SECURITY_KEYS), new MultipleAttributeMessageEntry("ChangeKeys", "ClientId", "WrapperKey", "NewAuthenticationKey", "NewEncryptionKey"))
+                .put(messageSpec(SecurityMessage.CHANGE_SECURITY_KEYS), new MultipleAttributeMessageEntry("ChangeKeys", "ClientId", "NewAuthenticationKey", "NewEncryptionKey"))
 
                 // Firmware upgrade
                 .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateFileAttributeName))
@@ -109,8 +108,6 @@ public class EK280MessageConverter extends AbstractMessageConverter {
                 propertySpec.getName().equals(newAuthenticationKeyAttributeName) ||
                 propertySpec.getName().equals(newEncryptionKeyAttributeName)) {
             return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
-        } else if (propertySpec.getName().equals(masterKey)) {
-                 return this.keyAccessorTypeExtractor.actualValueContent((KeyAccessorType) messageAttribute);
         } else if (propertySpec.getName().equals(activityCalendarAttributeName)) {
             return messageAttribute instanceof TariffCalendar ? CodeTableBase64Builder.getXmlStringFromCodeTable((TariffCalendar) messageAttribute, this.calendarExtractor) : messageAttribute.toString();
         } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {

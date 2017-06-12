@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.properties;
 
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
@@ -9,8 +7,13 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
+import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
@@ -22,6 +25,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DE
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
 import static com.energyict.dlms.common.DlmsProtocolProperties.GBT_WINDOW_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MASTER_KEY;
 import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.USE_GBT;
@@ -62,7 +66,8 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
                 this.cipheringTypePropertySpec(),
                 this.callingAPTitlePropertySpec(),
                 this.serverUpperMacAddressPropertySpec(),
-                this.callHomeIdPropertySpec());
+                this.callHomeIdPropertySpec(),
+                this.masterKeyPropertySpec());
     }
 
     @Override
@@ -80,6 +85,10 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
 
     protected PropertySpec generalBlockTransferWindowSizePropertySpec() {
         return this.bigDecimalSpec(GBT_WINDOW_SIZE, DEFAULT_GBT_WINDOW_SIZE, PropertyTranslationKeys.V2_DLMS_GBT_WINDOW_SIZE);
+    }
+
+    protected PropertySpec masterKeyPropertySpec() {
+        return this.keyAccessorTypeReferencePropertySpec(MASTER_KEY, PropertyTranslationKeys.V2_NTA_MASTERKEY);
     }
 
     protected PropertySpec cipheringTypePropertySpec() {
@@ -152,6 +161,14 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
         return UPLPropertySpecFactory
                 .specBuilder(name, false, translationKey, this.propertySpecService::bigDecimalSpec)
                 .setDefaultValue(defaultValue)
+                .finish();
+    }
+
+    private PropertySpec keyAccessorTypeReferencePropertySpec(String name, TranslationKey translationKey) {
+        return this.propertySpecService
+                .referenceSpec(KeyAccessorType.class.getName())
+                .named(name, translationKey)
+                .describedAs(new DescriptionTranslationKey(translationKey))
                 .finish();
     }
 

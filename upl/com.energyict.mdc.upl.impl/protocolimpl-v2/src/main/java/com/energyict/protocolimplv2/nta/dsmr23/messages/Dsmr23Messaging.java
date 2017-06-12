@@ -21,7 +21,6 @@ import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
-
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -72,8 +71,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meter
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newPasswordAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newWrappedEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.overThresholdDurationAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
@@ -272,11 +269,9 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
             case overThresholdDurationAttributeName:
                 return String.valueOf(((Duration) messageAttribute).getSeconds());
             case newEncryptionKeyAttributeName:
-            case newWrappedEncryptionKeyAttributeName:
             case newPasswordAttributeName:
             case newAuthenticationKeyAttributeName:
             case passwordAttributeName:
-            case newWrappedAuthenticationKeyAttributeName:
                 return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
             case meterTimeAttributeName:
                 return String.valueOf(((Date) messageAttribute).getTime());

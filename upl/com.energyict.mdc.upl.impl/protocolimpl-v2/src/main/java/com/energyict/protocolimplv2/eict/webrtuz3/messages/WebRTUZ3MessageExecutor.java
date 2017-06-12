@@ -1,5 +1,13 @@
 package com.energyict.protocolimplv2.eict.webrtuz3.messages;
 
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.ResultType;
+
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -20,13 +28,6 @@ import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -311,12 +312,14 @@ public class WebRTUZ3MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void changeKey(OfflineDeviceMessage pendingMessage, int type) throws IOException {
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(pendingMessage.getDeviceMessageAttributes().get(0).getValue(), "");
+        byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
+        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
+
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
-        String wrappedHexKey = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
-        byte[] key = ProtocolTools.getBytesFromHexString(wrappedHexKey, "");
-        keyData.addDataType(OctetString.fromByteArray(key));
+        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
         globalKeyArray.addDataType(keyData);
 
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();

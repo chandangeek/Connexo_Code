@@ -31,9 +31,9 @@ public class Dsmr50MessageConverterTest extends AbstractV2MessageConverterTest {
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
 
-        offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS);
+        offlineDeviceMessage = createMessage(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<Change_DataTransportAuthenticationKey PlainNewAuthenticationKey=\"key\" NewAuthenticationKey=\"key\"> </Change_DataTransportAuthenticationKey>", messageEntry.getContent());
+        assertEquals("<Change_DataTransportAuthenticationKey NewAuthenticationKey=\"key\"> </Change_DataTransportAuthenticationKey>", messageEntry.getContent());
 
     }
 
@@ -49,8 +49,7 @@ public class Dsmr50MessageConverterTest extends AbstractV2MessageConverterTest {
 
     @Override
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
-        if (propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName)) {
+        if (propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)) {
             KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
             when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("key");
             return keyAccessorType;

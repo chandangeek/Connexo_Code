@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
@@ -14,15 +15,13 @@ import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
 import com.energyict.protocolimpl.dlms.common.ObisCodePropertySpec;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
+import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
-
-import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
-import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY;
 
 /**
  * Copyrights EnergyICT
@@ -66,8 +65,6 @@ public class PrimeProperties extends DlmsProtocolProperties {
         return Arrays.asList(
                 this.stringSpec(SERVER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_MAC_ADDRESS),
                 this.integerSpec(CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION),
-                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, PropertyTranslationKeys.DLMS_DATATRANSPORT_AUTHENTICATIONKEY),
-                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, PropertyTranslationKeys.DLMS_DATATRANSPORT_ENCRYPTIONKEY),
                 new ObisCodePropertySpec(PROPNAME_LOAD_PROFILE_OBIS_CODE,this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOAD_PROFILE_OBIS_CODE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_LOAD_PROFILE_OBIS_CODE_DESCRIPTION).format()),
                 new ObisCodePropertySpec(PROPNAME_EVENT_LOGBOOK_OBIS_CODE,this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_EVENT_LOGBOOK_OBIS_CODE).format(), this.nlsService.getThesaurus(Thesaurus.ID.toString()).getFormat(PropertyTranslationKeys.DLMS_EVENT_LOGBOOK_OBIS_CODE_DESCRIPTION).format()),
                 this.stringSpec(FW_IMAGE_NAME, PropertyTranslationKeys.DLMS_FW_IMAGE_NAME),
@@ -97,6 +94,14 @@ public class PrimeProperties extends DlmsProtocolProperties {
                 .specBuilder(name, false, translationKey, this.propertySpecService::integerSpec)
                 .addValues(validValues)
                 .markExhaustive()
+                .finish();
+    }
+
+    private PropertySpec keyAccessorTypeReferencePropertySpec(String name, TranslationKey translationKey) {
+        return this.propertySpecService
+                .referenceSpec(KeyAccessorType.class.getName())
+                .named(name, translationKey)
+                .describedAs(new DescriptionTranslationKey(translationKey))
                 .finish();
     }
 
