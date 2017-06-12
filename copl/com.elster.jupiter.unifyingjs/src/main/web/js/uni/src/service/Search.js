@@ -306,13 +306,17 @@ Ext.define('Uni.service.Search', {
     applyFilters: function () {
         var me = this,
             searchResults = me.getSearchResultsStore(),
-            filters = me.getFilters();
+            filters = me.getFilters(),
+            router = this.router;
 
         me.previouslyAppliedState = me.getState();
         me.previouslyAppliedFiltersAsString = JSON.stringify(filters);
         me.changedFiltersNotYetApplied = false;
         searchResults.clearFilter(true);
         if (filters && filters.length) {
+            Uni.util.History.setParsePath(false);
+            router.getRoute('search').forward(null, Ext.apply(router.queryParams, {restore: true}));
+
             if (searchResults.isLoading()) {
                 Ext.Ajax.suspendEvent('requestexception');
                 Ext.Ajax.abort(searchResults.lastRequest);
