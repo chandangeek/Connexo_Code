@@ -10,12 +10,13 @@ import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPost
 import com.elster.jupiter.demo.impl.commands.ActivateDevicesCommand;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
+import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
 import com.elster.jupiter.pki.PkiService;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.upl.TypedProperties;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -25,8 +26,6 @@ import java.util.TimeZone;
 import java.util.function.Consumer;
 
 public class CreateG3SlaveCommand {
-
-    private static final String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
 
     public enum SlaveDeviceConfiguration {
         AS3000 {
@@ -97,7 +96,7 @@ public class CreateG3SlaveCommand {
         DeviceConfiguration deviceConfiguration = getConfiguration();
         meterConfig.setPkiService(pkiService);
         meterConfig.setDeviceConfiguration(deviceConfiguration);
-        meterConfig.setSecurityPropertySet(deviceConfiguration.getSecurityPropertySets().stream().filter(s -> SECURITY_SET_NAME.equals(s.getName())).findFirst().get());
+        meterConfig.setSecurityPropertySet(deviceConfiguration.getSecurityPropertySets().stream().filter(s -> SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5.getName().equals(s.getName())).findFirst().get());
 
         if (name != null){
             meterConfig.setProperty("name", name);
@@ -127,7 +126,6 @@ public class CreateG3SlaveCommand {
         return Builders.from(DeviceConfigurationTpl.AM540).withDeviceType(deviceType)
                 .withDirectlyAddressable(false)
                 .withPostBuilder(new ChannelsOnDevConfPostBuilder())
-                .withPostBuilder(new SecurityPropertySetPostBuilder())
                 .get();
     }
 
@@ -178,17 +176,6 @@ public class CreateG3SlaveCommand {
                     .withPostBuilder(new SecurityPropertyPostBuilder(this, getPkiService()))
                     .withPostBuilder(new ProtocolPropertyPostBuilder(this))
                     .get();
-        }
-    }
-
-    private static class SecurityPropertySetPostBuilder implements Consumer<DeviceConfiguration> {
-
-        @Override
-        public void accept(DeviceConfiguration configuration) {
-             configuration.createSecurityPropertySet(SECURITY_SET_NAME)
-                     .authenticationLevel(3)    //HIGH_LEVEL_MD5
-                     .encryptionLevel(0)        //NO_ENCRYPTION
-                     .build();
         }
     }
 
