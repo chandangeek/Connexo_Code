@@ -279,6 +279,11 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                         if (responseObj && responseObj.errors) {
                             Ext.suspendLayouts();
                             formErrorsPanel.show();
+                            Ext.each(responseObj.errors,function(error){
+                                if(error.id === 'overruledObisCode.obisCode'){
+                                    error.id = 'overruledObisCode';
+                                }
+                            });
                             basicForm.markInvalid(responseObj.errors);
                             Ext.resumeLayouts(true);
                         }

@@ -47,7 +47,10 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Add', {
                                     header: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
                                     dataIndex: 'name',
                                     renderer: function (value, metaData, record) {
-                                        var url = me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view').buildUrl({deviceTypeId: record.get('deviceTypeId'), deviceConfigurationId: record.get('id')});
+                                        var url = me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view').buildUrl({
+                                            deviceTypeId: record.get('deviceTypeId'),
+                                            deviceConfigurationId: record.get('id')
+                                        });
                                         return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                                     },
                                     flex: 1
@@ -65,13 +68,25 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Add', {
                             ]
                         },
                         emptyComponent: {
-                            xtype: 'no-items-found-panel',
-                            itemId: 'no-items-found-panel',
-                            title: Uni.I18n.translate('estimationDeviceConfigurations.empty.title', 'MDC', 'No device configurations found'),
-                            reasons: [
-                                Uni.I18n.translate('estimationDeviceConfigurations.empty.list.item1', 'MDC', 'No device configurations have been defined yet'),
-                                Uni.I18n.translate('estimationDeviceConfigurations.empty.list.item2', 'MDC', 'There are no device configurations that have reading types that match the rules in the estimation rule set'),
-                                Uni.I18n.translate('estimationDeviceConfigurations.empty.list.item3', 'MDC', 'Matching device configurations exist, but you do not have permission to view them')
+                            xtype: 'container',
+                            items: [
+                                {
+                                    xtype: 'no-items-found-panel',
+                                    itemId: 'no-items-found-panel',
+                                    title: Uni.I18n.translate('estimationDeviceConfigurations.empty.title', 'MDC', 'No device configurations found'),
+                                    reasons: [
+                                        Uni.I18n.translate('estimationDeviceConfigurations.empty.list.item1', 'MDC', 'No device configurations have been defined yet.'),
+                                        Uni.I18n.translate('estimationDeviceConfigurations.empty.list.item2', 'MDC', 'There are no device configurations that have reading types that match the rules in the estimation rule set.'),
+                                        Uni.I18n.translate('estimationDeviceConfigurations.empty.list.item3', 'MDC', 'Matching device configurations exist, but you do not have permission to view them.'),
+                                        Uni.I18n.translate('estimationDeviceConfigurations.empty.list.item4', 'MDC', 'All matching device configurations have already been added to the estimation rule set.')
+                                    ]
+                                },
+                                {
+                                    xtype: 'button',
+                                    ui: 'link',
+                                    text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                    href: me.router.getRoute('administration/estimationrulesets/estimationruleset/deviceconfigurations').buildUrl()
+                                }
                             ]
                         }
                     }

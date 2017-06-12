@@ -159,8 +159,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.AddRuleSets', {
             }
         });
 
-        me.getApplication().fireEvent('changecontentevent', widget);
-        me.getApplication().getController('Mdc.deviceconfigurationestimationrules.controller.RuleSets').loadDeviceTypeAndConfiguration(deviceTypeId, deviceConfigurationId, widget);
+        me.getApplication().getController('Mdc.deviceconfigurationestimationrules.controller.RuleSets').loadDeviceTypeAndConfigurationAndShowWidget(deviceTypeId, deviceConfigurationId, widget);
     }
 
 });

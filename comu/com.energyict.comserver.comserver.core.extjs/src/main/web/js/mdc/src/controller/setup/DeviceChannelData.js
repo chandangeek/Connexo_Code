@@ -960,6 +960,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             window = me.getReadingCopyFromReferenceWindow(),
             form = window.down('#reading-copy-window-form'),
             model = Ext.create('Mdc.model.CopyFromReference'),
+            changedData = me.getChangedData(me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData')),
             router = me.getController('Uni.controller.history.Router'),
             commentCombo = window.down('#estimation-comment-box'),
             commentValue = commentCombo.getRawValue(),
@@ -991,6 +992,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         });
 
         model.set('intervals', intervals);
+        model.set('editedReadings', changedData);
         model.save({
             failure: function (record, operation) {
                 var response = JSON.parse(operation.response.responseText);
@@ -1245,9 +1247,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     saveChannelDataEstimateModelr: function (record, readings, window, ruleId, action, comment) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            changedData = me.getChangedData(me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData')),
             adjustedPropertyFormErrors,
             validationInfoName = record.get('estimateBulk') ? 'bulkValidationInfo' : 'mainValidationInfo';
 
+        record.set('editedReadings', changedData);
         record.getProxy().setParams(decodeURIComponent(router.arguments.deviceId), router.arguments.channelId);
         window.setLoading();
         Ext.Ajax.suspendEvent('requestexception');
@@ -1714,6 +1718,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     correctReadings: function () {
         var me = this,
             model = Ext.create('Uni.model.readings.ReadingCorrection'),
+            changedData = me.getChangedData(me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData')),
             window = me.getCorrectReadingWindow(),
             records = window.record,
             router = me.getController('Uni.controller.history.Router'),
@@ -1752,6 +1757,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             }
         });
 
+        model.set('editedReadings', changedData);
         model.set('intervals', intervalsArray);
         model.set('projected', undefined);
         model.getProxy().setMdcUrl(decodeURIComponent(router.arguments.deviceId), router.arguments.channelId);
@@ -1824,11 +1830,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         reading.beginEdit();
         reading.set(valueField, correctedInterval[valueField]);
         if (reading.isModified(valueField)) {
+            reading.set(modificationState, Uni.util.ReadingEditor.modificationState('EDITED'));
             reading.get(validationInfo).estimatedByRule = false;
             reading.get(validationInfo).validationResult = 'validationStatus.ok';
-            reading.set(modificationState, Uni.util.ReadingEditor.modificationState('EDITED'));
+            reading.set('estimatedCommentNotSaved', true);
         }
-
         reading.endEdit(true);
         grid.getView().refreshNode(grid.getStore().indexOf(reading));
 

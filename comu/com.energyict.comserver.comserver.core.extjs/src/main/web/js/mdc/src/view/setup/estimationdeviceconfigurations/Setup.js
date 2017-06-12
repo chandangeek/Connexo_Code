@@ -63,7 +63,7 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Setup', {
                         itemId: 'no-items-found-panel',
                         title: Uni.I18n.translate('estimationDeviceConfigurations.empty.title', 'MDC', 'No device configurations found'),
                         reasons: [
-                            Uni.I18n.translate('estimationDeviceConfigurations.empty.list.item1', 'MDC', 'No device configurations have been defined yet')
+                            Uni.I18n.translate('estimationDeviceConfigurations.empty.list.item1', 'MDC', 'No device configurations have been defined yet.')
                         ],
                         stepItems: [
                             {

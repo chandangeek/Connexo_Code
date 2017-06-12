@@ -171,7 +171,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionHistory', {
             + connectionHistory.get('status') + '</a>');
 
         me.getComPortField().setValue(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.on', 'MDC', '{0} on {1}'), connectionHistory.get('comPort'), '<a href="#/administration/comservers/' + connectionHistory.get('comServer').id + '">' + connectionHistory.get('comServer').name + '</a>'));
-        me.getDeviceConnectionHistoryPreview().setTitle(Ext.String.format(Uni.DateTime.formatDateTime(connectionHistory.get('startedOn'), Uni.DateTime.SHORT, Uni.DateTime.LONGWITHMILLIS)));
+        me.getDeviceConnectionHistoryPreview().setTitle(Uni.DateTime.formatDateTime(connectionHistory.get('startedOn'), Uni.DateTime.SHORT, Uni.DateTime.LONG));
         me.getTitlePanel().setTitle(Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.communicationTasksTitle', 'MDC', 'Communication tasks')));
 
         Ext.suspendLayouts();

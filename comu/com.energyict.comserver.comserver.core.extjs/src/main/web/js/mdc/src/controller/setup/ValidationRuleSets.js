@@ -159,7 +159,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                 model.load(deviceConfigId, {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                        widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
+                        widget.down('#stepsMenu').setHeader(deviceConfig.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);
                     }
                 });
@@ -215,20 +215,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                 all: allPressed
             },
             success: function () {
-                location.href = '#/administration/devicetypes/'
-                    + me.deviceTypeId + '/deviceconfigurations/'
-                    + me.deviceConfigId + '/validationrulesets';
-
-                var message = Uni.I18n.translatePlural(
-                    'validation.ruleSetAdded',
-                    selection.length,
-                    'MDC',
-                    'Successfully added {0} validation rule sets',
-                    'Successfully added {0} validation rule set',
-                    'Successfully added {0} validation rule sets'
-                );
-
-                me.getApplication().fireEvent('acknowledge', message);
+                location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/validationrulesets';
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.validationRuleSetsAdded', 'MDC', 'Validation rule sets added'));
             },
             failure: function (response) {
                 if (response.status === 400) {
@@ -348,7 +336,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                 jsonData: Ext.merge(cfg.config.record.getRecordData(), {parent: scope.getValidationRuleSetsOverview().deviceConfiguration.getRecordData()}),
                 method: 'DELETE',
                 success: function () {
-                    scope.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.success', 'MDC', 'Successfully removed'));
+                    scope.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.validationRuleSetRemoved', 'MDC', 'Validation rule set removed'));
                     store.load();
                 },
                 failure: function (response) {

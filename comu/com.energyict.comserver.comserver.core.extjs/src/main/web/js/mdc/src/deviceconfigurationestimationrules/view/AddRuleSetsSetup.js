@@ -52,7 +52,9 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.AddRuleSetsSetup', {
                             title: Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.noItems', 'MDC', 'No estimation rule sets found'),
                             reasons: [
                                 Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.empty.list.item1', 'MDC', 'No estimation rule sets have been added yet.'),
-                                Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.empty.list.item2', 'MDC', 'Estimation rule sets exist, but you do not have permission to view them.')
+                                Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.empty.list.item3', 'MDC', 'Estimation rule sets exist, but none of them match this device configuration.'),
+                                Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.empty.list.item2', 'MDC', 'Matching estimation rule sets exist, but you do not have permission to view them.'),
+                                Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.empty.list.item4', 'MDC', 'All matching estimation rule sets have already been added to the device configuration.')
                             ],
                             stepItems: [
                                 {

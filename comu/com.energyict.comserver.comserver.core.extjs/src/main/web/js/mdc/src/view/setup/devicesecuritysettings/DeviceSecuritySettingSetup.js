@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingSetup', {
                                 hasClient = false;
                             if(store.count() > 0) {
                                 hasSecuritySuite = records[0].get('securitySuite')['id'] !== -1;
-                                hasClient = records[0].get('client') !== undefined && records[0].get('client') !== null && records[0].get('client') !== '';
+                                hasClient = !Ext.isEmpty(records[0].getClient());
                             }
                             me.down('#deviceSecuritySettingSetupPanel preview-container deviceSecuritySettingGrid').updateColumns(hasSecuritySuite, hasClient);
                             me.down('#deviceSecuritySettingSetupPanel preview-container deviceSecuritySettingPreview').updateColumns(hasSecuritySuite, hasClient);
