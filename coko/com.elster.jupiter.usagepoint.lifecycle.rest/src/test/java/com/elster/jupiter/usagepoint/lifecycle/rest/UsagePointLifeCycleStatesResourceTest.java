@@ -14,6 +14,7 @@ import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
@@ -37,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -143,7 +145,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = "Stage";
+        info.stage = new IdWithNameInfo("Stage", "Stage");
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
         info.parent = new VersionInfo<>(12L, 4L);
@@ -181,7 +183,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = "Stage";
+        info.stage = new IdWithNameInfo("Stage", "Stage");
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
         info.parent = new VersionInfo<>(12L, 4L);
@@ -222,11 +224,13 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         StageSet defaultStageSet = mock(StageSet.class);
         when(usagePointLifeCycleConfigurationService.getDefaultStageSet()).thenReturn(defaultStageSet);
         when(defaultStageSet.getStageByName(anyString())).thenReturn(Optional.of(stage));
+//        when(thesaurus.getString(anyString(), anyString())).thenReturn("Stage");
+//        doReturn("Stage").when(thesaurus.getString(anyString(), anyString()));
 
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State changed";
-        info.stage = "Stage";
+        info.stage = new IdWithNameInfo("Stage", "Stage");
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
         info.version = 3L;
@@ -271,7 +275,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State changed";
-        info.stage = "Stage";
+        info.stage = new IdWithNameInfo("Stage", "Stage");
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
         info.version = 3L;
@@ -313,7 +317,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage ="Stage";
+        info.stage = new IdWithNameInfo("Stage", "Stage");
         info.onEntry = Collections.singletonList(new BusinessProcessInfo(1L, null, null));
         info.onExit = Collections.singletonList(new BusinessProcessInfo(2L, null, null));
         info.version = 2L;
@@ -346,7 +350,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = "Stage";
+        info.stage = new IdWithNameInfo("Stage", "Stage");
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -365,7 +369,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = "Stage";
+        info.stage = new IdWithNameInfo("Stage", "Stage");
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
@@ -383,7 +387,7 @@ public class UsagePointLifeCycleStatesResourceTest extends UsagePointLifeCycleAp
         UsagePointLifeCycleStateInfo info = new UsagePointLifeCycleStateInfo();
         info.id = 4L;
         info.name = "State";
-        info.stage = "Stage";
+        info.stage = new IdWithNameInfo("Stage", "Stage");
         info.version = 3L;
         info.parent = new VersionInfo<>(12L, 4L);
         Entity<UsagePointLifeCycleStateInfo> json = Entity.json(info);
