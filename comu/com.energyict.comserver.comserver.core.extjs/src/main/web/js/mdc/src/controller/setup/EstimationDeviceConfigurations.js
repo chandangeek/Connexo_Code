@@ -122,16 +122,21 @@ Ext.define('Mdc.controller.setup.EstimationDeviceConfigurations', {
                 router: router
             }),
             store = me.getStore('Mdc.store.EstimationDeviceConfigurationsBuffered'),
-            model = me.getModel('Mdc.model.EstimationRuleSet');
+            model = me.getModel('Mdc.model.EstimationRuleSet'),
+            viewport = Ext.ComponentQuery.query('viewport')[0];
 
+        me.getApplication().fireEvent('changecontentevent', view);
+        viewport.setLoading();
         store.getProxy().setUrl(router.arguments);
+        store.data.clear();
         me.ruleSetId = ruleSetId;
         model.load(ruleSetId, {
             success: function (ruleSet) {
                 me.getApplication().fireEvent('loadEstimationRuleSet', ruleSet);
-                me.getApplication().fireEvent('changecontentevent', view);
-                store.data.clear();
                 store.loadPage(1);
+            },
+            callback: function () {
+                viewport.setLoading(false);
             }
         });
     },
@@ -170,16 +175,7 @@ Ext.define('Mdc.controller.setup.EstimationDeviceConfigurations', {
             jsonData: Ext.encode(ids),
             success: function () {
                 router.getRoute('administration/estimationrulesets/estimationruleset/deviceconfigurations').forward();
-                var quantityOfConfigurations = allPressed ? 'all' : selection.length;
-                var message = Uni.I18n.translatePlural(
-                    'estimationDeviceConfigurations.addSuccess',
-                    quantityOfConfigurations,
-                    'MDC',
-                    'Successfully added {0} device configurations',
-                    'Successfully added {0} device configuration',
-                    'Successfully added {0} device configurations'
-                );
-                me.getApplication().fireEvent('acknowledge', message);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.deviceConfigurationsAdded', 'MDC', 'Device configurations added'));
             },
             callback: function () {
                 me.getAddPage().setLoading(false);

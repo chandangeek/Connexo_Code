@@ -211,7 +211,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             method: 'GET',
             success: function (response) {
                 var res = Ext.JSON.decode(response.responseText),
-                    code = '';
+                    code = undefined;
                 if (res.hasValidation) {
                     if (res.lastChecked) {
                         me.dataValidationLastChecked = new Date(res.lastChecked);
@@ -228,7 +228,8 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                         code = res.errorCode;
                     }
                     var title = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.errorTitle', 'MDC', 'Couldn\'t perform your action'),
-                        message = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.errorMsg', 'MDC', 'Failed to validate data of channel {0}', [record.get('readingType').fullAliasName]) + "." + Uni.I18n.translate('deviceloadprofiles.channels.noData', 'MDC', 'There is currently no data for this channel'),
+                        message = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.errorMsg', 'MDC', "Failed to validate data of channel '{0}'", record.get('readingType').fullAliasName)
+                            + '. ' + Uni.I18n.translate('deviceloadprofiles.channels.noData', 'MDC', 'There is currently no data for this channel.'),
                         config = {
                             icon: Ext.MessageBox.WARNING
                         };

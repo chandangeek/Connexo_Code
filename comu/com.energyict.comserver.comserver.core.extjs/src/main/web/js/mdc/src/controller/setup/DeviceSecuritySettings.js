@@ -73,7 +73,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
             me.getDeviceSecuritySettingPreview().setTitle(Ext.String.htmlEncode(deviceSecuritySetting[0].get('name')));
             me.getDeviceSecuritySettingPreviewDetailsTitle().setVisible(deviceSecuritySetting[0].propertiesStore.data.items.length > 0);
             me.getDeviceSecuritySettingPreview().getLayout().setActiveItem(1);
-            me.getDeviceSecuritySettingPreviewForm().loadRecord(deviceSecuritySetting[0]);
+            me.getDeviceSecuritySettingPreview().loadRecord(deviceSecuritySetting[0]);
         } else {
             me.getDeviceSecuritySettingPreview().getLayout().setActiveItem(0);
         }

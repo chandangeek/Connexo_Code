@@ -215,6 +215,12 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
         }
 
         me.callParent(arguments);
-    }
+    },
 
+    preProcessFullTokenForSelection: function(fullToken) {
+        if (fullToken.endsWith('/certificates')) {
+            fullToken = fullToken.replace('/certificates', '/keys');
+        }
+        return fullToken;
+    }
 });

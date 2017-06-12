@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
             multiSelect: true,
             options: [
                 {
-                    display: Uni.I18n.translate('devicecommunicationtaskhistory.debug', 'MDC', 'Debug'),
+                    display: Uni.I18n.translate('devicecommunicationtaskhistory.logging', 'MDC', 'Logging'),
                     value: 'Debug'
                 },
                 {
