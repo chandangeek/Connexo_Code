@@ -77,21 +77,15 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
                 },
                 failure: function (record, operation) {
                     if (operation.response.status == 400) {
-                        var result = Ext.decode(operation.response.responseText, true),
-                            errorTitle = Uni.I18n.translate('logbookconfiguration.failedToUpdateTitle', 'Couldn\'t perform your action'),
-                            errorText = Ext.String.format(Uni.I18n.translate('logbookconfiguration.failedToUpdate', 'MDC', 'Failed to update {0}'), record.data.name) + '.' + Uni.I18n.translate('logbookconfiguration.configurationCouldNotBeUpdated', 'MDC', 'Logbook configuration could not be updated. There was a problem accessing the database'),
-                            code = '';
-
-                        if (result !== null) {
-                            errorTitle = result.error;
-                            errorText = result.message;
+                        var result = Ext.decode(operation.response.responseText, true);
+                        if (result && result.errors) {
+                            Ext.Array.each(result.errors, function (error) {
+                                if (error.id === 'overruledObisCode.obisCode') {
+                                    form.down('#obis-code-container').setActiveError(error.msg);
+                                }
+                            });
+                            formErrorsPanel.show();
                         }
-
-                        if (result && result.errorCode) {
-                            code = result.errorCode;
-                        }
-
-                        me.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText, code);
                     }
                 },
                 callback: function () {
