@@ -98,6 +98,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -1175,6 +1176,59 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(json.<Long>get("$.[0].interval.start")).isEqualTo(SOURCE_INTERVAL_START);
         assertThat(json.<Long>get("$.[0].interval.end")).isEqualTo(SOURCE_INTERVAL_END);
     }
+
+    @Test
+    public void testCopyFromReferenceChannelWithEditedData(){
+        ReadingType collectedReadingType = ReadingTypeMockBuilder.from("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0").getMock();
+        ReadingType calculatedReadingType = ReadingTypeMockBuilder.from("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0").getMock();
+        Channel channelWithCalculatedReadingType = mockChannelWithCalculatedReadingType(CHANNEL_ID1, collectedReadingType, calculatedReadingType, Optional.empty());
+        ChannelDataUpdater channelDataUpdater = mock(ChannelDataUpdater.class);
+        when(channelDataUpdater.editChannelData(anyList())).thenReturn(channelDataUpdater);
+        when(channelDataUpdater.editBulkChannelData(anyList())).thenReturn(channelDataUpdater);
+        when(channelDataUpdater.confirmChannelData(anyList())).thenReturn(channelDataUpdater);
+        when(channelDataUpdater.removeChannelData(anyList())).thenReturn(channelDataUpdater);
+        when(channelDataUpdater.estimateBulkChannelData(anyList())).thenReturn(channelDataUpdater);
+        when(channelDataUpdater.estimateChannelData(anyList())).thenReturn(channelDataUpdater);
+        when(channelWithCalculatedReadingType.startEditingData()).thenReturn(channelDataUpdater);
+        ReferenceChannelDataInfo info = new ReferenceChannelDataInfo();
+        info.referenceDevice = device.getName();
+        info.readingType = calculatedReadingType.getMRID();
+        List<IntervalInfo> intervalInfos = new ArrayList<>();
+        Range<Instant> sourceRange = Range.openClosed(Instant.ofEpochMilli(SOURCE_INTERVAL_START), Instant.ofEpochMilli(SOURCE_INTERVAL_END));
+        intervalInfos.add(IntervalInfo.from(sourceRange));
+        info.intervals = intervalInfos;
+        info.allowSuspectData = true;
+        info.completePeriod = true;
+        info.startDate = Instant.ofEpochMilli(REFERENCE_INTERVAL_END);
+        ChannelDataInfo channelDataInfo = new ChannelDataInfo();
+        channelDataInfo.value = BigDecimal.ONE;
+        channelDataInfo.interval = new IntervalInfo();
+        channelDataInfo.interval.start = REFERENCE_INTERVAL_START;
+        channelDataInfo.interval.end = REFERENCE_INTERVAL_END;
+        channelDataInfo.commentId = 0L;
+        info.editedReadings = Collections.singletonList(channelDataInfo);
+        when(meteringService.getReadingType(calculatedReadingType.getMRID())).thenReturn(Optional.of(calculatedReadingType));
+        Quantity quantity = Quantity.create(new BigDecimal(10), 1, com.elster.jupiter.util.units.Unit.WATT_HOUR.getSymbol());
+        when(readingRecord.getReadingType()).thenReturn(calculatedReadingType);
+        when(readingRecord.getQuantity(any(ReadingType.class))).thenReturn(quantity);
+        when(readingRecord.getTimeStamp()).thenReturn(sourceRange.upperEndpoint());
+        when(channelWithCalculatedReadingType.getChannelData(sourceRange)).thenReturn(Collections.singletonList(loadProfileReading));
+        when(loadProfileReading.getRange()).thenReturn(sourceRange);
+        when(loadProfileReading.getReadingTime()).thenReturn(Instant.ofEpochMilli(SOURCE_INTERVAL_END));
+        when(loadProfileReading.getChannelValues()).thenReturn(Collections.singletonMap(channel, readingRecord));
+        Range<Instant> referenceRange = Range.openClosed(Instant.ofEpochMilli(REFERENCE_INTERVAL_START), Instant.ofEpochMilli(REFERENCE_INTERVAL_END));
+        when(channelWithCalculatedReadingType.getChannelData(referenceRange)).thenReturn(Collections.singletonList(editedProfileReading));
+        when(editedProfileReading.getRange()).thenReturn(referenceRange);
+        when(editedProfileReading.getReadingTime()).thenReturn(Instant.ofEpochMilli(REFERENCE_INTERVAL_END));
+        when(editedProfileReading.getChannelValues()).thenReturn(Collections.singletonMap(channel, readingRecord));
+        when(deviceService.findDeviceByName(device.getName())).thenReturn(Optional.of(device));
+        JsonModel json = JsonModel.create(target("/devices/1/channels/" + CHANNEL_ID1 + "/data/copyfromreference").request().post(Entity.json(info), String.class));
+        verify(transactionContext, never()).commit();
+        assertThat(json.<String>get("$.[0].value")).isEqualTo("10");
+        assertThat(json.<Long>get("$.[0].interval.start")).isEqualTo(SOURCE_INTERVAL_START);
+        assertThat(json.<Long>get("$.[0].interval.end")).isEqualTo(SOURCE_INTERVAL_END);
+    }
+
 
     @Test
     public void testCopyFromReferenceChannelWithSuspects(){

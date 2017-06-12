@@ -85,9 +85,8 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.SystemComTask;
+
 import com.energyict.obis.ObisCode;
-import org.junit.Before;
-import org.mockito.Mock;
 
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
@@ -110,6 +109,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.junit.Before;
+import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -391,7 +393,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
         when(finder.from(any(QueryParameters.class))).thenReturn(finder);
         when(finder.find()).thenReturn(list);
-        when(finder.stream()).thenReturn(list.stream());
+        when(finder.stream()).thenAnswer(invocation -> list.stream()); // Make sure to answer with a new stream each time
         return finder;
     }
 

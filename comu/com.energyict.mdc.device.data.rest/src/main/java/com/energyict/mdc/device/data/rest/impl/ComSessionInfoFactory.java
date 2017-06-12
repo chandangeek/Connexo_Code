@@ -33,6 +33,10 @@ public class ComSessionInfoFactory {
     }
 
     public ComSessionInfo from(ComSession comSession, JournalEntryInfoFactory journalEntryInfoFactory) {
+        return from(comSession, journalEntryInfoFactory, false);
+    }
+
+    public ComSessionInfo from(ComSession comSession, JournalEntryInfoFactory journalEntryInfoFactory, boolean connectionLogsOnly) {
         ComSessionInfo info = new ComSessionInfo();
         ConnectionTask<?,?> connectionTask = comSession.getConnectionTask();
         PartialConnectionTask partialConnectionTask = connectionTask.getPartialConnectionTask();
@@ -66,10 +70,12 @@ public class ComSessionInfoFactory {
         info.comTaskCount.numberOfSuccessfulTasks = comSession.getNumberOfSuccessFulTasks();
         info.comTaskCount.numberOfFailedTasks = comSession.getNumberOfFailedTasks();
         info.comTaskCount.numberOfIncompleteTasks = comSession.getNumberOfPlannedButNotExecutedTasks();
-        info.errors = comSession.getAllLogs(EnumSet.of(ComServer.LogLevel.ERROR), 0, Integer.MAX_VALUE).stream().map(journalEntryInfoFactory::asInfo).collect(Collectors
-                .toList());
-        info.warnings = comSession.getAllLogs(EnumSet.of(ComServer.LogLevel.WARN), 0, Integer.MAX_VALUE).stream().map(journalEntryInfoFactory::asInfo).collect(Collectors
-                .toList());
+        info.errors = connectionLogsOnly
+            ? comSession.getJournalEntries(EnumSet.of(ComServer.LogLevel.ERROR)).stream().map(journalEntryInfoFactory::asInfo).collect(Collectors.toList())
+            : comSession.getAllLogs(EnumSet.of(ComServer.LogLevel.ERROR), 0, Integer.MAX_VALUE).stream().map(journalEntryInfoFactory::asInfo).collect(Collectors.toList());
+        info.warnings = connectionLogsOnly
+            ? comSession.getJournalEntries(EnumSet.of(ComServer.LogLevel.WARN)).stream().map(journalEntryInfoFactory::asInfo).collect(Collectors.toList())
+            : comSession.getAllLogs(EnumSet.of(ComServer.LogLevel.WARN), 0, Integer.MAX_VALUE).stream().map(journalEntryInfoFactory::asInfo).collect(Collectors.toList());
         return info;
     }
 

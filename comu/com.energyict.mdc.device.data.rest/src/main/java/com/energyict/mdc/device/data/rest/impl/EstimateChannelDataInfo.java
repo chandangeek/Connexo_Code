@@ -34,6 +34,8 @@ public class EstimateChannelDataInfo {
     @JsonProperty("commentValue")
     public String commentValue;
 
+    public List<ChannelDataInfo> editedReadings;
+
     public EstimateChannelDataInfo() {
 
     }
