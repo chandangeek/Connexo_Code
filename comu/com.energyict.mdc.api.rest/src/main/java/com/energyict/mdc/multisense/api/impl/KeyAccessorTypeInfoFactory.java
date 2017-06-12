@@ -5,38 +5,74 @@ import com.elster.jupiter.rest.api.util.v1.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.SelectableFieldFactory;
+import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * SelectableFieldFactory<KeyAccessorTypeInfo, KeyAccessorType><br/>
+ * Note that methods are provided to create a link based on:
+ * <ul>
+ *     <li>a given device and KeyAccessorType (~ corresponding to KeyAccessorTypeResource)</li>
+ *     <li>a given deviceType and KeyAccessorType (~corresponding to ConfigurationKeyAccessorTypeResource)</li>
+ * </ul>
+ *
+ */
 public class KeyAccessorTypeInfoFactory extends SelectableFieldFactory<KeyAccessorTypeInfo, KeyAccessorType> {
 
-    public LinkInfo asLink(KeyAccessorType keyAccessorType, Relation relation, UriInfo uriInfo) {
+    public LinkInfo asLink(Device device, KeyAccessorType keyAccessorType, Relation relation, UriInfo uriInfo) {
         KeyAccessorTypeInfo info = new KeyAccessorTypeInfo();
-        copySelectedFields(info, keyAccessorType, uriInfo, Arrays.asList("id"));
-        info.link = link(keyAccessorType, relation, uriInfo);
+        copySelectedFields(info, keyAccessorType, uriInfo, Collections.singletonList("id"));
+        info.link = link(device, keyAccessorType, relation, uriInfo);
         return info;
     }
 
-    public List<LinkInfo> asLink(Collection<KeyAccessorType> keyAccessortypes, Relation relation, UriInfo uriInfo) {
-        return keyAccessortypes.stream().map(i -> asLink(i, relation, uriInfo)).collect(toList());
+    public List<LinkInfo> asLink(Collection<Pair<Device, KeyAccessorType>> keyAccessortypes, Relation relation, UriInfo uriInfo) {
+        return keyAccessortypes.stream().map(i -> asLink(i.getFirst(), i.getLast(), relation, uriInfo)).collect(toList());
     }
 
-    private Link link(KeyAccessorType keyAccessorType, Relation relation, UriInfo uriInfo) {
-        return Link.fromUriBuilder(getUriBuilder(uriInfo))
+    private Link link(Device device, KeyAccessorType keyAccessorType, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getDeviceUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Key accessor type")
-                .build(keyAccessorType.getId());
+                .build(device.getmRID(), keyAccessorType.getName());
     }
 
-    private UriBuilder getUriBuilder(UriInfo uriInfo) {
+    private UriBuilder getDeviceUriBuilder(UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder()
                 .path(KeyAccessorTypeResource.class)
                 .path(KeyAccessorTypeResource.class, "getKeyAccessorType");
+    }
+
+    public LinkInfo asLink(DeviceType deviceType, KeyAccessorType keyAccessorType, Relation relation, UriInfo uriInfo) {
+        KeyAccessorTypeInfo info = new KeyAccessorTypeInfo();
+        copySelectedFields(info, keyAccessorType, uriInfo, Collections.singletonList("id"));
+        info.link = link(deviceType, keyAccessorType, relation, uriInfo);
+        return info;
+    }
+
+    private Link link(DeviceType deviceType, KeyAccessorType keyAccessorType, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getDeviceTypeUriBuilder(uriInfo))
+                .rel(relation.rel())
+                .title("Key accessor type")
+                .build(deviceType.getId(), keyAccessorType.getName());
+    }
+
+    private UriBuilder getDeviceTypeUriBuilder(UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder()
+                .path(ConfigurationKeyAccessorTypeResource.class)
+                .path(ConfigurationKeyAccessorTypeResource.class, "getKeyAccessorType");
     }
 
     public KeyAccessorTypeInfo from(KeyAccessorType keyAccessorType, UriInfo uriInfo, Collection<String> fields) {

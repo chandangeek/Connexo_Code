@@ -5,7 +5,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.pki.KeyAccessorType;
-import com.elster.jupiter.rest.api.util.v1.hypermedia.Relation;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -21,6 +20,7 @@ import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,11 +28,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJerseyTest {
+/**
+ * @author stijn
+ * @since 07.06.17 - 10:47
+ */
+public class KeyAccessorTypeResourceTest extends MultisensePublicApiJerseyTest {
 
     private Device device;
     private SecurityPropertySet sps1, sps2;
@@ -61,58 +64,38 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
         KeyAccessorType keyAccessorType2 = sps2.getConfigurationSecurityProperties().get(0).getKeyAccessorType();
         when(keyAccessor1.getKeyAccessorType()).thenReturn(keyAccessorType1);
         when(keyAccessor2.getKeyAccessorType()).thenReturn(keyAccessorType2);
+        List<KeyAccessorType> keyAccessorTypes = new ArrayList<>();
+
+        sps1.getConfigurationSecurityProperties().stream().forEach(property -> keyAccessorTypes.add(property.getKeyAccessorType()));
+        sps2.getConfigurationSecurityProperties().stream().forEach(property -> keyAccessorTypes.add(property.getKeyAccessorType()));
+        when(device.getDeviceType().getKeyAccessorTypes()).thenReturn(keyAccessorTypes);
     }
 
     @Test
-    public void testAllGetDeviceSecurityPropertySetsPaged() throws Exception {
-        Response response = target("/devices/XAS/securitypropertysets").queryParam("start", 0).queryParam("limit", 10).request().get();
+    public void testGetSingleKeyAccessorTypeWithFields() throws Exception {
+        Response response = target("/devices/XAS/keyAccessorTypes/Password").queryParam("fields", "name").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("link")).hasSize(1);
-        assertThat(model.<String>get("link[0].params.rel")).isEqualTo("current");
-        assertThat(model.<String>get("link[0].params.title")).isEqualTo("current page");
-        assertThat(model.<String>get("link[0].href")).isEqualTo("http://localhost:9998/devices/XAS/securitypropertysets?start=0&limit=10");
-        assertThat(model.<List>get("data")).hasSize(2);
-        assertThat(model.<Integer>get("data[0].id")).isEqualTo(5);
-        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
-        assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/devices/XAS/securitypropertysets/5");
-        assertThat(model.<Integer>get("data[1].id")).isEqualTo(6);
-        assertThat(model.<String>get("data[1].link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
-        assertThat(model.<String>get("data[1].link.href")).isEqualTo("http://localhost:9998/devices/XAS/securitypropertysets/6");
-    }
-
-    @Test
-    public void testGetSingleDeviceSecurityPropertySetWithFields() throws Exception {
-        Response response = target("/devices/XAS/securitypropertysets/5").queryParam("fields", "id,version").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<Integer>get("$.id")).isEqualTo(5);
-        assertThat(model.<Integer>get("$.version")).isEqualTo(1003);
         assertThat(model.<String>get("$.link")).isNull();
-        assertTrue(model.get("$.configuredSecurityPropertySet") == null);
+        assertThat(model.<String>get("$.id")).isNull();
+        assertThat(model.<String>get("$.name")).isEqualTo("Password");
     }
 
     @Test
-    public void testGetSingleDeviceSecurityPropertySetAllFields() throws Exception {
-        Response response = target("/devices/XAS/securitypropertysets/5").request().get();
+    public void testGetSingleKeyAccessorTypeAllFields() throws Exception {
+        Response response = target("/devices/XAS/keyAccessorTypes/AK").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<Integer>get("$.id")).isEqualTo(5);
-        assertThat(model.<Integer>get("$.version")).isEqualTo(1003);
-        assertThat(model.<String>get("$.link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
-        assertThat(model.<String>get("$.link.href")).isEqualTo("http://localhost:9998/devices/XAS/securitypropertysets/5");
-        assertThat(model.<String>get("$.device.link.href")).isEqualTo("http://localhost:9998/devices/XAS");
-        assertThat(model.<Integer>get("$.client.propertyValueInfo.value")).isEqualTo(1);
-        assertThat(model.<String>get("$.configuredSecurityPropertySet.link.href")).isEqualTo("http://localhost:9998/devicetypes/1/deviceconfigurations/2/securitypropertysets/5");
-        assertThat(model.<String>get("$.properties[0].link.href")).isEqualTo("http://localhost:9998/devices/XAS/keyAccessors/Password");
+        assertThat(model.<String>get("$.link")).isNull();
+        assertThat(model.<Integer>get("$.id")).isEqualTo(321);
+        assertThat(model.<String>get("$.name")).isEqualTo("AK");
     }
 
     @Test
-    public void testDeviceSecurityPropertySetFields() throws Exception {
-        Response response = target("/devices/XAS/securitypropertysets").request("application/json").method("PROPFIND", Response.class);
+    public void testKeyAccessorTypeFields() throws Exception {
+        Response response = target("/devices/x/keyAccessorTypes").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(7);
-        assertThat(model.<List<String>>get("$")).containsOnly("configuredSecurityPropertySet", "device", "id", "link", "client", "properties", "version");
+        assertThat(model.<List>get("$")).hasSize(3);
+        assertThat(model.<List<String>>get("$")).containsOnly("id", "name", "description");
     }
-
 }

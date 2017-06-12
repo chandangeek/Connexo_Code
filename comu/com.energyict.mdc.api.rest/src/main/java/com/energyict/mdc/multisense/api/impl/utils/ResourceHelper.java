@@ -5,9 +5,10 @@
 package com.energyict.mdc.multisense.api.impl.utils;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -15,11 +16,14 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
+import com.google.common.collect.Range;
+
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -57,24 +61,26 @@ public class ResourceHelper {
 
     }
 
-    public List<DeviceConfiguration> findDeviceConfigurationsApplicableToMetrologyConfig(DeviceType deviceType, UsagePointMetrologyConfiguration metrologyConfiguration, MeterRole meterRole) {
-
+    public List<DeviceConfiguration> findDeviceConfigurationsApplicableToMetrologyConfig(DeviceType deviceType, UsagePoint usagePoint, MeterRole meterRole, Instant shipmentDate) {
+        Range<Instant> deviceRange = Range.atLeast(shipmentDate);
         List<DeviceConfiguration> applicableConfigurations = new ArrayList<>();
-        Set<ReadingTypeRequirement> requirements = metrologyConfiguration.getContracts().stream()
-                .flatMap(metrologyContract -> metrologyContract.getRequirements().stream())
-                .filter(readingTypeRequirement -> meterRole.equals(metrologyConfiguration
-                        .getMeterRoleFor(readingTypeRequirement)
-                        .orElse(null)))
-                .collect(Collectors.toSet());
-        deviceType.getConfigurations().stream()
-                .filter(DeviceConfiguration::isActive)
-                .forEach(deviceConfiguration -> {
-                            List<ReadingType> providedReadingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration);
-                            if (requirements.stream().noneMatch(requirement -> !providedReadingTypes.stream().anyMatch(requirement::matches))) {
-                                applicableConfigurations.add(deviceConfiguration);
-                            }
-                        }
-                );
+        usagePoint.getEffectiveMetrologyConfigurations(deviceRange)
+                .forEach(effectiveMetrologyConfiguration -> {
+                    Set<ReadingTypeRequirement> requirements = effectiveMetrologyConfiguration.getReadingTypeRequirements().stream()
+                            .filter(readingTypeRequirement -> meterRole.equals(effectiveMetrologyConfiguration.getMetrologyConfiguration()
+                                    .getMeterRoleFor(readingTypeRequirement)
+                                    .orElse(null)))
+                            .collect(Collectors.toSet());
+                    deviceType.getConfigurations().stream()
+                            .filter(DeviceConfiguration::isActive)
+                            .forEach(deviceConfiguration -> {
+                                        List<ReadingType> providedReadingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration);
+                                        if (requirements.stream().noneMatch(requirement -> !providedReadingTypes.stream().anyMatch(requirement::matches))) {
+                                            applicableConfigurations.add(deviceConfiguration);
+                                        }
+                                    }
+                            );
+                });
         return applicableConfigurations;
     }
 }

@@ -22,6 +22,7 @@ public class DeviceInfo extends LinkInfo<Long> {
     public String modelNbr;
     public String modelVersion;
     public String name;
+    public Instant shipmentDate;
 
     public DeviceConfigurationInfo deviceConfiguration;
     public Long deviceProtocolPluggeableClassId;
