@@ -12,7 +12,8 @@ Ext.define('Uni.model.readings.ReadingCorrection', {
         'onlySuspectOrEstimated',
         'projected',
         'amount',
-        'intervals'
+        'intervals',
+        'editedReadings'
     ],
 
     proxy: {

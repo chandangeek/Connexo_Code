@@ -42,7 +42,7 @@ Ext.define('Uni.property.view.property.BaseCombo', {
 
     getComboCmp: function () {
         var me = this,
-            sortedStore = me.getProperty().getPossibleValues().sort(),
+            sortedStore = me.getProperty().getPossibleValues().sort(me.getSortFunctionForPossibleValues()),
             propertyValue = me.getProperty().get('value');
         return {
             xtype: 'combobox',
@@ -61,7 +61,7 @@ Ext.define('Uni.property.view.property.BaseCombo', {
             blankText: me.blankText,
             forceSelection: this.getProperty().isEditable() || me.getProperty().getExhaustive(),
             editable: this.getProperty().isEditable() || !me.getProperty().getExhaustive(),
-            emptyText: this.getProperty().isEditable() == false ? '' : Uni.I18n.translate('general.selectValue', 'UNI', 'Select a value ...'),
+            emptyText: this.getProperty().isEditable() === false ? '' : Uni.I18n.translate('general.selectValue', 'UNI', 'Select a value ...'),
             listConfig: {
                 loadMask: true,
                 maxHeight: 300
@@ -116,6 +116,10 @@ Ext.define('Uni.property.view.property.BaseCombo', {
                 this.callParent(arguments);
             }
         }
-    }
+    },
 
+    // Override if you want a sorting other than alphabetically (eg. cf. Number.js)
+    getSortFunctionForPossibleValues: function() {
+        return undefined; // = alphabetically by default
+    }
 });

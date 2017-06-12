@@ -51,7 +51,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
                 }
 
                 if(item.data.type == 'servicecall') {
-                    return me.type == 'device'&& Scs.privileges.ServiceCall.canView();
+                    return Scs.privileges.ServiceCall.canView();
                 }
                 return true;
             }
@@ -251,6 +251,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
             value: item.get('displayValue'),
             renderer: function (value) {
                 var fillColor, borderColor, textColor;
+                value.status = item.get('status');
                 if (value.severity === undefined && value.userAssignee === undefined) {
                     fillColor = "#FFFFFF";
                     borderColor = "#1E7D9E";
