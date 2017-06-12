@@ -227,20 +227,30 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                         .filter(ma -> ma.getEnd() == null)
                         .findFirst().get();
 
-                meterActivation.doSetUsagePoint(usagePoint);
-                meterActivation.doSetMeterRole(meterRole);
-                meterActivation.save();
+                if (meterActivation.getRange().contains(activation.getStart())) {
+                    MeterActivation newActivation = meterActivation.split(activation.getStart());
+                    saveMeterActivation(((MeterActivationImpl)newActivation), meterRole);
+                } else {
+                    saveMeterActivation(meterActivation, meterRole);
+                }
 
                 this.meterTimeLines = new HashMap<>();
                 convertMeterActivationsToStreamOfMeters(this.usagePoint.getMeterActivations())
                         .forEach(m -> getMeterTimeLine(m, this.meterTimeLines));
                 getMeterTimeLine(meter, this.meterTimeLines).adjust(activation, activateVisitor);
+
                 notifyInterestedComponents();
+                refreshMeterActivations();
             }
         });
 
         this.usagePoint.touch();
-        refreshMeterActivations();
+    }
+
+    private void saveMeterActivation(MeterActivationImpl meterActivation, MeterRole meterRole) {
+        meterActivation.doSetUsagePoint(usagePoint);
+        meterActivation.doSetMeterRole(meterRole);
+        meterActivation.save();
     }
 
     @Override
@@ -311,15 +321,17 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
 
     private void notifyInterestedComponents() {
         eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this.usagePoint);
-        this.meterTimeLines
-                .values()
-                .stream()
-                .map(TimeLine::getElements)
-                .flatMap(Collection::stream)
-                .map(Activation::getStart)
-                .sorted()
-                .findFirst()
-                .ifPresent(earliestChange -> this.usagePoint.postCalendarTimeSeriesCacheHandlerMessage(earliestChange));
+        if(meterTimeLines != null) {
+            this.meterTimeLines
+                    .values()
+                    .stream()
+                    .map(TimeLine::getElements)
+                    .flatMap(Collection::stream)
+                    .map(Activation::getStart)
+                    .sorted()
+                    .findFirst()
+                    .ifPresent(earliestChange -> this.usagePoint.postCalendarTimeSeriesCacheHandlerMessage(earliestChange));
+        }
     }
 
     @Override

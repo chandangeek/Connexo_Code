@@ -283,6 +283,16 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     State getState(Instant instant);
 
+    /*
+     * Returns the name of the user who created this usage point
+     */
+    String getOriginator();
+
+    /*
+     * Returns the name of the user who last updated this usage point
+     */
+    String getUserName();
+
     /**
      * Sets initial state of default usage point life cycle if and only if the usage point
      * has no current state yet, which is a possible situation during upgrade from 10.2 to 10.x

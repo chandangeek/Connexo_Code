@@ -46,4 +46,6 @@ public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity
     void deactivateOptionalMetrologyContract(MetrologyContract metrologyContract, Instant when);
 
     List<ReadingTypeRequirement> getReadingTypeRequirements();
+
+    boolean isComplete(MetrologyContract metrologyContract);
 }
