@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.properties.FirmwareVersion;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
@@ -68,12 +67,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.Unica
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastFrameCounterTypeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UseTransferredBlockStatus;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UseTransferredBlockStatusDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastAuthenticationKeyAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastAuthenticationKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastClientMacAddressAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastClientMacAddressAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastEncryptionKeyAttributeDefaultTranslation;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastGroupIdAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastGroupIdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeDefaultTranslation;
@@ -320,8 +315,6 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.durationSpec(service, broadcastInitialTimeBetweenBlocksAttributeName, broadcastInitialTimeBetweenBlocksAttributeDefaultTranslation, Duration.ofSeconds(1)),
                     this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
                     this.stringSpec(service, firmwareUpdateImageIdentifierAttributeName, firmwareUpdateImageIdentifierAttributeDefaultTranslation),
-                    this.keyAccessorTypeReferenceSpec(service, broadcastEncryptionKeyAttributeName, broadcastEncryptionKeyAttributeDefaultTranslation),         // The actual value of the KeyAccessor reference will be used
-                    this.keyAccessorTypeReferenceSpec(service, broadcastAuthenticationKeyAttributeName, broadcastAuthenticationKeyAttributeDefaultTranslation), // The actual value of the KeyAccessor reference will be used
                     this.stringSpec(
                             service,
                             DeviceMessageConstants.encryptionLevelAttributeName, DeviceMessageConstants.encryptionLevelAttributeDefaultTranslation,
@@ -600,16 +593,6 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                 .setDefaultValue(defaultValue)
                 .addValues(possibleValues)
                 .markExhaustive()
-                .markRequired()
-                .finish();
-    }
-
-    protected PropertySpec keyAccessorTypeReferenceSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .referenceSpec(KeyAccessorType.class.getName())
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
                 .markRequired()
                 .finish();
     }

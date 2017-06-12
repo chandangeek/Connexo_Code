@@ -38,9 +38,8 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
     JoinZigBeeSlaveDevice(6003, "Join ZigBee slave device") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Arrays.asList(
-                    this.hexStringSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeDefaultTranslation),
-                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeDefaultTranslation) // The actual value of the KeyAccessor reference will be used
+            return Collections.singletonList(
+                    this.hexStringSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeDefaultTranslation)
             );
         }
     },
@@ -120,7 +119,6 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecSupplie
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.hexStringSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeDefaultTranslation),
-                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName, DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeDefaultTranslation), // The actual value of the KeyAccessor reference will be used
                     this.bigDecimalSpec(service, DeviceMessageConstants.ZigBeeConfigurationDeviceType, DeviceMessageConstants.ZigBeeConfigurationDeviceTypeDefaultTranslation)
             );
         }

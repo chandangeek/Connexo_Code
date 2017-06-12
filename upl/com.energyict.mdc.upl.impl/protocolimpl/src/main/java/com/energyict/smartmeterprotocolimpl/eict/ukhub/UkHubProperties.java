@@ -4,12 +4,14 @@ import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
+import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
 
@@ -31,6 +33,8 @@ public class UkHubProperties extends DlmsProtocolProperties {
 
     private static final String LOGBOOK_SELECTOR = "LogbookSelector";
     private static final int DEFAULT_LOGBOOK_SELECTOR = -1;
+
+    private static final String ZIGBEE_LINK_KEY = "ZigbeeLinkKey";
 
     public static final int FIRMWARE_CLIENT = 0x50;
 
@@ -61,7 +65,16 @@ public class UkHubProperties extends DlmsProtocolProperties {
                 this.integerSpec(BULK_REQUEST, false, PropertyTranslationKeys.EICT_BULK_REQUEST),
                 this.integerSpec(CIPHERING_TYPE, false, PropertyTranslationKeys.EICT_CIPHERING_TYPE),
                 this.integerSpec(NTA_SIMULATION_TOOL, false, PropertyTranslationKeys.EICT_NTA_SIMULATION_TOOL),
-                this.integerSpec(LOGBOOK_SELECTOR, false, PropertyTranslationKeys.EICT_LOGBOOK_SELECTOR));
+                this.integerSpec(LOGBOOK_SELECTOR, false, PropertyTranslationKeys.EICT_LOGBOOK_SELECTOR),
+                this.keyAccessorTypeReferencePropertySpec(ZIGBEE_LINK_KEY, PropertyTranslationKeys.EICT_ZIGBEE_LINK_KEY));
+    }
+
+    private PropertySpec keyAccessorTypeReferencePropertySpec(String name, TranslationKey translationKey) {
+        return this.propertySpecService
+                .referenceSpec(KeyAccessorType.class.getName())
+                .named(name, translationKey)
+                .describedAs(new DescriptionTranslationKey(translationKey))
+                .finish();
     }
 
     private <T> PropertySpec spec(String name, boolean required, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
@@ -110,6 +123,10 @@ public class UkHubProperties extends DlmsProtocolProperties {
 
     public boolean isFirmwareUpdateSession() {
         return getClientMacAddress() == FIRMWARE_CLIENT;
+    }
+
+    public String getZigbeeLinkKey() {
+        return getStringValue(ZIGBEE_LINK_KEY, "");
     }
 
     public void setSecurityProvider(final UkHubSecurityProvider ukHubSecurityProvider) {

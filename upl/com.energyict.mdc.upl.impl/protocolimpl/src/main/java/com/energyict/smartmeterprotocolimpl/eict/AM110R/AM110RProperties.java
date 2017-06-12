@@ -1,12 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R;
 
+import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
+import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.AM110RSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.MultipleClientRelatedObisCodes;
 import com.energyict.smartmeterprotocolimpl.eict.AM110R.common.SmsWakeUpDlmsProtocolProperties;
@@ -30,6 +33,7 @@ public class AM110RProperties extends SmsWakeUpDlmsProtocolProperties {
     private static final boolean DEFAULT_VERIFY_FIRMWARE_VERSION = false;
     private static final String LOGBOOK_SELECTOR = "LogbookSelector";
     private static final int DEFAULT_LOGBOOK_SELECTOR = -1;
+    private static final String ZIGBEE_LINK_KEY = "ZigbeeLinkKey";
 
     protected SecurityProvider securityProvider;
 
@@ -55,9 +59,18 @@ public class AM110RProperties extends SmsWakeUpDlmsProtocolProperties {
                 this.integerSpec(PK_TIMEOUT, false, PropertyTranslationKeys.EICT_TIMEOUT),
                 this.integerSpec(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.EICT_ROUND_TRIP_CORRECTION),
                 this.integerSpec(VERIFY_FIRMWARE_VERSION, false, PropertyTranslationKeys.EICT_VERIFY_FIRMWARE_VERSION),
-                this.integerSpec(LOGBOOK_SELECTOR, false, PropertyTranslationKeys.EICT_LOGBOOK_SELECTOR))
+                this.integerSpec(LOGBOOK_SELECTOR, false, PropertyTranslationKeys.EICT_LOGBOOK_SELECTOR),
+                this.keyAccessorTypeReferencePropertySpec(ZIGBEE_LINK_KEY, PropertyTranslationKeys.EICT_ZIGBEE_LINK_KEY))
             .forEach(propertySpecs::add);
         return propertySpecs;
+    }
+
+    private PropertySpec keyAccessorTypeReferencePropertySpec(String name, TranslationKey translationKey) {
+        return getPropertySpecService()
+                .referenceSpec(KeyAccessorType.class.getName())
+                .named(name, translationKey)
+                .describedAs(new DescriptionTranslationKey(translationKey))
+                .finish();
     }
 
     @ProtocolProperty
@@ -92,6 +105,10 @@ public class AM110RProperties extends SmsWakeUpDlmsProtocolProperties {
         return getClientMacAddress() == MultipleClientRelatedObisCodes.FIRMWARE_CLIENT.getClientId();
     }
 
+    public String getZigbeeLinkKey() {
+        return getStringValue(ZIGBEE_LINK_KEY, "");
+    }
+
     public void setSecurityProvider(AM110RSecurityProvider securityProvider) {
         this.securityProvider = securityProvider;
     }
@@ -103,5 +120,4 @@ public class AM110RProperties extends SmsWakeUpDlmsProtocolProperties {
         }
         return this.securityProvider;
     }
-
 }

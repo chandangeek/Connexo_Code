@@ -322,7 +322,6 @@ public class RtuMessageConstant {
     public static final String JOIN_ZIGBEE_SLAVE = "Join_ZigBee_Slave";
     public static final String JOIN_ZIGBEE_SLAVE_FROM_DEVICE_TYPE = "Join_ZigBee_Slave_Device";
     public static final String JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS = "ZigBee_IEEE_Address";
-    public static final String JOIN_ZIGBEE_SLAVE_LINK_KEY = "ZigBee_Link_Key";
     public static final String JOIN_ZIGBEE_SLAVE_DEVICE_TYPE = "ZigBee_Device_Type";
 
     // Remove ZigBee slave device related message constants

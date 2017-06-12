@@ -28,7 +28,7 @@ public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecSupplier
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, DeviceMessageConstants.id, DeviceMessageConstants.idDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2)),
-                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.SetEIWebPasswordAttributeName, DeviceMessageConstants.SetEIWebPasswordAttributeDefaultTranslation) // The passive value of the KeyAccessor reference will be used
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.SetEIWebPasswordAttributeName, DeviceMessageConstants.SetEIWebPasswordAttributeDefaultTranslation)
             );
         }
     },

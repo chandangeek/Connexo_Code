@@ -21,7 +21,7 @@ public enum MailConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
 
     // Read Mail (POP3) Parameters
     SetPOPUsername(17001, "Set POP username", DeviceMessageConstants.SetPOPUsernameAttributeName, DeviceMessageConstants.SetPOPUsernameAttributeDefaultTranslation),
-    SetPOPPassword(17002, "Set POP password", PropertyType.KEYACCESSORTYPE_REFERENCE, DeviceMessageConstants.SetPOPPasswordAttributeName, DeviceMessageConstants.SetPOPPasswordAttributeDefaultTranslation), // The passive value of the KeyAccessor reference will be used
+    SetPOPPassword(17002, "Set POP password", PropertyType.KEYACCESSORTYPE_REFERENCE, DeviceMessageConstants.SetPOPPasswordAttributeName, DeviceMessageConstants.SetPOPPasswordAttributeDefaultTranslation),
     SetPOPHost(17003, "Set POP host", DeviceMessageConstants.SetPOPHostAttributeName, DeviceMessageConstants.SetPOPHostAttributeDefaultTranslation),
     SetPOPReadMailEvery(17004, "Set POP read mail every", DeviceMessageConstants.SetPOPReadMailEveryAttributeName, DeviceMessageConstants.SetPOPReadMailEveryAttributeDefaultTranslation),
     SetPOP3Options(17005, "Set POP3 options", DeviceMessageConstants.SetPOP3OptionsAttributeName, DeviceMessageConstants.SetPOP3OptionsAttributeDefaultTranslation),

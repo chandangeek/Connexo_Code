@@ -50,7 +50,7 @@ public class CryptoDsmr23MBusMessageConverter extends Dsmr23MBusDeviceMessageCon
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.defaultKeyAttributeName:
-                return getKeyAccessorTypeExtractor().actualValueContent((KeyAccessorType) messageAttribute);
+                return getKeyAccessorTypeExtractor().passiveValueContent((KeyAccessorType) messageAttribute);
             default:
                 return super.format(propertySpec, messageAttribute);
         }

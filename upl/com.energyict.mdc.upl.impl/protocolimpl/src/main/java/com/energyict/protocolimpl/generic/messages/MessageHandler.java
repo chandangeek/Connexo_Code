@@ -823,26 +823,19 @@ public class MessageHandler extends DefaultHandler {
     }
 
     private String joinZigBeeIEEEAddress = "";
-    private String joinZigBeeLinkKey = "";
     private String joinZigBeeDeviceType = "";
 
     private void handleJoinZigBeeSlave(Attributes attrbs) {
         this.joinZigBeeIEEEAddress = attrbs.getValue(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS);
-        this.joinZigBeeLinkKey = attrbs.getValue(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_LINK_KEY);
     }
 
     private void handleJoinZigBeeSlaveFromDeviceType(Attributes attrbs) {
         this.joinZigBeeIEEEAddress = attrbs.getValue(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS);
-        this.joinZigBeeLinkKey = attrbs.getValue(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_LINK_KEY);
         this.joinZigBeeDeviceType = attrbs.getValue(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_DEVICE_TYPE);
     }
 
     public String getJoinZigBeeIEEEAddress() {
         return joinZigBeeIEEEAddress;
-    }
-
-    public String getJoinZigBeeLinkKey() {
-        return joinZigBeeLinkKey;
     }
 
     public String getJoinZigBeeDeviceType() {

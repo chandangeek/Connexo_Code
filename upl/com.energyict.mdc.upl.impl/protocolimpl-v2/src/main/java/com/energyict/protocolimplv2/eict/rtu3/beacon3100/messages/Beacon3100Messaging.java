@@ -167,7 +167,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.Unica
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastFrameCounterType;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UseTransferredBlockStatus;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.broadcastAuthenticationKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateEntityAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateIssuerAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateTypeAttributeName;
@@ -461,9 +460,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             case DeviceMessageConstants.DelayBetweenBlockSentFast:
             case DeviceMessageConstants.DelayBetweenBlockSentSlow:
                 return String.valueOf(((Duration) messageAttribute).toMillis());
-            case broadcastAuthenticationKeyAttributeName:
-            case DeviceMessageConstants.broadcastEncryptionKeyAttributeName:
-                return this.keyAccessorTypeExtractor.actualValueContent((KeyAccessorType) messageAttribute);
             case DeviceMessageConstants.passwordAttributeName:
             case DeviceMessageConstants.newPasswordAttributeName:
             case DeviceMessageConstants.newAuthenticationKeyAttributeName:

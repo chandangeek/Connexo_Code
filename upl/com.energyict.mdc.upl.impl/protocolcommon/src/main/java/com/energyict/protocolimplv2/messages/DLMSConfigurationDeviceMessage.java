@@ -27,7 +27,7 @@ public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecSupplier 
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
-                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.SetDLMSPasswordAttributeName, DeviceMessageConstants.SetDLMSPasswordAttributeDefaultTranslation) // The passive value of the KeyAccessor reference will be used
+                    keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.SetDLMSPasswordAttributeName, DeviceMessageConstants.SetDLMSPasswordAttributeDefaultTranslation)
             );
         }
     },

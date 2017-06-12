@@ -6,7 +6,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -72,7 +71,7 @@ public class UkHubMessageConverterTest extends AbstractV2MessageConverterTest {
 
         offlineDeviceMessage = createMessage(ZigBeeConfigurationDeviceMessage.JoinZigBeeSlaveDevice.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<Join_ZigBee_Slave ZigBee_IEEE_Address=\"ABC\" ZigBee_Link_Key=\"123\"> </Join_ZigBee_Slave>", messageEntry.getContent());
+        assertEquals("<Join_ZigBee_Slave ZigBee_IEEE_Address=\"ABC\"> </Join_ZigBee_Slave>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(ZigBeeConfigurationDeviceMessage.RemoveMirror.get(propertySpecService, this.nlsService, this.converter));
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
@@ -155,10 +154,6 @@ public class UkHubMessageConverterTest extends AbstractV2MessageConverterTest {
                     return europeanDateTimeFormat.parse("15/10/2013 00:00:00");
                 case DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName:
                     return "ABC";
-                case DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName:
-                    KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-                    when(keyAccessorTypeExtractor.actualValueContent(keyAccessorType)).thenReturn("123");
-                    return keyAccessorType;
                 case DeviceMessageConstants.ZigBeeConfigurationMirrorAddressAttributeName:
                     return "1";
                 case DeviceMessageConstants.ZigBeeConfigurationForceRemovalAttributeName:

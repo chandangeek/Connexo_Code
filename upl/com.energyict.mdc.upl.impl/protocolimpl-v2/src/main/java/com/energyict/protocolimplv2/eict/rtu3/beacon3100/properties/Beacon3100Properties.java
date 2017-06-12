@@ -1,11 +1,12 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.protocol.security.AdvancedDeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.properties.HexString;
+
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
@@ -175,6 +176,14 @@ public class Beacon3100Properties extends DlmsProperties {
 
     public boolean getReadOldObisCodes(){
         return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.READ_OLD_OBIS_CODES, false);
+    }
+
+    public String getBroadcastEncryptionKey() {
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.BROADCAST_AUTHENTICATION_KEY);
+    }
+
+    public String getBroadcastAuthenticationKey() {
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.BROADCAST_ENCRYPTION_KEY);
     }
 
     public long getDefaultBacklogLoadProfileInSeconds(){

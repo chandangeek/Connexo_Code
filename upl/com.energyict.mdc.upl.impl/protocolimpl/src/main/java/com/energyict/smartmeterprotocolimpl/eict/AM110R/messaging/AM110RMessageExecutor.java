@@ -1,5 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.eict.AM110R.messaging;
 
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -23,10 +28,6 @@ import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.ZigBeeSETCControl;
 import com.energyict.dlms.cosem.attributeobjects.EnhancedCreditRegisterZigbeeDeviceData;
 import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
@@ -320,7 +321,7 @@ public class AM110RMessageExecutor extends MessageParser {
         log(Level.INFO, "Join ZigBee slave device message received.");
         int deviceType = 0;
         String address = messageHandler.getJoinZigBeeIEEEAddress();
-        String key = messageHandler.getJoinZigBeeLinkKey();
+        String key = ((AM110R) getProtocol()).getProperties().getZigbeeLinkKey();
         String deviceTypeString = messageHandler.getJoinZigBeeDeviceType();
 
         address = ZigBeeMessagingUtils.validateAndFormatIeeeAddress(address);

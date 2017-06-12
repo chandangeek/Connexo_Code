@@ -32,10 +32,6 @@ public final class DeviceMessageConstants {
     public static final String broadcastInitialTimeBetweenBlocksAttributeDefaultTranslation = "Initial time between blocks";
     public static final String broadcastNumberOfBlocksInCycleAttributeName = "FirmwareDeviceMessage.broadcast.numberofblocksincycle";
     public static final String broadcastNumberOfBlocksInCycleAttributeDefaultTranslation = "Number of block transfers per cycle";
-    public static final String broadcastEncryptionKeyAttributeName = "FirmwareDeviceMessage.broadcast.encryptionkey";
-    public static final String broadcastEncryptionKeyAttributeDefaultTranslation = "Broadcast Encryption Key";
-    public static final String broadcastAuthenticationKeyAttributeName = "FirmwareDeviceMessage.broadcast.authenticationkey";
-    public static final String broadcastAuthenticationKeyAttributeDefaultTranslation = "Authentication Key";
 
     public static final String firmwareUpdateActivationDateAttributeName = "FirmwareDeviceMessage.upgrade.activationdate";
     public static final String firmwareUpdateActivationDateAttributeDefaultTranslation = "Activation date";
@@ -1118,8 +1114,6 @@ public final class DeviceMessageConstants {
     public static final String ZigBeeConfigurationSASPanIdAttributeDefaultTranslation = "PAN ID";
     public static final String ZigBeeConfigurationForceRemovalAttributeName = "ZigBeeConfigurationDeviceMessage.forceremoval";
     public static final String ZigBeeConfigurationForceRemovalAttributeDefaultTranslation = "Force removal";
-    public static final String ZigBeeConfigurationZigBeeLinkKeyAttributeName = "ZigBeeConfigurationDeviceMessage.zigbeelinkkey";
-    public static final String ZigBeeConfigurationZigBeeLinkKeyAttributeDefaultTranslation = "ZigBee link key";
     public static final String ZigBeeConfigurationActivationDateAttributeName = "ZigBeeConfigurationDeviceMessage.activationdate";
     public static final String ZigBeeConfigurationActivationDateAttributeDefaultTranslation = "Activation date";
     public static final String ZigBeeConfigurationZigBeeAddressAttributeName = "ZigBeeConfigurationDeviceMessage.zigbeeieeeaddress";
