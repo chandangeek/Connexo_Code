@@ -9,12 +9,14 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * TypedProperties model a set of dynamic properties.
@@ -424,11 +426,11 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
     // Added for serializability
     @XmlAttribute
     public Map<String, Object> getHashMap() {
-        return props;
+        return Collections.unmodifiableMap(props);
     }
 
     public void setHashMap(Map<String, Object> props) {
-        this.props = props;
+        this.props = new HashMap<>(props);
     }
 
     @XmlAttribute
@@ -503,6 +505,16 @@ public class TypedProperties implements com.energyict.mdc.upl.properties.TypedPr
 
     public void setXmlType(String ignore) {
         // For xml unmarshalling purposes only
+    }
+
+    /**
+     * Returns a stream of Map.Entry elements, containing inherited properties and local properties (local overwrites inherited)
+     * @return
+     */
+    public Stream<Map.Entry<String, Object>> stream() {
+        Map<String, Object> properties = this.inheritedProperties!=null?new HashMap<>(((TypedProperties) this.inheritedProperties).getHashMap()):new HashMap<>();
+        properties.putAll(this.getHashMap());
+        return properties.entrySet().stream();
     }
 
 }
