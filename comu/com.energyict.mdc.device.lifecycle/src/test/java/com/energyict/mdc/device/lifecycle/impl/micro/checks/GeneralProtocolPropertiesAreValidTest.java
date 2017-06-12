@@ -5,8 +5,11 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.KeyAccessorType;
+import com.elster.jupiter.pki.SecurityValueWrapper;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
+import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -141,6 +144,125 @@ public class GeneralProtocolPropertiesAreValidTest {
 
         // Asserts
         assertThat(violation).isEmpty();
+    }
+
+    @Test
+    public void requiredPropertiesContainKeyAccessorTypes() throws Exception {
+        GeneralProtocolPropertiesAreValid microCheck = this.getTestInstance();
+        TypedProperties configurationProperties = TypedProperties.empty();
+        KeyAccessorType requiredKey = mock(KeyAccessorType.class);
+        KeyAccessorType optionalKey = mock(KeyAccessorType.class);
+        configurationProperties.setProperty(REQUIRED_PROPERTY_NAME, requiredKey);
+        TypedProperties properties = TypedProperties.inheritingFrom(configurationProperties);
+        properties.setProperty(OPTIONAL_PROPERTY_NAME, optionalKey);
+        KeyAccessor accessor = mock(KeyAccessor.class);
+        SecurityValueWrapper securityValueWrapper = mock(SecurityValueWrapper.class);
+        when(accessor.getActualValue()).thenReturn(Optional.of(securityValueWrapper));
+        when(device.getKeyAccessor(requiredKey)).thenReturn(Optional.of(accessor));
+        when(device.getKeyAccessor(optionalKey)).thenReturn(Optional.of(accessor));
+        when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
+
+        // Business method
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+
+        // Asserts
+        assertThat(violation).isEmpty();
+    }
+
+    @Test
+    public void propertiesContainKeyAccessorTypesWithOptionalMissing() throws Exception {
+        GeneralProtocolPropertiesAreValid microCheck = this.getTestInstance();
+        TypedProperties configurationProperties = TypedProperties.empty();
+        KeyAccessorType requiredKey = mock(KeyAccessorType.class);
+        KeyAccessorType optionalKey = mock(KeyAccessorType.class);
+        configurationProperties.setProperty(REQUIRED_PROPERTY_NAME, requiredKey);
+        TypedProperties properties = TypedProperties.inheritingFrom(configurationProperties);
+        properties.setProperty(OPTIONAL_PROPERTY_NAME, optionalKey);
+        KeyAccessor accessor = mock(KeyAccessor.class);
+        SecurityValueWrapper securityValueWrapper = mock(SecurityValueWrapper.class);
+        when(accessor.getActualValue()).thenReturn(Optional.of(securityValueWrapper));
+        when(device.getKeyAccessor(requiredKey)).thenReturn(Optional.of(accessor));
+        when(device.getKeyAccessor(optionalKey)).thenReturn(Optional.empty());
+        when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
+
+        // Business method
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+
+        // Asserts
+        assertThat(violation).isEmpty();
+    }
+
+    @Test
+    public void propertiesContainKeyAccessorTypesWithOptionalMissingActualValue() throws Exception {
+        GeneralProtocolPropertiesAreValid microCheck = this.getTestInstance();
+        TypedProperties configurationProperties = TypedProperties.empty();
+        KeyAccessorType requiredKey = mock(KeyAccessorType.class);
+        KeyAccessorType optionalKey = mock(KeyAccessorType.class);
+        configurationProperties.setProperty(REQUIRED_PROPERTY_NAME, requiredKey);
+        TypedProperties properties = TypedProperties.inheritingFrom(configurationProperties);
+        properties.setProperty(OPTIONAL_PROPERTY_NAME, optionalKey);
+        KeyAccessor accessor = mock(KeyAccessor.class);
+        SecurityValueWrapper securityValueWrapper = mock(SecurityValueWrapper.class);
+        when(accessor.getActualValue()).thenReturn(Optional.of(securityValueWrapper));
+        KeyAccessor optionalAccessor = mock(KeyAccessor.class);
+        when(optionalAccessor.getActualValue()).thenReturn(Optional.empty());
+        when(device.getKeyAccessor(requiredKey)).thenReturn(Optional.of(accessor));
+        when(device.getKeyAccessor(optionalKey)).thenReturn(Optional.of(optionalAccessor));
+        when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
+
+        // Business method
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+
+        // Asserts
+        assertThat(violation).isEmpty();
+    }
+
+    @Test
+    public void propertiesContainKeyAccessorTypesWithRequiredMissing() throws Exception {
+        GeneralProtocolPropertiesAreValid microCheck = this.getTestInstance();
+        TypedProperties configurationProperties = TypedProperties.empty();
+        KeyAccessorType requiredKey = mock(KeyAccessorType.class);
+        KeyAccessorType optionalKey = mock(KeyAccessorType.class);
+        configurationProperties.setProperty(REQUIRED_PROPERTY_NAME, requiredKey);
+        TypedProperties properties = TypedProperties.inheritingFrom(configurationProperties);
+        properties.setProperty(OPTIONAL_PROPERTY_NAME, optionalKey);
+        KeyAccessor accessor = mock(KeyAccessor.class);
+        SecurityValueWrapper securityValueWrapper = mock(SecurityValueWrapper.class);
+        when(accessor.getActualValue()).thenReturn(Optional.of(securityValueWrapper));
+        when(device.getKeyAccessor(requiredKey)).thenReturn(Optional.empty());
+        when(device.getKeyAccessor(optionalKey)).thenReturn(Optional.of(accessor));
+        when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
+
+        // Business method
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+
+        // Asserts
+        assertThat(violation).isPresent();
+    }
+
+    @Test
+    public void propertiesContainKeyAccessorTypesWithRequiredMissingActualValue() throws Exception {
+        GeneralProtocolPropertiesAreValid microCheck = this.getTestInstance();
+        TypedProperties configurationProperties = TypedProperties.empty();
+        KeyAccessorType requiredKey = mock(KeyAccessorType.class);
+        KeyAccessorType optionalKey = mock(KeyAccessorType.class);
+        configurationProperties.setProperty(REQUIRED_PROPERTY_NAME, requiredKey);
+        TypedProperties properties = TypedProperties.inheritingFrom(configurationProperties);
+        properties.setProperty(OPTIONAL_PROPERTY_NAME, optionalKey);
+        KeyAccessor accessor = mock(KeyAccessor.class);
+        SecurityValueWrapper securityValueWrapper = mock(SecurityValueWrapper.class);
+        when(accessor.getActualValue()).thenReturn(Optional.of(securityValueWrapper));
+        KeyAccessor requiredAccessor = mock(KeyAccessor.class);
+        when(requiredAccessor.getActualValue()).thenReturn(Optional.empty());
+        when(device.getKeyAccessor(requiredKey)).thenReturn(Optional.of(requiredAccessor));
+        when(device.getKeyAccessor(optionalKey)).thenReturn(Optional.of(accessor));
+        when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
+
+        // Business method
+        Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
+
+        // Asserts
+        assertThat(violation).isPresent();
     }
 
     private PropertySpec mockedPropertySpec(String name, boolean optional) {

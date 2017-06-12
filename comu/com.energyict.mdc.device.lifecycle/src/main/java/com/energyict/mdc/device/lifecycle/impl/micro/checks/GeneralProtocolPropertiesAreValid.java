@@ -5,12 +5,15 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
+import com.energyict.mdc.upl.TypedProperties;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -33,7 +36,7 @@ public class GeneralProtocolPropertiesAreValid extends ConsolidatedServerMicroCh
 
     @Override
     public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
-        if (anyMissingProperty(device).isPresent()) {
+        if (anyMissingProperty(device)) {
             return Optional.of(newViolation());
         }
         else {
@@ -41,10 +44,19 @@ public class GeneralProtocolPropertiesAreValid extends ConsolidatedServerMicroCh
         }
     }
 
-    private Optional<String> anyMissingProperty(Device device) {
+    private boolean anyMissingProperty(Device device) {
         Set<String> requiredPropertyNames = requiredGeneralProtocolPropertyNames(device);
-        Set<String> availablePropertyNames = device.getDeviceProtocolProperties().propertyNames();
-        return requiredPropertyNames.stream().filter(each -> !availablePropertyNames.contains(each)).findAny();
+        TypedProperties deviceProtocolProperties = device.getDeviceProtocolProperties();
+        Set<String> availablePropertyNames = deviceProtocolProperties.propertyNames();
+        if (requiredPropertyNames.stream().anyMatch(each -> !availablePropertyNames.contains(each))) {
+            return true;
+        }
+        return requiredPropertyNames.stream()
+                .map(deviceProtocolProperties::getProperty)
+                .filter(value->value instanceof KeyAccessorType)
+                .map(value-> (KeyAccessorType)value)
+                .map(device::getKeyAccessor)
+                .anyMatch(ka->!ka.isPresent() || !ka.get().getActualValue().isPresent());
     }
 
     private Set<String> requiredGeneralProtocolPropertyNames(Device device) {
