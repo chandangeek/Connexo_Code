@@ -135,6 +135,7 @@ Ext.define('Imt.controller.Search', {
                 me.service.initState();
                 state = me.service.getState();
                 isStateChange = !!(state && state.domain);
+                value = value || state.domain;
             }
 
             if (value && !Ext.isEmpty(records) && searchDomains.getById(value) !== null) {
