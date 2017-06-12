@@ -314,8 +314,10 @@ Ext.define('Uni.service.Search', {
         me.changedFiltersNotYetApplied = false;
         searchResults.clearFilter(true);
         if (filters && filters.length) {
-            Uni.util.History.setParsePath(false);
-            router.getRoute('search').forward(null, Ext.apply(router.queryParams, {restore: true}));
+            if (router && router.currentRoute == 'search') {
+                Uni.util.History.setParsePath(false);
+                router.getRoute('search').forward(null, Ext.apply(router.queryParams, {restore: true}));
+            }
 
             if (searchResults.isLoading()) {
                 Ext.Ajax.suspendEvent('requestexception');
