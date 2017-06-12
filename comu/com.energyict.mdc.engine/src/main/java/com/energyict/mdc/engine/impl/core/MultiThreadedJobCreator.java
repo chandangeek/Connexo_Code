@@ -58,30 +58,34 @@ public class MultiThreadedJobCreator implements Runnable {
     public void run() {
 
         Thread.currentThread().setName("MultiThreadedJobCreator for " + comPort.getName());
-        while (!Thread.currentThread().isInterrupted()) {
-            try {
-                ScheduledJobImpl scheduledJob = jobBlockingQueue.take();
+        try {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    ScheduledJobImpl scheduledJob = jobBlockingQueue.take();
 
-                if (scheduledJob.getConnectionTask().getNumberOfSimultaneousConnections() > 1) {
-                    CountDownLatch start = new CountDownLatch(1); // latch used to start the workers
+                    if (scheduledJob.getConnectionTask().getNumberOfSimultaneousConnections() > 1) {
+                        CountDownLatch start = new CountDownLatch(1); // latch used to start the workers
 
-                    ParallelRootScheduledJob parallelRootScheduledJob = new ParallelRootScheduledJob(((OutboundComPort) scheduledJob.getComPort()),
-                            scheduledJob.getComServerDAO(), deviceCommandExecutor, scheduledJob.getConnectionTask(), start, serviceProvider);
-                    scheduledJob.getComTaskExecutions().forEach(parallelRootScheduledJob::add);
-                    executor.execute(new MultiThreadedScheduledJobExecutor(parallelRootScheduledJob, transactionExecutor, communicationLogLevel, deviceCommandExecutor, threadPrincipalService, comServerUser));
-                    for (int i = 1; i < scheduledJob.getConnectionTask().getNumberOfSimultaneousConnections(); i++) { // we start @ 1 because the root also executes groupedDeviceCommands after it finished the population of the queue
-                        ParallelWorkerScheduledJob parallelWorkerScheduledJob = new ParallelWorkerScheduledJob(parallelRootScheduledJob, start, threadPrincipalService, comServerUser);
-                        executor.execute(parallelWorkerScheduledJob);
+                        ParallelRootScheduledJob parallelRootScheduledJob = new ParallelRootScheduledJob(((OutboundComPort) scheduledJob.getComPort()),
+                                scheduledJob.getComServerDAO(), deviceCommandExecutor, scheduledJob.getConnectionTask(), start, serviceProvider);
+                        scheduledJob.getComTaskExecutions().forEach(parallelRootScheduledJob::add);
+                        executor.execute(new MultiThreadedScheduledJobExecutor(parallelRootScheduledJob, transactionExecutor, communicationLogLevel, deviceCommandExecutor, threadPrincipalService, comServerUser));
+                        for (int i = 1; i < scheduledJob.getConnectionTask()
+                                .getNumberOfSimultaneousConnections(); i++) { // we start @ 1 because the root also executes groupedDeviceCommands after it finished the population of the queue
+                            ParallelWorkerScheduledJob parallelWorkerScheduledJob = new ParallelWorkerScheduledJob(parallelRootScheduledJob, start, threadPrincipalService, comServerUser);
+                            executor.execute(parallelWorkerScheduledJob);
+                        }
+
+                    } else {
+                        executor.execute(new MultiThreadedScheduledJobExecutor(scheduledJob, transactionExecutor, communicationLogLevel, deviceCommandExecutor, threadPrincipalService, comServerUser));
                     }
-
-                } else {
-                    executor.execute(new MultiThreadedScheduledJobExecutor(scheduledJob, transactionExecutor, communicationLogLevel, deviceCommandExecutor, threadPrincipalService, comServerUser));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                 }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
             }
+        } finally {
+            executor.shutdownNow();
         }
-        executor.shutdownNow();
     }
 
     private ExecutorService newFixedThreadPoolWithQueueSize(int maxPoolSize, ThreadFactory threadFactory) {
