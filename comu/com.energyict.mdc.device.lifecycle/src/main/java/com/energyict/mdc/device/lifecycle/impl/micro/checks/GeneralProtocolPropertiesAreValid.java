@@ -8,7 +8,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.KeyAccessor;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
@@ -24,6 +23,8 @@ import java.util.stream.Collectors;
 /**
  * Provides an implementation for the {@link ServerMicroCheck} interface
  * that checks that all the mandatory general protocol properties are set on the Device.
+ * In case a property is a KeyAccessorType, we also check the device has a value (KeyAccessor) for the KeyAccessorType
+ * and the KeyAccessor has an actualValue
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-17 (09:39)

@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -20,6 +21,8 @@ import java.util.Optional;
 /**
  * Provides an implementation for the {@link ServerMicroCheck} interface
  * that checks that all the {@link ConnectionTask}s of a Device are complete.
+ * In case a property is a KeyAccessorType, we also check the device has a value (KeyAccessor) for the KeyAccessorType
+ * and the KeyAccessor has an actualValue
  * @see ConnectionTask#getStatus()
  * @see ConnectionTask.ConnectionTaskLifecycleStatus#INCOMPLETE
  *
@@ -34,7 +37,7 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
 
     @Override
     public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
-        if (anyInCompleteConnectionTask(device).isPresent()) {
+        if (anyInCompleteConnectionTask(device)) {
             return Optional.of(newViolation());
         }
         else {
@@ -42,14 +45,27 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
         }
     }
 
-    private Optional<ConnectionTask<?, ?>> anyInCompleteConnectionTask(Device device) {
+    private boolean anyInCompleteConnectionTask(Device device) {
+        boolean containsIncompleteConnectionTask = device
+                .getComTaskExecutions()
+                .stream()
+                .map(ComTaskExecution::getConnectionTask)
+                .flatMap(Functions.asStream())
+                .anyMatch(each -> each.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE));
+        if (containsIncompleteConnectionTask) {
+            return true;
+        }
         return device
                 .getComTaskExecutions()
                 .stream()
                 .map(ComTaskExecution::getConnectionTask)
                 .flatMap(Functions.asStream())
-                .filter(each -> each.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE))
-                .findAny();
+                .flatMap(ct->ct.getProperties().stream())
+                .filter(ctp->ctp.getValue() instanceof KeyAccessorType)
+                .map(ctp-> (KeyAccessorType)ctp.getValue())
+                .map(device::getKeyAccessor)
+                .anyMatch(ka->!ka.isPresent() || !ka.get().getActualValue().isPresent());
+
     }
 
     private DeviceLifeCycleActionViolationImpl newViolation() {
