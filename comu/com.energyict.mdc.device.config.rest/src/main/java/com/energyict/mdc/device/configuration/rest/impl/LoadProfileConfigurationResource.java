@@ -10,7 +10,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -119,11 +118,8 @@ public class LoadProfileConfigurationResource {
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             LoadProfileSpecInfo request) {
-        if (request.id == 0) {
-            throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_ID_FOR_ADDING);
-        }
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
-        LoadProfileType loadProfileType = resourceHelper.findLoadProfileTypeByIdOrThrowException(request.id);
+        LoadProfileType loadProfileType = request.id==0 ? null : resourceHelper.findLoadProfileTypeByIdOrThrowException(request.id);
 
         LoadProfileSpec.LoadProfileSpecBuilder specBuilder = deviceConfiguration.createLoadProfileSpec(loadProfileType);
         if (request.overruledObisCode != null){
@@ -209,7 +205,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             ChannelSpecFullInfo info) {
         LoadProfileSpec loadProfileSpec = resourceHelper.findLoadProfileSpecOrThrowException(loadProfileSpecId);
-        ChannelType channelType = resourceHelper.findChannelTypeByIdOrThrowException(info.measurementType.id);
+        ChannelType channelType = info.measurementType.id == 0 ? null : resourceHelper.findChannelTypeByIdOrThrowException(info.measurementType.id);
         DeviceConfiguration deviceConfiguration = loadProfileSpec.getDeviceConfiguration();
 
         ChannelSpec.ChannelSpecBuilder channelBuilder = deviceConfiguration.createChannelSpec(channelType, loadProfileSpec);
