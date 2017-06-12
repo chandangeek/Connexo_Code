@@ -544,7 +544,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
                                 }
                             }
                         }
-                    )
+                    );
                     me.getWizard().down('calendar-info-form').add(
                         {
                             xtype: 'fieldcontainer',

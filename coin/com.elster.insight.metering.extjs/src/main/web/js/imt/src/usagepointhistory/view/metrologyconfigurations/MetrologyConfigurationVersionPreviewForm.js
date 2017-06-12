@@ -54,7 +54,7 @@ Ext.define('Imt.usagepointhistory.view.metrologyconfigurations.MetrologyConfigur
 
     loadGeneralInfo: function (processes, count) {
         var me = this,
-            url = me.router.getRoute('usagepoints/view/running').buildUrl();
+            url = me.router.getRoute('usagepoints/view/processes').buildUrl();
 
         me.down('#fld-container-general-info').removeAll();
 
@@ -63,7 +63,8 @@ Ext.define('Imt.usagepointhistory.view.metrologyconfigurations.MetrologyConfigur
         if (count) {
             _.each(processes, function (process, index) {
                 me.down('#fld-container-general-info').add({
-                    value: '[<a href="' + url + '">' + process.id + '</a>] -' + process.name,
+                    value: '<a href="' + url + '">' + process.id + '</a> -' + process.name,
+                    htmlEncode: false,
                     itemId: 'fld-ongoing-process-' + process.id,
                     fieldLabel: !index ? Uni.I18n.translate('general.ongoingProcesses', 'IMT', 'Ongoing processes') : ' '
                 })

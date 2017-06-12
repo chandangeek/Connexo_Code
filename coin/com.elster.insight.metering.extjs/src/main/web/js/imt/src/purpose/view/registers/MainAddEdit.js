@@ -46,9 +46,17 @@ Ext.define('Imt.purpose.view.registers.MainAddEdit', {
     },
 
     showErrors: function (errors) {
+        var me = this;
+
         Ext.suspendLayouts();
-        this.down('#registerDataEditFormErrors').show();
-        this.down('#timeStampEditField #date-time-field-date').markInvalid('<div style="white-space: pre-wrap; width: 320px;">'+errors[0].msg+'</div>');
+        me.down('#registerDataEditFormErrors').show();
+        _.forEach(errors, function (error) {
+            if (error.id === 'value') {
+                me.down('[name="value"]').markInvalid('<div style="white-space: pre-wrap; width: 320px;">'+error.msg+'</div>');
+            } else {
+                me.down('#timeStampEditField #date-time-field-date').markInvalid('<div style="white-space: pre-wrap; width: 320px;">'+error.msg+'</div>');
+            }
+        });
         Ext.resumeLayouts(true);
     },
 

@@ -32,9 +32,7 @@ Ext.define('Imt.usagepointlifecyclestates.view.Grid', {
                 dataIndex: 'stage',
                 flex: 1,
                 renderer: function (value) {
-                    var stage = Ext.getStore('Imt.usagepointlifecycle.store.Stages').getById(value);
-
-                    return stage ? stage.get('name') : value;
+                    return value ? value.name : value;
                 }
             },
             {

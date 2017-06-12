@@ -300,14 +300,11 @@ Ext.define('Imt.purpose.controller.Readings', {
         var me = this,
             validationResult = menu.record.get('validationResult') === 'validationStatus.suspect' ||
                 menu.record.get('estimatedNotSaved') === true,
-            estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule,
             canClearProjected = menu.record.get('isProjected') === true,
             canMarkProjected = menu.record.get('isProjected') === false && (menu.record.isModified('value') || menu.record.get('ruleId') !== 0 || !Ext.isEmpty(menu.record.get('modificationState'))),
             canEditingComment = menu.record.get('estimatedByRule'),
             flagForComment = function (value) {
-                if (value === 'EDITED' ||
-                    value === 'ESTIMATED' ||
-                    value === 'REMOVED') {
+                if (value === 'EDITED' || value === 'ESTIMATED' || value === 'REMOVED') {
                     return true;
                 } else {
                     return false;
@@ -315,9 +312,6 @@ Ext.define('Imt.purpose.controller.Readings', {
             };
 
         Ext.suspendLayouts();
-        //menu.down('#estimate-value').setVisible(validationResult);
-        //menu.down('#estimate-value-with-rule').setVisible(validationResult && estimationRulesCount);
-
         if (!canEditingComment && menu.record.get('modificationState') && menu.record.get('modificationState').flag) {
             canEditingComment = flagForComment(menu.record.get('modificationState').flag);
         }
@@ -341,6 +335,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         if (menu.down('#correct-value')) {
             menu.down('#correct-value').setVisible(!Ext.isEmpty(menu.record.get('value')))
         }
+        menu.reorderItems();
         Ext.resumeLayouts();
     },
 
@@ -534,9 +529,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             menu = button.down('menu'),
             estimationRulesCount = me.getOutputChannelMainPage().controller.hasEstimationRule,
             flagForComment = function (value) {
-                if (value === 'EDITED' ||
-                    value === 'ESTIMATED' ||
-                    value === 'REMOVED') {
+                if (value === 'EDITED' || value === 'ESTIMATED' || value === 'REMOVED') {
                     return true;
                 } else {
                     return false;
@@ -579,8 +572,6 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
 
         Ext.suspendLayouts();
-        //menu.down('#estimate-value').setVisible(canEstimate);
-        //menu.down('#estimate-value-with-rule').setVisible(canEstimateWithRule);
         menu.down('#edit-estimation-comment').setVisible(canEditingComment);
         menu.down('#copy-form-value').setVisible(canCopyFromReference);
         menu.down('#confirm-value').setVisible(canConfirm);
@@ -588,6 +579,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         menu.down('#correct-value').setVisible(canCorrect);
         menu.down('#clear-projected').setVisible(canClearProjected);
         menu.down('#mark-projected').setVisible(canMarkProjected);
+        menu.reorderItems();
         button.setDisabled(!selectedRecords.length || !menu.query('menuitem[hidden=false]').length);
         Ext.resumeLayouts();
     },
@@ -704,6 +696,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             intervals = [],
             window = me.getCopyFromReferenceWindow(),
             form = window.down('#reading-copy-window-form'),
+            changedData = me.getChangedData(me.getStore('Imt.purpose.store.Readings')),
             model = Ext.create('Imt.purpose.model.CopyFromReference'),
             router = me.getController('Uni.controller.history.Router'),
             commentCombo = window.down('#estimation-comment-box'),
@@ -726,6 +719,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
 
         model.set('intervals', intervals);
+        model.set('editedReadings', changedData);
         model.save({
             failure: function (record, operation) {
                 var response = JSON.parse(operation.response.responseText);
@@ -933,9 +927,11 @@ Ext.define('Imt.purpose.controller.Readings', {
     saveChannelDataEstimateModel: function (record, readings, window, ruleId, action, comment) {
         var me = this,
             grid = me.getReadingsList(),
+            changedData = me.getChangedData(me.getStore('Imt.purpose.store.Readings')),
             router = me.getController('Uni.controller.history.Router'),
             adjustedPropertyFormErrors;
 
+        record.set('editedReadings', changedData);
         record.getProxy().setParams(decodeURIComponent(router.arguments.usagePointId), router.arguments.purposeId, router.arguments.outputId);
         window.setLoading();
         Ext.Ajax.suspendEvent('requestexception');
@@ -1060,6 +1056,7 @@ Ext.define('Imt.purpose.controller.Readings', {
             model = Ext.create('Uni.model.readings.ReadingCorrection'),
             window = me.getCorrectReadingWindow(),
             records = window.record,
+            changedData = me.getChangedData(me.getStore('Imt.purpose.store.Readings')),
             router = me.getController('Uni.controller.history.Router'),
             commentCombo = window.down('#estimation-comment-box'),
             commentValue = commentCombo.getRawValue(),
@@ -1090,7 +1087,7 @@ Ext.define('Imt.purpose.controller.Readings', {
         });
 
         model.set('intervals', intervalsArray);
-
+        model.set('editedReadings', changedData);
         model.getProxy().setMdmUrl(router.arguments.usagePointId, router.arguments.purposeId, router.arguments.outputId);
         window.setLoading();
         Ext.Ajax.suspendEvent('requestexception');

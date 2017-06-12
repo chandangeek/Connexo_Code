@@ -59,12 +59,7 @@ Ext.define('Imt.usagepointmanagement.view.calendars.Add', {
                                 noObjectsText: Uni.I18n.translate('calendars.noCategoriesWithActiveCalendarsExist', 'IMT', 'No categories with active calendars exist'),
                                 listeners: {
                                     change: function (field, value) {
-                                        var combobox = me.down('#calendar-combo');
-                                        if(value) {
-                                            combobox.enable();
-                                        } else {
-                                            combobox.disable();
-                                        }
+                                        me.down('#calendar-combo').setDisabled(!value);
                                     }
                                 }
                             }

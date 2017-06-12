@@ -36,7 +36,7 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                 ui: 'large',
                 defaults: {
                     labelWidth: 230,
-                    width: 567
+                    width: 667
                 },
                 items: [
                     me.isPossibleAdd ?
@@ -107,15 +107,6 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                         ]
                     },
                     {
-                        xtype: 'component',
-                        itemId: 'metrology-configuration-field-errors',
-                        cls: 'x-form-invalid-under',
-                        style: {
-                            'white-space': 'normal'
-                        },
-                        hidden: true
-                    },
-                    {
                         xtype: 'radiogroup',
                         itemId: 'custom-attributes-radiogroup',
                         fieldLabel: Uni.I18n.translate('metrologyConfiguration.wizard.customAttributes', 'IMT', 'Custom attributes'),
@@ -136,6 +127,15 @@ Ext.define('Imt.metrologyconfiguration.view.Wizard', {
                                 inputValue: false
                             }
                         ]
+                    },
+                    {
+                        xtype: 'component',
+                        itemId: 'metrology-configuration-field-errors',
+                        cls: 'x-form-invalid-under',
+                        style: {
+                            'white-space': 'normal'
+                        },
+                        hidden: true
                     },
                     {
                         xtype: 'purposes-field',

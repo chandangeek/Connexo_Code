@@ -104,6 +104,7 @@ Ext.define('Imt.purpose.controller.RegisterData', {
                 Uni.I18n.translate('general.actions.remove', 'IMT', 'Remove')
             )
         }
+        menu.reorderItems();
     },
 
     chooseAction: function (menu, item) {
