@@ -32,6 +32,7 @@ class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements ServerL
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED + "}")
     private final Reference<LogBookType> logBookType = ValueReference.absent();
     private String overruledObisCodeString;
+    @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
     private ObisCode overruledObisCode;
     @SuppressWarnings("unused")
     private String userName;
