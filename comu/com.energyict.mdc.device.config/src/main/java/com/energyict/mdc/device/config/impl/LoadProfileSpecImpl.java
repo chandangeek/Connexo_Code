@@ -29,6 +29,7 @@ import com.energyict.obis.ObisCode;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,10 +37,11 @@ import java.util.List;
 
 class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements ServerLoadProfileSpec {
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private final Reference<LoadProfileType> loadProfileType = ValueReference.absent();
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private String overruledObisCodeString;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
     private ObisCode overruledObisCode;
     @SuppressWarnings("unused")
@@ -97,8 +99,8 @@ class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements
     }
 
     private void validateBeforeAddToDeviceConfiguration() {
-        this.validateDeviceTypeContainsLoadProfileType();
         Save.CREATE.validate(this.getDataModel(), this);
+        this.validateDeviceTypeContainsLoadProfileType();
     }
 
     private void validateDeviceTypeContainsLoadProfileType() {

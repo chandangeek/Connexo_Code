@@ -75,15 +75,17 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
     }
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private final Reference<ChannelType> channelType = ValueReference.absent();
     private final Reference<LoadProfileSpecImpl> loadProfileSpec = ValueReference.absent();
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
     @Range(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
     private Integer nbrOfFractionDigits = 0;
     private String overruledObisCodeString;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
     private ObisCode overruledObisCode;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private BigDecimal overflow;
     private TimeDuration interval;
     @SuppressWarnings("unused")
@@ -117,7 +119,7 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
 
     @Override
     public com.energyict.mdc.masterdata.ChannelType getChannelType() {
-        return channelType.get();
+        return channelType.isPresent() ? channelType.get() : null;
     }
 
     @Override
@@ -202,7 +204,7 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
 
     @Override
     public ReadingType getReadingType() {
-        return getChannelType().getReadingType();
+        return getChannelType()!=null ? getChannelType().getReadingType() : null;
     }
 
     private void validate() {

@@ -27,6 +27,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -43,10 +44,11 @@ abstract class RegisterSpecImpl<T extends RegisterSpec> extends PersistentIdObje
                     TEXTUAL_DISCRIMINATOR, TextualRegisterSpecImpl.class);
 
     private final Reference<DeviceConfiguration> deviceConfig = ValueReference.absent();
-    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED + "}")
+    @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private final Reference<RegisterType> registerType = ValueReference.absent();
     @Size(max = 80, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String overruledObisCodeString;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
     private ObisCode overruledObisCode;
     @SuppressWarnings("unused")
@@ -76,7 +78,7 @@ abstract class RegisterSpecImpl<T extends RegisterSpec> extends PersistentIdObje
 
     @Override
     public RegisterType getRegisterType() {
-        return registerType.get();
+        return registerType.isPresent() ? registerType.get() : null;
     }
 
     @Override
@@ -185,7 +187,7 @@ abstract class RegisterSpecImpl<T extends RegisterSpec> extends PersistentIdObje
 
     @Override
     public ReadingType getReadingType() {
-        return getRegisterType().getReadingType();
+        return getRegisterType()!=null ? getRegisterType().getReadingType() : null;
     }
 
     @Override

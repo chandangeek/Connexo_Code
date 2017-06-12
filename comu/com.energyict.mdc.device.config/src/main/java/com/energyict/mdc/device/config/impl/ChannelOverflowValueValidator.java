@@ -19,7 +19,7 @@ public class ChannelOverflowValueValidator implements ConstraintValidator<Channe
 
     @Override
     public boolean isValid(ChannelSpecImpl channelSpec, ConstraintValidatorContext constraintValidatorContext) {
-        if(channelSpec.getReadingType().isCumulative() && !channelSpec.getOverflow().isPresent()){
+        if(channelSpec.getReadingType()!=null && channelSpec.getReadingType().isCumulative() && !channelSpec.getOverflow().isPresent()){
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext
                     .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
