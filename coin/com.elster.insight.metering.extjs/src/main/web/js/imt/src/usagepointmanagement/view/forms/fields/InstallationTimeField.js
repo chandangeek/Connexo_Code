@@ -19,12 +19,21 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.InstallationTimeField', {
             Ext.suspendLayouts();
             if (newValue['installation-time']) {
                 dateField.disable();
-                dateField.setValue(null);
+                dateField.disabled = false;
+                dateField.setValue(new Date());
             } else {
                 dateField.enable();
                 dateField.setValue(new Date());
             }
             Ext.resumeLayouts(true);
+        },
+        afterlayout: function (radioGroup) {
+            var dateField = radioGroup.down('date-time');
+
+            if (dateField && !dateField.getValue()) {
+                dateField.setValue(new Date());
+                dateField.disabled = false;
+            }
         }
     },
 

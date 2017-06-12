@@ -37,9 +37,10 @@ Ext.define('Imt.purpose.model.Reading', {
             persist: false,
             mapping: function (data) {
                 var result = {},
-                    validationResult = data.validationResult.split('.')[1];
-                
+                    validationResult;
+
                 if (data.validationResult) {
+                    validationResult = data.validationResult.split('.')[1];
                     result.suspect = validationResult == 'suspect';
                     validationResult == 'notValidated' ? result.notValidated = true : result.notValidated = false;
 
@@ -51,8 +52,8 @@ Ext.define('Imt.purpose.model.Reading', {
                         result.suspect ? result['informative'] = false : result['informative'] = true;
                     }
                 }
-                
-                return result;                
+
+                return result;
             }
         },
         {

@@ -18,7 +18,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
         var me = this,
             metrologyConfiguration = me.usagePoint.get('metrologyConfiguration'),
             meterRolesStore = Ext.getStore('Imt.usagepointmanagement.store.MeterRoles'),
-            stage = me.usagePoint.get('state').stageName.split('.')[2],
+            stage = me.usagePoint.get('state').stage.id.split('.')[2],
             isReadyForLinkingMC = me.usagePoint.get('isReadyForLinkingMC');
 
         me.items = [
@@ -186,11 +186,13 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                         fieldLabel: first ? Uni.I18n.translate('general.label.activePurposes', 'IMT', 'Active purposes') : '&nbsp;',
                         value: purpose.name,
                         renderer: function (value) {
-                            var icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon '
-                                    + (purpose.status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle')
-                                    + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
+                            var icon = '<span class="'
+                                    + (purpose.status.id === 'incomplete' ? 'icon-warning' : 'icon-checkmark-circle')
+                                    + '" style="margin-left:10px; display: inline-block; font-size:16px; color: '
+                                    + (purpose.status.id === 'incomplete' ? '#eb5642' : '#33cc33')
+                                    + ';" data-qtip="'
                                     + purpose.status.name
-                                    + '"></i>',
+                                    + '"></span>',
                                 url = me.router.getRoute('usagepoints/view/purpose').buildUrl({purposeId: purpose.id}),
                                 link = '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                             return link + icon;

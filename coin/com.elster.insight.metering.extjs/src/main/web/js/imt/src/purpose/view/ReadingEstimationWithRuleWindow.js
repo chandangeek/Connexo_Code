@@ -68,6 +68,7 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
 
                                         if (estimator) {
                                             me.down('property-form').loadRecord(estimator);
+                                            me.down('#estimate-reading-button').enable();
                                             commentField.commentId = estimator.get('commentId');
                                             commentField.setValue(estimator.get('commentValue'));
                                             commentField.show();
@@ -147,7 +148,8 @@ Ext.define('Imt.purpose.view.ReadingEstimationWithRuleWindow', {
                             xtype: 'button',
                             itemId: 'estimate-reading-button',
                             text: Uni.I18n.translate('general.estimate', 'IMT', 'Estimate'),
-                            ui: 'action'
+                            ui: 'action',
+                            disabled: true
                         },
                         {
                             xtype: 'button',

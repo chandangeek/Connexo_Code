@@ -36,7 +36,7 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
             mcIsLinked = !!me.usagePoint.get('metrologyConfiguration'),
             isReadyForLinkingMC = me.usagePoint.get('isReadyForLinkingMC'),
             hasEffectiveMCs = me.usagePoint.get('hasEffectiveMCs'),
-            stage = me.usagePoint.get('state').stageName.split('.')[2],
+            stage = me.usagePoint.get('state').stage.id.split('.')[2],
             canUnlinkMC = stage === 'preoperational',
             canModify = stage === 'preoperational' || stage === 'suspended';
 
@@ -128,9 +128,11 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.Details', {
                                 itemId: 'metrology-configuration-details-status',
                                 renderer: function () {
                                     var status = me.usagePoint.get('metrologyConfiguration_status'),
-                                        icon = '&nbsp;&nbsp;<i class="icon ' + (status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
-                                            + status.name
-                                            + '"></i>';
+                                        icon = '<span class="'
+                                            + (status.id === 'incomplete' ? 'icon-warning' : 'icon-checkmark-circle')
+                                            + '" style="margin-left:10px; display: inline-block; font-size:16px; color: '
+                                            + (status.id === 'incomplete' ? '#eb5642' : '#33cc33')
+                                            + ';" data-qtip="' + status.name + '"></span>';
                                     return status.name + icon;
                                 }
                             },

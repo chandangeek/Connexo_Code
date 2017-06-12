@@ -32,9 +32,14 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
             title: router.getRoute().getTitle(),
             items: [
                 {
-                    xtype: 'uni-form-empty-message',
-                    text: Uni.I18n.translate('Imt.metrologyconfiguration.error.cannotEditCAS', 'IMT', "You can't manage custom attribute sets because the metrology configuration is active"),
-                    hidden: !isActive
+                    xtype: 'form',
+                    hidden: !isActive,
+                    items: [
+                        {
+                            xtype: 'uni-form-empty-message',
+                            text: Uni.I18n.translate('Imt.metrologyconfiguration.error.cannotEditCAS', 'IMT', "You can't manage custom attribute sets because the metrology configuration is active")
+                        }
+                    ]
                 },
                 {
                     xtype: 'preview-container',
