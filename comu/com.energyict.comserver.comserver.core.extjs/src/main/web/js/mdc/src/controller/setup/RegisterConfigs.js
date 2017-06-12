@@ -297,60 +297,57 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         baseForm.clearInvalid();
         errorMsgPnl.hide();
         Ext.resumeLayouts(true);
-        if (form.isValid()) {
-            if (record) {
-                record.set(values);
-                if (newObisCode === originalObisCode) {
-                    record.set('overruledObisCode', null);
-                }
-                if (useMultiplier) {
-                    if (calculatedReadingTypeField.isVisible()) {
-                        record.setCalculatedReadingType(calculatedReadingTypeField.getValue());
-                    } else if (calculatedReadingTypeCombo.isVisible()) {
-                        record.setCalculatedReadingType(
-                            calculatedReadingTypeCombo.getStore().findRecord(calculatedReadingTypeCombo.valueField, calculatedReadingTypeCombo.getValue())
-                        );
-                    }
-                } else {
-                    record.setCalculatedReadingType(null);
-                    if (asText) {
-                        record.set('multiplier', false);
-                    }
-                }
-
-                record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
-                form.setLoading();
-                record.save({
-                    success: function () {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowledgment.added', 'MDC', 'Register configuration added'));
-                        router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').forward();
-                    },
-                    failure: function (record, operation) {
-                        var json = Ext.decode(operation.response.responseText, true);
-                        if (json && !Ext.isEmpty(json.errors)) {
-                            Ext.Array.each(json.errors, function (item) {
-                                if (item.id === 'overruledObisCode.obisCode') {
-                                    form.down('#obis-code-container').setActiveError(item.msg);
-                                }
-                            });
-                            Ext.suspendLayouts();
-                            errorMsgPnl.show();
-                            baseForm.markInvalid(json.errors);
-                            var calculatedReadingTypeError = Ext.Array.findBy(json.errors, function (item) { return item.id == 'calculatedReadingType';});
-                            if (calculatedReadingTypeError && form.down('[name=calculatedReadingType]').isHidden()) {
-                                form.down('#mdc-calculated-readingType-combo').markInvalid(calculatedReadingTypeError.msg);
-                            }
-                            Ext.resumeLayouts(true);
-                        }
-                },
-                callback: function () {
-                    form.setLoading(false);
-                }
-            });
-
+        if (record) {
+            record.set(values);
+            if (newObisCode === originalObisCode) {
+                record.set('overruledObisCode', null);
             }
-        } else {
-            errorMsgPnl.show();
+            if (useMultiplier) {
+                if (calculatedReadingTypeField.isVisible()) {
+                    record.setCalculatedReadingType(calculatedReadingTypeField.getValue());
+                } else if (calculatedReadingTypeCombo.isVisible()) {
+                    record.setCalculatedReadingType(
+                        calculatedReadingTypeCombo.getStore().findRecord(calculatedReadingTypeCombo.valueField, calculatedReadingTypeCombo.getValue())
+                    );
+                }
+            } else {
+                record.setCalculatedReadingType(null);
+                if (asText) {
+                    record.set('multiplier', false);
+                }
+            }
+
+            record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
+            form.setLoading();
+            record.save({
+                success: function () {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowledgment.added', 'MDC', 'Register configuration added'));
+                    router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').forward();
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText, true);
+                    if (json && !Ext.isEmpty(json.errors)) {
+                        Ext.Array.each(json.errors, function (item) {
+                            if (item.id === 'overruledObisCode.obisCode' || item.id === 'overruledObisCode') {
+                                form.down('#obis-code-container').setActiveError(item.msg);
+                                form.down('#editOverruledObisCodeField').setActiveError(''); // to give the Obis code field a red border
+                            }
+                        });
+                        Ext.suspendLayouts();
+                        errorMsgPnl.show();
+                        baseForm.markInvalid(json.errors);
+                        var calculatedReadingTypeError = Ext.Array.findBy(json.errors, function (item) { return item.id == 'calculatedReadingType';});
+                        if (calculatedReadingTypeError && form.down('[name=calculatedReadingType]').isHidden()) {
+                            form.down('#mdc-calculated-readingType-combo').markInvalid(calculatedReadingTypeError.msg);
+                        }
+                        Ext.resumeLayouts(true);
+                    }
+            },
+            callback: function () {
+                form.setLoading(false);
+            }
+        });
+
         }
     },
 
@@ -500,8 +497,9 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                         var json = Ext.decode(operation.response.responseText);
                         if (json && json.errors) {
                             Ext.Array.each(json.errors, function (item) {
-                                if (item.id === 'overruledObisCode.obisCode') {
+                                if (item.id === 'overruledObisCode.obisCode' || item.id === 'overruledObisCode') {
                                     form.down('#obis-code-container').setActiveError(item.msg);
+                                    form.down('#editOverruledObisCodeField').setActiveError(''); // to give the Obis code field a red border
                                 }
                             });
                             baseForm.markInvalid(json.errors);

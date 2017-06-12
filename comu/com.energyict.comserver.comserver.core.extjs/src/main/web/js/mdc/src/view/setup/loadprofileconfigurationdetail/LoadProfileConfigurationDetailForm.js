@@ -43,7 +43,6 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                         fieldLabel: Uni.I18n.translate('channelConfig.registerType', 'MDC', 'Register type'),
                         itemId: 'mdc-channel-config-registerTypeComboBox',
                         queryMode: 'local',
-                        allowBlank: false,
                         displayField: 'name',
                         valueField: 'id',
                         emptyText: Uni.I18n.translate('channelConfig.selectRegisterType', 'MDC', 'Select a register type...'),
@@ -68,6 +67,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                                 itemId: 'mdc-channel-config-editOverruledObisCodeField',
                                 fieldLabel: '',
                                 required: false,
+                                msgTarget: 'none',
                                 afterSubTpl: null,
                                 width: 150
                             },
