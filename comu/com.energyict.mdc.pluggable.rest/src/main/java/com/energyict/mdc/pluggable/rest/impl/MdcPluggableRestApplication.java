@@ -6,6 +6,7 @@ package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -69,6 +70,8 @@ public class MdcPluggableRestApplication extends Application implements MessageS
     private volatile License license;
     private volatile FirmwareService firmwareService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile MdcPropertyUtils mdcPropertyUtils;
+    private volatile MeteringGroupsService meteringGroupsService;
     private List<PropertyValueConverter> converters = new ArrayList<>();
     private NlsService nlsService;
     private Thesaurus thesaurus;
@@ -146,6 +149,16 @@ public class MdcPluggableRestApplication extends Application implements MessageS
     }
 
     @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
+
+    @Reference
+    public void setMdcPropertyUtils(MdcPropertyUtils mdcPropertyUtils) {
+        this.mdcPropertyUtils = mdcPropertyUtils;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
@@ -194,10 +207,11 @@ public class MdcPluggableRestApplication extends Application implements MessageS
             bind(thesaurus).to(Thesaurus.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
-            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
+            bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
             bind(firmwareService).to(FirmwareService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
+            bind(meteringGroupsService).to(MeteringGroupsService.class);
         }
     }
 

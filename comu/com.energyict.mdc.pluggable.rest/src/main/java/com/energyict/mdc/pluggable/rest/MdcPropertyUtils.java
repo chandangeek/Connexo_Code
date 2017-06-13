@@ -26,6 +26,10 @@ import com.energyict.mdc.pluggable.rest.impl.LoadProfileTypeResource;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
 import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.upl.properties.DeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+
+import aQute.bnd.annotation.ProviderType;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
@@ -45,243 +49,37 @@ import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.
  * Serves as a utility class to create proper PropertyInfo objects for a set of Properties
  * and their corresponding PropertySpecs
  */
-public class MdcPropertyUtils {
+@ProviderType
+public interface MdcPropertyUtils {
 
-    private final PropertyValueInfoService propertyValueInfoService;
 
-    @Inject
-    public MdcPropertyUtils(PropertyValueInfoService propertyValueInfoService) {
-        this.propertyValueInfoService = propertyValueInfoService;
-    }
+    void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList);
 
-    public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
-        convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, properties, propertyInfoList, SHOW_VALUES, WITHOUT_PRIVILEGES);
-    }
+    void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList,
+                                                    ValueVisibility showValue, PrivilegePresence privilegePresence);
 
-    public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList,
-                                                    ValueVisibility showValue, PrivilegePresence privilegePresence) {
-        for (PropertySpec propertySpec : propertySpecs) {
-            PropertyInfo propertyInfo = propertyValueInfoService.getPropertyInfo(propertySpec, properties.getLocalValue(propertySpec.getName()) != null ? properties::getLocalValue : null);
-            modifyPropertyValueInfo(propertyInfo, propertySpec, properties, showValue, privilegePresence);
-            modifyPropertyTypeInfo(propertyInfo, propertySpec, uriInfo, (PropertyDefaultValuesProvider) null);
-            propertyInfoList.add(propertyInfo);
-        }
-    }
 
-    private void modifyPropertyValueInfo(PropertyInfo propertyInfo, PropertySpec propertySpec, TypedProperties properties, ValueVisibility showValue, PrivilegePresence privilegePresence) {
-        PropertyValueInfo propertyValueInfo = propertyInfo.getPropertyValueInfo();
-        Boolean propertyHasValue = true;
-        Object inheritedValue = properties.getInheritedValue(propertySpec.getName());
-        Object inheritedProperty = inheritedValue != null ? propertyValueInfoService.getConverter(propertySpec).convertValueToInfo(propertySpec, inheritedValue) : null;
-        if (isNull(propertyValueInfo.getValue()) && (isNull(inheritedProperty)) && (isNull(propertyValueInfo.defaultValue))) {
-            propertyHasValue = false;
-        }
-        if (HIDE_VALUES.equals(showValue)) {
-            propertyValueInfo.value = null;
-            inheritedProperty = null;
-            propertyValueInfo.defaultValue = null;
-        }
-        if (WITHOUT_PRIVILEGES.equals(privilegePresence)) {
-            propertyHasValue = null;
-        }
-        propertyValueInfo.inheritedValue = inheritedProperty;
-        propertyValueInfo.propertyHasValue = propertyHasValue;
-    }
+    List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties);
 
-    private void modifyPropertyTypeInfo(PropertyInfo propertyInfo, PropertySpec propertySpec, final UriInfo uriInfo, PropertyDefaultValuesProvider valuesProvider) {
-        PropertyTypeInfo propertyTypeInfo = propertyInfo.propertyTypeInfo;
-        if (propertyTypeInfo.propertyValidationRule == null) {
-            propertyTypeInfo.propertyValidationRule = getPropertyValidationRule(propertySpec);
-        }
-        propertyTypeInfo.predefinedPropertyValuesInfo = getPredefinedPropertyValueInfo(propertySpec, valuesProvider);
-        propertyTypeInfo.referenceUri = getReferenceUri(uriInfo, propertySpec, propertyTypeInfo.simplePropertyType);
-    }
+    List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, ValueVisibility showValue, PrivilegePresence privilegePresence);
 
-    private void modifyPropertyTypeInfo(PropertyInfo propertyInfo, PropertySpec propertySpec, PropertyValuesResourceProvider valuesProvider) {
-        PropertyTypeInfo propertyTypeInfo = propertyInfo.propertyTypeInfo;
-        if (propertyTypeInfo.propertyValidationRule == null) {
-            propertyTypeInfo.propertyValidationRule = getPropertyValidationRule(propertySpec);
-        }
-        propertyTypeInfo.propertyValuesResource = new PropertyValuesResourceInfo();
-        if (valuesProvider.getPropertiesValuesResource(propertySpec).isPresent()) {
-            propertyTypeInfo.propertyValuesResource.possibleValuesURI = valuesProvider.getPropertiesValuesResource(propertySpec)
-                    .get()
-                    .toString();
-        }
-        propertyTypeInfo.referenceUri = getReferenceUri(null, propertySpec, propertyTypeInfo.simplePropertyType);
-    }
+    PropertyInfo convertPropertySpecToPropertyInfo(PropertySpec propertySpec, Object propertyValue);
 
-    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties) {
-        return this.convertPropertySpecsToPropertyInfos(propertySpecs, properties, SHOW_VALUES, WITHOUT_PRIVILEGES);
-    }
+    List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, Device device);
 
-    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, ValueVisibility showValue, PrivilegePresence privilegePresence) {
-        List<PropertyInfo> propertyInfoList = new ArrayList<>();
-        for (PropertySpec propertySpec : propertySpecs) {
-            PropertyInfo propertyInfo = propertyValueInfoService.getPropertyInfo(propertySpec, properties.getLocalValue(propertySpec.getName()) != null ? properties::getLocalValue : null);
-            modifyPropertyValueInfo(propertyInfo, propertySpec, properties, showValue, privilegePresence);
-            modifyPropertyTypeInfo(propertyInfo, propertySpec, null, (PropertyDefaultValuesProvider)null);
-            propertyInfoList.add(propertyInfo);
-        }
-        return propertyInfoList;
-    }
+    List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, PropertyDefaultValuesProvider valuesProvider);
 
-    public PropertyInfo convertPropertySpecToPropertyInfo(PropertySpec propertySpec, Object propertyValue) {
-        TypedProperties properties = TypedProperties.empty();
-        properties.setProperty(propertySpec.getName(), propertyValue);
-        List<PropertyInfo> propertyInfoList = convertPropertySpecsToPropertyInfos(Collections.singletonList(propertySpec), properties);
-        return !propertyInfoList.isEmpty() ? propertyInfoList.get(0) : null; // Safety measure, but should never be the case
-    }
+    List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, PropertyValuesResourceProvider valuesResourceProvider, PropertyDefaultValuesProvider valuesProvider);
 
-    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, Device device) {
-        PropertyDefaultValuesProvider provider = (propertySpec, propertyType) -> {
-            List<?> possibleValues = null;
-            if (propertyType instanceof SimplePropertyType) {
-                SimplePropertyType simplePropertyType = (SimplePropertyType) propertyType;
-                if (SimplePropertyType.LOADPROFILE.equals(simplePropertyType)) {
-                    possibleValues = device.getLoadProfiles();
-                } else if (SimplePropertyType.LOGBOOK.equals(simplePropertyType)) {
-                    possibleValues = device.getLogBooks();
-                } else if (SimplePropertyType.REGISTER.equals(simplePropertyType)) {
-                    possibleValues = device.getRegisters();
-                } else if (SimplePropertyType.REFERENCE.equals(simplePropertyType)) {
-                    PropertySpecPossibleValues possibleValuesFromSpec = propertySpec.getPossibleValues();
-                    if (possibleValuesFromSpec != null) {
-                        possibleValues = possibleValuesFromSpec.getAllValues();
-                    }
-                }
-            }
-            else if (propertyType instanceof com.elster.jupiter.properties.rest.SimplePropertyType) {
-                com.elster.jupiter.properties.rest.SimplePropertyType simplePropertyType = (com.elster.jupiter.properties.rest.SimplePropertyType) propertyType;
-                if (com.elster.jupiter.properties.rest.SimplePropertyType.IDWITHNAME.equals(simplePropertyType)) {
-                    possibleValues = device.getDeviceType().getDeviceMessageFiles();
-                }
-            }
-            return possibleValues;
-        };
-        return convertPropertySpecsToPropertyInfos(propertySpecs, properties, provider);
-    }
+    Object findPropertyValue(PropertySpec propertySpec, Collection<PropertyInfo> propertyInfos);
 
-    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, PropertyDefaultValuesProvider valuesProvider) {
-        List<PropertyInfo> propertyInfoList = new ArrayList<>();
-        for (PropertySpec propertySpec : propertySpecs) {
-            PropertyInfo propertyInfo = propertyValueInfoService.getPropertyInfo(propertySpec, properties.getLocalValue(propertySpec.getName()) != null ? properties::getLocalValue : null);
-            modifyPropertyValueInfo(propertyInfo, propertySpec, properties, SHOW_VALUES, WITHOUT_PRIVILEGES);
-            modifyPropertyTypeInfo(propertyInfo, propertySpec, null, valuesProvider);
-            propertyInfoList.add(propertyInfo);
-        }
-        return propertyInfoList;
-    }
+    Object findPropertyValue(PropertySpec propertySpec, PropertyInfo[] propertyInfos);
 
-    public List<PropertyInfo> convertPropertySpecsToPropertyInfos(Collection<PropertySpec> propertySpecs, TypedProperties properties, PropertyValuesResourceProvider valuesResourceProvider, PropertyDefaultValuesProvider valuesProvider) {
-        List<PropertyInfo> propertyInfoList = new ArrayList<>();
-        for (PropertySpec propertySpec : propertySpecs) {
-            PropertyInfo propertyInfo = propertyValueInfoService.getPropertyInfo(propertySpec, properties.getLocalValue(propertySpec.getName()) != null ? properties::getLocalValue : null);
-            modifyPropertyValueInfo(propertyInfo, propertySpec, properties, SHOW_VALUES, WITHOUT_PRIVILEGES);
-            if (valuesResourceProvider.getPropertiesValuesResource(propertySpec).isPresent()) {
-                modifyPropertyTypeInfo(propertyInfo, propertySpec, valuesResourceProvider);
-            } else {
-                modifyPropertyTypeInfo(propertyInfo, propertySpec, null, valuesProvider);
-            }
-            propertyInfoList.add(propertyInfo);
-        }
-        return propertyInfoList;
-    }
-
-    private boolean isNull(Object propertyValue) {
-        return propertyValue == null || "".equals(propertyValue);
-    }
-
-    private URI getReferenceUri(final UriInfo uriInfo, PropertySpec propertySpec, PropertyType propertyType) {
-        if (propertyType instanceof SimplePropertyType && ((SimplePropertyType) propertyType).isReference()) {
-            return getReferenceUriFor(uriInfo, propertySpec.getValueFactory().getValueType());
-        } else {
-            return null;
-        }
-    }
-
-    private PropertyValidationRule getPropertyValidationRule(PropertySpec propertySpec) {
-        if (BoundedBigDecimalPropertySpec.class.isAssignableFrom(propertySpec.getClass())) {
-            BoundedBigDecimalPropertySpec boundedBigDecimalPropertySpec = (BoundedBigDecimalPropertySpec) propertySpec;
-            return createBoundedBigDecimalValidationRules(boundedBigDecimalPropertySpec);
-        } else {
-            return null;
-        }
-    }
-
-    private PropertyValidationRule createBoundedBigDecimalValidationRules(BoundedBigDecimalPropertySpec boundedBigDecimalPropertySpec) {
-        NumberValidationRules<BigDecimal> bigDecimalNumberValidationRules = new NumberValidationRules<>();
-        bigDecimalNumberValidationRules.setAllowDecimals(true);
-        bigDecimalNumberValidationRules.setMaximumValue(boundedBigDecimalPropertySpec.getUpperLimit());
-        bigDecimalNumberValidationRules.setMinimumValue(boundedBigDecimalPropertySpec.getLowerLimit());
-        return bigDecimalNumberValidationRules;
-    }
-
-    private PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec, PropertyDefaultValuesProvider valuesProvider) {
-        List<?> possibleValues = null;
-        boolean isExchaustive = true;
-        boolean editable = false;
-        PropertyValueConverter converter = propertyValueInfoService.getConverter(propertySpec);
-        if (valuesProvider != null) {
-            possibleValues = valuesProvider.getPropertyPossibleValues(propertySpec, converter.getPropertyType(propertySpec));
-        }
-
-        if (propertySpec.getPossibleValues() != null) {
-            possibleValues = propertySpec.getPossibleValues().getAllValues();
-            isExchaustive = propertySpec.getPossibleValues().isExhaustive();
-            editable = propertySpec.getPossibleValues().isEditable();
-        }
-
-        if (possibleValues == null || possibleValues.isEmpty()) {
-            return null;
-        }
-
-        Object[] possibleObjects = new Object[possibleValues.size()];
-        for (int i = 0; i < possibleValues.size(); i++) {
-            possibleObjects[i] = converter.convertValueToInfo(propertySpec, possibleValues.get(i));
-        }
-        PropertySelectionMode selectionMode = PropertySelectionMode.COMBOBOX;
-
-        return new PredefinedPropertyValuesInfo<>(
-                possibleObjects,
-                selectionMode,
-                isExchaustive,
-                editable);
-    }
-
-    public Object findPropertyValue(PropertySpec propertySpec, Collection<PropertyInfo> propertyInfos) {
-        return findPropertyValue(propertySpec, propertyInfos.toArray(new PropertyInfo[propertyInfos.size()]));
-    }
-
-    //find propertyValue in info
-    public Object findPropertyValue(PropertySpec propertySpec, PropertyInfo[] propertyInfos) {
-        return propertyValueInfoService.findPropertyValue(propertySpec, Arrays.asList(propertyInfos));
-    }
-
-    public enum ValueVisibility {
+    enum ValueVisibility {
         SHOW_VALUES, HIDE_VALUES
     }
 
-    public enum PrivilegePresence {
+    enum PrivilegePresence {
         WITH_PRIVILEGES, WITHOUT_PRIVILEGES
-    }
-
-    /**
-     * Creates a proper URI to fetch the <i>full</i> list of the BusinessObjects of the given class
-     *
-     * @param uriInfo the URI info which was used for the REST call
-     * @param propertyClassType the classTypeName of the object
-     * @return the uri to fetch the list of objects
-     */
-    private URI getReferenceUriFor(UriInfo uriInfo, Class propertyClassType) {
-        URI uri = null;
-        if (TimeZoneInUse.class.isAssignableFrom(propertyClassType)) {
-            // The TimeZoneInUse values are provided as possibleValues
-        } else if (Calendar.class.isAssignableFrom(propertyClassType)) {
-            uri = uriInfo.getBaseUriBuilder().path(CalendarResource.class).path("/").build();
-        } else if (LoadProfileType.class.isAssignableFrom(propertyClassType)) {
-            uri = uriInfo.getBaseUriBuilder().path(LoadProfileTypeResource.class).path("/").build();
-        }
-        return uri;
     }
 }

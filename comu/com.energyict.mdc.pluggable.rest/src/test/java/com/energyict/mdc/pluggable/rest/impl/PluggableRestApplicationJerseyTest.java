@@ -6,10 +6,12 @@ package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.ws.rs.core.Application;
@@ -32,6 +34,8 @@ public class PluggableRestApplicationJerseyTest extends FelixRestApplicationJers
     FirmwareService firmwareService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    MeteringGroupsService meteringGroupsService;
 
     @Override
     protected Application getApplication() {
@@ -44,6 +48,8 @@ public class PluggableRestApplicationJerseyTest extends FelixRestApplicationJers
         application.setCalendarService(calendarService);
         application.setFirmwareService(firmwareService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setMeteringGroupsService(meteringGroupsService);
+        application.setMdcPropertyUtils(new MdcPropertyUtilsImpl(propertyValueInfoService, meteringGroupsService));
         return application;
     }
 
