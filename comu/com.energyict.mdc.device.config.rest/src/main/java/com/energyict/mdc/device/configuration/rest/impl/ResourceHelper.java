@@ -102,12 +102,6 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No device type with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public LoadProfileType findLoadProfileTypeByIdOrThrowException(long id) {
-        return masterDataService
-                .findLoadProfileType(id)
-                .orElseThrow(() -> new WebApplicationException("Load profile with id " + id + Response.Status.NOT_FOUND));
-    }
-
     public RegisterType findRegisterTypeByIdOrThrowException(long id) {
         return masterDataService
                 .findRegisterType(id)
@@ -428,7 +422,7 @@ public class ResourceHelper {
                 .build();
     }
 
-    public LoadProfileType findLoadProfileTypeByIdOrThrowException(Long id) {
+    public LoadProfileType findLoadProfileTypeByIdOrThrowException(long id) {
         return masterDataService.findLoadProfileType(id)
                 .orElseThrow(() -> new WebApplicationException("No load profile type with id " + id, Response.Status.NOT_FOUND));
     }
