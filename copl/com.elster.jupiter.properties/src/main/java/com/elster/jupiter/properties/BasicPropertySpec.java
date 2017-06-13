@@ -132,18 +132,18 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
             }
         }
         if (!this.valueFactory.isValid(value)) {
-            invalidValueException(value);
+            invalidValueException();
             return false;
         }
         return true;
     }
 
-    private void invalidValueException(Object value) throws InvalidValueException{
+    private void invalidValueException() throws InvalidValueException{
         if (valueFactory instanceof HasPropertyValidator){
             HasPropertyValidator factory =((HasPropertyValidator) valueFactory);
             throw new InvalidValueException(factory.invalidMessage(), this.getName(), factory.getReferenceValue());   //Guideline: property name
         }
-        throw new InvalidValueException("XisNotValidValueForAttributeY", "The value ''{1}'' is not valid for the attribute specification {0}." , this.getName(), value);
+        throw new InvalidValueException("XisNotValid", "{0} is not valid." , this.getName());
     }
 
     @SuppressWarnings("unchecked")
