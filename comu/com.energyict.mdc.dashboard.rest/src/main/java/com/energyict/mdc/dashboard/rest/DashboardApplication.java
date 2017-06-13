@@ -122,6 +122,7 @@ public class DashboardApplication extends Application implements MessageSeedProv
     private volatile AppService appService;
     private volatile FirmwareService firmwareService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile MdcPropertyUtils mdcPropertyUtils;
 
     private Clock clock = Clock.systemDefaultZone();
 
@@ -273,6 +274,11 @@ public class DashboardApplication extends Application implements MessageSeedProv
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
+    @Reference
+    public void setMdcPropertyUtils(MdcPropertyUtils mdcPropertyUtils) {
+        this.mdcPropertyUtils = mdcPropertyUtils;
+    }
+
     // Only for testing purposes
     public void setClock(Clock clock) {
         this.clock = clock;
@@ -343,7 +349,7 @@ public class DashboardApplication extends Application implements MessageSeedProv
             bind(clock).to(Clock.class);
             bind(jsonService).to(JsonService.class);
             bind(appService).to(AppService.class);
-            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
+            bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
             bind(firmwareService).to(FirmwareService.class);
             bind(propertyValueInfoService).to(PropertyValueInfoService.class);
             bind(FilterFactory.class).to(FilterFactory.class);

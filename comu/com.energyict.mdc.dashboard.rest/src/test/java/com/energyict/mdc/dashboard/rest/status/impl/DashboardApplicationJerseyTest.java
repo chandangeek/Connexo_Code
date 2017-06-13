@@ -28,6 +28,7 @@ import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -94,6 +95,8 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
     FirmwareService firmwareService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    MdcPropertyUtils mdcPropertyUtils;
 
     @Override
     protected Application getApplication() {
@@ -122,6 +125,7 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
         dashboardApplication.setAppService(appService);
         dashboardApplication.setFirmwareService(firmwareService);
         dashboardApplication.setPropertyValueInfoService(propertyValueInfoService);
+        dashboardApplication.setMdcPropertyUtils(mdcPropertyUtils);
         return dashboardApplication;
     }
 
