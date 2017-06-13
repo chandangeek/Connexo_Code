@@ -41,7 +41,6 @@ class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements
     private final Reference<LoadProfileType> loadProfileType = ValueReference.absent();
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     private String overruledObisCodeString;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
     private ObisCode overruledObisCode;
     @SuppressWarnings("unused")

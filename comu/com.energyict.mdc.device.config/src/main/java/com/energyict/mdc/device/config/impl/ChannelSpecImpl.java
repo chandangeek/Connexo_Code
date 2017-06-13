@@ -82,10 +82,8 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
     @Range(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
     private Integer nbrOfFractionDigits = 0;
     private String overruledObisCodeString;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
     private ObisCode overruledObisCode;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private BigDecimal overflow;
     private TimeDuration interval;
     @SuppressWarnings("unused")
