@@ -659,16 +659,20 @@ public class ChannelResource {
     }
 
     @POST
-    @Transactional
     @Path("/{channelid}/data/estimate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, com.elster.jupiter.estimation.security.Privileges.Constants.EDIT_WITH_ESTIMATOR})
     public List<ChannelDataInfo> previewEstimateChannelData(@PathParam("name") String name, @PathParam("channelid") long channelId,
                                                             EstimateChannelDataInfo estimateChannelDataInfo) {
-        Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-        return previewEstimate(QualityCodeSystem.MDC, device, channel, estimateChannelDataInfo);
+        try (TransactionContext context = transactionService.getContext()) {
+            if (estimateChannelDataInfo.editedReadings != null && !estimateChannelDataInfo.editedReadings.isEmpty()) {
+                this.editChannelData(name, channelId, estimateChannelDataInfo.editedReadings);
+            }
+            Device device = resourceHelper.findDeviceByNameOrThrowException(name);
+            Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
+            return previewEstimate(QualityCodeSystem.MDC, device, channel, estimateChannelDataInfo);
+        }
     }
 
     @POST
@@ -908,7 +912,6 @@ public class ChannelResource {
     }
 
     @PUT
-    @Transactional
     @Path("/{channelid}/data/correctValues")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -921,15 +924,20 @@ public class ChannelResource {
                 .map(intervalInfo -> Instant.ofEpochMilli(intervalInfo.end))
                 .collect(Collectors.toSet());
 
-        valueCorrectionInfo.intervals.stream()
-                .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
-                .reduce(Range::span)
-                .ifPresent(intervals ->
-                        result.addAll(channel.getChannelData(intervals).stream()
-                                .flatMap(loadProfileReading -> loadProfileReading.getChannelValues().values().stream())
-                                .filter(readingRecord -> timestamps.contains(readingRecord.getTimeStamp()))
-                                .map(readingRecord -> createCorrectedChannelDataInfo(channel, valueCorrectionInfo, readingRecord))
-                                .collect(Collectors.toList())));
+        try (TransactionContext context = transactionService.getContext()) {
+            if (valueCorrectionInfo.editedReadings != null && !valueCorrectionInfo.editedReadings.isEmpty()) {
+                this.editChannelData(name, channelId, valueCorrectionInfo.editedReadings);
+            }
+            valueCorrectionInfo.intervals.stream()
+                    .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
+                    .reduce(Range::span)
+                    .ifPresent(intervals ->
+                            result.addAll(channel.getChannelData(intervals).stream()
+                                    .flatMap(loadProfileReading -> loadProfileReading.getChannelValues().values().stream())
+                                    .filter(readingRecord -> timestamps.contains(readingRecord.getTimeStamp()))
+                                    .map(readingRecord -> createCorrectedChannelDataInfo(channel, valueCorrectionInfo, readingRecord))
+                                    .collect(Collectors.toList())));
+        }
         return result;
     }
 
