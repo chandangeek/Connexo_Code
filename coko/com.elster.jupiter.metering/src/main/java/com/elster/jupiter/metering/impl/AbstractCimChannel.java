@@ -185,14 +185,6 @@ public abstract class AbstractCimChannel implements CimChannel {
         }
     }
 
-    private boolean matchComments(ReadingQualityRecord record, ReadingQuality readingQuality) {
-        String recordComment = record.getComment();
-        String readingQualityComment = readingQuality.getComment();
-        return recordComment == null && readingQualityComment == null || recordComment != null
-                && readingQualityComment != null && recordComment.equals(readingQualityComment);
-
-    }
-
     @Override
     public void confirmReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
         if (!readings.isEmpty()) {

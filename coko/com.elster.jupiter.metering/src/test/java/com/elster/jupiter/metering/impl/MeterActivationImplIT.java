@@ -676,7 +676,7 @@ public class MeterActivationImplIT {
 
         expectedException.expect(UsagePointMeterActivationException.IncorrectMeterActivationDateWhenGapsAreAllowed.class);
         expectedException.expectMessage("Meter linking error. Meter testMeter cannot be linked to usage point usagePointForActivation," +
-                " as the linking would occur after the metrology configuration's activation and before the meter's activation.");
+                " as the linking would occur after the metrology configuration's activation and before the meter becomes operational.");
 
         usagePoint.linkMeters()
                 .activate(now.plusSeconds(60), meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT))
