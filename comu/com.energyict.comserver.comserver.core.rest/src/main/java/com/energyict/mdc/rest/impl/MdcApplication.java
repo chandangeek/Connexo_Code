@@ -59,6 +59,7 @@ public class MdcApplication extends Application implements TranslationKeyProvide
     private volatile Thesaurus thesaurus;
     private volatile License license;
     private PropertyValueInfoService propertyValueInfoService;
+    private volatile MdcPropertyUtils mdcPropertyUtils;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -139,6 +140,11 @@ public class MdcApplication extends Application implements TranslationKeyProvide
         this.license = license;
     }
 
+    @Reference
+    public void setMdcPropertyUtils(MdcPropertyUtils mdcPropertyUtils) {
+        this.mdcPropertyUtils = mdcPropertyUtils;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -151,7 +157,7 @@ public class MdcApplication extends Application implements TranslationKeyProvide
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
-            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
+            bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ComPortInfoFactory.class).to(ComPortInfoFactory.class);
             bind(ComPortPoolInfoFactory.class).to(ComPortPoolInfoFactory.class);

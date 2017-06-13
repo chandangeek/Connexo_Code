@@ -8,6 +8,7 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.ws.rs.core.Application;
@@ -26,6 +27,8 @@ public class ComserverCoreApplicationJerseyTest extends FelixRestApplicationJers
     DeviceConfigurationService deviceConfigurationService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    MdcPropertyUtils mdcPropertyUtils;
 
     @Override
     protected Application getApplication() {
@@ -36,6 +39,7 @@ public class ComserverCoreApplicationJerseyTest extends FelixRestApplicationJers
         application.setDeviceConfigurationService(deviceConfigurationService);
         application.setProtocolPluggableService(protocolPluggableService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setMdcPropertyUtils(mdcPropertyUtils);
         return application;
     }
 }
