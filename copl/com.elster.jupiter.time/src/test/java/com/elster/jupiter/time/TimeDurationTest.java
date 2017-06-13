@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.time;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+
 import java.time.Duration;
 import java.time.Period;
 import java.util.Calendar;
@@ -129,7 +131,7 @@ public class TimeDurationTest {
         try {
             TimeDuration timeDuration = new TimeDuration("2000 years");
             fail("should not be allowed");
-        } catch (IllegalArgumentException e) {
+        } catch (LocalizedFieldValidationException e) {
             // expected
         }
     }
