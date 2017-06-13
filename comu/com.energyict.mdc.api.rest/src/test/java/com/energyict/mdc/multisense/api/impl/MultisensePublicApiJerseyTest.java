@@ -50,6 +50,7 @@ import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -99,6 +100,8 @@ import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.pluggable.rest.impl.MdcPropertyUtilsImpl;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -213,6 +216,9 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     DeviceAlarmService deviceAlarmService;
     @Mock
     ThreadPrincipalService threadPrincipalService;
+    @Mock
+    MeteringGroupsService meteringGroupsService;
+    MdcPropertyUtils mdcPropertyUtils;
 
     static ProtocolPluggableService protocolPluggableService;
     static PropertyValueInfoService propertyValueInfoService;
@@ -285,7 +291,9 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setMeteringService(meteringService);
         application.setMetrologyConfigurationService(metrologyConfigurationService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setMdcPropertyUtils(mdcPropertyUtils);
         application.setThreadPrincipalService(threadPrincipalService);
+        application.setMdcPropertyUtils(new MdcPropertyUtilsImpl(propertyValueInfoService, meteringGroupsService));
         return application;
     }
 

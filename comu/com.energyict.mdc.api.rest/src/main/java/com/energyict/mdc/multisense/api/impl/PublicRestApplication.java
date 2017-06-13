@@ -104,6 +104,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile DeviceAlarmService deviceAlarmService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile MdcPropertyUtils mdcPropertyUtils;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -299,6 +300,11 @@ public class PublicRestApplication extends Application implements TranslationKey
         this.propertyValueInfoService = propertyValueInfoService;
     }
 
+    @Reference
+    public void setMdcPropertyUtils(MdcPropertyUtils mdcPropertyUtils) {
+        this.mdcPropertyUtils = mdcPropertyUtils;
+    }
+
     private Factory<Validator> getValidatorFactory() {
         return new Factory<Validator>() {
             private final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
@@ -353,7 +359,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(threadPrincipalService).to(ThreadPrincipalService.class);
             bindFactory(getValidatorFactory()).to(Validator.class);
 
-            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
+            bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
