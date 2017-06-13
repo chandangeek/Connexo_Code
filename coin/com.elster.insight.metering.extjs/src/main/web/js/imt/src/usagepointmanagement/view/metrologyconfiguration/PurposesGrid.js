@@ -45,11 +45,13 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesGrid', 
                 text: Uni.I18n.translate('general.status', 'IMT', 'Status'),
                 dataIndex: 'status',
                 flex: 1,
+                align: 'center',
                 renderer: function (value) {
-                    var icon = '&nbsp;&nbsp;&nbsp;&nbsp;<i class="icon ' + (value.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
-                            + value.name
-                            + '"></i>';
-
+                    var icon = '<span class="'
+                            + (value.id === 'incomplete' ? 'icon-warning' : 'icon-checkmark-circle')
+                            + '" style="display: inline-block; font-size:16px; color: '
+                            + (value.id === 'incomplete' ?  '#eb5642' : '#33cc33')
+                            + ';" data-qtip="' + value.name + '"></span>';
                     return value ? icon : '-';
                 }
             },
