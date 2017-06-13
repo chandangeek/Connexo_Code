@@ -84,6 +84,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                 itemId: 'editOverruledObisCodeField',
                                 fieldLabel: '',
                                 required: false,
+                                msgTarget: 'none',
                                 afterSubTpl: null,
                                 width: 150
                             },
