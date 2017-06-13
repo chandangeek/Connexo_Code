@@ -28,11 +28,12 @@ public enum SDKWithAllPropertiesTranslationKeys implements TranslationKey {
     SDKPOSITIVEDECIMALPROPERTY(Keys.SDKPOSITIVEDECIMALPROPERTY, "A positive bigdecimal property "),
     SDKBOOLEANPROPERTY(Keys.SDKBOOLEANPROPERTY, "A boolean property"),
     SDKDATEPROPERTY(Keys.SDKDATEPROPERTY, "A date property"),
-    SDKTIMEOFDAYPROPERTY(Keys.SDKTIMEOFDAYPROPERTY, "A temporalAmount property "),
+    SDKTIMEOFDAYPROPERTY(Keys.SDKTIMEOFDAYPROPERTY, "A time property "),
+    SDKTIMEOFDAYPROPERTYWITHZONE(Keys.SDKTIMEOFDAYPROPERTYWITHZONE, "A time property with time zone"),
     SDKTIMEZONEPROPERTY(Keys.SDKTIMEZONEPROPERTY, "A timezone property "),
     SDKDATETIMEPROPERTY(Keys.SDKDATETIMEPROPERTY, "A date and time property"),
     SDKDURATIONPROPERTY(Keys.SDKDURATIONPROPERTY, "A duration property "),
-    SDKTEMPORALAMOUNTPROPERTY(Keys.SDKTEMPORALAMOUNTPROPERTY, "A duration property "),
+    SDKTEMPORALAMOUNTPROPERTY(Keys.SDKTEMPORALAMOUNTPROPERTY, "A temporal amount property "),
     SDKBIGDECIMALWITHVALUES(Keys.SDKBIGDECIMALWITHVALUES, "A bigdecimal property with predefined values "),
     SDKOBISCODEPROPERTY(Keys.SDKOBISCODEPROPERTY, "An obiscode property"),
     SDKEAN13PROPERTY(Keys.SDKEAN13PROPERTY, "An EAN13 property"),
@@ -98,6 +99,7 @@ public enum SDKWithAllPropertiesTranslationKeys implements TranslationKey {
         public static final String SDKBOOLEANPROPERTY = "SDKBooleanProperty";
         public static final String SDKDATEPROPERTY = "SDKDateProperty";
         public static final String SDKTIMEOFDAYPROPERTY = "SDKTimeOfDayProperty";
+        public static final String SDKTIMEOFDAYPROPERTYWITHZONE = "SDKTimeOfDayPropertyWithZone";
         public static final String SDKTIMEZONEPROPERTY = "SDKTIMEZONEPROPERTY";
         public static final String SDKDATETIMEPROPERTY = "SDKDateTimeProperty";
         public static final String SDKDURATIONPROPERTY = "SDKTimeDurationProperty";
