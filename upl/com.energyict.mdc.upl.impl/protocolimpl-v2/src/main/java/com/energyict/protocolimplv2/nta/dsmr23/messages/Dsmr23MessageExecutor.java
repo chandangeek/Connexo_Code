@@ -484,11 +484,14 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void changeEncryptionKey(OfflineDeviceMessage pendingMessage, int type) throws IOException {
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName), "");
+        byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
+        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
+
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
-        byte[] key = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName), "");
-        keyData.addDataType(OctetString.fromByteArray(key));
+        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
         globalKeyArray.addDataType(keyData);
 
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();
@@ -496,11 +499,14 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
     }
 
     private void changeAuthenticationKey(OfflineDeviceMessage pendingMessage, int type) throws IOException {
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName), "");
+        byte[] masterKey = getProtocol().getDlmsSession().getProperties().getSecurityProvider().getMasterKey();
+        byte[] wrappedKey = ProtocolTools.aesWrap(newSymmetricKey, masterKey);
+
         Array globalKeyArray = new Array();
         Structure keyData = new Structure();
         keyData.addDataType(new TypeEnum(type));    // 0 means keyType: global unicast encryption key, 2 means keyType: authenticationKey
-        byte[] key = ProtocolTools.getBytesFromHexString(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName), "");
-        keyData.addDataType(OctetString.fromByteArray(key));
+        keyData.addDataType(OctetString.fromByteArray(wrappedKey));
         globalKeyArray.addDataType(keyData);
 
         SecuritySetup ss = getCosemObjectFactory().getSecuritySetup();

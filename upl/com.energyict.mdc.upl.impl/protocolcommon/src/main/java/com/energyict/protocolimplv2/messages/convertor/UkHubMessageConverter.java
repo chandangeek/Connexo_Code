@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -48,8 +47,6 @@ public class UkHubMessageConverter extends AbstractMessageConverter {
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
-            case DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName:
-                return this.keyAccessorTypeExtractor.actualValueContent((KeyAccessorType) messageAttribute);
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
@@ -84,7 +81,7 @@ public class UkHubMessageConverter extends AbstractMessageConverter {
                 //ZigBee setup
                 .put(messageSpec(ZigBeeConfigurationDeviceMessage.CreateHANNetwork), new OneTagMessageEntry("Create_Han_Network"))
                 .put(messageSpec(ZigBeeConfigurationDeviceMessage.RemoveHANNetwork), new OneTagMessageEntry("Remove_Han_Network"))
-                .put(messageSpec(ZigBeeConfigurationDeviceMessage.JoinZigBeeSlaveDevice), new MultipleAttributeMessageEntry("Join_ZigBee_Slave", "ZigBee_IEEE_Address", "ZigBee_Link_Key"))
+                .put(messageSpec(ZigBeeConfigurationDeviceMessage.JoinZigBeeSlaveDevice), new MultipleAttributeMessageEntry("Join_ZigBee_Slave", "ZigBee_IEEE_Address"))
                 .put(messageSpec(ZigBeeConfigurationDeviceMessage.RemoveMirror), new MultipleAttributeMessageEntry("Remove_Mirror", "Mirror_IEEE_Address", "Force_Removal"))
                 .put(messageSpec(ZigBeeConfigurationDeviceMessage.RemoveZigBeeSlaveDevice), new MultipleAttributeMessageEntry("Remove_ZigBee_Slave", "ZigBee_IEEE_Address"))
                 .put(messageSpec(ZigBeeConfigurationDeviceMessage.RemoveAllZigBeeSlaveDevices), new OneTagMessageEntry("Remove_All_ZigBee_Slaves"))

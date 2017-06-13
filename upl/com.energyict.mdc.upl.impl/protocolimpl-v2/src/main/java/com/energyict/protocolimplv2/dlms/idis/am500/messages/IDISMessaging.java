@@ -181,11 +181,8 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
             return (((Date) messageAttribute)).getTime() + "";
         } else if (propertySpec.getName().equals(DeviceMessageConstants.passwordAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newEncryptionKeyAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.newWrappedEncryptionKeyAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.newWrappedAuthenticationKeyAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.newMasterKeyAttributeName)
-                || propertySpec.getName().equals(DeviceMessageConstants.newWrappedMasterKeyAttributeName)) {
+                || propertySpec.getName().equals(DeviceMessageConstants.newMasterKeyAttributeName)) {
             return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
         }
         return messageAttribute.toString();

@@ -20,7 +20,7 @@ import java.util.List;
 public enum OpusConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
     SetOpusOSNbr(25001, "Set opus OS number", DeviceMessageConstants.SetOpusOSNbrAttributeName, DeviceMessageConstants.SetOpusOSNbrAttributeDefaultTranslation),
-    SetOpusPassword(25002, "Set opus password", PropertyType.KEYACCESSORTYPE_REFERENCE, DeviceMessageConstants.SetOpusPasswordAttributeName, DeviceMessageConstants.SetOpusPasswordAttributeDefaultTranslation), // The passive value of the KeyAccessor reference will be used
+    SetOpusPassword(25002, "Set opus password", PropertyType.KEYACCESSORTYPE_REFERENCE, DeviceMessageConstants.SetOpusPasswordAttributeName, DeviceMessageConstants.SetOpusPasswordAttributeDefaultTranslation),
     SetOpusTimeout(25003, "Set opus timeout", DeviceMessageConstants.SetOpusTimeoutAttributeName, DeviceMessageConstants.SetOpusTimeoutAttributeDefaultTranslation),
     SetOpusConfig(25004, "Set opus configuration", DeviceMessageConstants.SetOpusConfigAttributeName, DeviceMessageConstants.SetOpusConfigAttributeDefaultTranslation),
     OpusSetOption(25005, "Opus - Set an option", DeviceMessageConstants.singleOptionAttributeName, DeviceMessageConstants.singleOptionAttributeDefaultTranslation),

@@ -83,7 +83,6 @@ public class ProtocolMessageSpecifications {
         // TODO Don't BackPort this to version below 8.11, use the above snippet instead
         MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
         tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS, true));
-        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_LINK_KEY, true));
         msgSpec.add(tagSpec);
         return msgSpec;
     }

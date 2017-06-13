@@ -42,7 +42,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAt
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.enableDSTAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.enableRSSIMultipleSampling;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.masterKey;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
@@ -92,7 +91,7 @@ public class A1MessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDAR_SEND_WITH_DATETIME_FROM_XML_USER_FILE), new A1ActivityCalendarMessageEntry())
 
                 // Security messages
-                .put(messageSpec(SecurityMessage.CHANGE_SECURITY_KEYS), new MultipleAttributeMessageEntry("ChangeKeys", "ClientId", "WrapperKey", "NewAuthenticationKey", "NewEncryptionKey"))
+                .put(messageSpec(SecurityMessage.CHANGE_SECURITY_KEYS), new MultipleAttributeMessageEntry("ChangeKeys", "ClientId", "NewAuthenticationKey", "NewEncryptionKey"))
 
                 // Device actions
                 .put(messageSpec(DeviceActionMessage.ALARM_REGISTER_RESET), new OneTagMessageEntry("ResetAlarms"))
@@ -112,8 +111,6 @@ public class A1MessageConverter extends AbstractMessageConverter {
                 propertySpec.getName().equals(newAuthenticationKeyAttributeName) ||
                 propertySpec.getName().equals(newEncryptionKeyAttributeName)) {
             return this.keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
-        } else if (propertySpec.getName().equals(masterKey)) {
-            return this.keyAccessorTypeExtractor.actualValueContent((KeyAccessorType) messageAttribute);
         } else if (propertySpec.getName().equals(setOnDemandBillingDateAttributeName) ||
                 propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return dateFormat.format((Date) messageAttribute);

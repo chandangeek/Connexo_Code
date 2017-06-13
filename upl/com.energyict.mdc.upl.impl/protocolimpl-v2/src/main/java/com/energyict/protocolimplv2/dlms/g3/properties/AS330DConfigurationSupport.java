@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.dlms.g3.properties;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -46,6 +47,7 @@ public class AS330DConfigurationSupport extends DlmsConfigurationSupport {
         propertySpecs.remove(manufacturerPropertySpec());
         propertySpecs.remove(fixMbusHexShortIdPropertySpec());
         propertySpecs.remove(deviceId());
+        propertySpecs.remove(masterKeyPropertySpec());
         return propertySpecs;
     }
 

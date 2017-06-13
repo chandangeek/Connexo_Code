@@ -341,8 +341,9 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_EICT_CIPHERING_TYPE("upl.property.v2.eict.cipheringType", "Ciphering type"),
     V2_EICT_CIPHERING_TYPE_DESCRIPTION("upl.property.v2.eict.cipheringType.description", "Ciphering type"),
     V2_EICT_CLIENT_PRIVATE_SIGNING_KEY("upl.property.v2.eict.clientPrivateSigningKey", "Client private signing key"),
-    V2_EICT_CLIENT_PRIVATE_KEY_AGREEMENT_KEY("upl.property.v2.eict.clientPrivateKeyAgreementKey", "Client private key agreement key");
-
+    V2_EICT_CLIENT_PRIVATE_KEY_AGREEMENT_KEY("upl.property.v2.eict.clientPrivateKeyAgreementKey", "Client private key agreement key"),
+    V2_BROADCAST_AUTHENTICATION_KEY("upl.property.v2.eict.broadcastAuthenticationKey", "Broadcast authentication Key"),
+    V2_BROADCAST_ENCRYPTION_KEY("upl.property.v2.eict.broadcastEncryptionKey", "Broadcast encryption Key");
 
     private final String key;
     private final String defaultFormat;

@@ -15,9 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
-import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY;
-
 /**
  * Copyrights EnergyICT
  * Date: 7-feb-2011
@@ -54,8 +51,6 @@ public class AS300PProperties extends SmsWakeUpDlmsProtocolProperties {
                 this.integerSpec(PK_RETRIES, false, PropertyTranslationKeys.ELSTER_RETRIES),
                 this.integerSpec(PK_TIMEOUT, false, PropertyTranslationKeys.ELSTER_TIMEOUT),
                 this.integerSpec(ROUND_TRIP_CORRECTION, false, PropertyTranslationKeys.ELSTER_ROUND_TRIP_CORRECTION),
-                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, false, PropertyTranslationKeys.ELSTER_DATATRANSPORT_AUTHENTICATIONKEY),
-                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, false, PropertyTranslationKeys.ELSTER_DATATRANSPORT_ENCRYPTIONKEY),
                 this.integerSpec(VERIFY_FIRMWARE_VERSION, false, PropertyTranslationKeys.ELSTER_VERIFY_FIRMWARE_VERSION),
                 this.integerSpec(LOGBOOK_SELECTOR, false, PropertyTranslationKeys.ELSTER_LOGBOOK_SELECTOR))
                 .forEach(propertySpecs::add);

@@ -17,7 +17,6 @@ import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40Messaging;
 
@@ -69,13 +68,6 @@ public class AM540Messaging extends Dsmr40Messaging implements DeviceMessageSupp
         allSupportedMessages.add(this.get(ContactorDeviceMessage.CLOSE_RELAY));
         allSupportedMessages.add(this.get(ContactorDeviceMessage.OPEN_RELAY));
         allSupportedMessages.addAll(getDsmr40Messaging().getSupportedMessages());
-
-        // DSMR5.0 security related messages who have changed compared to DSM4.0
-        allSupportedMessages.remove(this.get(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY));
-        allSupportedMessages.remove(this.get(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY));
-        allSupportedMessages.add(this.get(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS));
-        allSupportedMessages.add(this.get(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS));
-
         return allSupportedMessages;
     }
 

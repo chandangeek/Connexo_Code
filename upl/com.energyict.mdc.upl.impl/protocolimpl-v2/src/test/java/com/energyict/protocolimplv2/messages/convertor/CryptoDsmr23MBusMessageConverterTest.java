@@ -51,7 +51,7 @@ public class CryptoDsmr23MBusMessageConverterTest extends AbstractV2MessageConve
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.defaultKeyAttributeName:
                 KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-                when(keyAccessorTypeExtractor.actualValueContent(keyAccessorType)).thenReturn("0102030405060708090A0B0C0D0E0F");
+                when(keyAccessorTypeExtractor.passiveValueContent(keyAccessorType)).thenReturn("0102030405060708090A0B0C0D0E0F");
                 return keyAccessorType;
             default:
                 return "1";

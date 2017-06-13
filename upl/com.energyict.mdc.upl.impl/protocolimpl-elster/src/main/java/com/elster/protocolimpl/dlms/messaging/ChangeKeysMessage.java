@@ -52,17 +52,16 @@ public class ChangeKeysMessage extends AbstractDlmsMessage {
         String clientId = MessagingTools.getContentOfAttribute(messageEntry, ATTR_CLIENT_ID);
         String authenticationKey = MessagingTools.getContentOfAttribute(messageEntry, ATTR_AUTHENTICATION_KEY);
         String encryptionKey = MessagingTools.getContentOfAttribute(messageEntry, ATTR_ENCRYPTION_KEY);
-        String wrapperKey = MessagingTools.getContentOfAttribute(messageEntry, ATTR_WRAPPER_KEY);
-        validateMessageData(clientId, authenticationKey, encryptionKey, wrapperKey);
+        validateMessageData(clientId, authenticationKey, encryptionKey);
 
         try {
-            write(clientId, authenticationKey, encryptionKey, wrapperKey);
+            write(clientId, authenticationKey, encryptionKey);
         } catch (IOException e) {
             throw new IOException("Unable to change keys in device: " + e.getMessage(), e);
         }
     }
 
-    private void write(String clientId, String authenticationKey, String encryptionKey, String wrapperKey) throws IOException {
+    private void write(String clientId, String authenticationKey, String encryptionKey) throws IOException {
 
         SimpleCosemObjectManager objectManager = getExecutor().getDlms().getObjectManager();
 
@@ -74,13 +73,13 @@ public class ChangeKeysMessage extends AbstractDlmsMessage {
 
         byte[] authKeyData = CodingUtils.string2ByteArray(authenticationKey);
         byte[] encrKeyData = CodingUtils.string2ByteArray(encryptionKey);
-        byte[] wrapKeyData = CodingUtils.string2ByteArray(wrapperKey);
+        byte[] wrapKeyData = CodingUtils.string2ByteArray(getExecutor().getDlms().getSecurityData().getMasterKey());
 
         securitySetup.wrapAndTransferKeys(wrapKeyData, encrKeyData, null, authKeyData);
     }
 
 
-    private void validateMessageData(String clientId, String authenticationKey, String encryptionKey, String wrapperKey) {
+    private void validateMessageData(String clientId, String authenticationKey, String encryptionKey) {
         checkString(clientId, "client id");
         try {
             int clId = Integer.parseInt(clientId);
@@ -93,7 +92,6 @@ public class ChangeKeysMessage extends AbstractDlmsMessage {
 
         checkKey(authenticationKey, "authentication key");
         checkKey(encryptionKey, "encryption key");
-        checkKey(wrapperKey, "wrapper key");
     }
 
     private void checkString(String stringToCheck, String name) {

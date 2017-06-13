@@ -71,9 +71,9 @@ public class AM540Messaging extends AM130Messaging {
         supportedMessages.add(LogBookDeviceMessage.ResetSecurityGroupEventCounterObjects.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(LogBookDeviceMessage.ResetAllSecurityGroupEventCounters.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_EXCEPT_EMERGENCY_ONES.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
-        supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
-        supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
-        supportedMessages.add(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEYS_FOR_PREDEFINED_CLIENT.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY_FOR_PREDEFINED_CLIENT.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY_FOR_PREDEFINED_CLIENT.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(SecurityMessage.CHANGE_MASTER_KEY_WITH_NEW_KEY_FOR_PREDEFINED_CLIENT.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(DeviceActionMessage.BILLING_RESET.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_ATTRIBUTES_4TO9.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(DeviceActionMessage.BillingResetWithActivationDate.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));

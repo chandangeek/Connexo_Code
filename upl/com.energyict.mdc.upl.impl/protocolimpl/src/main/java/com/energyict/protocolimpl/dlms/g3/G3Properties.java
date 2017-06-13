@@ -5,11 +5,13 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.dlms.DLMSReference;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
+import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -17,8 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY;
-import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.DATATRANSPORT_ENCRYPTIONKEY;
+import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.MASTERKEY;
 import static com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties.DSMR_40_HEX_PASSWORD;
 
 /**
@@ -87,8 +88,7 @@ public class G3Properties extends DlmsProtocolProperties {
                 this.integerSpec(AARQ_TIMEOUT, PropertyTranslationKeys.DLMS_AARQ_TIMEOUT),
                 this.integerSpec(VALIDATE_INVOKE_ID, PropertyTranslationKeys.DLMS_VALIDATE_INVOKE_ID),
                 this.stringSpec(PSK, PropertyTranslationKeys.DLMS_PSK),
-                this.hexStringSpec(DATATRANSPORT_AUTHENTICATIONKEY, PropertyTranslationKeys.DLMS_DATATRANSPORT_AUTHENTICATIONKEY),
-                this.hexStringSpec(DATATRANSPORT_ENCRYPTIONKEY, PropertyTranslationKeys.DLMS_DATATRANSPORT_ENCRYPTIONKEY));
+                this.keyAccessorTypeReferencePropertySpec(MASTERKEY, PropertyTranslationKeys.DLMS_MASTERKEY));
     }
 
     protected <T> PropertySpec spec(String name, TranslationKey translationKey, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
@@ -105,6 +105,14 @@ public class G3Properties extends DlmsProtocolProperties {
 
     protected PropertySpec integerSpec(String name, TranslationKey translationKey) {
         return this.spec(name, translationKey, this.propertySpecService::integerSpec);
+    }
+
+    private PropertySpec keyAccessorTypeReferencePropertySpec(String name, TranslationKey translationKey) {
+        return this.propertySpecService
+                .referenceSpec(KeyAccessorType.class.getName())
+                .named(name, translationKey)
+                .describedAs(new DescriptionTranslationKey(translationKey))
+                .finish();
     }
 
     @Override

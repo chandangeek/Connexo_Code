@@ -11,9 +11,9 @@ public class SecurityData {
 
     public String securityLevel;
 
-    public String password;
     public String authKey;
     public String encKey;
+    private String masterKey;
 
     public SecurityData(String dlmsSecurityLevel) {
         securityLevel = dlmsSecurityLevel;
@@ -27,14 +27,6 @@ public class SecurityData {
     public int getEncryptionLevel() {
         String[] data = securityLevel.split(":");
         return Integer.parseInt(data[1]);
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getAuthenticationKey() {
@@ -51,6 +43,14 @@ public class SecurityData {
 
     public void setEncryptionKey(String encKey) {
         this.encKey = encKey;
+    }
+
+    public String getMasterKey() {
+        return masterKey;
+    }
+
+    public void setMasterKey(String masterKey) {
+        this.masterKey = masterKey;
     }
 
     public String checkSecurityData() {

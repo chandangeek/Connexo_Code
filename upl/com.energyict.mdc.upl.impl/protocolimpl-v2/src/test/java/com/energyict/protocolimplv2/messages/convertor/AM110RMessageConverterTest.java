@@ -6,7 +6,6 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -94,7 +93,7 @@ public class AM110RMessageConverterTest extends AbstractV2MessageConverterTest {
 
         offlineDeviceMessage = createMessage(ZigBeeConfigurationDeviceMessage.JoinZigBeeSlaveFromDeviceType);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<Join_ZigBee_Slave_Device ZigBee_IEEE_Address=\"ABC\" ZigBee_Link_Key=\"123\" ZigBee_Device_Type=\"3\"> </Join_ZigBee_Slave_Device>", messageEntry.getContent());
+        assertEquals("<Join_ZigBee_Slave_Device ZigBee_IEEE_Address=\"ABC\" ZigBee_Device_Type=\"3\"> </Join_ZigBee_Slave_Device>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(ZigBeeConfigurationDeviceMessage.RemoveZigBeeSlaveDevice);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
@@ -167,10 +166,6 @@ public class AM110RMessageConverterTest extends AbstractV2MessageConverterTest {
                     return europeanDateTimeFormat.parse("15/10/2013 00:00:00");
                 case DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName:
                     return "ABC";
-                case DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName:
-                    KeyAccessorType keyAccessorType = mock(KeyAccessorType.class);
-                    when(keyAccessorTypeExtractor.actualValueContent(keyAccessorType)).thenReturn("123");
-                    return keyAccessorType;
                 case DeviceMessageConstants.ZigBeeConfigurationDeviceType:
                     return "3";
                 case DeviceMessageConstants.ZigBeeConfigurationMirrorAddressAttributeName:

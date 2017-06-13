@@ -25,18 +25,6 @@ import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
 public class NTASecurityProvider implements SecurityProvider {
 
     /**
-     * Property name of the new AuthenticationKey
-     */
-    public static final String NEW_DATATRANSPORT_AUTHENTICATION_KEY = "NewDataTransportAuthenticationKey";
-    /**
-     * Property name of the new Global encryption Key
-     */
-    public static final String NEW_DATATRANSPORT_ENCRYPTION_KEY = "NewDataTransportEncryptionKey";
-    /**
-     * Property name of the new HighLevel security Secret
-     */
-    public static final String NEW_HLS_SECRET = "NewHLSSecret";
-    /**
      * Property name of the DataTransport EncryptionKey
      */
     public static final String DATATRANSPORT_ENCRYPTIONKEY = "DataTransportEncryptionKey";

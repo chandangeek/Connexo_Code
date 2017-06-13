@@ -82,8 +82,11 @@ public class BroadcastUpgrade {
         final int broadcastGroupId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastGroupIdAttributeName).getValue());
 
         final BigDecimal broadcastClientMacAddress = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastClientMacAddressAttributeName).getValue());
-        final String broadcastEncryptionHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastEncryptionKeyAttributeName).getValue();
-        final String broadcastAuthenticationHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastAuthenticationKeyAttributeName).getValue();
+        final String broadcastEncryptionHexKey = getBeacon3100Properties().getBroadcastEncryptionKey();
+        final String broadcastAuthenticationHexKey = getBeacon3100Properties().getBroadcastAuthenticationKey();
+        if (broadcastEncryptionHexKey == null || broadcastAuthenticationHexKey == null || broadcastEncryptionHexKey.isEmpty() || broadcastAuthenticationHexKey.isEmpty()) {
+            throw new ProtocolException("Could not perform the upgrade because the broadcast authentication and/or encryption key are missing. Please specify these as general attribute.");
+        }
         final int encryptionLevel = DlmsEncryptionLevelMessageValues.getValueFor(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.encryptionLevelAttributeName).getValue());
 
         DeviceInfo[] deviceInfos;
@@ -302,6 +305,10 @@ public class BroadcastUpgrade {
         } catch (Throwable e) {
             //Move on, not interested in release failures
         }
+    }
+
+    private Beacon3100Properties getBeacon3100Properties() {
+        return (Beacon3100Properties) beacon3100Messaging.getProtocol().getDlmsSessionProperties();
     }
 
 }

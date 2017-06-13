@@ -1,10 +1,12 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties;
 
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -20,12 +22,13 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
 import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
+import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.MASTERKEY;
 
 /**
  * A collection of general DLMS properties that are relevant for the G3 gateway protocol.
  * These properties are not related to the security or the protocol dialects.
  * The parsing and the usage of the property values is done in implementations of {@link com.energyict.dlms.protocolimplv2.DlmsSessionProperties}
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 22/10/13
  * Time: 15:41
@@ -47,8 +50,19 @@ public class G3GatewayConfigurationSupport {
                 this.aarqTimeoutPropertySpec(),
                 this.readCachePropertySpec(),
                 this.serverUpperMacAddressPropertySpec(),
-                this.validateInvokeIdPropertySpec()
+                this.validateInvokeIdPropertySpec(),
+                this.masterKeyPropertySpec()
+
         );
+    }
+
+    private PropertySpec masterKeyPropertySpec() {
+        return UPLPropertySpecFactory.specBuilder(
+                MASTERKEY,
+                false,
+                PropertyTranslationKeys.V2_NTA_MASTERKEY,
+                () -> this.propertySpecService.referenceSpec(KeyAccessorType.class.getName()))
+                .finish();
     }
 
     private PropertySpec serverUpperMacAddressPropertySpec() {

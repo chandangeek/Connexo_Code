@@ -3,6 +3,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
@@ -14,6 +15,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.energyict.protocolimpl.dlms.common.NTASecurityProvider.MASTERKEY;
 import static com.energyict.protocolimpl.dlms.g3.G3Properties.AARQ_RETRIES;
 import static com.energyict.protocolimpl.dlms.g3.G3Properties.AARQ_TIMEOUT;
 import static com.energyict.protocolimpl.dlms.g3.G3Properties.PROP_LASTSEENDATE;
@@ -49,6 +51,7 @@ public class Dsmr50Properties extends Dsmr40Properties {
         propertySpecs.add(UPLPropertySpecFactory.specBuilder(AARQ_TIMEOUT, false, PropertyTranslationKeys.NTA_AARQ_TIMEOUT, this.getPropertySpecService()::integerSpec).finish());
         propertySpecs.add(UPLPropertySpecFactory.specBuilder(PSK, false, PropertyTranslationKeys.NTA_PSK, this.getPropertySpecService()::stringSpec).finish());
         propertySpecs.add(UPLPropertySpecFactory.specBuilder(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, false, PropertyTranslationKeys.NTA_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, this.getPropertySpecService()::integerSpec).finish());
+        propertySpecs.add(UPLPropertySpecFactory.specBuilder(MASTERKEY, false, PropertyTranslationKeys.DLMS_MASTERKEY, () -> this.getPropertySpecService().referenceSpec(KeyAccessorType.class.getName())).finish());
         return propertySpecs;
     }
 

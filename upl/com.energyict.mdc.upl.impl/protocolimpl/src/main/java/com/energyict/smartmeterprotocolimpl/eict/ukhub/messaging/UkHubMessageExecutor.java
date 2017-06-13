@@ -1,5 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.io.NestedIOException;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
@@ -25,12 +32,6 @@ import com.energyict.dlms.cosem.ZigBeeSETCControl;
 import com.energyict.dlms.cosem.ZigbeeHanManagement;
 import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
 import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.io.NestedIOException;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
@@ -460,7 +461,7 @@ public class UkHubMessageExecutor extends MessageParser {
     private void joinZigBeeSlave(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Sending message : Join ZigBee slave");
         String address = messageHandler.getJoinZigBeeIEEEAddress();
-        String key = messageHandler.getJoinZigBeeLinkKey();
+        String key = ((UkHub) getProtocol()).getProperties().getZigbeeLinkKey();
         address = ZigBeeMessagingUtils.validateAndFormatIeeeAddress(address);
         key = ZigBeeMessagingUtils.validateAndFormatLinkKey(key);
         RegisterZigbeeDeviceData zigbeeDeviceData = new RegisterZigbeeDeviceData(address, key);
