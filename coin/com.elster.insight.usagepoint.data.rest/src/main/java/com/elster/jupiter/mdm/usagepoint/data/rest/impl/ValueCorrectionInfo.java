@@ -7,11 +7,13 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.mdm.common.rest.IntervalInfo;
 import com.elster.jupiter.rest.util.BigDecimalFunction;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class ValueCorrectionInfo {
     @JsonProperty("amount")
     public BigDecimal amount;
@@ -25,4 +27,6 @@ public class ValueCorrectionInfo {
     public boolean projected;
     @JsonProperty("type")
     public BigDecimalFunction type;
+
+    public List<OutputChannelDataInfo> editedReadings;
 }

@@ -109,7 +109,7 @@ public class UsagePointOutputReferenceCopier {
                 if (sourceRecord.isPresent() && referenceRecord.isPresent()) {
                     resultReadings.add(copyRecord(sourceRecord.get(), referenceRecord.get(), referenceChannelDataInfo, usagePoint.getZoneId()));
                 } else if (referenceRecord.isPresent()) {
-                    resultReadings.add(copyRecord(referenceRecord.get(), range.getKey(), sourceChannel, referenceChannelDataInfo));
+                    resultReadings.add(copyRecord(referenceRecord.get(), range.getKey(), sourceChannel, referenceChannelDataInfo, usagePoint.getZoneId()));
                 }
             });
         }
@@ -120,12 +120,12 @@ public class UsagePointOutputReferenceCopier {
         }
     }
 
-    private OutputChannelDataInfo copyRecord(IntervalReadingRecord referenceReading, Range<Instant> sourceInterval, Channel sourceChannel, ReferenceChannelDataInfo referenceChannelDataInfo) {
-        OutputChannelDataInfo channelDataInfo = new OutputChannelDataInfo();
-        channelDataInfo.value = referenceReading.getValue()
-                .scaleByPowerOfTen(referenceReading.getReadingType().getMultiplier().getMultiplier() - sourceChannel.getMainReadingType().getMultiplier().getMultiplier());
-        channelDataInfo.isProjected = referenceChannelDataInfo.projectedValue;
-        channelDataInfo.interval = IntervalInfo.from(sourceInterval);
+    private OutputChannelDataInfo copyRecord(IntervalReadingRecord referenceReading, Range<Instant> sourceInterval, Channel sourceChannel, ReferenceChannelDataInfo referenceChannelDataInfo, ZoneId zoneId) {
+        OutputChannelDataInfo channelDataInfo = outputChannelDataInfoFactory.createUpdatedChannelDataInfo(sourceInterval, referenceReading.getValue()
+                        .scaleByPowerOfTen(referenceReading.getReadingType().getMultiplier().getMultiplier() - sourceChannel.getMainReadingType().getMultiplier().getMultiplier()),
+                referenceChannelDataInfo.projectedValue,
+                Optional.empty(),
+                zoneId);
         return channelDataInfo;
     }
 
@@ -135,7 +135,6 @@ public class UsagePointOutputReferenceCopier {
                 referenceChannelDataInfo.projectedValue,
                 Optional.empty(),
                 zoneId);
-        channelDataInfo.isProjected = referenceChannelDataInfo.projectedValue;
         return channelDataInfo;
     }
 

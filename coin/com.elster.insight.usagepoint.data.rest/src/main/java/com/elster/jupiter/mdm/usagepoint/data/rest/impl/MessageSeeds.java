@@ -41,7 +41,7 @@ public enum MessageSeeds implements MessageSeed {
     PROCESS_STATUS_ABORTED(36, Keys.PROCESS_STATUS_ABORDED, "Aborted"),
     PROCESS_STATUS_SUSPENDED(37, Keys.PROCESS_STATUS_SUSPENDED, "Suspended"),
     USAGE_POINT_SEARCH_DOMAIN_NOT_REGISTERED(38, "UsagePointSearchDomainNotRegistered", "Usage point search domain is not registered"),
-    AT_LEAST_ONE_SEARCH_CRITERION(39, "AtLeastOneCriterion" , "At least one search criterion has to be provided"),
+    AT_LEAST_ONE_SEARCH_CRITERION(39, "AtLeastOneCriterion", "At least one search criterion has to be provided"),
     SEARCHABLE_PROPERTY_INVALID_VALUE(40, "SearchablePropertyInvalidValue", "Invalid value"),
     NO_SUCH_METROLOGY_PURPOSE(41, Keys.NO_SUCH_METROLOGY_PURPOSE, "No such metrology purpose with ID {0}"),
     CANNOT_ACTIVATE_METROLOGY_PURPOSE(42, Keys.CANNOT_ACTIVATE_METROLOGY_PURPOSE, "Can''t activate metrology purpose with ID {0}"),
@@ -68,7 +68,12 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_ESTIMATION_RULE(63, "NoSuchEstimationRule", "No estimation rule with id {0}"),
     VALIDATION_RULE_IS_NOT_APPLICABLE_TO_OUTPUT(64, "ValidationRuleIsNotApplicableToOutput", "Validation rule with id {0} is not applicable to output {1}"),
     ESTIMATION_RULE_IS_NOT_APPLICABLE_TO_OUTPUT(65, "EstimationRuleIsNotApplicableToOutput", "Estimation rule with id {0} is not applicable to output {1}"),
-    NOTHING_TO_VALIDATE(66, "nothing.is.validated", "Validation is not configured on this purpose of this usage point starting from the specified date.");
+    NOTHING_TO_VALIDATE(66, "nothing.is.validated", "Validation is not configured on this purpose of this usage point starting from the specified date."),
+    INVALID_TRANSITION_TIME(67, "invalid.transition.time", "The transition date must be greater than date of creation of the usage point - {0}"),
+    FIELD_VALUE_EXCEEDED(68, "field.value.exceeded", "'The value exceeds the maximum field length"),
+    NO_CAS_VERSION_AT_DATE(69, "no.open.cas.version.at.date", "Can''t update values of one of the custom attribute sets because there is no version at {0}"),
+    ANOTHER_CAS_VERSION_IN_THE_FUTURE(70, "another.cas.version.in.the.future", "Can''t create new version for one of the custom attribute sets because there is another version with start date after {0}"),
+    ;
 
     private final int number;
     private final String key;

@@ -38,6 +38,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -644,7 +645,6 @@ public class UsagePointOutputResource {
 
     @POST
     @Path("/{purposeId}/outputs/{outputId}/channelData/estimate")
-    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({
@@ -662,23 +662,28 @@ public class UsagePointOutputResource {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
         }
 
-        Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
-        List<Range<Instant>> ranges = estimateChannelDataInfo.intervals.stream()
-                .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
-                .collect(Collectors.toList());
-        ImmutableRangeSet<Instant> blocks = ranges.stream()
-                .collect(ImmutableRangeSet::<Instant>builder, ImmutableRangeSet.Builder::add, (b1, b2) -> b1.addAll(b2.build()))
-                .build();
-        return usagePoint.getEffectiveMetrologyConfigurations().stream()
-                .map(effectiveMC -> findMetrologyContractForPurpose(effectiveMC, metrologyContract.getMetrologyPurpose())
-                        .flatMap(effectiveMC::getChannelsContainer))
-                .flatMap(Functions.asStream())
-                .flatMap(container -> {
-                    Optional<ReadingQualityComment> readingQualityComment = Optional.empty();
-                    readingQualityComment = resourceHelper.getReadingQualityComment(estimateChannelDataInfo.commentId);
-                    return estimateInChannelsContainer(container, readingType, blocks, estimator, estimateChannelDataInfo.markAsProjected, readingQualityComment);
-                })
-                .collect(Collectors.toList());
+        try (TransactionContext context = transactionService.getContext()) {
+            if (estimateChannelDataInfo.editedReadings != null && !estimateChannelDataInfo.editedReadings.isEmpty()) {
+                this.editChannelDataOfOutput(name, contractId, outputId, estimateChannelDataInfo.editedReadings);
+            }
+            Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
+            List<Range<Instant>> ranges = estimateChannelDataInfo.intervals.stream()
+                    .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
+                    .collect(Collectors.toList());
+            ImmutableRangeSet<Instant> blocks = ranges.stream()
+                    .collect(ImmutableRangeSet::<Instant>builder, ImmutableRangeSet.Builder::add, (b1, b2) -> b1.addAll(b2.build()))
+                    .build();
+            return usagePoint.getEffectiveMetrologyConfigurations().stream()
+                    .map(effectiveMC -> findMetrologyContractForPurpose(effectiveMC, metrologyContract.getMetrologyPurpose())
+                            .flatMap(effectiveMC::getChannelsContainer))
+                    .flatMap(Functions.asStream())
+                    .flatMap(container -> {
+                        Optional<ReadingQualityComment> readingQualityComment = Optional.empty();
+                        readingQualityComment = resourceHelper.getReadingQualityComment(estimateChannelDataInfo.commentId);
+                        return estimateInChannelsContainer(container, readingType, blocks, estimator, estimateChannelDataInfo.markAsProjected, readingQualityComment);
+                    })
+                    .collect(Collectors.toList());
+        }
     }
 
     private Stream<OutputChannelDataInfo> estimateInChannelsContainer(ChannelsContainer container, ReadingType readingType, ImmutableRangeSet<Instant> blocks, Estimator estimator,
@@ -824,6 +829,10 @@ public class UsagePointOutputResource {
                                     readingWithValidationStatus.setPreviousReadingRecord(previousReadingRecord);
                                     if (persistedReading != null && (persistedReading.getValue() != null || persistedReading.getText() != null)) {
                                         readingWithValidationStatus.setPersistedReadingRecord(persistedReading);
+                                        ReadingRecord calculatedReading = calculatedReadings.get(readingTimestamp);
+                                        if (calculatedReading != null) {
+                                            readingWithValidationStatus.setCalculatedReadingRecord(calculatedReading);
+                                        }
                                         previousReadingRecord = persistedReading;
                                     } else {
                                         ReadingRecord calculatedReading = calculatedReadings.get(readingTimestamp);
@@ -955,7 +964,11 @@ public class UsagePointOutputResource {
                 && NumericalOutputRegisterDataInfo.class.cast(registerDataInfo).isConfirmed)) {
             channel.confirmReadings(QualityCodeSystem.MDM, Collections.singletonList(reading));
         } else {
-            channel.editReadings(QualityCodeSystem.MDM, Collections.singletonList(reading));
+            try {
+                channel.editReadings(QualityCodeSystem.MDM, Collections.singletonList(reading));
+            } catch (UnderlyingSQLFailedException ex) {
+                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_VALUE_EXCEEDED, "value");
+            }
         }
 
         return registerDataInfo;
@@ -1263,7 +1276,6 @@ public class UsagePointOutputResource {
     }
 
     @PUT
-    @Transactional
     @Path("/{purposeId}/outputs/{outputId}/channelData/correctValues")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -1277,22 +1289,25 @@ public class UsagePointOutputResource {
         AggregatedChannel channel = effectiveMetrologyConfigurationOnUsagePoint.getAggregatedChannel(metrologyContract, readingTypeDeliverable.getReadingType()).get();
 
         List<OutputChannelDataInfo> result = new ArrayList<>();
+        try (TransactionContext context = transactionService.getContext()) {
+            if (info.editedReadings != null && !info.editedReadings.isEmpty()) {
+                this.editChannelDataOfOutput(name, contractId, outputId, info.editedReadings);
+            }
+            Set<Instant> timestamps = info.intervals.stream()
+                    .map(intervalInfo -> Instant.ofEpochMilli(intervalInfo.end))
+                    .collect(Collectors.toSet());
 
-        Set<Instant> timestamps = info.intervals.stream()
-                .map(intervalInfo -> Instant.ofEpochMilli(intervalInfo.end))
-                .collect(Collectors.toSet());
-
-        info.intervals.stream()
-                .map(interval -> Range.openClosed(Instant.ofEpochMilli(interval.start), Instant.ofEpochMilli(interval.end)))
-                .reduce(Range::span)
-                .ifPresent(intervals -> {
-                    List<IntervalReadingRecord> intervalReadingRecords = channel.getIntervalReadings(intervals);
-                    result.addAll(intervalReadingRecords.stream()
-                            .filter(record -> timestamps.contains(record.getTimeStamp()))
-                            .map(readingRecord -> createCorrectedChannelDataInfo(info, readingRecord, usagePoint.getZoneId()))
-                            .collect(Collectors.toList()));
-                });
-
+            info.intervals.stream()
+                    .map(interval -> Range.openClosed(Instant.ofEpochMilli(interval.start), Instant.ofEpochMilli(interval.end)))
+                    .reduce(Range::span)
+                    .ifPresent(intervals -> {
+                        List<IntervalReadingRecord> intervalReadingRecords = channel.getIntervalReadings(intervals);
+                        result.addAll(intervalReadingRecords.stream()
+                                .filter(record -> timestamps.contains(record.getTimeStamp()))
+                                .map(readingRecord -> createCorrectedChannelDataInfo(info, readingRecord, usagePoint.getZoneId()))
+                                .collect(Collectors.toList()));
+                    });
+        }
         return result;
     }
 

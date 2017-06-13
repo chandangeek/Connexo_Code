@@ -1050,18 +1050,18 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         Range<Instant> effectiveRange = Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_1.upperEndpoint());
         ValidationRule minMax = mockValidationRule(1, "MinMax");
 
-        JournaledReadingRecord journaledReadingRecord = mock(JournaledReadingRecord.class);
-        when(journaledReadingRecord.getTimePeriod()).thenReturn(Optional.of(effectiveRange));
-        when(journaledReadingRecord.getTimeStamp()).thenReturn(effectiveRange.upperEndpoint());
-        when(journaledReadingRecord.getValue()).thenReturn(new BigDecimal(555));
-        when(journaledReadingRecord.getReadingType()).thenReturn(regularReadingType);
+        AggregatedChannel.AggregatedIntervalReadingRecord aggregatedIntervalReadingRecord = mock(AggregatedChannel.AggregatedIntervalReadingRecord.class);
+        when(aggregatedIntervalReadingRecord.getTimePeriod()).thenReturn(Optional.of(effectiveRange));
+        when(aggregatedIntervalReadingRecord.getTimeStamp()).thenReturn(effectiveRange.upperEndpoint());
+        when(aggregatedIntervalReadingRecord.getValue()).thenReturn(new BigDecimal(555));
+        when(aggregatedIntervalReadingRecord.getReadingType()).thenReturn(regularReadingType);
         when(regularReadingType.getIntervalLength()).thenReturn(Optional.empty());
 
-        DataValidationStatus dataValidationStatus = mockValidationStatus(journaledReadingRecord.getReportedDateTime(), minMax);
+        DataValidationStatus dataValidationStatus = mockValidationStatus(aggregatedIntervalReadingRecord.getReportedDateTime(), minMax);
 
         when(usagePoint.getEffectiveMetrologyConfigurations(effectiveRange)).thenReturn(Collections.singletonList(effectiveMC1));
         when(channelsContainer1.getInterval()).thenReturn(Interval.of(effectiveRange));
-        when(channel1.getJournaledChannelReadings(any(ReadingType.class), any(Range.class))).thenReturn(Collections.singletonList(journaledReadingRecord));
+        when(channel1.getJournaledChannelReadings(any(ReadingType.class), any(Range.class))).thenReturn(Collections.singletonList(aggregatedIntervalReadingRecord));
         when(channel1.toList(Range.openClosed(INTERVAL_1.lowerEndpoint(), INTERVAL_1.upperEndpoint()))).thenReturn(Collections.singletonList(INTERVAL_1.upperEndpoint()));
         when(evaluator.getValidationStatus(eq(EnumSet.of(QualityCodeSystem.MDM)), eq(channel1), any(Instant.class), eq(Collections.emptyList())))
                 .thenReturn(dataValidationStatus);
