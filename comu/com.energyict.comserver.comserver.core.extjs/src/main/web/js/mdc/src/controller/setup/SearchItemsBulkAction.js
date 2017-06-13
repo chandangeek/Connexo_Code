@@ -166,14 +166,20 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     // we replace reader to buffered due to our store is buffered
                     store.getProxy().setReader(Ext.create('Uni.data.reader.JsonBuffered', store.getProxy().getReader()));
 
+                    store.addListener('beforeprefetch', function () {
+                        me.getDevicesGrid().setLoading();
+                    }, this);
+
+                    store.addListener('prefetch', function () {
+                        me.getDevicesGrid().setLoading(false);
+                    }, this);
+
+
                     widget = Ext.widget('searchitems-bulk-browse', {
                         deviceStore: store
                     });
                     me.getApplication().fireEvent('changecontentevent', widget);
-                    widget.setLoading();
-                    store.load(function() {
-                        widget.setLoading(false);
-                    });
+                    store.load();
                     me.getStore('Mdc.store.CommunicationSchedulesWithoutPaging').load();
                 }
             };
