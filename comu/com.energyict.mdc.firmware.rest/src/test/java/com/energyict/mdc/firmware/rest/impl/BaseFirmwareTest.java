@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
 
@@ -54,6 +55,8 @@ public class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
     MeteringGroupsService meteringGroupsService;
     @Mock
     PropertyValueInfoService propertyValueInfoService;
+    @Mock
+    MdcPropertyUtils mdcPropertyUtils;
 
     @Override
     protected Application getApplication() {
@@ -76,6 +79,7 @@ public class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
         application.setClock(clock);
         application.setMeteringGroupsService(meteringGroupsService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        application.setMdcPropertyUtils(mdcPropertyUtils);
         return application;
     }
 

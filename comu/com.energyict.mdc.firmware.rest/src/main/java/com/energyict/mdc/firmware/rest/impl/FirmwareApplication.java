@@ -57,6 +57,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     private volatile Clock clock;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile MdcPropertyUtils mdcPropertyUtils;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -89,7 +90,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
-            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
+            bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
             bind(FirmwareMessageInfoFactory.class).to(FirmwareMessageInfoFactory.class);
             bind(DeviceFirmwareVersionInfoFactory.class).to(DeviceFirmwareVersionInfoFactory.class);
             bind(FirmwareCampaignInfoFactory.class).to(FirmwareCampaignInfoFactory.class);
@@ -187,5 +188,10 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     @Reference
     public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
         this.propertyValueInfoService = propertyValueInfoService;
+    }
+
+    @Reference
+    public void setMdcPropertyUtils(MdcPropertyUtils mdcPropertyUtils) {
+        this.mdcPropertyUtils = mdcPropertyUtils;
     }
 }
