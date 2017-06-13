@@ -32,10 +32,9 @@ public class ValidStringObisCodeValidator implements ConstraintValidator<ValidOb
         if(obisCode != null && obisCode.isInvalid()){
             context.disableDefaultConstraintViolation();
             context
-                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.INVALID_OBIS_CODE.getKey() + "}")
-                    .addPropertyNode("obisCode")
-                    .addConstraintViolation();
-                  //  .disableDefaultConstraintViolation();
+                .buildConstraintViolationWithTemplate("{" + MessageSeeds.INVALID_OBIS_CODE.getKey() + "}")
+                .addPropertyNode("obisCode")
+                .addConstraintViolation();
             return false;
         }
         return true;

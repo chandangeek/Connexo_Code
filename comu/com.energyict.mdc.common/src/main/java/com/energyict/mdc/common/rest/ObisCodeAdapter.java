@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.common.rest;
 
-import com.elster.jupiter.util.Checks;
 import com.energyict.obis.ObisCode;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
@@ -12,9 +11,6 @@ public class ObisCodeAdapter extends XmlAdapter<String, ObisCode> {
 
     @Override
     public ObisCode unmarshal(String jsonValue) throws Exception {
-        if (Checks.is(jsonValue).emptyOrOnlyWhiteSpace()) {
-            return null;
-        }
         return ObisCode.fromString(jsonValue);
     }
 
