@@ -65,6 +65,8 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.device.alarms.entity.DeviceAlarmClearStatus;
+import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
@@ -164,6 +166,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.longThat;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -651,7 +654,6 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getRequestSecurityLevels()).thenReturn(adaptedRequestSecurityLevels);
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getResponseSecurityLevels()).thenReturn(adaptedResponseSecurityLevels);
         when(mock.getDeviceProtocol()).thenReturn(deviceProtocol);
-
         return mock;
     }
 
@@ -1039,9 +1041,12 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
 
     protected HistoricalDeviceAlarm mockClosedDeviceAlarm(long id, IssueReason reason, IssueStatus status, IssueAssignee assingee, Meter meter) {
         HistoricalDeviceAlarm alarm = mock(HistoricalDeviceAlarm.class);
+        DeviceAlarmClearStatus clearedStatus = new DeviceAlarmClearStatus();
+        clearedStatus.init();
         when(alarm.getId()).thenReturn(id);
         when(alarm.getReason()).thenReturn(reason);
         when(alarm.getStatus()).thenReturn(status);
+        when(alarm.getClearStatus()).thenReturn(clearedStatus);
         when(alarm.getDueDate()).thenReturn(null);
         when(alarm.getAssignee()).thenReturn(assingee);
         when(alarm.getDevice()).thenReturn(meter);
@@ -1083,5 +1088,6 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.toString()).thenReturn(location);
         return mock;
     }
+
 
 }

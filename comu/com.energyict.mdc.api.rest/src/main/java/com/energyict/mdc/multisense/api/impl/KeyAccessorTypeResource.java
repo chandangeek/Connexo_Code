@@ -3,7 +3,9 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.pki.KeyAccessorType;
 import com.elster.jupiter.rest.api.util.v1.hypermedia.FieldSelection;
+import com.elster.jupiter.rest.api.util.v1.hypermedia.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.DeviceType;
@@ -24,7 +26,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -45,10 +49,10 @@ public class KeyAccessorTypeResource {
 
     /**
      * Renews the keys for the devices for the given key accessor type.
-     *                                   K
-     * @param mrid              mRID of device for which the key will be updated
+     *
+     * @param mrid mRID of device for which the key will be updated
      * @param keyAccessorTypeId Identifier of the key accessor type
-     * @param uriInfo           uriInfo
+     * @param uriInfo uriInfo
      * @summary renews the key for the device / keyAccessorType
      */
     @PUT
@@ -70,9 +74,9 @@ public class KeyAccessorTypeResource {
     /**
      * Switch the keys for the devices for the given key accessor type.
      *
-     * @param mrid              mRID of device for which the key will be updated
+     * @param mrid mRID of device for which the key will be updated
      * @param keyAccessorTypeId Identifier of the key accessor type
-     * @param uriInfo           uriInfo
+     * @param uriInfo uriInfo
      * @summary switches the keys for the device / keyAccessorType (temp - actual)
      */
     @PUT
@@ -82,7 +86,7 @@ public class KeyAccessorTypeResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Path("/{keyAccessorTypeId}/switch")
     public Response switchKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
-                             @Context UriInfo uriInfo) {
+                              @Context UriInfo uriInfo) {
 
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
@@ -95,9 +99,9 @@ public class KeyAccessorTypeResource {
     /**
      * Clears the temp value of the keys for the devices for the given key accessor type.
      *
-     * @param mrid              mRID of device for which the key will be updated
+     * @param mrid mRID of device for which the key will be updated
      * @param keyAccessorTypeId Identifier of the key accessor type
-     * @param uriInfo           uriInfo
+     * @param uriInfo uriInfo
      * @summary clears the temp value of the key for the device / keyAccessorType
      */
     @PUT
@@ -107,7 +111,7 @@ public class KeyAccessorTypeResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Path("/{keyAccessorTypeId}/clear")
     public Response clearTempValue(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
-                              @Context UriInfo uriInfo) {
+                                   @Context UriInfo uriInfo) {
 
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
@@ -118,10 +122,40 @@ public class KeyAccessorTypeResource {
     }
 
     /**
+     * Fetch all defined keyAccessorTypes for a device.
+     *
+     * @param uriInfo uriInfo
+     * @param fieldSelection field selection
+     * @param queryParameters queryParameters
+     *
+     * @return Device information and links to related resources
+     * @summary View all defined keyAccessortypes for a device
+     */
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public PagedInfoList<KeyAccessorTypeInfo> getKeyAccessorTypes(@PathParam("mrid") String mrid, String name, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
+        DeviceType devicetype = deviceService.findDeviceByMrid(mrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE))
+                .getDeviceType();
+
+        List<KeyAccessorTypeInfo> infos = devicetype.getKeyAccessorTypes().stream()
+                .sorted(Comparator.comparing(KeyAccessorType::getName))
+                .map(accessor -> keyAccessorTypeInfoFactory.from(accessor, uriInfo, fieldSelection.getFields()))
+                .collect(toList());
+
+        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                .path(KeyAccessorTypeResource.class)
+                .resolveTemplate("mrid", mrid);
+        return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
+    }
+
+    /**
      * View the contents of a keyAccessorType for a device.
      *
-     * @param name           The name of the keyAccessorType
-     * @param uriInfo        uriInfo
+     * @param name The name of the keyAccessorType
+     * @param uriInfo uriInfo
      * @param fieldSelection field selection
      * @return Device information and links to related resources
      * @summary View keyAccessortype identified by name for a device

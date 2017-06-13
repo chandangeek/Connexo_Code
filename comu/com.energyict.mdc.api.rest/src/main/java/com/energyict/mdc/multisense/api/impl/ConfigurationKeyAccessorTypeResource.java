@@ -57,7 +57,7 @@ public class ConfigurationKeyAccessorTypeResource {
      * @param queryParameters queryParameters
      *
      * @return Device information and links to related resources
-     * @summary View all defined keyAccessortypes identified by name for a device
+     * @summary View all defined keyAccessortypes for a device
      */
     @GET
     @Transactional

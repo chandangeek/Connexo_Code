@@ -72,6 +72,22 @@ public class KeyAccessorTypeResourceTest extends MultisensePublicApiJerseyTest {
     }
 
     @Test
+    public void testGetAllKeyAccessorTypesPaged() throws Exception {
+        Response response = target("/devices/XAS/keyAccessorTypes").queryParam("start", 0).queryParam("limit", 10).request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<List>get("link")).hasSize(1);
+        assertThat(model.<String>get("link[0].params.rel")).isEqualTo("current");
+        assertThat(model.<String>get("link[0].params.title")).isEqualTo("current page");
+        assertThat(model.<String>get("link[0].href")).isEqualTo("http://localhost:9998/devices/XAS/keyAccessorTypes?start=0&limit=10");
+        assertThat(model.<List>get("data")).hasSize(2);
+        assertThat(model.<Integer>get("data[0].id")).isEqualTo(321);
+        assertThat(model.<String>get("data[0].name")).isEqualTo("AK");
+        assertThat(model.<Integer>get("data[1].id")).isEqualTo(123);
+        assertThat(model.<String>get("data[1].name")).isEqualTo("Password");
+    }
+
+    @Test
     public void testGetSingleKeyAccessorTypeWithFields() throws Exception {
         Response response = target("/devices/XAS/keyAccessorTypes/Password").queryParam("fields", "name").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

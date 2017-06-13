@@ -80,7 +80,10 @@ public class ConfigurationSecurityPropertySetResource {
                          .map(ss -> securityPropertySetInfoFactory.from(ss, uriInfo, fieldSelection.getFields()))
                          .collect(toList());
 
-        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(ConfigurationSecurityPropertySetResource.class);
+        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                .path(ConfigurationSecurityPropertySetResource.class)
+                .resolveTemplate("deviceTypeId", deviceConfiguration.getDeviceType().getId())
+                .resolveTemplate("deviceConfigId", deviceConfiguration.getId());
 
         return PagedInfoList.from(securityPropertySetInfos, queryParameters, uriBuilder, uriInfo);
     }

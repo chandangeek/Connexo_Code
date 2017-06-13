@@ -83,7 +83,7 @@ public class DeviceAlarmInfoFactory extends SelectableFieldFactory<DeviceAlarmIn
         map.put("reason", (alarmInfo, alarm, uriInfo) -> alarmInfo.reason = issueReasonInfoFactory.asInfo(alarm.getReason()));
         map.put("priority", (alarmInfo, alarm, uriInfo) -> alarmInfo.priority = issuePriorityInfoFactory.asInfo(alarm.getPriority()));
         map.put("priorityValue", (alarmInfo, alarm, uriInfo) -> alarmInfo.priorityValue = issuePriorityInfoFactory.getValue(alarm.getPriority()));
-        map.put("status", (alarmInfo, alarm, uriInfo) -> alarmInfo.status = deviceAlarmStatusInfoFactory.from(alarm.getStatus(), alarm.isStatusCleared(), uriInfo, null));
+        map.put("status", (alarmInfo, alarm, uriInfo) -> alarmInfo.status = deviceAlarmStatusInfoFactory.from(alarm.getStatus(), alarm.getClearStatus().isCleared(), uriInfo, null));
         map.put("dueDate", (alarmInfo, alarm, uriInfo) -> alarmInfo.dueDate = alarm.getDueDate() != null ? alarm.getDueDate().toEpochMilli() : 0);
         map.put("workGroupAssignee", (alarmInfo, alarm, uriInfo) -> alarmInfo.workGroupAssignee = issueAssigneeInfoFactory.asInfo("WORKGROUP", alarm.getAssignee()));
         map.put("userAssignee", (alarmInfo, alarm, uriInfo) -> alarmInfo.userAssignee = issueAssigneeInfoFactory.asInfo("USER", alarm.getAssignee()));

@@ -102,7 +102,6 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
         assertThat(model.<String>get("$.link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("$.link.href")).isEqualTo("http://localhost:9998/devices/XAS/securitypropertysets/5");
         assertThat(model.<String>get("$.device.link.href")).isEqualTo("http://localhost:9998/devices/XAS");
-        assertThat(model.<Integer>get("$.client.propertyValueInfo.value")).isEqualTo(1);
         assertThat(model.<String>get("$.configuredSecurityPropertySet.link.href")).isEqualTo("http://localhost:9998/devicetypes/1/deviceconfigurations/2/securitypropertysets/5");
         assertThat(model.<String>get("$.properties[0].link.href")).isEqualTo("http://localhost:9998/devices/XAS/keyAccessors/Password");
     }
@@ -111,8 +110,8 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
     public void testDeviceSecurityPropertySetFields() throws Exception {
         Response response = target("/devices/XAS/securitypropertysets").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(7);
-        assertThat(model.<List<String>>get("$")).containsOnly("configuredSecurityPropertySet", "device", "id", "link", "client", "properties", "version");
+        assertThat(model.<List>get("$")).hasSize(6);
+        assertThat(model.<List<String>>get("$")).containsOnly("configuredSecurityPropertySet", "device", "id", "link", "properties", "version");
     }
 
 }
