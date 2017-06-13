@@ -97,6 +97,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
     private volatile CalendarService calendarService;
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile PkiService pkiService;
+    private volatile MdcPropertyUtils mdcPropertyUtils;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -221,6 +222,11 @@ public class DeviceConfigurationApplication extends Application implements Messa
         this.pkiService = pkiService;
     }
 
+    @Reference
+    public void setMdcPropertyUtils(MdcPropertyUtils mdcPropertyUtils) {
+        this.mdcPropertyUtils = mdcPropertyUtils;
+    }
+
     @Override
     public Layer getLayer() {
         return Layer.REST;
@@ -306,7 +312,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
             bind(taskService).to(TaskService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
+            bind(mdcPropertyUtils).to(MdcPropertyUtils.class);
             bind(ConnectionMethodInfoFactory.class).to(ConnectionMethodInfoFactory.class);
             bind(SecurityPropertySetInfoFactory.class).to(SecurityPropertySetInfoFactory.class);
             bind(KeyFunctionTypeInfoFactory.class).to(KeyFunctionTypeInfoFactory.class);

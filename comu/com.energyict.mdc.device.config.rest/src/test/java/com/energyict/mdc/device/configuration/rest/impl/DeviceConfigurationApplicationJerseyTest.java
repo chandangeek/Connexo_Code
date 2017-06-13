@@ -27,6 +27,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
@@ -52,6 +53,8 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfoFactory;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.pluggable.rest.impl.MdcPropertyUtilsImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -127,7 +130,10 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     @Mock
     ObisCodeDescriptor obisCodeDescriptor;
     @Mock
+    MeteringGroupsService meteringGroupsService;
+    @Mock
     PkiService pkiService;
+    MdcPropertyUtils mdcPropertyUtils;
 
     ReadingTypeInfoFactory readingTypeInfoFactory;
     RegisterConfigInfoFactory registerConfigInfoFactory;
@@ -215,6 +221,8 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setObisCodeDescriptor(obisCodeDescriptor);
         application.setPkiService(pkiService);
+        mdcPropertyUtils = new MdcPropertyUtilsImpl(propertyValueInfoService, meteringGroupsService);
+        application.setMdcPropertyUtils(mdcPropertyUtils);
         return application;
     }
 
