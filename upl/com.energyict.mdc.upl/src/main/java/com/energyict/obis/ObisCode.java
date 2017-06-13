@@ -279,9 +279,12 @@ public class ObisCode implements Serializable {
     }
 
     public static ObisCode fromString(String codeString) {
-        List<String> obisFields = new ArrayList<>(Arrays.asList(codeString.split("\\."))).stream().map(s -> s.trim()).collect(Collectors.toList());
-
         boolean invalid = false;
+        List<String> obisFields = new ArrayList<>();
+        if(codeString != null && codeString.length()>0) {
+            obisFields = new ArrayList<>(Arrays.asList(codeString.split("\\."))).stream().map(s -> s.trim()).collect(Collectors.toList());
+        }
+
         if(obisFields.size() != 6){
             invalid = true;
             while(obisFields.size() < 6){
