@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.RequestSecurityLevel;
 import com.energyict.mdc.protocol.api.security.ResponseSecurityLevel;
 import com.energyict.mdc.protocol.api.security.SecuritySuite;
+import com.energyict.mdc.protocol.pluggable.adapters.upl.ConnexoToUPLPropertSpecAdapter;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -24,7 +25,6 @@ import java.util.Optional;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DeviceProtocolPluggableClassResourceTest extends MultisensePublicApiJerseyTest {
@@ -42,7 +42,8 @@ public class DeviceProtocolPluggableClassResourceTest extends MultisensePublicAp
                 Collections.singletonList(securitySuite)
                 , Collections.singletonList(requestSecurityLevel),
                 Collections.singletonList(responseSecurityLevel));
-        com.energyict.mdc.upl.properties.PropertySpec clientPropertySpec = mock(com.energyict.mdc.upl.properties.PropertySpec.class);
+        com.energyict.mdc.upl.properties.PropertySpec clientPropertySpec = new ConnexoToUPLPropertSpecAdapter(mockBigDecimalPropertySpec());
+//        when(clientPropertySpec.getName()).thenReturn("Client");
         Optional<com.energyict.mdc.upl.properties.PropertySpec> optionalClientPropertySpec = Optional.of(clientPropertySpec);
         when(pluggableClass.getDeviceProtocol().getClientSecurityPropertySpec()).thenReturn(optionalClientPropertySpec);
         Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = mockFinder(Collections.singletonList(pluggableClass));

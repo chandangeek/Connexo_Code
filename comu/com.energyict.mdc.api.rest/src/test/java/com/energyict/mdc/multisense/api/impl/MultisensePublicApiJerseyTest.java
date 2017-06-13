@@ -65,10 +65,9 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.WorkGroup;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.device.alarms.entity.DeviceAlarmClearStatus;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
+import com.energyict.mdc.device.alarms.entity.DeviceAlarmClearStatus;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -166,7 +165,6 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.longThat;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -294,7 +292,6 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setMeteringService(meteringService);
         application.setMetrologyConfigurationService(metrologyConfigurationService);
         application.setPropertyValueInfoService(propertyValueInfoService);
-        application.setMdcPropertyUtils(mdcPropertyUtils);
         application.setThreadPrincipalService(threadPrincipalService);
         application.setMdcPropertyUtils(new MdcPropertyUtilsImpl(propertyValueInfoService, meteringGroupsService));
         return application;
@@ -1088,6 +1085,4 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.toString()).thenReturn(location);
         return mock;
     }
-
-
 }
