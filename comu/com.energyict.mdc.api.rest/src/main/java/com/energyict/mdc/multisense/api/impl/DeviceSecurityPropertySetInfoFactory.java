@@ -99,7 +99,6 @@ public class DeviceSecurityPropertySetInfoFactory extends SelectableFieldFactory
                 deviceSecurityPropertySetInfo.device = deviceInfoFactory.asLink(source.getFirst(), Relation.REF_PARENT, uriInfo)));
         map.put("configuredSecurityPropertySet", ((deviceSecurityPropertySetInfo, source, uriInfo) ->
                 deviceSecurityPropertySetInfo.configuredSecurityPropertySet = configurationSecurityPropertySetInfoFactory.asLink(source.getLast(), Relation.REF_RELATION, uriInfo)));
-        map.put("client", (deviceSecurityPropertySetInfo, source, uriInfo) -> deviceSecurityPropertySetInfo.client = getClientAsPropertyInfo(source.getLast()));
         map.put("properties", (deviceSecurityPropertySetInfo, source, uriInfo) -> {
             List<KeyAccessor> keyAccessors = findInvolvedKeyAccessors(source.getFirst(), source.getLast());
             deviceSecurityPropertySetInfo.properties = new ArrayList<>(keyAccessors.size());

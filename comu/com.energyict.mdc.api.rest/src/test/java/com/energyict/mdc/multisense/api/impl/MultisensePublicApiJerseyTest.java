@@ -643,7 +643,6 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getRequestSecurityLevels()).thenReturn(adaptedRequestSecurityLevels);
         when(((AdvancedDeviceProtocolSecurityCapabilities) deviceProtocol).getResponseSecurityLevels()).thenReturn(adaptedResponseSecurityLevels);
         when(mock.getDeviceProtocol()).thenReturn(deviceProtocol);
-
         return mock;
     }
 
