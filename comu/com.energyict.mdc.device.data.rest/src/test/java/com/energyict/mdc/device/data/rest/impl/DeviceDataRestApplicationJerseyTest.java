@@ -79,6 +79,8 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.pluggable.rest.impl.MdcPropertyUtilsImpl;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -225,6 +227,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     ObisCodeDescriptor obisCodeDescriptor;
     @Mock
     PkiService pkiService;
+    MdcPropertyUtils mdcPropertyUtils;
 
     @Mock
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -333,6 +336,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setMeteringTranslationService(meteringTranslationService);
         application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         application.setPropertyValueInfoService(propertyValueInfoService);
+        mdcPropertyUtils = new MdcPropertyUtilsImpl(propertyValueInfoService, meteringGroupService);
+        application.setMdcPropertyUtils(mdcPropertyUtils);
         application.setDeviceAlarmService(deviceAlarmService);
         application.setUserService(userService);
         application.setObisCodeDescriptor(obisCodeDescriptor);
