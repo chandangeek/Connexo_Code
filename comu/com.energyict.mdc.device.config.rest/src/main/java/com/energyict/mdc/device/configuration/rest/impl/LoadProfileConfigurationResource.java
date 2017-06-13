@@ -122,9 +122,7 @@ public class LoadProfileConfigurationResource {
         LoadProfileType loadProfileType = request.id==0 ? null : resourceHelper.findLoadProfileTypeByIdOrThrowException(request.id);
 
         LoadProfileSpec.LoadProfileSpecBuilder specBuilder = deviceConfiguration.createLoadProfileSpec(loadProfileType);
-        if (request.overruledObisCode != null){
-            specBuilder.setOverruledObisCode(request.overruledObisCode);
-        }
+        specBuilder.setOverruledObisCode(request.overruledObisCode);
         LoadProfileSpec newLoadProfileSpec = specBuilder.add();
         return Response.ok(loadProfileSpecInfoFactory.from(newLoadProfileSpec, null)).build();
     }
