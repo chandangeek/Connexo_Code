@@ -26,4 +26,6 @@ public class ValueCorrectionInfo {
     public boolean projected;
     @JsonProperty("type")
     public BigDecimalFunction type;
+
+    public List<ChannelDataInfo> editedReadings;
 }
