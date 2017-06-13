@@ -5,13 +5,15 @@
 Ext.define('Uni.property.view.property.Reference', {
     extend: 'Uni.property.view.property.BaseCombo',
 
-    referencesStore: Ext.create('Ext.data.Store', {
-        fields: ['key', 'value']
-    }),
+    referencesStore:null,
 
     getEditCmp: function () {
         var me = this;
 
+        me.referencesStore = Ext.create('Ext.data.Store', {
+            fields: ['key', 'value'],
+            storeId: me.key + 'store'
+        });
         // clear store
         me.referencesStore.loadData([], false);
         _.map(me.getProperty().getPossibleValues(), function (item) {

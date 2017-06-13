@@ -84,7 +84,7 @@ Ext.define('Uni.property.view.property.Date', {
     },
 
     getValueAsDisplayString: function (value /*Date as miliseconds*/) {
-        return !Ext.isEmpty(value) ? Uni.DateTime.formatDateTimeShort(new Date(value)) : value;
+        return !Ext.isEmpty(value) ? Uni.DateTime.formatDateShort(new Date(value)) : value;
     }
 
 });
