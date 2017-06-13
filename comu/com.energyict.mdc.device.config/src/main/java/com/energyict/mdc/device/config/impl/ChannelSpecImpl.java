@@ -75,7 +75,7 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
     }
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED + "}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private final Reference<ChannelType> channelType = ValueReference.absent();
     private final Reference<LoadProfileSpecImpl> loadProfileSpec = ValueReference.absent();
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
@@ -117,7 +117,7 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
 
     @Override
     public com.energyict.mdc.masterdata.ChannelType getChannelType() {
-        return channelType.get();
+        return channelType.isPresent() ? channelType.get() : null;
     }
 
     @Override
@@ -202,7 +202,7 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
 
     @Override
     public ReadingType getReadingType() {
-        return getChannelType().getReadingType();
+        return getChannelType()!=null ? getChannelType().getReadingType() : null;
     }
 
     private void validate() {
