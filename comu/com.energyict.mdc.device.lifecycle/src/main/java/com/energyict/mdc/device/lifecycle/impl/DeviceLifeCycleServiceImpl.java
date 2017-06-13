@@ -55,6 +55,7 @@ import javax.inject.Inject;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -333,11 +334,11 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private void effectiveTimestampIsInRange(Instant effectiveTimestamp, DeviceLifeCycle deviceLifeCycle, Optional<Instant> lastStateChangeTimestamp) {
-        Instant lowerBound = deviceLifeCycle.getMaximumPastEffectiveTimestamp().truncatedTo(ChronoUnit.DAYS);
+        Instant lowerBound = deviceLifeCycle.getMaximumPastEffectiveTimestamp().atZone(this.clock.getZone()).truncatedTo(ChronoUnit.DAYS).toInstant();
         if (lastStateChangeTimestamp.isPresent() && lowerBound.isBefore(lastStateChangeTimestamp.get())) {
             lowerBound = lastStateChangeTimestamp.get();
         }
-        Instant upperBound = deviceLifeCycle.getMaximumFutureEffectiveTimestamp().truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS);
+        Instant upperBound = deviceLifeCycle.getMaximumFutureEffectiveTimestamp().atZone(this.clock.getZone()).truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS).toInstant();
         Range<Instant> range = Range.closedOpen(lowerBound, upperBound);
         if (!range.contains(effectiveTimestamp)) {
             throw new EffectiveTimestampNotInRangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE,
