@@ -339,6 +339,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                 if (error.id === 'overruledObisCode.obisCode') {
                                     obisCodeFieldContainer.setActiveError(error.msg);
                                 }
+                                if (error.id === 'overflow') {
+                                    error.id = 'overflowValue';
+                                }
                             });
                             form.markInvalid(json.errors);
                             formErrorsPanel.show();

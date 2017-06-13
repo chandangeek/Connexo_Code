@@ -300,7 +300,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         if (record) {
             record.set(values);
             if (newObisCode === originalObisCode) {
-                record.set('overruledObisCode', null);
+                record.set('overruledObisCode', '');
             }
             if (useMultiplier) {
                 if (calculatedReadingTypeField.isVisible()) {
