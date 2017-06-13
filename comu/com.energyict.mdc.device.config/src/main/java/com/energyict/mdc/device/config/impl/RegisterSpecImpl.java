@@ -48,7 +48,6 @@ abstract class RegisterSpecImpl<T extends RegisterSpec> extends PersistentIdObje
     private final Reference<RegisterType> registerType = ValueReference.absent();
     @Size(max = 80, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String overruledObisCodeString;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
     private ObisCode overruledObisCode;
     @SuppressWarnings("unused")
