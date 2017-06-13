@@ -189,7 +189,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
-        assertThat(violation).isEmpty();
+        assertThat(violation).isPresent();
     }
 
     @Test
@@ -214,7 +214,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
         // Asserts
-        assertThat(violation).isEmpty();
+        assertThat(violation).isPresent();
     }
 
     @Test

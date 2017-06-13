@@ -52,10 +52,9 @@ public class GeneralProtocolPropertiesAreValid extends ConsolidatedServerMicroCh
         if (requiredPropertyNames.stream().anyMatch(each -> !availablePropertyNames.contains(each))) {
             return true;
         }
-        return requiredPropertyNames.stream()
-                .map(deviceProtocolProperties::getProperty)
-                .filter(value->value instanceof KeyAccessorType)
-                .map(value-> (KeyAccessorType)value)
+        return deviceProtocolProperties.stream()
+                .filter(prop->prop.getValue() instanceof KeyAccessorType)
+                .map(prop-> (KeyAccessorType)prop.getValue())
                 .map(device::getKeyAccessor)
                 .anyMatch(ka->!ka.isPresent() || !ka.get().getActualValue().isPresent());
     }
