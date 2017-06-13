@@ -40,7 +40,7 @@ public class TimeDurationPropertyValueConverter implements PropertyValueConverte
         try {
             return new TimeDuration("" + count + " " + timeUnit);
         } catch (LocalizedFieldValidationException e) {
-            throw new LocalizedFieldValidationException(e.getMessageSeed(), propertySpec.getName() + "." + e.getViolatingProperty(), e.getArgs());
+            throw new LocalizedFieldValidationException(e.getMessageSeed(), propertySpec.getName(), e.getArgs());
         }
     }
 
