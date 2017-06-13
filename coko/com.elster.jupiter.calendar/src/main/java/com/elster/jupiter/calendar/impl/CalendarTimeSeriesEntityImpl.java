@@ -131,7 +131,7 @@ class CalendarTimeSeriesEntityImpl implements CalendarTimeSeriesEntity, Persiste
             TimeSeriesDataStorer storer = this.calendarService.getIdsService().createNonOverrulingStorer();
             newlyCreated
                     .toList(this.initialGenerationRange(endYear))
-                    .forEach(instant -> storer.add(newlyCreated, instant, zonedView.eventFor(instant).getCode()));
+                    .forEach(instant -> storer.add(newlyCreated, instant.plus(newlyCreated.interval()), zonedView.eventFor(instant).getCode()));
             LOGGER.log(Level.INFO, () -> "Generated timeseries for calendar(id=" + this.calendar().getId() + ", name=" + this.calendar().getName() + ")");
             this.log(storer.execute());
         }
@@ -154,7 +154,7 @@ class CalendarTimeSeriesEntityImpl implements CalendarTimeSeriesEntity, Persiste
         TimeSeriesDataStorer storer = this.calendarService.getIdsService().createNonOverrulingStorer();
         timeSeries
             .toList(this.extensionGenerationRange(nextYear))
-            .forEach(instant -> storer.add(timeSeries, instant, zonedView.eventFor(instant).getCode()));
+            .forEach(instant -> storer.add(timeSeries, instant.plus(timeSeries.interval()), zonedView.eventFor(instant).getCode()));
         this.log(storer.execute());
     }
 
