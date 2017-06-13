@@ -268,13 +268,15 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         if (field.name === 'registerType') {
             view.down('#mdc-register-config-multiplier-checkbox').setDisabled(false);
             var registerTypeId = me.getAvailableRegisterTypesForDeviceConfigurationStore().findExact('id', value);
-            registerType = me.getAvailableRegisterTypesForDeviceConfigurationStore().getAt(registerTypeId);
-            useMultiplier = view.down('#mdc-register-config-multiplier-checkbox').getValue();
-            me.updateReadingTypeFields(registerType, useMultiplier);
-            me.registerTypesObisCode = registerType.get('obisCode');
-            view.down('#editObisCodeField').setValue(me.registerTypesObisCode);
-            me.getOverruledObisCodeField().setValue(me.registerTypesObisCode);
-            me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.registerTypesObisCode);
+            if (registerTypeId != -1) {
+                registerType = me.getAvailableRegisterTypesForDeviceConfigurationStore().getAt(registerTypeId);
+                useMultiplier = view.down('#mdc-register-config-multiplier-checkbox').getValue();
+                me.updateReadingTypeFields(registerType, useMultiplier);
+                me.registerTypesObisCode = registerType.get('obisCode');
+                view.down('#editObisCodeField').setValue(me.registerTypesObisCode);
+                me.getOverruledObisCodeField().setValue(me.registerTypesObisCode);
+                me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.registerTypesObisCode);
+            }
         }
     },
 
@@ -299,9 +301,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         Ext.resumeLayouts(true);
         if (record) {
             record.set(values);
-            if (newObisCode === originalObisCode) {
-                record.set('overruledObisCode', '');
-            }
             if (useMultiplier) {
                 if (calculatedReadingTypeField.isVisible()) {
                     record.setCalculatedReadingType(calculatedReadingTypeField.getValue());
