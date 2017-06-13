@@ -16,7 +16,7 @@ public class MessageSeedsTest {
     @Test
     public void testAllSeedsHaveUniqueNumber() {
         Set<Integer> uniqueIds = new HashSet<>();
-        for (com.elster.jupiter.metering.MessageSeeds messageSeed : com.elster.jupiter.metering.MessageSeeds.values()) {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
             assertThat(uniqueIds).as(messageSeed.name() + " does not have a unique number")
                     .doesNotContain(messageSeed.getNumber());
             uniqueIds.add(messageSeed.getNumber());
@@ -26,7 +26,7 @@ public class MessageSeedsTest {
     @Test
     public void testAllMessageSeedsHaveUniqueKeys() {
         Set<String> uniqueKeys = new HashSet<>();
-        for (com.elster.jupiter.metering.MessageSeeds messageSeed : com.elster.jupiter.metering.MessageSeeds.values()) {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
             assertThat(uniqueKeys.add(messageSeed.getKey())).as(messageSeed.name() + " does not have a unique key")
                     .isEqualTo(true);
         }
@@ -34,7 +34,7 @@ public class MessageSeedsTest {
 
     @Test
     public void testAllSeedsHaveNonNullKey() {
-        for (com.elster.jupiter.metering.MessageSeeds messageSeed : com.elster.jupiter.metering.MessageSeeds.values()) {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
             assertThat(messageSeed.getKey()).as(messageSeed.name() + " has null key")
                     .isNotNull();
         }
@@ -42,7 +42,7 @@ public class MessageSeedsTest {
 
     @Test
     public void testKeyDoesntStartOrEndWithANonPrintableChar() {
-        for (com.elster.jupiter.metering.MessageSeeds messageSeed : com.elster.jupiter.metering.MessageSeeds.values()) {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
             String key = messageSeed.getKey();
             assertThat(key.trim().length())
                     .as(messageSeed.name() + " has empty key")
@@ -54,7 +54,7 @@ public class MessageSeedsTest {
 
     @Test
     public void testAllMessageSeedKeysAreWithinLengthLimit() {
-        for (com.elster.jupiter.metering.MessageSeeds messageSeed : com.elster.jupiter.metering.MessageSeeds.values()) {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
             assertThat(messageSeed.getKey().length()).as(messageSeed.name() + " key is longer than max of 256")
                     .isLessThanOrEqualTo(256);
         }
@@ -62,7 +62,7 @@ public class MessageSeedsTest {
 
     @Test
     public void testAllSeedsHaveNonNullDefaultFormat() {
-        for (com.elster.jupiter.metering.MessageSeeds messageSeed : com.elster.jupiter.metering.MessageSeeds.values()) {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
             assertThat(messageSeed.getDefaultFormat()).as(messageSeed.name() + " has null default format")
                     .isNotNull();
         }
@@ -70,7 +70,7 @@ public class MessageSeedsTest {
 
     @Test
     public void testDefaultFormatDoesntStartOrEndWithANonPrintableChar() {
-        for (com.elster.jupiter.metering.MessageSeeds messageSeed : com.elster.jupiter.metering.MessageSeeds.values()) {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
             String defaultFormat = messageSeed.getDefaultFormat();
             assertThat(defaultFormat.trim().length())
                     .as(messageSeed.name() + " has empty default format")
@@ -80,4 +80,11 @@ public class MessageSeedsTest {
         }
     }
 
+    @Test
+    public void testAllMessageSeedDefaultFormatsAreWithinLengthLimit() {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+            assertThat(messageSeed.getDefaultFormat().length()).as(messageSeed.name() + " default format is longer than max of 256")
+                    .isLessThanOrEqualTo(256);
+        }
+    }
 }
