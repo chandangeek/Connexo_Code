@@ -4,20 +4,23 @@
 
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.rest.util.StatusCode;
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.obis.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.masterdata.LoadProfileType;
 
+import com.energyict.obis.ObisCode;
+
+import javax.validation.ConstraintViolation;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +29,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -104,7 +108,7 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
     }
 
     @Test
-    public void testAddLoadProfileTypesForDeviceType(){
+    public void testAddLoadProfileTypesForDeviceType() {
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1L);
 
         LoadProfileSpecInfo info = new LoadProfileSpecInfo();
@@ -112,18 +116,22 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
         TimeDuration interval = getTimeDuration();
         LoadProfileType loadProfileType = mockLoadProfileType(1, "loadProfile", interval, new ObisCode(0, 1, 2, 3, 4, 5), getChannelTypes(1, interval));
         LoadProfileSpec.LoadProfileSpecBuilder specBuilder = mock(LoadProfileSpec.LoadProfileSpecBuilder.class);
+
+
         LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(15);
         when(loadProfileSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
         when(masterDataService.findLoadProfileType(1)).thenReturn(Optional.of(loadProfileType));
         when(deviceConfiguration.createLoadProfileSpec(loadProfileType)).thenReturn(specBuilder);
-        when(specBuilder.add()).thenReturn(loadProfileSpec);
+        when(deviceConfiguration.createLoadProfileSpec(null)).thenReturn(specBuilder);
+        when(specBuilder.add()).thenThrow(new VerboseConstraintViolationException(new HashSet<ConstraintViolation<?>>()));      //Mocking that the creation of the LoadProfileSpec instance went wrong
 
         Response response = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations").request().post(json);
-        assertThat(response.getStatus()).isEqualTo(StatusCode.UNPROCESSABLE_ENTITY.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
         info.id = 1;
-        info.overruledObisCode = new ObisCode(200,201,202,203,204,205);
+        info.overruledObisCode = new ObisCode(200, 201, 202, 203, 204, 205);
+        doReturn(loadProfileSpec).when(specBuilder).add() ;
         response = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
