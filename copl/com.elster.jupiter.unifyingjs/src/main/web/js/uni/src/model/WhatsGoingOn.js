@@ -20,7 +20,26 @@ Ext.define('Uni.model.WhatsGoingOn', {
         'isMyWorkGroup',
         'userAssigneeIsCurrentUser',
         'reference',
-        'status',
+        {
+            name: 'status',
+            type: 'string',
+            convert: function (value, record) {
+                switch (value) {
+                    case '0':
+                        return Uni.I18n.translate('whatsGoingOn.status.pending', 'UNI', 'Pending');
+                    case '1':
+                        return Uni.I18n.translate('whatsGoingOn.status.active', 'UNI', 'Active');
+                    case '2':
+                        return Uni.I18n.translate('whatsGoingOn.status.completed', 'UNI', 'Completed');
+                    case '3':
+                        return Uni.I18n.translate('whatsGoingOn.status.cancelled', 'UNI', 'Cancelled');
+                    case '4':
+                        return Uni.I18n.translate('whatsGoingOn.status.ongoing', 'UNI', 'Ongoing');
+                    default :
+                        return value;
+                }
+            }
+        },
         {
             name: 'internalId',
             mapping: function(record){

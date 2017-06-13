@@ -6,12 +6,13 @@ Ext.define('Uni.property.view.property.StartAlarmProcess', {
     extend: 'Uni.property.view.property.Reference',
 
     getEditCmp: function () {
-        var me = this;
+        var me = this,
+            referencesStore = Ext.create('Ext.data.Store', {
+                fields: ['key', 'value']
+            });
 
-        // clear store
-        me.referencesStore.loadData([], false);
         _.map(me.getProperty().getPossibleValues(), function (item) {
-            me.referencesStore.add({key: item.id, value: item.name});
+            referencesStore.add({key: item.id, value: item.name});
         });
 
         return {
@@ -19,7 +20,7 @@ Ext.define('Uni.property.view.property.StartAlarmProcess', {
             itemId: me.key + 'combobox',
             name: this.getName(),
             editable: false,
-            store: me.referencesStore,
+            store: referencesStore,
             queryMode: 'local',
             displayField: 'value',
             valueField: 'key',

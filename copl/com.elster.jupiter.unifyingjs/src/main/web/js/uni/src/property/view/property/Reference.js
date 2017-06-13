@@ -5,8 +5,6 @@
 Ext.define('Uni.property.view.property.Reference', {
     extend: 'Uni.property.view.property.BaseCombo',
 
-    referencesStore:null,
-
     getEditCmp: function () {
         var me = this;
 
@@ -15,8 +13,7 @@ Ext.define('Uni.property.view.property.Reference', {
             storeId: me.key + 'store'
         });
         // clear store
-        me.referencesStore.loadData([], false);
-        _.map(me.getProperty().getPossibleValues(), function (item) {
+        _.forEach(me.getProperty().getPossibleValues(), function (item) {
             me.referencesStore.add({key: item.id, value: item.name});
         });
 

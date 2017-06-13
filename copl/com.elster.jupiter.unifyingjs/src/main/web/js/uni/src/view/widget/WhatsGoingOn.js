@@ -251,6 +251,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
             value: item.get('displayValue'),
             renderer: function (value) {
                 var fillColor, borderColor, textColor;
+                value.status = item.get('status');
                 if (value.severity === undefined && value.userAssignee === undefined) {
                     fillColor = "#FFFFFF";
                     borderColor = "#1E7D9E";
