@@ -11,6 +11,7 @@ import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
@@ -73,4 +74,7 @@ public class OutputChannelDataInfo {
     public IntervalReadingImpl createConfirm() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), null, Collections.emptyList());
     }
+
+    @JsonProperty("channelPeriodType")
+    public String channelPeriodType;
 }

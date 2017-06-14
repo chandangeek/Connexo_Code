@@ -380,7 +380,7 @@ public class UsagePointOutputResource {
 
         List<OutputChannelDataInfo> infoList = outputChannelDataMap.values().stream()
                 .filter(getSuspectsFilter(filter, this::hasSuspects))
-                .map(outputChannelDataInfoFactory::createChannelDataInfo)
+                .map(p -> outputChannelDataInfoFactory.createChannelDataInfo(p, ChannelPeriodType.of(readingType)))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("channelData", infoList, queryParameters);
@@ -481,7 +481,7 @@ public class UsagePointOutputResource {
                                                 List<OutputChannelDataInfo> outputChannelDataInfoList = outputChannelDataMap.values().stream()
                                                         .filter(getSuspectsFilter(filter, this::hasSuspects))
                                                         .filter(reading -> reading.getValue() != null)
-                                                        .map(outputChannelDataInfoFactory::createChannelDataInfo)
+                                                        .map(p -> outputChannelDataInfoFactory.createChannelDataInfo(p, ChannelPeriodType.of(deliverable.getReadingType())))
                                                         .collect(Collectors.toList());
                                                 readingsMap.addAll(outputChannelDataInfoList.stream()
                                                         .map(info -> Pair.of(deliverable.getId(), info))

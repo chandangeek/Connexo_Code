@@ -53,10 +53,11 @@ public class OutputChannelDataInfoFactory {
         this.meteringService = meteringService;
     }
 
-    public OutputChannelDataInfo createChannelDataInfo(ChannelReadingWithValidationStatus readingWithValidationStatus) {
+    public OutputChannelDataInfo createChannelDataInfo(ChannelReadingWithValidationStatus readingWithValidationStatus, ChannelPeriodType channelPeriodType) {
         OutputChannelDataInfo outputChannelDataInfo = new OutputChannelDataInfo();
         outputChannelDataInfo.reportedDateTime = readingWithValidationStatus.getReportedDateTime();
         outputChannelDataInfo.interval = IntervalInfo.from(readingWithValidationStatus.getTimePeriod());
+        outputChannelDataInfo.channelPeriodType = channelPeriodType.getId();
         outputChannelDataInfo.value = readingWithValidationStatus.getValue();
         if (readingWithValidationStatus.wasEdited()) {
             outputChannelDataInfo.calculatedValue = readingWithValidationStatus.getCalculatedValue();
