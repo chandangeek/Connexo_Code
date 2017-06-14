@@ -39,6 +39,9 @@
   @include confirmationWindow($color-green-1);
 }
 
+.uni-confirmation-window-orange {
+  @include confirmationWindow($color-orange);
+}
 
 @mixin confirmationWindowBody($cnfWindowBodyColor) {
   color: $cnfWindowBodyColor;
@@ -51,4 +54,8 @@
 
 .confirmation-window-green .x-panel-body {
   @include confirmationWindowBody($color-green-1);
+}
+
+.confirmation-window-orange .x-panel-body {
+  @include confirmationWindowBody($color-orange);
 }
