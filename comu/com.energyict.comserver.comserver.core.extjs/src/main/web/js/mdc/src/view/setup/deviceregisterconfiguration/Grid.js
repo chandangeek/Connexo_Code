@@ -10,6 +10,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
     router: null,
     store: 'Mdc.store.RegisterConfigsOfDevice',
     scroll: false,
+    showDataLoggerSlaveColumn: false,
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
@@ -55,6 +56,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
 
         if ((!Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')) ||
             (!Ext.isEmpty(me.device.get('isMultiElementDevice')) && me.device.get('isMultiElementDevice'))){
+            me.showDataLoggerSlaveColumn = true;
             me.columns.push(
                 {
                     dataIndex: 'dataloggerSlaveName',
