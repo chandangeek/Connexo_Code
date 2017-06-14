@@ -62,7 +62,7 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
         }
 
         if (isInterval) {
-            html += Uni.I18n.translate('general.interval', 'MDC', 'Interval') + ' ' + Uni.DateTime.formatTimeShort(new Date(point.x));
+            html += Uni.I18n.translate('general.interval', 'IMT', 'Interval') + ' ' + Uni.DateTime.formatTimeShort(new Date(point.x));
             html += ' - ' + Uni.DateTime.formatTimeShort(new Date(point.intervalEnd));
         } else if (isMonth) {
             html += Ext.Date.format(new Date(point.x), 'M Y');
