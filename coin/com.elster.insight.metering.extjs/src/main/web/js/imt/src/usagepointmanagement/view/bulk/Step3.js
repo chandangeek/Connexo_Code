@@ -73,7 +73,7 @@ Ext.define('Imt.usagepointmanagement.view.bulk.Step3', {
                         fieldLabel: Uni.I18n.translate('general.category', 'IMT', 'Category'),
                         store: 'Imt.usagepointmanagement.store.CalendarCategories',
                         valueField: 'name',
-                        displayField: 'name'
+                        displayField: 'displayName'
                     },
                     {
                         xtype: 'combobox',
