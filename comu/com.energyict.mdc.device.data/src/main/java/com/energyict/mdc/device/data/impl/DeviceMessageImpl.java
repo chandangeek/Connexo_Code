@@ -13,12 +13,12 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.exceptions.DeviceMessageNotAllowedException;
 import com.energyict.mdc.device.data.exceptions.IllegalDeviceMessageIdException;
 import com.energyict.mdc.device.data.exceptions.InvalidDeviceMessageStatusMove;
 import com.energyict.mdc.device.data.impl.constraintvalidators.HasValidDeviceMessageAttributes;
 import com.energyict.mdc.device.data.impl.constraintvalidators.IsRevokeAllowed;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UserHasTheMessagePrivilege;
-import com.energyict.mdc.device.data.impl.constraintvalidators.ValidDeviceMessageId;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidReleaseDateUpdate;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidTrackingInformation;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -36,6 +36,7 @@ import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -46,7 +47,6 @@ import java.util.stream.Stream;
  * Straightforward implementation of a ServerDeviceMessage
  */
 @ValidTrackingInformation(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_TRACKING_ID_MISSING + "}")
-@ValidDeviceMessageId(groups = {Save.Create.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED + "}")
 @UserHasTheMessagePrivilege(groups = {Save.Create.class, Save.Update.class})
 @HasValidDeviceMessageAttributes(groups = {Save.Create.class, Save.Update.class})
 public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> implements ServerDeviceMessage {
@@ -303,6 +303,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
 
     @Override
     public void save() {
+        isValidDeviceMessageId();
         super.save();
         if (getId() > 0) {
             getDataModel().touch(device.get());
@@ -314,6 +315,38 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
             this.releaseDateUpdater = new ReleaseDateUpdater(getStatus(), this.releaseDate);
         }
         return releaseDateUpdater;
+    }
+
+    public boolean isValidDeviceMessageId() {
+        if (!isMessageSupportedByProtocol()){
+            throw new DeviceMessageNotAllowedException(getThesaurus(), MessageSeeds.DEVICE_MESSAGE_ID_NOT_SUPPORTED) ;
+        }
+        if (!isMessageAllowedByConfig()){
+            throw new DeviceMessageNotAllowedException(getThesaurus(), MessageSeeds.DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG) ;
+        }
+        return true;
+    }
+
+    private boolean isMessageSupportedByProtocol(){
+        return getDevice()
+                .getDeviceType()
+                .getDeviceProtocolPluggableClass()
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
+                        .map(com.energyict.mdc.upl.messages.DeviceMessageSpec::getId)
+                        .map(DeviceMessageId::from)
+                        .collect(Collectors.toList())).orElse(Collections.emptyList())
+                .stream()
+                .filter(deviceMessageId -> deviceMessageId.equals(getDeviceMessageId()))
+                .count() == 1;
+    }
+
+    private boolean isMessageAllowedByConfig(){
+        return getDevice()
+                .getDeviceConfiguration()
+                .getDeviceMessageEnablements()
+                .stream()
+                .anyMatch(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId()
+                        .equals(getDeviceMessageId()));
     }
 
     public class ReleaseDateUpdater {
