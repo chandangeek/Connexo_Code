@@ -136,4 +136,9 @@ public final class RefAnyImpl implements RefAny {
 	public Object[] getPrimaryKey() {
 		return jsonService.deserialize(key,Object[].class);
 	}
+
+	@Override
+	public void clearCachedObject() {
+		targetHolder = null;
+	}
 }

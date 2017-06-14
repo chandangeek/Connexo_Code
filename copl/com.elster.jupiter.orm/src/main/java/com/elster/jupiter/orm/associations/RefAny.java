@@ -20,4 +20,6 @@ public interface RefAny {
 	String getComponent();
 	String getTableName();
 	Object[] getPrimaryKey();
+
+	void clearCachedObject();
 }
