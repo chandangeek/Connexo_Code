@@ -72,6 +72,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                     {
                         xtype: 'fieldcontainer',
                         itemId: 'obis-code-container',
+                        msgTarget: 'under',
                         required: true,
                         width: 450,
                         layout: 'hbox',
@@ -83,6 +84,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                                 itemId: 'editOverruledObisCodeField',
                                 fieldLabel: '',
                                 required: false,
+                                msgTarget: 'none',
                                 afterSubTpl: null,
                                 width: 150
                             },

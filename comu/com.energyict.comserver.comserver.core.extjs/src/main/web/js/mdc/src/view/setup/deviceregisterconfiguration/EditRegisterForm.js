@@ -34,6 +34,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
             {
                 xtype: 'fieldcontainer',
                 itemId: 'obis-code-container',
+                msgTarget: 'under',
                 required: true,
                 layout: 'hbox',
                 margin: '20 0 0 0',

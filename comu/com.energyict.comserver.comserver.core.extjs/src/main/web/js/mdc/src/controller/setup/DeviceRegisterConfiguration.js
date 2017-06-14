@@ -784,6 +784,11 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 errorMsgPnl.show();
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
+                    Ext.Array.each(json.errors, function (item) {
+                        if (item.id === 'readingTypeObisCodeUsages[0].obisCode.obisCode') {
+                            form.down('#obis-code-container').setActiveError(item.msg);
+                        }
+                    });
                     baseForm.markInvalid(json.errors);
                 }
                 Ext.resumeLayouts(true);

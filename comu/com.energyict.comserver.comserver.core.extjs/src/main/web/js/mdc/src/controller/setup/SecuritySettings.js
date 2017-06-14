@@ -52,6 +52,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     deviceProtocolSupportsClient: undefined,
     deviceProtocolSupportSecuritySuites: undefined,
     storeCounter: 0,
+    avoidReloadOfPropertiesStore: false,
 
     init: function () {
         var me = this;
@@ -113,7 +114,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             } else if (success && records) {
                 if (records.length === 1) {
                     me.getAuthCombobox().setValue(records[0].get('id'));
-                    me.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified();
                 }
                 if (me.isInvalidLevel(records, me.getAuthCombobox().getValue())) {
                     me.getAuthCombobox().clearValue();
@@ -122,9 +122,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 me.getAuthCombobox().show();
             }
             me.storeCounter--;
-            if(me.storeCounter <= 0) {
-                me.getFormPanel().resumeLayouts(true);
-                me.getFormPanel().resumeEvents();
+            if (me.storeCounter <= 0) {
+                me.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified();
             }
         });
         me.getEncryptionLevelsStore().on('load', function (store, records, success) {
@@ -134,7 +133,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             } else if (success && records) {
                 if (records.length === 1) {
                     me.getEncrCombobox().setValue(records[0].get('id'));
-                    me.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified();
                 }
                 if (me.isInvalidLevel(records, me.getEncrCombobox().getValue())) {
                     me.getEncrCombobox().clearValue();
@@ -143,9 +141,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 me.getEncrCombobox().show();
             }
             me.storeCounter--;
-            if(me.storeCounter <= 0) {
-                me.getFormPanel().resumeLayouts(true);
-                me.getFormPanel().resumeEvents();
+            if (me.storeCounter <= 0) {
+                me.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified();
             }
         });
         me.getRequestSecurityLevelsStore().on('load', function (store, records, success) {
@@ -155,7 +152,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             } else if (success && records) {
                 if (records.length === 1) {
                     me.getRequestSecurityCombobox().setValue(records[0].get('id'));
-                    me.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified();
                 }
                 if (me.isInvalidLevel(records, me.getRequestSecurityCombobox().getValue())) {
                     me.getRequestSecurityCombobox().clearValue();
@@ -164,9 +160,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 me.getRequestSecurityCombobox().show();
             }
             me.storeCounter--;
-            if(me.storeCounter <= 0) {
-                me.getFormPanel().resumeLayouts(true);
-                me.getFormPanel().resumeEvents();
+            if (me.storeCounter <= 0) {
+                me.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified();
             }
         });
         me.getResponseSecurityLevelsStore().on('load', function (store, records, success) {
@@ -176,7 +171,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             } else if (success && records) {
                 if (records.length === 1) {
                     me.getResponseSecurityCombobox().setValue(records[0].get('id'));
-                    me.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified();
                 }
                 if (me.isInvalidLevel(records, me.getResponseSecurityCombobox().getValue())) {
                     me.getResponseSecurityCombobox().clearValue();
@@ -185,9 +179,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 me.getResponseSecurityCombobox().show();
             }
             me.storeCounter--;
-            if(me.storeCounter <= 0) {
-                me.getFormPanel().resumeLayouts(true);
-                me.getFormPanel().resumeEvents();
+            if (me.storeCounter <= 0) {
+                me.triggerUpdateOfAttributesIfAllSecurityLevelsAreSpecified();
             }
         });
         me.getConfigurationSecurityPropertiesStore().on('load', function (store, records, success) {
@@ -196,20 +189,17 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 propertyForm = formPanel.down('property-form'),
                 record;
             record = form.getRecord();
-            me.getFormPanel().suspendLayouts();
             if (success && records.length) {
                 record.propertiesStore.removeAll();
                 record.propertiesStore.add(records);
                 propertyForm.loadRecord(record);
                 propertyForm.show();
-                form.getRecord();
                 me.getSecuritySettingFormDetailsTitle().setVisible(true);
             } else {
                 propertyForm.hide();
                 propertyForm.removeAll();
                 me.getSecuritySettingFormDetailsTitle().setVisible(false);
             }
-            me.getFormPanel().resumeLayouts(true);
         });
     },
 
@@ -323,7 +313,11 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             configurationSecurityPropertiesStore.getProxy().setExtraParam('securitySuiteId', securitySuiteId);
             configurationSecurityPropertiesStore.getProxy().setExtraParam('requestSecurityLevelId', requestSecurityLevelId);
             configurationSecurityPropertiesStore.getProxy().setExtraParam('responseSecurityLevelId', responseSecurityLevelId);
-            configurationSecurityPropertiesStore.load();
+            if (me.avoidReloadOfPropertiesStore) {
+                me.avoidReloadOfPropertiesStore = false;
+            } else {
+                configurationSecurityPropertiesStore.load();
+            }
         } else {
             // Else, not all of the security levels are specified
             me.getFormPanel().down('property-form').hide();
@@ -447,6 +441,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
                 var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
                 model.getProxy().setExtraParam('deviceType', deviceTypeId);
+                me.avoidReloadOfPropertiesStore = true;
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
@@ -520,16 +515,12 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             requestSecurityLevelStore = me.getRequestSecurityLevelsStore(),
             responseSecurityLevelStore = me.getResponseSecurityLevelsStore();
 
-        me.getFormPanel().suspendLayouts();
-        me.getFormPanel().suspendEvents(true);
         if (createView) {
             if (deviceProtocolSupportSecuritySuites) {
                 authCombobox.hide();
                 encrCombobox.hide();
                 requestSecurityCombobox.hide();
                 responseSecurityCombobox.hide();
-                me.getFormPanel().resumeLayouts(true);
-                me.getFormPanel().resumeEvents();
             } else {
                 me.storeCounter = 2;
                 authenticationLevelStore.load();
@@ -574,8 +565,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             responseSecurityLevelsStore = responseSecurityCombobox.getStore(),
             storesToLoad = me.storeCounter = 4;
 
-        me.getFormPanel().suspendLayouts();
-        me.getFormPanel().suspendEvents(true);
         callBackFunction = function () {
             storesToLoad--;
             if (storesToLoad <= 0) {
@@ -640,10 +629,10 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                         if (operation.error.status == 400) {
                             var result = Ext.JSON.decode(operation.response.responseText, true);
                             if (result && result.errors) {
-                                error = result.errors.filter(function( obj ) {
+                                error = result.errors.filter(function (obj) {
                                     return obj.id === 'clientDbValue';
                                 });
-                                if(!Ext.isEmpty(error)) {
+                                if (!Ext.isEmpty(error)) {
                                     form.down('#' + form.clientKey).markInvalid(error[0].msg);
                                 }
                                 form.getForm().markInvalid(result.errors);
