@@ -16,10 +16,11 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.Functions;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -45,29 +46,22 @@ abstract class AbstractDataSelector implements DataSelector {
 
     @Override
     public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
-        Set<IReadingTypeDataExportItem> activeItems;
-        Map<IReadingTypeDataExportItem, Optional<Instant>> lastRuns;
-        try (TransactionContext context = getTransactionService().getContext()) {
-            activeItems = getSelectorConfig().getActiveItems(occurrence);
-            getSelectorConfig().getExportItems().stream()
-                    .filter(item -> !activeItems.contains(item))
-                    .peek(IReadingTypeDataExportItem::deactivate)
-                    .forEach(IReadingTypeDataExportItem::update);
-            lastRuns = activeItems.stream()
-                    .collect(Collectors.toMap(Function.identity(), ReadingTypeDataExportItem::getLastRun));
-            activeItems.forEach(IReadingTypeDataExportItem::activate);
-            warnIfObjectsHaveNoneOfTheReadingTypes(occurrence);
-            context.commit();
-        }
-
+        Set<IReadingTypeDataExportItem> activeItems = manageActiveItems(occurrence);
+        Map<Long, Optional<Instant>> lastRuns = activeItems.stream().collect(Collectors.toMap(IReadingTypeDataExportItem::getId, ReadingTypeDataExportItem::getLastRun));
         AbstractItemDataSelector itemDataSelector = getItemDataSelector();
 
         try {
-            Map<IReadingTypeDataExportItem, Optional<MeterReadingData>> selectedData = activeItems.stream()
-                    .collect(Collectors.toMap(
-                            Function.identity(),
-                            activeItem -> itemDataSelector.selectData(occurrence, activeItem)
-                    ));
+            Map<Long, Optional<MeterReadingData>> selectedData = new HashMap<>();
+            Map<Long, Optional<MeterReadingData>> updateData = new HashMap<>();
+            for (IReadingTypeDataExportItem activeItem : activeItems) {
+                selectedData.put(activeItem.getId(), itemDataSelector.selectData(occurrence, activeItem));
+                if (lastRuns.containsKey(activeItem.getId()) && lastRuns.get(activeItem.getId()).isPresent()) {
+                    updateData.put(activeItem.getId(), itemDataSelector.selectDataForUpdate(occurrence, activeItem, lastRuns.get(activeItem.getId()).get()));
+                } else {
+                    updateData.put(activeItem.getId(), Optional.empty());
+                }
+                activeItem.clearCachedReadingContainer();
+            }
 
             long numberOfItemsExported = selectedData.values().stream().filter(Optional::isPresent).count();
 
@@ -78,19 +72,35 @@ abstract class AbstractDataSelector implements DataSelector {
                             System.getProperty("line.separator") +
                             getThesaurus().getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SKIPPED).format(numberOfItemsSkipped));
 
-            return activeItems.stream()
+            List<ExportData> collect = selectedData.entrySet().stream()
                     .flatMap(item -> Stream.of(
-                            selectedData.get(item),
-                            lastRuns.get(item).flatMap(since -> itemDataSelector.selectDataForUpdate(occurrence, item, since)))
-                    ).flatMap(Functions.asStream());
+                            selectedData.get(item.getKey()),
+                            updateData.get(item.getKey())))
+                    .flatMap(Functions.asStream()).collect(Collectors.toList());
+            return collect.stream();
         } finally {
-            try (TransactionContext context = getTransactionService().getContext()) {
-                if (itemDataSelector.getExportCount() == 0) {
+            if (itemDataSelector.getExportCount() == 0) {
+                try (TransactionContext context = getTransactionService().getContext()) {
                     MessageSeeds.NO_DATA_TOEXPORT.log(getLogger(), getThesaurus());
                     context.commit();
                 }
             }
         }
+    }
+
+    private Set<IReadingTypeDataExportItem> manageActiveItems(DataExportOccurrence occurrence) {
+        Set<IReadingTypeDataExportItem> activeItems;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            activeItems = getSelectorConfig().getActiveItems(occurrence);
+            getSelectorConfig().getExportItems().stream()
+                    .filter(item -> !activeItems.contains(item))
+                    .peek(IReadingTypeDataExportItem::deactivate)
+                    .forEach(IReadingTypeDataExportItem::update);
+            activeItems.forEach(IReadingTypeDataExportItem::activate);
+            warnIfObjectsHaveNoneOfTheReadingTypes(occurrence);
+            context.commit();
+        }
+        return activeItems;
     }
 
     abstract void warnIfObjectsHaveNoneOfTheReadingTypes(DataExportOccurrence occurrence);

@@ -160,7 +160,12 @@ public class StandardDataSelectorTest {
 
         when(dataModel.getInstance(MeterReadingSelectorConfigImpl.class)).thenAnswer(invocation -> spy(new MeterReadingSelectorConfigImpl(dataModel)));
         when(dataModel.getInstance(ReadingTypeInDataSelector.class)).thenAnswer(invocation -> spy(new ReadingTypeInDataSelector(meteringService)));
-        when(dataModel.getInstance(ReadingTypeDataExportItemImpl.class)).thenAnswer(invocation -> spy(new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel)));
+        when(dataModel.getInstance(ReadingTypeDataExportItemImpl.class)).thenAnswer(invocation -> spy(new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel) {
+            @Override
+            public long getId() {
+                return this.hashCode();
+            }
+        }));
         when(dataModel.getInstance(MeterReadingSelector.class)).thenAnswer(invocation -> new MeterReadingSelector(dataModel, transactionService, thesaurus));
         when(dataModel.getInstance(MeterReadingItemDataSelector.class)).thenAnswer(invocation -> new MeterReadingItemDataSelector(clock, validationService, thesaurus, transactionService, threadPrincipalService));
         when(dataModel.asRefAny(any())).thenAnswer(invocation -> new FakeRefAny(invocation.getArguments()[0]));

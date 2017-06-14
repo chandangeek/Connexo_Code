@@ -12,7 +12,6 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -26,7 +25,6 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -55,6 +53,7 @@ class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
         // data aggregation engine requires to wrap getReadings() call in transaction
         try (TransactionContext context = getTransactionService().getContext()) {
             readings = super.getReadings(item, exportInterval);
+            context.commit();
         }
         Set<Instant> instants = new TreeSet<>(item.getReadingContainer().toList(item.getReadingType(), exportInterval));
         return item.getReadingType().isRegular() ? readings.stream()
@@ -68,6 +67,7 @@ class UsagePointReadingItemDataSelector extends AbstractItemDataSelector {
         // data aggregation engine requires to wrap getReadings() call in transaction
         try (TransactionContext context = getTransactionService().getContext()) {
             readings = super.getReadingsUpdatedSince(item, exportInterval, since);
+            context.commit();
         }
         return readings;
     }

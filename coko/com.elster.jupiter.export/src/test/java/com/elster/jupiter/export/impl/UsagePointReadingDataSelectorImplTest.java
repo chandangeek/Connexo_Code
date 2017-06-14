@@ -31,7 +31,6 @@ import com.elster.jupiter.metering.groups.Membership;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -153,7 +152,12 @@ public class UsagePointReadingDataSelectorImplTest {
                 .when(dataModel).getInstance(UsagePointReadingSelectorConfigImpl.class);
         doAnswer(invocation -> new ReadingTypeInDataSelector(meteringService))
                 .when(dataModel).getInstance(ReadingTypeInDataSelector.class);
-        doAnswer(invocation -> new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel))
+        doAnswer(invocation -> new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel) {
+            @Override
+            public long getId() {
+                return this.hashCode();
+            }
+        })
                 .when(dataModel).getInstance(ReadingTypeDataExportItemImpl.class);
         doAnswer(invocation -> new UsagePointReadingSelector(dataModel, transactionService, thesaurus))
                 .when(dataModel).getInstance(UsagePointReadingSelector.class);
@@ -258,20 +262,18 @@ public class UsagePointReadingDataSelectorImplTest {
         // Asserts
         assertThat(exportData).hasSize(2);
 
-        MeterReadingData exportDataItem;
-        exportDataItem = (MeterReadingData) exportData.get(0);
-        assertThat(exportDataItem.getItem().getDomainObject()).isEqualTo(usagePoint1);
-        assertThat(exportDataItem.getItem().getReadingType()).isEqualTo(readingType1);
-        assertThat(exportDataItem.getValidationData().getValidationStatus(START.toInstant())).isNull();
-        assertThat(exportDataItem.getValidationData().getValidationStatus(END.toInstant())).isNull();
-        assertThat(exportDataItem.getMeterReading().getReadings()).hasSize(3);
-
-        exportDataItem = (MeterReadingData) exportData.get(1);
-        assertThat(exportDataItem.getItem().getDomainObject()).isEqualTo(usagePoint2);
-        assertThat(exportDataItem.getItem().getReadingType()).isEqualTo(readingType1);
-        assertThat(exportDataItem.getValidationData().getValidationStatus(START.toInstant())).isNull();
-        assertThat(exportDataItem.getValidationData().getValidationStatus(END.toInstant())).isNull();
-        assertThat(exportDataItem.getMeterReading().getReadings()).hasSize(1);
+        for (ExportData exportDataItem : exportData) {
+            assertThat(((MeterReadingData) exportDataItem).getItem().getReadingType()).isEqualTo(readingType1);
+            assertThat(((MeterReadingData) exportDataItem).getValidationData().getValidationStatus(START.toInstant())).isNull();
+            assertThat(((MeterReadingData) exportDataItem).getValidationData().getValidationStatus(END.toInstant())).isNull();
+            if (((MeterReadingData) exportDataItem).getItem().getDomainObject().equals(usagePoint1)) {
+                assertThat(((MeterReadingData) exportDataItem).getMeterReading().getReadings()).hasSize(3);
+            } else if (((MeterReadingData) exportDataItem).getItem().getDomainObject().equals(usagePoint2)) {
+                assertThat(((MeterReadingData) exportDataItem).getMeterReading().getReadings()).hasSize(1);
+            } else {
+                throw new IllegalArgumentException("Unknown domainObject in item " + exportDataItem);
+            }
+        }
     }
 
     /*CXO-5049*/
