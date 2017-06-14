@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.users.UserService;
 
@@ -38,6 +39,7 @@ public class MeteringDataImporterContext {
     private volatile CalendarService calendarService;
     private volatile UsagePointLifeCycleService usagePointLifeCycleService;
     private volatile PropertyValueInfoService propertyValueInfoService;
+    private volatile TransactionService transactionService;
 
     public MeteringDataImporterContext() {
     }
@@ -54,7 +56,8 @@ public class MeteringDataImporterContext {
                                        MetrologyConfigurationService metrologyConfigurationService,
                                        CalendarService calendarService,
                                        UsagePointLifeCycleService usagePointLifeCycleService,
-                                       PropertyValueInfoService propertyValueInfoService) {
+                                       PropertyValueInfoService propertyValueInfoService,
+                                       TransactionService transactionService) {
         setPropertySpecService(propertySpecService);
         setNlsService(nlsService);
         setMeteringService(meteringService);
@@ -67,6 +70,7 @@ public class MeteringDataImporterContext {
         setCalendarService(calendarService);
         setUsagePointLifeCycleService(usagePointLifeCycleService);
         setPropertyValueInfoService(propertyValueInfoService);
+        setTransactionService(transactionService);
     }
 
     public PropertySpecService getPropertySpecService() {
@@ -158,6 +162,15 @@ public class MeteringDataImporterContext {
     @Reference
     public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
         this.propertyValueInfoService = propertyValueInfoService;
+    }
+
+    public TransactionService getTransactionService() {
+        return transactionService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     public PropertyValueInfoService getPropertyValueInfoService() {

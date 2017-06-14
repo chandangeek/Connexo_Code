@@ -33,6 +33,7 @@ import com.elster.jupiter.metering.imports.impl.usagepoint.UsagePointsImporterFa
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointStateChangeRequest;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
@@ -41,9 +42,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
 import java.io.ByteArrayInputStream;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Savepoint;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -90,10 +88,14 @@ public class UsagePointImportIT {
     }
 
     @Test
-    @Transactional
-    public void testUsagePointImport() throws SQLException {
-        configureServices();
-        FileImporter importer = createUsagePointImporter();
+    public void testUsagePointImport() {
+        FileImporter importer;
+
+        try (TransactionContext ctx = inMemoryPersistence.getTransactionService().getContext()) {
+            configureServices();
+            importer = createUsagePointImporter();
+            ctx.commit();
+        }
         String csv = "id;created;installationTime;serviceKind;countryCode;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;isSDP;isVirtual;phaseCode;countryName;administrativeArea;locality;metrologyConfiguration;metrologyConfigurationTime;meterRole1;meter1;activationdate1;transition;transitionDate;transitionConnectionState;allowUpdate\n" +
                 "UP_TEST;01/12/2015 00:00;01/12/2015 00:00;electricity;code;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;TRUE;FALSE;S1;US;California;Los Angeles;Residential net metering (consumption);01/12/2017 00:00;meter.role.default;DEVICE;01/12/2017 00:00;Install active;02/12/2017 00:00;Connected;FALSE\n";
         when(inMemoryPersistence.getClock().instant()).thenReturn(LocalDate.of(2016, 8, 1).atStartOfDay().toInstant(ZoneOffset.UTC));
@@ -183,13 +185,10 @@ public class UsagePointImportIT {
         threadPrincipalService.set(user);
     }
 
-    private FileImportOccurrence mockFileImportOccurrence(String csv) throws SQLException {
+    private FileImportOccurrence mockFileImportOccurrence(String csv) {
         FileImportOccurrence importOccurrence = mock(FileImportOccurrence.class);
         when(importOccurrence.getContents()).thenReturn(new ByteArrayInputStream(csv.getBytes()));
         when(importOccurrence.getLogger()).thenReturn(mock(Logger.class));
-        Connection connection = mock(Connection.class);
-        when(importOccurrence.getCurrentConnection()).thenReturn(connection);
-        when(connection.setSavepoint()).thenReturn(mock(Savepoint.class));
         return importOccurrence;
     }
 
@@ -214,6 +213,7 @@ public class UsagePointImportIT {
         context.setUsagePointLifeCycleService(inMemoryPersistence.getService(UsagePointLifeCycleService.class));
         context.setNlsService(inMemoryPersistence.getService(NlsService.class));
         context.setPropertyValueInfoService(inMemoryPersistence.getService(PropertyValueInfoService.class));
+        context.setTransactionService(inMemoryPersistence.getTransactionService());
         return context;
     }
 
