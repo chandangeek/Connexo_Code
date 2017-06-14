@@ -224,6 +224,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'validateNowConfirmationWindow',
                 confirmText: Uni.I18n.translate('validationResults.validate.confirm', 'MDC', 'Validate'),
+                green: true,
                 msg: 'message',
                 confirmation: function () {
                     me.onValidateNow(this);

@@ -167,6 +167,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'validateNowLoadProfileConfirmationWindow',
                 confirmText: Uni.I18n.translate('general.validate', 'MDC', 'Validate'),
+                green: true,
                 confirmation: function () {
                     me.activateDataValidation(record, this);
                 }
@@ -187,12 +188,12 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                     }
                     confirmationWindow.insert(1, me.getValidationContent());
                     confirmationWindow.show({
-                        title: Uni.I18n.translate('deviceloadprofiles.validateNow', 'MDC', 'Validate data of load profile {0}?', [record.get('name')]),
-                        msg: ''
+                        title: Uni.I18n.translate('deviceloadprofiles.validateNow', 'MDC', 'Validate data of load profile {0}?', record.get('name'))
                     });
                 } else {
                     var title = Uni.I18n.translate('deviceloadprofiles.validateNow.errorTitle', 'MDC', 'Couldn\'t perform your action'),
-                        message = Uni.I18n.translate('deviceloadprofiles.validateNow.error', 'MDC', 'Failed to validate data of load profile {0}', [record.get('name')]) + '.' + Uni.I18n.translate('deviceloadprofiles.noData', 'MDC', 'There is currently no data for this load profile'),
+                        message = Uni.I18n.translate('deviceloadprofiles.validateNow.error', 'MDC', 'Failed to validate data of load profile {0}', record.get('name'))
+                            + '. ' + Uni.I18n.translate('deviceloadprofiles.noData', 'MDC', 'There is currently no data for this load profile.'),
                         code = '',
                         config = {
                             icon: Ext.MessageBox.WARNING

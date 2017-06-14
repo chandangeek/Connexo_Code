@@ -82,12 +82,13 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
 
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: activate ? Uni.I18n.translate('general.activate', 'MDC', 'Activate') : Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
-            itemId: 'activationConfirmationWindow'
+            itemId: 'activationConfirmationWindow',
+            green: activate
         }).show({
-            title: activate ? Uni.I18n.translate('estimationDevice.activateConfirmation.title', 'MDC', "Activate data estimation on device '{0}'?", [me.deviceId]) :
-                Uni.I18n.translate('estimationDevice.deactivateConfirmation.title', 'MDC', "Deactivate data estimation on device '{0}'?", [me.deviceId]),
-            msg: activate ? '' :
-                Uni.I18n.translate('estimationDevice.deactivateConfirmation.msg', 'MDC', 'The data of this device will no longer be estimated'),
+            title: activate
+                ? Uni.I18n.translate('estimationDevice.activateConfirmation.title', 'MDC', "Activate data estimation on device '{0}'?", me.deviceId)
+                : Uni.I18n.translate('estimationDevice.deactivateConfirmation.title', 'MDC', "Deactivate data estimation on device '{0}'?", me.deviceId),
+            msg: activate ? '' : Uni.I18n.translate('estimationDevice.deactivateConfirmation.msg', 'MDC', 'The data of this device will no longer be estimated'),
             fn: function (state) {
                 if (state === 'confirm') {
                     me.activateDataValidation(activate);
@@ -114,8 +115,8 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
                 var router = me.getController('Uni.controller.history.Router');
                 router.getRoute().forward();
                 me.getApplication().fireEvent('acknowledge', activate
-                    ? Uni.I18n.translate('estimationDevice.activation.activated', 'MDC', 'Data estimation on device {0} was activated successfully', [deviceId], false)
-                    : Uni.I18n.translate('estimationDevice.activation.deactivated', 'MDC', 'Data estimation on device {0} was deactivated successfully', [deviceId], false)
+                    ? Uni.I18n.translate('estimationDevice.activation.activated', 'MDC', 'Data estimation activated')
+                    : Uni.I18n.translate('estimationDevice.activation.deactivated', 'MDC', 'Data estimation deactivated')
                 );
             },
             callback: function () {
