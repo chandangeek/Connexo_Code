@@ -135,6 +135,7 @@ public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.Serv
         usagePoint.setReadRoute(data.getReadRoute());
         usagePoint.setServicePriority(data.getServicePriority());
         usagePoint.setServiceDeliveryRemark(data.getServiceDeliveryRemark());
+        updateCustomPropertySetsValues(usagePoint, data);
         usagePoint.update();
         this.addCalendars(data, usagePoint);
         return usagePoint;
@@ -198,6 +199,37 @@ public class UsagePointImportHelper implements OutOfTheBoxCategoryForImport.Serv
                             values = customPropertySetRecord.getCustomPropertySetValues();
                         }
                         usagePointBuilder.addCustomPropertySetValues(customPropertySet.get(), values);
+                    }
+                }
+        );
+    }
+
+    private void updateCustomPropertySetsValues(UsagePoint usagePoint, UsagePointImportRecord data) {
+        data.getRegisteredCustomPropertySets().forEach((customPropertySetId, customPropertySetRecord) -> {
+                    CustomPropertySetValues values = null;
+                    Optional<RegisteredCustomPropertySet> customPropertySet = context.getCustomPropertySetService()
+                            .findActiveCustomPropertySet(customPropertySetId);
+                    if (customPropertySet.isPresent()) {
+                        if ((customPropertySet.get().getCustomPropertySet()).isVersioned()) {
+                            Range<Instant> rangeToCreate = getRangeToCreate(customPropertySetRecord);
+                            if (!rangeToCreate.hasLowerBound()) {
+                                rangeToCreate = Range.atLeast(data.getInstallationTime().orElse(clock.instant()))
+                                        .intersection(rangeToCreate);
+                            }
+                            values = CustomPropertySetValues.emptyDuring(rangeToCreate);
+                            copyValues(customPropertySetRecord.getCustomPropertySetValues(), values);
+                        } else {
+                            values = customPropertySetRecord.getCustomPropertySetValues();
+                        }
+
+                        final CustomPropertySetValues valuesFinal = values;
+                        values.propertyNames().forEach(name -> {
+                            usagePoint.forCustomProperties().getAllPropertySets()
+                                    .stream()
+                                    .filter(s -> s.getValues().propertyNames().stream().anyMatch(p -> p.equals(name)))
+                                    .forEach(usagePointPropertySet -> usagePointPropertySet.setValues(valuesFinal));
+                        });
+                        System.out.println("test");
                     }
                 }
         );
