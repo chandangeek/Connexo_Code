@@ -261,10 +261,8 @@ Ext.define('Uni.property.form.Property', {
 
     markInvalid: function (errors) {
         var me = this;
-
         Ext.each(errors, function (error) {
             if (!!me.getPropertyField(error.id)) {
-                console.log(me.getPropertyField(error.id));
                 me.getPropertyField(error.id).markInvalid(error.msg);
             }
         });

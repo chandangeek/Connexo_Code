@@ -28,8 +28,7 @@ Ext.define('Uni.property.view.property.ObisCodeCombo', {
         // clear store
         me.referencesStore.loadData([], false);
         _.map(me.getProperty().getPossibleValues(), function (item) {
-            me.referencesStore.add({key: item.value, value: item.value, description: item.description, a: item.a, b: item.b, c: item.c, d: item.d, e: item.e, f: item.f,
-                lastBillingPeriod: item.lastBillingPeriod, currentBillingPeriod: item.currentBillingPeriod, relativeBillingPeriod: item.relativeBillingPeriod, ln: item.ln});
+            me.referencesStore.add({key: item, value: item});
         });
 
         return {
@@ -60,7 +59,7 @@ Ext.define('Uni.property.view.property.ObisCodeCombo', {
 
                 if (value) {
                     result = Ext.Array.findBy(me.getProperty().getPossibleValues(), function (item) {
-                        return value == item.value;
+                        return value == item;
                     });
                     result = Ext.isObject(result) ? result.value : value;
                 }

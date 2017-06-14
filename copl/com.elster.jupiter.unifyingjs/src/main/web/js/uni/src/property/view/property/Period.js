@@ -53,6 +53,7 @@ Ext.define('Uni.property.view.property.Period', {
 
     getComboCmp: function () {
         var store = Ext.create('Ext.data.Store', {
+            storeId:  this.key,
             fields: [
                 {name: 'key', type: 'string'},
                 {name: 'value', type: 'string'}
@@ -180,6 +181,14 @@ Ext.define('Uni.property.view.property.Period', {
         }
 
         return null;
+    },
+
+    markInvalid: function (error) {
+        this.down('numberfield').markInvalid(error);
+    },
+
+    clearInvalid: function () {
+        this.down('numberfield') && this.down('numberfield').clearInvalid();
     },
 
     getValueAsDisplayString: function (value) {
