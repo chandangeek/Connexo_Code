@@ -13,6 +13,7 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.impl.search.UsagePointSearchDomain;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
@@ -40,16 +41,15 @@ public class ItemizerMessageHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile SearchService searchService;
     private volatile MeteringService meteringService;
+    private volatile SearchDomain usagePointSearchDomain;
 
     @Override
     public MessageHandler newMessageHandler() {
-        SearchDomain searchDomain = searchService.findDomain(UsagePoint.class.getName())
-                .orElseThrow(() -> new IllegalStateException("Search domain for usage points not found"));
         return message -> {
             DestinationSpec destinationSpec = messageService.getDestinationSpec(UsagePointDataModelService.BULK_HANDLING_QUEUE_DESTINATION)
                     .orElseThrow(() -> new IllegalStateException("Queue " + UsagePointDataModelService.BULK_HANDLING_QUEUE_DESTINATION + " does not exist"));
             ItemizeAddCalendarMessage queueMessage = jsonService.deserialize(message.getPayload(), ItemizeAddCalendarMessage.class);
-            Stream<UsagePoint> usagePointStream = toUsagePointStream(searchDomain, queueMessage.getUsagePointFilter(), queueMessage.getUsagePointMRIDs());
+            Stream<UsagePoint> usagePointStream = toUsagePointStream(usagePointSearchDomain, queueMessage.getUsagePointFilter(), queueMessage.getUsagePointMRIDs());
             usagePointStream.flatMap(usagePoint -> toMessagesStream(usagePoint, queueMessage.getCalendarIds(), queueMessage.isImmediately(), queueMessage.getStartTime()))
                     .map(jsonService::serialize)
                     .map(destinationSpec::message)
@@ -57,7 +57,7 @@ public class ItemizerMessageHandlerFactory implements MessageHandlerFactory {
         };
     }
 
-    Stream<UsagePoint> toUsagePointStream(SearchDomain searchDomain, UsagePointFilter usagePointFilter, List<String> usagePointMRIDs) {
+    private Stream<UsagePoint> toUsagePointStream(SearchDomain searchDomain, UsagePointFilter usagePointFilter, List<String> usagePointMRIDs) {
         if (usagePointFilter != null) {
             return usagePointStream(searchDomain, usagePointFilter);
         } else if (usagePointMRIDs != null) {
@@ -91,7 +91,7 @@ public class ItemizerMessageHandlerFactory implements MessageHandlerFactory {
         }
     }
 
-    Stream<AddCalendarMessage> toMessagesStream(UsagePoint usagePoint, List<Long> calendarIds, boolean immediately, long startTime) {
+    private Stream<AddCalendarMessage> toMessagesStream(UsagePoint usagePoint, List<Long> calendarIds, boolean immediately, long startTime) {
         return calendarIds.stream()
                 .map(calendarId -> new AddCalendarMessage(usagePoint.getId(), calendarId, immediately, startTime));
     }
@@ -120,5 +120,10 @@ public class ItemizerMessageHandlerFactory implements MessageHandlerFactory {
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference(target = "(name=" + UsagePointSearchDomain.USAGE_POINT_SEARCH_DOMAIN + ")")
+    public void setUsagePointSearchDomain(SearchDomain searchDomain) {
+        usagePointSearchDomain = searchDomain;
     }
 }
