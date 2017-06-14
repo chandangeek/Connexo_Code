@@ -117,26 +117,26 @@ Ext.define('Mdc.model.HistoryChannel', {
                     bulk = data.bulkValidationInfo;
 
                 if (delta) {
-                    result.delta.suspect = delta ? delta.validationResult.split('.')[1] == 'suspect' : false;
-                    delta.validationResult == 'validationStatus.notValidated' ? result.delta.notValidated = true : result.delta.notValidated = false
+                    result.delta.suspect = delta ? delta.validationResult.split('.')[1] === 'suspect' : false;
+                    result.delta.notValidated = delta.validationResult === 'validationStatus.notValidated' ? true : false;
 
-                    if (delta.action == 'FAIL') {
+                    if (delta.action === 'FAIL') {
                         result.delta.suspect = true;
                         result.delta['informative'] = false;
                     }
-                    if (delta.action == 'WARN_ONLY') {
-                        result.delta.suspect ? result.delta['informative'] = false : result.delta['informative'] = true;
+                    if (delta.action === 'WARN_ONLY') {
+                        result.delta['informative'] = result.delta.suspect ? false : true;
                     }
                 }
                 if (bulk) {
-                    bulk.validationResult == 'validationStatus.notValidated' ? result.bulk.notValidated = true : result.bulk.notValidated = false
+                    result.bulk.notValidated = bulk.validationResult === 'validationStatus.notValidated' ? true : false;
 
-                    if (bulk.action == 'FAIL') {
+                    if (bulk.action === 'FAIL') {
                         result.bulk.suspect = true;
                         result.bulk.informative = false;
                     }
-                    if (bulk.action == 'WARN_ONLY') {
-                        result.bulk.suspect ? result.bulk.informative = false : result.bulk.informative = true;
+                    if (bulk.action === 'WARN_ONLY') {
+                        result.bulk.informative = result.bulk.suspect ? false : true;
                     }
                 }
                 return result;
