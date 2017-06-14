@@ -78,6 +78,7 @@ Ext.define('Imt.controller.History', {
                             route: 'transitions/{transitionId}',
                             controller: 'Imt.usagepointmanagement.controller.UsagePointTransitionExecute',
                             action: 'showExecuteTransition',
+                            privileges: Imt.privileges.UsagePoint.view,
                             callback: function (route) {
                                 this.getApplication().on('loadUsagePointTransition', function (record) {
                                     route.setTitle(record.get('name'));
@@ -90,6 +91,7 @@ Ext.define('Imt.controller.History', {
                         attributes: {
                             title: Uni.I18n.translate('general.usagePointAttributes', 'IMT', 'Usage point attributes'),
                             route: 'attributes',
+                            privileges: Imt.privileges.UsagePoint.view,
                             controller: 'Imt.usagepointmanagement.controller.Attributes',
                             action: 'showUsagePointAttributes'
                         },
@@ -186,13 +188,13 @@ Ext.define('Imt.controller.History', {
                             title: Uni.I18n.translate('general.serviceCalls', 'IMT', 'Service calls'),
                             route: 'servicecalls',
                             controller: 'Imt.servicecalls.controller.ServiceCalls',
-                            privileges: Imt.privileges.UsagePoint.view,
+                            privileges: Scs.privileges.ServiceCall.view,
                             action: 'showServiceCalls',
                             items: {
                                 history: {
                                     title: Uni.I18n.translate('general.history', 'IMT', 'History'),
                                     route: 'history',
-                                    privileges: Imt.privileges.UsagePoint.view,
+                                    privileges: Scs.privileges.ServiceCall.view,
                                     controller: 'Imt.servicecalls.controller.ServiceCalls',
                                     action: 'showServiceCallHistory'
                                 }
@@ -367,6 +369,7 @@ Ext.define('Imt.controller.History', {
                     route: 'device/{deviceId}',
                     controller: 'Imt.devicemanagement.controller.Device',
                     action: 'showDevice',
+                    privileges: Imt.privileges.UsagePoint.view,
                     callback: function (route) {
                         this.getApplication().on('deviceloaded', function (record) {
                             route.setTitle('Device ' + record.get('name'));
@@ -392,6 +395,7 @@ Ext.define('Imt.controller.History', {
                         add: {
                             title: Uni.I18n.translate('general.label.metrologyconfiguration.add', 'IMT', 'Add metrology configuration'),
                             route: 'add',
+                            privileges: Imt.privileges.MetrologyConfig.admin,
                             controller: 'Imt.metrologyconfiguration.controller.Edit',
                             action: 'createMetrologyConfiguration'
                         },
@@ -414,12 +418,14 @@ Ext.define('Imt.controller.History', {
                                     title: Uni.I18n.translate('general.label.metrologyconfiguration.edit', 'IMT', 'Edit'),
                                     route: 'edit',
                                     controller: 'Imt.metrologyconfiguration.controller.Edit',
+                                    privileges: Imt.privileges.MetrologyConfig.admin,
                                     action: 'editMetrologyConfiguration'
                                 },
                                 manage: {
                                     title: Uni.I18n.translate('general.label.metrologyconfiguration.valruleset.manage', 'IMT', 'Link validation rule sets'),
                                     route: 'manage',
                                     controller: 'Imt.metrologyconfiguration.controller.Edit',
+                                    privileges: Imt.privileges.MetrologyConfig.admin,
                                     action: 'manageValidationRuleSets'
                                 },
                                 customAttributeSets: {
@@ -534,12 +540,14 @@ Ext.define('Imt.controller.History', {
                                     route: 'states',
                                     controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
                                     action: 'showUsagePointLifeCycleStates',
+                                    privileges: Imt.privileges.UsagePointLifeCycle.view,
                                     items: {
                                         add: {
                                             title: Uni.I18n.translate('usagePointLifeCycleStates.add', 'IMT', 'Add state'),
                                             route: 'add',
                                             controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
                                             action: 'showUsagePointLifeCycleStateEdit',
+                                            privileges: Imt.privileges.UsagePointLifeCycle.configure,
                                             items: {
                                                 addEntryProcesses: {
                                                     title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'IMT', 'Add processes'),
@@ -560,6 +568,7 @@ Ext.define('Imt.controller.History', {
                                             route: '{id}/edit',
                                             controller: 'Imt.usagepointlifecyclestates.controller.UsagePointLifeCycleStates',
                                             action: 'showUsagePointLifeCycleStateEdit',
+                                            privileges: Imt.privileges.UsagePointLifeCycle.configure,
                                             callback: function (route) {
                                                 this.getApplication().on('loadlifecyclestate', function (record) {
                                                     route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [record.get('name')], false));
@@ -589,18 +598,21 @@ Ext.define('Imt.controller.History', {
                                     route: 'transitions',
                                     controller: 'Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTransitions',
                                     action: 'showUsagePointLifeCycleTransitions',
+                                    privileges: Imt.privileges.UsagePointLifeCycle.configure,
                                     items: {
                                         add: {
                                             title: Uni.I18n.translate('general.addTransition', 'IMT', 'Add transition'),
                                             route: 'add',
                                             controller: 'Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTransitions',
-                                            action: 'showAddUsagePointLifeCycleTransition'
+                                            action: 'showAddUsagePointLifeCycleTransition',
+                                            privileges: Imt.privileges.UsagePointLifeCycle.configure
                                         },
                                         edit: {
                                             title: Uni.I18n.translate('general.edit', 'IMT', 'Edit'),
                                             route: '{transitionId}/edit',
                                             controller: 'Imt.usagepointlifecycletransitions.controller.UsagePointLifeCycleTransitions',
                                             action: 'showAddUsagePointLifeCycleTransition',
+                                            privileges: Imt.privileges.UsagePointLifeCycle.configure,
                                             callback: function (route) {
                                                 this.getApplication().on('usagePointLifeCycleTransitionEdit', function (record) {
                                                     route.setTitle(Uni.I18n.translate('general.editx', 'IMT', "Edit '{0}'", [record.get('name')]));
@@ -654,12 +666,13 @@ Ext.define('Imt.controller.History', {
             route: 'search',
             controller: 'Imt.controller.Search',
             action: 'showOverview',
+            privileges: Imt.privileges.UsagePoint.view,
             items: {
                 bulkaction: {
                     title: Uni.I18n.translate('general.bulkAction', 'IMT', 'Bulk action'),
                     route: 'bulk',
                     controller: 'Imt.controller.SearchItemsBulkAction',
-                    //    privileges: Mdc.privileges.Device.administrateDeviceOrDeviceCommunication,
+                    privileges: Imt.privileges.UsagePoint.view,
                     action: 'showBulkAction'
                 }
             }
@@ -669,6 +682,7 @@ Ext.define('Imt.controller.History', {
             route: 'dashboard',
             controller: 'Imt.dashboard.controller.OperatorDashboard',
             action: 'showOverview',
+            privileges: Imt.privileges.UsagePoint.view ,
             items: {
                 selectfavoriteusagepointgroups: {
                     title: Uni.I18n.translate('general.selectFavoriteUsagePointGroups', 'IMT', 'Select favourite usage point groups'),
