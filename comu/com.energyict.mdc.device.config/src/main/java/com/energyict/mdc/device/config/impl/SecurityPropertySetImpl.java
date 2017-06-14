@@ -475,12 +475,13 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Override
     public void setAuthenticationLevelId(int authenticationLevelId) {
         this.authenticationLevelId = authenticationLevelId;
-
+        this.authenticationLevel = null;
     }
 
     @Override
     public void setEncryptionLevelId(int encryptionLevelId) {
         this.encryptionLevelId = encryptionLevelId;
+        this.encryptionLevel = null;
     }
 
     @Override
@@ -497,16 +498,19 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Override
     public void setSecuritySuiteId(int securitySuiteId) {
         this.securitySuiteId = securitySuiteId;
+        this.securitySuite = null;
     }
 
     @Override
     public void setRequestSecurityLevelId(int requestSecurityLevelId) {
         this.requestSecurityLevelId = requestSecurityLevelId;
+        this.requestSecurityLevel = null;
     }
 
     @Override
     public void setResponseSecurityLevelId(int responseSecurityLevelId) {
         this.responseSecurityLevelId = responseSecurityLevelId;
+        this.responseSecurityLevel = null;
     }
 
     private static class NoAuthentication implements AuthenticationDeviceAccessLevel {
