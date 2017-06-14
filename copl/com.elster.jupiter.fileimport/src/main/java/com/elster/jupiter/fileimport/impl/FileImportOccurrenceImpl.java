@@ -81,7 +81,7 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
         }
         this.status = Status.PROCESSING;
 
-        MessageSeeds.FILE_IMPORT_STARTED.log(getLogger(),thesaurus);
+        MessageSeeds.FILE_IMPORT_STARTED.log(getLogger(), thesaurus);
         this.setStartDate(clock.instant());
         moveFile();
         save();
@@ -151,7 +151,7 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
         ensureStreamClosed();
         moveFile();
         save();
-        MessageSeeds.FILE_IMPORT_FINISHED.log(getLogger(),thesaurus);
+        MessageSeeds.FILE_IMPORT_FINISHED.log(getLogger(), thesaurus);
     }
 
     @Override
@@ -163,7 +163,7 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
         ensureStreamClosed();
         moveFile();
         save();
-        MessageSeeds.FILE_IMPORT_FINISHED.log(getLogger(),thesaurus);
+        MessageSeeds.FILE_IMPORT_FINISHED.log(getLogger(), thesaurus);
     }
 
     @Override
@@ -256,9 +256,8 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
                 fileUtils.move(filePath, target);
                 path = fileImportService.getBasePath().relativize(target);
             }
-        }
-        catch(Exception e){
-            getLogger().log(Level.SEVERE, e.getMessage(),e);
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE, e.getMessage(), e);
         }
     }
 

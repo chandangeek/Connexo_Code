@@ -91,6 +91,7 @@ class StreamImportMessageHandler implements MessageHandler {
                     handleException(fileImportOccurrence, ex);
                 });
             } finally {
+                fileImportOccurrence.save();
                 fileImportOccurrence = null;
             }
         }
