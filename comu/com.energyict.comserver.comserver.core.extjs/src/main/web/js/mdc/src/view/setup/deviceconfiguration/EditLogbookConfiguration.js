@@ -46,6 +46,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.EditLogbookConfiguration', {
                     xtype: 'fieldcontainer',
                     itemId: 'obis-code-container',
                     required: true,
+                    msgTarget: 'under',
                     width: 450,
                     layout: 'hbox',
                     fieldLabel: Uni.I18n.translate('logbooktype.obis', 'MDC', 'OBIS code'),

@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
             itemId: 'txt-load-profile-type-obis-code',
             fieldLabel: Uni.I18n.translate('loadProfileTypes.obisCode', 'MDC', 'OBIS code'),
             name: 'obisCode',
-            msgTarget: 'under',
+            msgTarget: 'under'
         },
         {
             xtype: 'fieldcontainer',

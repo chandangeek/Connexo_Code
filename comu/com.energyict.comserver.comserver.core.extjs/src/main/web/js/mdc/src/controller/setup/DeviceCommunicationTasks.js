@@ -114,6 +114,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         var selection = menu.record || this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0],
             isNotShared = selection.get('scheduleTypeKey') !== 'SHARED',
             isOnHold = selection.get('isOnHold'),
+            isSystemComtask = selection.get('comTask').isSystemComTask,
             connectionDefinedOnDevice = selection.get('connectionDefinedOnDevice'),
             isMinimizeConnections = !connectionDefinedOnDevice ? false : selection.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS';
 
@@ -124,14 +125,14 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
             menu.down('#changeUrgencyOfDeviceComTask').show();
         }
         if(menu.down('#runDeviceComTaskNow')) {
-            if (connectionDefinedOnDevice && !isOnHold) {
+            if (connectionDefinedOnDevice && !isOnHold && !isSystemComtask) {
                 menu.down('#runDeviceComTaskNow').show();
             } else {
                 menu.down('#runDeviceComTaskNow').hide();
             }
         }
         if(menu.down('#runDeviceComTask')) {
-            if (connectionDefinedOnDevice && !isOnHold && isMinimizeConnections) {
+            if (connectionDefinedOnDevice && !isOnHold && isMinimizeConnections && !isSystemComtask) {
                 menu.down('#runDeviceComTask').show();
             } else {
                 menu.down('#runDeviceComTask').hide();
@@ -141,19 +142,20 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
             menu.down('#viewHistoryOfDeviceComTask').show();
         }
         if(menu.down('#activateDeviceComTask')) {
-            if (isOnHold) {
+            if (isOnHold && !isSystemComtask) {
                 menu.down('#activateDeviceComTask').show();
             } else {
                 menu.down('#activateDeviceComTask').hide();
             }
         }
         if(menu.down('#deactivateDeviceComTask')) {
-            if (isOnHold) {
-                menu.down('#deactivateDeviceComTask').hide();
-            } else {
+            if (!isOnHold  && !isSystemComtask) {
                 menu.down('#deactivateDeviceComTask').show();
+            } else {
+                menu.down('#deactivateDeviceComTask').hide();
             }
         }
+        menu.reorderItems();
     },
 
     showDeviceCommunicationTaskPreview: function (selectionModel, record) {
