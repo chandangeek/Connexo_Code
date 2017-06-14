@@ -14,8 +14,6 @@ import com.elster.jupiter.fileimport.Status;
 
 import javax.inject.Inject;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
@@ -171,17 +169,6 @@ public class FileImportCommand {
         @Override
         public String getMessage() {
             throw new UnsupportedOperationException("Virtual file occurrence doesn't provide summary.");
-        }
-
-        @Override
-        public void save() {
-            // This method is empty by default
-        }
-
-        @Override
-        public Connection getCurrentConnection() throws SQLException {
-            // This method is empty by default
-            return null;
         }
     }
 }
