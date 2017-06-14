@@ -22,6 +22,8 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolUpgradeService;
 import com.energyict.mdc.upl.TypedProperties;
 
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
+
 import javax.inject.Inject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -196,6 +198,7 @@ public class InstallerImpl implements FullInstaller {
         if (securityPropertySet.getClientSecurityPropertySpec().isPresent()) {
             client = securityPropertySet.getClientSecurityPropertySpec().get().getValueFactory().fromStringValue(clientMacAddress);
         }
+        updateSecuritySuiteIfNeeded(securityPropertySet, device);
         securityPropertySet.setClient(client);
         securityPropertySet.getPropertySpecs().forEach(
                 propertySpec ->
@@ -205,6 +208,13 @@ public class InstallerImpl implements FullInstaller {
                         )
         );
         securityPropertySet.update();
+    }
+
+    private void updateSecuritySuiteIfNeeded(SecurityPropertySet securityPropertySet, Device device) {
+        if (device.getDeviceProtocolPluggableClass().isPresent() && device.getDeviceProtocolPluggableClass().get().getJavaClassName().equals(Beacon3100.class.getName())) {
+        	securityPropertySet.setSecuritySuiteId(0);  // Which corresponds to DlmsSecuritySuite1And2Support.SecuritySuite0
+                                                        // In 10.2 you could not configure the security suite, but were implicit using suite 0
+        }
     }
 
     private KeyAccessorType createNewKeyAccessorType(DeviceType deviceType, SecurityPropertySet securityPropertySet, PropertySpec propertySpec) {
