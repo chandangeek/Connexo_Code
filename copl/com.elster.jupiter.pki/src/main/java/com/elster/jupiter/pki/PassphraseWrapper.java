@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.pki;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.time.Instant;
 import java.util.Optional;
 
@@ -11,6 +13,7 @@ import java.util.Optional;
  * This class wraps an actual passphrase with the information required to read it from db or renew it.
  * Through the offering of PropertySpecs & properties, a generic interface is offered for the UI
  */
+@ConsumerType
 public interface PassphraseWrapper extends HasDynamicPropertiesWithUpdatableValues, SecurityValueWrapper {
 
     /**
