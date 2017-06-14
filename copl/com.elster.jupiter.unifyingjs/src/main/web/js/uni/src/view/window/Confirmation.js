@@ -17,6 +17,14 @@ Ext.define('Uni.view.window.Confirmation', {
      */
     green: false,
 
+    /**
+     * @cfg {Boolean}
+     *
+     * Indicates if you want the icon, the title and the confirmation button in orange.
+     * By default false.
+     */
+    orange: false,
+
     noConfirmBtn: false,
     cls: Uni.About.baseCssPrefix + 'confirmation-window',
     confirmBtnUi: 'remove',
@@ -70,6 +78,9 @@ Ext.define('Uni.view.window.Confirmation', {
         if (me.green) {
             me.cls = Uni.About.baseCssPrefix + 'confirmation-window-green';
             me.confirmBtnUi = 'action';
+        } else if (me.orange) {
+            me.cls = Uni.About.baseCssPrefix + 'confirmation-window-orange';
+            me.confirmBtnUi = 'confirm';
         }
         me.callParent(arguments);
 
@@ -168,9 +179,10 @@ Ext.define('Uni.view.window.Confirmation', {
     },
 
     show: function (config) {
+        var me = this;
         if (!Ext.isDefined(config.icon)) {
             Ext.apply(config, {
-                icon: 'icon-warning'
+                icon: me.green ? 'icon-info' : (me.orange ? 'icon-question' : 'icon-warning')
             });
         }
         if (!Ext.isDefined(config.closable)) {
