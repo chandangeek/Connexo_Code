@@ -157,8 +157,6 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                         afterrender: function (field) {
                             if (field.cell.record.get('isAddRow') == true) {
                                 field.setVisible(false);
-                            } else {
-                                // field.setValue(me.usagePoint.get('installationTime'));
                             }
                         }
                     }
