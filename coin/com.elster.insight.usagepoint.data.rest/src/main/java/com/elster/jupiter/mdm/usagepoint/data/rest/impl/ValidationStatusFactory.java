@@ -69,44 +69,37 @@ public class ValidationStatusFactory {
     public UsagePointValidationStatusInfo getValidationStatusInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract,
                                                                   Channel channel, Range<Instant> interval) {
         UsagePointValidationStatusInfo info = new UsagePointValidationStatusInfo();
-        if (effectiveMetrologyConfiguration.isComplete(metrologyContract)) {
-            ValidationEvaluator validationEvaluator = validationService.getEvaluator();
-            info.validationActive = validationEvaluator.isValidationEnabled(channel);
-            info.lastChecked = usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration.getUsagePoint(), metrologyContract.getMetrologyPurpose(), channel.getMainReadingType()).orElse(null);
-            if (interval != null) {
-                setReasonInfo(validationEvaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM), channel, Collections.emptyList(), interval != null ? interval : lastMonth()), info);
-            }
-            info.allDataValidated = validationEvaluator.isAllDataValidated(Collections.singletonList(channel));
-            info.hasSuspects = validationEvaluator.areSuspectsPresent(EnumSet.of(QualityCodeSystem.MDM), channel, interval != null ? interval : lastMonth());
+        ValidationEvaluator validationEvaluator = validationService.getEvaluator();
+        info.validationActive = validationEvaluator.isValidationEnabled(channel);
+        info.lastChecked = usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration.getUsagePoint(), metrologyContract.getMetrologyPurpose(), channel.getMainReadingType()).orElse(null);
+        if (interval != null) {
+            setReasonInfo(validationEvaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM), channel, Collections.emptyList(), interval != null ? interval : lastMonth()), info);
         }
+        info.allDataValidated = validationEvaluator.isAllDataValidated(Collections.singletonList(channel));
+        info.hasSuspects = validationEvaluator.areSuspectsPresent(EnumSet.of(QualityCodeSystem.MDM), channel, interval != null ? interval : lastMonth());
         return info;
-
     }
 
     public Map<ReadingTypeDeliverable, UsagePointValidationStatusInfo> getValidationStatusInfoForDeliverables(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
                                                                                                               MetrologyContract metrologyContract, Range<Instant> interval) {
-        if (effectiveMetrologyConfiguration.isComplete(metrologyContract)) {
-            ChannelsContainer container = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
-            ValidationEvaluator validationEvaluator = validationService.getEvaluator(container);
-            Map<ReadingTypeDeliverable, UsagePointValidationStatusInfo> result = new HashMap<>();
+        ChannelsContainer container = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
+        ValidationEvaluator validationEvaluator = validationService.getEvaluator(container);
+        Map<ReadingTypeDeliverable, UsagePointValidationStatusInfo> result = new HashMap<>();
 
-            for (ReadingTypeDeliverable readingTypeDeliverable : metrologyContract.getDeliverables()) {
-                UsagePointValidationStatusInfo info = new UsagePointValidationStatusInfo();
-                container.getChannel(readingTypeDeliverable.getReadingType()).ifPresent(channel -> {
-                    info.validationActive = validationEvaluator.isValidationEnabled(channel);
-                    info.lastChecked = usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration.getUsagePoint(), metrologyContract.getMetrologyPurpose(), readingTypeDeliverable.getReadingType()).orElse(null);
-                    info.allDataValidated = validationEvaluator.isAllDataValidated(Collections.singletonList(channel));
-                    info.hasSuspects = validationEvaluator.areSuspectsPresent(EnumSet.of(QualityCodeSystem.MDM), channel, interval != null ? interval : lastMonth());
-                    if (interval != null) {
-                        setReasonInfo(getValidationStatus(channel.getMainReadingType(), interval, validationEvaluator, effectiveMetrologyConfiguration, metrologyContract), info);
-                    }
-                });
-                result.put(readingTypeDeliverable, info);
-            }
-            return result;
-        } else {
-            return Collections.emptyMap();
+        for (ReadingTypeDeliverable readingTypeDeliverable : metrologyContract.getDeliverables()) {
+            UsagePointValidationStatusInfo info = new UsagePointValidationStatusInfo();
+            container.getChannel(readingTypeDeliverable.getReadingType()).ifPresent(channel -> {
+                info.validationActive = validationEvaluator.isValidationEnabled(channel);
+                info.lastChecked = usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration.getUsagePoint(), metrologyContract.getMetrologyPurpose(), readingTypeDeliverable.getReadingType()).orElse(null);
+                info.allDataValidated = validationEvaluator.isAllDataValidated(Collections.singletonList(channel));
+                info.hasSuspects = validationEvaluator.areSuspectsPresent(EnumSet.of(QualityCodeSystem.MDM), channel, interval != null ? interval : lastMonth());
+                if (interval != null) {
+                    setReasonInfo(getValidationStatus(channel.getMainReadingType(), interval, validationEvaluator, effectiveMetrologyConfiguration, metrologyContract), info);
+                }
+            });
+            result.put(readingTypeDeliverable, info);
         }
+        return result;
     }
 
     private List<DataValidationStatus> getValidationStatus(ReadingType readingType, Range<Instant> interval, ValidationEvaluator validationEvaluator,
@@ -130,16 +123,14 @@ public class ValidationStatusFactory {
 
     public UsagePointValidationStatusInfo getValidationStatusInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract, ChannelsContainer channelsContainer) {
         UsagePointValidationStatusInfo info = new UsagePointValidationStatusInfo();
-        if (effectiveMetrologyConfiguration.isComplete(metrologyContract)) {
-            // force update for validation statuses
-            // used here, since further methods (to get validation status) do not include status update
-            validationService.forceUpdateValidationStatus(channelsContainer);
-            ValidationEvaluator validationEvaluator = validationService.getEvaluator();
-            info.validationActive = validationService.isValidationActive(channelsContainer);
-            info.lastChecked = usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration.getUsagePoint(), metrologyContract.getMetrologyPurpose()).orElse(null);
-            info.allDataValidated = validationEvaluator.isAllDataValidated(channelsContainer);
-            info.hasSuspects = validationEvaluator.areSuspectsPresent(EnumSet.of(QualityCodeSystem.MDM), channelsContainer);
-        }
+        // force update for validation statuses
+        // used here, since further methods (to get validation status) do not include status update
+        validationService.forceUpdateValidationStatus(channelsContainer);
+        ValidationEvaluator validationEvaluator = validationService.getEvaluator();
+        info.validationActive = validationService.isValidationActive(channelsContainer);
+        info.lastChecked = usagePointDataCompletionService.getLastChecked(effectiveMetrologyConfiguration.getUsagePoint(), metrologyContract.getMetrologyPurpose()).orElse(null);
+        info.allDataValidated = validationEvaluator.isAllDataValidated(channelsContainer);
+        info.hasSuspects = validationEvaluator.areSuspectsPresent(EnumSet.of(QualityCodeSystem.MDM), channelsContainer);
         return info;
     }
 
