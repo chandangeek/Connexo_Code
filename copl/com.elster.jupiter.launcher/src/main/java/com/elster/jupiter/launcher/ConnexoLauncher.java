@@ -37,7 +37,7 @@ public class ConnexoLauncher {
             logger.severe("Could not determine valid installation directory !!");
             System.exit(1);
         }
-        registerShutdownHook();
+
         Map<String, String> configMap = null;
         try {
             configMap = loadConfig(installDir);
@@ -70,7 +70,10 @@ public class ConnexoLauncher {
         startFramework(configMap, installDir);
         if (install) {
             stopFramework();
+        } else {
+            registerShutdownHook();
         }
+
     }
 
     private static void stopFramework() {
