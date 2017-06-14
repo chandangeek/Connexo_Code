@@ -5,10 +5,11 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.util.HasId;
 
 import java.time.Instant;
 
-interface IReadingTypeDataExportItem extends ReadingTypeDataExportItem {
+interface IReadingTypeDataExportItem extends ReadingTypeDataExportItem, HasId {
 
     void setLastRun(Instant lastRun);
 
@@ -19,4 +20,6 @@ interface IReadingTypeDataExportItem extends ReadingTypeDataExportItem {
     void activate();
 
     void deactivate();
+
+    void clearCachedReadingContainer();
 }

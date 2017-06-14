@@ -5,7 +5,6 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
-import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
@@ -64,6 +63,11 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     }
 
     @Override
+    public long getId() {
+        return id;
+    }
+
+    @Override
     public Optional<Instant> getLastRun() {
         return Optional.ofNullable(lastRun);
     }
@@ -103,7 +107,7 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
 
     @Override
     public void update() {
-        Save.UPDATE.save(dataModel, this);
+        dataModel.update(this);
     }
 
     @Override
@@ -151,5 +155,10 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
         } else {
             throw new IllegalStateException("Unexpected domain object linked to export item");
         }
+    }
+
+    @Override
+    public void clearCachedReadingContainer() {
+        readingContainer.clearCachedObject();
     }
 }

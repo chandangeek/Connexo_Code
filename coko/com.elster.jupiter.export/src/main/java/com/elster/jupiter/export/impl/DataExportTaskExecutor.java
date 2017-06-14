@@ -90,6 +90,8 @@ class DataExportTaskExecutor implements TaskExecutor {
             throw ex;
         } finally {
             try (TransactionContext transactionContext = transactionService.getContext()) {
+                //Refetch dataExportOccurrence to avoid Optimistic Lock exceptions
+                dataExportOccurrence = findOccurrence(occurrence);
                 if (thrown != null) {
                     if (thrown.getCause() instanceof DestinationFailedException) {
                         occurrenceLogger.log(Level.SEVERE, errorMessage, thrown);
