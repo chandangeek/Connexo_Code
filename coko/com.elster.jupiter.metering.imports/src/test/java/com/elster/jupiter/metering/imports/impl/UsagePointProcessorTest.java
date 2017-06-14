@@ -38,6 +38,8 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.usagepoint.lifecycle.UsagePointLifeCycleService;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 import com.elster.jupiter.util.YesNoAnswer;
@@ -49,9 +51,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Savepoint;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -186,14 +185,14 @@ public class UsagePointProcessorTest {
     @Mock
     private PropertySpec transitionSpec;
     @Mock
-    private Connection connection;
+    private TransactionService transactionService;
     @Mock
-    private Savepoint savepoint;
+    private TransactionContext transactionContext;
 
     private MeteringDataImporterContext context;
 
     @Before
-    public void initMocks() throws FileNotFoundException, SQLException {
+    public void initMocks() throws FileNotFoundException {
         when(meteringService.getLocationTemplate()).thenReturn(locationTemplate);
         when(templateFieldZipCode.getName()).thenReturn("zipCode");
         when(templateFieldZipCode.isMandatory()).thenReturn(false);
@@ -267,7 +266,7 @@ public class UsagePointProcessorTest {
         when(usagePointBuilder.create()).thenReturn(usagePoint);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategoryTwo);
         when(usagePoint.getDetail(any(Instant.class))).thenReturn(Optional.empty());
-        when(serviceCategoryTwo.newUsagePointDetail(any(),any())).thenReturn(usagePointDetail);
+        when(serviceCategoryTwo.newUsagePointDetail(any(), any())).thenReturn(usagePointDetail);
         when(serviceCategoryTwo.newUsagePoint(eq("DOA_UPS1_UP001"), any(Instant.class))).thenReturn(usagePointBuilder);
         when(serviceCategoryTwo.getKind()).thenReturn(ServiceKind.ELECTRICITY);
         when(usagePointBuilder.validate()).thenReturn(usagePoint);
@@ -280,7 +279,7 @@ public class UsagePointProcessorTest {
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
         when(thesaurus.getFormat(any(TranslationKey.class))).thenReturn(nlsMessageFormat);
         when(nlsMessageFormat.format()).thenReturn("message");
-        when(nlsMessageFormat.format(anyInt(),anyInt())).thenReturn("message");
+        when(nlsMessageFormat.format(anyInt(), anyInt())).thenReturn("message");
         when(usagePoint.newElectricityDetailBuilder(any(Instant.class))).thenReturn(usagePointDetailBuilder);
         when(usagePointDetailBuilder.withCollar(any(YesNoAnswer.class))).thenReturn(usagePointDetailBuilder);
         when(usagePointDetailBuilder.withGrounded(any(YesNoAnswer.class))).thenReturn(usagePointDetailBuilder);
@@ -310,14 +309,12 @@ public class UsagePointProcessorTest {
 
         when(usagePointLifeCycleService.getAvailableTransitions(anyObject(), "INS")).thenReturn(transitions);
         when(usagePointTransition.getName()).thenReturn("install active");
+        when(transactionService.getContext()).thenReturn(transactionContext);
 
         when(fileImportOccurrenceCorrect.getLogger()).thenReturn(logger);
         when(fileImportOccurrenceIncorrect.getLogger()).thenReturn(logger);
         when(fileImportOccurrenceCorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_correct.csv").getPath()));
         when(fileImportOccurrenceIncorrect.getContents()).thenReturn(new FileInputStream(getClass().getClassLoader().getResource("usagepoint_incorrect.csv").getPath()));
-        when(fileImportOccurrenceCorrect.getCurrentConnection()).thenReturn(connection);
-        when(fileImportOccurrenceIncorrect.getCurrentConnection()).thenReturn(connection);
-        when(connection.setSavepoint()).thenReturn(savepoint);
 
         context = spy(new MeteringDataImporterContext());
         context.setMeteringService(meteringService);
@@ -329,6 +326,7 @@ public class UsagePointProcessorTest {
         context.setPropertySpecService(propertySpecService);
         context.setThreadPrincipalService(threadPrincipalService);
         context.setClock(clock);
+        context.setTransactionService(transactionService);
         when(context.getThesaurus()).thenReturn(thesaurus);
     }
 
@@ -352,15 +350,13 @@ public class UsagePointProcessorTest {
     }
 
     @Test
-    public void testProcessWithInactiveMetrologyConfiguration() throws SQLException {
+    public void testProcessWithInactiveMetrologyConfiguration() {
         String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
-        when(occurrence.getCurrentConnection()).thenReturn(connection);
-        when(connection.setSavepoint()).thenReturn(savepoint);
         UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
 
         when(metrologyConfiguration.isActive()).thenReturn(false);
@@ -374,15 +370,13 @@ public class UsagePointProcessorTest {
     }
 
     @Test
-    public void testFailSetUnexistingMetrologyConfiguration() throws SQLException {
+    public void testFailSetUnexistingMetrologyConfiguration() {
         String content = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
         FileImportOccurrence occurrence = mock(FileImportOccurrence.class);
         when(occurrence.getLogger()).thenReturn(logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8"))));
-        when(occurrence.getCurrentConnection()).thenReturn(connection);
-        when(connection.setSavepoint()).thenReturn(savepoint);
         when(metrologyConfigurationService.findMetrologyConfiguration("SP10_DEMO_1")).thenReturn(Optional.empty());
 
         importer.process(occurrence);
@@ -392,7 +386,7 @@ public class UsagePointProcessorTest {
     }
 
     @Test
-    public void testSetMeterActivation() throws SQLException {
+    public void testSetMeterActivation() {
         String csv = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime;meter1;meterrole1;activationDate1\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00;meter;meter.role.default;28/07/2016 00:00";
         FileImporter importer = createUsagePointImporter();
@@ -400,8 +394,6 @@ public class UsagePointProcessorTest {
 
         when(occurrence.getLogger()).thenReturn(logger);
         when(occurrence.getContents()).thenReturn(new ByteArrayInputStream(csv.getBytes(Charset.forName("UTF-8"))));
-        when(occurrence.getCurrentConnection()).thenReturn(connection);
-        when(connection.setSavepoint()).thenReturn(savepoint);
         when(metrologyConfigurationService.findMetrologyConfiguration("SP10_DEMO_1")).thenReturn(Optional.of(metrologyConfiguration));
         when(usagePoint.linkMeters()).thenReturn(linker);
         when(meteringService.findMeterByName("meter")).thenReturn(Optional.of(meter));
@@ -417,7 +409,7 @@ public class UsagePointProcessorTest {
     }
 
     @Test
-    public void testPerformTransition() throws SQLException {
+    public void testPerformTransition() {
         String csv = "id;serviceKind;Created;MetrologyConfiguration;metrologyConfigurationTime;meter1;meterrole1;activationDate1;transition;transitionDate;transitionConnectionState\n" +
                 "DOA_UPS1_UP001;ELECTRICITY;28/07/2016 00:00;SP10_DEMO_1;28/07/2016 00:00;meter;meter.role.default;28/07/2016 00:00;Install active;28/07/2016 00:00;Connected";
         FileImporter importer = createUsagePointImporter();
@@ -426,8 +418,6 @@ public class UsagePointProcessorTest {
         PropertyInfo propertyInfo = mock(PropertyInfo.class);
 
         mockMeterActivation(occurrence, csv);
-        when(occurrence.getCurrentConnection()).thenReturn(connection);
-        when(connection.setSavepoint()).thenReturn(savepoint);
         when(usagePointLifeCycleService.getAvailableTransitions(any(UsagePoint.class), eq("INS"))).thenReturn(Collections.singletonList(usagePointTransition));
         when(usagePointTransition.getName()).thenReturn("Install active");
         when(usagePointTransition.getChecks()).thenReturn(Collections.emptySet());

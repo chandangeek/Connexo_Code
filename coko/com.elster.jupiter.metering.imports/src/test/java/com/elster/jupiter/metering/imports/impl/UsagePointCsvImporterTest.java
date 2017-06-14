@@ -22,9 +22,6 @@ import org.apache.commons.csv.CSVRecord;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Savepoint;
 import java.util.logging.Logger;
 
 import org.junit.Before;
@@ -38,7 +35,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -91,10 +87,6 @@ public class UsagePointCsvImporterTest {
     private Logger logger;
     @Mock
     private NlsMessageFormat simpleNlsMessageFormat;
-    @Mock
-    private Connection connection;
-    @Mock
-    private Savepoint savepoint;
 
     @Before
     public void beforeTest() {
@@ -132,12 +124,10 @@ public class UsagePointCsvImporterTest {
         return processor;
     }
 
-    private FileImportOccurrence mockFileImportOccurrence(String csv) throws SQLException {
+    private FileImportOccurrence mockFileImportOccurrence(String csv) {
         FileImportOccurrence importOccurrence = mock(FileImportOccurrence.class);
         when(importOccurrence.getLogger()).thenReturn(logger);
         when(importOccurrence.getContents()).thenReturn(new ByteArrayInputStream(csv.getBytes()));
-        when(importOccurrence.getCurrentConnection()).thenReturn(connection);
-        when(connection.setSavepoint()).thenReturn(savepoint);
         return importOccurrence;
     }
 

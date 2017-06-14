@@ -33,11 +33,11 @@ import com.elster.jupiter.metering.imports.impl.parsers.InstantParser;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheck;
 import com.elster.jupiter.usagepoint.lifecycle.ExecutableMicroCheckViolation;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointTransition;
 
-import javax.swing.plaf.nimbus.State;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.time.Instant;
@@ -63,7 +63,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
 
     @Override
     public void process(UsagePointImportRecord data, FileImportLogger logger) throws ProcessorException {
-        try {
+        try (TransactionContext context = getContext().getTransactionService().getContext()) {
             validate(data);
             UsagePoint usagePoint = getUsagePoint(data);
             if (usagePoint.getDetail(getClock().instant()).isPresent()) {
@@ -73,6 +73,7 @@ public class UsagePointsImportProcessor extends AbstractImportProcessor<UsagePoi
             }
             activateMeters(data, usagePoint);
             performUsagePointTransition(data, usagePoint);
+            context.commit();
         } catch (ConstraintViolationException e) {
             for (ConstraintViolation<?> violation : e.getConstraintViolations()) {
                 logger.warning(MessageSeeds.IMPORT_USAGEPOINT_CONSTRAINT_VOLATION, data.getLineNumber(),

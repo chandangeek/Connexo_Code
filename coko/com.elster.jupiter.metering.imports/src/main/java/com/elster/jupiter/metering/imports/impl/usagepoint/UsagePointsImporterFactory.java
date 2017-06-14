@@ -101,4 +101,9 @@ public class UsagePointsImporterFactory extends AbstractFileImporterFactory {
     public String getApplicationName() {
         return context.insightInstalled() ? "INS" : "MDC";
     }
+
+    @Override
+    public boolean requiresTransaction() {
+        return false;
+    }
 }
