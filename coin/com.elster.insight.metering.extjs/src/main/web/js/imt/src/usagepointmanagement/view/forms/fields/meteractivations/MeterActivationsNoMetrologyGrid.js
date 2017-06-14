@@ -60,7 +60,9 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                             store.filter({
                                 filterFn: function (item) {
                                     return field.cell.record.get('meterRole') == item.get('key') ||
-                                        me.getStore().find('meterRole', item.get('key')) == -1;
+                                        me.getStore().findBy(function (record) {
+                                            return record.get('meterRole').id === item.get('key');
+                                        }) === -1;
                                 }
                             });
                         }
@@ -155,6 +157,8 @@ Ext.define('Imt.usagepointmanagement.view.forms.fields.meteractivations.MeterAct
                         afterrender: function (field) {
                             if (field.cell.record.get('isAddRow') == true) {
                                 field.setVisible(false);
+                            } else {
+                                // field.setValue(me.usagePoint.get('installationTime'));
                             }
                         }
                     }
