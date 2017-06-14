@@ -31,6 +31,7 @@ Ext.define('Imt.purpose.model.Reading', {
         {name: 'modificationDate', type: 'auto'},
         {name: 'calendarName', type: 'string'},
         {name: 'partOfTimeOfUseGap', type: 'auto'},
+        {name: 'channelPeriodType', type: 'string', defaultValue: 'other'},
         'plotband',
         {
             name: 'readingProperties',
@@ -41,18 +42,17 @@ Ext.define('Imt.purpose.model.Reading', {
 
                 if (data.validationResult) {
                     validationResult = data.validationResult.split('.')[1];
-                    result.suspect = validationResult == 'suspect';
-                    validationResult == 'notValidated' ? result.notValidated = true : result.notValidated = false;
+                    result.suspect = validationResult === 'suspect';
+                    result.notValidated = validationResult === 'notValidated' ? true : false;
 
-                    if (data.action == 'FAIL') {
+                    if (data.action === 'FAIL') {
                         result.suspect = true;
                         result['informative'] = false;
                     }
-                    if (data.action == 'WARN_ONLY') {
-                        result.suspect ? result['informative'] = false : result['informative'] = true;
+                    if (data.action === 'WARN_ONLY') {
+                        result['informative'] = result.suspect ? false : true;
                     }
                 }
-
                 return result;
             }
         },

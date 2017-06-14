@@ -32,14 +32,19 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
 
     createTooltip: function (tooltip) {
         var me = this,
-            html = '<b style=" color: #74af74; font-size: 14px; ">' + Uni.DateTime.formatDateLong(new Date(tooltip.x)),
+            html = '<b style=" color: #74af74; font-size: 14px; ">',
             editedIcon = '<span class="icon-pencil4" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>',
             point = tooltip.point,
+            isInterval = tooltip.point.channelPeriodType === 'interval',
+            isMonth = tooltip.point.channelPeriodType === 'monthly',
+            isYear = tooltip.point.channelPeriodType === 'yearly',
             qualityIcon = '',
             icon,
-            bgColor,
             value;
 
+        if (isInterval) {
+            html += Uni.DateTime.formatDateLong(new Date(tooltip.x)) + '<br/>';
+        }
         if (point && point.suspect) {
             icon = '<span class="icon-flag5" style="margin-left:4px; display:inline-block; vertical-align:top; color:red"></span>';
         } else if (point && point.notValidated) {
@@ -56,10 +61,19 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
             value = point.y ? point.y + ' ' + point.unitOfMeasure : Uni.I18n.translate('general.missing', 'IMT', 'Missing');
         }
 
-        html += '<br/>' + Uni.I18n.translate('devicechannels.interval', 'IMT', 'Interval') + ' ' + Uni.DateTime.formatTimeShort(new Date(point.x));
-        html += ' - ' + Uni.DateTime.formatTimeShort(new Date(point.intervalEnd)) + qualityIcon + '</b><br>';
+        if (isInterval) {
+            html += Uni.I18n.translate('general.interval', 'MDC', 'Interval') + ' ' + Uni.DateTime.formatTimeShort(new Date(point.x));
+            html += ' - ' + Uni.DateTime.formatTimeShort(new Date(point.intervalEnd));
+        } else if (isMonth) {
+            html += Ext.Date.format(new Date(point.x), 'M Y');
+        } else if (isYear) {
+            html += Ext.Date.format(new Date(point.x), 'Y');
+        } else {
+            html += Uni.DateTime.formatDateTime(new Date(point.x), Uni.DateTime.LONG, Uni.DateTime.SHORT);
+            html += ' - ' + Uni.DateTime.formatDateTime(new Date(point.intervalEnd), Uni.DateTime.LONG, Uni.DateTime.SHORT);
+        }
+        html += (qualityIcon + '</b><br>');
         html += '<table style="margin-top: 10px; color: #686868; font-size: 14px;"><tbody>';
-        bgColor = point.tooltipColor;
         html += '<tr><td colspan="2"><b>' + Uni.I18n.translate('general.value', 'IMT', 'Value') + '</b>&nbsp;' + value + (icon ? icon : '') + (point.edited ? editedIcon : '') + '</td></tr>';
 
         if (!Ext.isEmpty(point.validationRules)) {
@@ -67,8 +81,6 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
         }
 
         html += '</tbody></table>';
-
-        html = '<div style="background-color: ' + bgColor + '; padding: 8px">' + html + '</div>';
         return html;
     },
 

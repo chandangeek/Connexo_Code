@@ -270,6 +270,7 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             point.unitOfMeasure = unitOfMeasure;
             point.color = okColor;
             point.tooltipColor = tooltipOkColor;
+            point.channelPeriodType = record.get('channelPeriodType');
             if (!Ext.isEmpty(readinqQualities)) {
                 point.showQualityIcon = _.find(readinqQualities, function (rq) {
                     return rq.cimCode.slice(0,2) != '3.';
