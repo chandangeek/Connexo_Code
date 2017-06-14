@@ -198,7 +198,13 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
                 .map(ArrayList::new)
                 .collect(Collectors.toList());
         boolean fullyValidated = validationConfigured && mainChannelValidationsPerSystemMultimap.asMap().entrySet().stream().map(entry -> {
-            boolean validated = wasValidated(ChannelValidationContainer.getLastChecked(entry.getValue()).orElse(null), timeStamp);
+
+            boolean validated = wasValidated(ChannelValidationContainer.getLastChecked(entry.getValue())
+                            .filter(lastChecked -> lastChecked.isAfter(entry.getValue().stream()
+                                    .map(channelValidation -> channelValidation.getChannel().getChannelsContainer().getStart())
+                                    .findAny()
+                                    .orElse(lastChecked)))
+                            .orElse(null), timeStamp);
             if (validated) {
                 int i = 0;
                 for (CimChannel channel : channels) {
