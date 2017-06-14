@@ -16,20 +16,23 @@ public class RegisterOverflowValueValidator implements ConstraintValidator<Regis
 
     @Override
     public boolean isValid(NumericalRegisterSpecImpl registerSpec, ConstraintValidatorContext constraintValidatorContext) {
-            if (registerSpec.getReadingType().isCumulative() && !registerSpec.getOverflowValue().isPresent()) {
+            if ( (registerSpec.getReadingType()==null && !registerSpec.getOverflowValue().isPresent())
+                 ||
+                 (registerSpec.getReadingType()!=null && registerSpec.getReadingType().isCumulative() && !registerSpec.getOverflowValue().isPresent())
+               ) {
                 constraintValidatorContext.disableDefaultConstraintViolation();
                 constraintValidatorContext
-                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-                        .addPropertyNode("overflow")
-                        .addConstraintViolation();
+                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+                    .addPropertyNode("overflow")
+                    .addConstraintViolation();
                 return false;
             }
             if (registerSpec.getOverflowValue().isPresent() && registerSpec.getOverflowValue().get().compareTo(BigDecimal.ZERO) < 1) {
                 constraintValidatorContext.disableDefaultConstraintViolation();
                 constraintValidatorContext
-                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE + "}")
-                        .addPropertyNode("overflow")
-                        .addConstraintViolation();
+                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE + "}")
+                    .addPropertyNode("overflow")
+                    .addConstraintViolation();
                 return false;
             }
         return true;

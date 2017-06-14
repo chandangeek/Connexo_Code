@@ -15,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -35,7 +36,25 @@ class UpgraderV10_3 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 3));
         initiateSimultaneousConnectionsForPartialConnectionTasks();
         moveProtocolDialectProperties();
+        deleteExpungedDeviceMessages();
         migrateDialectNames();
+    }
+
+    /**
+     * Cfr CXO-7113: Some device commands have been removed from the code, we need to remove the db instances of these commands
+     */
+    private void deleteExpungedDeviceMessages() {
+        logger.fine("Removing obsolete device messaged (Beacon related)");
+        final String obsoleteDeviceMessageIds = "5009, 7003, 7007, 70118, 3007, 3008, 3009, 3010, 3011, 3012, 3013, 3014, 3015, 3020, 7024, 7026, 8025, 8026, 8027, 8028, 1401, 7051, 7052";
+        final List<String> sql = Arrays.asList(
+                "delete from DTC_MSGABLEMENTUSERACTION where DEVICEMESSAGEENABLEMENT in (select id from DTC_MESSAGEENABLEMENT where DEVICEMESSAGEID in ("+obsoleteDeviceMessageIds+"))",
+                "delete from DTC_MESSAGEENABLEMENT where DEVICEMESSAGEID in ("+obsoleteDeviceMessageIds+")");
+        dataModel.useConnectionRequiringTransaction(connection -> {
+            try (Statement statement = connection.createStatement()) {
+                sql.forEach(sqlCommand -> execute(statement, sqlCommand));
+            }
+        });
+
     }
 
     // Initiate Partial Connection Tasks: set simultaneousconnections to 1

@@ -32,6 +32,7 @@ class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements ServerL
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED + "}")
     private final Reference<LogBookType> logBookType = ValueReference.absent();
     private String overruledObisCodeString;
+    @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
     private ObisCode overruledObisCode;
     @SuppressWarnings("unused")
     private String userName;
@@ -66,6 +67,9 @@ class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements ServerL
     @Override
     public ObisCode getDeviceObisCode() {
         if (!Checks.is(this.overruledObisCodeString).empty()) {
+            if (overruledObisCode!=null && overruledObisCode.toString().equals(this.overruledObisCodeString)) {
+                return overruledObisCode; // to avoid making an invalid obis code valid
+            }
             this.overruledObisCode = ObisCode.fromString(this.overruledObisCodeString);
             return overruledObisCode;
         }

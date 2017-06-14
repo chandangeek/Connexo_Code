@@ -19,20 +19,23 @@ public class ChannelOverflowValueValidator implements ConstraintValidator<Channe
 
     @Override
     public boolean isValid(ChannelSpecImpl channelSpec, ConstraintValidatorContext constraintValidatorContext) {
-        if(channelSpec.getReadingType().isCumulative() && !channelSpec.getOverflow().isPresent()){
+        if( (channelSpec.getReadingType()==null && !channelSpec.getOverflow().isPresent())
+            ||
+            (channelSpec.getReadingType()!=null && channelSpec.getReadingType().isCumulative() && !channelSpec.getOverflow().isPresent())
+          ) {
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext
-                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-                    .addPropertyNode("overflow")
-                    .addConstraintViolation();
+                .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
+                .addPropertyNode("overflow")
+                .addConstraintViolation();
             return false;
         }
         if(channelSpec.getOverflow().isPresent() && channelSpec.getOverflow().get().compareTo(BigDecimal.ZERO) < 1){
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext
-                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_OVERFLOW_VALUE + "}")
-                    .addPropertyNode("overflow")
-                    .addConstraintViolation();
+                .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_OVERFLOW_VALUE + "}")
+                .addPropertyNode("overflow")
+                .addConstraintViolation();
             return false;
         }
         return true;

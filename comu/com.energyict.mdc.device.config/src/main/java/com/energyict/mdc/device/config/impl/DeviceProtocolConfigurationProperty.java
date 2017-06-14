@@ -74,7 +74,7 @@ class DeviceProtocolConfigurationProperty {
             return propertySpec.validateValue(actualValue);
         } catch (InvalidValueException e) {
             context.buildConstraintViolationWithTemplate(MessageFormat.format(e.getDefaultPattern(), e.getArguments()))
-                    .addPropertyNode("properties").addPropertyNode(propertySpec.getName()).addConstraintViolation()
+                    .addPropertyNode(propertySpec.getName()).addConstraintViolation()
                     .disableDefaultConstraintViolation();
             return false;
         }

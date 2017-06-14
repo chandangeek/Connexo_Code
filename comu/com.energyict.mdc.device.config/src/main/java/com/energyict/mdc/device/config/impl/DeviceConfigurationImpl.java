@@ -6,6 +6,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
@@ -80,6 +81,7 @@ import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.security.Principal;
@@ -1564,6 +1566,17 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
         private void apply() {
             protocolProperties.removeAll(this.obsoleteProperties.values());
+            Set<ConstraintViolation<?>> constraintViolations = new HashSet<>();
+            this.newProperties.values().forEach(prop -> {
+                try {
+                    Save.CREATE.validate(getDataModel(), prop);
+                } catch (VerboseConstraintViolationException e) {
+                    constraintViolations.addAll(e.getConstraintViolations());
+                }
+            });
+            if(constraintViolations.size() > 0 ) {
+                throw new VerboseConstraintViolationException(constraintViolations);
+            }
             protocolProperties.addAll(this.newProperties.values());
             this.newProperties.clear();
             this.obsoleteProperties.clear();
