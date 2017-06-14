@@ -6,7 +6,11 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CertificateWrapper;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 
 import org.osgi.service.component.annotations.Component;
@@ -19,8 +23,8 @@ import org.osgi.service.component.annotations.Reference;
 @Component(name="com.energyict.mdc.device.config.delete.certificate.eventhandler", service = TopicHandler.class, immediate = true)
 public class CertificateDeletionEventHandler implements TopicHandler {
 
-    private DeviceService deviceService;
-    private DeviceDataModelService deviceDataModelService;
+    private volatile DeviceService deviceService;
+    private volatile Thesaurus thesaurus;
 
     // OSGi
     public CertificateDeletionEventHandler() {
@@ -28,17 +32,17 @@ public class CertificateDeletionEventHandler implements TopicHandler {
     }
 
     // For testing purposes only
-    public CertificateDeletionEventHandler(DeviceService deviceService, DeviceDataModelService deviceDataModelService) {
+    public CertificateDeletionEventHandler(DeviceService deviceService, NlsService nlsService) {
         this();
         this.setDeviceService(deviceService);
-        this.setDeviceDataModelService(deviceDataModelService);
+        this.setNlsService(nlsService);
     }
 
     @Override
     public void handle(LocalEvent localEvent) {
         CertificateWrapper source = (CertificateWrapper) localEvent.getSource();
         if (this.deviceService.usedByKeyAccessor(source)) {
-            throw new VetoDeleteCertificateException(deviceDataModelService.thesaurus(), source);
+            throw new VetoDeleteCertificateException(thesaurus, source);
         }
     }
 
@@ -53,8 +57,8 @@ public class CertificateDeletionEventHandler implements TopicHandler {
     }
 
     @Reference
-    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
-        this.deviceDataModelService = deviceDataModelService;
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.SERVICE);
     }
 
 }
