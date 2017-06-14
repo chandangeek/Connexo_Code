@@ -208,7 +208,7 @@ public final class PlaintextSymmetricKeyImpl implements PlaintextSymmetricKey {
      */
     @KeySize(groups = {Save.Create.class, Save.Update.class}, message = "{"+MessageSeeds.Keys.INVALID_KEY_SIZE+"}")
     public class PropertySetter  {
-        @HexStringKey(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALID_VALUE + "}")
+        @HexStringKey(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALID_HEX_VALUE + "}")
         private String key; // field name must match property name
 
         PropertySetter(PlaintextSymmetricKeyImpl source) {

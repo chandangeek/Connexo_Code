@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = {HexStringValidator.class})
 public @interface HexStringKey {
 
-    String message() default "{com.elster.jupiter.validation.hexstring}";
+    String message() default "";
 
     Class<?>[] groups() default {};
 
